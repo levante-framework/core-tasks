@@ -1,0 +1,11 @@
+{
+  "default": {
+    "languageSpecific": {
+      "device": [],
+      "shared": []
+    },
+    "shared": [
+      "heart.png"
+    ]
+  }
+}
