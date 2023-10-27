@@ -3,9 +3,8 @@ import { mediaAssets } from '../experiment'
 
 let position = Math.round(Math.random())
 
-function random() {
+async function random() {
     position = Math.round(Math.random())
-    console.log({position})
 }
 
 export const heartStimulus = {
@@ -25,8 +24,9 @@ export const heartStimulus = {
     button_choices: ['left', 'right'],
     keyboard_choice: ['ArrowLeft', 'ArrowRight'],
     button_html: [`<div class='response-btn'></div>`, `<div class='response-btn'></div>`],
-    on_finish: (data) => {
-        position = random()
+    on_finish: async (data) => {
+        // Works but kinda weird. Probably a better way to do this / move the logic elsewhere
+        position = await random()
     }
 
     // DEFAULTS
