@@ -5,7 +5,9 @@
       "shared": []
     },
     "shared": [
-      "heart.png"
+      "heart.png",
+      "smilingFace.png",
+      "animal_whole.png"
     ]
   }
 }

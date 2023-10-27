@@ -13,13 +13,14 @@ import assets from '../../assets.json';
 // trials
 import { audioResponse } from './trials/audioFeedback';
 import { introductionTrials, postPracticeIntro } from './trials/introduction';
-import { practiceFeedback } from './trials/practiceFeedback';
 import { midBlockPageList, postBlockPageList, finalPage } from './trials/gameBreak';
 import { ifNotFullscreen, exitFullscreen } from './trials/fullScreen';
 import { setupFixationTest, setupFixationPractice } from './trials/setupFixation';
 import { lexicalityTest, leixcalityPractice } from './trials/stimulus';
 import { countdownTrials } from './trials/countdown';
 import { heartStimulus } from './trials/hearts';
+import {  practice1, practice2, practiceFeedbackRight, practiceFeedbackWrong } from './trials/heartPractice';
+import { instructions1, instructions2 } from './trials/instructions';
 
 const bucketURI = 'https://storage.googleapis.com/hearts-and-flowers';
 
@@ -57,7 +58,15 @@ export function buildExperiment(config) {
   });
 
   // introductionTrials, ifNotFullscreen,...initialTimeline.timeline,  countdownTrials
-  const timeline = [preloadTrials, ];
+  const timeline = [
+    preloadTrials, 
+    instructions1,
+    instructions2, 
+    practice1, 
+    practice2, 
+    practiceFeedbackRight, 
+    practiceFeedbackWrong
+  ];
 
   for (let i = 0; i < 10; i++) {
     timeline.push(heartStimulus)

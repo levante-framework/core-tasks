@@ -111,7 +111,7 @@ const webConfig = merge(commonConfig, {
   devtool: 'source-map',
   plugins: [
     new HtmlWebpackPlugin({
-      title: 'Rapid Online Assessment of Reading - SWR',
+      title: 'Hearts and Flowers',
     }),
     sentryWebpackPlugin({
       org: 'roar-89588e380',
