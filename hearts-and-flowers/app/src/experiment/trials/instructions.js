@@ -1,7 +1,7 @@
 import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response'
 import { mediaAssets } from '../experiment';
 
-export const instructions1 = {
+export const introduction = {
     type: jsPsychHTMLMultiResponse,
     stimulus: () => {
         return (
@@ -27,26 +27,35 @@ export const instructions1 = {
     on_finish: () =>  document.getElementById("jspsych-content").style.backgroundColor = 'white'
 }
 
-export const instructions2 = {
-    type: jsPsychHTMLMultiResponse,
-    stimulus: () => {
-        return (
-        `<div>
-            <h1>This is the heart game. Here's how you play it. </h1>
-            <div>
-                <img src=${mediaAssets.images.animalWhole} alt='Gray bear'/>
-            </div>
-        </div>`)
-    },
-    button_choices: ['Next'],
-    button_html: [
-        `<div class='next-btn'>
-            <p>Next</p>
-        </div>`
-    ],
-    on_load: () => {
-        const nextBtn = document.getElementById("jspsych-html-multi-response-btngroup")
-        nextBtn.style.justifyContent = 'end'
-        nextBtn.style.marginRight = '1rem'
-    },
-}
+const instructions = [
+    "This is the heart game. Here's how you play it.",
+    "This is the flower game. Here's how you play it.",
+]
+
+export const [heartInstructions, flowerInstructions] = instructions.map(instr => {
+    return (
+        {
+            type: jsPsychHTMLMultiResponse,
+            stimulus: () => {
+                return (
+                `<div>
+                    <h1>${instr}</h1>
+                    <div>
+                        <img src=${mediaAssets.images.animalWhole} alt='Gray bear'/>
+                    </div>
+                </div>`)
+            },
+            button_choices: ['Next'],
+            button_html: [
+                `<div class='next-btn'>
+                    <p>Next</p>
+                </div>`
+            ],
+            on_load: () => {
+                const nextBtn = document.getElementById("jspsych-html-multi-response-btngroup")
+                nextBtn.style.justifyContent = 'end'
+                nextBtn.style.marginRight = '1rem'
+            },
+        }
+    )
+})
