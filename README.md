@@ -8,14 +8,14 @@ Overview of the core behavioral tasks for LEVANTE. This repo contains details (a
 	- 3.5 is the youngest you can go
 	- practice trials: 6 hearts, 6 flowers, 6 mixed (1500ms + 500 ISI)
 	- test trials: 8 hearts, 12 flowers, 12 mixed (1500ms), 12 mixed (1250ms)
-	- 6+6+6+8+12+12+12 = 62 trials * 2s/trial = 2min — can’t save a lot of time in the task!
+	- 6+6+6+8+12+12+12 = 62 trials * 2s/trial = 2min — can’t save a lot of time in the task! 30s instruction?
 
 3. Corsi Block [EF: WM] [George]
 	- age-appropriate grid size could be set
 	- for pre-k, they only do the forward block (backward is too hard)
 
 4. Something’s the Same [EF: Cognitive Flexibility]
-	- Michael Sulik?
+	- asked Laura Kuhn for materials
 
 5. MEFS [EF] - external 
 	- Minnesota Executive Function Scale
