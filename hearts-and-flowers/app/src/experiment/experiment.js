@@ -10,17 +10,29 @@ import { jsPsych } from './jsPsych';
 import assets from '../../assets.json';
 
 // trials
-import { finalPage } from './trials/gameBreak';
 import { ifNotFullscreen, exitFullscreen } from './trials/fullScreen';
 import { heartStimulus } from './trials/hearts';
 import {  
-  heartPractice1, 
-  heartPractice2, 
-  flowerPractice1,
-  flowerPractice2,
-  practiceFeedbackRight, 
-  practiceFeedbackWrong } from './trials/practice';
-import { introduction, heartInstructions, flowerInstructions } from './trials/instructions';
+  reminderHeart,
+  reminderFlower,
+  heartPracticeBlock1,
+  heartPracticeBlock2,
+  flowerPracticeBlock1,
+  flowerPracticeBlock2,
+  reminderHeartBlock,
+  reminderFlowerBlock
+} from './trials/practice';
+import { 
+  introduction, 
+  heartInstructions, 
+  flowerInstructions, 
+  timeToPractice, 
+  keepUp, 
+  keepGoing, 
+  timeToPlay, 
+  heartsAndFlowers, 
+  endGame
+} from './trials/instructions';
 import { fixation } from './trials/setupFixation';
 
 const bucketURI = 'https://storage.googleapis.com/hearts-and-flowers';
@@ -63,38 +75,77 @@ export function buildExperiment(config) {
     preloadTrials, 
     introduction,
     heartInstructions,
-    heartPractice1,
-    heartPractice2,
-    // practiceFeedbackRight, 
-
-    // practiceFeedbackWrong
+    heartPracticeBlock1,
+    heartPracticeBlock2,
+    timeToPractice,
   ];
 
-  // // HEARTS
-  // for (let i = 0; i < 5; i++) {
-  //   timeline.push(fixation)
-  //   timeline.push(heartStimulus('heart'))
-  // }
+  // HEARTS
+  for (let i = 0; i < 2; i++) {
+    timeline.push(fixation)
+    timeline.push(heartStimulus('heart'))
+  }
+
+  timeline.push(reminderHeart)
+  timeline.push(keepUp)
+  timeline.push(keepGoing)
+  timeline.push(timeToPlay)
+
+  // HEARTS
+  for (let i = 0; i < 6; i++) {
+    timeline.push(fixation)
+    timeline.push(heartStimulus('heart'))
+  }
+
 
   timeline.push(flowerInstructions)
-  timeline.push(flowerPractice1)
-  timeline.push(flowerPractice2)
+  timeline.push(flowerPracticeBlock1)
+  timeline.push(flowerPracticeBlock2)
+  timeline.push(timeToPractice)
 
-  //FLOWERS
-  for (let i = 0; i < 5; i++) {
+  // FLOWERS
+  for (let i = 0; i < 2; i++) {
     timeline.push(fixation)
     timeline.push(heartStimulus('flower'))
   }
 
+  timeline.push(reminderFlower)
+  timeline.push(keepUp)
+  timeline.push(keepGoing)
+  timeline.push(timeToPlay)
+
+  // Flowers
+  for (let i = 0; i < 6; i++) {
+    timeline.push(fixation)
+    timeline.push(heartStimulus('flower'))
+  }
+
+  timeline.push(heartsAndFlowers)
+  timeline.push(reminderHeartBlock)
+  timeline.push(reminderFlowerBlock)
+  timeline.push(timeToPractice)
+
+
   //MIXED (BOTH)
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 2; i++) {
+    let random = Math.round(Math.random())
+    timeline.push(fixation)
+    timeline.push(heartStimulus(random <= 0.5 ? 'flower' : 'heart'))
+  }
+
+  timeline.push(keepUp)
+  timeline.push(keepGoing)
+  timeline.push(timeToPlay)
+
+  //MIXED (BOTH)
+  for (let i = 0; i < 6; i++) {
     let random = Math.round(Math.random())
     timeline.push(fixation)
     timeline.push(heartStimulus(random <= 0.5 ? 'flower' : 'heart'))
   }
 
 
-  timeline.push(finalPage, exitFullscreen);
+  timeline.push(endGame, exitFullscreen);
 
   return { jsPsych, timeline };
 }

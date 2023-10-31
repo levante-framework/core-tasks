@@ -13,4 +13,5 @@ export const fixation = {
   keyboard_choice: ['ArrowLeft', 'ArrowRight'],
   button_html: [`<div class='response-btn'></div>`, `<div class='response-btn'></div>`],
   trial_duration: 800,
+  response_ends_trial: false
 }

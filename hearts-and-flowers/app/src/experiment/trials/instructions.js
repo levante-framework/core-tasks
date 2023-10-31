@@ -7,8 +7,8 @@ export const introduction = {
         return (
         `<div class='instruction-page-1'>
             <h1 class='header-white'>Hearts and Flowers Game</h1>
-            <div>
-                <img src=${mediaAssets.images.animalWhole} alt='Gray bear'/>
+            <div >
+                <img id='instruction-graphic' src=${mediaAssets.images.animalWhole} alt='Gray bear'/>
             </div>
         </div>`)
     },
@@ -27,28 +27,70 @@ export const introduction = {
     on_finish: () =>  document.getElementById("jspsych-content").style.backgroundColor = 'white'
 }
 
-const instructions = [
-    "This is the heart game. Here's how you play it.",
-    "This is the flower game. Here's how you play it.",
+const instructionData = [
+    { text: "This is the heart game. Here's how you play it.",
+      buttonText: "Next",
+      image: () => mediaAssets.images.animalWhole
+    },
+    { text: "This is the flower game. Here's how you play it.",
+      buttonText: "Next",
+      image: () => mediaAssets.images.animalWhole
+    },
+    { text: "Time to practice!",
+      buttonText: "Go",
+      image: () => mediaAssets.images.animalWhole
+    },
+    { text: "This time the game will go faster. It won't tell you if you are right or wrong.",
+      buttonText: "Next",
+      image: () => mediaAssets.images.keepup,
+      bottomText: "Try to Keep up!"
+    },
+    { text: "Try to answer as fast as you can without making mistakes.",
+      buttonText: "Next",
+      image: () => mediaAssets.images.rocket,
+      bottomText: "If you make a mistake, just keep going!"
+    },
+    { text: "Time to play!",
+      buttonText: "Go",
+      image: () => mediaAssets.images.animalWhole
+    },
+    { text: "Now we're going to play a game with hearts and flowers.",
+      buttonText: "Next",
+      image: () => mediaAssets.images.animalWhole
+    },
+    { text: "Great job! You completed the game!.",
+      buttonText: "Close",
+      image: () => mediaAssets.images.animalWhole
+    },
 ]
 
-export const [heartInstructions, flowerInstructions] = instructions.map(instr => {
+export const [
+    heartInstructions, 
+    flowerInstructions, 
+    timeToPractice, 
+    keepUp, 
+    keepGoing, 
+    timeToPlay, 
+    heartsAndFlowers,
+    endGame
+] = instructionData.map(data => {
     return (
         {
             type: jsPsychHTMLMultiResponse,
             stimulus: () => {
                 return (
                 `<div>
-                    <h1>${instr}</h1>
-                    <div>
-                        <img src=${mediaAssets.images.animalWhole} alt='Gray bear'/>
+                    <h1>${data.text}</h1>
+                    <div >
+                        <img id='instruction-graphic' src=${data.image()} alt='Instruction graphic'/>
                     </div>
+                    ${data.bottomText ? `<p>${data.bottomText}</p>` : ''}
                 </div>`)
             },
             button_choices: ['Next'],
             button_html: [
                 `<div class='next-btn'>
-                    <p>Next</p>
+                    <p>${data.buttonText}</p>
                 </div>`
             ],
             on_load: () => {

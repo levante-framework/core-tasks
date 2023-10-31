@@ -61,14 +61,42 @@ const practiceTrials = practiceData.map((data, i) => {
                 }
 
             },
+            on_start: () => {
+                store.session.set("stimulus", data.stimulus)
+                store.session.set("side", i % 2 === 0 ? 'left' : 'right')
+            },
             button_choices: ['left', 'right'],
             keyboard_choice: ['ArrowLeft', 'ArrowRight'],
             button_html: [`<div class='response-btn'></div>`, `<div class='response-btn'></div>`],
             on_finish: (data) => {
-                // get response
-                // write to store
-
-                store.session.set('prevStimulus', data.stimulus)
+                console.log('data in practice: ', data)
+                if (store.session.get('stimulus') === 'heart') {
+                    if (data.button_response === 0 || data.button_response === 1) {
+                        if ((data.button_response === 0 && store.session.get('side') === 'left') ||
+                            (data.button_response === 1 && store.session.get('side') === 'right')
+                        ) {
+                            store.session.set('correct', true)
+                        } else {
+                            store.session.set('correct', false)
+                        }
+                    } else {
+                        // Add same logic for keyboard
+                        store.session.set('correct', data.keyboard_response)
+                    }
+                } else {
+                    if (data.button_response === 0 || data.button_response === 1) {
+                        if ((data.button_response === 0 && store.session.get('side') === 'right') ||
+                            (data.button_response === 1 && store.session.get('side') === 'left')
+                        ) {
+                            store.session.set('correct', true)
+                        } else {
+                            store.session.set('correct', false)
+                        }
+                    } else {
+                        // Add same logic for keyboard
+                        store.session.set('correct', data.keyboard_response)
+                    }
+                }
             },
         }
     )
@@ -83,41 +111,89 @@ export const [
     reminderFlower] = practiceTrials
 
 
-export const practiceFeedbackWrong = {
+
+export const practiceFeedback = {
     type: jsPsychHTMLMultiResponse,
     stimulus: () => {
-        return (
-            `<div id='stimulus-container'>
-                <div class='stimulus'>
-                    <img src='${mediaAssets.images.heart}' alt="heart or flower"/>
-                </div>
-                <div class='stimulus'>
-                    <p class='practice-text'>That's not right. Try again.</p>
-                </div>
-            </div>`
-        )
+        if (store.session.get("side") === 'left') {
+            return (
+                `<div id='stimulus-container'>
+                    <div class='stimulus'>
+                        <img src='${store.session.get('correct') === false ? mediaAssets.images[store.session.get('stimulus')] : mediaAssets.images.smilingFace}' alt="heart or flower"/>
+                    </div>
+                    <div class='stimulus'>
+                        <p class='practice-text'>
+                          ${store.session.get('correct') === false ? "That's not right. Try again." : "Great! That's right!"}
+                        </p>
+                    </div>
+                </div>`
+            )
+        } else {
+            return (
+                `<div id='stimulus-container'>
+                    <div class='stimulus'>
+                        <p class='practice-text'>
+                            ${store.session.get('correct') === false ? "That's not right. Try again." : "Great! That's right!"}
+                        </p>
+                    </div>
+                    <div class='stimulus'>
+                        <img src='${store.session.get('correct') === false ? mediaAssets.images[store.session.get('stimulus')] : mediaAssets.images.smilingFace}' alt="heart or flower"/>
+                    </div>
+
+                </div>`
+            )
+        }
     },
     button_choices: ['left', 'right'],
     keyboard_choice: ['ArrowLeft', 'ArrowRight'],
     button_html: [`<div class='response-btn'></div>`, `<div class='response-btn'></div>`],
-    trial_duration: () => {
-        // check if response was correct, if not show until correct choice is selected
-    }
+    trial_duration: 1200
 }
 
-export const practiceFeedbackRight = {
-    type: jsPsychHTMLMultiResponse,
-    stimulus: () => {
-        return (
-            `<div id='stimulus-container'>
-                <div class='stimulus'>
-                    <img src=${mediaAssets.images.smilingFace} alt="heart or flower"/>
-                </div>
-                <div class='stimulus'>
-                    <p class='practice-text'>Great! That's right!</p>
-                </div>
-            </div>`
-        )   
-    },
-    trial_duration: 1500
+export const heartPracticeBlock1 = {
+    timeline: [
+        heartPractice1,
+        practiceFeedback
+    ],
+    loop_function: (data) => store.session.get("correct") === false
+}
+
+export const heartPracticeBlock2 = {
+    timeline: [
+        heartPractice2,
+        practiceFeedback
+    ],
+    loop_function: (data) => store.session.get("correct") === false
+}
+
+export const flowerPracticeBlock1 = {
+    timeline: [
+        flowerPractice1,
+        practiceFeedback
+    ],
+    loop_function: (data) => store.session.get("correct") === false
+}
+
+export const flowerPracticeBlock2 = {
+    timeline: [
+        flowerPractice2,
+        practiceFeedback
+    ],
+    loop_function: (data) => store.session.get("correct") === false
+}
+
+export const reminderHeartBlock = {
+    timeline: [
+        reminderHeart,
+        practiceFeedback
+    ],
+    loop_function: (data) => store.session.get("correct") === false
+}
+
+export const reminderFlowerBlock = {
+    timeline: [
+        reminderFlower,
+        practiceFeedback
+    ],
+    loop_function: (data) => store.session.get("correct") === false
 }
