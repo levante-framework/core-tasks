@@ -6,21 +6,34 @@ import i18next from 'i18next';
 
 // setup
 import { initRoarJsPsych, initRoarTimeline } from './config/config';
-import { csvTransformed } from './config/corpus';
 import { jsPsych } from './jsPsych';
 import assets from '../../assets.json';
 
 // trials
-import { audioResponse } from './trials/audioFeedback';
-import { introductionTrials, postPracticeIntro } from './trials/introduction';
-import { midBlockPageList, postBlockPageList, finalPage } from './trials/gameBreak';
 import { ifNotFullscreen, exitFullscreen } from './trials/fullScreen';
-import { setupFixationTest, setupFixationPractice } from './trials/setupFixation';
-import { lexicalityTest, leixcalityPractice } from './trials/stimulus';
-import { countdownTrials } from './trials/countdown';
 import { heartStimulus } from './trials/hearts';
-import {  practice1, practice2, practiceFeedbackRight, practiceFeedbackWrong } from './trials/heartPractice';
-import { instructions1, instructions2 } from './trials/instructions';
+import {  
+  reminderHeart,
+  reminderFlower,
+  heartPracticeBlock1,
+  heartPracticeBlock2,
+  flowerPracticeBlock1,
+  flowerPracticeBlock2,
+  reminderHeartBlock,
+  reminderFlowerBlock
+} from './trials/practice';
+import { 
+  introduction, 
+  heartInstructions, 
+  flowerInstructions, 
+  timeToPractice, 
+  keepUp, 
+  keepGoing, 
+  timeToPlay, 
+  heartsAndFlowers, 
+  endGame
+} from './trials/instructions';
+import { fixation } from './trials/setupFixation';
 
 const bucketURI = 'https://storage.googleapis.com/hearts-and-flowers';
 
@@ -60,80 +73,79 @@ export function buildExperiment(config) {
   // introductionTrials, ifNotFullscreen,...initialTimeline.timeline,  countdownTrials
   const timeline = [
     preloadTrials, 
-    instructions1,
-    instructions2, 
-    practice1, 
-    practice2, 
-    practiceFeedbackRight, 
-    practiceFeedbackWrong
+    introduction,
+    heartInstructions,
+    heartPracticeBlock1,
+    heartPracticeBlock2,
+    timeToPractice,
   ];
 
-  for (let i = 0; i < 10; i++) {
-    timeline.push(heartStimulus)
+  // HEARTS
+  for (let i = 0; i < 2; i++) {
+    timeline.push(fixation)
+    timeline.push(heartStimulus('heart'))
   }
 
-  // // the core procedure
-  // const pushPracticeTotimeline = (array) => {
-  //   array.forEach((element) => {
-  //     const block = {
-  //       timeline: [setupFixationPractice, leixcalityPractice, audioResponse, practiceFeedback],
-  //       timeline_variables: [element],
-  //     };
-  //     timeline.push(block);
-  //   });
-  // };
+  timeline.push(reminderHeart)
+  timeline.push(keepUp)
+  timeline.push(keepGoing)
+  timeline.push(timeToPlay)
 
-  // const blockPracticeTrials = csvTransformed.practice.slice(0, config.totalTrialsPractice);
+  // HEARTS
+  for (let i = 0; i < 6; i++) {
+    timeline.push(fixation)
+    timeline.push(heartStimulus('heart'))
+  }
 
-  // pushPracticeTotimeline(blockPracticeTrials);
-  // timeline.push(postPracticeIntro);
-  // timeline.push(ifNotFullscreen);
 
-  // const coreProcedure = {
-  //   timeline: [setupFixationTest, lexicalityTest, audioResponse, ifCoinTracking],
-  // };
+  timeline.push(flowerInstructions)
+  timeline.push(flowerPracticeBlock1)
+  timeline.push(flowerPracticeBlock2)
+  timeline.push(timeToPractice)
 
-  // const pushTrialsTotimeline = (stimulusCounts) => {
-  //   for (let i = 0; i < stimulusCounts.length; i += 1) {
-  //     // for each block: add trials
-  //     /* add first half of block */
-  //     const roarMainProcBlock1 = {
-  //       timeline: [coreProcedure],
-  //       conditional_function: () => {
-  //         if (stimulusCounts[i] === 0) {
-  //           return false;
-  //         }
-  //         store.session.set('currentBlockIndex', i);
-  //         return true;
-  //       },
-  //       repetitions: Math.floor(stimulusCounts[i] / 2) + 1,
-  //     };
-  //     /* add second half of block */
-  //     const roarMainProcBlock2 = {
-  //       timeline: [coreProcedure],
-  //       conditional_function: () => stimulusCounts[i] !== 0,
-  //       repetitions: stimulusCounts[i] - 1 - Math.floor(stimulusCounts[i] / 2),
-  //     };
-  //     const totalMainProc = {
-  //       timeline: [
-  //         countdownTrials,
-  //         roarMainProcBlock1,
-  //         midBlockPageList[i],
-  //         ifNotFullscreen,
-  //         countdownTrials,
-  //         roarMainProcBlock2,
-  //       ],
-  //     };
-  //     timeline.push(totalMainProc);
-  //     if (i < stimulusCounts.length - 1) {
-  //       timeline.push(postBlockPageList[i]);
-  //       timeline.push(ifNotFullscreen);
-  //     }
-  //   }
-  // };
+  // FLOWERS
+  for (let i = 0; i < 2; i++) {
+    timeline.push(fixation)
+    timeline.push(heartStimulus('flower'))
+  }
 
-  // pushTrialsTotimeline(config.stimulusCountList);
-  timeline.push(finalPage, exitFullscreen);
+  timeline.push(reminderFlower)
+  timeline.push(keepUp)
+  timeline.push(keepGoing)
+  timeline.push(timeToPlay)
+
+  // Flowers
+  for (let i = 0; i < 6; i++) {
+    timeline.push(fixation)
+    timeline.push(heartStimulus('flower'))
+  }
+
+  timeline.push(heartsAndFlowers)
+  timeline.push(reminderHeartBlock)
+  timeline.push(reminderFlowerBlock)
+  timeline.push(timeToPractice)
+
+
+  //MIXED (BOTH)
+  for (let i = 0; i < 2; i++) {
+    let random = Math.round(Math.random())
+    timeline.push(fixation)
+    timeline.push(heartStimulus(random <= 0.5 ? 'flower' : 'heart'))
+  }
+
+  timeline.push(keepUp)
+  timeline.push(keepGoing)
+  timeline.push(timeToPlay)
+
+  //MIXED (BOTH)
+  for (let i = 0; i < 6; i++) {
+    let random = Math.round(Math.random())
+    timeline.push(fixation)
+    timeline.push(heartStimulus(random <= 0.5 ? 'flower' : 'heart'))
+  }
+
+
+  timeline.push(endGame, exitFullscreen);
 
   return { jsPsych, timeline };
 }
