@@ -102,18 +102,50 @@ export const getStimulus = (corpusType) => {
 // The blockSize is used to determine the spacing between the blocks, both horizontally and vertically. 
 // The gridSize determines the number of rows, and the number of columns is inferred from numBlocks / gridSize. 
 // This assumes numBlocks is perfectly divisible by gridSize for a square grid
-export function createGrid(x, y, numBlocks, blockSize, gridSize) {
+// export function createGrid(x, y, numBlocks, blockSize, gridSize) {
+//   let blocks = [];
+//   let numRows = gridSize;
+//   let numCols = numBlocks / gridSize;
+
+//   for (let row = 0; row < numRows; row++) {
+//       for (let col = 0; col < numCols; col++) {
+//           let blockX = x + col * blockSize;
+//           let blockY = y + row * blockSize;
+//           blocks.push({ x: blockX, y: blockY });
+//       }
+//   }
+
+//   return blocks;
+// }
+
+export function createGrid(x, y, numBlocks, blockSize, gridSize, spacing) {
   let blocks = [];
   let numRows = gridSize;
   let numCols = numBlocks / gridSize;
 
   for (let row = 0; row < numRows; row++) {
       for (let col = 0; col < numCols; col++) {
-          let blockX = x + col * blockSize;
-          let blockY = y + row * blockSize;
+          let blockX = x + col * (blockSize + spacing);
+          let blockY = y + row * (blockSize + spacing);
           blocks.push({ x: blockX, y: blockY });
       }
   }
 
   return blocks;
 }
+
+export function generateRandomSequence(numBlocks, sequenceLength) {
+  let sequence = [];
+
+  for (let i = 0; i < sequenceLength; i++) {
+    // +1 to include numBlocks in the range
+    let randomNumber = Math.floor(Math.random() * (numBlocks + 1)); 
+    sequence.push(randomNumber);
+  }
+
+  return sequence;
+}
+
+
+
+
