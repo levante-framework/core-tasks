@@ -41,8 +41,8 @@ export function buildExperiment(config) {
     // ...initialTimeline.timeline,
     corsiBlocksDisplay,
     corsiBlocks,
-    corsiBlocksDisplay,
-    corsiBlocks,
+    // corsiBlocksDisplay,
+    // corsiBlocks,
   ];
 
   

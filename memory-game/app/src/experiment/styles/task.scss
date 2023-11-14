@@ -55,133 +55,19 @@
         cursor: pointer;
       }
 
-      // .item-stimulus {
-      //   /* Assuming you want this item to take the full height and width of its container to ensure centering: */
-      //   width: 100%;
+      .jspsych-corsi-overide{
+        display: grid;
+        gap: 5px; /* adjust as needed for spacing between blocks */
+        position: relative;
+        width: 25rem;
+        height: 25rem;
 
-      //   padding-left: 12%;
-      //   padding-right: 12%;
-      //   padding-bottom: 5vh;
-
-      //   font-family: primerBold;
-      //   font-size: 3.5rem;
-      //   margin: 0;
-      //   text-align: center; /* To ensure the text is centered if it wraps to more than one line */
-      // }
-
-      // .default-layout {
-      //   // 1 x 4 (default)
-      //   display: flex;
-      //   max-width: 100%;
-
-      //   div {
-      //     box-sizing: border-box;
-      //     margin: 0;
-      //     padding: 0;
-      //     max-width: calc(25% + 10px);
-
-      //     button {
-      //       font-family: primerBold;
-      //       width: 100%;
-      //       color: black;
-      //       font-size: clamp(2rem, 4vw, 2.5rem);
-      //       cursor: pointer;
-      //     }
-      //   }
-      // }
-
-      // .column-layout {
-      //   // 4 x 1
-      //   display: grid;
-      //   grid-template-columns: repeat(
-      //     auto-fit,
-      //     minmax(300px, 1fr)
-      //   ); /* two columns of equal width */
-      //   gap: 2rem;
-
-      //   div {
-      //     box-sizing: border-box;
-      //     margin: 0;
-      //     padding: 0;
-      //     max-width: 100%;
-
-      //     button {
-      //       font-family: primerBold;
-      //       width: 100%;
-      //       color: black;
-      //       font-size: 5vw;
-      //       cursor: pointer;
-      //     }
-      //   }
-      // }
-
-      // .grid-layout {
-      //   // 2 x 2
-      //   display: grid;
-      //   grid-template-columns: 1fr 1fr; /* two columns of equal width */
-      //   grid-template-rows: 1fr 1fr; /* two rows of equal height */
-      //   gap: 2rem;
-
-      //   div {
-      //     box-sizing: border-box;
-      //     margin: 0;
-      //     padding: 0;
-      //     max-width: 100%;
-
-      //     button {
-      //       font-family: primerBold;
-      //       width: 100%;
-      //       color: black;
-      //       font-size: 5vw;
-      //       cursor: pointer;
-      //     }
-      //   }
-      // }
-
-      // .disabled-btn {
-      //   background-color: #e0e0e0; /* Gray background */
-      //   color: #a0a0a0; /* Gray text */
-      //   cursor: not-allowed; /* Indicate that the button is not interactive */
-      //   pointer-events: none; /* Prevent all click and hover interactions */
-      //   opacity: 0.6;
-      // }
-
-      // .glowingButton {
-      //   animation: glowing 1300ms infinite;
-      // }
-      // @keyframes glowing {
-      //   0% {
-      //     background-color: #2ba805;
-      //     box-shadow: 0 0 5px #2ba805;
-      //   }
-      //   50% {
-      //     background-color: #49e819;
-      //     box-shadow: 0 0 20px #49e819;
-      //   }
-      //   100% {
-      //     background-color: #2ba805;
-      //     box-shadow: 0 0 5px #2ba805;
-      //   }
-      // }
-
-      // #replay {
-      //   position: absolute;
-      //   bottom: 80%;
-      //   right: 10%;
-      //   cursor: pointer;
-      // }
-
-      // .prompt-container{
-      //   display: flex;
-      //   justify-content: center;
-      //   align-items: center;
-      //   flex-direction: column;
-
-      //   .task-graphic{
-      //     width: 20%;
-      //   }
-      // }
-
+        .jspsych-corsi-block-overide {
+          background-color: #878A8C;
+          width: 100%;
+          height: 100%;
+        }
+      }
     }
   }
 

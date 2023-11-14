@@ -138,8 +138,7 @@ export function generateRandomSequence(numBlocks, sequenceLength) {
   let sequence = [];
 
   for (let i = 0; i < sequenceLength; i++) {
-    // +1 to include numBlocks in the range
-    let randomNumber = Math.floor(Math.random() * (numBlocks + 1)); 
+    let randomNumber = Math.floor(Math.random() * (numBlocks)); 
     sequence.push(randomNumber);
   }
 
