@@ -1,0 +1,12 @@
+label,screenStyle,imageName,imageCharacter,imageAlt,audioName,audioGap,buttonName,duration,header1,text1,text2
+intro,speechBubble,rOARLion,,ROAR lion,intro,50,,,Welcome to ROAR Multichoice!,"In this activity, you're going to help me complete some sentences.",
+ins,captionBelowImage,clickButton,,Mouse pressing correct choice,ins,50,,,What word completes the sentence? ,Choose the best option to fill in the blank.,
+surveyPractice,captionBelowImage,clickButton,,ROAR lion,surveyPractice,50,,,Let's practice!,"Remember, your job is to choose the right word that fills in the blank.",
+surveyPostPractice,speechBubble,rOARLion,,ROAR lion,surveyPostPractice,50,,,Great job!,Now you're ready to try on your own. Try your best to choose the word that completes the sentence.,
+break1,speechBubble,rOARLion,,ROAR lion,break1,50,,,Keep up the good work!,,
+break2,speechBubble,rOARLion,,ROAR lion,break2,50,,,You are doing great!,,
+break3,speechBubble,rOARLion,,ROAR lion,break3,50,,,Let's keep going.,,
+break4,speechBubble,rOARLion,,ROAR lion,break4,50,,,You are an expert at this!,,
+break5,speechBubble,rOARLion,,ROAR lion,break5,50,,,You can do it!,,
+ending,speechBubble,rOARLion,,ROAR lion,ending,50,,,You're all done! Thank you for helping me find those words!,,
+practiceCorrect,speechBubble,rOARLion,,ROAR lion,thatsRight,50,,,That's right!,,

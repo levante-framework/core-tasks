@@ -1,0 +1,11 @@
+label,screenStyle,imageName,imageCharacter,imageAlt,audioName,audioGap,buttonName,duration,header1,text1,text2
+intro,speechBubble,rOARLion,,ROAR lion,introCva,50,,,Read each sentence,Choose the word that best matches the underlined word,
+surveyPractice,captionBelowImage,clickButtonCva,,ROAR lion,practiceCva,50,,,Let's practice!,Read the sentences and choices carefully.,
+surveyPostPractice,speechBubble,rOARLion,,ROAR lion,greatJobClick,50,,,Great job!,Click to begin,
+break1,speechBubble,rOARLion,,ROAR lion,break1,50,,,Keep up the good work!,,
+break2,speechBubble,rOARLion,,ROAR lion,break2,50,,,You are doing great!,,
+break3,speechBubble,rOARLion,,ROAR lion,break3,50,,,Let's keep going.,,
+break4,speechBubble,rOARLion,,ROAR lion,break4,50,,,You are an expert at this!,,
+break5,speechBubble,rOARLion,,ROAR lion,break5,50,,,You can do it!,,
+ending,speechBubble,rOARLion,,ROAR lion,ending,50,,,You're all done! Thank you for helping me find those words!,,
+practiceCorrect,speechBubble,rOARLion,,ROAR lion,thatsRight,50,,,That's right!,,

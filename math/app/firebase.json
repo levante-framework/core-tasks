@@ -1,0 +1,48 @@
+{
+  "hosting": [
+    {
+      "public": "dist",
+      "target": "multichoice",
+      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+      "rewrites": [
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ],
+      "headers": [
+        {
+          "source": "**/*",
+          "headers": [
+            {
+              "key": "Feature-Policy",
+              "value": "autoplay=*"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "public": "dist",
+      "target": "testmultichoice",
+      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+      "rewrites": [
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ],
+      "headers": [
+        {
+          "source": "**/*",
+          "headers": [
+            {
+              "key": "Feature-Policy",
+              "value": "autoplay=*"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
