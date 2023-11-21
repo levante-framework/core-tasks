@@ -6,7 +6,7 @@ import { jsPsych } from "./jsPsych";
 import { preloadTrials, initializeCat } from "./experimentSetup";
 // trials
 import { stimulus } from "./trials/stimulus";
-import { setupMainTrial, setupPracticeTrial } from "./trials/setupFixation";
+import { setupPractice, setupStimulus } from "./trials/setupFixation";
 import { exitFullscreen } from "./trials/fullScreen";
 import { subTaskInitStimulus, subTaskInitPractice, } from "./trials/subTask";
 import { practiceFeedback } from "./trials/practiceFeedback";
@@ -23,86 +23,36 @@ export function buildExperiment(config) {
   initTrialSaving(config);
   const initialTimeline = initTimeline(config);
 
-  if (config.story) {
-    createStory();
+  // if (config.story) {
+  //   createStory();
+  // }
+
+  const practiceBlock = {
+    timeline: [
+      setupPractice,
+      stimulus,
+      setupPractice,
+      stimulus,
+    ]
+  }
+
+  const stimulusBlock = {
+    timeline: [
+      setupStimulus,
+      stimulus
+    ],
+    repetitions: store.session.get('config').numberOfTrials
   }
 
   const timeline = [
     preloadTrials,
-    // ...initialTimeline.timeline
+    ...initialTimeline.timeline,
+    practiceBlock,
+    stimulusBlock
   ];
 
-  // this function adds all the trials in a subtask (and the mid-subtask breaks) to the timeline
-  // fixationBlock:  an array of fixation trials (to fetch next stimulus) configured in stimulusLetterName.js
-  // stimulusCounts: an array of numbers, each entry defines the number of trials before a mid-subtask break
-  let breakNum = 0;
+  initializeCat()
 
-  const pushSubTaskToTimeline = (
-    subTaskInitBlock,
-    fixationBlock,
-    stimulusCounts,
-  ) => {
-    // begin the subtask
-    timeline.push(subTaskInitBlock);
-
-    for (let i = 0; i < stimulusCounts.length; i++) {
-      const surveyBlock = {
-          timeline: [
-            fixationBlock,
-            stimulus,
-            practiceFeedback,
-            audioFeedback
-          ],
-          conditional_function: () => {
-            if (stimulusCounts[i] === 0) {
-              return false;
-            }
-            store.session.set("currentBlockIndex", i);
-            return true;
-          },
-          repetitions: stimulusCounts[i],
-      };
-
-      timeline.push(surveyBlock);
-
-
-
-      // Figure out what is going on here
-      if (config.story) {
-        if (i + 1 !== stimulusCounts.length) {
-          // no break on the last block of the subtask
-          timeline.push(storyBreakList[breakNum]);
-          breakNum += 1;
-          if (breakNum === storyBreakList.length) {
-            breakNum = 0;
-          }
-        }
-      }
-    } 
-  };
-
-  initializeCat();
-  
-  // story intro
-  if (config.story) timeline.push(introAndInstructions);
-
-
-  pushSubTaskToTimeline(
-    subTaskInitPractice,
-    setupPracticeTrial,
-    [config.numOfPracticeTrials],
-  ); // Practice Trials
-  
-  if (config.story) timeline.push(practiceDone);
-
-
-  pushSubTaskToTimeline(
-    subTaskInitStimulus,
-    setupMainTrial,
-    getStimulusCount(),
-  ); // Stimulus Trials
-
-  if (config.story) timeline.push(endTrial); // End Task
   timeline.push(exitFullscreen);
 
   return { jsPsych, timeline };

@@ -9,7 +9,7 @@ import "regenerator-runtime/runtime";
 
 const queryString = new URL(window.location).search;
 const urlParams = new URLSearchParams(queryString);
-const taskName = urlParams.get("taskName") ?? 'egma-math'
+const taskName = urlParams.get("taskName") ?? 'mental-rotation'
 const practiceCorpus = urlParams.get("practiceCorpus");
 const stimulusCorpus = urlParams.get("stimulusCorpus");
 const storyCorpus = urlParams.get("storyCopus")

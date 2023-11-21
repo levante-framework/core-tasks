@@ -1,6 +1,7 @@
 import store from "store2";
 import { jsPsych } from "./jsPsych";
 import { cat } from './experimentSetup'
+import { mediaAssets } from "./experimentSetup";
 
 export const shuffle = (array) => {
   const shuffledArray = [...array];
@@ -87,6 +88,7 @@ export const getStimulus = (corpusType) => {
 
   // choose stimulus
   itemSuggestion = cat.findNextItem(corpus[corpusType]);
+  console.log({itemSuggestion})
 
   // store the item for use in the trial
   store.session.set("nextStimulus", itemSuggestion.nextStimulus);
@@ -104,11 +106,11 @@ export const prepareChoices = (target, distractors) => {
   const stimulus = shuffle(distractors);
   let choices = [];
   for (let i = 0; i < distractors.length; i++) {
-    choices.push(stimulus[i]);
+    choices.push(`<img src=${mediaAssets.images[stimulus[i]]} alt='option ${stimulus[i]}' />`);
   }
 
   // insert the target
-  choices.splice(randIndex, 0, target);
+  choices.splice(randIndex, 0, `<img src=${mediaAssets.images[target]} alt='option ${[target]}' />`);
 
   store.session.set("target", target);
   store.session.set("correctResponseIndx", randIndex);

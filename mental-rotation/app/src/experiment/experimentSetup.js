@@ -13,7 +13,7 @@ export const mediaAssets = generateAssetObject(assets, bucketURI);
 export const preloadTrials = createPreloadTrials(assets, bucketURI).default;
 export const isTouchScreen = getDevice() === "mobile";
 
-// console.log({mediaAssets})
+console.log({mediaAssets})
 
 export let cat;
 

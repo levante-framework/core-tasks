@@ -3,7 +3,7 @@ import store from "store2";
 
 
 export const isPractice = (subTask) => {
-  if (subTask === "EGMA-practice") {
+  if (subTask === "practice") {
     return true;
   }
   return false;

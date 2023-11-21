@@ -3,37 +3,25 @@
     "languageSpecific": {
       "device": [],
       "shared": [
-        "tryAgain.mp3",
-        "thatsRight.mp3",
-        
-        "clickButton.jpg",
-        "intro.mp3",
-        "ins.mp3",
-        "surveyPractice.mp3",
-        "surveyPostPractice.mp3",
-        "great-job-click.mp3",
-        "break1.mp3",
-        "break2.mp3",
-        "break3.mp3",
-        "break4.mp3",
-        "break5.mp3",
-        "ending.mp3"
       ]
     },
     "shared": [
-      "nullAudio.mp3",
-      "select.mp3",
-      "goButton.png",
-
-      "coin.mp3",
-      "countdown0.mp3",
-      "countdown1.mp3",
-      "countdown2.mp3",
-      "countdown3.mp3",
-      "fail.mp3",
-      "fairyCoin.mp3",
-      "coin_bag.gif",
-      "ROARLion.gif"
+      "3d-stim1-0.png",
+      "3d-stim1-50.png",
+      "3d-stim1-100.png",
+      "3d-stim1-150.png",
+      "3d-stim1-rev-0.png",
+      "3d-stim1-rev-50.png",
+      "3d-stim1-rev-100.png",
+      "3d-stim1-rev-150.png",
+      "3d-stim2-0.png",
+      "3d-stim2-50.png",
+      "3d-stim2-100.png",
+      "3d-stim2-150.png",
+      "3d-stim2-rev-0.png",
+      "3d-stim2-rev-50.png",
+      "3d-stim2-rev-100.png",
+      "3d-stim2-rev-150.png"
     ]
   }
 }

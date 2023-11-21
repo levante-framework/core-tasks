@@ -14,24 +14,19 @@ export const stimulus = {
     type: jsPsychHTMLMultiResponse,
     response_allowed_while_playing: true,
     data: () => {
-      return {
-        // save_trial and assessment_stage are for firekit
-        save_trial: true,
-        assessment_stage: store.session.get("nextStimulus").subtask,
-        is_practice_trial: store.session.get("nextStimulus").source === 'EGMA-practice'
-      }
+      return {}
     },
-    stimulus: () => mediaAssets.images.nullAudio,
-    // prompt: () => {
-    //   return (`
-    //     <div>
-    //       <p id="prompt">${ store.session.get("nextStimulus").prompt }</p>
-    //       <br>
-    //       <p id="stimulus">${ store.session.get("nextStimulus").item }</p>
-    //     </div>`
-    //   )
-    // },
-    prompt_above_buttons: true,
+    stimulus: () => {
+      return (
+        `<div>
+          <p>Choose the image that matches this one.</p>
+          <br>
+          <div id='stimulus-container'>
+            <img id="stimulus" src=${ mediaAssets.images[store.session.get("nextStimulus").item] } alt='stimulus'/>
+          </div>
+         </div>`
+      )
+    },
     button_choices: () => {
       const stimulus = store.session.get("nextStimulus");
       const { target, distractors } = stimulus;
@@ -42,15 +37,17 @@ export const stimulus = {
 
       // return [1,2,3,4]
     },
-    button_html: () => "<button>%choice%</button>",
+    button_html: () => `<button class='img-btn'>
+                          %choice%
+                        </button>`,
     on_load: () => {
       const {  buttonLayout, keyHelpers } = store.session.get("config");
       const distractors = store.session.get("nextStimulus").distractors
       
       // replace this selector with whatever multi-response type trial you are using
-      const buttonContainer = document.getElementById('jspsych-audio-multi-response-btngroup')
+      const buttonContainer = document.getElementById('jspsych-html-multi-response-btngroup')
 
-      const arrowKeyEmojis = ['↑', '←', '→', '↓']
+      const arrowKeyEmojis = ['←', '→']
 
       // special case for 3 buttons - add thier respective positions in the grid
       // if (distractors.length === 2) {
@@ -132,8 +129,8 @@ export const stimulus = {
       // reset the replay button
       store.session.set("ifReplay", 0);
 
-      if (!isPractice(subTaskName)) {
-        updateProgressBar();
-      }
+      // if (!isPractice(subTaskName)) {
+      //   updateProgressBar();
+      // }
     }
 };

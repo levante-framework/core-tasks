@@ -17,14 +17,11 @@ const transformCSV = (csvInput, isPractice) => {
       item: row.item || row.Item,
       target: row.target || row.Target || row.answer || row.Answer,
       distractor1: row.distractor1 || row.Distractor1 || row.distractor_1,
-      distractor2: row.distractor2 || row.Distractor2 || row.distractor_2,
-      distractor3: row.distractor3 || row.Distractor3 || row.distractor_3,
-      difficulty: isPractice ? row.difficulty : row.b,
-      prompt: row.prompt,
+      // distractor2: row.distractor2 || row.Distractor2 || row.distractor_2,
       source: row.source
     };
     // Array of distractors with falsey and empty string values removed
-    newRow.distractors = _compact([newRow.distractor1, newRow.distractor2, newRow.distractor3]),
+    newRow.distractors = _compact([newRow.distractor1,]),
 
     accum.push(newRow);
 
@@ -72,8 +69,8 @@ export async function loadCorpus(config) {
 
   async function fetchData() {
     const urls = [
-      `https://storage.googleapis.com/${task}/${i18next.language}/corpora/${practiceCorpus}.csv`,
-      `https://storage.googleapis.com/${task}/${i18next.language}/corpora/${stimulusCorpus}.csv`,
+      `https://storage.googleapis.com/${task}/shared/corpora/${practiceCorpus}.csv`,
+      `https://storage.googleapis.com/${task}/shared/corpora/${stimulusCorpus}.csv`,
     ];
 
     try {
