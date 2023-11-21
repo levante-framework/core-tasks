@@ -1,0 +1,114 @@
+@font-face {
+  font-family: primerRegular;
+  src: url(https://storage.googleapis.com/roar-ak/font/primer_print.ttf)
+    format("truetype");
+}
+
+@font-face {
+  font-family: primerBold;
+  src: url(https://storage.googleapis.com/roar-ak/font/primer_print_bold.ttf)
+    format("truetype");
+}
+
+.jspsych-display-element {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  font-family: "Source Sans Pro", Gotham, "Helvetica Neue", Helvetica, Arial,
+    "sans-serif";
+  touch-action: manipulation;
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Old versions of Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
+
+  .jspsych-content-wrapper {
+    height: 100%;
+    width: 100%;
+
+    .jspsych-content {
+      height: 100%;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+
+      #fullScreen {
+        width: 80vw;
+        text-align: center;
+        color: rgba(76, 101, 139, 1);
+        font-size: 1.7rem;
+      }
+
+      #jspsych-fullscreen-btn {
+        width: 17vw;
+        height: 10vh;
+        background-color: rgba(76, 101, 139, 1);
+        color: white;
+        border-radius: 1rem;
+        border: 0rem;
+        font-size: 3vw;
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+      .jspsych-corsi-overide{
+        display: grid;
+        gap: 5px; /* adjust as needed for spacing between blocks */
+        position: relative;
+        width: 25rem;
+        height: 25rem;
+
+        .jspsych-corsi-block-overide {
+          background-color: #878A8C;
+          width: 100%;
+          height: 100%;
+        }
+      }
+    }
+  }
+
+  .go-button {
+    position: fixed;
+    bottom: 5vh;
+    height: 15vh;
+    right: 5vh;
+    z-index: 999;
+    background: none;
+    border: none;
+  }
+
+  #jspsych-progressbar-container {
+    color: #555;
+    border-bottom: 1px solid #dedede;
+    background-color: #f9f9f9;
+    text-align: center;
+    padding: 8px 0px;
+    width: 100%;
+    line-height: 1em;
+
+    span {
+      font-size: 14px;
+      padding-right: 14px;
+    }
+
+    #jspsych-progressbar-outer {
+      background-color: #eee;
+      width: 50%;
+      margin: auto;
+      height: 14px;
+      display: inline-block;
+      vertical-align: middle;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+
+      #jspsych-progressbar-inner {
+        background-color: #aaa;
+        width: 0%;
+        height: 100%;
+      }
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "projects": {
+    "default": "my-project"
+  },
+  "targets": {
+    "my-project": {
+      "hosting": {
+        "task": [
+          "task"
+        ],
+        "test": [
+          "task-testing"
+        ]
+      }
+    }
+  }
+}
