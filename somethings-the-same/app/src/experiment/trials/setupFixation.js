@@ -1,6 +1,5 @@
-import jsPsychAudioKeyboardResponse from "@jspsych/plugin-audio-keyboard-response";
+import jsPsychHTMLMultiResponse from "@jspsych-contrib/plugin-html-multi-response"
 import { getStimulus } from "../helperFunctions";
-import { mediaAssets } from "../experimentSetup";
 
 // choosing the next stimulus from the corpus occurs during the fixation trial
 // prior to the actual display of the stimulus, where user response is collected
@@ -20,13 +19,10 @@ const setupData = [
 
 const setupTrials = setupData.map((trial, i) => {
   return {
-    type: jsPsychAudioKeyboardResponse,
-    stimulus: () => mediaAssets.audio.nullAudio,
-    prompt: function () {
-      return `<div id='fixation-container'>
+    type: jsPsychHTMLMultiResponse,
+    stimulus: `<div id='fixation-container'>
                 <p></p>
-              </div>`;
-    },
+              </div>`,
     choices: "NO_KEYS",
     trial_duration: 200,
     data: {
@@ -36,5 +32,5 @@ const setupTrials = setupData.map((trial, i) => {
   };
 });
 
-export const setupPracticeTrial = setupTrials[0];
-export const setupMainTrial = setupTrials[1];
+export const setupPractice = setupTrials[0];
+export const setupStimulus = setupTrials[1];

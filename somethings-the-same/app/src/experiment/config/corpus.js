@@ -17,9 +17,9 @@ const transformCSV = (csvInput, isPractice) => {
       item: row.item || row.Item,
       target: row.target || row.Target || row.answer || row.Answer,
       distractor1: row.distractor1 || row.Distractor1 || row.distractor_1,
-      similiar1: row.similiar1,
-      similiar2: row.similiar2,
-      areSimiliar: row.areSimiliar,
+      similar1: row.similar1,
+      similar2: row.similar2,
+      areSimilar: row.areSimilar,
       source: row.source
     };
     // Array of distractors with falsey and empty string values removed
@@ -40,7 +40,7 @@ const transformCSV = (csvInput, isPractice) => {
 export async function loadCorpus(config) {
   const { practiceCorpus, stimulusCorpus, task, storyCorpus, story, sequentialPractice, sequentialStimulus, numOfPracticeTrials } = config
 
-  let practiceData, stimulusData, storyData;
+  let practiceData, stimulusData;
 
   function downloadCSV(url, i) {
     return new Promise((resolve, reject) => {
@@ -88,6 +88,7 @@ export async function loadCorpus(config) {
   }
 
   await fetchData();
+
 
   const csvTransformed = {
     practice: sequentialPractice ? practiceData : shuffle(practiceData),

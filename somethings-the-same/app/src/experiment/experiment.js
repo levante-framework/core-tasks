@@ -5,8 +5,8 @@ import { getStimulusCount, initTrialSaving, initTimeline, } from "./config/confi
 import { jsPsych } from "./jsPsych";
 import { preloadTrials, initializeCat } from "./experimentSetup";
 // trials
-import { stimulusPhase1, stimulusPhase2 } from "./trials/stimulus";
-import { setupMainTrial, setupPracticeTrial } from "./trials/setupFixation";
+import { stimulus } from "./trials/stimulus";
+import { setupPractice, setupStimulus } from "./trials/setupFixation";
 import { exitFullscreen } from "./trials/fullScreen";
 import { subTaskInitStimulus, subTaskInitPractice, } from "./trials/subTask";
 import { practiceFeedback } from "./trials/practiceFeedback";
@@ -24,11 +24,28 @@ export function buildExperiment(config) {
   const initialTimeline = initTimeline(config);
 
 
+  const practiceBlock = {
+    timeline: [
+      setupPractice,
+      stimulus
+    ],
+    repetitions: store.session.get('config').numOfPracticeTrials
+  }
+
+  const stimulusBlock = {
+    timeline: [
+      setupStimulus,
+      stimulus
+    ],
+    repetitions: store.session.get('maxStimulusTrials')
+  }
+
+
   const timeline = [
     preloadTrials,
     // ...initialTimeline.timeline
-    stimulusPhase1,
-    stimulusPhase2
+    practiceBlock,
+    stimulusBlock
   ];
 
   

@@ -38,6 +38,7 @@
     "@bdelab/roar-firekit": "^3.12.8",
     "@bdelab/roar-utils": "^1.0.11",
     "@jspsych-contrib/plugin-audio-multi-response": "^1.0.0",
+    "@jspsych-contrib/plugin-html-multi-response": "^1.0.2",
     "@jspsych/plugin-audio-button-response": "^1.1.2",
     "@jspsych/plugin-audio-keyboard-response": "^1.1.0",
     "@jspsych/plugin-call-function": "^1.1.2",
