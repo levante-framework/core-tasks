@@ -1,0 +1,19 @@
+{
+  "default": {
+    "languageSpecific": {
+      "device": [],
+      "shared": [
+
+      ]
+    },
+    "shared": [
+      "lion-white.png",
+      "rabbit-white.png",
+      "square-orange-lg.png",
+      "star-blue-lg.png",
+      "star-green-md.png",
+      "star-orange-sm.png",
+      "triangle-blue-md.png"
+    ]
+  }
+}
