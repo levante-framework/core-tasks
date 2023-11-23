@@ -17,9 +17,9 @@ Overview of the core behavioral tasks for LEVANTE. This repo contains details (a
 4. Something’s the Same [EF: Cognitive Flexibility]
 	- asked Laura Kuhn for materials
 
-5. MEFS [EF] - external 
-	- Minnesota Executive Function Scale
-
+5. TROG [Language: Grammar]
+	- Test for Reception of Grammar (Bishop, 1982)
+	- "multiple-choice test where the child listens to a spoken sentence and must select one of four pictures to match what is heard. Items are organised into 20 blocks of 4 items each, with the grammatical complexity of the blocks increasing as the test progresses"
 
 6. Social Perception [SocialCog: Gaze Following] - external
 
@@ -48,7 +48,6 @@ Overview of the core behavioral tasks for LEVANTE. This repo contains details (a
 	- whole number only, or consider adding fraction number lines?
 
 13. EGMA [Math: Symbolic Math] [Rebecca]
-	- all subtasks?
 	- Number Identification (say the number) - (60 s; 20 items total; stop if [1] child stops on an item for 5 seconds) VERBAL
 	- Number Discrimination (which is bigger?) - (2 practice, 10 items; stop if child makes 4 successive errors)
 	- Missing number (sequence) - (2 practice, 10 items)
