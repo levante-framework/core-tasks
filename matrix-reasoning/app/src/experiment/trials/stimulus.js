@@ -5,11 +5,7 @@ import { updateProgressBar, addItemToSortedStoreList, } from "../helperFunctions
 import { mediaAssets } from "../experimentSetup";
 import { isPractice } from "./subTask";
 import { prepareChoices } from "../helperFunctions";
-import Stimulus from '../testAssets/stimulus.png'
-import Answer from '../testAssets/answer.png'
-import Alt1 from '../testAssets/alternative0.png'
-import Alt2 from '../testAssets/alternative1.png'
-import Alt3 from '../testAssets/alternative2.png'
+
 
 
 export const audioContext = new Audio();
@@ -25,7 +21,7 @@ export const stimulus = {
         <div id='stimulus-container'>
           <p id="prompt">Choose the best pattern to fill in the blank.</p>
           <br>
-          <img id="stimulus" src=${ Stimulus }  alt=${Stimulus}/>
+          <img id="stimulus" src=${ mediaAssets.images[store.session.get('nextStimulus').item] }  alt=${ store.session.get('nextStimulus').item }/>
         </div>`
       )
     },
@@ -35,16 +31,9 @@ export const stimulus = {
 
       const trialInfo = prepareChoices(target, distractors);
 
-      // return trialInfo.choices;
-
-      return [1,2,3,4]
+      return trialInfo.choices;
     },
-    button_html: () => [
-      `<button><img src=${Answer} alt=${Answer}/></button>`, 
-      `<button><img src=${Alt1} alt=${Alt1}/></button>`, 
-      `<button><img src=${Alt2} alt=${Alt2}/></button>`,
-      `<button><img src=${Alt3} alt=${Alt3}/></button>`, 
-    ],
+    button_html: () => `<button>%choice%</button>`,
     on_load: () => {
       const {  buttonLayout, keyHelpers } = store.session.get("config");
       const distractors = store.session.get("nextStimulus").distractors

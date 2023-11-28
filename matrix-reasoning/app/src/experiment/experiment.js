@@ -19,6 +19,7 @@ import {
   createStory,
 } from "./trials/instructions";
 
+
 export function buildExperiment(config) {
   initTrialSaving(config);
   const initialTimeline = initTimeline(config);
@@ -27,80 +28,22 @@ export function buildExperiment(config) {
     createStory();
   }
 
+  const practiceBlock = {
+    timeline: [
+      setupPracticeTrial,
+      stimulus
+    ],
+    repetitions: 3
+  }
+
   const timeline = [
     preloadTrials,
+    practiceBlock
     // ...initialTimeline.timeline
   ];
 
-  // this function adds all the trials in a subtask (and the mid-subtask breaks) to the timeline
-  // fixationBlock:  an array of fixation trials (to fetch next stimulus) configured in stimulusLetterName.js
-  // stimulusCounts: an array of numbers, each entry defines the number of trials before a mid-subtask break
-  let breakNum = 0;
-
-  const pushSubTaskToTimeline = (
-    subTaskInitBlock,
-    fixationBlock,
-    stimulusCounts,
-  ) => {
-    // begin the subtask
-    timeline.push(subTaskInitBlock);
-
-    for (let i = 0; i < stimulusCounts.length; i++) {
-      const surveyBlock = {
-          timeline: [
-            fixationBlock,
-            stimulus,
-            practiceFeedback,
-            audioFeedback
-          ],
-          conditional_function: () => {
-            if (stimulusCounts[i] === 0) {
-              return false;
-            }
-            store.session.set("currentBlockIndex", i);
-            return true;
-          },
-          repetitions: stimulusCounts[i],
-      };
-
-      timeline.push(surveyBlock);
-
-
-
-      // Figure out what is going on here
-      if (config.story) {
-        if (i + 1 !== stimulusCounts.length) {
-          // no break on the last block of the subtask
-          timeline.push(storyBreakList[breakNum]);
-          breakNum += 1;
-          if (breakNum === storyBreakList.length) {
-            breakNum = 0;
-          }
-        }
-      }
-    } 
-  };
-
   initializeCat();
   
-  // story intro
-  if (config.story) timeline.push(introAndInstructions);
-
-
-  pushSubTaskToTimeline(
-    subTaskInitPractice,
-    setupPracticeTrial,
-    [config.numOfPracticeTrials],
-  ); // Practice Trials
-  
-  if (config.story) timeline.push(practiceDone);
-
-
-  pushSubTaskToTimeline(
-    subTaskInitStimulus,
-    setupMainTrial,
-    getStimulusCount(),
-  ); // Stimulus Trials
 
   if (config.story) timeline.push(endTrial); // End Task
   timeline.push(exitFullscreen);

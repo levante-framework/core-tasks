@@ -38,27 +38,11 @@ const transformCSV = (csvInput, isPractice) => {
   }, []);
 }
 
-const transformStoryCSV = (csvInput) => {
-  return csvInput.reduce((accum, row) => {
-    const newRow = {
-      trialName: row.trialName,
-      imageName: row.imageName,
-      imageAlt: row.imageAlt,
-      audioName: row.audioName,
-      duration: row.duration,
-      header: row.header,
-      topText: row.topText,
-      bottomText: row.bottomText,
-    };
-    accum.push(newRow);
-    return accum;
-  }, []);
-}
 
 export async function loadCorpus(config) {
-  const { practiceCorpus, stimulusCorpus, task, storyCorpus, story, sequentialPractice, sequentialStimulus, numOfPracticeTrials } = config
+  const { practiceCorpus, stimulusCorpus, task, sequentialPractice, sequentialStimulus, numOfPracticeTrials } = config
 
-  let practiceData, stimulusData, storyData;
+  let practiceData, stimulusData;
 
   function downloadCSV(url, i) {
     return new Promise((resolve, reject) => {
@@ -71,8 +55,6 @@ export async function loadCorpus(config) {
             practiceData = transformCSV(results.data, true);
           } else if (i == 1) {
             stimulusData = transformCSV(results.data, false);
-          } else {
-            storyData = transformStoryCSV(results.data)
           }
           resolve(results.data);
         },
@@ -90,13 +72,9 @@ export async function loadCorpus(config) {
 
   async function fetchData() {
     const urls = [
-      `https://storage.googleapis.com/${task}/${i18next.language}/corpora/${practiceCorpus}.csv`,
-      `https://storage.googleapis.com/${task}/${i18next.language}/corpora/${stimulusCorpus}.csv`,
+      `https://storage.googleapis.com/${task}/shared/corpora/${practiceCorpus}.csv`,
+      // `https://storage.googleapis.com/${task}/${i18next.language}/corpora/${stimulusCorpus}.csv`,
     ];
-
-    if (story) {
-      urls.push(`https://storage.googleapis.com/${task}/${i18next.language}/corpora/${storyCorpus}.csv`)
-    }
 
     try {
       await parseCSVs(urls);
@@ -115,13 +93,11 @@ export async function loadCorpus(config) {
   const csvTransformed = {
     practice: sequentialPractice ? practiceData : shuffle(practiceData),
     stimulus: sequentialStimulus ? stimulusData : shuffle(stimulusData),
-    story: storyData || null,
   };
 
   corpora = {
     practice: csvTransformed.practice,
     stimulus: csvTransformed.stimulus,
-    story: csvTransformed.story,
   };
 
   store.session.set("corpora", corpora);

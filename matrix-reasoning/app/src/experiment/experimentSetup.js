@@ -6,12 +6,15 @@ import {
 } from "@bdelab/roar-utils";
 import assets from "../../assets.json";
 import { Cat } from "@bdelab/jscat";
+import { listObjects } from "./helperFunctions";
 
 const bucketURI = "https://storage.googleapis.com/egma-math";
 
-export const mediaAssets = generateAssetObject(assets, bucketURI);
+// export const mediaAssets = generateAssetObject(assets, bucketURI);
 export const preloadTrials = createPreloadTrials(assets, bucketURI).default;
 export const isTouchScreen = getDevice() === "mobile";
+
+export const mediaAssets = await listObjects('matrix-reasoning', {}, 'en')
 
 export let cat;
 

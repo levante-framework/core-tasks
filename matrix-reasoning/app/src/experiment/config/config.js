@@ -118,7 +118,7 @@ export const initConfig = async (
     firekit,
     displayElement: displayElement || null,
     // name of the csv files in the storage bucket
-    practiceCorpus: practiceCorpus ?? "math-item-bank-practice-pz",
+    practiceCorpus: practiceCorpus ?? "matrix-reasoning-practice-pz",
     stimulusCorpus: stimulusCorpus ?? "math-item-bank-pz",
     sequentialPractice: sequentialPractice ?? true,
     sequentialStimulus: sequentialStimulus ?? true,

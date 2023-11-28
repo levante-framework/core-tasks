@@ -9,7 +9,7 @@ import "regenerator-runtime/runtime";
 
 const queryString = new URL(window.location).search;
 const urlParams = new URLSearchParams(queryString);
-const taskName = urlParams.get("taskName") ?? 'egma-math'
+const taskName = urlParams.get("taskName") ?? 'matrix-reasoning'
 const practiceCorpus = urlParams.get("practiceCorpus");
 const stimulusCorpus = urlParams.get("stimulusCorpus");
 const storyCorpus = urlParams.get("storyCopus")
@@ -25,7 +25,6 @@ const sequentialPractice = stringToBoolean(urlParams.get("sequentialPractice"), 
 const sequentialStimulus = stringToBoolean(urlParams.get("sequentialStimulus"), true)
 const { language } = i18next;
 
-import { generateAssetObject } from "../src/experiment/helperFunctions";
 
 // @ts-ignore
 const appKit = await initializeFirebaseProject(
@@ -36,9 +35,6 @@ const appKit = await initializeFirebaseProject(
 
 const taskId = language === "en" ? taskName : `${taskName}-${language}`;
 
-const assetObj = await generateAssetObject('https://storage.googleapis.com', 'matrix-reasoning')
-
-console.log({assetObj})
 
 onAuthStateChanged(appKit.auth, (user) => {
   if (user) {
