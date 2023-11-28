@@ -16,19 +16,23 @@ Overview of the core behavioral tasks for LEVANTE. This repo contains details (a
 
 4. Something’s the Same [EF: Cognitive Flexibility]
 	- asked Laura Kuhn for materials
+	- Jelena says they'd like to combine the FIST and StS tasks to cover the full age range (meeting Mon, Dec 4)
 
 5. TROG [Language: Grammar]
 	- Test for Reception of Grammar (Bishop, 1982)
 	- "multiple-choice test where the child listens to a spoken sentence and must select one of four pictures to match what is heard. Items are organised into 20 blocks of 4 items each, with the grammatical complexity of the blocks increasing as the test progresses"
+	- there's a vocab recognition test for some of the words used in the TROG that we may want to skip (or include in vocab tests?)
 
 6. Social Perception [SocialCog: Gaze Following] - external
-
 
 7. ToM Battery [SocialCog: Theory of Mind] [Rebecca]
 	- 2 booklets..so pick age-appropriate booklet? (Or subset of 1?)
 	- food, snack, and dog content needs to be adapted
 
-8. OxEd Language Screen [Language: Expressive] - external [$25/kid for pilot]
+8. Emotional Face Recognition [Rebecca?]
+	- add parametric noise to the RADIATE stimulus set (Conley et al. 2018)?
+	Conley, M. I., Dellarco, D. V., Rubien-Thomas, E., Cohen, A. O., Cervera, A., Tottenham, N., & Casey, B. J. (2018). The racially diverse affective expression (RADIATE) face stimulus set. Psychiatry research.
+	https://www.sciencedirect.com/science/article/pii/S0165178117321893
 
 
 9. ROAR Vocab [Language: Vocab] - external? [Bria]
@@ -46,6 +50,8 @@ Overview of the core behavioral tasks for LEVANTE. This repo contains details (a
 	- e.g. one study used 28 stim: “The materials included a 15-cm line with one end marked with 0 and the other end marked with 100 (i.e., min = 0, max = 100) and 28 numbers: 3, 4, 6, 8, 12, 14, 17, 18, 20, 21, 24, 25, 29, 33, 39, 42, 48, 50, 52, 57, 61, 64, 72, 79, 81, 84, 90, and 96. The number 20 and 50 were used for practice.”
 	- propose to make fully adaptive, with age-based starting point
 	- whole number only, or consider adding fraction number lines?
+	- Daniel Ansari and Bob Siegler recommend using number-to-position (i.e., given a number, indicate position on number line) rather than position-to-number -- ideally, let's pilot both with school-aged children
+
 
 13. EGMA [Math: Symbolic Math] [Rebecca]
 	- Number Identification (say the number) - (60 s; 20 items total; stop if [1] child stops on an item for 5 seconds) VERBAL
@@ -67,3 +73,10 @@ Overview of the core behavioral tasks for LEVANTE. This repo contains details (a
 	- consider 3D stimuli (same/different) from [Ganis & Kievit (2015)](https://storage.googleapis.com/jnl-up-j-jopd-files/journals/1/articles/13/submission/proof/13-1-116-2-10-20150313.pdf): 
 
 15. Child Survey Questions [Amy & Bobby]
+
+
+
+Removed tasks:
+	- MEFS (MN Executive Function Scale) [EF]
+	- OxEd Language Screen [Language: Expressive] - external [$25/kid for pilot]
+
