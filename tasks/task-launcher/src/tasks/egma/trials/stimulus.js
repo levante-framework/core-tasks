@@ -1,13 +1,8 @@
 import jsPsychAudioMultiResponse from "@jspsych-contrib/plugin-audio-multi-response";
 import store from "store2";
-import { jsPsych } from "../jsPsych";
-import {
-  shuffle,
-  updateProgressBar,
-  addItemToSortedStoreList,
-} from "../helperFunctions";
-import { mediaAssets } from "../experimentSetup";
-import { isPractice } from "./subTask";
+import { jsPsych } from "../../taskSetup";
+import { shuffle, updateProgressBar, addItemToSortedStoreList, isPractice } from "../../shared/helpers";
+import { mediaAssets } from "../../..";
 import { audioResponse } from "./audioFeedback";
 
 export const audioContext = new Audio();

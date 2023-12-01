@@ -1,5 +1,5 @@
-import jsPsychHtmlKeyboardResponse from "@jspsych/plugin-html-keyboard-response";
-import { getStimulus } from "./getStimulus";
+import jsPsychHTMLMultiResponse from "@jspsych-contrib/plugin-html-multi-response";
+import { getStimulus } from "../helpers";
 
 // choosing the next stimulus from the corpus occurs during the fixation trial
 // prior to the actual display of the stimulus, where user response is collected
@@ -19,15 +19,13 @@ const setupData = [
 
 const setupTrials = setupData.map((trial, i) => {
   return {
-    type: jsPsychHtmlKeyboardResponse,
-    stimulus: function () {
-      return `<div class='stimulus_div'>
+    type: jsPsychHTMLMultiResponse,
+    stimulus: `<div class='stimulus_div'>
                 <p class='stimulus'> </p>
-              </div>`;
-    },
+              </div>`,
     prompt: "",
     choices: "NO_KEYS",
-    trial_duration: 10, // store.session.get("config").timing.fixationTime, //TODO fix
+    trial_duration: 10, // store.session.get("config").timing.fixationTime, // TODO 
 
     data: {
       task: "fixation",

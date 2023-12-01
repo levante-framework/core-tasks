@@ -1,3 +1,5 @@
+// TODO: Figure out what this does
+
 // add an item to a list in the store, creating it if necessary
 export const addItemToSortedStoreList = (tag, entry) => {
     if (!store.session.has(tag)) {

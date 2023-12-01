@@ -4,12 +4,9 @@ import { Cat } from "@bdelab/jscat";
 import { initJsPsych } from "jspsych";
 import i18next from "i18next";
 import "../i18n/i18n";
-import { getMediaAssets, createPreloadTrials } from "./shared/helpers";
 
 // const bucketURI = `https://storage.googleapis.com/`;
 
-export const mediaAssets = getMediaAssets(`task name here`, {}, 'en');
-export const preloadTrials = createPreloadTrials(mediaAssets).default;
 export const isTouchScreen = getDevice() === "mobile";
 
 export let cat;

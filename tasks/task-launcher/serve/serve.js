@@ -1,12 +1,13 @@
 import { RoarAppkit, initializeFirebaseProject } from "@bdelab/roar-firekit";
 import { onAuthStateChanged, signInAnonymously } from "firebase/auth";
-import TaskLauncher from "../src";
+import { TaskLauncher } from "../src";
 import { firebaseConfig } from "./firebaseConfig";
 import i18next from "i18next";
 import { stringToBoolean } from "../src/tasks/shared/helpers";
 // Import necessary for async in the top level of the experiment script
 import "regenerator-runtime/runtime";
 
+// TODO: Add game params for all tasks
 const queryString = new URL(window.location).search;
 const urlParams = new URLSearchParams(queryString);
 const taskName = urlParams.get("taskName") ?? 'egma-math'
@@ -24,6 +25,7 @@ const skipInstructions = stringToBoolean(urlParams.get("skip"), true)
 const sequentialPractice = stringToBoolean(urlParams.get("sequentialPractice"), true)
 const sequentialStimulus = stringToBoolean(urlParams.get("sequentialStimulus"), true)
 const { language } = i18next;
+
 
 // @ts-ignore
 const appKit = await initializeFirebaseProject(
@@ -68,6 +70,8 @@ onAuthStateChanged(appKit.auth, (user) => {
       taskInfo,
       userInfo,
     });
+
+    console.log('before launch')
 
     const task = new TaskLauncher(firekit, gameParams, userParams);
     task.run();

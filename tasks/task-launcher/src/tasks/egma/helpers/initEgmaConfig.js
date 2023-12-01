@@ -1,13 +1,10 @@
-import store from "store2";
 import _omitBy from "lodash/omitBy";
 import _isNull from "lodash/isNull";
 import _isUndefined from "lodash/isUndefined";
 import i18next from "i18next";
-import { enterFullscreen } from "../trials/fullScreen";
-import { jsPsych } from "../jsPsych";
 
 
-export const initConfig = async (
+export const initEgmaConfig = async (
   firekit,
   gameParams,
   userParams,
@@ -56,7 +53,8 @@ export const initConfig = async (
     stimulusBlocks: stimulusBlocks ?? 3,
     numOfPracticeTrials: numOfPracticeTrials ?? 2,
     story: story ?? false,
-    keyHelpers: keyHelpers ?? true
+    keyHelpers: keyHelpers ?? true,
+    language: i18next.language
   };
 
   const updatedGameParams = Object.fromEntries(

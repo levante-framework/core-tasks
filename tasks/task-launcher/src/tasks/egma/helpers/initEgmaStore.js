@@ -1,3 +1,5 @@
+import store from "store2";
+
 export const initEgmaStore = (config) => {
     if (store.session.has("initialized") && store.local("initialized")) {
       return store.session;

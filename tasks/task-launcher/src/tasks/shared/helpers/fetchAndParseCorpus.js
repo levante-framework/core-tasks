@@ -1,6 +1,6 @@
 import i18next from "i18next";
-import "../i18n";
-import { shuffle } from "../helperFunctions";
+import "../../../i18n/i18n";
+import { shuffle } from "./shuffle";
 import Papa from "papaparse";
 import _compact from 'lodash/compact'
 import store from "store2";
@@ -38,27 +38,11 @@ const transformCSV = (csvInput, isPractice) => {
   }, []);
 }
 
-const transformStoryCSV = (csvInput) => {
-  return csvInput.reduce((accum, row) => {
-    const newRow = {
-      trialName: row.trialName,
-      imageName: row.imageName,
-      imageAlt: row.imageAlt,
-      audioName: row.audioName,
-      duration: row.duration,
-      header: row.header,
-      topText: row.topText,
-      bottomText: row.bottomText,
-    };
-    accum.push(newRow);
-    return accum;
-  }, []);
-}
 
-export async function loadCorpus(config) {
+export async function fetchAndParseCorpus(config) {
   const { practiceCorpus, stimulusCorpus, task, storyCorpus, story, sequentialPractice, sequentialStimulus, numOfPracticeTrials } = config
 
-  let practiceData, stimulusData, storyData;
+  let practiceData, stimulusData
 
   function downloadCSV(url, i) {
     return new Promise((resolve, reject) => {
@@ -71,9 +55,8 @@ export async function loadCorpus(config) {
             practiceData = transformCSV(results.data, true);
           } else if (i == 1) {
             stimulusData = transformCSV(results.data, false);
-          } else {
-            storyData = transformStoryCSV(results.data)
           }
+
           resolve(results.data);
         },
         error: function (error) {
@@ -94,10 +77,6 @@ export async function loadCorpus(config) {
       `https://storage.googleapis.com/${task}/${i18next.language}/corpora/${stimulusCorpus}.csv`,
     ];
 
-    if (story) {
-      urls.push(`https://storage.googleapis.com/${task}/${i18next.language}/corpora/${storyCorpus}.csv`)
-    }
-
     try {
       await parseCSVs(urls);
       store.session.set("maxStimulusTrials", maxStimlulusTrials);
@@ -115,13 +94,11 @@ export async function loadCorpus(config) {
   const csvTransformed = {
     practice: sequentialPractice ? practiceData : shuffle(practiceData),
     stimulus: sequentialStimulus ? stimulusData : shuffle(stimulusData),
-    story: storyData || null,
   };
 
   corpora = {
     practice: csvTransformed.practice,
     stimulus: csvTransformed.stimulus,
-    story: csvTransformed.story,
   };
 
   store.session.set("corpora", corpora);

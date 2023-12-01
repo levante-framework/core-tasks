@@ -1,31 +1,29 @@
-// import "regenerator-runtime/runtime";
+import "regenerator-runtime/runtime";
 import store from "store2";
+// setup
 import {
   getPracticeCount,
   getStimulusCount,
-  initRoarJsPsych,
-  initRoarTimeline,
-} from "./config/config";
-
-// setup
-import { jsPsych } from "../taskSetup";
-import { preloadTrials, initializeCat } from "./taskSetup";
+  initTrialSaving,
+  initTimeline,
+  createPreloadTrials,
+} from "../shared/helpers";
+import { jsPsych, initializeCat } from "../taskSetup";
 // trials
-import { ifRealTrialResponse, stimulusTrial } from "./trials/stimulus";
+import { ifRealTrialResponse, stimulus } from "./trials/stimulus";
 import { exitFullscreen } from "../shared/trials";
 import { 
-  ifPracticeCorrect,
-  ifPracticeIncorrect, 
   setupPractice, 
   setupStimulus,
 } from "../shared/trials";
 
-export function buildEgmaTimeline(config) {
-  initRoarJsPsych(config);
-  const initialTimeline = initRoarTimeline(config);
+export default function buildEgmaTimeline(config, mediaAssets) {
+  const preloadTrials = createPreloadTrials(mediaAssets)
+
+  initTrialSaving(config);
+  const initialTimeline = initTimeline(config);
 
   const timeline = [preloadTrials, ...initialTimeline.timeline];
-
 
   const pushSubTaskToTimeline = (
     fixationBlock,
@@ -42,9 +40,9 @@ export function buildEgmaTimeline(config) {
           timeline: [
             fixationBlock,
             // used to be practice
-            stimulusTrial,
-            ifPracticeCorrect,
-            ifPracticeIncorrect,
+            stimulus,
+            // ifPracticeCorrect,
+            // ifPracticeIncorrect,
             ifRealTrialResponse,
           ],
           conditional_function: () => {
@@ -60,9 +58,9 @@ export function buildEgmaTimeline(config) {
         surveyBlock = {
           timeline: [
             fixationBlock,
-            stimulusTrial,
-            ifPracticeCorrect,
-            ifPracticeIncorrect,
+            stimulus,
+            // ifPracticeCorrect,
+            // ifPracticeIncorrect,
             ifRealTrialResponse,
           ],
           conditional_function: () => {
@@ -76,7 +74,6 @@ export function buildEgmaTimeline(config) {
         };
       }
 
-
       timeline.push(surveyBlock);
     }
 
@@ -84,17 +81,16 @@ export function buildEgmaTimeline(config) {
 
   initializeCat();
 
-
   pushSubTaskToTimeline(
     setupPractice,
-    getPracticeCount("practice"),
+    config.numOfPracticeTrials,
     "practice",
   ); // Practice Trials
 
 
   pushSubTaskToTimeline(
     setupStimulus,
-    getStimulusCount(config.userMode),
+    getStimulusCount(),
     "stimulus",
   ); // Stimulus Trials
 

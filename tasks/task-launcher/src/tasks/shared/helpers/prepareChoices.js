@@ -1,3 +1,6 @@
+import { shuffle } from "./shuffle";
+import store from "store2";
+
 export const prepareChoices = (target, distractors) => {
     // randomly select a location for the correct answer
     const randIndex = Math.floor(Math.random() * distractors.length + 1);

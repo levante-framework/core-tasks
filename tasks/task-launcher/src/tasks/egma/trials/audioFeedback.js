@@ -1,6 +1,6 @@
 import jsPsychAudioKeyboardResponse from "@jspsych/plugin-audio-keyboard-response";
 import store from "store2";
-import { mediaAssets } from "../experimentSetup";
+import { mediaAssets } from "../../..";
 
 export const audioResponse = {
   type: jsPsychAudioKeyboardResponse,

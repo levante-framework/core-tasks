@@ -1,11 +1,11 @@
 import store from "store2";
-import { initConfig } from "./config/config";
-import { buildExperiment } from "./experiment";
-import { isTaskFinished } from "./helperFunctions";
+import { isTaskFinished } from "./tasks/shared/helpers";
 import "./styles/task.scss";
-import { loadCorpus } from "./config/corpus";
+import taskConfig from './tasks/taskConfig'
+import { getMediaAssets, camelCaseToDash } from "./tasks/shared/helpers";
 
-export default class TaskLauncher {
+export let mediaAssets
+export class TaskLauncher {
   constructor(firekit, gameParams, userParams, displayElement) {
     this.gameParams = gameParams;
     this.userParams = userParams;
@@ -15,17 +15,39 @@ export default class TaskLauncher {
 
   async init() {
     await this.firekit.startRun();
+
+    const { 
+      initConfig, 
+      initStore, 
+      loadCorpus, 
+      buildTaskTimeline, 
+      getTranslations 
+    } = taskConfig[this.gameParams.taskName]
+
+    const { taskName, language } = this.gameParams
+
+    // GCS bucket names use a format like egma-math
+    mediaAssets = await getMediaAssets(camelCaseToDash(taskName), {}, language);
+
+    // TODO
+    // const translations = await getTranslations(language)
+
     const config = await initConfig(
       this.firekit,
       this.gameParams,
       this.userParams,
       this.displayElement,
     );
+    
+    initStore()
+
     store.session.set("config", config);
+
+    console.log({loadCorpus})
+
     await loadCorpus(config);
   
-    // build the trials
-    return buildExperiment(config);
+    return buildTaskTimeline(config, mediaAssets);
   }
 
   async run() {

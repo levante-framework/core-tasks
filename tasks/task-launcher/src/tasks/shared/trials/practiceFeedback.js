@@ -1,9 +1,8 @@
 import jsPsychAudioMultiResponse from "@jspsych-contrib/plugin-audio-multi-response";
 import store from "store2";
-import { mediaAssets } from "../experimentSetup";
-import "../i18n";
-import { isPractice } from "./subTask";
-import { storyByLabel } from "./storySupport";
+import { mediaAssets } from "../../..";
+import "../../../i18n/i18n";
+import { isPractice } from "../helpers";
 
 export const practiceIncorrectFeedback = {
   type: jsPsychAudioMultiResponse,

@@ -1,3 +1,5 @@
+import store from "store2";
+
 function createBlocks(numOfBlocks, numOfTrials) {
     // Minimum number of trials. Can change to whatever.
     if (numOfTrials < 10) numOfTrials = 10;

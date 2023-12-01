@@ -1,3 +1,6 @@
+import { jsPsych } from "../../taskSetup";
+import taskConfig from "../../taskConfig";
+
 export const initTrialSaving = (config) => {
     if (config.displayElement) {
       jsPsych.opts.display_element = config.display_element;
@@ -24,6 +27,6 @@ export const initTrialSaving = (config) => {
         );
       }
     });
-  
-    initEgmaStore(config);
+    
+    taskConfig[config.taskName].initStore(config)
 };
