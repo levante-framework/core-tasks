@@ -70,9 +70,12 @@ Overview of the core behavioral tasks for LEVANTE. This repo contains details (a
 	- item bank combining ghost, Namibia, and 3D blocks stimuli rotated 0, 30, 60, 90, 120, 150, or 180 degrees 
 	- propose to make fully adaptive
 	- in a familiarization trial, we should show an animation (of rotating and matching), and frame as a 2AFC match-to-sample task
-	- consider 3D stimuli (same/different) from [Ganis & Kievit (2015)](https://storage.googleapis.com/jnl-up-j-jopd-files/journals/1/articles/13/submission/proof/13-1-116-2-10-20150313.pdf): 
+	- consider 3D stimuli (same/different) from [Ganis & Kievit (2015)](https://storage.googleapis.com/jnl-up-j-jopd-files/journals/1/articles/13/submission/proof/13-1-116-2-10-20150313.pdf). 
+	- 11/30/2023: added Shepard & Metzler stimuli from Mike (created by Talia Konkle?), which are black outlines on a white background.
 
 15. Child Survey Questions [Amy & Bobby]
+	- trying to standardize a 5-point positive/negative valence scale (emoji-based?)
+	- questions are [here](https://docs.google.com/spreadsheets/d/1sOQv3qVwK-DQeAcySgNDCjR1TTl6_Ij-GDArM8nBeWk/edit?usp=sharing), but not yet finalized
 
 
 
