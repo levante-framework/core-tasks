@@ -1,5 +1,7 @@
 Overview of the core behavioral tasks for LEVANTE. This repo contains details (and eventually, implementations) for each of these tasks, as well as the reasoning behind adaptations we make in order to shorten or adjust the difficulty to avoid ceiling/floor effects.
 
+Collating item banks for all tasks [here](https://docs.google.com/spreadsheets/d/1MlU4eOd45XVMg7HrnTDGZ3rv1cfNjvjpdc8e_edQqQk/edit?usp=sharing). 
+
 1. Matrix Reasoning [George]
 	- Ravens CPM would be 40 Qs (~20 mins), short could be ~10 items?
 	- 15-item short form SPM 9-12 and 13-16 have r=.89 and r=.93 https://bpspsychub.onlinelibrary.wiley.com/doi/10.1111/bjdp.12381 
@@ -15,7 +17,7 @@ Overview of the core behavioral tasks for LEVANTE. This repo contains details (a
 	- for pre-k, they only do the forward block (backward is too hard)
 
 4. Something’s the Same [EF: Cognitive Flexibility]
-	- asked Laura Kuhn for materials
+	- asked Laura Kuhn for materials; she cannot share
 	- Jelena says they'd like to combine the FIST and StS tasks to cover the full age range (meeting Mon, Dec 4)
 
 5. TROG [Language: Grammar]
@@ -26,8 +28,8 @@ Overview of the core behavioral tasks for LEVANTE. This repo contains details (a
 6. Social Perception [SocialCog: Gaze Following] - external
 
 7. ToM Battery [SocialCog: Theory of Mind] [Rebecca]
-	- 2 booklets..so pick age-appropriate booklet? (Or subset of 1?)
-	- food, snack, and dog content needs to be adapted
+	- modified narratives and questions [here](https://docs.google.com/document/d/1JKKrdS3_JjbLTuF682KqIoDpWIeeMhrOdfQn0Lt1Dv0/edit?usp=sharing)
+	- food, snack, and dog content needs to be adapted -- have illustrator re-do all images?
 
 8. Emotional Face Recognition [Rebecca?]
 	- add parametric noise to the RADIATE stimulus set (Conley et al. 2018)?
