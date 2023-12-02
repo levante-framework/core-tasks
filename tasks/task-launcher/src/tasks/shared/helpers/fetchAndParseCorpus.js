@@ -39,7 +39,7 @@ const transformCSV = (csvInput, isPractice) => {
 }
 
 
-export async function fetchAndParseCorpus(config) {
+export const fetchAndParseCorpus = async (config) => {
   const { practiceCorpus, stimulusCorpus, task, storyCorpus, story, sequentialPractice, sequentialStimulus, numOfPracticeTrials } = config
 
   let practiceData, stimulusData

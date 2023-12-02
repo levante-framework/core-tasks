@@ -7,6 +7,7 @@ import { stringToBoolean } from "../src/tasks/shared/helpers";
 // Import necessary for async in the top level of the experiment script
 import "regenerator-runtime/runtime";
 
+
 // TODO: Add game params for all tasks
 const queryString = new URL(window.location).search;
 const urlParams = new URLSearchParams(queryString);
@@ -71,7 +72,6 @@ onAuthStateChanged(appKit.auth, (user) => {
       userInfo,
     });
 
-    console.log('before launch')
 
     const task = new TaskLauncher(firekit, gameParams, userParams);
     task.run();

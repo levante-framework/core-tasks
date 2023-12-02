@@ -1,5 +1,6 @@
 import { jsPsych } from "../../taskSetup";
 import taskConfig from "../../taskConfig";
+import { dashToCamelCase } from "./dashToCamelCase";
 
 export const initTrialSaving = (config) => {
     if (config.displayElement) {
@@ -27,6 +28,6 @@ export const initTrialSaving = (config) => {
         );
       }
     });
-    
-    taskConfig[config.taskName].initStore(config)
+
+    taskConfig[dashToCamelCase(config.task)].initStore(config)
 };

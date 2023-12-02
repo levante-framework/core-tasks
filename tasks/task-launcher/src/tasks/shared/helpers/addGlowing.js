@@ -1,4 +1,4 @@
-export default function addGlowing(textContent, className) {
+export function addGlowing(textContent, className) {
     const container = document.querySelector("#jspsych-audio-multi-response-btngroup");
     const buttons = container.querySelectorAll("div.jspsych-audio-multi-response-button");
     // console.log(buttons);

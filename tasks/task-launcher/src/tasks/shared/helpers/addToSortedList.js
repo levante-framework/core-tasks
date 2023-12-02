@@ -1,3 +1,5 @@
+
+import store from "store2";
 // TODO: Figure out what this does
 
 // add an item to a list in the store, creating it if necessary

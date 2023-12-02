@@ -14,9 +14,7 @@ const commonConfig = {
           name(module) {
             // get the name. E.g. node_modules/packageName/not/this/part.js
             // or node_modules/packageName
-            const packageName = module.context.match(
-              /[\\/]node_modules[\\/](.*?)([\\/]|$)/,
-            )[1];
+            const packageName = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/)[1];
 
             // npm package names are URL-safe, but some servers don't like @ symbols
             return `npm.${packageName.replace("@", "")}`;
@@ -80,7 +78,6 @@ const commonConfig = {
           {
             loader: "csv-loader",
             options: {
-              // download: true,
               header: true,
               dynamicTyping: true,
               skipEmptyLines: true,
@@ -108,7 +105,7 @@ const webConfig = merge(commonConfig, {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      title: "LEVANTE-task",
+      title: "LEVANTE core tasks",
     }),
   ],
 });

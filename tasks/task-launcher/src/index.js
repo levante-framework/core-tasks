@@ -2,7 +2,7 @@ import store from "store2";
 import { isTaskFinished } from "./tasks/shared/helpers";
 import "./styles/task.scss";
 import taskConfig from './tasks/taskConfig'
-import { getMediaAssets, camelCaseToDash } from "./tasks/shared/helpers";
+import { getMediaAssets, dashToCamelCase } from "./tasks/shared/helpers";
 
 export let mediaAssets
 export class TaskLauncher {
@@ -22,12 +22,12 @@ export class TaskLauncher {
       loadCorpus, 
       buildTaskTimeline, 
       getTranslations 
-    } = taskConfig[this.gameParams.taskName]
+    } = taskConfig[dashToCamelCase(this.gameParams.taskName)]
 
     const { taskName, language } = this.gameParams
 
     // GCS bucket names use a format like egma-math
-    mediaAssets = await getMediaAssets(camelCaseToDash(taskName), {}, language);
+    mediaAssets = await getMediaAssets(taskName, {}, language);
 
     // TODO
     // const translations = await getTranslations(language)
@@ -42,8 +42,6 @@ export class TaskLauncher {
     initStore()
 
     store.session.set("config", config);
-
-    console.log({loadCorpus})
 
     await loadCorpus(config);
   

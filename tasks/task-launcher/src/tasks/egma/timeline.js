@@ -18,10 +18,10 @@ import {
 } from "../shared/trials";
 
 export default function buildEgmaTimeline(config, mediaAssets) {
-  const preloadTrials = createPreloadTrials(mediaAssets)
+  const preloadTrials = createPreloadTrials(mediaAssets).default
 
   initTrialSaving(config);
-  const initialTimeline = initTimeline(config);
+  const initialTimeline = initTimeline(config); 
 
   const timeline = [preloadTrials, ...initialTimeline.timeline];
 

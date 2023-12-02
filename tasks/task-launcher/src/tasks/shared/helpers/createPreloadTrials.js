@@ -1,3 +1,5 @@
+import jsPsychPreload from '@jspsych/plugin-preload'
+
 // TODO: Handle shared files when using blocks.
 export function createPreloadTrials(categorizedObjects, blocks = []) {
     // Initialize jsPsychPreload trial objects for each block
@@ -32,7 +34,6 @@ export function createPreloadTrials(categorizedObjects, blocks = []) {
       });
     });
     
-    console.log(trials)
     return trials;
   
   }
