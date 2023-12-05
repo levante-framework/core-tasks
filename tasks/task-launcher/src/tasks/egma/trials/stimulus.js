@@ -14,9 +14,11 @@ export const stimulus = {
     response_allowed_while_playing: true,
     data: () => {
       return {
+        // not camelCase because firekit
         save_trial: true,
-        assessment_stage: store.session.get("nextStimulus").subtask,
-        is_practice_trial: store.session.get("nextStimulus").source === 'EGMA-practice'
+        assessment_stage: store.session.get("nextStimulus").task,
+        // not for firekit
+        isPracticeTrial: store.session.get("nextStimulus").notes === 'practice'
       }
     },
     // replace with prompt audio
@@ -34,13 +36,11 @@ export const stimulus = {
       const stimulus = store.session.get("nextStimulus");
       const { answer, distractors } = stimulus;
 
-      console.log({answer})
-      console.log({distractors})
-
       const trialInfo = prepareChoices(answer, distractors);
 
       store.session.set("target", answer);
       store.session.set("correctResponseNum", trialInfo.correctResponseNum);
+      console.log('trialInfo choices: ', trialInfo.choices)
       store.session.set("choices", trialInfo.choices);
 
       return trialInfo.choices;
@@ -85,7 +85,7 @@ export const stimulus = {
       const subTaskName = store.session("subTaskName");
 
       // check response and record it
-      data.correct = data.button_response === store.session("correctResponseNum") ? 1 : 0;
+      data.correct = data.button_response === store.session("correctResponseNum") ? true : false;
       store.session.set("correct", data.correct);
       store.session.set("response", data.button_response);
       store.session.set("responseValue", choices[data.button_response]);
@@ -111,21 +111,14 @@ export const stimulus = {
         // specific to this trial
         item: nextStimulus.item,
         assessment_stage: data.assessment_stage,
-        target: store.session("target"),
-        choices: store.session("choices"),
-        decorated: nextStimulus.decorated,
-        distractor1: nextStimulus.distractor1,
-        distractor2: nextStimulus.distractor2,
-        distractor3: nextStimulus.distractor3,
+        answer: store.session("target"),
+        choices: choices,
+        distractors: nextStimulus.distractors,
         response: store.session("responseValue"),
         responseNum: data.button_response,
         correctResponseNum: store.session("correctResponseNum"),
         correct: data.correct,
-        replay: store.session("ifReplay"),
       });
-
-      // reset the replay button
-      store.session.set("ifReplay", 0);
 
       if (!isPractice(subTaskName)) {
         updateProgressBar();

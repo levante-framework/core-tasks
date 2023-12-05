@@ -8,13 +8,9 @@ import { cat } from "../../taskSetup";
 export const getStimulus = (corpusType) => {
   let corpus, itemSuggestion;
 
-  corpus = store.session.get("corpora").corpus;
+  corpus = store.session.get("corpora");
 
-  // choose stimulus
-  if (corpusType === 'practice') {
-    
-  }
-  itemSuggestion = cat.findNextItem(corpus);
+  itemSuggestion = cat.findNextItem(corpus[corpusType]);
 
   // store the item for use in the trial
   store.session.set("nextStimulus", itemSuggestion.nextStimulus);

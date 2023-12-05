@@ -3,6 +3,7 @@ import "../../../i18n/i18n";
 import { shuffle } from "./shuffle";
 import Papa from "papaparse";
 import _compact from 'lodash/compact'
+import _toNumber from 'lodash/toNumber'
 import store from "store2";
 import "regenerator-runtime/runtime";
 import { stringToNumberArray } from "./stringToNumArray";
@@ -24,7 +25,7 @@ const transformCSV = (csvInput) => {
       prompt: row.prompt,
       item: row.item || row.Item,
       timeLimit: row.time_limit,
-      answer: row.answer,
+      answer: _toNumber(row.answer),
       notes: row. notes,
       distractors: stringToNumberArray(row.response_alternatives),
       difficulty: row.difficulty
