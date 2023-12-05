@@ -1,30 +1,11 @@
 import jsPsychAudioMultiResponse from "@jspsych-contrib/plugin-audio-multi-response";
 import store from "store2";
 import { jsPsych } from "../../taskSetup";
-import { shuffle, updateProgressBar, addItemToSortedStoreList, isPractice } from "../../shared/helpers";
+import { prepareChoices, updateProgressBar, addItemToSortedStoreList, isPractice } from "../../shared/helpers";
 import { mediaAssets } from "../../..";
 import { audioResponse } from "./audioFeedback";
 
 export const audioContext = new Audio();
-
-const prepareChoices = (target, distractors) => {
-  const randIndex = Math.floor(Math.random() * distractors.length + 1);
-
-  const stimulus = shuffle(distractors);
-  let choices = [];
-  for (let i = 0; i < distractors.length; i++) {
-    choices.push(stimulus[i]);
-  }
-
-  // insert the target
-  choices.splice(randIndex, 0, target);
-
-  return {
-    target: target,
-    choices: choices,
-    correctResponseNum: randIndex,
-  };
-};
 
 let source
 
@@ -51,11 +32,14 @@ export const stimulus = {
     button_choices: () => {
       // Experiment logic should not be happening in trial parameters
       const stimulus = store.session.get("nextStimulus");
-      const { target, distractors } = stimulus;
+      const { answer, distractors } = stimulus;
 
-      const trialInfo = prepareChoices(target, distractors);
+      console.log({answer})
+      console.log({distractors})
 
-      store.session.set("target", target);
+      const trialInfo = prepareChoices(answer, distractors);
+
+      store.session.set("target", answer);
       store.session.set("correctResponseNum", trialInfo.correctResponseNum);
       store.session.set("choices", trialInfo.choices);
 

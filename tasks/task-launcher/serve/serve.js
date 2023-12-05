@@ -12,8 +12,7 @@ import "regenerator-runtime/runtime";
 const queryString = new URL(window.location).search;
 const urlParams = new URLSearchParams(queryString);
 const taskName = urlParams.get("taskName") ?? 'egma-math'
-const practiceCorpus = urlParams.get("practiceCorpus");
-const stimulusCorpus = urlParams.get("stimulusCorpus");
+const corpus = urlParams.get("corpus");
 const storyCorpus = urlParams.get("storyCopus")
 const buttonLayout = urlParams.get("buttonLayout");
 const numOfPracticeTrials = urlParams.get("practiceTrials");
@@ -48,10 +47,9 @@ onAuthStateChanged(appKit.auth, (user) => {
     const gameParams = {
       taskName,
       skipInstructions,
-      practiceCorpus,
-      stimulusCorpus,
       sequentialPractice,
       sequentialStimulus,
+      corpus,
       buttonLayout,
       numOfPracticeTrials,
       numberOfTrials,

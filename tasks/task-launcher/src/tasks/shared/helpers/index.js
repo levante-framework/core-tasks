@@ -1,5 +1,6 @@
 // JavaScript modules are resolved and executed in the order they are imported.
 // Order of imports matters
+export * from './stringToNumArray'
 export * from './fetchAndParseCorpus'
 export * from './initTimeline'
 export * from './initTrialSaving'

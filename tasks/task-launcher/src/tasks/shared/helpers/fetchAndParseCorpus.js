@@ -5,44 +5,44 @@ import Papa from "papaparse";
 import _compact from 'lodash/compact'
 import store from "store2";
 import "regenerator-runtime/runtime";
+import { stringToNumberArray } from "./stringToNumArray";
 
 export let corpora
 
 let maxStimlulusTrials = 0;
 let maxPracticeTrials = 0
 
-const transformCSV = (csvInput, isPractice) => {
-  return csvInput.reduce((accum, row) => {
+let stimulusData = [], practiceData = []
+
+const transformCSV = (csvInput) => {
+  csvInput.forEach((row) => {
     const newRow = {
-      item: row.item || row.Item,
-      target: row.target || row.Target || row.answer || row.Answer,
-      distractor1: row.distractor1 || row.Distractor1 || row.distractor_1,
-      distractor2: row.distractor2 || row.Distractor2 || row.distractor_2,
-      distractor3: row.distractor3 || row.Distractor3 || row.distractor_3,
-      difficulty: isPractice ? row.difficulty : row.b,
+      source: row.source,
+      block_index: row.block_index,
+      task: row.task,
+      // for testing, will be removed
       prompt: row.prompt,
-      source: row.source
+      item: row.item || row.Item,
+      timeLimit: row.time_limit,
+      answer: row.answer,
+      notes: row. notes,
+      distractors: stringToNumberArray(row.response_alternatives),
+      difficulty: row.difficulty
     };
-    // Array of distractors with falsey and empty string values removed
-    newRow.distractors = _compact([newRow.distractor1, newRow.distractor2, newRow.distractor3]),
 
-    accum.push(newRow);
-
-    if (!isPractice) {
-      maxStimlulusTrials += 1;
-    } else {
+    if (row.notes === 'practice') {
+      practiceData.push(newRow)
       maxPracticeTrials += 1
+    } else {
+      stimulusData.push(newRow)
+      maxStimlulusTrials += 1
     }
-
-    return accum;
-  }, []);
+  });
 }
 
 
 export const fetchAndParseCorpus = async (config) => {
-  const { practiceCorpus, stimulusCorpus, task, storyCorpus, story, sequentialPractice, sequentialStimulus, numOfPracticeTrials } = config
-
-  let practiceData, stimulusData
+  const { corpus, task, storyCorpus, story, sequentialStimulus, sequentialPractice, numOfPracticeTrials } = config
 
   function downloadCSV(url, i) {
     return new Promise((resolve, reject) => {
@@ -51,12 +51,7 @@ export const fetchAndParseCorpus = async (config) => {
         header: true,
         skipEmptyLines: true,
         complete: function (results) {
-          if (i === 0) {
-            practiceData = transformCSV(results.data, true);
-          } else if (i == 1) {
-            stimulusData = transformCSV(results.data, false);
-          }
-
+          transformCSV(results.data);
           resolve(results.data);
         },
         error: function (error) {
@@ -73,8 +68,7 @@ export const fetchAndParseCorpus = async (config) => {
 
   async function fetchData() {
     const urls = [
-      `https://storage.googleapis.com/${task}/${i18next.language}/corpora/${practiceCorpus}.csv`,
-      `https://storage.googleapis.com/${task}/${i18next.language}/corpora/${stimulusCorpus}.csv`,
+      `https://storage.googleapis.com/${task}/${i18next.language}/corpora/${corpus}.csv`,
     ];
 
     try {
