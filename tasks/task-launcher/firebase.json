@@ -1,26 +1,10 @@
 {
-  "hosting": [
-    {
-      "public": "dist",
-      "target": "core-tasks",
-      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
-      "rewrites": [
-        {
-          "source": "**",
-          "destination": "/index.html"
-        }
-      ],
-      "headers": [
-        {
-          "source": "**/*",
-          "headers": [
-            {
-              "key": "Feature-Policy",
-              "value": "autoplay=*"
-            }
-          ]
-        }
-      ]
-    }
-  ]
+  "hosting": {
+    "public": "dist",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  }
 }

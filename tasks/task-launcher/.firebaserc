@@ -1,9 +1,9 @@
 {
   "projects": {
-    "default": "core-tasks"
+    "default": "hs-levante-assessment-dev"
   },
   "targets": {
-    "my-project": {
+    "hs-levante-assessment-dev": {
       "hosting": {
         "core-tasks": [
           "core-tasks"

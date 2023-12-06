@@ -375,6 +375,7 @@
       justify-content: center;
       align-items: center;
 
+
       #fullScreen {
         width: 80vw;
         text-align: center;
@@ -475,6 +476,34 @@
             cursor: pointer;
           }
         }
+      }
+
+      #jspsych-html-slider-response-stimulus {
+        text-align: center;
+        margin-bottom: 5rem;
+      }
+
+      #slider-btn-container {
+        margin-top: 10vh;
+        display: flex;
+        justify-content: space-around;
+
+        button {
+          padding: 1rem;
+          background-color: blue;
+          color: white;
+          border: none;
+          border-radius: .5rem;
+          cursor: pointer;
+        }
+      }
+
+      #jspsych-html-slider-response-next {
+        padding: 1rem 3rem;
+        color: white;
+        background-color: #2ba805;
+        border: none;
+        border-radius: .5rem;
       }
 
       .disabled-btn {

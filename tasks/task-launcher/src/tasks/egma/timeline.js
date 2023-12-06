@@ -11,6 +11,7 @@ import {
 import { jsPsych, initializeCat } from "../taskSetup";
 // trials
 import { ifRealTrialResponse, stimulus } from "./trials/stimulus";
+import { slider } from "./trials/sliderStimulus";
 import { exitFullscreen } from "../shared/trials";
 import { 
   setupPractice, 
@@ -80,6 +81,15 @@ export default function buildEgmaTimeline(config, mediaAssets) {
   };
 
   initializeCat();
+
+  const sliderBlock = {
+    timeline: [
+      slider
+    ],
+    repetitions: 10
+  }
+
+  timeline.push(sliderBlock)
 
   pushSubTaskToTimeline(
     setupPractice,
