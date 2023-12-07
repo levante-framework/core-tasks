@@ -1,4 +1,4 @@
-import { shuffle } from "./shuffle";
+import _shuffle from 'lodash/shuffle'
 import store from "store2";
 
 export const prepareChoices = (target, distractors) => {
@@ -6,7 +6,7 @@ export const prepareChoices = (target, distractors) => {
     const randIndex = Math.floor(Math.random() * distractors.length + 1);
   
     // randomize the order of the distractors
-    const stimulus = shuffle(distractors);
+    const stimulus = _shuffle(distractors);
     let choices = [];
     for (let i = 0; i < distractors.length; i++) {
       choices.push(stimulus[i]);

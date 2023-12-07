@@ -1,6 +1,6 @@
 import i18next from "i18next";
 import "../../../i18n/i18n";
-import { shuffle } from "./shuffle";
+import _shuffle from 'lodash/shuffle'
 import Papa from "papaparse";
 import _compact from 'lodash/compact'
 import _toNumber from 'lodash/toNumber'
@@ -15,6 +15,18 @@ let maxPracticeTrials = 0
 
 let stimulusData = [], practiceData = []
 
+function writeItem(row) {
+  // console.log(row.task)
+  if (row.task.includes('Number Line')) {
+    console.log(row.item)
+    const splitArr = row.item.split(",")
+    console.log(splitArr)
+    return splitArr.map(el => _toNumber(el))
+  }
+
+  return row.item
+}
+
 const transformCSV = (csvInput) => {
   csvInput.forEach((row) => {
     const newRow = {
@@ -23,13 +35,18 @@ const transformCSV = (csvInput) => {
       task: row.task,
       // for testing, will be removed
       prompt: row.prompt,
-      item: row.item || row.Item,
+      item: writeItem(row),
       timeLimit: row.time_limit,
       answer: _toNumber(row.answer),
       notes: row. notes,
       distractors: stringToNumberArray(row.response_alternatives),
       difficulty: row.difficulty
     };
+    
+    if (newRow.task.includes('Number Line')) {
+      console.log('after parsing: ', newRow.item)
+    }
+
 
     if (row.notes === 'practice') {
       practiceData.push(newRow)
@@ -87,8 +104,8 @@ export const fetchAndParseCorpus = async (config) => {
   await fetchData();
 
   const csvTransformed = {
-    practice: sequentialPractice ? practiceData : shuffle(practiceData),
-    stimulus: sequentialStimulus ? stimulusData : shuffle(stimulusData),
+    practice: sequentialPractice ? practiceData : _shuffle(practiceData),
+    stimulus: sequentialStimulus ? stimulusData : _shuffle(stimulusData),
   };
 
   corpora = {

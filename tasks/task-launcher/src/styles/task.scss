@@ -478,6 +478,10 @@
         }
       }
 
+      #jspsych-html-slider-response-response{
+        width: 100%;
+      }
+
       #jspsych-html-slider-response-stimulus {
         text-align: center;
         margin-bottom: 5rem;
@@ -490,11 +494,17 @@
 
         button {
           padding: 1rem;
-          background-color: blue;
+          background-color: rgb(119, 0, 255);
           color: white;
-          border: none;
+          border: 2px solid transparent;
           border-radius: .5rem;
           cursor: pointer;
+        }
+
+        #selected-btn {
+          background-color: #007bff; /* Change the background color to indicate selection */
+          color: #fff; /* Change the text color for better visibility */
+          border: 2px solid #32f718; /* Add a border to highlight the button */
         }
       }
 
@@ -504,6 +514,7 @@
         background-color: #2ba805;
         border: none;
         border-radius: .5rem;
+        cursor: pointer;
       }
 
       .disabled-btn {

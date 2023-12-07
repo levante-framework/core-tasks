@@ -26,6 +26,16 @@ export default function buildEgmaTimeline(config, mediaAssets) {
 
   const timeline = [preloadTrials, ...initialTimeline.timeline];
 
+  const stimulusBlock = {
+    timeline: [stimulus],
+    conditional_function: () => !store.session.get('nextStimulus').includes('Number Line')
+  }
+
+  const sliderBlock = {
+    timeline: [slider],
+    conditional_function: () => store.session.get('nextStimulus').task.includes('Number Line')
+  }
+
   const pushSubTaskToTimeline = (
     fixationBlock,
     stimulusCounts,
@@ -40,8 +50,8 @@ export default function buildEgmaTimeline(config, mediaAssets) {
         surveyBlock = {
           timeline: [
             fixationBlock,
-            // used to be practice
-            stimulus,
+            stimulusBlock,
+            sliderBlock,
             // ifPracticeCorrect,
             // ifPracticeIncorrect,
             ifRealTrialResponse,
@@ -59,7 +69,8 @@ export default function buildEgmaTimeline(config, mediaAssets) {
         surveyBlock = {
           timeline: [
             fixationBlock,
-            stimulus,
+            stimulusBlock,
+            sliderBlock,
             // ifPracticeCorrect,
             // ifPracticeIncorrect,
             ifRealTrialResponse,
@@ -81,13 +92,6 @@ export default function buildEgmaTimeline(config, mediaAssets) {
   };
 
   initializeCat();
-
-  const sliderBlock = {
-    timeline: [
-      slider
-    ],
-    repetitions: 10
-  }
 
   timeline.push(sliderBlock)
 

@@ -1,12 +1,7 @@
 import egmaTimeline from './egma/timeline'
 import { initEgmaConfig, initEgmaStore } from './egma/helpers'
-import { fetchAndParseCorpus, initTrialSaving, initTimeline} from './shared/helpers'
+import { fetchAndParseCorpus } from './shared/helpers'
 
-// console.log({fetchAndParseCorpus})
-// console.log({initTimeline})
-// console.log({initTrialSaving})
-
-// initEgma functions are defined but fetchCorpus is not. ???
 
 export default {
     egmaMath: {
@@ -17,7 +12,7 @@ export default {
         buildTaskTimeline: egmaTimeline,
         variants: {
             // example
-            egmaKids:{
+            egmaMathKids:{
                 // does not need to have all properties, only what is different from base task
             }
         }
