@@ -24,11 +24,11 @@ export const stimulus = {
     // replace with prompt audio
     stimulus: () => mediaAssets.audio.nullAudio,
     prompt: () => `
-    <div>
-      <img src=${mediaAssets.images.speakerIcon} id='replay-btn' alt='speaker replay icon'/>
-      <p class="item-stimulus">${ store.session.get("nextStimulus").prompt }</p>
+    <div id='stimulus-container'>
+      ${store.session.get("nextStimulus").task === 'Number Identification' ? `<img src=${mediaAssets.images.speakerIcon} id='replay-btn' alt='speaker replay icon'/>` : ''}
+      <p id="prompt">${ store.session.get("nextStimulus").prompt }</p>
       <br>
-      <p class="item-stimulus">${ store.session.get("nextStimulus").item }</p>
+      <p id="stimulus">${ store.session.get("nextStimulus").item }</p>
     </div>`,
     prompt_above_buttons: true,
     button_choices: () => {
@@ -58,22 +58,24 @@ export const stimulus = {
         store.session.transact("trialNumTotal", (oldVal) => oldVal + 1);
       }
 
-      const replayBtn = document.getElementById('replay-btn');
+      if (store.session.get("nextStimulus").task === 'Number Identification') {
+        const replayBtn = document.getElementById('replay-btn');
 
-      async function replayAudio() {
-        const jsPsychAudioCtx = jsPsych.pluginAPI.audioContext();
-
-        // Returns a promise of the AudioBuffer of the preloaded file path.
-        // REPLACE WITH STIMULUS AUDIO
-        const audioBuffer = await jsPsych.pluginAPI.getAudioBuffer(mediaAssets.audio.select);
-
-        source = jsPsychAudioCtx.createBufferSource();
-        source.buffer = audioBuffer;
-        source.connect(jsPsychAudioCtx.destination);
-        source.start(0);
+        async function replayAudio() {
+          const jsPsychAudioCtx = jsPsych.pluginAPI.audioContext();
+  
+          // Returns a promise of the AudioBuffer of the preloaded file path.
+          // REPLACE WITH STIMULUS AUDIO
+          const audioBuffer = await jsPsych.pluginAPI.getAudioBuffer(mediaAssets.audio.select);
+  
+          source = jsPsychAudioCtx.createBufferSource();
+          source.buffer = audioBuffer;
+          source.connect(jsPsychAudioCtx.destination);
+          source.start(0);
+        }
+  
+        replayBtn.addEventListener('click', replayAudio);
       }
-
-      replayBtn.addEventListener('click', replayAudio);
     },
     on_finish: (data) => {
       if (source) source.stop();

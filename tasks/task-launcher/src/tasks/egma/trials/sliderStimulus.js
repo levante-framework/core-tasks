@@ -16,6 +16,22 @@ function captureValue(btnElement) {
     btnElement.id = 'selected-btn'
 }
 
+function getRandomValue(min, max, avoid) {
+    let result;
+
+    do {
+        if (max === 1) {
+            result = parseFloat((Math.random() * (max - min) + min).toFixed(2));
+        } else {
+            result = Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+    } while (result === avoid);
+
+    return result;
+}
+
+let sliderStart
+
 export const slider = {
     type: HTMLSliderResponse,
     data: () => {
@@ -24,47 +40,37 @@ export const slider = {
             assessment_stage: store.session.get('nextStimulus').task
         }
     },
-    stimulus: 'Move the slider to 7.',
-    // stimulus: 'Choose the number that is marked on the number line.',
-    labels: () => {
-        const range = store.session.get('nextStimulus').item
-        console.log({range})
-
-        const numberStrings = [];
-
-        const max = range[1]
-
-        console.log({max})
-
-        for (let i = 0; i <= max; i+= (max / 10)) {
-            numberStrings.push(i.toString());
+    stimulus: () => {
+        const stim = store.session.get('nextStimulus')
+        const prompt = stim.prompt
+        if (prompt.includes('dot')) {
+            return `${prompt} ${stim.answer}.`
+        } else {
+            return prompt
         }
-
-        // return ['1', '250', '500', '750', '1000']
-        return numberStrings
     },
+    labels: () => store.session.get('nextStimulus').item,
     // button_label: 'Continue',
-    // require_movement: store.session.get('nextStimulus).task === 'Number Line slider'
+    require_movement: () => store.session.get('nextStimulus').task === 'Number Line Slider',
     slider_width: 700,
-    // min: store.session.get('nextStimulus').item[0],
-    min: 0,
-    // max: store.session.get('nextStimulus').item[1],
-    max: 10,
-    slider_start: 2.58,
-    // slide_start: store.session.get('nextStimulus').answer
+    min: store.session.get('nextStimulus').item[0],
+    max: store.session.get('nextStimulus').item[1],
+    slider_start: () => {
+        if (store.session.get('nextStimulus').prompt.includes('dot')){
+            sliderStart = getRandomValue(store.session.get('nextStimulus').item[0], store.session.get('nextStimulus').item[1], store.session.get('nextStimulus').answer)
+            console.log('slider start val in slider_start: ', sliderStart)
+            return sliderStart
+        } else {
+            sliderStart = store.session.get('nextStimulus').answer
+            console.log('slider start val in slider_start: ', sliderStart)
+            return sliderStart
+        }
+    },
     step: 1,
     // response_ends_trial: true,
-    on_load: () => {
+    on_load: () => {       
+        console.log(store.session.get('nextStimulus'))
         // sliderVal = store.session.get('nextStimulus').answer
-
-        const slider = document.getElementById('jspsych-html-slider-response-response')
-
-        slider.addEventListener('input', () => {
-                const sliderPrompt = document.getElementById('slider-val-prompt')
-                sliderPrompt.textContent = `Current value: ${slider.value}`
-            }
-        )
-
 
         const wrapper = document.getElementById('jspsych-html-slider-response-wrapper')
         const container = document.createElement('div')
@@ -72,10 +78,10 @@ export const slider = {
 
         
         if (store.session.get('nextStimulus').task === 'Number Line 4afc') {
-            // const { answer, distractors } = store.session.get('nextStimulus')
+            const { answer, distractors } = store.session.get('nextStimulus')
 
-            const answer = 12
-            const distractors = [1,3,4]
+            // const answer = 12
+            // const distractors = [1,3,4]
 
             distractors.push(answer)
             
@@ -92,9 +98,17 @@ export const slider = {
                 container.appendChild(btn)
             }
         } else {
+            const slider = document.getElementById('jspsych-html-slider-response-response')
+
+            slider.addEventListener('input', () => {
+                    const sliderPrompt = document.getElementById('slider-val-prompt')
+                    sliderPrompt.textContent = `Current value: ${slider.value}`
+                }
+            )
+
             const par = document.createElement('p')
             par.id = 'slider-val-prompt'
-            par.textContent = `Current value: ${store.session.get('nextStimulus')?.startSlider || 2.58}`
+            par.textContent = `Current dot value: ${sliderStart}`
             container.appendChild(par)
         }
 
@@ -107,10 +121,10 @@ export const slider = {
         data.correct = chosenAnswer ===  store.session.get('target')
 
         jsPsych.data.addDataToLastTrial({
-            // specific to this trial
             item: stimulus.item,
             answer: store.session("target"),
             response: chosenAnswer,
+            sliderStart,
             // choices not being written for some reason >:(
             choices: stimulus.choices,
             distractors: stimulus.distractors,

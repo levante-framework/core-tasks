@@ -28,12 +28,16 @@ export default function buildEgmaTimeline(config, mediaAssets) {
 
   const stimulusBlock = {
     timeline: [stimulus],
-    conditional_function: () => !store.session.get('nextStimulus').includes('Number Line')
+    conditional_function: () => {
+      return !store.session.get('nextStimulus').task.includes('Number Line')
+    }
   }
 
   const sliderBlock = {
     timeline: [slider],
-    conditional_function: () => store.session.get('nextStimulus').task.includes('Number Line')
+    conditional_function: () => {
+      return store.session.get('nextStimulus').task.includes('Number Line')
+    }
   }
 
   const pushSubTaskToTimeline = (
@@ -92,8 +96,6 @@ export default function buildEgmaTimeline(config, mediaAssets) {
   };
 
   initializeCat();
-
-  timeline.push(sliderBlock)
 
   pushSubTaskToTimeline(
     setupPractice,

@@ -43,7 +43,7 @@ export const initEgmaConfig = async (
     sequentialPractice: sequentialPractice ?? true,
     sequentialStimulus: sequentialStimulus ?? true,
     // name of the csv files in the storage bucket
-    corpus: corpus ?? "math-item-bank",
+    corpus: corpus ?? "math-item-bank-pz",
     buttonLayout: buttonLayout || "default",
     numberOfTrials: numberOfTrials ?? 10,
     storyCorpus: storyCorpus ?? 'story-lion',
