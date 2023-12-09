@@ -44,7 +44,7 @@ const transformCSV = (csvInput) => {
     };
     
     // if (newRow.task.includes('Number Line')) {
-    //   console.log('after parsing: ', newRow.item)
+      // console.log('after parsing: ', newRow.item)
     // }
 
 
@@ -112,6 +112,8 @@ export const fetchAndParseCorpus = async (config) => {
     practice: csvTransformed.practice,
     stimulus: csvTransformed.stimulus,
   };
+
+  // console.log({corpora})
 
   store.session.set("corpora", corpora);
 }

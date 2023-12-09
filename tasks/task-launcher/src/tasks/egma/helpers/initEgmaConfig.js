@@ -56,19 +56,13 @@ export const initEgmaConfig = async (
   };
 
   const updatedGameParams = Object.fromEntries(
-    Object.entries(gameParams).map(([key, value]) => [
-      key,
-      config[key] ?? value,
-    ]),
+    Object.entries(gameParams).map(([key, value]) => [key, config[key] ?? value]),
   );
 
   await config.firekit.updateTaskParams(updatedGameParams);
 
   if (config.pid !== null) {
-    await config.firekit.updateUser({
-      assessmentPid: config.pid,
-      ...userMetadata,
-    });
+    await config.firekit.updateUser({ assessmentPid: config.pid, ...userMetadata });
   }
 
   return config;

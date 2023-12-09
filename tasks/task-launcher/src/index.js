@@ -26,7 +26,8 @@ export class TaskLauncher {
 
     const { taskName, language } = this.gameParams
 
-    // GCS bucket names use a format like egma-math
+    // GCP bucket names use a format like egma-math
+    // will avoid language folder if not provided
     mediaAssets = await getMediaAssets(taskName, {}, language);
 
     // TODO

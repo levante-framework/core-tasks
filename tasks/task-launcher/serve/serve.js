@@ -56,7 +56,8 @@ onAuthStateChanged(appKit.auth, (user) => {
       story,
       storyCorpus,
       stimulusBlocks,
-      keyHelpers
+      keyHelpers,
+      language
     };
 
     const taskInfo = {

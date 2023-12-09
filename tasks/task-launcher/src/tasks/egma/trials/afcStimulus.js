@@ -9,20 +9,27 @@ export const audioContext = new Audio();
 
 let source
 
-export const stimulus = {
+export const afcStimulus = {
     type: jsPsychAudioMultiResponse,
     response_allowed_while_playing: true,
     data: () => {
       return {
         // not camelCase because firekit
-        save_trial: true,
+        // save_trial: true,
         assessment_stage: store.session.get("nextStimulus").task,
         // not for firekit
         isPracticeTrial: store.session.get("nextStimulus").notes === 'practice'
       }
     },
-    // replace with prompt audio
-    stimulus: () => mediaAssets.audio.nullAudio,
+    stimulus: () => {
+      const stim = store.session.get("nextStimulus")
+      if (stim.task === 'Number Identification') {
+        // For testing, in case audio isnt defined
+        return mediaAssets.audio[stim.item] || mediaAssets.audio.nullAudio
+      } else {
+        return mediaAssets.audio.nullAudio
+      }
+    },
     prompt: () => `
     <div id='stimulus-container'>
       ${store.session.get("nextStimulus").task === 'Number Identification' ? `<img src=${mediaAssets.images.speakerIcon} id='replay-btn' alt='speaker replay icon'/>` : ''}
@@ -40,13 +47,14 @@ export const stimulus = {
 
       store.session.set("target", answer);
       store.session.set("correctResponseNum", trialInfo.correctResponseNum);
-      console.log('trialInfo choices: ', trialInfo.choices)
+      // console.log('trialInfo choices: ', trialInfo.choices)
       store.session.set("choices", trialInfo.choices);
 
       return trialInfo.choices;
     },
     button_html: () => "<button>%choice%</button>",
     on_load: () => {
+      const stim = store.session.get("nextStimulus") 
       const btnOption = store.session.get("config").buttonLayout;
       document.getElementById("jspsych-audio-multi-response-btngroup").classList.add(`${btnOption}-layout`);
 
@@ -65,8 +73,7 @@ export const stimulus = {
           const jsPsychAudioCtx = jsPsych.pluginAPI.audioContext();
   
           // Returns a promise of the AudioBuffer of the preloaded file path.
-          // REPLACE WITH STIMULUS AUDIO
-          const audioBuffer = await jsPsych.pluginAPI.getAudioBuffer(mediaAssets.audio.select);
+          const audioBuffer = await jsPsych.pluginAPI.getAudioBuffer(mediaAssets.audio[stim.item]);
   
           source = jsPsychAudioCtx.createBufferSource();
           source.buffer = audioBuffer;

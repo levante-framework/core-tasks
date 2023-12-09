@@ -20,12 +20,12 @@ const setupData = [
 const setupTrials = setupData.map((trial, i) => {
   return {
     type: jsPsychHTMLMultiResponse,
-    stimulus: `<div class='stimulus_div'>
-                <p class='stimulus'> </p>
+    stimulus: `<div id='fixation-container'>
+                <p>+</p>
               </div>`,
     prompt: "",
     choices: "NO_KEYS",
-    trial_duration: 10, // store.session.get("config").timing.fixationTime, // TODO 
+    trial_duration: 350,
 
     data: {
       task: "fixation",
