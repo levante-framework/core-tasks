@@ -33,7 +33,7 @@ export async function getMediaAssets(bucketName, whitelist = {}, language, nextP
   }
 }
 
-  // Still needs to be worked on to allow nested whitelisting (whitelisting within an already whitelisted folder)
+  // TODO: allow nested whitelisting (whitelisting within an already whitelisted folder)
 function isWhitelisted(filePath, whitelist) {
   const parts = filePath.split('/');
   for (const [parent, children] of Object.entries(whitelist)) {

@@ -15,6 +15,8 @@
   height: 100%;
   width: 100%;
   margin: 0;
+  max-width: 100%; 
+  overflow: hidden; // disable scrolling
   font-family: "Source Sans Pro", Gotham, "Helvetica Neue", Helvetica, Arial,
     "sans-serif";
   touch-action: manipulation;
@@ -37,11 +39,22 @@
       justify-content: center;
       align-items: center;
 
-      #fullScreen {
+      #fullscreen {
         width: 80vw;
         text-align: center;
         color: rgba(76, 101, 139, 1);
         font-size: 1.7rem;
+      }
+
+      #continue-btn {
+        background-color: rgba(76, 101, 139, 1);
+        color: white;
+        border: none;
+        padding: 1.5rem;
+        font-size: 2.5rem;
+        border-radius: .5rem;
+        cursor: pointer;
+        margin-top: 2rem;
       }
 
       #jspsych-fullscreen-btn {
@@ -55,6 +68,28 @@
         font-weight: bold;
         cursor: pointer;
       }
+
+      .instructions-container {
+        text-align: center;
+        font-size: 1.5rem;
+
+        .instructions-title {
+          text-align: center;
+          margin-bottom: 3rem;
+        }
+
+        p {
+          text-align: left;
+          margin: 0 auto;
+          max-width: 60vw; 
+          line-height: 1.6;
+        }
+
+        footer {
+          margin-top: 3rem;
+        }
+      }
+
 
       // Multichoice template
       #fixation-container {
@@ -83,6 +118,7 @@
         // 1 x 4 (default)
         display: flex;
         max-width: 100%;
+        gap: 1.5rem;
 
         div {
           box-sizing: border-box;
@@ -91,11 +127,15 @@
           max-width: calc(25% + 10px);
 
           button {
-            font-family: primerBold;
             width: 100%;
-            color: black;
-            font-size: clamp(2rem, 4vw, 2.5rem);
+            // font-size: clamp(2rem, 4vw, 2.5rem);
             cursor: pointer;
+            background-color: rgb(0, 132, 255);
+            border: none;
+            border-radius: .5rem;
+            color: white;
+            padding: 1.5rem;
+            font-size: 1.5rem;
           }
         }
       }
@@ -118,11 +158,14 @@
           max-width: 50%;
 
           button {
-            font-family: primerBold;
             width: 100%;
-            color: black;
-            font-size: 5vw;
             cursor: pointer;
+            background-color: rgb(0, 132, 255);
+            border: none;
+            border-radius: .5rem;
+            color: white;
+            padding: 1.5rem;
+            font-size: 1.5rem;
           }
         }
       }
@@ -141,15 +184,19 @@
           max-width: 100%;
 
           button {
-            font-family: primerBold;
             width: 100%;
-            color: black;
-            font-size: 5vw;
             cursor: pointer;
+            background-color: rgb(0, 132, 255);
+            border: none;
+            border-radius: .5rem;
+            color: white;
+            padding: 1.5rem;
+            font-size: 1.5rem;
           }
         }
       }
 
+      // pyramid
       .triple-layout {
         display: grid;
         grid-template-columns: repeat(3, 1fr); /* three columns of equal width */
@@ -163,11 +210,14 @@
           max-width: 100%;
       
           button {
-            font-family: primerBold;
             width: 100%;
-            color: black;
-            font-size: 5vw;
             cursor: pointer;
+            background-color: rgb(0, 132, 255);
+            border: none;
+            border-radius: .5rem;
+            color: white;
+            padding: 1.5rem;
+            font-size: 1.5rem;
           }
         }
       
@@ -191,7 +241,7 @@
       .diamond-layout {
         display: grid;
         grid-template-columns: repeat(3, 1fr); /* three columns of equal width */
-        grid-template-rows: auto auto auto; /* three rows, size according to content */
+        grid-template-rows: auto auto; /* three rows, size according to content */
         gap: 2rem;
       
         div {
@@ -199,42 +249,48 @@
           margin: 0;
           padding: 0;
           max-width: 100%;
+          align-self: start; /* Aligns button content to the start of the grid area */
       
-          button {
-            font-family: primerBold;
-            width: 100%;
-            color: black;
-            font-size: 5vw;
+          .math-btn {
+            background-color: rgb(0, 132, 255);
+            border: none;
+            border-radius: .5rem;
+            color: white;
+            padding: 1.5rem;
+            font-size: 1.5rem;
             cursor: pointer;
+            width: 100%;
           }
         }
       
-        /* Specific styles for individual buttons */
         .button1 {
           grid-column: 2; /* Centered in the middle column */
           grid-row: 1;
         }
       
         .button2 {
-          grid-column: 1; /* First column in the second row */
-          grid-row: 2;
+          grid-column: 1; /* First column */
+          grid-row: 1 / 3; /* Spanning from the first row to the third grid line */
+          align-self: center; /* Center this button vertically */
         }
       
         .button3 {
-          grid-column: 3; /* Third column in the second row */
-          grid-row: 2;
+          grid-column: 3; /* Third column */
+          grid-row: 1 / 3; /* Spanning from the first row to the third grid line */
+          align-self: center; /* Center this button vertically */
         }
       
         .button4 {
           grid-column: 2; /* Centered in the middle column */
-          grid-row: 3;
+          grid-row: 2;
         }
+      
       }
 
       .arrow-key-border {
         border: 1px solid black; /* Thin and black border */
         border-radius: 10px; /* Curved corners */
-        padding: 1rem !important;
+        padding: .5rem !important;
         max-width: 100% !important;
 
         .arrow-key {
@@ -242,6 +298,7 @@
           margin: 0;
         }
       }
+
 
 
       .disabled-btn {
@@ -330,6 +387,7 @@
         bottom: 80%;
         right: 10%;
         cursor: pointer;
+        width: 10vw
       }
     }
   }

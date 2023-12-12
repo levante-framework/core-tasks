@@ -10,7 +10,11 @@ export const getStimulus = (corpusType) => {
 
   corpus = store.session.get("corpora");
 
+  console.log({corpus})
+
   itemSuggestion = cat.findNextItem(corpus[corpusType]);
+
+  console.log({itemSuggestion})
 
   // store the item for use in the trial
   store.session.set("nextStimulus", itemSuggestion.nextStimulus);

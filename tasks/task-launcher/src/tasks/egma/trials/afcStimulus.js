@@ -38,8 +38,8 @@ export const afcStimulus = {
       <p id="stimulus">${ store.session.get("nextStimulus").item }</p>
     </div>`,
     prompt_above_buttons: true,
+    keyboard_choices: ['ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight'],
     button_choices: () => {
-      // Experiment logic should not be happening in trial parameters
       const stimulus = store.session.get("nextStimulus");
       const { answer, distractors } = stimulus;
 
@@ -52,17 +52,43 @@ export const afcStimulus = {
 
       return trialInfo.choices;
     },
-    button_html: () => "<button>%choice%</button>",
+    button_html: () => "<button class='math-btn'>%choice%</button>",
     on_load: () => {
       const stim = store.session.get("nextStimulus") 
-      const btnOption = store.session.get("config").buttonLayout;
-      document.getElementById("jspsych-audio-multi-response-btngroup").classList.add(`${btnOption}-layout`);
+      const { buttonLayout, keyHelpers} = store.session.get("config")
+      const buttonContainer = document.getElementById("jspsych-audio-multi-response-btngroup")
+      buttonContainer.classList.add(`${buttonLayout}-layout`);
+
+      const arrowKeyEmojis = ['↑', '←', '→', '↓']
+
+      Array.from(buttonContainer.children).forEach((el, i) => {
+        // Add condition on triple for length (2)
+        if (buttonLayout === 'triple' || buttonLayout === 'diamond') {
+          el.classList.add(`button${i + 1}`)
+        }
+
+        if (keyHelpers) { 
+          // Margin on the actual button element
+          el.children[0].style.marginBottom = '.5rem'
+
+          const arrowKeyBorder = document.createElement('div')
+          arrowKeyBorder.classList.add('arrow-key-border')
+
+          const arrowKey = document.createElement('p')
+          arrowKey.textContent = arrowKeyEmojis[i]
+          arrowKey.style.textAlign = 'center'
+          arrowKey.style.fontSize = '1.5rem'
+          arrowKey.style.margin = '0'
+          // arrowKey.classList.add('arrow-key')
+          arrowKeyBorder.appendChild(arrowKey)
+          el.appendChild(arrowKeyBorder)
+        }
+      })
 
       // update the trial number
       store.session.transact("trialNumSubtask", (oldVal) => oldVal + 1);
       // update total real trials
-      const subTaskName = store.session("subTaskName");
-      if (!isPractice(subTaskName)) {
+      if (!isPractice(stim.notes)) {
         store.session.transact("trialNumTotal", (oldVal) => oldVal + 1);
       }
 
@@ -88,10 +114,8 @@ export const afcStimulus = {
       if (source) source.stop();
 
       // note: nextStimulus is actually the current stimulus
-      const nextStimulus = store.session("nextStimulus");
+      const stimulus = store.session("nextStimulus");
       const choices = store.session("choices");
-
-      const subTaskName = store.session("subTaskName");
 
       // check response and record it
       data.correct = data.button_response === store.session("correctResponseNum") ? true : false;
@@ -101,7 +125,7 @@ export const afcStimulus = {
 
       // update running score and answer lists
       if (data.correct === 1) {
-        if (!isPractice(subTaskName)) {
+        if (!isPractice(stimulus.notes)) {
           // practice trials don't count toward total
           store.session.transact("totalCorrect", (oldVal) => oldVal + 1);
         }
@@ -118,18 +142,18 @@ export const afcStimulus = {
 
       jsPsych.data.addDataToLastTrial({
         // specific to this trial
-        item: nextStimulus.item,
+        item: stimulus.item,
         assessment_stage: data.assessment_stage,
         answer: store.session("target"),
         choices: choices,
-        distractors: nextStimulus.distractors,
+        distractors: stimulus.distractors,
         response: store.session("responseValue"),
         responseNum: data.button_response,
         correctResponseNum: store.session("correctResponseNum"),
         correct: data.correct,
       });
 
-      if (!isPractice(subTaskName)) {
+      if (!isPractice(stimulus.notes)) {
         updateProgressBar();
       }
   }
@@ -139,9 +163,8 @@ export const ifRealTrialResponse = {
   timeline: [audioResponse],
 
   conditional_function: () => {
-    // doesn't apply to practice trials
-    const subTaskName = store.session("subTaskName");
-    if (isPractice(subTaskName)) {
+    const subTask = store.session.get("nextStimulus").notes;
+    if (isPractice(subTask)) {
       return false;
     }
     return true;

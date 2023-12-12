@@ -13,7 +13,7 @@ import { ifRealTrialResponse, afcStimulus } from "./trials/afcStimulus";
 import { slider } from "./trials/sliderStimulus";
 import { exitFullscreen } from "../shared/trials";
 import { setupPractice, setupStimulus, } from "../shared/trials";
-import { instructions } from "./trials/instructions";
+import { instructions1, instructions2, postPractice, taskFinished } from "./trials/instructions";
 
 export default function buildEgmaTimeline(config, mediaAssets) {
   const preloadTrials = createPreloadTrials(mediaAssets).default
@@ -21,7 +21,12 @@ export default function buildEgmaTimeline(config, mediaAssets) {
   initTrialSaving(config);
   const initialTimeline = initTimeline(config); 
 
-  const timeline = [preloadTrials, ...initialTimeline.timeline, instructions];
+  const timeline = [
+    preloadTrials, 
+    ...initialTimeline.timeline,
+    instructions1,
+    instructions2,
+  ];
 
   const afcStimulusBlock = {
     timeline: [afcStimulus],
@@ -49,8 +54,6 @@ export default function buildEgmaTimeline(config, mediaAssets) {
             fixationAndSetupBlock,
             afcStimulusBlock,
             sliderBlock,
-            // ifPracticeCorrect,
-            // ifPracticeIncorrect,
             ifRealTrialResponse,
           ],
           conditional_function: () => {
@@ -68,8 +71,6 @@ export default function buildEgmaTimeline(config, mediaAssets) {
             fixationAndSetupBlock,
             afcStimulusBlock,
             sliderBlock,
-            // ifPracticeCorrect,
-            // ifPracticeIncorrect,
             ifRealTrialResponse,
           ],
           conditional_function: () => {
@@ -92,16 +93,19 @@ export default function buildEgmaTimeline(config, mediaAssets) {
 
   pushSubTaskToTimeline(
     setupPractice,
-    config.numOfPracticeTrials,
+    [config.numOfPracticeTrials],
     "practice",
   ); // Practice Trials
 
+  timeline.push(postPractice)
 
   pushSubTaskToTimeline(
     setupStimulus,
     getStimulusCount(),
     "stimulus",
   ); // Stimulus Trials
+
+  timeline.push(taskFinished)
 
   timeline.push(exitFullscreen);
 

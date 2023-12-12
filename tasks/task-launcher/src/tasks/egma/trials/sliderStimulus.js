@@ -3,6 +3,7 @@ import _shuffle from 'lodash/shuffle'
 import _toNumber from 'lodash/toNumber'
 import { jsPsych } from '../../taskSetup';
 import store from 'store2';
+import { isPractice, updateProgressBar } from '../../shared/helpers';
 
 let chosenAnswer, sliderStart
 
@@ -11,6 +12,10 @@ function captureValue(btnElement) {
     Array.from(containerEl.children).forEach(el => {
         el.id = ''
     })
+
+    if (chosenAnswer === 0 || chosenAnswer) {
+        document.getElementById('jspsych-html-slider-response-next').disabled = false
+    }
 
     chosenAnswer = _toNumber(btnElement.textContent)
     btnElement.id = 'selected-btn'
@@ -83,6 +88,9 @@ export const slider = {
 
         
         if (store.session.get('nextStimulus').task === 'Number Line 4afc') {
+            // disable continue button until a choice is selected
+            document.getElementById('jspsych-html-slider-response-next').disabled = true
+
             const { answer, distractors } = store.session.get('nextStimulus')
 
             distractors.push(answer)
@@ -122,7 +130,11 @@ export const slider = {
             // choices not being written for some reason >:(
             choices: stimulus.choices || null,
             distractors: stimulus.distractors || null,
-          });
+        });
+
+        if (!isPractice(stimulus.notes)) {
+            updateProgressBar();
+        }
     }
 }
 

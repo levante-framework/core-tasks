@@ -38,7 +38,7 @@ const transformCSV = (csvInput) => {
       item: writeItem(row),
       timeLimit: row.time_limit,
       answer: _toNumber(row.answer),
-      notes: row. notes,
+      notes: row.notes,
       distractors: stringToNumberArray(row.response_alternatives),
       difficulty: row.difficulty
     };
@@ -46,7 +46,6 @@ const transformCSV = (csvInput) => {
     // if (newRow.task.includes('Number Line')) {
       // console.log('after parsing: ', newRow.item)
     // }
-
 
     if (row.notes === 'practice') {
       practiceData.push(newRow)
@@ -56,6 +55,8 @@ const transformCSV = (csvInput) => {
       maxStimlulusTrials += 1
     }
   });
+
+  console.log({practiceData})
 }
 
 
