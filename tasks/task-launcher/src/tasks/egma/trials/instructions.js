@@ -15,9 +15,7 @@ export const instructions1 = {
         <h1 class='instructions-title'>Welcome to the math task</h1>
 
         <p>
-            In this task, you will be asked different questions about math.
-            This will include addition, subtraction, and multiplication.
-            Your job is to get through as many questions as you can in the given time.
+            In this task, you will be given a series of math problems that are appropriate for school-aged children, including simple addition, subtraction, multiplication, and other types of problems. Please take your time to answer the questions correctly. The questions are multiple choice, and you can either use the keyboard arrows or your mouse to select the answer. Thank you for your participation! Please click the continue button or press any key to continue.
         </p>
 
         <footer>Click the button below or press <b>ANY KEY</b> to continue</footer>

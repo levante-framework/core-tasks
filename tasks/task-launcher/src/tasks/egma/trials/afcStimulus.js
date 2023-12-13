@@ -67,6 +67,9 @@ export const afcStimulus = {
           el.classList.add(`button${i + 1}`)
         }
 
+        // Map response choice to arrow.
+        el.children[0]
+
         if (keyHelpers) { 
           // Margin on the actual button element
           el.children[0].style.marginBottom = '.5rem'
@@ -116,6 +119,8 @@ export const afcStimulus = {
       // note: nextStimulus is actually the current stimulus
       const stimulus = store.session("nextStimulus");
       const choices = store.session("choices");
+
+      console.log('keyboard response:', data.keyboard_response)
 
       // check response and record it
       data.correct = data.button_response === store.session("correctResponseNum") ? true : false;
