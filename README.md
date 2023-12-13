@@ -19,7 +19,8 @@ Collating item banks for all tasks [here](https://docs.google.com/spreadsheets/d
 4. Something’s the Same [EF: Cognitive Flexibility]
 	- asked Laura Kuhn for materials; she cannot share
 	- Jelena says they'd like to combine the FIST and StS tasks to cover the full age range (meeting Mon, Dec 4)
-	- Willoughby 2012 description: "children are first presented with a page on which there are two line drawn items that are similar in terms of shape, size or color. The examiner draws the child’s attention to the dimension along which the items are similar, stating “See, here are two pictures. These pictures are the same, they are both (cats, blue, big, etc.)”. The examiner then flips a page which presents the same two items again, to the right of which is a dashed vertical line and a picture of a third item. The new third item is similar to one of the first two items along a second dimension that is different from the similarity of the first two items. For example, if the first two items were similar in terms of shape, the third item would be similar to one of the first two items in terms of either size or color. When presenting the new, third item to the child the examiner states to the child, “See, here is a new picture. The new picture is the same as one of these two pictures. Show me which of these two pictures is the same as this new picture?”" (16 trials)
+	- current draft [here](https://docs.google.com/presentation/d/16WpVP96Yvv55gMrPmba3mFvHgIEBqBs1nodEb_H10ZE/edit?usp=sharing)
+	- Original StS (Willoughby 2012) was 16 trials
 
 5. TROG [Language: Grammar]
 	- Test for Reception of Grammar (Bishop, 1982)
