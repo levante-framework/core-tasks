@@ -10,16 +10,16 @@ export const getStimulus = (corpusType) => {
 
   corpus = store.session.get("corpora");
 
-  console.log({corpus})
+  // itemSuggestion = cat.findNextItem(corpus[corpusType]);
 
-  itemSuggestion = cat.findNextItem(corpus[corpusType]);
+  // // store the item for use in the trial
+  // store.session.set("nextStimulus", itemSuggestion.nextStimulus);
 
-  console.log({itemSuggestion})
+  // // update the corpus with the remaining unused items
+  // corpus[corpusType] = itemSuggestion.remainingStimuli;
+  // store.session.set("corpora", corpus);
 
-  // store the item for use in the trial
-  store.session.set("nextStimulus", itemSuggestion.nextStimulus);
+  const afcStim = corpus[corpusType].find(stim => stim.task === 'Number Line 4afc') 
 
-  // update the corpus with the remaining unused items
-  corpus[corpusType] = itemSuggestion.remainingStimuli;
-  store.session.set("corpora", corpus);
+  store.session.set("nextStimulus", afcStim);
 };

@@ -56,12 +56,11 @@ const transformCSV = (csvInput) => {
     }
   });
 
-  console.log({practiceData})
 }
 
 
 export const fetchAndParseCorpus = async (config) => {
-  const { corpus, task, storyCorpus, story, sequentialStimulus, sequentialPractice, numOfPracticeTrials } = config
+  const { corpus, task, sequentialStimulus, sequentialPractice, numOfPracticeTrials } = config
 
   function downloadCSV(url, i) {
     return new Promise((resolve, reject) => {

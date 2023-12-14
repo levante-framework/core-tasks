@@ -22,11 +22,11 @@ export const initEgmaConfig = async (
     corpus,
     buttonLayout,
     numberOfTrials,
-    storyCorpus,
+    // storyCorpus,
     taskName,
     stimulusBlocks,
     numOfPracticeTrials,
-    story,
+    // story,
     keyHelpers
   } = cleanParams;
 
@@ -43,14 +43,14 @@ export const initEgmaConfig = async (
     sequentialPractice: sequentialPractice ?? true,
     sequentialStimulus: sequentialStimulus ?? true,
     // name of the csv files in the storage bucket
-    corpus: corpus ?? "math-item-bank-pz",
+    corpus: corpus ?? "math-item-bank",
     buttonLayout: buttonLayout || "default",
     numberOfTrials: numberOfTrials ?? 10,
-    storyCorpus: storyCorpus ?? 'story-lion',
+    // storyCorpus: storyCorpus ?? 'story-lion',
     task: taskName ?? 'egma-math',
     stimulusBlocks: stimulusBlocks ?? 3,
     numOfPracticeTrials: numOfPracticeTrials ?? 2,
-    story: story ?? false,
+    // story: story ?? false,
     keyHelpers: keyHelpers ?? true,
     language: i18next.language
   };

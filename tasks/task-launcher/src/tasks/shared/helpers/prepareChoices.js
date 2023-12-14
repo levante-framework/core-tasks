@@ -6,22 +6,17 @@ export const prepareChoices = (target, distractors) => {
     const randIndex = Math.floor(Math.random() * distractors.length + 1);
   
     // randomize the order of the distractors
-    const stimulus = _shuffle(distractors);
-    let choices = [];
-    for (let i = 0; i < distractors.length; i++) {
-      choices.push(stimulus[i]);
-    }
+    const randomizedChoices = _shuffle(distractors);
   
     // insert the target
-    choices.splice(randIndex, 0, target);
+    randomizedChoices.splice(randIndex, 0, target);
   
     store.session.set("target", target);
-    store.session.set("correctResponseIndx", randIndex);
-    store.session.set("choices", choices);
+    store.session.set("correctResponseIdx", randIndex);
+    store.session.set("choices", randomizedChoices);
   
     return {
       target: target,
-      choices: choices,
-      correctResponseIndx: randIndex,
+      choices: randomizedChoices,
     };
   };

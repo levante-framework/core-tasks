@@ -4,10 +4,11 @@ import { jsPsych } from "../../taskSetup";
 import { prepareChoices, updateProgressBar, addItemToSortedStoreList, isPractice } from "../../shared/helpers";
 import { mediaAssets } from "../../..";
 import { audioResponse } from "./audioFeedback";
+import _toNumber from 'lodash/toNumber'
 
 export const audioContext = new Audio();
 
-let source
+let source, keyboardResponseMap = {}
 
 export const afcStimulus = {
     type: jsPsychAudioMultiResponse,
@@ -46,7 +47,6 @@ export const afcStimulus = {
       const trialInfo = prepareChoices(answer, distractors);
 
       store.session.set("target", answer);
-      store.session.set("correctResponseNum", trialInfo.correctResponseNum);
       // console.log('trialInfo choices: ', trialInfo.choices)
       store.session.set("choices", trialInfo.choices);
 
@@ -59,7 +59,14 @@ export const afcStimulus = {
       const buttonContainer = document.getElementById("jspsych-audio-multi-response-btngroup")
       buttonContainer.classList.add(`${buttonLayout}-layout`);
 
-      const arrowKeyEmojis = ['↑', '←', '→', '↓']
+      const arrowKeyEmojis = [
+        ['arrowup', '↑'], 
+        ['arrowleft', '←'], 
+        ['arrowright', '→'], 
+        ['arrowdown', '↓']
+      ]
+      
+      const responseChoices = store.session('choices')
 
       Array.from(buttonContainer.children).forEach((el, i) => {
         // Add condition on triple for length (2)
@@ -67,8 +74,8 @@ export const afcStimulus = {
           el.classList.add(`button${i + 1}`)
         }
 
-        // Map response choice to arrow.
-        el.children[0]
+        // Map arrow to response choice.
+        keyboardResponseMap[arrowKeyEmojis[i][0]] = responseChoices[i] 
 
         if (keyHelpers) { 
           // Margin on the actual button element
@@ -78,7 +85,7 @@ export const afcStimulus = {
           arrowKeyBorder.classList.add('arrow-key-border')
 
           const arrowKey = document.createElement('p')
-          arrowKey.textContent = arrowKeyEmojis[i]
+          arrowKey.textContent = arrowKeyEmojis[i][1]
           arrowKey.style.textAlign = 'center'
           arrowKey.style.fontSize = '1.5rem'
           arrowKey.style.margin = '0'
@@ -119,17 +126,32 @@ export const afcStimulus = {
       // note: nextStimulus is actually the current stimulus
       const stimulus = store.session("nextStimulus");
       const choices = store.session("choices");
+      const target = store.session('target')
 
-      console.log('keyboard response:', data.keyboard_response)
+      // console.log({choices})
+      // console.log({target})
+      // console.log('keyboard response:', data.keyboard_response)
+      // console.log('button response:', data.button_response)
+      // console.log('correct response idx:', store.session('correctResponseIdx'))
+      
+    
+      if (data.keyboard_response) {
+        data.correct = keyboardResponseMap[data.keyboard_response] === store.session('target')
+        store.session.set("responseValue", keyboardResponseMap[data.keyboard_response]);
+      } else {
+        data.correct = data.button_response === store.session('correctResponseIdx')
+        store.session.set("responseValue", choices[data.button_response]);
+      }
+
+      // console.log('correct:', data.correct)
 
       // check response and record it
-      data.correct = data.button_response === store.session("correctResponseNum") ? true : false;
       store.session.set("correct", data.correct);
-      store.session.set("response", data.button_response);
-      store.session.set("responseValue", choices[data.button_response]);
+      store.session.set("responseType", data.button_response ? 'mouse' : 'keyboard');
+
 
       // update running score and answer lists
-      if (data.correct === 1) {
+      if (data.correct) {
         if (!isPractice(stimulus.notes)) {
           // practice trials don't count toward total
           store.session.transact("totalCorrect", (oldVal) => oldVal + 1);
@@ -147,15 +169,11 @@ export const afcStimulus = {
 
       jsPsych.data.addDataToLastTrial({
         // specific to this trial
-        item: stimulus.item,
-        assessment_stage: data.assessment_stage,
+        item: _toNumber(stimulus.item),
         answer: store.session("target"),
-        choices: choices,
         distractors: stimulus.distractors,
         response: store.session("responseValue"),
-        responseNum: data.button_response,
-        correctResponseNum: store.session("correctResponseNum"),
-        correct: data.correct,
+        responseType: store.session('responseType'),
       });
 
       if (!isPractice(stimulus.notes)) {
