@@ -8,51 +8,54 @@ import { isPractice, updateProgressBar } from '../../shared/helpers';
 let chosenAnswer, sliderStart, keyboardResponseMap = {}
 
 function captureValue(btnElement, event) {
-    if (event) {
-        if (event.key === 'ArrowUp') {
-            console.log('Up arrow key pressed');
-        } else if (event.key === 'ArrowDown') {
-            console.log('Down arrow key pressed');
-        } else if (event.key === 'ArrowLeft') {
-            console.log('Left arrow key pressed');
-        } else if (event.key === 'ArrowRight') {
-            console.log('Right arrow key pressed');
-        }
-    }
-
     let containerEl = document.getElementById('slider-btn-container') || null
-    console.log({containerEl})
 
     if (!containerEl) {
         const layout = store.session('config').buttonLayout
         containerEl = document.getElementsByClassName(`${layout}-layout`)[0]
-        console.log('container el by class: ', containerEl)
     }
 
     Array.from(containerEl.children).forEach(el => {
         el.children[0].id = ''
     })
 
-    chosenAnswer = _toNumber(btnElement.textContent)
+    if (event?.key) {
+        if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown' && event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return
+
+        chosenAnswer = _toNumber(keyboardResponseMap[event.key.toLowerCase()])
+
+        // get button with response and add the selected id on it
+        const responseBtns = Array.from(document.getElementsByClassName('math-btn'))
+        const selectedBtn = responseBtns.find(el => _toNumber(el.textContent) === chosenAnswer)
+        selectedBtn.id = 'selected-btn'
+
+    } else {
+        chosenAnswer = _toNumber(btnElement.textContent)
+        btnElement.id = 'selected-btn'
+    }
+
 
     if (chosenAnswer === 0 || chosenAnswer) {
         document.getElementById('jspsych-html-slider-response-next').disabled = false
     }
+}
 
-    btnElement.id = 'selected-btn'
+// Defining the function here since we need a reference to it to remove the event listener later
+function captureBtnValue(event) {
+    captureValue(null, event)
 }
 
 function getRandomValue(max, avoid) {
     let result;
 
     do {
-        if (max === 1) {
-            // Generate a random number between 0 and 1, with two decimal places
-            result = Math.floor(Math.random() * 100);
-        } else {
-            // Generate a random integer between 0 and max
+        // if (max === 1) {
+        //     // Generate a random number between 0 and 1, with two decimal places
+        //     result = Math.floor(Math.random() * 100);
+        // } else {
+        //     // Generate a random integer between 0 and max
             result = Math.floor(Math.random() * (max + 1));
-        }
+        // }
     } while (result === avoid);
 
     return result;
@@ -62,7 +65,7 @@ export const slider = {
     type: HTMLSliderResponse,
     data: () => {
         return {
-            // save_trial: true,
+            save_trial: true,
             assessment_stage: store.session.get('nextStimulus').task,
             isPracticeTrial: store.session.get("nextStimulus").notes === 'practice'
         }
@@ -85,18 +88,18 @@ export const slider = {
     slider_start: () => {
         const stim = store.session.get('nextStimulus')
 
-        if (store.session.get('nextStimulus').prompt.includes('dot')){
-            sliderStart = getRandomValue(stim.item[1], stim.answer)
-            return sliderStart
+        if (stim.task.includes('Slider')){
+            const max = stim.item[1] === 1 ? 100 : stim.item[1]
+            sliderStart = getRandomValue(max, stim.answer)
         } else {
-            sliderStart = store.session.get('nextStimulus').answer
-            return sliderStart
+            sliderStart = stim.answer < 1 ? stim.answer * 100 : stim.answer
         }
+
+        return sliderStart
     },
     step: 1,
     // response_ends_trial: true,
     on_load: () => {       
-        // console.log(store.session.get('nextStimulus'))
         const  sliderLabels = document.getElementsByTagName('span')
         Array.from(sliderLabels).forEach((el, i) => {
             if (i == 1 || i == 2) {
@@ -119,6 +122,8 @@ export const slider = {
 
         
         if (store.session.get('nextStimulus').task === 'Number Line 4afc') {
+            wrapper.style.margin = '0 0 2rem 0'
+
             // disable continue button until a choice is selected
             document.getElementById('jspsych-html-slider-response-next').disabled = true
 
@@ -128,8 +133,6 @@ export const slider = {
             
             store.session.set('target', answer)
             store.session.set('choices', distractors)
-
-            const mixedOptions = _shuffle(distractors)
 
             const arrowKeyEmojis = [
                 ['arrowup', '↑'], 
@@ -141,19 +144,24 @@ export const slider = {
             const responseChoices = store.session('choices')
 
             // create buttons
-            for (let i = 0; i < mixedOptions.length; i++) {
+            for (let i = 0; i < responseChoices.length; i++) {
                 const btnWrapper = document.createElement('div')
                 const btn = document.createElement('button')
-                btn.textContent = mixedOptions[i]
+                btn.textContent = responseChoices[i]
                 btn.classList.add('math-btn')
                 btn.addEventListener('click', () => captureValue(btn))
-                document.addEventListener('keydown', (event) => captureValue(btn, event)) 
+                if (i === 0) {
+                    document.addEventListener('keydown', captureBtnValue) 
+                }
 
                 if (!(buttonLayout === 'triple' && distractors.length !== 2)) {
                     if (buttonLayout === 'triple' || buttonLayout === 'diamond') {
                         btnWrapper.classList.add(`button${i + 1}`)
                     }
+
                     keyboardResponseMap[arrowKeyEmojis[i][0]] = responseChoices[i]
+
+                    btnWrapper.appendChild(btn)
 
                     if (keyHelpers) { 
                         // Margin on the actual button element
@@ -168,7 +176,7 @@ export const slider = {
                         arrowKey.style.fontSize = '1.5rem'
                         arrowKey.style.margin = '0'
                         arrowKeyBorder.appendChild(arrowKey)
-                        btnWrapper.appendChild(btn)
+
                         btnWrapper.appendChild(arrowKeyBorder)
                     }
                 }
@@ -184,6 +192,9 @@ export const slider = {
         wrapper.appendChild(buttonContainer)
     },
     on_finish: (data) => {
+        // Need to remove event listener after trial completion or they will stack and cause an error.
+        document.removeEventListener('keydown', captureBtnValue)
+
         const stimulus = store.session.get('nextStimulus')
 
         if (stimulus.task === 'Number Line 4afc') {
@@ -193,26 +204,17 @@ export const slider = {
             data.correct = null
         }
 
-        const response = stimulus.item[1] === 1 ? (chosenAnswer / 100) : chosenAnswer
+        const response = stimulus.task.includes('Slider') && stimulus.item[1] === 1 ? chosenAnswer / 100 : chosenAnswer
         const responseType = stimulus.task.includes('4afc') ? 'afc' : 'slider'
         const answer = stimulus.answer
-        
-
-        console.log(stimulus.task)
-        console.log({answer})
-        console.log({response})
-        console.log({responseType})
-        console.log('correct: ', data.correct)
-
-        console.log({chosenAnswer})
-        console.log('chosen answer formatted: ', chosenAnswer / 100)
 
         jsPsych.data.addDataToLastTrial({
             item: stimulus.item,
             answer: answer,
-            response: response,
+            response: _toNumber(response),
             responseType: responseType,
             distractors: stimulus.distractors,
+            slider_start: stimulus.item[1] === 1 ? (sliderStart) / 100 : sliderStart,
         });
 
         if (!isPractice(stimulus.notes)) {

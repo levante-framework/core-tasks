@@ -2,13 +2,13 @@ import egmaTimeline from './egma/timeline'
 import { initEgmaConfig, initEgmaStore } from './egma/helpers'
 import { fetchAndParseCorpus } from './shared/helpers'
 
-
+// Abstract to import config from specifc task folder
 export default {
     egmaMath: {
         initConfig: initEgmaConfig,
         initStore: initEgmaStore,
         loadCorpus: fetchAndParseCorpus,
-        getTranslations: 'path/to/translations',
+        getTranslations: 'getTranslationsFunc()',
         buildTaskTimeline: egmaTimeline,
         variants: {
             // example

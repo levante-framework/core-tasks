@@ -13,11 +13,12 @@ const queryString = new URL(window.location).search;
 const urlParams = new URLSearchParams(queryString);
 const taskName = urlParams.get("taskName") ?? 'egma-math'
 const corpus = urlParams.get("corpus");
-// const storyCorpus = urlParams.get("storyCopus")
 const buttonLayout = urlParams.get("buttonLayout");
 const numOfPracticeTrials = urlParams.get("practiceTrials");
 const numberOfTrials = urlParams.get("trials") === null ? null : parseInt(urlParams.get("trials"), 10);
 const stimulusBlocks = urlParams.get("blocks") === null ? null : parseInt(urlParams.get("blocks"), 10);
+// const storyCorpus = urlParams.get("storyCopus")
+
 // Boolean parameters
 const keyHelpers = stringToBoolean(urlParams.get('keyHelpers'), true)
 // const story = stringToBoolean(urlParams.get("story"));
@@ -53,11 +54,11 @@ onAuthStateChanged(appKit.auth, (user) => {
       buttonLayout,
       numOfPracticeTrials,
       numberOfTrials,
-      // story,
-      // storyCorpus,
       stimulusBlocks,
       keyHelpers,
-      language
+      language,
+      // story,
+      // storyCorpus,
     };
 
     const taskInfo = {

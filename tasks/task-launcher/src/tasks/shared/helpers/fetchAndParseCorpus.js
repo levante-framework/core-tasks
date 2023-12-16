@@ -16,11 +16,8 @@ let maxPracticeTrials = 0
 let stimulusData = [], practiceData = []
 
 function writeItem(row) {
-  // console.log(row.task)
   if (row.task.includes('Number Line')) {
-    // console.log(row.item)
     const splitArr = row.item.split(",")
-    // console.log(splitArr)
     return splitArr.map(el => _toNumber(el))
   }
 
@@ -43,9 +40,6 @@ const transformCSV = (csvInput) => {
       difficulty: row.difficulty
     };
     
-    // if (newRow.task.includes('Number Line')) {
-      // console.log('after parsing: ', newRow.item)
-    // }
 
     if (row.notes === 'practice') {
       practiceData.push(newRow)

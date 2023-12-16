@@ -99,7 +99,7 @@ export async function getMediaAssets(bucketName, whitelist = {}, language, nextP
   if (data.nextPageToken) {
     return listObjects(bucketName, whitelist, language, data.nextPageToken, categorizedObjects);
   } else {
-    console.log({categorizedObjects})
+    // console.log({categorizedObjects})
     return categorizedObjects;
   }
 }

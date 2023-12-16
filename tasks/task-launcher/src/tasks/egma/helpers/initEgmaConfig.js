@@ -22,12 +22,12 @@ export const initEgmaConfig = async (
     corpus,
     buttonLayout,
     numberOfTrials,
-    // storyCorpus,
     taskName,
     stimulusBlocks,
     numOfPracticeTrials,
-    // story,
     keyHelpers
+    // storyCorpus,
+    // story,
   } = cleanParams;
 
 
@@ -45,14 +45,14 @@ export const initEgmaConfig = async (
     // name of the csv files in the storage bucket
     corpus: corpus ?? "math-item-bank",
     buttonLayout: buttonLayout || "default",
-    numberOfTrials: numberOfTrials ?? 10,
-    // storyCorpus: storyCorpus ?? 'story-lion',
+    numberOfTrials: numberOfTrials ?? 20,
     task: taskName ?? 'egma-math',
     stimulusBlocks: stimulusBlocks ?? 3,
     numOfPracticeTrials: numOfPracticeTrials ?? 2,
-    // story: story ?? false,
     keyHelpers: keyHelpers ?? true,
     language: i18next.language
+    // storyCorpus: storyCorpus ?? 'story-lion',
+    // story: story ?? false,
   };
 
   const updatedGameParams = Object.fromEntries(

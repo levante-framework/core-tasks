@@ -16,7 +16,7 @@ export const afcStimulus = {
     data: () => {
       return {
         // not camelCase because firekit
-        // save_trial: true,
+        save_trial: true,
         assessment_stage: store.session.get("nextStimulus").task,
         // not for firekit
         isPracticeTrial: store.session.get("nextStimulus").notes === 'practice'
@@ -47,7 +47,6 @@ export const afcStimulus = {
       const trialInfo = prepareChoices(answer, distractors);
 
       store.session.set("target", answer);
-      // console.log('trialInfo choices: ', trialInfo.choices)
       store.session.set("choices", trialInfo.choices);
 
       return trialInfo.choices;
@@ -127,12 +126,6 @@ export const afcStimulus = {
       const stimulus = store.session("nextStimulus");
       const choices = store.session("choices");
       const target = store.session('target')
-
-      // console.log({choices})
-      // console.log({target})
-      // console.log('keyboard response:', data.keyboard_response)
-      // console.log('button response:', data.button_response)
-      // console.log('correct response idx:', store.session('correctResponseIdx'))
       
     
       if (data.keyboard_response) {
@@ -143,12 +136,9 @@ export const afcStimulus = {
         store.session.set("responseValue", choices[data.button_response]);
       }
 
-      // console.log('correct:', data.correct)
-
       // check response and record it
       store.session.set("correct", data.correct);
       store.session.set("responseType", data.button_response ? 'mouse' : 'keyboard');
-
 
       // update running score and answer lists
       if (data.correct) {
@@ -169,7 +159,7 @@ export const afcStimulus = {
 
       jsPsych.data.addDataToLastTrial({
         // specific to this trial
-        item: _toNumber(stimulus.item),
+        item: _toNumber(stimulus.item) || stimulus.item,
         answer: store.session("target"),
         distractors: stimulus.distractors,
         response: store.session("responseValue"),
