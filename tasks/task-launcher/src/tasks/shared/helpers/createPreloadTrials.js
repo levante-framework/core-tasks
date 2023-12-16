@@ -38,7 +38,7 @@ export function createPreloadTrials(categorizedObjects, blocks = []) {
   
   }
   
-  // Helper function to create a jsPsychPreload trial object
+
   function createJsPsychPreloadObject() {
     return {
       type: jsPsychPreload,

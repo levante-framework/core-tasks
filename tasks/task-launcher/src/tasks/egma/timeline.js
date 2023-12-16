@@ -2,7 +2,6 @@ import "regenerator-runtime/runtime";
 import store from "store2";
 // setup
 import {
-  getPracticeCount,
   getStimulusCount,
   initTrialSaving,
   initTimeline,
@@ -10,12 +9,11 @@ import {
 } from "../shared/helpers";
 import { jsPsych, initializeCat } from "../taskSetup";
 // trials
-import { ifRealTrialResponse, stimulus } from "./trials/stimulus";
+import { ifRealTrialResponse, afcStimulus } from "./trials/afcStimulus";
+import { slider } from "./trials/sliderStimulus";
 import { exitFullscreen } from "../shared/trials";
-import { 
-  setupPractice, 
-  setupStimulus,
-} from "../shared/trials";
+import { setupPractice, setupStimulus, } from "../shared/trials";
+import { instructions1, instructions2, postPractice, taskFinished } from "./trials/instructions";
 
 export default function buildEgmaTimeline(config, mediaAssets) {
   const preloadTrials = createPreloadTrials(mediaAssets).default
@@ -23,10 +21,25 @@ export default function buildEgmaTimeline(config, mediaAssets) {
   initTrialSaving(config);
   const initialTimeline = initTimeline(config); 
 
-  const timeline = [preloadTrials, ...initialTimeline.timeline];
+  const timeline = [
+    preloadTrials, 
+    ...initialTimeline.timeline,
+    instructions1,
+    instructions2,
+  ];
+
+  const afcStimulusBlock = {
+    timeline: [afcStimulus],
+    conditional_function: () => !store.session.get('nextStimulus').task.includes('Number Line')
+  }
+
+  const sliderBlock = {
+    timeline: [slider],
+    conditional_function: () => store.session.get('nextStimulus').task.includes('Number Line')
+  }
 
   const pushSubTaskToTimeline = (
-    fixationBlock,
+    fixationAndSetupBlock,
     stimulusCounts,
     trialType,
   ) => {
@@ -38,11 +51,9 @@ export default function buildEgmaTimeline(config, mediaAssets) {
       if (trialType === "practice") {
         surveyBlock = {
           timeline: [
-            fixationBlock,
-            // used to be practice
-            stimulus,
-            // ifPracticeCorrect,
-            // ifPracticeIncorrect,
+            fixationAndSetupBlock,
+            afcStimulusBlock,
+            sliderBlock,
             ifRealTrialResponse,
           ],
           conditional_function: () => {
@@ -57,10 +68,9 @@ export default function buildEgmaTimeline(config, mediaAssets) {
       } else {
         surveyBlock = {
           timeline: [
-            fixationBlock,
-            stimulus,
-            // ifPracticeCorrect,
-            // ifPracticeIncorrect,
+            fixationAndSetupBlock,
+            afcStimulusBlock,
+            sliderBlock,
             ifRealTrialResponse,
           ],
           conditional_function: () => {
@@ -83,16 +93,19 @@ export default function buildEgmaTimeline(config, mediaAssets) {
 
   pushSubTaskToTimeline(
     setupPractice,
-    config.numOfPracticeTrials,
+    [config.numOfPracticeTrials],
     "practice",
   ); // Practice Trials
 
+  timeline.push(postPractice)
 
   pushSubTaskToTimeline(
     setupStimulus,
     getStimulusCount(),
     "stimulus",
   ); // Stimulus Trials
+
+  timeline.push(taskFinished)
 
   timeline.push(exitFullscreen);
 

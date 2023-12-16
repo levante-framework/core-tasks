@@ -10,9 +10,9 @@ export const practiceIncorrectFeedback = {
   stimulus: () => mediaAssets.audio.nullAudio,
   prompt: () => `
   <div>
-    <p class="item-stimulus">${ store.session.get("nextStimulus").prompt }</p>
+    <p class="prompt">${ store.session.get("nextStimulus").prompt }</p>
     <br>
-    <p class="item-stimulus">${ store.session.get("nextStimulus").item }</p>
+    <p class="stimulus">${ store.session.get("nextStimulus").item }</p>
   </div>`,
   prompt_above_buttons: true,
   trial_ends_after_audio: false,

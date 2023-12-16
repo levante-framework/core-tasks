@@ -7,7 +7,7 @@ export const enterFullscreen = {
   type: jsPsychFullScreen,
   fullscreen_mode: true,
   message: () =>
-    `<div id='fullScreen'>
+    `<div id='fullscreen'>
       <h1>${i18next.t("fullScreenTrial.prompt") || 'Translations needed'}</h1>
      </div>`,
   delay_after: 0,

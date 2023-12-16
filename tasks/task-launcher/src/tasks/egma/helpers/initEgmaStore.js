@@ -5,7 +5,7 @@ export const initEgmaStore = (config) => {
       return store.session;
     }
   
-    store.session.set("itemSelect", "random");
+    store.session.set("itemSelect", "mfi");
   
     // Counting variables
     store.session.set("practiceIndex", 0);

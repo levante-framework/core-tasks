@@ -1,6 +1,6 @@
 import i18next from "i18next";
 import "../../../i18n/i18n";
-import { shuffle } from "./shuffle";
+import _shuffle from 'lodash/shuffle'
 import Papa from "papaparse";
 import _compact from 'lodash/compact'
 import _toNumber from 'lodash/toNumber'
@@ -15,6 +15,15 @@ let maxPracticeTrials = 0
 
 let stimulusData = [], practiceData = []
 
+function writeItem(row) {
+  if (row.task.includes('Number Line')) {
+    const splitArr = row.item.split(",")
+    return splitArr.map(el => _toNumber(el))
+  }
+
+  return row.item
+}
+
 const transformCSV = (csvInput) => {
   csvInput.forEach((row) => {
     const newRow = {
@@ -23,13 +32,14 @@ const transformCSV = (csvInput) => {
       task: row.task,
       // for testing, will be removed
       prompt: row.prompt,
-      item: row.item || row.Item,
+      item: writeItem(row),
       timeLimit: row.time_limit,
       answer: _toNumber(row.answer),
-      notes: row. notes,
+      notes: row.notes,
       distractors: stringToNumberArray(row.response_alternatives),
       difficulty: row.difficulty
     };
+    
 
     if (row.notes === 'practice') {
       practiceData.push(newRow)
@@ -39,11 +49,12 @@ const transformCSV = (csvInput) => {
       maxStimlulusTrials += 1
     }
   });
+
 }
 
 
 export const fetchAndParseCorpus = async (config) => {
-  const { corpus, task, storyCorpus, story, sequentialStimulus, sequentialPractice, numOfPracticeTrials } = config
+  const { corpus, task, sequentialStimulus, sequentialPractice, numOfPracticeTrials } = config
 
   function downloadCSV(url, i) {
     return new Promise((resolve, reject) => {
@@ -87,14 +98,16 @@ export const fetchAndParseCorpus = async (config) => {
   await fetchData();
 
   const csvTransformed = {
-    practice: sequentialPractice ? practiceData : shuffle(practiceData),
-    stimulus: sequentialStimulus ? stimulusData : shuffle(stimulusData),
+    practice: sequentialPractice ? practiceData : _shuffle(practiceData),
+    stimulus: sequentialStimulus ? stimulusData : _shuffle(stimulusData),
   };
 
   corpora = {
     practice: csvTransformed.practice,
     stimulus: csvTransformed.stimulus,
   };
+
+  // console.log({corpora})
 
   store.session.set("corpora", corpora);
 }
