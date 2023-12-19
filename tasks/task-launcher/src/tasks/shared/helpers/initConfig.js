@@ -1,10 +1,12 @@
+// Used in Math and Matrix-reasoning so far
+
 import _omitBy from "lodash/omitBy";
 import _isNull from "lodash/isNull";
 import _isUndefined from "lodash/isUndefined";
 import i18next from "i18next";
 
 
-export const initEgmaConfig = async (
+export const initSharedConfig = async (
   firekit,
   gameParams,
   userParams,

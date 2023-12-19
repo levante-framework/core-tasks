@@ -1,6 +1,7 @@
+// Used in Math and Matrix-reasoning so far
 import store from "store2";
 
-export const initEgmaStore = (config) => {
+export const initSharedStore = (config) => {
     if (store.session.has("initialized") && store.local("initialized")) {
       return store.session;
     }

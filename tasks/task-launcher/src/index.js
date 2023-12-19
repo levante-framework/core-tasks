@@ -16,19 +16,20 @@ export class TaskLauncher {
   async init() {
     await this.firekit.startRun();
 
+    const { taskName, language } = this.gameParams
+
     const { 
       initConfig, 
       initStore, 
       loadCorpus, 
       buildTaskTimeline, 
       getTranslations 
-    } = taskConfig[dashToCamelCase(this.gameParams.taskName)]
-
-    const { taskName, language } = this.gameParams
+    } = taskConfig[dashToCamelCase(taskName)]
 
     // GCP bucket names use a format like egma-math
     // will avoid language folder if not provided
     mediaAssets = await getMediaAssets(taskName, {}, language);
+    console.log(mediaAssets)
 
     // TODO
     // const translations = await getTranslations(language)
