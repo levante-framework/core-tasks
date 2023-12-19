@@ -1,5 +1,4 @@
 import "regenerator-runtime/runtime";
-import store from "store2";
 import { getStimulusCount, initTrialSaving, initTimeline, } from "./config/config";
 // setup
 import { jsPsych } from "./jsPsych";
@@ -8,16 +7,7 @@ import { preloadTrials, initializeCat, mediaAssets } from "./experimentSetup";
 import { stimulus } from "./trials/stimulus";
 import { setupMainTrial, setupPracticeTrial } from "./trials/setupFixation";
 import { exitFullscreen } from "./trials/fullScreen";
-import { subTaskInitStimulus, subTaskInitPractice, } from "./trials/subTask";
-import { practiceFeedback } from "./trials/practiceFeedback";
-import { audioFeedback } from "./trials/audioFeedback";
-import {
-  endTrial,
-  storyBreakList,
-  introAndInstructions,
-  practiceDone,
-  createStory,
-} from "./trials/instructions";
+import { endTrial, createStory, } from "./trials/instructions";
 
 
 export function buildExperiment(config) {
@@ -38,8 +28,8 @@ export function buildExperiment(config) {
 
   const timeline = [
     preloadTrials,
-    practiceBlock
-    // ...initialTimeline.timeline
+    practiceBlock,
+    ...initialTimeline.timeline
   ];
 
   initializeCat();
