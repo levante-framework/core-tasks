@@ -100,17 +100,30 @@
         font-size: 4rem;
       }
 
-      #prompt {
-        font-size: 2rem;
-        padding-bottom: 2rem;
-        text-align: center;
-      }
-      
-      #stimulus {
-        padding-bottom: 4rem;
-        font-size: 3.5rem;
-        margin: 0;
-        text-align: center; /* To ensure the text is centered if it wraps to more than one line */
+      #stimulus-container {
+        margin: auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+
+        #prompt {
+          font-size: 2rem;
+          padding-bottom: 2rem;
+          text-align: center;
+        }
+        
+        #stimulus-html {
+          padding-bottom: 4rem;
+          font-size: 3.5rem;
+          margin: 0;
+          text-align: center; /* To ensure the text is centered if it wraps to more than one line */
+        }
+
+        #stimulus-img {
+          padding-bottom: 3rem;
+          width: 32vw;
+        }
       }
 
       // 1 x 4 (default)
@@ -273,6 +286,20 @@
         border: 5px solid transparent;
       }
 
+      .img-btn {
+        background-color: transparent;
+        border: black solid 3px;
+        border-radius: .5rem;
+        cursor: pointer;
+
+        img {
+          border: none;
+          width: 10vw;
+          padding: 0;
+          margin: 0;
+        }
+      }
+
       #selected-btn {
         background-color: #2200ff; /* Change the background color to indicate selection */
         color: #fff; /* Change the text color for better visibility */
@@ -286,6 +313,20 @@
         max-width: 100% !important;
 
         .arrow-key {
+          font-size: 1.5rem;
+          margin: 0;
+        }
+      }
+
+      .space-key-border {
+        border: 1px solid black; /* Thin and black border */
+        border-radius: 10px; /* Curved corners */
+        max-width: 100% !important;
+        margin-top: 1rem;
+        padding: 1rem 3rem;
+        cursor: pointer;
+
+        .space-key {
           font-size: 1.5rem;
           margin: 0;
         }

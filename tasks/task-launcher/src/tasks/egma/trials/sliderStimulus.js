@@ -37,12 +37,17 @@ function captureValue(btnElement, event) {
 
     if (chosenAnswer === 0 || chosenAnswer) {
         document.getElementById('jspsych-html-slider-response-next').disabled = false
+        // Add event listener to continue button
     }
 }
 
 // Defining the function here since we need a reference to it to remove the event listener later
 function captureBtnValue(event) {
-    captureValue(null, event)
+    if (event.key === 'ArrowUp' || event.key === 'ArrowDown' || event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+        captureValue(null, event)
+    } else {
+        jsPsych.finishTrial()
+    }
 }
 
 function getRandomValue(max, avoid) {
@@ -74,9 +79,17 @@ export const slider = {
         const stim = store.session.get('nextStimulus')
         const prompt = stim.prompt
         if (prompt.includes('dot')) {
-            return `<p id=prompt>${prompt} ${stim.answer}.</p>`
+            return (`
+                <div id='stimulus-container'>
+                    <p id=prompt>${prompt} ${stim.answer}.</p>
+                </div>
+            `)
         } else {
-            return `<p id=prompt>${prompt}</p>`
+            return (`
+                <div id='stimulus-container'>
+                    <p id=prompt>${prompt}</p>
+                </div>
+            `)
         }
     },
     labels: () => store.session.get('nextStimulus').item,
@@ -125,7 +138,20 @@ export const slider = {
             wrapper.style.margin = '0 0 2rem 0'
 
             // disable continue button until a choice is selected
-            document.getElementById('jspsych-html-slider-response-next').disabled = true
+            const continueBtn = document.getElementById('jspsych-html-slider-response-next')
+            continueBtn.disabled = true
+
+            if (keyHelpers) {
+                const jsPsychContent = document.getElementById('jspsych-content')
+                const spaceKeyHelperBorder = document.createElement('div')
+                spaceKeyHelperBorder.classList.add('space-key-border')
+                const spaceKeyHelper = document.createElement('p')
+                spaceKeyHelper.textContent = 'Space'
+                spaceKeyHelper.classList.add('space-key')
+                spaceKeyHelperBorder.appendChild(spaceKeyHelper)
+                jsPsychContent.appendChild(spaceKeyHelperBorder)
+            }
+
 
             const { answer, distractors } = store.session.get('nextStimulus')
 

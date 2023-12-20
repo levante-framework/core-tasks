@@ -7,6 +7,8 @@ import _toNumber from 'lodash/toNumber'
 import store from "store2";
 import "regenerator-runtime/runtime";
 import { stringToNumberArray } from "./stringToNumArray";
+import { dashToCamelCase } from "./dashToCamelCase";
+
 
 export let corpora
 
@@ -24,6 +26,10 @@ function writeItem(row) {
   return row.item
 }
 
+function containsLetters(str) {
+  return /[a-zA-Z]/.test(str);
+}
+
 const transformCSV = (csvInput) => {
   csvInput.forEach((row) => {
     const newRow = {
@@ -34,12 +40,12 @@ const transformCSV = (csvInput) => {
       prompt: row.prompt,
       item: writeItem(row),
       timeLimit: row.time_limit,
-      answer: _toNumber(row.answer),
+      answer: _toNumber(row.answer) || row.answer,
       notes: row.notes,
-      distractors: stringToNumberArray(row.response_alternatives),
+      distractors: containsLetters(row.response_alternatives) ? row.response_alternatives.split(',') : stringToNumberArray(row.response_alternatives),
       difficulty: row.difficulty
     };
-    
+
 
     if (row.notes === 'practice') {
       practiceData.push(newRow)
@@ -54,7 +60,18 @@ const transformCSV = (csvInput) => {
 
 
 export const fetchAndParseCorpus = async (config) => {
-  const { corpus, task, sequentialStimulus, sequentialPractice, numOfPracticeTrials } = config
+  const { 
+    corpus, 
+    task, 
+    sequentialStimulus, 
+    sequentialPractice, 
+    numOfPracticeTrials
+  } = config
+  
+  const corpusLocation = {
+    egmaMath: `https://storage.googleapis.com/${task}/${i18next.language}/corpora/${corpus}.csv`,
+    matrixReasoning: `https://storage.googleapis.com/${task}/shared/corpora/${corpus}.csv`,
+  }
 
   function downloadCSV(url, i) {
     return new Promise((resolve, reject) => {
@@ -80,7 +97,7 @@ export const fetchAndParseCorpus = async (config) => {
 
   async function fetchData() {
     const urls = [
-      `https://storage.googleapis.com/${task}/${i18next.language}/corpora/${corpus}.csv`,
+      corpusLocation[dashToCamelCase(task)],
     ];
 
     try {

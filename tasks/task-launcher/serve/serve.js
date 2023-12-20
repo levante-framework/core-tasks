@@ -11,7 +11,7 @@ import "regenerator-runtime/runtime";
 // TODO: Add game params for all tasks
 const queryString = new URL(window.location).search;
 const urlParams = new URLSearchParams(queryString);
-const taskName = urlParams.get("taskName") ?? 'egma-math'
+const taskName = urlParams.get("task") ?? 'egma-math'
 const corpus = urlParams.get("corpus");
 const buttonLayout = urlParams.get("buttonLayout");
 const numOfPracticeTrials = urlParams.get("practiceTrials");
@@ -21,11 +21,11 @@ const stimulusBlocks = urlParams.get("blocks") === null ? null : parseInt(urlPar
 
 // Boolean parameters
 const keyHelpers = stringToBoolean(urlParams.get('keyHelpers'), true)
-// const story = stringToBoolean(urlParams.get("story"));
 const skipInstructions = stringToBoolean(urlParams.get("skip"), true)
 const sequentialPractice = stringToBoolean(urlParams.get("sequentialPractice"), true)
 const sequentialStimulus = stringToBoolean(urlParams.get("sequentialStimulus"), true)
 const { language } = i18next;
+// const story = stringToBoolean(urlParams.get("story"));
 
 
 // @ts-ignore

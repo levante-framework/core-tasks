@@ -36,7 +36,7 @@ export const afcStimulus = {
       ${store.session.get("nextStimulus").task === 'Number Identification' ? `<img src=${mediaAssets.images.speakerIcon} id='replay-btn' alt='speaker replay icon'/>` : ''}
       <p id="prompt">${ store.session.get("nextStimulus").prompt }</p>
       <br>
-      <p id="stimulus">${ store.session.get("nextStimulus").item }</p>
+      <p id="stimulus-html">${ store.session.get("nextStimulus").item }</p>
     </div>`,
     prompt_above_buttons: true,
     keyboard_choices: ['ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight'],
@@ -129,7 +129,7 @@ export const afcStimulus = {
       
     
       if (data.keyboard_response) {
-        data.correct = keyboardResponseMap[data.keyboard_response] === store.session('target')
+        data.correct = keyboardResponseMap[data.keyboard_response] === target
         store.session.set("responseValue", keyboardResponseMap[data.keyboard_response]);
       } else {
         data.correct = data.button_response === store.session('correctResponseIdx')
@@ -147,7 +147,7 @@ export const afcStimulus = {
           store.session.transact("totalCorrect", (oldVal) => oldVal + 1);
         }
       } else {
-        addItemToSortedStoreList("incorrectItems", store.session("target"));
+        addItemToSortedStoreList("incorrectItems", target);
       }
 
       // update adaptive algorithm
@@ -160,7 +160,7 @@ export const afcStimulus = {
       jsPsych.data.addDataToLastTrial({
         // specific to this trial
         item: _toNumber(stimulus.item) || stimulus.item,
-        answer: store.session("target"),
+        answer: target,
         distractors: stimulus.distractors,
         response: store.session("responseValue"),
         responseType: store.session('responseType'),

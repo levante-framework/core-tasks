@@ -1,5 +1,6 @@
 import _shuffle from 'lodash/shuffle'
 import store from "store2";
+import { mediaAssets } from '../../..';
 
 export const prepareChoices = (target, distractors) => {
     // randomly select a location for the correct answer
