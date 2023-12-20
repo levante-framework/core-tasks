@@ -1,6 +1,7 @@
 import mathTimeline from './math/timeline'
 import { fetchAndParseCorpus, initSharedConfig, initSharedStore  } from './shared/helpers'
 import matrixTimeline from './matrix-reasoning/timeline'
+import mentalRotationTimeline from './mental-rotation/timeline'
 
 // Abstract to import config from specifc task folder
 export default {
@@ -24,6 +25,14 @@ export default {
         loadCorpus: fetchAndParseCorpus,
         getTranslations: 'getTranslationsFunc()',
         buildTaskTimeline: matrixTimeline,
+        variants: {}
+    },
+    mentalRotation: {
+        initConfig: initSharedConfig,
+        initStore: initSharedStore,
+        loadCorpus: fetchAndParseCorpus,
+        getTranslations: 'getTranslationsFunc()',
+        buildTaskTimeline: mentalRotationTimeline,
         variants: {}
     },
 }

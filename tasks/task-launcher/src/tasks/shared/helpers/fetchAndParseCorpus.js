@@ -8,6 +8,7 @@ import store from "store2";
 import "regenerator-runtime/runtime";
 import { stringToNumberArray } from "./stringToNumArray";
 import { dashToCamelCase } from "./dashToCamelCase";
+import { camelize } from "@bdelab/roar-utils";
 
 
 export let corpora
@@ -36,7 +37,7 @@ const transformCSV = (csvInput) => {
       source: row.source,
       block_index: row.block_index,
       task: row.task,
-      // for testing, will be removed
+      // for testing, will be removed 
       prompt: row.prompt,
       item: writeItem(row),
       timeLimit: row.time_limit,
@@ -45,6 +46,12 @@ const transformCSV = (csvInput) => {
       distractors: containsLetters(row.response_alternatives) ? row.response_alternatives.split(',') : stringToNumberArray(row.response_alternatives),
       difficulty: row.difficulty
     };
+
+    if (row.task === 'Mental Rotation') {
+      newRow.item = camelize(newRow.item)
+      newRow.answer = camelize(newRow.answer)
+      newRow.distractors = newRow.distractors.map(choice => camelize(choice))
+    }
 
 
     if (row.notes === 'practice') {
@@ -71,6 +78,7 @@ export const fetchAndParseCorpus = async (config) => {
   const corpusLocation = {
     egmaMath: `https://storage.googleapis.com/${task}/${i18next.language}/corpora/${corpus}.csv`,
     matrixReasoning: `https://storage.googleapis.com/${task}/shared/corpora/${corpus}.csv`,
+    mentalRotation: `https://storage.googleapis.com/${task}/shared/corpora/${corpus}.csv`,
   }
 
   function downloadCSV(url, i) {
@@ -124,7 +132,7 @@ export const fetchAndParseCorpus = async (config) => {
     stimulus: csvTransformed.stimulus,
   };
 
-  // console.log({corpora})
+  console.log({corpora})
 
   store.session.set("corpora", corpora);
 }
