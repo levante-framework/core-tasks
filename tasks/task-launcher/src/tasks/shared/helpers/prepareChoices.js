@@ -10,12 +10,15 @@ export const prepareChoices = (target, distractors) => {
     const randomizedChoices = _shuffle(distractors);
   
     // insert the target
-    randomizedChoices.splice(randIndex, 0, target);
+    if (store.session('config').task !== 'mental-rotation') {
+      // certain tasks like mental rotation have the answer in the distractors
+      randomizedChoices.splice(randIndex, 0, target);
+    }
   
     store.session.set("target", target);
     store.session.set("correctResponseIdx", randIndex);
     store.session.set("choices", randomizedChoices);
-  
+
     return {
       target: target,
       choices: randomizedChoices,

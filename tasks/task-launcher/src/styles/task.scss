@@ -137,7 +137,13 @@
           margin: 0;
           padding: 0;
           max-width: calc(25% + 10px);
+        }
 
+        .two-afc {
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+          max-width: calc(50% + 10px);
         }
       }
 

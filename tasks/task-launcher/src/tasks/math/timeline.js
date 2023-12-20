@@ -15,7 +15,7 @@ import { exitFullscreen } from "../shared/trials";
 import { setupPractice, setupStimulus, } from "../shared/trials";
 import { instructions1, instructions2, postPractice, taskFinished } from "./trials/instructions";
 
-export default function buildEgmaTimeline(config, mediaAssets) {
+export default function buildMathTimeline(config, mediaAssets) {
   const preloadTrials = createPreloadTrials(mediaAssets).default
 
   initTrialSaving(config);
