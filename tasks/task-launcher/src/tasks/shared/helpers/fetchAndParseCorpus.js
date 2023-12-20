@@ -132,7 +132,7 @@ export const fetchAndParseCorpus = async (config) => {
     stimulus: csvTransformed.stimulus,
   };
 
-  console.log({corpora})
+  // console.log({corpora})
 
   store.session.set("corpora", corpora);
 }

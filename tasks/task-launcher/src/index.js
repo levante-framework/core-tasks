@@ -29,7 +29,7 @@ export class TaskLauncher {
     // GCP bucket names use a format like egma-math
     // will avoid language folder if not provided
     mediaAssets = await getMediaAssets(taskName, {}, language);
-    console.log({ mediaAssets })
+    // console.log({ mediaAssets })
 
     // TODO
     // const translations = await getTranslations(language)

@@ -68,6 +68,9 @@ export const afcStimulus = {
       const responseChoices = store.session('choices')
 
       Array.from(buttonContainer.children).forEach((el, i) => {
+        if (buttonContainer.children.length === 2) {
+          el.classList.add(`two-afc`)
+        }
         // Add condition on triple for length (2)
         if (buttonLayout === 'triple' || buttonLayout === 'diamond') {
           el.classList.add(`button${i + 1}`)

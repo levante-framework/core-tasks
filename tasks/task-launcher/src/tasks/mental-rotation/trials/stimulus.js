@@ -8,7 +8,9 @@ import {
     isPractice, 
     prepareChoices 
 } from "../../shared/helpers";
+import _toNumber from 'lodash/toNumber'
 
+let keyboardResponseMap = {}
 
 export const stimulus = {
     type: jsPsychHTMLMultiResponse,
@@ -18,20 +20,21 @@ export const stimulus = {
     },
     stimulus: () => {
       return (
-        `<div>
-          <p>Choose the image that matches this one.</p>
+        `<div id='stimulus-container'>
+          <p id='prompt'>Choose the image that matches this one.</p>
           <br>
-          <div id='stimulus-container'>
-            <img id="stimulus" src=${ mediaAssets.images[store.session.get("nextStimulus").item] } alt='stimulus'/>
+          <div >
+            <img id="stimulus-img" src=${ mediaAssets.images[store.session.get("nextStimulus").item] } alt='stimulus'/>
           </div>
          </div>`
       )
     },
+    keyboard_choices: ['ArrowLeft', 'ArrowRight'],
     button_choices: () => {
       const stimulus = store.session.get("nextStimulus");
-      const { target, distractors } = stimulus;
+      const { answer, distractors } = stimulus;
 
-      const trialInfo = prepareChoices(target, distractors);
+      const trialInfo = prepareChoices(answer, distractors);
 
       // for image buttons
       return trialInfo.choices.map((choice, i) => `<img src=${mediaAssets.images[choice]} alt=${choice} />`)
@@ -46,13 +49,22 @@ export const stimulus = {
       // replace this selector with whatever multi-response type trial you are using
       const buttonContainer = document.getElementById('jspsych-html-multi-response-btngroup')
 
-      const arrowKeyEmojis = ['←', '→']
+      const arrowKeyEmojis = [['arrowleft', '←'], ['arrowright', '→']]
+      const responseChoices = store.session('choices')
 
         Array.from(buttonContainer.children).forEach((el, i) => {
+          if (buttonContainer.children.length === 2) {
+            el.classList.add(`two-afc`)
+          }
+          
           // Add condition on triple for length (2)
           if (buttonLayout === 'triple' || buttonLayout === 'diamond') {
             el.classList.add(`button${i + 1}`)
           }
+
+          keyboardResponseMap[arrowKeyEmojis[i][0]] = responseChoices[i] 
+
+          el.children[0].classList.add('img-btn')
 
           if (keyHelpers) { 
             // Margin on the actual button element
@@ -62,7 +74,7 @@ export const stimulus = {
             arrowKeyBorder.classList.add('arrow-key-border')
   
             const arrowKey = document.createElement('p')
-            arrowKey.textContent = arrowKeyEmojis[i]
+            arrowKey.textContent = arrowKeyEmojis[i][1]
             arrowKey.style.textAlign = 'center'
             arrowKey.style.fontSize = '1.5rem'
             arrowKey.style.margin = '0'
@@ -86,37 +98,41 @@ export const stimulus = {
       // note: nextStimulus is actually the current stimulus
       const stimulus = store.session("nextStimulus");
       const choices = store.session("choices");
+      const target = store.session('target')
+
+
+      if (data.keyboard_response) {
+        data.correct = keyboardResponseMap[data.keyboard_response] === target
+        store.session.set("responseValue", keyboardResponseMap[data.keyboard_response]);
+      } else {
+        data.correct = data.button_response === store.session('correctResponseIdx')
+        store.session.set("responseValue", choices[data.button_response]);
+      }
 
       // check response and record it
-      data.correct = data.button_response === store.session("correctResponseIndx") ? 1 : 0;
       store.session.set("correct", data.correct);
-      store.session.set("response", data.button_response);
-      store.session.set("responseValue", choices[data.button_response]);
+      store.session.set("responseType", data.button_response ? 'mouse' : 'keyboard');
 
       // update running score and answer lists
-      if (data.correct === 1) {
+      if (data.correct) {
         if (!isPractice(stimulus.notes)) {
           // practice trials don't count toward total
           store.session.transact("totalCorrect", (oldVal) => oldVal + 1);
         }
       } else {
-        addItemToSortedStoreList("incorrectItems", store.session("target"));
+        addItemToSortedStoreList("incorrectItems", target);
       }
 
       jsPsych.data.addDataToLastTrial({
-        // specific to this trial
-        item: stimulus.item,
-        assessment_stage: data.assessment_stage,
-        target: store.session("target"),
-        choices: store.session("choices"),
+        item: _toNumber(stimulus.item) || stimulus.item,
+        answer: target,
+        distractors: stimulus.distractors,
         response: store.session("responseValue"),
-        responseNum: data.button_response,
-        correctResponseIndx: store.session("correctResponseIndx"),
-        replay: store.session("ifReplay"),
+        responseType: store.session('responseType'),
       });
 
-      // reset the replay button
-      store.session.set("ifReplay", 0);
+      console.log('data: ', jsPsych.data.get().last(1).values()[0])
+
 
       if (!isPractice(stimulus.notes)) {
         updateProgressBar();
