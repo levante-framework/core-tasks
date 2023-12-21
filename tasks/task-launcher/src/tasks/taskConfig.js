@@ -2,8 +2,10 @@ import mathTimeline from './math/timeline'
 import { fetchAndParseCorpus, initSharedConfig, initSharedStore  } from './shared/helpers'
 import matrixTimeline from './matrix-reasoning/timeline'
 import mentalRotationTimeline from './mental-rotation/timeline'
+import heartsAndFlowersTimeline from './hearts-and-flowers/timeline'
 
-// Abstract to import config from specifc task folder
+// TODO: Abstract to import config from specifc task folder
+// Will allow for multiple devs to work on the repo without merge conflicts
 export default {
     // Need to change bucket name to match task name (math)
     egmaMath: {
@@ -35,4 +37,12 @@ export default {
         buildTaskTimeline: mentalRotationTimeline,
         variants: {}
     },
+    heartsAndFlowers: {
+        initConfig: initSharedConfig,
+        initStore: initSharedStore,
+        loadCorpus: fetchAndParseCorpus,
+        getTranslations: 'getTranslationsFunc()',
+        buildTaskTimeline: heartsAndFlowersTimeline,
+        variants: {}
+    }
 }
