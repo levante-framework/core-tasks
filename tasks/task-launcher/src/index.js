@@ -45,7 +45,10 @@ export class TaskLauncher {
 
     store.session.set("config", config);
 
-    await loadCorpus(config);
+    // TODO: make hearts and flowers corpus
+    if (taskName !== 'hearts-and-flowers') {
+      await loadCorpus(config);
+    }
   
     return buildTaskTimeline(config, mediaAssets);
   }

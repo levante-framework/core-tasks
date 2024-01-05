@@ -1,5 +1,5 @@
 import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response'
-import { mediaAssets } from '../experiment'
+import { mediaAssets } from '../../..'
 import store from 'store2'
 
 const practiceData = [
@@ -38,7 +38,7 @@ const practiceTrials = practiceData.map((data, i) => {
             stimulus: () => {
                 if (i % 2 === 0) {
                     return (
-                        `<div id='stimulus-container'>
+                        `<div id='stimulus-container-hf'>
                             <div class='stimulus'>
                                 <img src=${mediaAssets.images[data.stimulus]} alt="heart or flower"/>
                             </div>
@@ -49,7 +49,7 @@ const practiceTrials = practiceData.map((data, i) => {
                     )
                 } else {
                     return (
-                        `<div id='stimulus-container'>
+                        `<div id='stimulus-container-hf'>
                             <div class='stimulus'>
                                 <p class='practice-text'>${data.text}</p>
                             </div>
@@ -65,11 +65,14 @@ const practiceTrials = practiceData.map((data, i) => {
                 store.session.set("stimulus", data.stimulus)
                 store.session.set("side", i % 2 === 0 ? 'left' : 'right')
             },
+            on_load: () => {
+                document.getElementById('jspsych-html-multi-response-btngroup').classList.add('btn-layout-hf')
+            },
             button_choices: ['left', 'right'],
             keyboard_choice: ['ArrowLeft', 'ArrowRight'],
-            button_html: [`<div class='response-btn'></div>`, `<div class='response-btn'></div>`],
+            button_html: [`<button class='response-btn'></button>`, `<button class='response-btn'></button>`],
             on_finish: (data) => {
-                console.log('data in practice: ', data)
+                // console.log('data in practice: ', data)
                 if (store.session.get('stimulus') === 'heart') {
                     if (data.button_response === 0 || data.button_response === 1) {
                         if ((data.button_response === 0 && store.session.get('side') === 'left') ||
@@ -117,7 +120,7 @@ export const practiceFeedback = {
     stimulus: () => {
         if (store.session.get("side") === 'left') {
             return (
-                `<div id='stimulus-container'>
+                `<div id='stimulus-container-hf'>
                     <div class='stimulus'>
                         <img src='${store.session.get('correct') === false ? mediaAssets.images[store.session.get('stimulus')] : mediaAssets.images.smilingFace}' alt="heart or flower"/>
                     </div>
@@ -130,7 +133,7 @@ export const practiceFeedback = {
             )
         } else {
             return (
-                `<div id='stimulus-container'>
+                `<div id='stimulus-container-hf'>
                     <div class='stimulus'>
                         <p class='practice-text'>
                             ${store.session.get('correct') === false ? "That's not right. Try again." : "Great! That's right!"}
@@ -144,6 +147,7 @@ export const practiceFeedback = {
             )
         }
     },
+    on_load: () => document.getElementById('jspsych-html-multi-response-btngroup').classList.add('btn-layout-hf'),
     button_choices: ['left', 'right'],
     keyboard_choice: ['ArrowLeft', 'ArrowRight'],
     button_html: [`<div class='response-btn'></div>`, `<div class='response-btn'></div>`],

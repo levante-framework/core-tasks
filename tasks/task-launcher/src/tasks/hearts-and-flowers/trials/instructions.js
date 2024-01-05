@@ -1,12 +1,12 @@
 import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response'
-import { mediaAssets } from '../experiment';
+import { mediaAssets } from '../../..'
 
 export const introduction = {
     type: jsPsychHTMLMultiResponse,
     stimulus: () => {
         return (
-        `<div class='instruction-page-1'>
-            <h1 class='header-white'>Hearts and Flowers Game</h1>
+        `<div >
+            <h1 id="header">Hearts and Flowers Game</h1>
             <div >
                 <img id='instruction-graphic' src=${mediaAssets.images.animalWhole} alt='Gray bear'/>
             </div>
@@ -14,9 +14,9 @@ export const introduction = {
     },
     button_choices: ['Go'],
     button_html: [`
-        <div class='go-btn'>
+        <button class='go-btn'>
             <p>Go</p>
-        </div>`
+        </button>`
     ],
     on_load: () => {
         document.getElementById("jspsych-content").style.backgroundColor = 'red'
@@ -79,19 +79,19 @@ export const [
             type: jsPsychHTMLMultiResponse,
             stimulus: () => {
                 return (
-                `<div>
+                `<div id='stimulus-container'>
                     <h1>${data.text}</h1>
                     <div >
                         <img id='instruction-graphic' src=${data.image()} alt='Instruction graphic'/>
                     </div>
-                    ${data.bottomText ? `<p>${data.bottomText}</p>` : ''}
+                    ${data.bottomText ? `<h2>${data.bottomText}</h2>` : ''}
                 </div>`)
             },
             button_choices: ['Next'],
             button_html: [
-                `<div class='next-btn'>
+                `<button class='next-btn'>
                     <p>${data.buttonText}</p>
-                </div>`
+                </button>`
             ],
             on_load: () => {
                 const nextBtn = document.getElementById("jspsych-html-multi-response-btngroup")
