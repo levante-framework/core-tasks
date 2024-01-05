@@ -416,8 +416,12 @@
       }
 
 // ----------------------------------------------------------------------------
-      // Hearsts and Flowers
+      // Hearts and Flowers
 
+      #header {
+        color: white
+      }
+      
       .go-btn{
         background-color: white;
         width: 15vw;
@@ -426,6 +430,7 @@
         align-items: center;
         justify-content: center;
         border-radius: 1rem;
+        border: none;
         cursor: pointer;
   
         p {
@@ -442,6 +447,7 @@
         align-items: center;
         justify-content: center;
         border-radius: 1rem;
+        border: none;
         cursor: pointer;
   
         p {
@@ -453,6 +459,7 @@
 
       .response-btn {
         background-color: rgb(1, 152, 1);
+        border: none;
         width: 10vw;
         Height: 10vw;
         cursor: pointer;

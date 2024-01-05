@@ -61,7 +61,7 @@ export default function buildHeartsAndFlowersTimeline(config, mediaAssets) {
   const heartPracticeTimeline = {
     timeline: [
       fixation,
-      stimulus(true),
+      stimulus(true, 'hearts practice'),
     ],
     timeline_variables: [
       { stimulus: 'heart', position: 0 },
@@ -86,7 +86,7 @@ export default function buildHeartsAndFlowersTimeline(config, mediaAssets) {
   const heartTimeline = {
     timeline: [
       fixation,
-      stimulus(),
+      stimulus(false, 'hearts stimulus'),
     ],
     // The standard set is 4 trials, the first two are always the same.
     // The last two are randomly selected. This set is then repeated X times.
@@ -113,7 +113,7 @@ export default function buildHeartsAndFlowersTimeline(config, mediaAssets) {
   const flowerPracticeTimeline = {
     timeline: [
       fixation,
-      stimulus(true),
+      stimulus(true, 'flowers practice'),
     ],
     timeline_variables: [
       { stimulus: 'flower', position: 0 },
@@ -137,7 +137,7 @@ export default function buildHeartsAndFlowersTimeline(config, mediaAssets) {
   const flowerTimeline = {
     timeline: [
       fixation,
-      stimulus(),
+      stimulus(false, 'flowers stimulus'),
     ],
     timeline_variables: [
       { stimulus: 'flower', position: 0 },
@@ -162,7 +162,7 @@ export default function buildHeartsAndFlowersTimeline(config, mediaAssets) {
   const heartsAndFlowersPracticeTimeline = { 
     timeline: [
       fixation,
-      stimulus(true),
+      stimulus(true, 'hearts and flowers practice'),
     ],
     timeline_variables: [
       { stimulus: 'flower', position: 0 },
@@ -185,7 +185,7 @@ export default function buildHeartsAndFlowersTimeline(config, mediaAssets) {
   const heartsAndFlowersTimeline = {
     timeline: [
       fixation,
-      stimulus(),
+      stimulus(false, 'hearts and flowers stimulus'),
     ],
     timeline_variables: [
       { stimulus: 'heart', position: 0 },
@@ -197,6 +197,8 @@ export default function buildHeartsAndFlowersTimeline(config, mediaAssets) {
       type: 'without-replacement',
       size: 1,
     },
+    // With the sample parameter, the repetitions parameter is explicit.
+    // Without the sample parameter, the repetitions parameter is multiplied by the amount of timeline variables.
     repetitions: 16
   }
 

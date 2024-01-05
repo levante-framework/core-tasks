@@ -1,15 +1,16 @@
 import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response'
 import { mediaAssets } from '../../..'
 import { jsPsych } from '../../taskSetup'
+import store from 'store2'
 
-export const stimulus = (isPractice = false) => {
+export const stimulus = (isPractice = false, stage) => {
     return {
         type: jsPsychHTMLMultiResponse,
         data: () => {
             return {
               // not camelCase because firekit
               save_trial: true,
-              assessment_stage: store.session.get("nextStimulus").task,
+              assessment_stage: stage,
               // not for firekit
               isPracticeTrial: isPractice,
             }
@@ -44,8 +45,11 @@ export const stimulus = (isPractice = false) => {
                 response = data.keyboard_response === 'ArrowLeft' ? 0 : 1
             }
 
+            data.correct = jsPsych.timelineVariable('position') === response
+
             jsPsych.data.addDataToLastTrial({
                 item: jsPsych.timelineVariable('stimulus'),
+                side: jsPsych.timelineVariable('position') <= 0.5 ? 'left' : 'right',
                 answer: jsPsych.timelineVariable('position'),
                 response,
               });

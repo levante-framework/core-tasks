@@ -5,8 +5,8 @@ export const introduction = {
     type: jsPsychHTMLMultiResponse,
     stimulus: () => {
         return (
-        `<div class='instruction-page-1'>
-            <h1 class='header-white'>Hearts and Flowers Game</h1>
+        `<div >
+            <h1 id="header">Hearts and Flowers Game</h1>
             <div >
                 <img id='instruction-graphic' src=${mediaAssets.images.animalWhole} alt='Gray bear'/>
             </div>
