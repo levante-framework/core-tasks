@@ -1,36 +1,54 @@
 import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response'
 import { mediaAssets } from '../../..'
+import { jsPsych } from '../../taskSetup'
 
-
-let position = Math.round(Math.random())
-
-function randomizePosition() {
-    position = Math.round(Math.random())
-}
-
-export const stimulus = (stimulus) => {
+export const stimulus = (isPractice = false) => {
     return {
         type: jsPsychHTMLMultiResponse,
+        data: () => {
+            return {
+              // not camelCase because firekit
+              save_trial: true,
+              assessment_stage: store.session.get("nextStimulus").task,
+              // not for firekit
+              isPracticeTrial: isPractice,
+            }
+          },
         stimulus: () => {
             return (
                 `<div id='stimulus-container-hf'>
                     <div class='stimulus'>
-                        ${position <= 0.5 ? `<img src=${mediaAssets.images[stimulus]} alt="heart or flower"/>` : ''}
+                        ${jsPsych.timelineVariable('position') <= 0.5 ? `<img src=${mediaAssets.images[jsPsych.timelineVariable('stimulus')]} alt="heart or flower"/>` : ''}
                     </div>
                     <div class='stimulus'>
-                        ${position > 0.5 ? `<img src=${mediaAssets.images[stimulus]} alt="heart or flower"/>` : ''}
+                        ${jsPsych.timelineVariable('position') > 0.5 ? `<img src=${mediaAssets.images[jsPsych.timelineVariable('stimulus')]} alt="heart or flower"/>` : ''}
                     </div>
                 </div>`
             )
         },
         on_load: () => {
+            // console.log('stim timeline var:', jsPsych.timelineVariable('stimulus'))
+            console.log('position timeline var:', jsPsych.timelineVariable('position'))
+
             document.getElementById('jspsych-html-multi-response-btngroup').classList.add('btn-layout-hf')
         },
         button_choices: ['left', 'right'],
         keyboard_choice: ['ArrowLeft', 'ArrowRight'],
         button_html: [`<div class='response-btn'></div>`, `<div class='response-btn'></div>`],
         on_finish: (data) => {
-            randomizePosition()
+            let response
+
+            if (data.button_response || data.button_response === 0) {
+                response = data.button_response
+            } else {
+                response = data.keyboard_response === 'ArrowLeft' ? 0 : 1
+            }
+
+            jsPsych.data.addDataToLastTrial({
+                item: jsPsych.timelineVariable('stimulus'),
+                answer: jsPsych.timelineVariable('position'),
+                response,
+              });
         },
 
         // DEFAULTS

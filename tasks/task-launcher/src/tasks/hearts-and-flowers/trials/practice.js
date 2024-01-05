@@ -72,7 +72,7 @@ const practiceTrials = practiceData.map((data, i) => {
             keyboard_choice: ['ArrowLeft', 'ArrowRight'],
             button_html: [`<button class='response-btn'></button>`, `<button class='response-btn'></button>`],
             on_finish: (data) => {
-                console.log('data in practice: ', data)
+                // console.log('data in practice: ', data)
                 if (store.session.get('stimulus') === 'heart') {
                     if (data.button_response === 0 || data.button_response === 1) {
                         if ((data.button_response === 0 && store.session.get('side') === 'left') ||

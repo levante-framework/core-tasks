@@ -2,6 +2,7 @@
 import { jsPsych } from '../taskSetup';
 import { fixation } from './trials/fixation';
 import { initTrialSaving, initTimeline, createPreloadTrials } from '../shared/helpers';
+import store from 'store2';
 
 // trials
 import { exitFullscreen } from '../shared/trials';
@@ -32,6 +33,7 @@ import {
 // export let cat;
 // export let cat2;
 
+const randomPosition = () => Math.round(Math.random())
 
 export default function buildHeartsAndFlowersTimeline(config, mediaAssets) {
     const preloadTrials = createPreloadTrials(mediaAssets).default
@@ -54,6 +56,150 @@ export default function buildHeartsAndFlowersTimeline(config, mediaAssets) {
 //     itemSelect: store.session('itemSelect'),
 //   });
 
+
+  // HEARTS PRACTICE
+  const heartPracticeTimeline = {
+    timeline: [
+      fixation,
+      stimulus(true),
+    ],
+    timeline_variables: [
+      { stimulus: 'heart', position: 0 },
+      { stimulus: 'heart', position: 1 },
+      { stimulus: 'heart', position: randomPosition() },
+      { stimulus: 'heart', position: randomPosition() },
+      { stimulus: 'heart', position: randomPosition() },
+      { stimulus: 'heart', position: randomPosition() },
+    ],
+    randomize_order: false,
+  }
+
+  const heartPostPracticeBlock = {
+    timeline: [
+      reminderHeart,
+      keepUp,
+      keepGoing,
+      timeToPlay,
+    ],
+  }
+
+  const heartTimeline = {
+    timeline: [
+      fixation,
+      stimulus(),
+    ],
+    // The standard set is 4 trials, the first two are always the same.
+    // The last two are randomly selected. This set is then repeated X times.
+    // Based on Hearts and Flowers game
+    timeline_variables: [
+      { stimulus: 'heart', position: 0 },
+      { stimulus: 'heart', position: 1 },
+      { stimulus: 'heart', position: randomPosition() },
+      { stimulus: 'heart', position: randomPosition() },
+    ],
+    // 12 trials total
+    repetitions: 3
+  }
+
+  const flowerInstructionsBlock = {
+    timeline: [
+      flowerInstructions,
+      flowerPracticeBlock1,
+      flowerPracticeBlock2,
+      timeToPractice,
+    ]
+  }
+
+  const flowerPracticeTimeline = {
+    timeline: [
+      fixation,
+      stimulus(true),
+    ],
+    timeline_variables: [
+      { stimulus: 'flower', position: 0 },
+      { stimulus: 'flower', position: 1 },
+      { stimulus: 'flower', position: randomPosition() },
+      { stimulus: 'flower', position: randomPosition() },
+      { stimulus: 'flower', position: randomPosition() },
+      { stimulus: 'flower', position: randomPosition() },
+    ],
+  }
+
+  const flowerPostPracticeBlock = {
+    timeline: [
+      reminderFlower,
+      keepUp,
+      keepGoing,
+      timeToPlay,
+    ],
+  }
+
+  const flowerTimeline = {
+    timeline: [
+      fixation,
+      stimulus(),
+    ],
+    timeline_variables: [
+      { stimulus: 'flower', position: 0 },
+      { stimulus: 'flower', position: 1 },
+      { stimulus: 'flower', position: randomPosition() },
+      { stimulus: 'flower', position: randomPosition() },
+    ],
+    // 16 trials total
+    repetitions: config.numberOfTrials
+  }
+
+
+  const heartsAndFlowersInstructionsBlock = {
+      timeline: [
+        heartsAndFlowers,
+        reminderHeartBlock,
+        reminderFlowerBlock,
+        timeToPractice,
+      ]
+  }
+
+  const heartsAndFlowersPracticeTimeline = { 
+    timeline: [
+      fixation,
+      stimulus(true),
+    ],
+    timeline_variables: [
+      { stimulus: 'flower', position: 0 },
+      { stimulus: 'heart', position: 1 },
+      { stimulus: 'heart', position: randomPosition() },
+      { stimulus: 'flower', position: randomPosition() },
+      { stimulus: 'heart', position: randomPosition() },
+      { stimulus: 'flower', position: randomPosition() },
+    ],
+  }
+
+  const heartsAndFlowersPostPracticeBlock = {
+    timeline: [
+      keepUp,
+      keepGoing,
+      timeToPlay,
+    ]
+  }
+
+  const heartsAndFlowersTimeline = {
+    timeline: [
+      fixation,
+      stimulus(),
+    ],
+    timeline_variables: [
+      { stimulus: 'heart', position: 0 },
+      { stimulus: 'heart', position: 1 },
+      { stimulus: 'flower', position: 0 },
+      { stimulus: 'flower', position: 1 },
+    ],
+    sample: {
+      type: 'without-replacement',
+      size: 1,
+    },
+    repetitions: 16
+  }
+
   // introductionTrials, ifNotFullscreen,
   const timeline = [
     preloadTrials,
@@ -63,74 +209,20 @@ export default function buildHeartsAndFlowersTimeline(config, mediaAssets) {
     heartPracticeBlock1,
     heartPracticeBlock2,
     timeToPractice,
+    heartPracticeTimeline,
+    heartPostPracticeBlock,
+    heartTimeline,
+    flowerInstructionsBlock,
+    flowerPracticeTimeline,
+    flowerPostPracticeBlock,
+    flowerTimeline,
+    heartsAndFlowersInstructionsBlock,
+    heartsAndFlowersPracticeTimeline,
+    heartsAndFlowersPostPracticeBlock,
+    heartsAndFlowersTimeline,
+    endGame,
+    exitFullscreen
   ];
-
-  // HEARTS
-  for (let i = 0; i < 2; i++) {
-    timeline.push(fixation)
-    timeline.push(stimulus('heart'))
-  }
-
-  timeline.push(reminderHeart)
-  timeline.push(keepUp)
-  timeline.push(keepGoing)
-  timeline.push(timeToPlay)
-
-  // HEARTS
-  for (let i = 0; i < 6; i++) {
-    timeline.push(fixation)
-    timeline.push(stimulus('heart'))
-  }
-
-
-  timeline.push(flowerInstructions)
-  timeline.push(flowerPracticeBlock1)
-  timeline.push(flowerPracticeBlock2)
-  timeline.push(timeToPractice)
-
-  // FLOWERS
-  for (let i = 0; i < 2; i++) {
-    timeline.push(fixation)
-    timeline.push(stimulus('flower'))
-  }
-
-  timeline.push(reminderFlower)
-  timeline.push(keepUp)
-  timeline.push(keepGoing)
-  timeline.push(timeToPlay)
-
-  // Flowers
-  for (let i = 0; i < 6; i++) {
-    timeline.push(fixation)
-    timeline.push(stimulus('flower'))
-  }
-
-  timeline.push(heartsAndFlowers)
-  timeline.push(reminderHeartBlock)
-  timeline.push(reminderFlowerBlock)
-  timeline.push(timeToPractice)
-
-
-  //MIXED (BOTH)
-  for (let i = 0; i < 2; i++) {
-    let random = Math.round(Math.random())
-    timeline.push(fixation)
-    timeline.push(stimulus(random <= 0.5 ? 'flower' : 'heart'))
-  }
-
-  timeline.push(keepUp)
-  timeline.push(keepGoing)
-  timeline.push(timeToPlay)
-
-  //MIXED (BOTH)
-  for (let i = 0; i < 6; i++) {
-    let random = Math.round(Math.random())
-    timeline.push(fixation)
-    timeline.push(stimulus(random <= 0.5 ? 'flower' : 'heart'))
-  }
-
-
-  timeline.push(endGame, exitFullscreen);
 
   return { jsPsych, timeline };
 }
