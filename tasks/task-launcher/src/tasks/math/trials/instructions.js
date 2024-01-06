@@ -12,17 +12,16 @@ export const instructions1 = {
     },
     stimulus: `
     <div class='instructions-container'>
-        <h1 class='instructions-title'>Welcome to the math task</h1>
+        <h1 class='instructions-title'>Instructions</h1>
 
         <p>
-            In this task, you will be given a series of math problems that are appropriate for school-aged children, including simple addition, subtraction, multiplication, and other types of problems. Please take your time to answer the questions correctly. The questions are multiple choice, and you can either use the keyboard arrows or your mouse to select the answer. Thank you for your participation! Please click the continue button or press any key to continue.
+            In this task, you will be given a series of math problems that are appropriate for school-aged children, including simple addition, subtraction, multiplication, and other types of problems. Please take your time to answer the questions correctly. The questions are multiple choice, and you can either use the keyboard arrows or your mouse to select the answer. Thank you for your participation!
         </p>
 
         <footer>Click the button below or press <b>ANY KEY</b> to continue</footer>
     </div>`,
-    choices: 'ALL_KEYS',
     button_choices: [`Continue`],
-    keyboard_choices: ['ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight'],
+    keyboard_choices: 'ALL_KEYS',
     button_html: '<button id="continue-btn">Continue</button>',
     // trial_duration: 1000,
 }
@@ -45,9 +44,8 @@ export const instructions2 = {
 
         <footer>Click the button below or press <b>ANY KEY</b> to continue</footer>
     </div>`,
-    choices: 'ALL_KEYS',
     button_choices: [`Continue`],
-    keyboard_choices: ['ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight'],
+    keyboard_choices: 'ALL_KEYS',
     button_html: '<button id="continue-btn">Continue</button>',
     // trial_duration: 1000,
 }
@@ -71,9 +69,8 @@ export const postPractice = {
 
         <footer>Click the button below or press <b>ANY KEY</b> to continue</footer>
     </div>`,
-    choices: 'ALL_KEYS',
     button_choices: [`Continue`],
-    keyboard_choices: ['ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight'],
+    keyboard_choices: 'ALL_KEYS',
     button_html: '<button id="continue-btn">Continue</button>',
     // trial_duration: 1000,
 }
@@ -96,9 +93,8 @@ export const taskFinished = {
 
         <footer>Click the button below or press <b>ANY KEY</b> to exit</footer>
     </div>`,
-    choices: 'ALL_KEYS',
     button_choices: [`Continue`],
-    keyboard_choices: ['ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight'],
+    keyboard_choices: 'ALL_KEYS',
     button_html: '<button id="continue-btn">Exit</button>',
     // trial_duration: 1000,
 }
