@@ -31,13 +31,17 @@ export const afcStimulus = {
         return mediaAssets.audio.nullAudio
       }
     },
-    prompt: () => `
-    <div id='stimulus-container'>
-      ${store.session.get("nextStimulus").task === 'Number Identification' ? `<img src=${mediaAssets.images.speakerIcon} id='replay-btn' alt='speaker replay icon'/>` : ''}
-      <p id="prompt">${ store.session.get("nextStimulus").prompt }</p>
-      <br>
-      <p id="stimulus-html">${ store.session.get("nextStimulus").item }</p>
-    </div>`,
+    prompt: () => {
+      const stim = store.session.get("nextStimulus")
+      return (
+        `<div id='stimulus-container'>
+          ${stim.task === 'Number Identification' ? `<img src=${mediaAssets.images.speakerIcon} id='replay-btn' alt='speaker replay icon'/>` : ''}
+          <p id="prompt">${ stim.prompt }</p>
+          <br>
+          <p id="stimulus-html" style="${stim.task === 'Number Identification' ? "color: transparent;" : ''}">${ stim.item }</p>
+        </div>`
+      )
+    },
     prompt_above_buttons: true,
     keyboard_choices: ['ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight'],
     button_choices: () => {
@@ -77,7 +81,13 @@ export const afcStimulus = {
         }
 
         // Map arrow to response choice.
-        keyboardResponseMap[arrowKeyEmojis[i][0]] = responseChoices[i] 
+        // 2afc layout uses left and right arrow keys. The order of the arrrow
+        // key array allows for the correct mapping for other layouts.
+        if (buttonContainer.children.length === 2) {
+          keyboardResponseMap[arrowKeyEmojis[i+1][0]] = responseChoices[i] 
+        } else {
+          keyboardResponseMap[arrowKeyEmojis[i][0]] = responseChoices[i] 
+        }
 
         if (keyHelpers) { 
           // Margin on the actual button element
@@ -87,7 +97,11 @@ export const afcStimulus = {
           arrowKeyBorder.classList.add('arrow-key-border')
 
           const arrowKey = document.createElement('p')
-          arrowKey.textContent = arrowKeyEmojis[i][1]
+          if (buttonContainer.children.length === 2) {
+            arrowKey.textContent = arrowKeyEmojis[i+1][1]
+          } else {
+            arrowKey.textContent = arrowKeyEmojis[i][1]
+          }
           arrowKey.style.textAlign = 'center'
           arrowKey.style.fontSize = '1.5rem'
           arrowKey.style.margin = '0'
