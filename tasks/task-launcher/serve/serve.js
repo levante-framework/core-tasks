@@ -17,6 +17,7 @@ const buttonLayout = urlParams.get("buttonLayout");
 const numOfPracticeTrials = urlParams.get("practiceTrials");
 const numberOfTrials = urlParams.get("trials") === null ? null : parseInt(urlParams.get("trials"), 10);
 const stimulusBlocks = urlParams.get("blocks") === null ? null : parseInt(urlParams.get("blocks"), 10);
+const age = urlParams.get("age")  === null ? null : parseInt(urlParams.get("age"), 10);
 // const storyCorpus = urlParams.get("storyCopus")
 
 // Boolean parameters
@@ -57,6 +58,7 @@ onAuthStateChanged(appKit.auth, (user) => {
       stimulusBlocks,
       keyHelpers,
       language,
+      age
       // story,
       // storyCorpus,
     };

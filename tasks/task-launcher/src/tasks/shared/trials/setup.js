@@ -34,5 +34,6 @@ const setupTrials = setupData.map((trial, i) => {
   };
 });
 
+
 export const setupPractice = setupTrials[0];
 export const setupStimulus = setupTrials[1];
