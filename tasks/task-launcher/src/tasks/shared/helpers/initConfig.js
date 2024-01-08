@@ -27,7 +27,8 @@ export const initSharedConfig = async (
     taskName,
     stimulusBlocks,
     numOfPracticeTrials,
-    keyHelpers
+    keyHelpers,
+    age
     // storyCorpus,
     // story,
   } = cleanParams;
@@ -36,7 +37,7 @@ export const initSharedConfig = async (
   language !== "en" && i18next.changeLanguage(language);
 
   const config = {
-    userMetadata: { ...userMetadata, },
+    userMetadata: { ...userMetadata, age },
     audioFeedback: audioFeedback || "neutral",
     skipInstructions: skipInstructions ?? true,
     startTime: new Date(),

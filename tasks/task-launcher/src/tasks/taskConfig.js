@@ -3,6 +3,8 @@ import { fetchAndParseCorpus, initSharedConfig, initSharedStore  } from './share
 import matrixTimeline from './matrix-reasoning/timeline'
 import mentalRotationTimeline from './mental-rotation/timeline'
 import heartsAndFlowersTimeline from './hearts-and-flowers/timeline'
+import memoryGameTimeline from './memory-game/timeline'
+
 
 // TODO: Abstract to import config from specifc task folder
 // Will allow for multiple devs to work on the repo without merge conflicts
@@ -44,5 +46,13 @@ export default {
         getTranslations: 'getTranslationsFunc()',
         buildTaskTimeline: heartsAndFlowersTimeline,
         variants: {}
-    }
+    },
+    memoryGame: {
+        initConfig: initSharedConfig,
+        initStore: initSharedStore,
+        loadCorpus: fetchAndParseCorpus,
+        getTranslations: 'getTranslationsFunc()',
+        buildTaskTimeline: memoryGameTimeline,
+        variants: {}
+    },
 }
