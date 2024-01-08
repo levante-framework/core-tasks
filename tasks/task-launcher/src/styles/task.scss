@@ -512,6 +512,20 @@
           font-size: 7vh;
         }
       }
+
+      .jspsych-corsi-overide{
+        display: grid;
+        gap: 5px; /* adjust as needed for spacing between blocks */
+        position: relative;
+        width: 25rem;
+        height: 25rem;
+
+        .jspsych-corsi-block-overide {
+          background-color: #878A8C;
+          width: 100%;
+          height: 100%;
+        }
+      }
     }
   }
 

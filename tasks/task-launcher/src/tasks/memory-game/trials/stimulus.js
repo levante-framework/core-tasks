@@ -1,7 +1,7 @@
 import jsPsychCorsiBlocks from '@jspsych-contrib/plugin-corsi-blocks';
-import { createGrid, generateRandomSequence } from '../helperFunctions';
+import { createGrid, generateRandomSequence } from '../helpers/grid';
 import store from 'store2';
-import { jsPsych } from '../jsPsych';
+import { jsPsych } from '../../taskSetup';
 
 
 const age = store.session.get('config')?.userMetadata.age
@@ -16,7 +16,7 @@ const sequenceLength = age > 6 ? 4 : 2
 const grid = createGrid(x, y, numOfblocks, blockSize, gridSize, blockSpacing)
 let generatedSequence = generateRandomSequence(numOfblocks, sequenceLength)
 
-// 2 x 2
+
 export const corsiBlocksDisplay = {
     type: jsPsychCorsiBlocks,
     sequence: generatedSequence,

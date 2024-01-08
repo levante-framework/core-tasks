@@ -28,7 +28,9 @@ export class TaskLauncher {
 
     // GCP bucket names use a format like egma-math
     // will avoid language folder if not provided
-    mediaAssets = await getMediaAssets(taskName, {}, language);
+    if (taskName !== 'memory-game') {
+      mediaAssets = await getMediaAssets(taskName, {}, language);
+    }
     // console.log({ mediaAssets })
 
     // TODO
@@ -46,7 +48,7 @@ export class TaskLauncher {
     store.session.set("config", config);
 
     // TODO: make hearts and flowers corpus
-    if (taskName !== 'hearts-and-flowers') {
+    if (taskName !== 'hearts-and-flowers' && taskName !== 'memory-game') {
       await loadCorpus(config);
     }
   
