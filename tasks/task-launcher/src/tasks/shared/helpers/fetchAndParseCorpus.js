@@ -79,6 +79,7 @@ export const fetchAndParseCorpus = async (config) => {
     egmaMath: `https://storage.googleapis.com/${task}/${i18next.language}/corpora/${corpus}.csv`,
     matrixReasoning: `https://storage.googleapis.com/${task}/shared/corpora/${corpus}.csv`,
     mentalRotation: `https://storage.googleapis.com/${task}/shared/corpora/${corpus}.csv`,
+    sameDifferentSelection: `https://storage.googleapis.com/${task}/shared/corpora/${corpus}.csv`,
   }
 
   function downloadCSV(url, i) {
@@ -89,6 +90,7 @@ export const fetchAndParseCorpus = async (config) => {
         skipEmptyLines: true,
         complete: function (results) {
           transformCSV(results.data);
+          console.log({stimulusData, practiceData})
           resolve(results.data);
         },
         error: function (error) {

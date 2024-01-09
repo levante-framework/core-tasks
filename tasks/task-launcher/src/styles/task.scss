@@ -277,7 +277,6 @@
           grid-column: 2; /* Centered in the middle column */
           grid-row: 2;
         }
-      
       }
 
       .math-btn {
@@ -457,13 +456,6 @@
         }
       }
 
-      .response-btn {
-        background-color: rgb(1, 152, 1);
-        border: none;
-        width: 10vw;
-        Height: 10vw;
-        cursor: pointer;
-      }
 
       .btn-layout-hf {
         display: flex;
@@ -524,6 +516,33 @@
           background-color: #878A8C;
           width: 100%;
           height: 100%;
+        }
+      }
+
+
+  // -----------------------------------------------------------------------
+  // Same Different Selection
+      #card-container{
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+
+        .card {
+          flex: 0 0 22%; /* each card will take up roughly 22% of the container width */
+          margin: .5rem;
+          border: 8px solid transparent;
+          cursor: pointer;
+          /* Add additional styling for your card here (height, background, etc.) */
+        
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+        }
+
+        .selected {
+          border: 8px solid #1862f7; /* Add a border to highlight the button */
         }
       }
     }
