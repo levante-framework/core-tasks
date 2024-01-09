@@ -10,10 +10,10 @@ export const stimulus = {
   },
   stimulus: () => {
       return (
-        `<div>
-          <h1 id='prompt'>${store.session('nextStimulus').item}</h1>
-          <div id='shapes-container'>
-            <img src=${mediaAssets.images.lgBlueCircle} alt='stimulus' />
+        `<div id='stimulus-container'>
+          <h1 id='prompt'>${store.session('nextStimulus').item || 'Here is another picture. Which of the pictures is the same as this one [Point to the new picture]'}</h1>
+          <div >
+            <img id='stimulus-img' src=${mediaAssets.images.lgBlueCircle} alt='stimulus' />
           </div>
         </div>
         `
@@ -23,18 +23,14 @@ export const stimulus = {
     return ['Yes', 'No']
   },
   button_html: () => {
-    if (store.session.get('nextStimulus').source === 'phase-1') {
-      return ["<button id='response-yes' class='response-btn'>%choice%</button>", "<button id='response-no' class='response-btn'>%choice%</button>"]
-    } else {
-      return [
-        `<button  class='response-btn'>
-          <img src=${mediaAssets.images.lgRedTriangle} alt='shape' />
-         </button>`,
-        `<button class='response-btn'>
-          <img src=${mediaAssets.images.lgRedTriangle} alt='shape' />
-         </button>`
-      ]
-    }
+    return [
+      `<button class='img-btn'>
+        <img src=${mediaAssets.images.lgRedTriangle} alt='shape' />
+        </button>`,
+      `<button class='img-btn'>
+        <img src=${mediaAssets.images.lgRedTriangle} alt='shape' />
+        </button>`
+    ]
   },
   on_load: () => {
     console.log(store.session('nextStimulus'))

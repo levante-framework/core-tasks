@@ -35,11 +35,19 @@ export default function buildSameDifferentTimeline(config, mediaAssets) {
     repetitions: store.session.get('maxStimulusTrials')
   }
 
+  const afcBlock = {
+    timeline: [
+      setupStimulus,
+      afcMatch
+    ],
+    repetitions: 2
+  }
+
 
   const timeline = [
     preloadTrials,
     ...initialTimeline.timeline,
-    afcMatch,
+    afcBlock,
     practiceBlock,
     stimulusBlock
   ];
