@@ -30,8 +30,8 @@ export class TaskLauncher {
     // will avoid language folder if not provided
     if (taskName !== 'memory-game') {
       mediaAssets = await getMediaAssets(taskName, {}, language);
+      // console.log({ mediaAssets })
     }
-    // console.log({ mediaAssets })
 
     // TODO
     // const translations = await getTranslations(language)

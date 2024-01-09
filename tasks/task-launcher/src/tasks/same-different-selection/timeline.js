@@ -10,9 +10,10 @@ import { initializeCat } from "../taskSetup";
 // trials
 import { stimulus } from "./trials/stimulus";
 import { setupPractice, setupStimulus, exitFullscreen } from "../shared/trials";
+import { afcMatch } from "./trials/afcMatch";
 
 export default function buildSameDifferentTimeline(config, mediaAssets) {
-  const preloadTrials = createPreloadTrials(mediaAssets);
+  const preloadTrials = createPreloadTrials(mediaAssets).default;
   
   initTrialSaving(config);
   const initialTimeline = initTimeline(config);
@@ -37,7 +38,8 @@ export default function buildSameDifferentTimeline(config, mediaAssets) {
 
   const timeline = [
     preloadTrials,
-    // ...initialTimeline.timeline
+    ...initialTimeline.timeline,
+    afcMatch,
     practiceBlock,
     stimulusBlock
   ];

@@ -3,41 +3,21 @@ import store from "store2";
 import { updateProgressBar } from "../../shared/helpers";
 import { mediaAssets } from "../../..";
 
-export const audioContext = new Audio();
-
 export const stimulus = {
   type: jsPsychHTMLMultiResponse,
   data: () => {
     return {}
   },
   stimulus: () => {
-    if (store.session.get('nextStimulus').source === 'phase-1') {
       return (
         `<div>
-          <h1>Are these two shapes similar in any way?</h1>
+          <h1 id='prompt'>${store.session('nextStimulus').item}</h1>
           <div id='shapes-container'>
-            <div class='shape'>
-              <img src=${mediaAssets.images[store.session.get('nextStimulus').similar1]} alt='shape1' />
-            </div>
-            <div class='shape'>
-              <img src=${mediaAssets.images[store.session.get('nextStimulus').similar2]} alt='shape2' />
-            </div>
+            <img src=${mediaAssets.images.lgBlueCircle} alt='stimulus' />
           </div>
         </div>
         `
       )
-    } else {
-      return (
-        `<div>
-          <h1 id='prompt'>Which of the pictures is the same as this new picture?</h1>
-          <div id='shapes-container'>
-            <img src=${mediaAssets.images[store.session.get('nextStimulus').item]} alt='stimulus' />
-          </div>
-        </div>
-        `
-      )
-    }
-    
   },
   button_choices: () => {
     return ['Yes', 'No']
@@ -48,16 +28,16 @@ export const stimulus = {
     } else {
       return [
         `<button  class='response-btn'>
-          <img src=${mediaAssets.images[store.session.get('nextStimulus').target]}
+          <img src=${mediaAssets.images.lgRedTriangle} alt='shape' />
          </button>`,
         `<button class='response-btn'>
-          <img src=${mediaAssets.images[store.session.get('nextStimulus').distractor1]}
+          <img src=${mediaAssets.images.lgRedTriangle} alt='shape' />
          </button>`
       ]
     }
   },
   on_load: () => {
-
+    console.log(store.session('nextStimulus'))
   },
   on_finish: (data) => {
 
