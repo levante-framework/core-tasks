@@ -1,5 +1,4 @@
 // Used in Math and Matrix-reasoning so far
-
 import _omitBy from "lodash/omitBy";
 import _isNull from "lodash/isNull";
 import _isUndefined from "lodash/isUndefined";
@@ -33,8 +32,6 @@ export const initSharedConfig = async (
     // story,
   } = cleanParams;
 
-
-  language !== "en" && i18next.changeLanguage(language);
 
   const config = {
     userMetadata: { ...userMetadata, age },
