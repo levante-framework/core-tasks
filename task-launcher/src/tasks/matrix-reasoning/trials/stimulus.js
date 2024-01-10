@@ -9,11 +9,9 @@ import {
 } from "../../shared/helpers";
 import { mediaAssets } from "../../..";
 import _toNumber from 'lodash/toNumber'
-import { getDevice } from "@bdelab/roar-utils";
 
 let keyboardResponseMap = {}
 
-const deviceType = getDevice()
 
 export const stimulus = {
     type: jsPsychHTMLMultiResponse,
@@ -41,8 +39,6 @@ export const stimulus = {
     },
     button_html: () => `<button>%choice%</button>`,
     on_load: () => {
-        console.log('nextStimulus', store.session.get('nextStimulus'))
-
       const {  buttonLayout, keyHelpers } = store.session.get("config");
       
       // replace this selector with whatever multi-response type trial you are using
