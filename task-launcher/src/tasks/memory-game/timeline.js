@@ -5,6 +5,7 @@ import { initTimeline, initTrialSaving } from "../shared/helpers";
 import { jsPsych } from "../taskSetup";
 import { initializeCat } from "../taskSetup";
 import { createPreloadTrials } from "../shared/helpers";
+import store from "store2";
 
 // trials
 import { exitFullscreen } from "../shared/trials";
@@ -14,13 +15,18 @@ export default function buildMemoryTimeline(config, mediaAssets) {
   initTrialSaving(config);
   const initialTimeline = initTimeline(config);
 
+  const corsiBlock = {
+    timeline: [
+      corsiBlocksDisplay,
+      corsiBlocks,
+    ],
+    repetitions: store.session.get('maxStimulusTrials'),
+  }
+
   const timeline = [
     // preloadTrials, 
     ...initialTimeline.timeline,
-    corsiBlocksDisplay,
-    corsiBlocks,
-    // corsiBlocksDisplay,
-    // corsiBlocks,
+    corsiBlock,
   ];
 
 

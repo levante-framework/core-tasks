@@ -29,7 +29,7 @@ export default function buildMentalRotationTimline(config, mediaAssets) {
       setupStimulus,
       stimulus
     ],
-    repetitions: store.session.get('config').numberOfTrials
+    repetitions: store.session.get('maxStimulusTrials'),
   }
 
   const timeline = [

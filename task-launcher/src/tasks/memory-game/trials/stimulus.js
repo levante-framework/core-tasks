@@ -19,7 +19,7 @@ let generatedSequence = generateRandomSequence(numOfblocks, sequenceLength)
 
 export const corsiBlocksDisplay = {
     type: jsPsychCorsiBlocks,
-    sequence: generatedSequence,
+    sequence: () => generatedSequence,
     blocks: () => grid,
     mode: 'display',
     block_size: blockSize,
@@ -67,8 +67,8 @@ export const corsiBlocksDisplay = {
 
 export const corsiBlocks = {
     type: jsPsychCorsiBlocks,
-    sequence: generatedSequence,
-    blocks: grid,
+    sequence: () => generatedSequence,
+    blocks: () => grid,
     mode: 'input',
     block_size: blockSize,
     // light gray
@@ -108,6 +108,7 @@ export const corsiBlocks = {
         jsPsych.data.addDataToLastTrial({
             correct: 'sure'
         })
+        console.log({generatedSequence})
         generatedSequence = generateRandomSequence(numOfblocks, sequenceLength)
     },
 }

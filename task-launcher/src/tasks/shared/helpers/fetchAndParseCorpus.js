@@ -67,6 +67,8 @@ const transformCSV = (csvInput) => {
 
 
 export const fetchAndParseCorpus = async (config) => {
+  console.log('corpus: ', config.corpus)
+
   const { 
     corpus, 
     task, 
@@ -80,6 +82,7 @@ export const fetchAndParseCorpus = async (config) => {
     matrixReasoning: `https://storage.googleapis.com/${task}/shared/corpora/${corpus}.csv`,
     mentalRotation: `https://storage.googleapis.com/${task}/shared/corpora/${corpus}.csv`,
     sameDifferentSelection: `https://storage.googleapis.com/${task}/shared/corpora/${corpus}.csv`,
+    trog: `https://storage.googleapis.com/${task}/shared/corpora/${corpus}.csv`,
   }
 
   function downloadCSV(url, i) {

@@ -4,6 +4,7 @@ import { mediaAssets } from '../../..';
 
 export const prepareChoices = (target, distractors) => {
     // randomly select a location for the correct answer
+    // console.log({distractors})
     const randIndex = Math.floor(Math.random() * distractors.length + 1);
   
     // randomize the order of the distractors
