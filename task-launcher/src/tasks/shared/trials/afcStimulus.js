@@ -1,3 +1,5 @@
+// For Matrix reasoning, TROG, Mental rotation and EGMA Math
+
 import jsPsychAudioMultiResponse from "@jspsych-contrib/plugin-audio-multi-response";
 import jsPsychHTMLMultiResponse from "@jspsych-contrib/plugin-html-multi-response"
 import store from "store2";
