@@ -3,9 +3,11 @@ The tasks are all housed in this single repo using a monorepo like-structure. Wh
 
 ## App code flow
 *As a Standalone web app*
+
 serve.js -> index.js -> taskConfig.js -> load assets, corpus, setup store -> jsPsych timeline is ran
 
 *As a npm package*
+
 wherever the package is used -> index.js -> taskConfig.js -> load assets, corpus, setup store -> jsPsych timeline is ran
 
 
@@ -14,12 +16,14 @@ The app can run in two different modes, and as such uses two different build pro
 
 The TaskLauncher class takes in 4 parameters, 1 being optional. firekit, game params, user params, and the display element to attach the jsPsych code to. The display element is optional. 
 
-*As a Standalone web app*
+**As a Standalone web app**
+
 As a standlone web app, the built code includes the serve folder. The entry point is in serve.js. This folder also includes the config for Firestore. The serve.js file includes some additional hooks (functions) from Firebase to check the authentication. In this mode, however, we do not use any authentication but treat the user as a guest. The TaskLauncher class requires 3 things to run: firekit, user params, and game params. In standalone, we get all the parameters we need for the game from query strings. 
 
 
 
-*As a npm package (In development)*
+**As a npm package (In development)**
+
 As an npm package the packaged code does not include the serve folder. You use it as you would any typical npm package. Install it, import it, and run the code. Just like standlone, it requires a firekit instance, game params, and user params. 
 
 ```
@@ -35,6 +39,7 @@ Firekit is an SDK developed by the ROAR team that allows for a streamlined inter
 
 ## Project structure
 *Currently under development*
+
 The overarching goal of this project is to simplify task developent, improve productivity, and decrease task development time. Previously, each task was in it's own separate repo which led to a ton of WET ("Write Everything Twice" or in this case X times the amount of tasks) code.
 
 Task specifc code lives in the task folder. Each child folder is named after it's respective task name. Within that there is a trials folder and a timeline file. Addiotionally there may be helper functions in a helper folder. Common code that is used throughout multiple tasks is in the shared folder. This also has a helpers and a trials folder. Lastly, we has a taskSetup and taskConfig file. The task setup file has up global instances / variables that we need to pass all throughout the tasks. The taskConfig file is where everything comes together for a task. There are 5 main parts to a task, the config, the store (you can think of this as global state), how to load the corpus (if the task needs it), where to get translations (TBD), and how to build the task timeline. 
@@ -44,41 +49,52 @@ All of these parts in the task config file are ran after recieving the correspon
 ## Current Tasks & Parameters
 
 ### Common Parameters
-age: number,
-audioFeedback: "neutral",
-skipInstructions: boolean,
-sequentialPractice: boolean
-sequentialStimulus: boolean
-corpus: "*task-name-here*-item-bank",
-buttonLayout: "default" | "grid" | "column" | "diamond" | "triple",
-numberOfTrials: number,
-stimulusBlocks: number,
-numOfPracticeTrials: number,
-keyHelpers: boolean
 
-### Math (includes Number Line)
-task: egma-math
-corpus: math-item-bank
+*Note: corpus is no longer a required parameter, each task has it's defaults*
+
+```
+age: number (optional),
+audioFeedback: "neutral" (optional),
+skipInstructions: boolean (optional),
+sequentialPractice: boolean (optional)
+sequentialStimulus: boolean (optional)
+corpus: "*task-name-here*-item-bank" (optional),
+buttonLayout: "default" | "grid" | "column" | "diamond" | "triple" (optional),
+numberOfTrials: number (optional),
+stimulusBlocks: number (optional),
+numOfPracticeTrials: number (optional),
+keyHelpers: boolean (optional)
+```
+
+### Math (includes Number Line) - Default
+```
+task: egma-math 
+```
 
 ### Matrix Reasoning
+```
 task: matrix-reasoning
-corpus: matrix-reasoning-item-bank-pz (item bank under development)
+```
 
 ### Mental Rotation
+```
 task: mental-rotation
-corpus: mental-rotation-item-bank
+```
 
 ### Hearts and Flowers
+```
 task: hearts-and-flowers
-corpus: ---
+```
 
 ### Memory Game
+```
 task: memory-game
-corpus: ---
+```
 
 ### Same Different Selection
+```
 task: same-different-selection
-corpus: same-different-selection-item-bank
+```
 
 
 ## How ROAR / LEVANTE Tasks work within the greater ROAD infrastructure

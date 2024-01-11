@@ -5,6 +5,10 @@ import { jsPsych } from "../../taskSetup";
 import { prepareChoices, updateProgressBar, addItemToSortedStoreList, isPractice } from "../../shared/helpers";
 import { mediaAssets } from "../../..";
 import _toNumber from 'lodash/toNumber'
+import { camelize } from "@bdelab/roar-utils";
+
+let audioSource;
+let keyboardResponseMap = {}
 
 function getStimulus(trialType) {
     if (trialType === 'audio') {
@@ -28,22 +32,40 @@ function getStimulus(trialType) {
     }
 }
 
-function getPrompt(task) {
+function getPrompt(task, trialType) {
     if (task === 'egmaMath') {
         const stim = store.session.get("nextStimulus")
         return (
             `<div id='stimulus-container'>
-            ${stim.task === 'Number Identification' ? `<img src=${mediaAssets.images.speakerIcon} id='replay-btn' alt='speaker replay icon'/>` : ''}
-            <p id="prompt">${ stim.prompt }</p>
-            <br>
-            <p id="stimulus-html" style="${stim.task === 'Number Identification' ? "color: transparent;" : ''}">${ stim.item }</p>
+                ${stim.task === 'Number Identification' ? `<img src=${mediaAssets.images.speakerIcon} id='replay-btn' alt='speaker replay icon'/>` : ''}
+                <p id="prompt">${ stim.prompt }</p>
+                <br>
+                <p id="stimulus-html" style="${stim.task === 'Number Identification' ? "color: transparent;" : ''}">${ stim.item }</p>
             </div>`
         )
     }
 
+    if (task === 'trog') {
+        return (`
+        <div id='stimulus-container'>
+            <img src=${mediaAssets.images.speakerIcon} id='replay-btn' alt='speaker replay icon'/>
+          <p id="prompt">Choose the picture that shows...</p>
+        </div>`
+      )
+    }
+
+    if (trialType === 'audio') {
+        return (`
+        <div id='stimulus-container'>
+          <p id="prompt">Choose the best pattern to fill in the blank.</p>
+          <br>
+          <img id="stimulus-img" src=${ mediaAssets.images[store.session.get('nextStimulus').item] }  alt=${ store.session.get('nextStimulus').item }/>
+        </div>`
+      )
+    }
 }
 
-function getButtonChoices(trialType) {
+function getButtonChoices(task, trialType) {
     const stimulus = store.session.get("nextStimulus");
     const { answer, distractors } = stimulus;
 
@@ -52,18 +74,36 @@ function getButtonChoices(trialType) {
     store.session.set("target", answer);
     store.session.set("choices", trialInfo.choices);
 
+    if (task === 'trog') {
+        // for image buttons
+        return trialInfo.choices.map((choice, i) => `<img src=${mediaAssets.images[camelize(choice)]} alt=${choice} />`)
+    }
+
+    if (task === 'matrix-reasoning') {
+        return trialInfo.choices.map((choice, i) => `<img src=${mediaAssets.images[choice]} alt=${choice} />`)
+    }
+
     return trialInfo.choices;
 }
 
-function getButtonHtml(trialType) {
-    return "<button class='math-btn'>%choice%</button>"
-
+function getButtonHtml(task, trialType) {
+    if (task === 'egma-math') {
+        return "<button class='math-btn'>%choice%</button>"
+    } else {
+        return "<button>%choice%</button>"
+    }
 }
 
-function doOnLoad(trialType) { 
+function doOnLoad(task, trialType) { 
     const stim = store.session.get("nextStimulus") 
+    console.log({stim})
     const { buttonLayout, keyHelpers} = store.session.get("config")
-    const buttonContainer = document.getElementById("jspsych-audio-multi-response-btngroup")
+    let buttonContainer
+    if (trialType === 'audio') {
+        buttonContainer = document.getElementById("jspsych-audio-multi-response-btngroup")
+    } else {
+        buttonContainer = document.getElementById("jspsych-html-multi-response-btngroup")
+    }
     buttonContainer.classList.add(`${buttonLayout}-layout`);
 
     const arrowKeyEmojis = [
@@ -77,20 +117,24 @@ function doOnLoad(trialType) {
 
     Array.from(buttonContainer.children).forEach((el, i) => {
         if (buttonContainer.children.length === 2) {
-        el.classList.add(`two-afc`)
+            el.classList.add(`two-afc`)
         }
         // Add condition on triple for length (2)
         if (buttonLayout === 'triple' || buttonLayout === 'diamond') {
-        el.classList.add(`button${i + 1}`)
+            el.classList.add(`button${i + 1}`)
         }
 
         // Map arrow to response choice.
         // 2afc layout uses left and right arrow keys. The order of the arrrow
         // key array allows for the correct mapping for other layouts.
         if (buttonContainer.children.length === 2) {
-        keyboardResponseMap[arrowKeyEmojis[i+1][0]] = responseChoices[i] 
+            keyboardResponseMap[arrowKeyEmojis[i+1][0]] = responseChoices[i] 
         } else {
-        keyboardResponseMap[arrowKeyEmojis[i][0]] = responseChoices[i] 
+            keyboardResponseMap[arrowKeyEmojis[i][0]] = responseChoices[i] 
+        }
+
+        if (task === 'trog' || task === 'matrix-reasoning') {
+            el.children[0].classList.add('img-btn')
         }
 
         if (keyHelpers) { 
@@ -122,27 +166,27 @@ function doOnLoad(trialType) {
         store.session.transact("trialNumTotal", (oldVal) => oldVal + 1);
     }
 
-    if (store.session.get("nextStimulus").task === 'Number Identification') {
+    if (store.session.get("nextStimulus").task === 'Number Identification' || task === 'trog') {
         const replayBtn = document.getElementById('replay-btn');
 
         async function replayAudio() {
         const jsPsychAudioCtx = jsPsych.pluginAPI.audioContext();
 
         // Returns a promise of the AudioBuffer of the preloaded file path.
-        const audioBuffer = await jsPsych.pluginAPI.getAudioBuffer(mediaAssets.audio[stim.item]);
+        const audioBuffer = await jsPsych.pluginAPI.getAudioBuffer(mediaAssets.audio[stim.item] || mediaAssets.audio.nullAudio);
 
-        source = jsPsychAudioCtx.createBufferSource();
-        source.buffer = audioBuffer;
-        source.connect(jsPsychAudioCtx.destination);
-        source.start(0);
+        audioSource = jsPsychAudioCtx.createBufferSource();
+        audioSource.buffer = audioBuffer;
+        audioSource.connect(jsPsychAudioCtx.destination);
+        audioSource.start(0);
         }
 
         replayBtn.addEventListener('click', replayAudio);
     }
 }
 
-function doOnFinish(data, trialType) {
-    if (source) source.stop();
+function doOnFinish(data, task, trialType) {
+    if (audioSource) audioSource.stop();
 
     // note: nextStimulus is actually the current stimulus
     const stimulus = store.session("nextStimulus");
@@ -181,16 +225,16 @@ function doOnFinish(data, trialType) {
         responseType: store.session('responseType'),
     });
 
+    console.log('data: ', jsPsych.data.get().last(1).values()[0])
+
     if (!isPractice(stimulus.notes)) {
         updateProgressBar();
     }
 }
 
-export const audioContext = new Audio();
 
-let source, keyboardResponseMap = {}
-
-export const afcStimulus = ({trialType, responseAllowed, promptAboveButtons, task }) => {
+// {trialType, responseAllowed, promptAboveButtons, task }
+export const afcStimulus = ({trialType, responseAllowed, promptAboveButtons, task } = {}) => {
     return {
         type: trialType === 'audio' ? jsPsychAudioMultiResponse : jsPsychHTMLMultiResponse,
         response_allowed_while_playing: responseAllowed,
@@ -204,12 +248,12 @@ export const afcStimulus = ({trialType, responseAllowed, promptAboveButtons, tas
             }
         },
         stimulus: () => getStimulus(trialType),
-        prompt: () => getPrompt(task),
+        prompt: () => getPrompt(task, trialType),
         prompt_above_buttons: promptAboveButtons,
         keyboard_choices: ['ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight'],
-        button_choices: () => getButtonChoices(trialType),
-        button_html: () => getButtonHtml(trialType),
-        on_load: () => doOnLoad(trialType),
-        on_finish: (data) => doOnFinish(data, trialType)
+        button_choices: () => getButtonChoices(task, trialType),
+        button_html: () => getButtonHtml(task, trialType),
+        on_load: () => doOnLoad(task, trialType),
+        on_finish: (data) => doOnFinish(data, task, trialType)
     }
 }

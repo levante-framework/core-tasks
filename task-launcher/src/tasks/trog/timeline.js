@@ -18,32 +18,35 @@ export default function buildTROGTimeline(config, mediaAssets) {
   initTrialSaving(config);
   const initialTimeline = initTimeline(config); 
 
-  const practiceBlock = {
-    timeline: [
-      setupPractice,
-      // does it matter if trial has properties that don't belong to that type?
-      afcStimulus({
-        trialType: 'html',
-        responseAllowed: true,
-        promptAboveButtons: true,
-        task: config.task
-      })
-    ],
-    repetitions: config.numOfPracticeTrials
+  // does not matter if trial has properties that don't belong to that type
+  const trialConfig = {
+    trialType: 'audio',
+    responseAllowed: true,
+    promptAboveButtons: true,
+    task: config.task
   }
+
+  // const practiceBlock = {
+  //   timeline: [
+  //     setupPractice,
+  //     afcStimulus(trialConfig)
+  //   ],
+  //   repetitions: config.numOfPracticeTrials
+  // }
 
   const stimulusBlock = {
     timeline: [
       setupStimulus,
-      afcStimulus()
+      afcStimulus(trialConfig)
     ],
     repetitions: store.session.get('maxStimulusTrials')
   }
 
+
   const timeline = [
     preloadTrials,
     ...initialTimeline.timeline,
-    practiceBlock,
+    // practiceBlock,
     stimulusBlock,
   ];
 

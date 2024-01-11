@@ -3,7 +3,15 @@ import _omitBy from "lodash/omitBy";
 import _isNull from "lodash/isNull";
 import _isUndefined from "lodash/isUndefined";
 import i18next from "i18next";
+import { camelize } from "@bdelab/roar-utils";
 
+const defaultCorpus = {
+  egmaMath: 'math-item-bank',
+  matrixReasoning: 'matrix-reasoning-item-bank-pz',
+  mentalRotation: 'mental-rotation-item-bank',
+  sameDifferentSelection: 'same-different-selection-item-bank',
+  trog: 'trog-item-bank',
+}
 
 export const initSharedConfig = async (
   firekit,
@@ -43,7 +51,7 @@ export const initSharedConfig = async (
     sequentialPractice: sequentialPractice ?? true,
     sequentialStimulus: sequentialStimulus ?? true,
     // name of the csv files in the storage bucket
-    corpus: corpus ?? "math-item-bank",
+    corpus: corpus,
     buttonLayout: buttonLayout || "default",
     numberOfTrials: numberOfTrials ?? 20,
     task: taskName ?? 'egma-math',
@@ -54,6 +62,10 @@ export const initSharedConfig = async (
     // storyCorpus: storyCorpus ?? 'story-lion',
     // story: story ?? false,
   };
+
+  // default corpus if nothing is passed in
+  console.log('corpus in config: ', config.corpus)
+  if (!config.corpus) config.corpus = defaultCorpus[camelize(taskName)]
 
   const updatedGameParams = Object.fromEntries(
     Object.entries(gameParams).map(([key, value]) => [key, config[key] ?? value]),
