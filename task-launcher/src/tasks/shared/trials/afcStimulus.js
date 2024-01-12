@@ -1,4 +1,5 @@
-// For Matrix reasoning, TROG, Mental rotation and EGMA Math
+// For Matrix reasoning, TROG, Theory of mind, Mental rotation, and EGMA Math
+// Currently works in: TROG, Theory of mind
 
 import jsPsychAudioMultiResponse from "@jspsych-contrib/plugin-audio-multi-response";
 import jsPsychHTMLMultiResponse from "@jspsych-contrib/plugin-html-multi-response"
@@ -25,9 +26,9 @@ function getStimulus(trialType) {
         const stim = store.session.get("nextStimulus")
         return (`
             <div id='stimulus-container'>
-            <p id="prompt">Choose the best pattern to fill in the blank.</p>
+            <p id="prompt">${stim.item}</p>
             <br>
-            <img id="stimulus-img" src=${ mediaAssets.images[store.session.get('nextStimulus').item] }  alt=${ store.session.get('nextStimulus').item }/>
+            <img id="stimulus-img" src=${ mediaAssets.images[store.session.get('nextStimulus').image] || `https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc`}  alt=${ store.session.get('nextStimulus').image || `Stimulus` }/>
             </div>`
         )
     
@@ -35,8 +36,8 @@ function getStimulus(trialType) {
 }
 
 function getPrompt(task, trialType) {
+    const stim = store.session.get("nextStimulus")
     if (task === 'egmaMath') {
-        const stim = store.session.get("nextStimulus")
         return (
             `<div id='stimulus-container'>
                 ${stim.task === 'Number Identification' ? `<img src=${mediaAssets.images.speakerIcon} id='replay-btn' alt='speaker replay icon'/>` : ''}
@@ -59,9 +60,9 @@ function getPrompt(task, trialType) {
     if (trialType === 'audio') {
         return (`
         <div id='stimulus-container'>
-          <p id="prompt">Choose the best pattern to fill in the blank.</p>
+          <p id="prompt">${stim.item}</p>
           <br>
-          <img id="stimulus-img" src=${ mediaAssets.images[store.session.get('nextStimulus').item] }  alt=${ store.session.get('nextStimulus').item }/>
+          <img id="stimulus-img" src=${ mediaAssets.images[stim.image] ||  'https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc' }  alt=${ stim.image }/>
         </div>`
       )
     }
@@ -69,6 +70,9 @@ function getPrompt(task, trialType) {
 
 function getButtonChoices(task, trialType) {
     const stimulus = store.session.get("nextStimulus");
+    if (stimulus.trialType === 'instructions') {
+        return ['Continue']
+    }
     const { answer, distractors } = stimulus;
 
     const trialInfo = prepareChoices(answer, distractors);
@@ -76,19 +80,26 @@ function getButtonChoices(task, trialType) {
     store.session.set("target", answer);
     store.session.set("choices", trialInfo.choices);
 
+    console.log({trialInfo})
+
     if (task === 'trog') {
         // for image buttons
         return trialInfo.choices.map((choice, i) => `<img src=${mediaAssets.images[camelize(choice)]} alt=${choice} />`)
     }
 
-    if (task === 'matrix-reasoning') {
-        return trialInfo.choices.map((choice, i) => `<img src=${mediaAssets.images[choice]} alt=${choice} />`)
+    if (task === 'matrix-reasoning' || task === 'theory-of-mind') {
+        // for testing
+        return Array(2).fill(0).map((_, i) => `<img src='https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc' alt='something' />`)
+        // return trialInfo.choices.map((choice, i) => `<img src=${mediaAssets.images[choice] || `https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc`} alt=${choice} />`)
     }
 
     return trialInfo.choices;
 }
 
 function getButtonHtml(task, trialType) {
+    const stimulus = store.session.get("nextStimulus");
+    // if (stimulus.trialType === 'instructions') return
+
     if (task === 'egma-math') {
         return "<button class='math-btn'>%choice%</button>"
     } else {
@@ -106,7 +117,12 @@ function doOnLoad(task, trialType) {
     } else {
         buttonContainer = document.getElementById("jspsych-html-multi-response-btngroup")
     }
-    buttonContainer.classList.add(`${buttonLayout}-layout`);
+
+    if (buttonLayout !== 'default' && buttonContainer.children.length === 2) {
+        buttonContainer.classList.add('default-layout');
+    } else {
+        buttonContainer.classList.add(`${buttonLayout}-layout`);
+    }
 
     const arrowKeyEmojis = [
         ['arrowup', '↑'], 
@@ -135,7 +151,7 @@ function doOnLoad(task, trialType) {
             keyboardResponseMap[arrowKeyEmojis[i][0]] = responseChoices[i] 
         }
 
-        if (task === 'trog' || task === 'matrix-reasoning') {
+        if (task === 'trog' || task === 'matrix-reasoning' || task === 'theory-of-mind') {
             el.children[0].classList.add('img-btn')
         }
 

@@ -11,6 +11,7 @@ const defaultCorpus = {
   mentalRotation: 'mental-rotation-item-bank',
   sameDifferentSelection: 'same-different-selection-item-bank',
   trog: 'trog-item-bank',
+  theoryOfMind: 'theory-of-mind-item-bank',
 }
 
 export const initSharedConfig = async (

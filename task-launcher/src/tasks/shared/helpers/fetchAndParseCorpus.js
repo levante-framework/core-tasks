@@ -40,6 +40,8 @@ const transformCSV = (csvInput) => {
       // for testing, will be removed 
       prompt: row.prompt,
       item: writeItem(row),
+      trialType: row.trial_type,
+      image: row.image,
       timeLimit: row.time_limit,
       answer: _toNumber(row.answer) || row.answer,
       notes: row.notes,
@@ -83,6 +85,7 @@ export const fetchAndParseCorpus = async (config) => {
     mentalRotation: `https://storage.googleapis.com/${task}/shared/corpora/${corpus}.csv`,
     sameDifferentSelection: `https://storage.googleapis.com/${task}/shared/corpora/${corpus}.csv`,
     trog: `https://storage.googleapis.com/${task}/shared/corpora/${corpus}.csv`,
+    theoryOfMind: `https://storage.googleapis.com/${task}/shared/corpora/${corpus}.csv`,
   }
 
   function downloadCSV(url, i) {

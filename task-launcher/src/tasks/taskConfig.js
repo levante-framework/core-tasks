@@ -6,6 +6,7 @@ import heartsAndFlowersTimeline from './hearts-and-flowers/timeline'
 import memoryGameTimeline from './memory-game/timeline'
 import sameDifferentSelectionTimeline from './same-different-selection/timeline'
 import tROGTimeline from './trog/timeline'
+import tomTimeline from './theory-of-mind/timeline'
 
 // TODO: Abstract to import config from specifc task folder
 // Will allow for multiple devs to work on the repo without merge conflicts
@@ -72,4 +73,12 @@ export default {
         buildTaskTimeline: tROGTimeline,
         variants: {}
     },
+    theoryOfMind: {
+        initConfig: initSharedConfig,
+        initStore: initSharedStore,
+        loadCorpus: fetchAndParseCorpus,
+        getTranslations: 'getTranslationsFunc()',
+        buildTaskTimeline: tomTimeline,
+        variants: {}
+    }
 }
