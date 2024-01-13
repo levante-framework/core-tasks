@@ -48,54 +48,51 @@ All of these parts in the task config file are ran after recieving the correspon
 
 ## Current Tasks & Parameters
 
+In standalone web app mode, tasks and parameters can be changes through query strings. These query string parameters are listed below.
+
 ### Common Parameters
 
 *Note: corpus is no longer a required parameter, each task has it's defaults*
 
 ```
-age: number (optional),
-audioFeedback: "neutral" (optional),
-skipInstructions: boolean (optional),
-sequentialPractice: boolean (optional)
-sequentialStimulus: boolean (optional)
-corpus: "*task-name-here*-item-bank" (optional),
-buttonLayout: "default" | "grid" | "column" | "diamond" | "triple" (optional),
-numberOfTrials: number (optional),
-stimulusBlocks: number (optional),
-numOfPracticeTrials: number (optional),
-keyHelpers: boolean (optional)
+task: 'egma-math' | 'matrix-reasoning' | 'mental-rotation' | 'hearts-and-flowers' | 'memory-game' | 'same-different-selection' | 'theory-of-mind' | 'trog' [string] (optional) 
+age: [number] (optional) ,
+audioFeedback: "neutral" ['string'] (optional),
+skipInstructions: [boolean] (optional),
+sequentialPractice: [boolean] (optional)
+sequentialStimulus: [boolean] (optional)
+corpus: "*task-name-here*-item-bank" [string] (optional),
+buttonLayout: "default" | "grid" | "column" | "diamond" | "triple" [string] (optional),
+trials: [number] (optional),
+stimulusBlocks: [number] (optional),
+numOfPracticeTrials: [number] (optional),
+keyHelpers: [boolean] (optional)
 ```
 
 ### Math (includes Number Line) - Default
-```
-task: egma-math 
-```
+
 
 ### Matrix Reasoning
-```
-task: matrix-reasoning
-```
+
 
 ### Mental Rotation
-```
-task: mental-rotation
-```
+
 
 ### Hearts and Flowers
-```
-task: hearts-and-flowers
-```
+
 
 ### Memory Game
-```
-task: memory-game
-```
+
 
 ### Same Different Selection
-```
-task: same-different-selection
-```
+
+
+### TROG
+
+
+## Theory of Mind
+
 
 
 ## How ROAR / LEVANTE Tasks work within the greater ROAD infrastructure
-*Link to ROAD diagram*
+[Data flow diagram](https://miro.com/app/board/uXjVNY-_qDA=/?share_link_id=967374624080)
