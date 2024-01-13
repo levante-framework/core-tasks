@@ -69,8 +69,6 @@ const transformCSV = (csvInput) => {
 
 
 export const fetchAndParseCorpus = async (config) => {
-  console.log('corpus: ', config.corpus)
-
   const { 
     corpus, 
     task, 

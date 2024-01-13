@@ -29,7 +29,7 @@ export const afcMatch = {
     cardContainer.id = 'card-container';
 
     // create cards
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 7; i++) {
       const card = document.createElement('div');
       card.className = 'card';
       card.id = `card-${i}`;

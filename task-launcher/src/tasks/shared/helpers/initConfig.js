@@ -65,7 +65,6 @@ export const initSharedConfig = async (
   };
 
   // default corpus if nothing is passed in
-  console.log('corpus in config: ', config.corpus)
   if (!config.corpus) config.corpus = defaultCorpus[camelize(taskName)]
 
   const updatedGameParams = Object.fromEntries(
