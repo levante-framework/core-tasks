@@ -37,7 +37,7 @@ function getStimulus(trialType) {
 
 function getPrompt(task, trialType) {
     const stim = store.session.get("nextStimulus")
-    if (task === 'egmaMath' || task === 'theory-of-mind') {
+    if (task === 'egma-math' || task === 'theory-of-mind') {
         return (
             `<div id='stimulus-container'>
                 ${stim.task === 'Number Identification' ||
