@@ -129,6 +129,8 @@
       // 1 x 4 (default)
       .default-layout {
         display: flex;
+        // flex-wrap: wrap;
+        // justify-content: space-around;
         max-width: 100%;
         gap: 1.5rem;
 
@@ -407,10 +409,10 @@
 
       #replay-btn {
         position: absolute;
-        bottom: 80%;
+        bottom: 85%;
         right: 10%;
         cursor: pointer;
-        width: 10vw
+        width: 8vw
       }
 
 // ----------------------------------------------------------------------------

@@ -11,6 +11,7 @@ const defaultCorpus = {
   mentalRotation: 'mental-rotation-item-bank',
   sameDifferentSelection: 'same-different-selection-item-bank',
   trog: 'trog-item-bank',
+  theoryOfMind: 'theory-of-mind-item-bank',
 }
 
 export const initSharedConfig = async (
@@ -64,7 +65,6 @@ export const initSharedConfig = async (
   };
 
   // default corpus if nothing is passed in
-  console.log('corpus in config: ', config.corpus)
   if (!config.corpus) config.corpus = defaultCorpus[camelize(taskName)]
 
   const updatedGameParams = Object.fromEntries(

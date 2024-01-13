@@ -131,7 +131,7 @@ export const stimulus = {
         responseType: store.session('responseType'),
       });
 
-      console.log('data: ', jsPsych.data.get().last(1).values()[0])
+      // console.log('data: ', jsPsych.data.get().last(1).values()[0])
 
 
       if (!isPractice(stimulus.notes)) {
