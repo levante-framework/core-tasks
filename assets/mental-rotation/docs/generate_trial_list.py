@@ -4,6 +4,12 @@ import csv
 objects = ['a', 'b', 'c', 'd', 'e']
 chiralities = ['n', 'p']
 sm_numbers = list(range(1, 71))  # SM numbers 1 to 70
+# we only have: 
+# a - 1,2,6,10,11,13,17
+# b - 1,5,6,8,12,14,15
+# c - 3,5,6,10,14,15,17
+# d - 1,2,4,8,10,11,15
+# e - 
 angles = [0, 40, 80, 120, 160, 200, 240, 280, 320]
 
 # Function to create the filename
