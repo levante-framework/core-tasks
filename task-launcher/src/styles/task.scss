@@ -627,6 +627,24 @@
           border: 8px solid #1862f7; /* Add a border to highlight the button */
         }
       }
+
+    // -----------------------------------------------------------------------
+    // TROG
+    .trog-img-btn {
+      background-color: transparent;
+      border: black solid 3px;
+      border-radius: .5rem;
+      cursor: pointer;
+
+      img {
+        border: none;
+        width: 15vw;
+        padding: 0;
+        margin: 0;
+      }
+    }
+
+
     }
   }
 

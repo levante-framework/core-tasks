@@ -167,8 +167,12 @@ function doOnLoad(task, trialType) {
                 keyboardResponseMap[arrowKeyEmojis[i][0]] = responseChoices[i] 
             }
 
-            if (task === 'trog' || task === 'matrix-reasoning' || task === 'theory-of-mind') {
+            if (task === 'matrix-reasoning' || task === 'theory-of-mind') {
                 el.children[0].classList.add('img-btn')
+            }
+
+            if (task === 'trog') {
+                el.children[0].classList.add('trog-img-btn')
             }
 
             if (keyHelpers) { 
