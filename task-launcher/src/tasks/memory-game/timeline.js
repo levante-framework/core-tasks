@@ -25,7 +25,7 @@ export default function buildMemoryTimeline(config, mediaAssets) {
 
   const timeline = [
     // preloadTrials, 
-    ...initialTimeline.timeline,
+    initialTimeline,
     corsiBlock,
   ];
 
