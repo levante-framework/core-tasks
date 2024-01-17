@@ -306,11 +306,11 @@
         }
       }
 
-      #selected-btn {
-        background-color: #2200ff; /* Change the background color to indicate selection */
-        color: #fff; /* Change the text color for better visibility */
-        border: 5px solid #32f718; /* Add a border to highlight the button */
-      }
+      // #selected-btn {
+      //   background-color: #2200ff; /* Change the background color to indicate selection */
+      //   color: #fff; /* Change the text color for better visibility */
+      //   border: 5px solid #32f718; /* Add a border to highlight the button */
+      // }
 
       .arrow-key-border {
         border: 1px solid black; /* Thin and black border */
@@ -379,6 +379,87 @@
       }
 
 // ----------------------------------------------------------------------------
+      // .custom-slider {
+      //   input[type="range"] {
+      //     -webkit-appearance: none !important;
+      //     width: 100% !important;
+      //     background: lightgray !important; // Replace with your color variable or value
+
+      //     &::-webkit-slider-thumb {
+      //       -webkit-appearance: none !important;
+      //       appearance: none !important;
+      //       width: 25px !important;
+      //       height: 25px !important;
+      //       background: gray !important; // Replace with your thumb color variable or value
+      //       cursor: pointer !important;
+      //     }
+
+      //     &::-moz-range-thumb {
+      //       width: 25px !important;
+      //       height: 25px !important;
+      //       background: gray !important; // Replace with your thumb color variable or value
+      //       cursor: pointer !important;
+      //     }
+      //   }
+      // }
+      input[type='range'] {
+        accent-color: gray;
+
+        // -webkit-appearance: none;
+        // appearance: none;
+        background-color: transparent;
+
+        /* WebKit-specific: Chrome, Safari, new Edge */
+        &::-webkit-slider-runnable-track {
+          background: transparent;
+        }
+
+        /* Firefox */
+        &::-moz-range-track {
+          background: transparent;
+        }
+
+        /* MS Edge */
+        &::-ms-track {
+          background: transparent;
+          color: transparent; /* Necessary for Edge */
+        }
+
+        // Thumb styles for WebKit (Chrome, Safari, newer versions of Opera and Edge)
+        // &::-webkit-slider-thumb {
+        //   -webkit-appearance: none;
+        //   appearance: none;
+        //   background: red; // Replace with your desired thumb color
+        //   height: 25px;
+        //   width: 25px;
+        //   border-radius: 50%;
+        //   cursor: pointer;
+        // }
+      
+        // // Thumb styles for Mozilla Firefox
+        // &::-moz-range-thumb {
+        //   background: lightblue; // Replace with your desired thumb color
+        //   height: 25px;
+        //   width: 25px;
+        //   border-radius: 50%;
+        //   cursor: pointer;
+        // }
+      
+        // // Thumb styles for MS Edge
+        // &::-ms-thumb {
+        //   background: lightblue; // Replace with your desired thumb color
+        //   height: 25px;
+        //   width: 25px;
+        //   border-radius: 50%;
+        //   cursor: pointer;
+        // }
+      
+        // Track styles (same as before)
+        // ...
+      }
+      
+      
+
 
       // Math-Egma
       #jspsych-html-slider-response-response{

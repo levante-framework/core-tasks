@@ -34,7 +34,7 @@ export default function buildMentalRotationTimline(config, mediaAssets) {
 
   const timeline = [
     preloadTrials,
-    ...initialTimeline.timeline,
+    initialTimeline,
     // practiceBlock,
     stimulusBlock
   ];

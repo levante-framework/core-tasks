@@ -24,9 +24,9 @@ export default function buildMathTimeline(config, mediaAssets) {
 
   const timeline = [
     preloadTrials, 
-    ...initialTimeline.timeline,
-    instructions1,
-    instructions2,
+    initialTimeline,
+    // instructions1,
+    // instructions2,
   ];
 
   const afcStimulusBlock = {
@@ -99,13 +99,13 @@ export default function buildMathTimeline(config, mediaAssets) {
 
   initializeCat();
 
-  pushSubTaskToTimeline(
-    setupPractice,
-    [config.numOfPracticeTrials],
-    "practice",
-  ); // Practice Trials
+  // pushSubTaskToTimeline(
+  //   setupPractice,
+  //   [config.numOfPracticeTrials],
+  //   "practice",
+  // ); // Practice Trials
 
-  timeline.push(postPractice)
+  // timeline.push(postPractice)
 
   pushSubTaskToTimeline(
     setupStimulus,
