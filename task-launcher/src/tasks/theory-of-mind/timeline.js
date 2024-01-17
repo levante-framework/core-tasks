@@ -37,7 +37,7 @@ export default function buildTOMTimeline(config, mediaAssets) {
 
   const timeline = [
     preloadTrials,
-    ...initialTimeline.timeline,
+    initialTimeline,
     // practiceBlock,
     stimulusBlock,
   ];

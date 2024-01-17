@@ -37,7 +37,7 @@ function getStimulus(trialType) {
 
 function getPrompt(task, trialType) {
     const stim = store.session.get("nextStimulus")
-    if (task === 'egmaMath' || task === 'theory-of-mind') {
+    if (task === 'egma-math' || task === 'theory-of-mind') {
         return (
             `<div id='stimulus-container'>
                 ${stim.task === 'Number Identification' ||
@@ -48,7 +48,7 @@ function getPrompt(task, trialType) {
                 <p id="prompt">${ stim.prompt || stim.item }</p>
                 <br>
                 ${task === 'egma-math' ? 
-                    `<p id="stimulus-html" style="${stim.task === 'Number Identification' ? "color: transparent;" : ''}">${ stim.item }</p>`
+                    `<p id="stimulus-html" style="${stim.task === 'Number Identification' || stim.task === 'Number Comparison' ? "color: transparent;" : ''}">${ stim.item }</p>`
                     :
                     `<img id="stimulus-img" src=${ mediaAssets.images[stim.image] ||  'https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc' }  alt=${ stim.image }/>`
                 }

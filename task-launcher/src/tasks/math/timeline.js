@@ -9,7 +9,8 @@ import {
 } from "../shared/helpers";
 import { jsPsych, initializeCat } from "../taskSetup";
 // trials
-import { ifRealTrialResponse, afcStimulus } from "./trials/afcStimulus";
+import { ifRealTrialResponse, } from "./trials/afcStimulus";
+import { afcStimulus } from "../shared/trials/afcStimulus";
 import { slider } from "./trials/sliderStimulus";
 import { exitFullscreen } from "../shared/trials";
 import { setupPractice, setupStimulus, } from "../shared/trials";
@@ -23,13 +24,20 @@ export default function buildMathTimeline(config, mediaAssets) {
 
   const timeline = [
     preloadTrials, 
-    ...initialTimeline.timeline,
-    instructions1,
-    instructions2,
+    initialTimeline,
+    // instructions1,
+    // instructions2,
   ];
 
   const afcStimulusBlock = {
-    timeline: [afcStimulus],
+    timeline: [
+      afcStimulus ({
+        trialType: 'audio',
+        responseAllowed: true,
+        promptAboveButtons: true,
+        task: config.task
+      })
+    ],
     conditional_function: () => !store.session.get('nextStimulus').task.includes('Number Line')
   }
 
@@ -91,13 +99,13 @@ export default function buildMathTimeline(config, mediaAssets) {
 
   initializeCat();
 
-  pushSubTaskToTimeline(
-    setupPractice,
-    [config.numOfPracticeTrials],
-    "practice",
-  ); // Practice Trials
+  // pushSubTaskToTimeline(
+  //   setupPractice,
+  //   [config.numOfPracticeTrials],
+  //   "practice",
+  // ); // Practice Trials
 
-  timeline.push(postPractice)
+  // timeline.push(postPractice)
 
   pushSubTaskToTimeline(
     setupStimulus,

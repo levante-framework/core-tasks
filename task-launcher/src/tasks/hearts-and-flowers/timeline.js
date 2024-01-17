@@ -205,7 +205,7 @@ export default function buildHeartsAndFlowersTimeline(config, mediaAssets) {
   // introductionTrials, ifNotFullscreen,
   const timeline = [
     preloadTrials,
-    ...initialTimeline.timeline, 
+    initialTimeline, 
     introduction,
     heartInstructions,
     heartPracticeBlock1,

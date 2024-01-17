@@ -46,7 +46,7 @@ export default function buildSameDifferentTimeline(config, mediaAssets) {
 
   const timeline = [
     preloadTrials,
-    ...initialTimeline.timeline,
+    initialTimeline,
     afcBlock,
     practiceBlock,
     stimulusBlock

@@ -45,7 +45,7 @@ export default function buildTROGTimeline(config, mediaAssets) {
 
   const timeline = [
     preloadTrials,
-    ...initialTimeline.timeline,
+    initialTimeline,
     // practiceBlock,
     stimulusBlock,
   ];
