@@ -8,7 +8,8 @@ import {
 } from "../shared/helpers";
 import { jsPsych, initializeCat } from "../taskSetup";
 // trials
-import { stimulus } from "./trials/stimulus";
+// import { stimulus } from "./trials/stimulus";
+import { afcStimulus, afcCondtional } from "../shared/trials/afcStimulus";
 import { exitFullscreen, setupPractice, setupStimulus } from "../shared/trials";
 
 
@@ -21,7 +22,12 @@ export default function buildMatrixTimeline(config, mediaAssets) {
   const practiceBlock = {
     timeline: [
       setupPractice,
-      stimulus
+      afcStimulus({
+        trialType: 'html',
+        responseAllowed: true,
+        promptAboveButtons: true,
+        task: config.task
+      })
     ],
     repetitions: config.numOfPracticeTrials
   }
@@ -29,14 +35,33 @@ export default function buildMatrixTimeline(config, mediaAssets) {
   const stimulusBlock = {
     timeline: [
       setupStimulus,
-      stimulus
+      afcStimulus({
+        trialType: 'html',
+        responseAllowed: true,
+        promptAboveButtons: true,
+        task: config.task
+      })
     ],
     repetitions: store.session.get('maxStimulusTrials')
+  }
+
+  const testBlck = {
+    timeline: [
+      setupPractice,
+      afcCondtional({
+        trialType: 'html',
+        responseAllowed: true,
+        promptAboveButtons: true,
+        task: config.task
+      })
+    ],
+    repetitions: 4
   }
 
   const timeline = [
     preloadTrials,
     initialTimeline,
+    testBlck,
     practiceBlock,
     stimulusBlock,
   ];

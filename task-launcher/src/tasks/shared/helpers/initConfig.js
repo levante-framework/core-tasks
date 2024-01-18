@@ -7,7 +7,7 @@ import { camelize } from "@bdelab/roar-utils";
 
 const defaultCorpus = {
   egmaMath: 'math-item-bank',
-  matrixReasoning: 'matrix-reasoning-item-bank-pz',
+  matrixReasoning: 'matrix-reasoning-item-bank',
   mentalRotation: 'mental-rotation-item-bank',
   sameDifferentSelection: 'same-different-selection-item-bank',
   trog: 'trog-item-bank',

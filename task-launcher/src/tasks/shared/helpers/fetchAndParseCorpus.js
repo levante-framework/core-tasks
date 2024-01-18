@@ -94,7 +94,7 @@ export const fetchAndParseCorpus = async (config) => {
         skipEmptyLines: true,
         complete: function (results) {
           transformCSV(results.data);
-          console.log({stimulusData, practiceData})
+          // console.log({stimulusData, practiceData})
           resolve(results.data);
         },
         error: function (error) {

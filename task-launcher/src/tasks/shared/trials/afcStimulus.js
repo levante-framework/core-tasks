@@ -1,5 +1,5 @@
 // For Matrix reasoning, TROG, Theory of mind, Mental rotation, and EGMA Math
-// Currently works in: TROG, Theory of mind
+// Currently works in: TROG, Theory of mind, EGMA Math,
 
 import jsPsychAudioMultiResponse from "@jspsych-contrib/plugin-audio-multi-response";
 import jsPsychHTMLMultiResponse from "@jspsych-contrib/plugin-html-multi-response"
@@ -9,6 +9,28 @@ import { prepareChoices, updateProgressBar, addItemToSortedStoreList, isPractice
 import { mediaAssets } from "../../..";
 import _toNumber from 'lodash/toNumber'
 import { camelize } from "@bdelab/roar-utils";
+
+// function checkValue (res, stim, buttonEl) {
+
+//     if (res === stim.answer) {
+
+
+//         setTimeout(() => {
+//             jsPsych.finishTrial()
+//         }, 500)
+//     } else {
+
+//     }
+// }
+
+
+// function checkResponse(e, stim, buttonEl) {
+//     captureValue(e.target.value, stim)
+// }
+
+// Previously chosen responses for current practice trial
+let practiceResponses = []
+let currPracticeChoiceMix = []
 
 let audioSource;
 let keyboardResponseMap = {}
@@ -26,9 +48,12 @@ function getStimulus(trialType) {
     } else {
         return (`
             <div id='stimulus-container'>
-            <p id="prompt">${stim.item}</p>
-            <br>
-            <img id="stimulus-img" src=${ mediaAssets.images[store.session.get('nextStimulus').image] || `https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc`}  alt=${ store.session.get('nextStimulus').image || `Stimulus` }/>
+                <p id="prompt">${stim.task === 'Matrix Reasoning' &&
+                                 stim.notes === 'practice' ?
+                                 stim.prompt : ''}
+                </p>
+                <br>
+                <img id="stimulus-img" src=${ mediaAssets.images[store.session.get('nextStimulus').item] || `https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc`}  alt=${ store.session.get('nextStimulus').image || `Stimulus` }/>
             </div>`
         )
     
@@ -89,11 +114,15 @@ function getButtonChoices(task, trialType) {
     store.session.set("target", answer);
     store.session.set("choices", trialInfo.choices);
 
-    console.log({trialInfo})
+    // console.log({trialInfo})
+    if (!currPracticeChoiceMix.length) {
+        currPracticeChoiceMix = trialInfo.choices
+    }
 
     if (task === 'trog') {
         // for image buttons
-        return trialInfo.choices.map((choice, i) => `<img src=${mediaAssets.images[camelize(choice)]} alt=${choice} />`)
+        return currPracticeChoiceMix.map((choice, i) => `<img src=${mediaAssets.images[camelize(choice)]} alt=${choice} />`) ||
+               trialInfo.choices.map((choice, i) => `<img src=${mediaAssets.images[camelize(choice)]} alt=${choice} />`)
     }
 
     if (task === 'matrix-reasoning' || task === 'theory-of-mind') {
@@ -101,8 +130,9 @@ function getButtonChoices(task, trialType) {
         if (!trialInfo.choices.length) {
             return Array(2).fill(0).map((_, i) => `<img src='https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc' alt='something' />`)
         } else {
-            console.log('There are choices')
-            return trialInfo.choices.map((choice, i) => `<img src=${mediaAssets.images[choice] || `https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc`} alt=${choice} />`)
+            // console.log('There are choices')
+            return currPracticeChoiceMix .map((choice, i) => `<img src=${mediaAssets.images[choice] || `https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc`} alt=${choice} />`) ||
+                   trialInfo.choices.map((choice, i) => `<img src=${mediaAssets.images[choice] || `https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc`} alt=${choice} />`)
         }
     }
 
@@ -175,6 +205,24 @@ function doOnLoad(task, trialType) {
                 el.children[0].classList.add('trog-img-btn')
             }
 
+            if (stim.notes === 'practice' && practiceResponses.length) {
+                // Testing wrong answer visual feedback (red X)
+                practiceResponses.forEach((response) => {
+                    // We don't actually know which button this will attach to
+                    if (response === responseChoices[i]) {
+                        console.log('matched btn src: ', el.children[0].getAttribute('src'))
+                        console.log('matched btn alt: ', el.children[0].alt)
+                        console.log('random test: ', el.children[0].rnadomfasdkljfwe)
+                        console.log({response})
+                        console.log('response choice: ', responseChoices[i])
+                        el.classList.add('wrong-answer-container')
+                        el.children[0].classList.add('wrong-answer')
+                        el.children[0].disabled = true
+                        // el.children[0].addEventListener('click', (e) => checkResponse(e, stim, el))
+                    }
+                })
+            }
+
             if (keyHelpers) { 
             // Margin on the actual button element
             el.children[0].style.marginBottom = '.5rem'
@@ -224,7 +272,7 @@ function doOnLoad(task, trialType) {
     }
 }
 
-function doOnFinish(data, task, trialType) {
+function doOnFinish(data) {
     if (audioSource) audioSource.stop();
 
     // note: nextStimulus is actually the current stimulus
@@ -249,11 +297,17 @@ function doOnFinish(data, task, trialType) {
         // update running score and answer lists
         if (data.correct) {
             if (!isPractice(stimulus.notes)) {
-            // practice trials don't count toward total
-            store.session.transact("totalCorrect", (oldVal) => oldVal + 1);
+                // practice trials don't count toward total
+                store.session.transact("totalCorrect", (oldVal) => oldVal + 1);
             }
+            practiceResponses = []
+            currPracticeChoiceMix = []
         } else {
             addItemToSortedStoreList("incorrectItems", target);
+
+            const pushedResponse = store.session.get("responseValue")
+            console.log({pushedResponse})
+            practiceResponses.push(pushedResponse)
         }
 
         jsPsych.data.addDataToLastTrial({
@@ -287,10 +341,10 @@ export const afcStimulus = ({trialType, responseAllowed, promptAboveButtons, tas
         data: () => {
             return {
                 // not camelCase because firekit
-                save_trial: true,
-                assessment_stage: store.session.get("nextStimulus").task,
-                // not for firekit
-                isPracticeTrial: store.session.get("nextStimulus").notes === 'practice'
+                // save_trial: true,
+                // assessment_stage: store.session.get("nextStimulus").task,
+                // // not for firekit
+                // isPracticeTrial: store.session.get("nextStimulus").notes === 'practice'
             }
         },
         stimulus: () => getStimulus(trialType),
@@ -301,5 +355,38 @@ export const afcStimulus = ({trialType, responseAllowed, promptAboveButtons, tas
         button_html: () => getButtonHtml(task, trialType),
         on_load: () => doOnLoad(task, trialType),
         on_finish: (data) => doOnFinish(data, task, trialType)
+    }
+}
+
+export const afcCondtional = ({trialType, responseAllowed, promptAboveButtons, task } = {}) => {
+    return {
+        timeline: [
+            afcStimulus({
+            trialType: trialType,
+            responseAllowed: responseAllowed,
+            promptAboveButtons: promptAboveButtons,
+            task: task
+            })
+        ],
+
+        // add logic to only check if practice trial
+
+        loop_function: () => {
+            // getting data from two trials ago due to setup trial being in the timeline
+            const currentTrialIndex = jsPsych.getProgress().current_trial_global;
+            const twoTrialsAgoIndex = currentTrialIndex - 2;
+
+            // get data from 2 trials ago
+            const previousStimulus = jsPsych.data.get().filter({trial_index: twoTrialsAgoIndex}).values();
+            const isPrevStimCorrect = previousStimulus[0].correct;
+            console.log('previousStimulus: ', previousStimulus)
+            console.log('isPrevStimCorrect: ', isPrevStimCorrect)
+
+            if (isPrevStimCorrect) {
+                return false
+            } else {
+                return true
+            }
+        }
     }
 }
