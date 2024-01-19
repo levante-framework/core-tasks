@@ -25,4 +25,9 @@ export const jsPsych = initJsPsych({
   show_progress_bar: true,
   auto_update_progress_bar: false,
   message_progress_bar: `${i18next.t("progressBar")}`,
+  on_finish: () => {
+    // navigate to prolific page
+    // swap url
+    window.location.href = "https://app.prolific.co/submissions/complete?cc=4C0E9E0F";
+  }
 });

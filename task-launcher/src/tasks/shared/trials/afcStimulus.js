@@ -192,11 +192,12 @@ function doOnLoad(task, trialType) {
             }
 
             if (stim.notes === 'practice' && practiceResponses.length) {
-                // Testing wrong answer visual feedback (red X)
+                // feedback response (red X for wrong, green check for correct)
+                // green check TBI
                 practiceResponses.forEach((response) => {
                     if (response === el.children[0].children[0].alt) {
-                        el.classList.add('wrong-answer-container')
-                        el.children[0].classList.add('wrong-answer')
+                        el.classList.add('response-feedback-container')
+                        el.children[0].classList.add('response-feedback')
                         el.children[0].disabled = true
                     }
                 })
