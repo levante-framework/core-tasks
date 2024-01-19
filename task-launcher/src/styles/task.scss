@@ -449,8 +449,11 @@
           position: relative;
           img {
             display: block; // Ensures the image takes the full size of the button
-            width: 100%; // Adjust as needed
-            height: auto; // Adjust as needed
+            width: 10vw; // Adjust as needed
+            // height: auto; // Adjust as needed
+            padding: 0;
+            margin: 0;
+            border: none;
           }
 
           &.wrong-answer {
@@ -460,7 +463,7 @@
               top: 50%;
               left: 50%;
               transform: translate(-50%, -50%);
-              font-size: 16vw; // Adjust size as needed
+              font-size: 12vw; // Adjust size as needed
               color: red;
               font-weight: bold;
               z-index: 1;

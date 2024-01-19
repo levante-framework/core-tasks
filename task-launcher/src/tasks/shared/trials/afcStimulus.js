@@ -10,27 +10,12 @@ import { mediaAssets } from "../../..";
 import _toNumber from 'lodash/toNumber'
 import { camelize } from "@bdelab/roar-utils";
 
-// function checkValue (res, stim, buttonEl) {
 
-//     if (res === stim.answer) {
-
-
-//         setTimeout(() => {
-//             jsPsych.finishTrial()
-//         }, 500)
-//     } else {
-
-//     }
-// }
-
-
-// function checkResponse(e, stim, buttonEl) {
-//     captureValue(e.target.value, stim)
-// }
 
 // Previously chosen responses for current practice trial
 let practiceResponses = []
 let currPracticeChoiceMix = []
+let currPracticeAnswerIdx
 
 let audioSource;
 let keyboardResponseMap = {}
@@ -114,9 +99,9 @@ function getButtonChoices(task, trialType) {
     store.session.set("target", answer);
     store.session.set("choices", trialInfo.choices);
 
-    // console.log({trialInfo})
     if (!currPracticeChoiceMix.length) {
         currPracticeChoiceMix = trialInfo.choices
+        currPracticeAnswerIdx = store.session('correctResponseIdx')
     }
 
     if (task === 'trog') {
@@ -130,7 +115,6 @@ function getButtonChoices(task, trialType) {
         if (!trialInfo.choices.length) {
             return Array(2).fill(0).map((_, i) => `<img src='https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc' alt='something' />`)
         } else {
-            // console.log('There are choices')
             return currPracticeChoiceMix .map((choice, i) => `<img src=${mediaAssets.images[choice] || `https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc`} alt=${choice} />`) ||
                    trialInfo.choices.map((choice, i) => `<img src=${mediaAssets.images[choice] || `https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc`} alt=${choice} />`)
         }
@@ -154,7 +138,7 @@ function getButtonHtml(task, trialType) {
 
 function doOnLoad(task, trialType) { 
     const stim = store.session.get("nextStimulus") 
-    console.log({stim})
+    // console.log({stim})
     if (stim.trialType !== 'instructions') {
         const { buttonLayout, keyHelpers} = store.session.get("config")
         let buttonContainer
@@ -183,6 +167,7 @@ function doOnLoad(task, trialType) {
             if (buttonContainer.children.length === 2) {
                 el.classList.add(`two-afc`)
             }
+
             // Add condition on triple for length (2)
             if (buttonLayout === 'triple' || buttonLayout === 'diamond') {
                 el.classList.add(`button${i + 1}`)
@@ -192,10 +177,11 @@ function doOnLoad(task, trialType) {
             // 2afc layout uses left and right arrow keys. The order of the arrrow
             // key array allows for the correct mapping for other layouts.
             if (buttonContainer.children.length === 2) {
-                keyboardResponseMap[arrowKeyEmojis[i+1][0]] = responseChoices[i] 
+                keyboardResponseMap[arrowKeyEmojis[i+1][0]] = currPracticeChoiceMix[i] || responseChoices[i] 
             } else {
-                keyboardResponseMap[arrowKeyEmojis[i][0]] = responseChoices[i] 
+                keyboardResponseMap[arrowKeyEmojis[i][0]] = currPracticeChoiceMix[i] || responseChoices[i] 
             }
+
 
             if (task === 'matrix-reasoning' || task === 'theory-of-mind') {
                 el.children[0].classList.add('img-btn')
@@ -208,40 +194,33 @@ function doOnLoad(task, trialType) {
             if (stim.notes === 'practice' && practiceResponses.length) {
                 // Testing wrong answer visual feedback (red X)
                 practiceResponses.forEach((response) => {
-                    // We don't actually know which button this will attach to
-                    if (response === responseChoices[i]) {
-                        console.log('matched btn src: ', el.children[0].getAttribute('src'))
-                        console.log('matched btn alt: ', el.children[0].alt)
-                        console.log('random test: ', el.children[0].rnadomfasdkljfwe)
-                        console.log({response})
-                        console.log('response choice: ', responseChoices[i])
+                    if (response === el.children[0].children[0].alt) {
                         el.classList.add('wrong-answer-container')
                         el.children[0].classList.add('wrong-answer')
                         el.children[0].disabled = true
-                        // el.children[0].addEventListener('click', (e) => checkResponse(e, stim, el))
                     }
                 })
             }
 
             if (keyHelpers) { 
-            // Margin on the actual button element
-            el.children[0].style.marginBottom = '.5rem'
+                // Margin on the actual button element
+                el.children[0].style.marginBottom = '.5rem'
 
-            const arrowKeyBorder = document.createElement('div')
-            arrowKeyBorder.classList.add('arrow-key-border')
+                const arrowKeyBorder = document.createElement('div')
+                arrowKeyBorder.classList.add('arrow-key-border')
 
-            const arrowKey = document.createElement('p')
-            if (buttonContainer.children.length === 2) {
-                arrowKey.textContent = arrowKeyEmojis[i+1][1]
-            } else {
-                arrowKey.textContent = arrowKeyEmojis[i][1]
-            }
-            arrowKey.style.textAlign = 'center'
-            arrowKey.style.fontSize = '1.5rem'
-            arrowKey.style.margin = '0'
-            // arrowKey.classList.add('arrow-key')
-            arrowKeyBorder.appendChild(arrowKey)
-            el.appendChild(arrowKeyBorder)
+                const arrowKey = document.createElement('p')
+                if (buttonContainer.children.length === 2) {
+                    arrowKey.textContent = arrowKeyEmojis[i+1][1]
+                } else {
+                    arrowKey.textContent = arrowKeyEmojis[i][1]
+                }
+                arrowKey.style.textAlign = 'center'
+                arrowKey.style.fontSize = '1.5rem'
+                arrowKey.style.margin = '0'
+                // arrowKey.classList.add('arrow-key')
+                arrowKeyBorder.appendChild(arrowKey)
+                el.appendChild(arrowKeyBorder)
             }
         })
 
@@ -277,17 +256,16 @@ function doOnFinish(data) {
 
     // note: nextStimulus is actually the current stimulus
     const stimulus = store.session("nextStimulus");
-    const choices = store.session("choices");
+    // target is the actual value as a string
     const target = store.session('target')
     
     if (stimulus.trialType !== 'instructions') {
-    
         if (data.keyboard_response) {
             data.correct = keyboardResponseMap[data.keyboard_response] === target
             store.session.set("responseValue", keyboardResponseMap[data.keyboard_response]);
         } else {
-            data.correct = data.button_response === store.session('correctResponseIdx')
-            store.session.set("responseValue", choices[data.button_response]);
+            data.correct = data.button_response === currPracticeAnswerIdx
+            store.session.set("responseValue", currPracticeChoiceMix[data.button_response]);
         }
 
         // check response and record it
@@ -302,11 +280,11 @@ function doOnFinish(data) {
             }
             practiceResponses = []
             currPracticeChoiceMix = []
+            currPracticeAnswerIdx = null
         } else {
             addItemToSortedStoreList("incorrectItems", target);
 
             const pushedResponse = store.session.get("responseValue")
-            console.log({pushedResponse})
             practiceResponses.push(pushedResponse)
         }
 
@@ -319,7 +297,7 @@ function doOnFinish(data) {
             responseType: store.session('responseType'),
         });
 
-        console.log('data: ', jsPsych.data.get().last(1).values()[0])
+        // console.log('data: ', jsPsych.data.get().last(1).values()[0])
 
         if (!isPractice(stimulus.notes)) {
             updateProgressBar();
@@ -377,12 +355,16 @@ export const afcCondtional = ({trialType, responseAllowed, promptAboveButtons, t
             const twoTrialsAgoIndex = currentTrialIndex - 2;
 
             // get data from 2 trials ago
-            const previousStimulus = jsPsych.data.get().filter({trial_index: twoTrialsAgoIndex}).values();
-            const isPrevStimCorrect = previousStimulus[0].correct;
+            const twoTrialsAgoStimulus = jsPsych.data.get().filter({trial_index: twoTrialsAgoIndex}).values();
+            const previousStimulus = jsPsych.data.get().filter({trial_index: twoTrialsAgoIndex + 1}).values();;
+            const isTwoTrialsAgoStimCorrect = twoTrialsAgoStimulus[0].correct;
+            const isPreviousStimulusCorrect = previousStimulus[0].correct;
+            console.log('twoTrialsAgoStimulus: ', twoTrialsAgoStimulus)
+            console.log('isTwoTrialsAgoStimCorrect: ', isTwoTrialsAgoStimCorrect)
             console.log('previousStimulus: ', previousStimulus)
-            console.log('isPrevStimCorrect: ', isPrevStimCorrect)
+            console.log('isPrevStimCorrect: ', isPreviousStimulusCorrect)
 
-            if (isPrevStimCorrect) {
+            if (isTwoTrialsAgoStimCorrect || isPreviousStimulusCorrect) {
                 return false
             } else {
                 return true
