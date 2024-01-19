@@ -67,11 +67,13 @@ function getPrompt(task, trialType) {
         )
     }
 
+    // Temporarily showing prompt since we don't have audio yet
     if (task === 'trog') {
         return (`
         <div id='stimulus-container'>
             <img src=${mediaAssets.images.speakerIcon} id='replay-btn' alt='speaker replay icon'/>
           <p id="prompt">Choose the picture that shows...</p>
+          <p id="prompt">${stim.item}</p>
         </div>`
       )
     }
@@ -99,24 +101,42 @@ function getButtonChoices(task, trialType) {
     store.session.set("target", answer);
     store.session.set("choices", trialInfo.choices);
 
-    if (!currPracticeChoiceMix.length) {
-        currPracticeChoiceMix = trialInfo.choices
-        currPracticeAnswerIdx = store.session('correctResponseIdx')
+    if (task === 'matrix-reasoning') {
+        if (!currPracticeChoiceMix.length && stimulus.notes === 'practice') {
+            currPracticeChoiceMix = trialInfo.choices
+            currPracticeAnswerIdx = store.session('correctResponseIdx')
+        }
     }
 
     if (task === 'trog') {
         // for image buttons
-        return currPracticeChoiceMix.map((choice, i) => `<img src=${mediaAssets.images[camelize(choice)]} alt=${choice} />`) ||
-               trialInfo.choices.map((choice, i) => `<img src=${mediaAssets.images[camelize(choice)]} alt=${choice} />`)
+        // if (stimulus.notes === 'practice') {
+        //     return currPracticeChoiceMix.map((choice, i) => `<img src=${mediaAssets.images[camelize(choice)]} alt=${choice} />`)
+        // } else {
+            return trialInfo.choices.map((choice, i) => `<img src=${mediaAssets.images[camelize(choice)]} alt=${choice} />`)
+        // }
     }
 
-    if (task === 'matrix-reasoning' || task === 'theory-of-mind') {
+    if (task === 'matrix-reasoning') {
         // for testing
         if (!trialInfo.choices.length) {
             return Array(2).fill(0).map((_, i) => `<img src='https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc' alt='something' />`)
         } else {
-            return currPracticeChoiceMix .map((choice, i) => `<img src=${mediaAssets.images[choice] || `https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc`} alt=${choice} />`) ||
-                   trialInfo.choices.map((choice, i) => `<img src=${mediaAssets.images[choice] || `https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc`} alt=${choice} />`)
+            if (stimulus.notes === 'practice') {
+                return currPracticeChoiceMix.map((choice, i) => `<img src=${mediaAssets.images[choice] || `https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc`} alt=${choice} />`)
+            } else {
+                return trialInfo.choices.map((choice, i) => `<img src=${mediaAssets.images[choice] || `https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc`} alt=${choice} />`)
+            }
+                   
+        }
+    }
+
+    if (task === 'theory-of-mind') {
+        // for testing
+        if (!trialInfo.choices.length) {
+            return Array(2).fill(0).map((_, i) => `<img src='https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc' alt='something' />`)
+        } else {
+            return trialInfo.choices.map((choice, i) => `<img src=${mediaAssets.images[choice] || `https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc`} alt=${choice} />`)
         }
     }
 
@@ -177,9 +197,17 @@ function doOnLoad(task, trialType) {
             // 2afc layout uses left and right arrow keys. The order of the arrrow
             // key array allows for the correct mapping for other layouts.
             if (buttonContainer.children.length === 2) {
-                keyboardResponseMap[arrowKeyEmojis[i+1][0]] = currPracticeChoiceMix[i] || responseChoices[i] 
+                if (stim.notes === 'practice' && task === 'matrix-reasoning') {
+                    keyboardResponseMap[arrowKeyEmojis[i+1][0]] = currPracticeChoiceMix[i]
+                } else {
+                    keyboardResponseMap[arrowKeyEmojis[i+1][0]] = responseChoices[i]
+                } 
             } else {
-                keyboardResponseMap[arrowKeyEmojis[i][0]] = currPracticeChoiceMix[i] || responseChoices[i] 
+                if (stim.notes === 'practice' && task === 'matrix-reasoning') {
+                    keyboardResponseMap[arrowKeyEmojis[i][0]] = currPracticeChoiceMix[i]
+                } else {
+                    keyboardResponseMap[arrowKeyEmojis[i][0]] = responseChoices[i] 
+                }
             }
 
 
@@ -191,16 +219,18 @@ function doOnLoad(task, trialType) {
                 el.children[0].classList.add('trog-img-btn')
             }
 
-            if (stim.notes === 'practice' && practiceResponses.length) {
-                // feedback response (red X for wrong, green check for correct)
-                // green check TBI
-                practiceResponses.forEach((response) => {
-                    if (response === el.children[0].children[0].alt) {
-                        el.classList.add('response-feedback-container')
-                        el.children[0].classList.add('response-feedback')
-                        el.children[0].disabled = true
-                    }
-                })
+            if (task === 'matrix-reasoning') {
+                if (stim.notes === 'practice' && practiceResponses.length) {
+                    // feedback response (red X for wrong, green check for correct)
+                    // green check TBI
+                    practiceResponses.forEach((response) => {
+                        if (response === el.children[0].children[0].alt) {
+                            el.classList.add('response-feedback-container')
+                            el.children[0].classList.add('response-feedback')
+                            el.children[0].disabled = true
+                        }
+                    })
+                }
             }
 
             if (keyHelpers) { 
@@ -252,7 +282,7 @@ function doOnLoad(task, trialType) {
     }
 }
 
-function doOnFinish(data) {
+function doOnFinish(data, task) {
     if (audioSource) audioSource.stop();
 
     // note: nextStimulus is actually the current stimulus
@@ -265,8 +295,13 @@ function doOnFinish(data) {
             data.correct = keyboardResponseMap[data.keyboard_response] === target
             store.session.set("responseValue", keyboardResponseMap[data.keyboard_response]);
         } else {
-            data.correct = data.button_response === currPracticeAnswerIdx
-            store.session.set("responseValue", currPracticeChoiceMix[data.button_response]);
+            if (stimulus.notes === 'practice' && task === 'matrix-reasoning') {
+                data.correct = data.button_response === currPracticeAnswerIdx
+                store.session.set("responseValue", currPracticeChoiceMix[data.button_response]);
+            } else {
+                data.correct = data.button_response === store.session('correctResponseIdx')
+                store.session.set("responseValue", store.session('choices')[data.button_response]);
+            }
         }
 
         // check response and record it
@@ -320,10 +355,10 @@ export const afcStimulus = ({trialType, responseAllowed, promptAboveButtons, tas
         data: () => {
             return {
                 // not camelCase because firekit
-                // save_trial: true,
-                // assessment_stage: store.session.get("nextStimulus").task,
-                // // not for firekit
-                // isPracticeTrial: store.session.get("nextStimulus").notes === 'practice'
+                save_trial: true,
+                assessment_stage: store.session.get("nextStimulus").task,
+                // not for firekit
+                isPracticeTrial: store.session.get("nextStimulus").notes === 'practice'
             }
         },
         stimulus: () => getStimulus(trialType),
@@ -348,27 +383,32 @@ export const afcCondtional = ({trialType, responseAllowed, promptAboveButtons, t
             })
         ],
 
-        // add logic to only check if practice trial
 
         loop_function: () => {
-            // getting data from two trials ago due to setup trial being in the timeline
-            const currentTrialIndex = jsPsych.getProgress().current_trial_global;
-            const twoTrialsAgoIndex = currentTrialIndex - 2;
+            const stim = store.session.get("nextStimulus");
 
-            // get data from 2 trials ago
-            const twoTrialsAgoStimulus = jsPsych.data.get().filter({trial_index: twoTrialsAgoIndex}).values();
-            const previousStimulus = jsPsych.data.get().filter({trial_index: twoTrialsAgoIndex + 1}).values();;
-            const isTwoTrialsAgoStimCorrect = twoTrialsAgoStimulus[0].correct;
-            const isPreviousStimulusCorrect = previousStimulus[0].correct;
-            console.log('twoTrialsAgoStimulus: ', twoTrialsAgoStimulus)
-            console.log('isTwoTrialsAgoStimCorrect: ', isTwoTrialsAgoStimCorrect)
-            console.log('previousStimulus: ', previousStimulus)
-            console.log('isPrevStimCorrect: ', isPreviousStimulusCorrect)
+            if (stim.notes === 'practice') {
+                // getting data from two trials ago due to setup trial being in the timeline
+                const currentTrialIndex = jsPsych.getProgress().current_trial_global;
+                const twoTrialsAgoIndex = currentTrialIndex - 2;
 
-            if (isTwoTrialsAgoStimCorrect || isPreviousStimulusCorrect) {
-                return false
+                // get data from 2 trials ago
+                const twoTrialsAgoStimulus = jsPsych.data.get().filter({trial_index: twoTrialsAgoIndex}).values();
+                const previousStimulus = jsPsych.data.get().filter({trial_index: twoTrialsAgoIndex + 1}).values();;
+                const isTwoTrialsAgoStimCorrect = twoTrialsAgoStimulus[0].correct;
+                const isPreviousStimulusCorrect = previousStimulus[0].correct;
+                // console.log('twoTrialsAgoStimulus: ', twoTrialsAgoStimulus)
+                // console.log('isTwoTrialsAgoStimCorrect: ', isTwoTrialsAgoStimCorrect)
+                // console.log('previousStimulus: ', previousStimulus)
+                // console.log('isPrevStimCorrect: ', isPreviousStimulusCorrect)
+
+                if (isTwoTrialsAgoStimCorrect || isPreviousStimulusCorrect) {
+                    return false
+                } else {
+                    return true
+                }
             } else {
-                return true
+                return false
             }
         }
     }

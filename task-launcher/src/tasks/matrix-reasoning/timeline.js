@@ -22,7 +22,7 @@ export default function buildMatrixTimeline(config, mediaAssets) {
   const practiceBlock = {
     timeline: [
       setupPractice,
-      afcStimulus({
+      afcCondtional({
         trialType: 'html',
         responseAllowed: true,
         promptAboveButtons: true,
@@ -35,7 +35,7 @@ export default function buildMatrixTimeline(config, mediaAssets) {
   const stimulusBlock = {
     timeline: [
       setupStimulus,
-      afcStimulus({
+      afcCondtional({
         trialType: 'html',
         responseAllowed: true,
         promptAboveButtons: true,
@@ -45,23 +45,22 @@ export default function buildMatrixTimeline(config, mediaAssets) {
     repetitions: store.session.get('maxStimulusTrials')
   }
 
-  const testBlck = {
-    timeline: [
-      setupPractice,
-      afcCondtional({
-        trialType: 'html',
-        responseAllowed: true,
-        promptAboveButtons: true,
-        task: config.task
-      })
-    ],
-    repetitions: 4
-  }
+  // const testBlck = {
+  //   timeline: [
+  //     setupPractice,
+  //     afcCondtional({
+  //       trialType: 'html',
+  //       responseAllowed: true,
+  //       promptAboveButtons: true,
+  //       task: config.task
+  //     })
+  //   ],
+  //   repetitions: 4
+  // }
 
   const timeline = [
     preloadTrials,
     initialTimeline,
-    testBlck,
     practiceBlock,
     stimulusBlock,
   ];
