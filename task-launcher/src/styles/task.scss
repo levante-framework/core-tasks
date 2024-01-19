@@ -317,10 +317,12 @@
         border-radius: 10px; /* Curved corners */
         padding: .5rem !important;
         max-width: 100% !important;
+        pointer-events: none;
 
         .arrow-key {
           font-size: 1.5rem;
           margin: 0;
+          pointer-events: none;
         }
       }
 
@@ -379,29 +381,7 @@
       }
 
 // ----------------------------------------------------------------------------
-      // .custom-slider {
-      //   input[type="range"] {
-      //     -webkit-appearance: none !important;
-      //     width: 100% !important;
-      //     background: lightgray !important; // Replace with your color variable or value
 
-      //     &::-webkit-slider-thumb {
-      //       -webkit-appearance: none !important;
-      //       appearance: none !important;
-      //       width: 25px !important;
-      //       height: 25px !important;
-      //       background: gray !important; // Replace with your thumb color variable or value
-      //       cursor: pointer !important;
-      //     }
-
-      //     &::-moz-range-thumb {
-      //       width: 25px !important;
-      //       height: 25px !important;
-      //       background: gray !important; // Replace with your thumb color variable or value
-      //       cursor: pointer !important;
-      //     }
-      //   }
-      // }
       input[type='range'] {
         accent-color: gray;
 
@@ -424,42 +404,8 @@
           background: transparent;
           color: transparent; /* Necessary for Edge */
         }
-
-        // Thumb styles for WebKit (Chrome, Safari, newer versions of Opera and Edge)
-        // &::-webkit-slider-thumb {
-        //   -webkit-appearance: none;
-        //   appearance: none;
-        //   background: red; // Replace with your desired thumb color
-        //   height: 25px;
-        //   width: 25px;
-        //   border-radius: 50%;
-        //   cursor: pointer;
-        // }
-      
-        // // Thumb styles for Mozilla Firefox
-        // &::-moz-range-thumb {
-        //   background: lightblue; // Replace with your desired thumb color
-        //   height: 25px;
-        //   width: 25px;
-        //   border-radius: 50%;
-        //   cursor: pointer;
-        // }
-      
-        // // Thumb styles for MS Edge
-        // &::-ms-thumb {
-        //   background: lightblue; // Replace with your desired thumb color
-        //   height: 25px;
-        //   width: 25px;
-        //   border-radius: 50%;
-        //   cursor: pointer;
-        // }
-      
-        // Track styles (same as before)
-        // ...
       }
       
-      
-
 
       // Math-Egma
       #jspsych-html-slider-response-response{
@@ -495,6 +441,42 @@
         cursor: pointer;
         width: 8vw
       }
+
+// ----------------------------------------------------------------------------
+      // Matrix Reasoning
+      .response-feedback-container {
+        button {
+          position: relative;
+          img {
+            display: block; // Ensures the image takes the full size of the button
+            width: 10vw; // Adjust as needed
+            // height: auto; // Adjust as needed
+            padding: 0;
+            margin: 0;
+            border: none;
+          }
+
+          &.response-feedback {
+            &:after {
+              content: 'X';
+              position: absolute;
+              top: 50%;
+              left: 50%;
+              transform: translate(-50%, -50%);
+              font-size: 10vw; // Adjust size as needed
+              // width: 1%;
+              // height: 1%;
+              color: red;
+              font-weight: bold;
+              z-index: 1;
+              padding: 0;
+              margin: 0;
+            }
+          }
+        }
+      }
+
+
 
 // ----------------------------------------------------------------------------
       // Hearts and Flowers
@@ -627,6 +609,24 @@
           border: 8px solid #1862f7; /* Add a border to highlight the button */
         }
       }
+
+    // -----------------------------------------------------------------------
+    // TROG
+    .trog-img-btn {
+      background-color: transparent;
+      border: black solid 3px;
+      border-radius: .5rem;
+      cursor: pointer;
+
+      img {
+        border: none;
+        width: 15vw;
+        padding: 0;
+        margin: 0;
+      }
+    }
+
+
     }
   }
 

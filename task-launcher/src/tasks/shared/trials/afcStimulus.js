@@ -1,5 +1,5 @@
 // For Matrix reasoning, TROG, Theory of mind, Mental rotation, and EGMA Math
-// Currently works in: TROG, Theory of mind
+// Currently works in: TROG, Theory of mind, EGMA Math,
 
 import jsPsychAudioMultiResponse from "@jspsych-contrib/plugin-audio-multi-response";
 import jsPsychHTMLMultiResponse from "@jspsych-contrib/plugin-html-multi-response"
@@ -9,6 +9,13 @@ import { prepareChoices, updateProgressBar, addItemToSortedStoreList, isPractice
 import { mediaAssets } from "../../..";
 import _toNumber from 'lodash/toNumber'
 import { camelize } from "@bdelab/roar-utils";
+
+
+
+// Previously chosen responses for current practice trial
+let practiceResponses = []
+let currPracticeChoiceMix = []
+let currPracticeAnswerIdx
 
 let audioSource;
 let keyboardResponseMap = {}
@@ -26,9 +33,12 @@ function getStimulus(trialType) {
     } else {
         return (`
             <div id='stimulus-container'>
-            <p id="prompt">${stim.item}</p>
-            <br>
-            <img id="stimulus-img" src=${ mediaAssets.images[store.session.get('nextStimulus').image] || `https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc`}  alt=${ store.session.get('nextStimulus').image || `Stimulus` }/>
+                <p id="prompt">${stim.task === 'Matrix Reasoning' &&
+                                 stim.notes === 'practice' ?
+                                 stim.prompt : ''}
+                </p>
+                <br>
+                <img id="stimulus-img" src=${ mediaAssets.images[store.session.get('nextStimulus').item] || `https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc`}  alt=${ store.session.get('nextStimulus').image || `Stimulus` }/>
             </div>`
         )
     
@@ -57,11 +67,13 @@ function getPrompt(task, trialType) {
         )
     }
 
+    // Temporarily showing prompt since we don't have audio yet
     if (task === 'trog') {
         return (`
         <div id='stimulus-container'>
             <img src=${mediaAssets.images.speakerIcon} id='replay-btn' alt='speaker replay icon'/>
           <p id="prompt">Choose the picture that shows...</p>
+          <p id="prompt">${stim.item}</p>
         </div>`
       )
     }
@@ -89,19 +101,41 @@ function getButtonChoices(task, trialType) {
     store.session.set("target", answer);
     store.session.set("choices", trialInfo.choices);
 
-    console.log({trialInfo})
+    if (task === 'matrix-reasoning') {
+        if (!currPracticeChoiceMix.length && stimulus.notes === 'practice') {
+            currPracticeChoiceMix = trialInfo.choices
+            currPracticeAnswerIdx = store.session('correctResponseIdx')
+        }
+    }
 
     if (task === 'trog') {
         // for image buttons
-        return trialInfo.choices.map((choice, i) => `<img src=${mediaAssets.images[camelize(choice)]} alt=${choice} />`)
+        // if (stimulus.notes === 'practice') {
+        //     return currPracticeChoiceMix.map((choice, i) => `<img src=${mediaAssets.images[camelize(choice)]} alt=${choice} />`)
+        // } else {
+            return trialInfo.choices.map((choice, i) => `<img src=${mediaAssets.images[camelize(choice)]} alt=${choice} />`)
+        // }
     }
 
-    if (task === 'matrix-reasoning' || task === 'theory-of-mind') {
+    if (task === 'matrix-reasoning') {
         // for testing
         if (!trialInfo.choices.length) {
             return Array(2).fill(0).map((_, i) => `<img src='https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc' alt='something' />`)
         } else {
-            console.log('There are choices')
+            if (stimulus.notes === 'practice') {
+                return currPracticeChoiceMix.map((choice, i) => `<img src=${mediaAssets.images[choice] || `https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc`} alt=${choice} />`)
+            } else {
+                return trialInfo.choices.map((choice, i) => `<img src=${mediaAssets.images[choice] || `https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc`} alt=${choice} />`)
+            }
+                   
+        }
+    }
+
+    if (task === 'theory-of-mind') {
+        // for testing
+        if (!trialInfo.choices.length) {
+            return Array(2).fill(0).map((_, i) => `<img src='https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc' alt='something' />`)
+        } else {
             return trialInfo.choices.map((choice, i) => `<img src=${mediaAssets.images[choice] || `https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc`} alt=${choice} />`)
         }
     }
@@ -124,7 +158,7 @@ function getButtonHtml(task, trialType) {
 
 function doOnLoad(task, trialType) { 
     const stim = store.session.get("nextStimulus") 
-    console.log({stim})
+    // console.log({stim})
     if (stim.trialType !== 'instructions') {
         const { buttonLayout, keyHelpers} = store.session.get("config")
         let buttonContainer
@@ -153,6 +187,7 @@ function doOnLoad(task, trialType) {
             if (buttonContainer.children.length === 2) {
                 el.classList.add(`two-afc`)
             }
+
             // Add condition on triple for length (2)
             if (buttonLayout === 'triple' || buttonLayout === 'diamond') {
                 el.classList.add(`button${i + 1}`)
@@ -162,34 +197,61 @@ function doOnLoad(task, trialType) {
             // 2afc layout uses left and right arrow keys. The order of the arrrow
             // key array allows for the correct mapping for other layouts.
             if (buttonContainer.children.length === 2) {
-                keyboardResponseMap[arrowKeyEmojis[i+1][0]] = responseChoices[i] 
+                if (stim.notes === 'practice' && task === 'matrix-reasoning') {
+                    keyboardResponseMap[arrowKeyEmojis[i+1][0]] = currPracticeChoiceMix[i]
+                } else {
+                    keyboardResponseMap[arrowKeyEmojis[i+1][0]] = responseChoices[i]
+                } 
             } else {
-                keyboardResponseMap[arrowKeyEmojis[i][0]] = responseChoices[i] 
+                if (stim.notes === 'practice' && task === 'matrix-reasoning') {
+                    keyboardResponseMap[arrowKeyEmojis[i][0]] = currPracticeChoiceMix[i]
+                } else {
+                    keyboardResponseMap[arrowKeyEmojis[i][0]] = responseChoices[i] 
+                }
             }
 
-            if (task === 'trog' || task === 'matrix-reasoning' || task === 'theory-of-mind') {
+
+            if (task === 'matrix-reasoning' || task === 'theory-of-mind') {
                 el.children[0].classList.add('img-btn')
             }
 
-            if (keyHelpers) { 
-            // Margin on the actual button element
-            el.children[0].style.marginBottom = '.5rem'
-
-            const arrowKeyBorder = document.createElement('div')
-            arrowKeyBorder.classList.add('arrow-key-border')
-
-            const arrowKey = document.createElement('p')
-            if (buttonContainer.children.length === 2) {
-                arrowKey.textContent = arrowKeyEmojis[i+1][1]
-            } else {
-                arrowKey.textContent = arrowKeyEmojis[i][1]
+            if (task === 'trog') {
+                el.children[0].classList.add('trog-img-btn')
             }
-            arrowKey.style.textAlign = 'center'
-            arrowKey.style.fontSize = '1.5rem'
-            arrowKey.style.margin = '0'
-            // arrowKey.classList.add('arrow-key')
-            arrowKeyBorder.appendChild(arrowKey)
-            el.appendChild(arrowKeyBorder)
+
+            if (task === 'matrix-reasoning') {
+                if (stim.notes === 'practice' && practiceResponses.length) {
+                    // feedback response (red X for wrong, green check for correct)
+                    // green check TBI
+                    practiceResponses.forEach((response) => {
+                        if (response === el.children[0].children[0].alt) {
+                            el.classList.add('response-feedback-container')
+                            el.children[0].classList.add('response-feedback')
+                            el.children[0].disabled = true
+                        }
+                    })
+                }
+            }
+
+            if (keyHelpers) { 
+                // Margin on the actual button element
+                el.children[0].style.marginBottom = '.5rem'
+
+                const arrowKeyBorder = document.createElement('div')
+                arrowKeyBorder.classList.add('arrow-key-border')
+
+                const arrowKey = document.createElement('p')
+                if (buttonContainer.children.length === 2) {
+                    arrowKey.textContent = arrowKeyEmojis[i+1][1]
+                } else {
+                    arrowKey.textContent = arrowKeyEmojis[i][1]
+                }
+                arrowKey.style.textAlign = 'center'
+                arrowKey.style.fontSize = '1.5rem'
+                arrowKey.style.margin = '0'
+                // arrowKey.classList.add('arrow-key')
+                arrowKeyBorder.appendChild(arrowKey)
+                el.appendChild(arrowKeyBorder)
             }
         })
 
@@ -220,22 +282,26 @@ function doOnLoad(task, trialType) {
     }
 }
 
-function doOnFinish(data, task, trialType) {
+function doOnFinish(data, task) {
     if (audioSource) audioSource.stop();
 
     // note: nextStimulus is actually the current stimulus
     const stimulus = store.session("nextStimulus");
-    const choices = store.session("choices");
+    // target is the actual value as a string
     const target = store.session('target')
     
     if (stimulus.trialType !== 'instructions') {
-    
         if (data.keyboard_response) {
             data.correct = keyboardResponseMap[data.keyboard_response] === target
             store.session.set("responseValue", keyboardResponseMap[data.keyboard_response]);
         } else {
-            data.correct = data.button_response === store.session('correctResponseIdx')
-            store.session.set("responseValue", choices[data.button_response]);
+            if (stimulus.notes === 'practice' && task === 'matrix-reasoning') {
+                data.correct = data.button_response === currPracticeAnswerIdx
+                store.session.set("responseValue", currPracticeChoiceMix[data.button_response]);
+            } else {
+                data.correct = data.button_response === store.session('correctResponseIdx')
+                store.session.set("responseValue", store.session('choices')[data.button_response]);
+            }
         }
 
         // check response and record it
@@ -245,11 +311,17 @@ function doOnFinish(data, task, trialType) {
         // update running score and answer lists
         if (data.correct) {
             if (!isPractice(stimulus.notes)) {
-            // practice trials don't count toward total
-            store.session.transact("totalCorrect", (oldVal) => oldVal + 1);
+                // practice trials don't count toward total
+                store.session.transact("totalCorrect", (oldVal) => oldVal + 1);
             }
+            practiceResponses = []
+            currPracticeChoiceMix = []
+            currPracticeAnswerIdx = null
         } else {
             addItemToSortedStoreList("incorrectItems", target);
+
+            const pushedResponse = store.session.get("responseValue")
+            practiceResponses.push(pushedResponse)
         }
 
         jsPsych.data.addDataToLastTrial({
@@ -261,7 +333,7 @@ function doOnFinish(data, task, trialType) {
             responseType: store.session('responseType'),
         });
 
-        console.log('data: ', jsPsych.data.get().last(1).values()[0])
+        // console.log('data: ', jsPsych.data.get().last(1).values()[0])
 
         if (!isPractice(stimulus.notes)) {
             updateProgressBar();
@@ -297,5 +369,47 @@ export const afcStimulus = ({trialType, responseAllowed, promptAboveButtons, tas
         button_html: () => getButtonHtml(task, trialType),
         on_load: () => doOnLoad(task, trialType),
         on_finish: (data) => doOnFinish(data, task, trialType)
+    }
+}
+
+export const afcCondtional = ({trialType, responseAllowed, promptAboveButtons, task } = {}) => {
+    return {
+        timeline: [
+            afcStimulus({
+            trialType: trialType,
+            responseAllowed: responseAllowed,
+            promptAboveButtons: promptAboveButtons,
+            task: task
+            })
+        ],
+
+
+        loop_function: () => {
+            const stim = store.session.get("nextStimulus");
+
+            if (stim.notes === 'practice') {
+                // getting data from two trials ago due to setup trial being in the timeline
+                const currentTrialIndex = jsPsych.getProgress().current_trial_global;
+                const twoTrialsAgoIndex = currentTrialIndex - 2;
+
+                // get data from 2 trials ago
+                const twoTrialsAgoStimulus = jsPsych.data.get().filter({trial_index: twoTrialsAgoIndex}).values();
+                const previousStimulus = jsPsych.data.get().filter({trial_index: twoTrialsAgoIndex + 1}).values();;
+                const isTwoTrialsAgoStimCorrect = twoTrialsAgoStimulus[0].correct;
+                const isPreviousStimulusCorrect = previousStimulus[0].correct;
+                // console.log('twoTrialsAgoStimulus: ', twoTrialsAgoStimulus)
+                // console.log('isTwoTrialsAgoStimCorrect: ', isTwoTrialsAgoStimCorrect)
+                // console.log('previousStimulus: ', previousStimulus)
+                // console.log('isPrevStimCorrect: ', isPreviousStimulusCorrect)
+
+                if (isTwoTrialsAgoStimCorrect || isPreviousStimulusCorrect) {
+                    return false
+                } else {
+                    return true
+                }
+            } else {
+                return false
+            }
+        }
     }
 }

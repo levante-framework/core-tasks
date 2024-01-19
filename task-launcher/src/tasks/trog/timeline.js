@@ -14,6 +14,7 @@ import { exitFullscreen, setupPractice, setupStimulus } from "../shared/trials";
 
 export default function buildTROGTimeline(config, mediaAssets) {
   const preloadTrials = createPreloadTrials(mediaAssets).default
+  // console.log({mediaAssets})
 
   initTrialSaving(config);
   const initialTimeline = initTimeline(config); 
