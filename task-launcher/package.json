@@ -1,9 +1,9 @@
 {
   "name": "core-tasks",
-  "version": "1.0.0",
+  "version": "1.0.0-alpha.1",
   "description": "",
-  "main": "lib/index.7c8455c1.js",
-  "module": "lib/index.7c8455c1.js",
+  "main": "lib/index.7def445d.js",
+  "module": "lib/index.7def445d.js",
   "type": "module",
   "files": [
     "lib"

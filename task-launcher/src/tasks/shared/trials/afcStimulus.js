@@ -355,11 +355,11 @@ export const afcStimulus = ({ trialType, responseAllowed, promptAboveButtons, ta
         response_allowed_while_playing: responseAllowed,
         data: () => {
             return {
-                // // not camelCase because firekit
-                // save_trial: true,
-                // assessment_stage: store.session.get("nextStimulus").task,
-                // // not for firekit
-                // isPracticeTrial: store.session.get("nextStimulus").notes === 'practice'
+                // not camelCase because firekit
+                save_trial: true,
+                assessment_stage: store.session.get("nextStimulus").task,
+                // not for firekit
+                isPracticeTrial: store.session.get("nextStimulus").notes === 'practice'
             }
         },
         stimulus: () => getStimulus(trialType),
