@@ -45,18 +45,6 @@ export default function buildMatrixTimeline(config, mediaAssets) {
     repetitions: store.session.get('maxStimulusTrials')
   }
 
-  // const testBlck = {
-  //   timeline: [
-  //     setupPractice,
-  //     afcCondtional({
-  //       trialType: 'html',
-  //       responseAllowed: true,
-  //       promptAboveButtons: true,
-  //       task: config.task
-  //     })
-  //   ],
-  //   repetitions: 4
-  // }
 
   const timeline = [
     preloadTrials,
