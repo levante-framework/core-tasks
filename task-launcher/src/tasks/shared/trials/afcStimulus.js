@@ -9,8 +9,9 @@ import { prepareChoices, updateProgressBar, addItemToSortedStoreList, isPractice
 import { mediaAssets } from "../../..";
 import _toNumber from 'lodash/toNumber'
 import { camelize } from "@bdelab/roar-utils";
+import { getDevice } from "@bdelab/roar-utils";
 
-
+const isMobile = getDevice() === 'mobile'
 
 // Previously chosen responses for current practice trial
 let practiceResponses = []
@@ -41,7 +42,6 @@ function getStimulus(trialType) {
                 <img id="stimulus-img" src=${ mediaAssets.images[store.session.get('nextStimulus').item] || `https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc`}  alt=${ store.session.get('nextStimulus').image || `Stimulus` }/>
             </div>`
         )
-    
     }
 }
 
@@ -160,7 +160,8 @@ function doOnLoad(task, trialType) {
     const stim = store.session.get("nextStimulus") 
     // console.log({stim})
     if (stim.trialType !== 'instructions') {
-        const { buttonLayout, keyHelpers} = store.session.get("config")
+        const { buttonLayout, keyHelpers } = store.session.get("config")
+        
         let buttonContainer
         if (trialType === 'audio') {
             buttonContainer = document.getElementById("jspsych-audio-multi-response-btngroup")
@@ -233,7 +234,7 @@ function doOnLoad(task, trialType) {
                 }
             }
 
-            if (keyHelpers) { 
+            if (keyHelpers && !isMobile) { 
                 // Margin on the actual button element
                 el.children[0].style.marginBottom = '.5rem'
 
@@ -347,18 +348,18 @@ function doOnFinish(data, task) {
 }
 
 
-// {trialType, responseAllowed, promptAboveButtons, task }
-export const afcStimulus = ({trialType, responseAllowed, promptAboveButtons, task } = {}) => {
+// { trialType, responseAllowed, promptAboveButtons, task }
+export const afcStimulus = ({ trialType, responseAllowed, promptAboveButtons, task } = {}) => {
     return {
         type: trialType === 'audio' ? jsPsychAudioMultiResponse : jsPsychHTMLMultiResponse,
         response_allowed_while_playing: responseAllowed,
         data: () => {
             return {
-                // not camelCase because firekit
-                save_trial: true,
-                assessment_stage: store.session.get("nextStimulus").task,
-                // not for firekit
-                isPracticeTrial: store.session.get("nextStimulus").notes === 'practice'
+                // // not camelCase because firekit
+                // save_trial: true,
+                // assessment_stage: store.session.get("nextStimulus").task,
+                // // not for firekit
+                // isPracticeTrial: store.session.get("nextStimulus").notes === 'practice'
             }
         },
         stimulus: () => getStimulus(trialType),
