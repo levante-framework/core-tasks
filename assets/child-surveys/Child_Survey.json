@@ -1,0 +1,524 @@
+{
+ "logoPosition": "right",
+ "pages": [
+  {
+   "name": "page1",
+   "elements": [
+    {
+     "type": "panel",
+     "name": "ChildQuestions",
+     "elements": [
+      {
+       "type": "radiogroup",
+       "name": "Example1Comic",
+       "title": "Do you like to read comic books?",
+       "choices": [
+        {
+         "value": "0",
+         "text": "No, never"
+        },
+        {
+         "value": "1",
+         "text": "Yes, some of the time"
+        },
+        {
+         "value": "2",
+         "text": "Yes, most of the time"
+        },
+        {
+         "value": "3",
+         "text": "Yes, always"
+        }
+       ]
+      },
+      {
+       "type": "radiogroup",
+       "name": "Example2Neat",
+       "title": "Are you neat and tidy?",
+       "choices": [
+        {
+         "value": "0",
+         "text": "No, never"
+        },
+        {
+         "value": "1",
+         "text": "Yes, some of the time"
+        },
+        {
+         "value": "2",
+         "text": "Yes, most of the time"
+        },
+        {
+         "value": "3",
+         "text": "Yes, always"
+        }
+       ]
+      },
+      {
+       "type": "radiogroup",
+       "name": "TeacherNice",
+       "title": "Is your teacher nice to you?",
+       "choices": [
+        {
+         "value": "0",
+         "text": "No, never"
+        },
+        {
+         "value": "1",
+         "text": "Yes, some of the time"
+        },
+        {
+         "value": "2",
+         "text": "Yes, most of the time"
+        },
+        {
+         "value": "3",
+         "text": "Yes, always"
+        }
+       ]
+      },
+      {
+       "type": "radiogroup",
+       "name": "TeacherLike",
+       "title": "Does your teacher like you?",
+       "choices": [
+        {
+         "value": "0",
+         "text": "No, never"
+        },
+        {
+         "value": "1",
+         "text": "Yes, some of the time"
+        },
+        {
+         "value": "2",
+         "text": "Yes, most of the time"
+        },
+        {
+         "value": "3",
+         "text": "Yes, always"
+        }
+       ]
+      },
+      {
+       "type": "radiogroup",
+       "name": "TeacherListen",
+       "title": "Does your teacher listen to you?",
+       "choices": [
+        {
+         "value": "0",
+         "text": "No, never"
+        },
+        {
+         "value": "1",
+         "text": "Yes, some of the time"
+        },
+        {
+         "value": "2",
+         "text": "Yes, most of the time"
+        },
+        {
+         "value": "3",
+         "text": "Yes, always"
+        }
+       ]
+      },
+      {
+       "type": "radiogroup",
+       "name": "SchoolFun",
+       "title": "Is school fun?",
+       "choices": [
+        {
+         "value": "0",
+         "text": "No, never"
+        },
+        {
+         "value": "1",
+         "text": "Yes, some of the time"
+        },
+        {
+         "value": "2",
+         "text": "Yes, most of the time"
+        },
+        {
+         "value": "3",
+         "text": "Yes, always"
+        }
+       ]
+      },
+      {
+       "type": "radiogroup",
+       "name": "SchoolEnjoy",
+       "title": "Do you enjoy school?",
+       "choices": [
+        {
+         "value": "0",
+         "text": "No, never"
+        },
+        {
+         "value": "1",
+         "text": "Yes, some of the time"
+        },
+        {
+         "value": "2",
+         "text": "Yes, most of the time"
+        },
+        {
+         "value": "3",
+         "text": "Yes, always"
+        }
+       ]
+      },
+      {
+       "type": "radiogroup",
+       "name": "SchoolHappy",
+       "title": "Are you happy at school?",
+       "choices": [
+        {
+         "value": "0",
+         "text": "No, never"
+        },
+        {
+         "value": "1",
+         "text": "Yes, some of the time"
+        },
+        {
+         "value": "2",
+         "text": "Yes, most of the time"
+        },
+        {
+         "value": "3",
+         "text": "Yes, always"
+        }
+       ]
+      },
+      {
+       "type": "radiogroup",
+       "name": "SchoolSafe",
+       "title": "Do you feel safe at school?",
+       "choices": [
+        {
+         "value": "0",
+         "text": "No, never"
+        },
+        {
+         "value": "1",
+         "text": "Yes, some of the time"
+        },
+        {
+         "value": "2",
+         "text": "Yes, most of the time"
+        },
+        {
+         "value": "3",
+         "text": "Yes, always"
+        }
+       ]
+      },
+      {
+       "type": "radiogroup",
+       "name": "ClassFriends",
+       "title": "Do you have friends in your class?",
+       "choices": [
+        {
+         "value": "0",
+         "text": "No, never"
+        },
+        {
+         "value": "1",
+         "text": "Yes, some of the time"
+        },
+        {
+         "value": "2",
+         "text": "Yes, most of the time"
+        },
+        {
+         "value": "3",
+         "text": "Yes, always"
+        }
+       ]
+      },
+      {
+       "type": "radiogroup",
+       "name": "ClassHelp",
+       "title": "Do the kids in your class help you when you need it?",
+       "choices": [
+        {
+         "value": "0",
+         "text": "No, never"
+        },
+        {
+         "value": "1",
+         "text": "Yes, some of the time"
+        },
+        {
+         "value": "2",
+         "text": "Yes, most of the time"
+        },
+        {
+         "value": "3",
+         "text": "Yes, always"
+        }
+       ]
+      },
+      {
+       "type": "radiogroup",
+       "name": "ClassPlay",
+       "title": "Do the kids in your class play with you?",
+       "choices": [
+        {
+         "value": "0",
+         "text": "No, never"
+        },
+        {
+         "value": "1",
+         "text": "Yes, some of the time"
+        },
+        {
+         "value": "2",
+         "text": "Yes, most of the time"
+        },
+        {
+         "value": "3",
+         "text": "Yes, always"
+        }
+       ]
+      },
+      {
+       "type": "radiogroup",
+       "name": "ClassNice",
+       "title": "Are the kids in your class nice to you?",
+       "choices": [
+        {
+         "value": "0",
+         "text": "No, never"
+        },
+        {
+         "value": "1",
+         "text": "Yes, some of the time"
+        },
+        {
+         "value": "2",
+         "text": "Yes, most of the time"
+        },
+        {
+         "value": "3",
+         "text": "Yes, always"
+        }
+       ]
+      },
+      {
+       "type": "radiogroup",
+       "name": "LonelySchool",
+       "title": "Do you feel lonely at school?",
+       "choices": [
+        {
+         "value": "0",
+         "text": "No, never"
+        },
+        {
+         "value": "1",
+         "text": "Yes, some of the time"
+        },
+        {
+         "value": "2",
+         "text": "Yes, most of the time"
+        },
+        {
+         "value": "3",
+         "text": "Yes, always"
+        }
+       ]
+      },
+      {
+       "type": "radiogroup",
+       "name": "LearningGood",
+       "title": "Are you good at learning things in school?",
+       "choices": [
+        {
+         "value": "0",
+         "text": "No, never"
+        },
+        {
+         "value": "1",
+         "text": "Yes, some of the time"
+        },
+        {
+         "value": "2",
+         "text": "Yes, most of the time"
+        },
+        {
+         "value": "3",
+         "text": "Yes, always"
+        }
+       ]
+      },
+      {
+       "type": "radiogroup",
+       "name": "ReadingEnjoy",
+       "title": "Do you enjoy doing work in reading?",
+       "choices": [
+        {
+         "value": "0",
+         "text": "No, never"
+        },
+        {
+         "value": "1",
+         "text": "Yes, some of the time"
+        },
+        {
+         "value": "2",
+         "text": "Yes, most of the time"
+        },
+        {
+         "value": "3",
+         "text": "Yes, always"
+        }
+       ]
+      },
+      {
+       "type": "radiogroup",
+       "name": "MathEnjoy",
+       "title": "Do you enjoy doing work in math?",
+       "choices": [
+        {
+         "value": "0",
+         "text": "No, never"
+        },
+        {
+         "value": "1",
+         "text": "Yes, some of the time"
+        },
+        {
+         "value": "2",
+         "text": "Yes, most of the time"
+        },
+        {
+         "value": "3",
+         "text": "Yes, always"
+        }
+       ]
+      },
+      {
+       "type": "radiogroup",
+       "name": "ReadingGood",
+       "title": "Are you good at reading?",
+       "choices": [
+        {
+         "value": "0",
+         "text": "No, never"
+        },
+        {
+         "value": "1",
+         "text": "Yes, some of the time"
+        },
+        {
+         "value": "2",
+         "text": "Yes, most of the time"
+        },
+        {
+         "value": "3",
+         "text": "Yes, always"
+        }
+       ]
+      },
+      {
+       "type": "radiogroup",
+       "name": "MathGood",
+       "title": "Are you good at math?",
+       "choices": [
+        {
+         "value": "0",
+         "text": "No, never"
+        },
+        {
+         "value": "1",
+         "text": "Yes, some of the time"
+        },
+        {
+         "value": "2",
+         "text": "Yes, most of the time"
+        },
+        {
+         "value": "3",
+         "text": "Yes, always"
+        }
+       ]
+      },
+      {
+       "type": "radiogroup",
+       "name": "GrowthMindSmart",
+       "title": "Some kids think they can get smarter if they work really hard. Do you agree that you can get smarter if you work really hard?",
+       "choices": [
+        {
+         "value": "0",
+         "text": "No, never"
+        },
+        {
+         "value": "1",
+         "text": "Yes, some of the time"
+        },
+        {
+         "value": "2",
+         "text": "Yes, most of the time"
+        },
+        {
+         "value": "3",
+         "text": "Yes, always"
+        }
+       ]
+      },
+      {
+       "type": "radiogroup",
+       "name": "GrowthMindRead",
+       "title": "Some kids think they can get better at reading if they work really hard. Do you agree that you can get better at reading if you work really hard?",
+       "choices": [
+        {
+         "value": "0",
+         "text": "No, never"
+        },
+        {
+         "value": "1",
+         "text": "Yes, some of the time"
+        },
+        {
+         "value": "2",
+         "text": "Yes, most of the time"
+        },
+        {
+         "value": "3",
+         "text": "Yes, always"
+        }
+       ]
+      },
+      {
+       "type": "radiogroup",
+       "name": "GrowthMindMath",
+       "title": "Some kids think they can get better at math if they work really hard. Do you agree that you can get better at math if you work really hard?",
+       "choices": [
+        {
+         "value": "0",
+         "text": "No, never"
+        },
+        {
+         "value": "1",
+         "text": "Yes, some of the time"
+        },
+        {
+         "value": "2",
+         "text": "Yes, most of the time"
+        },
+        {
+         "value": "3",
+         "text": "Yes, always"
+        }
+       ]
+      }
+     ],
+     "title": "These questions ask you about how you feel at school and some of the things you do at school. There are no right or wrong answers. Choose the answer that best describes what you think. The first two are for practice.",
+     "showQuestionNumbers": "off"
+    }
+   ]
+  }
+ ]
+}
