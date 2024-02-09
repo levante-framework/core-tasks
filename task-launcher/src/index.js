@@ -31,7 +31,7 @@ export class TaskLauncher {
     if (taskName !== 'memory-game') {
       // console.log({ taskName, })
       mediaAssets = await getMediaAssets(taskName, {}, language);
-      // console.log({ mediaAssets })
+      console.log({ mediaAssets })
     }
 
     // TODO
