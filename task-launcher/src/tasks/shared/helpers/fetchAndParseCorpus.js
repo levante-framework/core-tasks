@@ -46,7 +46,8 @@ const transformCSV = (csvInput) => {
       answer: _toNumber(row.answer) || row.answer,
       notes: row.notes,
       distractors: containsLetters(row.response_alternatives) ? row.response_alternatives.split(',') : stringToNumberArray(row.response_alternatives),
-      difficulty: row.difficulty
+      difficulty: row.difficulty,
+      audioFile: row.audio_file,
     };
 
     if (row.task === 'Mental Rotation') {

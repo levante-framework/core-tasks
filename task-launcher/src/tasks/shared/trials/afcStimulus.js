@@ -10,6 +10,7 @@ import { mediaAssets } from "../../..";
 import _toNumber from 'lodash/toNumber'
 import { camelize } from "@bdelab/roar-utils";
 import { getDevice } from "@bdelab/roar-utils";
+import { t } from "i18next";
 
 const isMobile = getDevice() === 'mobile'
 
@@ -29,7 +30,7 @@ function getStimulus(trialType) {
             // For testing, in case audio isnt defined
             return mediaAssets.audio[stim.item] || mediaAssets.audio.nullAudio
         } else {
-            return mediaAssets.audio.nullAudio
+            return mediaAssets.audio[camelize(stim.audioFile)] || mediaAssets.audio.nullAudio
         }
     } else {
         return (`
@@ -60,7 +61,7 @@ function getPrompt(task, trialType) {
                 ${task === 'egma-math' ? 
                     `<p id="stimulus-html" style="${stim.task === 'Number Identification' || stim.task === 'Number Comparison' ? "color: transparent;" : ''}">${ stim.item }</p>`
                     :
-                    `<img id="stimulus-img" src=${ mediaAssets.images[stim.image] ||  'https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc' }  alt=${ stim.image }/>`
+                    `<img id="stimulus-img" src=${ mediaAssets.images[stim.item] ||  'https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc' }  alt=${ stim.image }/>`
                 }
                 
             </div>`
@@ -95,6 +96,8 @@ function getButtonChoices(task, trialType) {
         return ['Continue']
     }
     const { answer, distractors } = stimulus;
+
+    console.log({answer, distractors})
 
     const trialInfo = prepareChoices(answer, distractors);
 
@@ -132,6 +135,7 @@ function getButtonChoices(task, trialType) {
     }
 
     if (task === 'theory-of-mind') {
+        console.log({trialInfo})
         // for testing
         if (!trialInfo.choices.length) {
             return Array(2).fill(0).map((_, i) => `<img src='https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc' alt='something' />`)
@@ -270,7 +274,8 @@ function doOnLoad(task, trialType) {
             const jsPsychAudioCtx = jsPsych.pluginAPI.audioContext();
 
             // Returns a promise of the AudioBuffer of the preloaded file path.
-            const audioBuffer = await jsPsych.pluginAPI.getAudioBuffer(mediaAssets.audio[stim.item] || mediaAssets.audio.nullAudio);
+            // TODO: Audio does not play for repeat
+            const audioBuffer = await jsPsych.pluginAPI.getAudioBuffer(mediaAssets.audio[camelize(stim.audioFile)] || mediaAssets.audio.nullAudio);
 
             audioSource = jsPsychAudioCtx.createBufferSource();
             audioSource.buffer = audioBuffer;

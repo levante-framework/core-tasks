@@ -75,6 +75,7 @@ export async function getMediaAssets(bucketName, whitelist = {}, language, nextP
     url += `?pageToken=${nextPageToken}`;
   }
 
+
   const response = await fetch(url);
   const data = await response.json();
 
