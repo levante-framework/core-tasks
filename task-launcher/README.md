@@ -12,7 +12,7 @@ wherever the package is used -> index.js -> taskConfig.js -> load assets, corpus
 
 
 ## How the task launcher works
-The app can run in two different modes, and as such uses two different build processes. For standalone, the code is built with Webpack. As an `npm` package, the code is built with (Rollup)[https://rollupjs.org/]. They work fundamentally the same regardless of where they are run. 
+The app can run in two different modes, and as such uses two different build processes. For standalone, the code is built with Webpack. As an `npm` package, the code is built with [Rollup](https://rollupjs.org/). They work fundamentally the same regardless of where they are run. 
 
 The TaskLauncher class takes in 4 parameters, 1 being optional. firekit, game params, user params, and the display element to attach the jsPsych code to. The display element is optional. 
 
@@ -25,13 +25,13 @@ In this mode, however, we do not use any authentication but treat the user as a 
 The TaskLauncher class requires 3 things to run: firekit, user params, and game params. In standalone, we get all the parameters we need for the game from query strings. 
 
 
-
 **As a npm package (In development)**
 
 As an npm package the packaged code does not include the serve folder. 
 You use it as you would any typical `npm` package:
 Install it, import it, and run the code. 
 As with standalone deployment, it requires a firekit instance, game params, and user params. 
+
 
 ```
 Import TaskLauncher from 'core-tasks'
