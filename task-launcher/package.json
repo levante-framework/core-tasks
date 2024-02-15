@@ -16,8 +16,9 @@
     "prepublishOnly": "npm run package",
     "preversion": "npm run lint",
     "version": "npm run format && git add -A",
-    "postversion": "GIT_REMOTE=$(git remote -v | grep \"yeatmanlab/roar-multichoice.git \\(push\\)\" | cut -f 1) && git push $GIT_REMOTE && git push $GIT_REMOTE --tags",
+    "postversion": "GIT_REMOTE=$(git remote -v | grep \"levante-framework/core-tasks.git \\(push\\)\" | cut -f 1) && git push $GIT_REMOTE && git push $GIT_REMOTE --tags",
     "dev": "npx webpack serve --open --mode development --env dbmode=development",
+    "deploy": "npm run package && firebase deploy --only hosting",
     "lint": "npx eslint --ext .ts,.tsx,.js,.jsx",
     "format": "npx prettier . --write"
   },
