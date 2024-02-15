@@ -34,12 +34,14 @@ export const stimulus = {
       const stimulus = store.session.get("nextStimulus");
       const { answer, distractors } = stimulus;
 
-      const trialInfo = prepareChoices(answer, distractors);
+      // don't randomize stimulus choice order for mental rotation:
+      const trialInfo = prepareChoices(answer, distractors, false); 
 
       // for image buttons
       return trialInfo.choices.map((choice, i) => `<img src=${mediaAssets.images[choice]} alt=${choice} />`)
     },
-    button_html: () => `<button class='img-btn'>
+    // TODO: make buttons same size as stimulus in CSS
+    button_html: () => `<button class='img-btn'> 
                           %choice%
                         </button>`,
     on_load: () => {

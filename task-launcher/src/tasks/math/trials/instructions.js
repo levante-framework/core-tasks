@@ -15,7 +15,8 @@ export const instructions1 = {
         <h1 class='instructions-title'>Instructions</h1>
 
         <p>
-            In this task, you will be given a series of math problems that are appropriate for school-aged children, including simple addition, subtraction, multiplication, and other types of problems. Please take your time to answer the questions correctly. The questions are multiple choice, and you can either use the keyboard arrows or your mouse to select the answer. Thank you for your participation!
+            In this task, you will be given a series of math problems that are appropriate for school-aged children, including simple addition, subtraction, multiplication, and other types of problems. 
+            Please take your time to answer the questions correctly. Most of the quuestions are multiple choice, and you can either use the keyboard arrows or your mouse to select the answer.
         </p>
 
         <footer>Click the button below or press <b>ANY KEY</b> to continue</footer>
@@ -36,10 +37,13 @@ export const instructions2 = {
     },
     stimulus: `
     <div class='instructions-container'>
-        <h1 class='instructions-title'>About the math task</h1>
+        <h1 class='instructions-title'>Instructions, continued</h1>
 
-        <p>
-            There are two different types of questions. Multiple choice and number line response. The multiple choice questions may vary in the amount of choices. For the number line, you may need to drag it to the correct position or respond with a multiple choice option. Additionally, some questions may require you to listen to some audio. To repeat the audio, you can click on the button with the speaker icon in the top right corner. Let's do some practice trials to see what they look like. 
+        <p> 
+            There will also be some number line problems that require you to drag a slider to the indicated position. 
+            Finally, some questions require listening to audio, so please be sure your speakers are on and volume is adjusted. 
+            The audio can be repeated by clicking on the button with the speaker icon in the top right corner. 
+            Let's begin with a few practice trials.
         </p>
 
         <footer>Click the button below or press <b>ANY KEY</b> to continue</footer>
@@ -64,7 +68,7 @@ export const postPractice = {
         <h1 class='instructions-title'>Great job!</h1>
 
         <p>
-            Now that you know what to expect lets do the real thing. Good luck!
+            Now that you know what to expect, let's begin. Thank you for your participation!
         </p>
 
         <footer>Click the button below or press <b>ANY KEY</b> to continue</footer>
@@ -85,7 +89,7 @@ export const taskFinished = {
     },
     stimulus: `
     <div class='instructions-container'>
-        <h1 class='instructions-title'>You've Finished!</h1>
+        <h1 class='instructions-title'>You've completed the task -- thank you!</h1>
 
         <p>
             

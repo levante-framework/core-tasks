@@ -32,7 +32,7 @@ export default function buildMathTimeline(config, mediaAssets) {
   const afcStimulusBlock = {
     timeline: [
       afcStimulus ({
-        trialType: 'audio',
+        trialType: 'audio', // or 'html'
         responseAllowed: true,
         promptAboveButtons: true,
         task: config.task
