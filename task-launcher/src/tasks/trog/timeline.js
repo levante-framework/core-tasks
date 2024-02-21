@@ -10,7 +10,7 @@ import { jsPsych, initializeCat } from "../taskSetup";
 // trials
 import { afcStimulus } from "../shared/trials/afcStimulus";
 import { exitFullscreen, setupPractice, setupStimulus } from "../shared/trials";
-
+import { instructions1 } from "./trials/instructions";
 
 export default function buildTROGTimeline(config, mediaAssets) {
   const preloadTrials = createPreloadTrials(mediaAssets).default
@@ -47,6 +47,7 @@ export default function buildTROGTimeline(config, mediaAssets) {
   const timeline = [
     preloadTrials,
     initialTimeline,
+    //instructions1, // TODO: fix audio and button
     // practiceBlock,
     stimulusBlock,
   ];
