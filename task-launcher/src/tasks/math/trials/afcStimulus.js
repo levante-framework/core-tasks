@@ -26,7 +26,7 @@ export const afcStimulus = {
       const stim = store.session.get("nextStimulus")
       if (stim.task === 'Number Identification') {
         // For testing, in case audio isnt defined
-        return mediaAssets.audio[stim.item] || mediaAssets.audio.nullAudio
+        return mediaAssets.audio[stim.audioFile] || mediaAssets.audio.nullAudio
       } else {
         return mediaAssets.audio.nullAudio
       }
