@@ -28,6 +28,6 @@ export const jsPsych = initJsPsych({
   on_finish: () => {
     // navigate to prolific page
     // swap url
-    window.location.href = "https://app.prolific.co/submissions/complete?cc=4C0E9E0F";
+    //window.location.href = "https://app.prolific.co/submissions/complete?cc=4C0E9E0F";
   }
 });

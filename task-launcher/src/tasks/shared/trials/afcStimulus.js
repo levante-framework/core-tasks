@@ -45,6 +45,21 @@ function getPrompt(task, trialType) { // showItem itemIsImage
     const stim = store.session.get("nextStimulus")
 
     //if(stim.taskType === 'instructions' || stim.task === 'Number Identification' || stim.task === 'Number Comparison') showItem = false
+    if(stim.trialType === 'instructions' || stim.task === 'instructions') {
+        return (`
+        <div id='stimulus-container' style='width: 80%;'>
+            <img src=${mediaAssets.images.speakerIcon} id='replay-btn' alt='speaker replay icon'/>
+            <p id="prompt">${ stim.prompt }</p>
+        </div>`)
+    }
+
+    if (task === 'trog' || stim.task === 'Number Identification') {
+      return (`
+        <div id='stimulus-container'>
+            <img src=${mediaAssets.images.speakerIcon} id='replay-btn' alt='speaker replay icon'/>
+        </div>`
+      )
+    } 
 
     if (stim.audioFile != '') {
         return (
@@ -62,29 +77,11 @@ function getPrompt(task, trialType) { // showItem itemIsImage
         )
     }
 
-    // Temporarily showing prompt since we don't have audio yet
-    if (task === 'trog') {
-        return (`
-        <div id='stimulus-container'>
-            <img src=${mediaAssets.images.speakerIcon} id='replay-btn' alt='speaker replay icon'/>
-        </div>`
-      )
-    }
-
-    if (trialType === 'audio') {
-        return (`
-        <div id='stimulus-container'>
-          <!-- <p id="prompt">${stim.item}</p> -->
-          <br>
-          <img id="stimulus-img" src=${ mediaAssets.images[stim.image] ||  'https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc' }  alt=${ stim.image }/>
-        </div>`
-      )
-    }
 }
 
 function getButtonChoices(task, trialType) {
     const stimulus = store.session.get("nextStimulus");
-    if (stimulus.trialType === 'instructions') {
+    if (stimulus.trialType === 'instructions' || stimulus.task === 'instructions') {
         return ['OK']
     } 
     const { answer, distractors } = stimulus;
@@ -140,7 +137,8 @@ function getButtonChoices(task, trialType) {
 
 function getButtonHtml(task, trialType) {
     const stimulus = store.session.get("nextStimulus");
-    if (stimulus.trialType === 'instructions') {
+    // TODO: add trial_type column to math item bank
+    if (stimulus.trialType === 'instructions' || stimulus.task === 'instructions') {
         return "<button id='continue-btn'>%choice%</button>"
     }
 

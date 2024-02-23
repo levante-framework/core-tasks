@@ -10,7 +10,7 @@ import { jsPsych, initializeCat } from "../taskSetup";
 // trials
 import { afcStimulus } from "../shared/trials/afcStimulus";
 import { exitFullscreen, setupPractice, setupStimulus } from "../shared/trials";
-import { instructions1 } from "./trials/instructions";
+import { taskFinished } from "./trials/instructions";
 
 export default function buildTROGTimeline(config, mediaAssets) {
   const preloadTrials = createPreloadTrials(mediaAssets).default
@@ -53,7 +53,7 @@ export default function buildTROGTimeline(config, mediaAssets) {
   ];
 
   initializeCat();
-  
+  timeline.push(taskFinished)
   timeline.push(exitFullscreen);
 
   return { jsPsych, timeline };
