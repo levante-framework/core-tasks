@@ -2,8 +2,8 @@
   "name": "core-tasks",
   "version": "1.0.0-alpha.1",
   "description": "",
-  "main": "lib/index.7def445d.js",
-  "module": "lib/index.7def445d.js",
+  "main": "lib/index.41c54da9.js",
+  "module": "lib/index.41c54da9.js",
   "type": "module",
   "files": [
     "lib"
@@ -18,7 +18,7 @@
     "version": "npm run format && git add -A",
     "postversion": "GIT_REMOTE=$(git remote -v | grep \"levante-framework/core-tasks.git \\(push\\)\" | cut -f 1) && git push $GIT_REMOTE && git push $GIT_REMOTE --tags",
     "dev": "npx webpack serve --open --mode development --env dbmode=development",
-    "deploy": "npm run package && firebase deploy --only hosting",
+    "deploy": "npm run build && firebase deploy --only hosting",
     "lint": "npx eslint --ext .ts,.tsx,.js,.jsx",
     "format": "npx prettier . --write"
   },

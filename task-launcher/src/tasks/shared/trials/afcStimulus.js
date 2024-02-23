@@ -26,12 +26,7 @@ function getStimulus(trialType) {
     const stim = store.session.get("nextStimulus")
 
     if (trialType === 'audio') {
-        if (stim.task === 'Number Identification') {
-            // For testing, in case audio isnt defined
-            return mediaAssets.audio[stim.item] || mediaAssets.audio.nullAudio
-        } else {
-            return mediaAssets.audio[camelize(stim.audioFile)] || mediaAssets.audio.nullAudio
-        }
+        return mediaAssets.audio[camelize(stim.audioFile)] || mediaAssets.audio.nullAudio
     } else {
         return (`
             <div id='stimulus-container'>
@@ -40,28 +35,27 @@ function getStimulus(trialType) {
                                  stim.prompt : ''}
                 </p>
                 <br>
-                <img id="stimulus-img" src=${ mediaAssets.images[store.session.get('nextStimulus').item] || `https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc`}  alt=${ store.session.get('nextStimulus').image || `Stimulus` }/>
+                <img id="stimulus-img" src=${ mediaAssets.images[store.session.get('nextStimulus').item] || mediaAssets.images['blank'] }  alt=${ store.session.get('nextStimulus').image || `Stimulus` }/>
             </div>`
         )
     }
 }
 
-function getPrompt(task, trialType) {
+function getPrompt(task, trialType) { // showItem itemIsImage
     const stim = store.session.get("nextStimulus")
-    if (task === 'egma-math' || task === 'theory-of-mind') {
+
+    //if(stim.taskType === 'instructions' || stim.task === 'Number Identification' || stim.task === 'Number Comparison') showItem = false
+
+    if (stim.audioFile != '') {
         return (
             `<div id='stimulus-container'>
-                ${stim.task === 'Number Identification' ||
-                  task === 'theory-of-mind' ? 
-                  `<img src=${mediaAssets.images.speakerIcon} id='replay-btn' alt='speaker replay icon'/>` :
-                   ''
-                }
+                <img src=${mediaAssets.images.speakerIcon} id='replay-btn' alt='speaker replay icon'/>
                 <p id="prompt">${ stim.prompt || stim.item }</p>
                 <br>
                 ${task === 'egma-math' ? 
                     `<p id="stimulus-html" style="${stim.task === 'Number Identification' || stim.task === 'Number Comparison' ? "color: transparent;" : ''}">${ stim.item }</p>`
                     :
-                    `<img id="stimulus-img" src=${ mediaAssets.images[stim.item] ||  'https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc' }  alt=${ stim.image }/>`
+                    `<img id="stimulus-img" src=${ mediaAssets.images[stim.item] || mediaAssets.images['blank'] }  alt=${ stim.image }/>`
                 }
                 
             </div>`
@@ -73,8 +67,6 @@ function getPrompt(task, trialType) {
         return (`
         <div id='stimulus-container'>
             <img src=${mediaAssets.images.speakerIcon} id='replay-btn' alt='speaker replay icon'/>
-          <p id="prompt">Choose the picture that shows...</p>
-          <p id="prompt">${stim.item}</p>
         </div>`
       )
     }
@@ -82,7 +74,7 @@ function getPrompt(task, trialType) {
     if (trialType === 'audio') {
         return (`
         <div id='stimulus-container'>
-          <p id="prompt">${stim.item}</p>
+          <!-- <p id="prompt">${stim.item}</p> -->
           <br>
           <img id="stimulus-img" src=${ mediaAssets.images[stim.image] ||  'https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc' }  alt=${ stim.image }/>
         </div>`
@@ -93,8 +85,8 @@ function getPrompt(task, trialType) {
 function getButtonChoices(task, trialType) {
     const stimulus = store.session.get("nextStimulus");
     if (stimulus.trialType === 'instructions') {
-        return ['Continue']
-    }
+        return ['OK']
+    } 
     const { answer, distractors } = stimulus;
 
     console.log({answer, distractors})
@@ -111,8 +103,8 @@ function getButtonChoices(task, trialType) {
         }
     }
 
-    if (task === 'trog') {
-        // for image buttons
+    // for image buttons (trog, matrix reasoning, mental rotation...)
+    if (task === 'trog' && stimulus.trialType != 'instructions') {
         // if (stimulus.notes === 'practice') {
         //     return currPracticeChoiceMix.map((choice, i) => `<img src=${mediaAssets.images[camelize(choice)]} alt=${choice} />`)
         // } else {
@@ -130,7 +122,6 @@ function getButtonChoices(task, trialType) {
             } else {
                 return trialInfo.choices.map((choice, i) => `<img src=${mediaAssets.images[choice] || `https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc`} alt=${choice} />`)
             }
-                   
         }
     }
 
@@ -267,20 +258,28 @@ function doOnLoad(task, trialType) {
             store.session.transact("trialNumTotal", (oldVal) => oldVal + 1);
         }
 
-        if (store.session.get("nextStimulus").task === 'Number Identification' || task === 'trog') {
-            const replayBtn = document.getElementById('replay-btn');
-
+        const replayBtn = document.getElementById('replay-btn');
+        if(replayBtn) {
+            let isAudioPlaying = false; // TODO: this only stops the Replay button from being used if it was already used 
             async function replayAudio() {
-            const jsPsychAudioCtx = jsPsych.pluginAPI.audioContext();
+                const jsPsychAudioCtx = jsPsych.pluginAPI.audioContext();
 
-            // Returns a promise of the AudioBuffer of the preloaded file path.
-            // TODO: Audio does not play for repeat
-            const audioBuffer = await jsPsych.pluginAPI.getAudioBuffer(mediaAssets.audio[camelize(stim.audioFile)] || mediaAssets.audio.nullAudio);
+                if (isAudioPlaying) {
+                    return; // Exit the function if audio is already playing
+                }
+                isAudioPlaying = true;
 
-            audioSource = jsPsychAudioCtx.createBufferSource();
-            audioSource.buffer = audioBuffer;
-            audioSource.connect(jsPsychAudioCtx.destination);
-            audioSource.start(0);
+                // Returns a promise of the AudioBuffer of the preloaded file path.
+                const audioBuffer = await jsPsych.pluginAPI.getAudioBuffer(mediaAssets.audio[camelize(stim.audioFile)] || mediaAssets.audio.nullAudio);
+
+                audioSource = jsPsychAudioCtx.createBufferSource();
+                audioSource.buffer = audioBuffer;
+                audioSource.connect(jsPsychAudioCtx.destination);
+                audioSource.start(0);
+
+                audioSource.onended = () => {
+                    isAudioPlaying = false;
+                };
             }
 
             replayBtn.addEventListener('click', replayAudio);
@@ -355,6 +354,7 @@ function doOnFinish(data, task) {
 
 // { trialType, responseAllowed, promptAboveButtons, task }
 export const afcStimulus = ({ trialType, responseAllowed, promptAboveButtons, task } = {}) => {
+    // TODO: pull out task-specific parameters (e.g., getPrompt(.., showPrompt=false) for Number Identification, TROG, ..)
     return {
         type: trialType === 'audio' ? jsPsychAudioMultiResponse : jsPsychHTMLMultiResponse,
         response_allowed_while_playing: responseAllowed,
