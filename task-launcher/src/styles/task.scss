@@ -38,6 +38,7 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
+      background-color: #D9E4FF;
 
       #fullscreen {
         width: 80vw;
@@ -281,15 +282,23 @@
       }
 
       .math-btn {
-        background-color: rgb(8, 63, 116);
-        border: none;
-        border-radius: .5rem;
-        color: white;
-        padding: 1.5rem;
-        font-size: 2.5rem;
-        cursor: pointer;
-        width: 100%;
-        border: 5px solid transparent;
+        display: flex;
+        width: 192px;
+        height: 192px;
+        padding: 8px;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        border-radius: 32px;
+        border: 6px solid #0F3CAC;
+        background: #275BDD;
+        // text
+        color: #FBFBFD;
+        font-family: "Noto Sans";
+        font-size: 104px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: normal;
       }
 
       .img-btn {
@@ -313,14 +322,15 @@
       // }
 
       .arrow-key-border {
-        border: 1px solid black; /* Thin and black border */
+        border: 0px solid black; /* Thin and black border */
         border-radius: 10px; /* Curved corners */
-        padding: .5rem !important;
+        padding: .1rem !important;
         max-width: 100% !important;
         pointer-events: none;
 
         .arrow-key {
           font-size: 1.5rem;
+          padding: 0;
           margin: 0;
           pointer-events: none;
         }
