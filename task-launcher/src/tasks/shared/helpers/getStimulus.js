@@ -21,7 +21,7 @@ export const getStimulus = (corpusType) => {
   store.session.set("corpora", corpus);
 
   // Testing Slider AFC trials
-  // const afcStim = corpus[corpusType].find(stim => stim.task === 'Number Line 4afc') 
+  // const afcStim = corpus[corpusType].find(stim => stim.trialType === 'Number Line 4afc') 
   // store.session.set("nextStimulus", afcStim);
 
   // Testing 0-1 range slider trials

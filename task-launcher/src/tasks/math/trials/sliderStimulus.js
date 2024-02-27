@@ -73,7 +73,7 @@ export const slider = {
     },
     labels: () => store.session.get('nextStimulus').item,
     // button_label: 'Continue',
-    require_movement: () => store.session.get('nextStimulus').task === 'Number Line Slider',
+    require_movement: () => store.session.get('nextStimulus').trialType === 'Number Line Slider',
     slider_width: 800,
     min: () => store.session.get('nextStimulus').item[0],
     max: () => store.session.get('nextStimulus').item[1] === 1 ? 100 : store.session.get('nextStimulus').item[1],
@@ -117,7 +117,7 @@ export const slider = {
         }
 
         
-        if (store.session.get('nextStimulus').task === 'Number Line 4afc') {
+        if (store.session.get('nextStimulus').trialType === 'Number Line 4afc') {
             wrapper.style.margin = '0 0 2rem 0'
 
             // disable continue button and make invisible
@@ -196,7 +196,7 @@ export const slider = {
 
         const stimulus = store.session.get('nextStimulus')
 
-        if (stimulus.task === 'Number Line 4afc') {
+        if (stimulus.trialType === 'Number Line 4afc') {
             data.correct = chosenAnswer ===  store.session.get('target')
         } else {
             // slider version is an approximation so we can't mark it as true/false

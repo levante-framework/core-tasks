@@ -30,7 +30,7 @@ function getStimulus(trialType) {
     } else {
         return (`
             <div id='stimulus-container'>
-                <p id="prompt">${stim.task === 'Matrix Reasoning' &&
+                <p id="prompt">${stim.trialType === 'Matrix Reasoning' &&
                                  stim.notes === 'practice' ?
                                  stim.prompt : ''}
                 </p>
@@ -44,8 +44,8 @@ function getStimulus(trialType) {
 function getPrompt(task, trialType) { // showItem itemIsImage
     const stim = store.session.get("nextStimulus")
 
-    //if(stim.taskType === 'instructions' || stim.task === 'Number Identification' || stim.task === 'Number Comparison') showItem = false
-    if(stim.trialType === 'instructions' || stim.task === 'instructions') {
+    //if(stim.taskType === 'instructions' || stim.trialType === 'Number Identification' || stim.trialType === 'Number Comparison') showItem = false
+    if(stim.trialType === 'instructions' || stim.trialType === 'instructions') {
         return (`
         <div id='stimulus-container' style='width: 80%;'>
             <img src=${mediaAssets.images.speakerIcon} id='replay-btn' alt='speaker replay icon'/>
@@ -53,7 +53,7 @@ function getPrompt(task, trialType) { // showItem itemIsImage
         </div>`)
     }
 
-    if (task === 'trog' || stim.task === 'Number Identification') {
+    if (task === 'trog' || stim.trialType === 'Number Identification') {
       return (`
         <div id='stimulus-container'>
             <img src=${mediaAssets.images.speakerIcon} id='replay-btn' alt='speaker replay icon'/>
@@ -68,7 +68,7 @@ function getPrompt(task, trialType) { // showItem itemIsImage
                 <p id="prompt">${ stim.prompt || stim.item }</p>
                 <br>
                 ${task === 'egma-math' ? 
-                    `<p id="stimulus-html" style="${stim.task === 'Number Identification' || stim.task === 'Number Comparison' ? "color: transparent;" : ''}">${ stim.item }</p>`
+                    `<p id="stimulus-html" style="${stim.trialType === 'Number Identification' || stim.trialType === 'Number Comparison' ? "color: transparent;" : ''}">${ stim.item }</p>`
                     :
                     `<img id="stimulus-img" src=${ mediaAssets.images[stim.item] || mediaAssets.images['blank'] }  alt=${ stim.image }/>`
                 }
@@ -81,7 +81,7 @@ function getPrompt(task, trialType) { // showItem itemIsImage
 
 function getButtonChoices(task, trialType) {
     const stimulus = store.session.get("nextStimulus");
-    if (stimulus.trialType === 'instructions' || stimulus.task === 'instructions') {
+    if (stimulus.trialType === 'instructions' || stimulus.trialType === 'instructions') {
         return ['OK']
     } 
     const { answer, distractors } = stimulus;
@@ -138,7 +138,7 @@ function getButtonChoices(task, trialType) {
 function getButtonHtml(task, trialType) {
     const stimulus = store.session.get("nextStimulus");
     // TODO: add trial_type column to math item bank
-    if (stimulus.trialType === 'instructions' || stimulus.task === 'instructions') {
+    if (stimulus.trialType === 'instructions' || stimulus.trialType === 'instructions') {
         return "<button id='continue-btn'>%choice%</button>"
     }
 

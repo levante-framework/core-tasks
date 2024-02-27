@@ -24,9 +24,9 @@ export const afcStimulus = {
     },
     stimulus: () => {
       const stim = store.session.get("nextStimulus")
-      if (stim.task === 'Number Identification') {
+      if (stim.trialType === 'Number Identification') {
         // For testing, in case audio isnt defined
-        return mediaAssets.audio[stim.audioFile] || mediaAssets.audio.nullAudio
+        return mediaAssets.audio[camelize(stim.audioFile)] || mediaAssets.audio.nullAudio
       } else {
         return mediaAssets.audio.nullAudio
       }
@@ -35,10 +35,10 @@ export const afcStimulus = {
       const stim = store.session.get("nextStimulus")
       return (
         `<div id='stimulus-container'>
-          ${stim.task === 'Number Identification' ? `<img src=${mediaAssets.images.speakerIcon} id='replay-btn' alt='speaker replay icon'/>` : ''}
+          ${stim.trialType === 'Number Identification' ? `<img src=${mediaAssets.images.speakerIcon} id='replay-btn' alt='speaker replay icon'/>` : ''}
           <p id="prompt">${ stim.prompt }</p>
           <br>
-          <p id="stimulus-html" style="${stim.task === 'Number Identification' ? "color: transparent;" : ''}">${ stim.item }</p>
+          <p id="stimulus-html" style="${stim.trialType === 'Number Identification' ? "color: transparent;" : ''}">${ stim.item }</p>
         </div>`
       )
     },
@@ -118,14 +118,14 @@ export const afcStimulus = {
         store.session.transact("trialNumTotal", (oldVal) => oldVal + 1);
       }
 
-      if (store.session.get("nextStimulus").task === 'Number Identification') {
+      if (store.session.get("nextStimulus").trialType === 'Number Identification') {
         const replayBtn = document.getElementById('replay-btn');
 
         async function replayAudio() {
           const jsPsychAudioCtx = jsPsych.pluginAPI.audioContext();
   
           // Returns a promise of the AudioBuffer of the preloaded file path.
-          const audioBuffer = await jsPsych.pluginAPI.getAudioBuffer(mediaAssets.audio[stim.item]);
+          const audioBuffer = await jsPsych.pluginAPI.getAudioBuffer(mediaAssets.audio[camelize(stim.audioFile)]);
   
           source = jsPsychAudioCtx.createBufferSource();
           source.buffer = audioBuffer;
