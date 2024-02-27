@@ -281,15 +281,23 @@
       }
 
       .math-btn {
-        background-color: rgb(8, 63, 116);
-        border: none;
-        border-radius: .5rem;
-        color: white;
-        padding: 1.5rem;
-        font-size: 2.5rem;
-        cursor: pointer;
-        width: 100%;
-        border: 5px solid transparent;
+        display: flex;
+        width: 192px;
+        height: 192px;
+        padding: 8px;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        border-radius: 32px;
+        border: 6px solid #0F3CAC;
+        background: #275BDD;
+        // text
+        color: #FBFBFD;
+        font-family: "Noto Sans";
+        font-size: 104px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: normal;
       }
 
       .img-btn {
