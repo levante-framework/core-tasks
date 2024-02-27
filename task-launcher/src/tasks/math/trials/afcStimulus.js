@@ -114,12 +114,11 @@ export const afcStimulus = {
 
           const arrowKey = document.createElement('p')
           if (buttonContainer.children.length === 2) {
-            arrowKey.textContent = arrowKeyEmojis[i+1][1]
+            arrowKey.innerHTML = arrowKeyEmojis[i+1][1]
           } else {
-            arrowKey.textContent = arrowKeyEmojis[i][1]
+            arrowKey.innerHTML = arrowKeyEmojis[i][1]
           }
           arrowKey.style.textAlign = 'center'
-          arrowKey.style.fontSize = '1.5rem'
           arrowKey.style.margin = '0'
           // arrowKey.classList.add('arrow-key')
           arrowKeyBorder.appendChild(arrowKey)
