@@ -50,7 +50,7 @@ const transformCSV = (csvInput) => {
       audioFile: row.audio_file,
     };
 
-    if (row.trialType === 'Mental Rotation') {
+    if (row.task === 'Mental Rotation') {
       newRow.item = camelize(newRow.item)
       newRow.answer = camelize(newRow.answer)
       newRow.distractors = newRow.distractors.map(choice => camelize(choice))

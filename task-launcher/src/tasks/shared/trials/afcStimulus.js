@@ -30,7 +30,7 @@ function getStimulus(trialType) {
     } else {
         return (`
             <div id='stimulus-container'>
-                <p id="prompt">${stim.trialType === 'Matrix Reasoning' &&
+                <p id="prompt">${stim.task === 'Matrix Reasoning' &&
                                  stim.notes === 'practice' ?
                                  stim.prompt : ''}
                 </p>
@@ -45,7 +45,7 @@ function getPrompt(task, trialType) { // showItem itemIsImage
     const stim = store.session.get("nextStimulus")
 
     //if(stim.taskType === 'instructions' || stim.trialType === 'Number Identification' || stim.trialType === 'Number Comparison') showItem = false
-    if(stim.trialType === 'instructions' || stim.trialType === 'instructions') {
+    if(stim.trialType === 'instructions') {
         return (`
         <div id='stimulus-container' style='width: 80%;'>
             <img src=${mediaAssets.images.speakerIcon} id='replay-btn' alt='speaker replay icon'/>
