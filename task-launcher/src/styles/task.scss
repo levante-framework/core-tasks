@@ -283,8 +283,8 @@
 
       .math-btn {
         display: flex;
-        width: 192px;
-        height: 192px;
+        width: 200px;
+        height: 200px;
         padding: 8px;
         justify-content: center;
         align-items: center;
@@ -295,7 +295,7 @@
         // text
         color: #FBFBFD;
         font-family: "Noto Sans";
-        font-size: 104px;
+        font-size: 90px;
         font-style: normal;
         font-weight: 700;
         line-height: normal;
@@ -623,7 +623,7 @@
     // -----------------------------------------------------------------------
     // TROG
     .trog-img-btn {
-      background-color: transparent;
+      background-color: white;
       border: black solid 3px;
       border-radius: .5rem;
       cursor: pointer;
