@@ -6,9 +6,9 @@ import { jsPsych } from "../taskSetup";
 import { initializeCat } from "../taskSetup";
 import { createPreloadTrials } from "../shared/helpers";
 // trials
-import { stimulus } from "./trials/stimulus";
-import { setupPractice, setupStimulus } from "../shared/trials";
-import { exitFullscreen } from "../shared/trials";
+//import { stimulus } from "./trials/stimulus";
+import { afcStimulus, afcCondtional } from "../shared/trials/afcStimulus";
+import { exitFullscreen, setupPractice, setupStimulus } from "../shared/trials";
 
 export default function buildMentalRotationTimline(config, mediaAssets) {
   const preloadTrials = createPreloadTrials(mediaAssets).default
@@ -19,7 +19,13 @@ export default function buildMentalRotationTimline(config, mediaAssets) {
   const practiceBlock = {
     timeline: [
       setupPractice,
-      stimulus,
+      //stimulus,
+      afcStimulus ({
+        trialType: 'html', // or 'audio'
+        responseAllowed: true,
+        promptAboveButtons: true,
+        task: config.task
+      })
     ],
     repetitions: config.numOfPracticeTrials
   }
@@ -27,7 +33,13 @@ export default function buildMentalRotationTimline(config, mediaAssets) {
   const stimulusBlock = {
     timeline: [
       setupStimulus,
-      stimulus
+      //stimulus
+      afcStimulus ({
+        trialType: 'html', // or 'audio'
+        responseAllowed: true,
+        promptAboveButtons: true,
+        task: config.task
+      })
     ],
     repetitions: store.session.get('maxStimulusTrials'),
   }
