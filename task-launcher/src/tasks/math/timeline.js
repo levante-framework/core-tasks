@@ -38,12 +38,12 @@ export default function buildMathTimeline(config, mediaAssets) {
         task: config.task
       })
     ],
-    conditional_function: () => !store.session.get('nextStimulus').task.includes('Number Line')
+    conditional_function: () => !store.session.get('nextStimulus').trialType.includes('Number Line')
   }
 
   const sliderBlock = {
     timeline: [slider],
-    conditional_function: () => store.session.get('nextStimulus').task.includes('Number Line')
+    conditional_function: () => store.session.get('nextStimulus').trialType.includes('Number Line')
   }
 
   const pushSubTaskToTimeline = (

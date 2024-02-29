@@ -80,7 +80,7 @@ export const slider = {
     slider_start: () => {
         const stim = store.session.get('nextStimulus')
 
-        if (stim.task.includes('Slider')){
+        if (stim.trialType.includes('Slider')){
             const max = stim.item[1] === 1 ? 100 : stim.item[1]
             sliderStart = getRandomValue(max, stim.answer)
         } else {

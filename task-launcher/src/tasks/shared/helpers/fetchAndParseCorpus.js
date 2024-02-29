@@ -19,7 +19,7 @@ let maxPracticeTrials = 0
 let stimulusData = [], practiceData = []
 
 function writeItem(row) {
-  if (row.task.includes('Number Line')) {
+  if (row.trialType.includes('Number Line')) {
     const splitArr = row.item.split(",")
     return splitArr.map(el => _toNumber(el))
   }
