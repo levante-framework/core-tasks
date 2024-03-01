@@ -18,6 +18,7 @@ const isMobile = getDevice() === 'mobile'
 let practiceResponses = []
 let currPracticeChoiceMix = []
 let currPracticeAnswerIdx
+let trialsOfCurrentType = 0
 
 let audioSource;
 let keyboardResponseMap = {}
@@ -26,8 +27,18 @@ function getStimulus(trialType) {
     const stim = store.session.get("nextStimulus")
 
     if (trialType === 'audio') {
-        return mediaAssets.audio[camelize(stim.audioFile)] || mediaAssets.audio.nullAudio
+        // FIXME: this just plays audio for ToM, but ToM also needs to display an image (on most trials)
+        // I think we should just check whether there's an image in stim.item, and if there is display it with task-determined CSS
+        // TROG, Number Identification, and ToM should always plays audio
+        if ( stim.task === "theory-of-mind" || stim.task === "TROG" || stim.trialType === "Number Identification" ) return mediaAssets.audio[camelize(stim.audioFile)]
+
+        if ( trialsOfCurrentType < 2 ) {
+            return mediaAssets.audio[camelize(stim.audioFile)] 
+        } else {
+            return mediaAssets.audio.nullAudio
+        }
     } else {
+        // FIXME: this adds a second stimulus image to Matrix Reasoning trials.
         return (`
             <div id='stimulus-container'>
                 <p id="prompt">${stim.task === 'Matrix Reasoning' &&
@@ -121,7 +132,7 @@ function getButtonChoices(task, trialType) {
         // }
     }
 
-    if (task === 'matrix-reasoning') {
+    if (task === 'matrix-reasoning' || task === 'mental-rotation') {
         // for testing
         if (!trialInfo.choices.length) {
             return Array(2).fill(0).map((_, i) => `<img src='https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc' alt='something' />`)
@@ -163,6 +174,18 @@ function getButtonHtml(task, trialType) {
 
 function doOnLoad(task, trialType) { 
     const stim = store.session.get("nextStimulus") 
+    const currentTrialIndex = jsPsych.getProgress().current_trial_global;
+    const twoTrialsAgoIndex = currentTrialIndex - 2;
+    const twoTrialsAgoStimulus = jsPsych.data.get().filter({trial_index: twoTrialsAgoIndex}).values();
+    console.log(twoTrialsAgoStimulus);
+    console.log(stim.trialType);
+    if ( twoTrialsAgoStimulus != undefined && stim.trialType === twoTrialsAgoStimulus[0]?.corpusTrialType ) {
+        trialsOfCurrentType += 1;
+    } else {
+        trialsOfCurrentType = 0;
+    }
+    
+    trialsOfCurrentType += 1
     // console.log({stim})
     if (stim.trialType !== 'instructions') {
         const { buttonLayout, keyHelpers } = store.session.get("config")
@@ -361,6 +384,7 @@ function doOnFinish(data, task) {
             distractors: stimulus.distractors,
             response: store.session("responseValue"),
             responseType: store.session('responseType'),
+            corpusTrialType: stimulus.trialType
         });
 
         // console.log('data: ', jsPsych.data.get().last(1).values()[0])
@@ -425,7 +449,7 @@ export const afcCondtional = ({trialType, responseAllowed, promptAboveButtons, t
 
                 // get data from 2 trials ago
                 const twoTrialsAgoStimulus = jsPsych.data.get().filter({trial_index: twoTrialsAgoIndex}).values();
-                const previousStimulus = jsPsych.data.get().filter({trial_index: twoTrialsAgoIndex + 1}).values();;
+                const previousStimulus = jsPsych.data.get().filter({trial_index: twoTrialsAgoIndex + 1}).values();
                 const isTwoTrialsAgoStimCorrect = twoTrialsAgoStimulus[0].correct;
                 const isPreviousStimulusCorrect = previousStimulus[0].correct;
                 // console.log('twoTrialsAgoStimulus: ', twoTrialsAgoStimulus)

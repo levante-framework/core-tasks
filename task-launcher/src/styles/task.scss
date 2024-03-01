@@ -123,7 +123,7 @@
 
         #stimulus-img {
           padding-bottom: 3rem;
-          width: 32vw;
+          width: 32vw; // 32% of viewport
         }
       }
 
@@ -302,7 +302,7 @@
       }
 
       .img-btn {
-        background-color: transparent;
+        background-color: white;
         border: black solid 3px;
         border-radius: .5rem;
         cursor: pointer;
