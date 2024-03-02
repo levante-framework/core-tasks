@@ -8,12 +8,10 @@ let selectedCards = [];
 export const afcMatch = {
   type: JsPsychHTMLMultiResponse,
   stimulus: () => {
-    return (
-      `<div>
+    return `<div>
         <h1 id='prompt'>Touch two pictures that are the same in a different way.</h1>
       </div>
-      `
-    )
+      `;
   },
   on_load: () => {
     // create img elements and arrange in grid as cards
@@ -35,27 +33,28 @@ export const afcMatch = {
       card.id = `card-${i}`;
 
       const img = document.createElement('img');
-      img.src = mediaAssets.images[stimulus.distractors[i]] || `https://imgs.search.brave.com/wH6NX0ADUKmdx5h4d9Tho1WEpa3NBj2USMxzllhYDFc/rs:fit:860:0:0/g:ce/aHR0cHM6Ly90My5m/dGNkbi5uZXQvanBn/LzAxLzk1LzcwLzUw/LzM2MF9GXzE5NTcw/NTAxM19NcW5YZFIx/dUV4dW5xazJjSldm/Z2hZbXE3ZTBwbmJz/ei5qcGc`;
+      img.src =
+        mediaAssets.images[stimulus.distractors[i]] ||
+        `https://imgs.search.brave.com/wH6NX0ADUKmdx5h4d9Tho1WEpa3NBj2USMxzllhYDFc/rs:fit:860:0:0/g:ce/aHR0cHM6Ly90My5m/dGNkbi5uZXQvanBn/LzAxLzk1LzcwLzUw/LzM2MF9GXzE5NTcw/NTAxM19NcW5YZFIx/dUV4dW5xazJjSldm/Z2hZbXE3ZTBwbmJz/ei5qcGc`;
       img.alt = 'stimulus';
-      
+
       card.dataset.id = stimulus.distractors[i] || i;
 
       card.addEventListener('click', () => {
-          if (card.classList.contains('selected')) {
-            card.classList.remove('selected');
-            selectedCards.splice(selectedCards.indexOf(card.dataset.id), 1);
-          } else {
-            card.classList.add('selected');
-            selectedCards.push(card.dataset.id);
-          }
-          console.log(selectedCards);
+        if (card.classList.contains('selected')) {
+          card.classList.remove('selected');
+          selectedCards.splice(selectedCards.indexOf(card.dataset.id), 1);
+        } else {
+          card.classList.add('selected');
+          selectedCards.push(card.dataset.id);
         }
-      );
+        console.log(selectedCards);
+      });
 
       card.appendChild(img);
       cardContainer.appendChild(card);
     }
-    
+
     jsPsychContent.appendChild(cardContainer);
 
     // create continue button
@@ -81,5 +80,5 @@ export const afcMatch = {
     });
 
     selectedCards = [];
-  }
-}
+  },
+};

@@ -1,21 +1,21 @@
-import jsPsychFullScreen from "@jspsych/plugin-fullscreen";
-import fscreen from "fscreen";
-import i18next from "i18next";
-import "../../../i18n/i18n";
+import jsPsychFullScreen from '@jspsych/plugin-fullscreen';
+import fscreen from 'fscreen';
+import i18next from 'i18next';
+import '../../../i18n/i18n';
 
 export const enterFullscreen = {
   type: jsPsychFullScreen,
   fullscreen_mode: true,
   message: () =>
     `<div id='fullscreen'>
-      <h1>${i18next.t("fullScreenTrial.prompt") || 'Translations needed'}</h1>
+      <h1>${i18next.t('fullScreenTrial.prompt') || 'Translations needed'}</h1>
      </div>`,
   delay_after: 0,
-  button_label: () => `${i18next.t("fullScreenTrial.buttonText")}`,
+  button_label: () => `${i18next.t('fullScreenTrial.buttonText')}`,
   on_start: () => {
-    document.body.style.cursor = "default";
+    document.body.style.cursor = 'default';
   },
-}
+};
 
 export const ifNotFullscreen = {
   timeline: [enterFullscreen],

@@ -1,5 +1,5 @@
-import jsPsychHTMLMultiResponse from "@jspsych-contrib/plugin-html-multi-response";
-import { getStimulus } from "../helpers";
+import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
+import { getStimulus } from '../helpers';
 
 // choosing the next stimulus from the corpus occurs during the fixation trial
 // prior to the actual display of the stimulus, where user response is collected
@@ -7,12 +7,12 @@ import { getStimulus } from "../helpers";
 const setupData = [
   {
     onFinish: () => {
-      getStimulus("practice");
+      getStimulus('practice');
     },
   },
   {
     onFinish: () => {
-      getStimulus("stimulus");
+      getStimulus('stimulus');
     },
   },
 ];
@@ -23,17 +23,16 @@ const setupTrials = setupData.map((trial, i) => {
     stimulus: `<div id='fixation-container'>
                 <p>+</p>
               </div>`,
-    prompt: "",
-    choices: "NO_KEYS",
+    prompt: '',
+    choices: 'NO_KEYS',
     trial_duration: 350,
 
     data: {
-      task: "fixation",
+      task: 'fixation',
     },
     on_finish: trial.onFinish,
   };
 });
-
 
 export const setupPractice = setupTrials[0];
 export const setupStimulus = setupTrials[1];
