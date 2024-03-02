@@ -269,7 +269,7 @@ function doOnLoad(task, trialType) {
             }
 
 
-            if (task === 'matrix-reasoning' || task === 'theory-of-mind') {
+            if (task === 'matrix-reasoning' || task === 'theory-of-mind' || task === 'mental-rotation') {
                 el.children[0].classList.add('img-btn')
             }
 
