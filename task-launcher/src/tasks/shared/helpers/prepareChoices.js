@@ -5,7 +5,6 @@ import { mediaAssets } from '../../..';
 export const prepareChoices = (target, distractors, randomizeOrder = true) => {
   console.log({ distractors });
 
-  let choices = [target, ...distractors]; // Always include target in the choices
   // Filter out target from the distractors if it's already listed
   const filteredDistractors = distractors.filter(distractor => distractor !== target);
   let choices = [target, ...filteredDistractors]; // include target in options
