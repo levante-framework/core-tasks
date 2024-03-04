@@ -1,15 +1,27 @@
 import 'regenerator-runtime/runtime';
 import store from 'store2';
 // setup
-import { getStimulusCount, initTrialSaving, initTimeline, createPreloadTrials } from '../shared/helpers';
+import { getStimulusCount, initTrialSaving, initTimeline, createPreloadTrials, isPractice } from '../shared/helpers';
 import { jsPsych, initializeCat } from '../taskSetup';
 // trials
-import { ifRealTrialResponse } from './trials/afcStimulus';
 import { afcStimulus } from '../shared/trials/afcStimulus';
 import { slider } from './trials/sliderStimulus';
 import { exitFullscreen } from '../shared/trials';
 import { setupPractice, setupStimulus } from '../shared/trials';
 import { instructions1, instructions2, postPractice, taskFinished } from './trials/instructions';
+import { audioResponse } from './trials/audioFeedback';
+
+const ifRealTrialResponse = {
+  timeline: [audioResponse],
+
+  conditional_function: () => {
+    const subTask = store.session.get("nextStimulus").notes;
+    if (isPractice(subTask)) {
+      return false;
+    }
+    return true;
+  },
+};
 
 export default function buildMathTimeline(config, mediaAssets) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;

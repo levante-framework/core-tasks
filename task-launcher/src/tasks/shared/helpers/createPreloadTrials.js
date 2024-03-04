@@ -43,7 +43,7 @@ export function createPreloadTrials(categorizedObjects, blocks = []) {
 function createJsPsychPreloadObject() {
   return {
     type: jsPsychPreload,
-    message: 'The experiment is loading',
+    // message: 'The experiment is loading',
     show_progress_bar: true,
     continue_after_error: false,
     error_message: '',

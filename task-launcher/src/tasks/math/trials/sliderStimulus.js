@@ -3,7 +3,7 @@ import _shuffle from 'lodash/shuffle';
 import _toNumber from 'lodash/toNumber';
 import { jsPsych } from '../../taskSetup';
 import store from 'store2';
-import { isPractice, updateProgressBar } from '../../shared/helpers';
+import { isPractice, } from '../../shared/helpers';
 
 let chosenAnswer,
   sliderStart,
@@ -217,9 +217,5 @@ export const slider = {
     });
 
     console.log('data: ', data);
-
-    if (!isPractice(stimulus.notes)) {
-      updateProgressBar();
-    }
   },
 };
