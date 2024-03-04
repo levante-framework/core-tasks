@@ -31,7 +31,7 @@ export default function buildMatrixTimeline(config, mediaAssets) {
     timeline: [
       setupStimulus,
       afcCondtional({
-        trialType: 'html',
+        trialType: 'audio',
         responseAllowed: true,
         promptAboveButtons: true,
         task: config.task,
