@@ -21,9 +21,7 @@ export const initializeCat = () => {
 };
 
 export const jsPsych = initJsPsych({
-  show_progress_bar: true,
-  auto_update_progress_bar: false,
-  message_progress_bar: `${i18next.t('progressBar')}`,
+  on_load: () => console.log('jsPsych loaded'),
   on_finish: () => {
     // navigate to prolific page
     // swap url
