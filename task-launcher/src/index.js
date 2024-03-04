@@ -1,10 +1,10 @@
-import store from "store2";
-import { isTaskFinished } from "./tasks/shared/helpers";
-import "./styles/task.scss";
-import taskConfig from './tasks/taskConfig'
-import { getMediaAssets, dashToCamelCase } from "./tasks/shared/helpers";
+import store from 'store2';
+import { isTaskFinished } from './tasks/shared/helpers';
+import './styles/task.scss';
+import taskConfig from './tasks/taskConfig';
+import { getMediaAssets, dashToCamelCase } from './tasks/shared/helpers';
 
-export let mediaAssets
+export let mediaAssets;
 export class TaskLauncher {
   constructor(firekit, gameParams, userParams, displayElement) {
     this.gameParams = gameParams;
@@ -16,43 +16,33 @@ export class TaskLauncher {
   async init() {
     await this.firekit.startRun();
 
-    const { taskName, language } = this.gameParams
+    const { taskName, language } = this.gameParams;
 
-    const { 
-      initConfig, 
-      initStore, 
-      loadCorpus, 
-      buildTaskTimeline, 
-      getTranslations 
-    } = taskConfig[dashToCamelCase(taskName)]
+    const { initConfig, initStore, loadCorpus, buildTaskTimeline, getTranslations } =
+      taskConfig[dashToCamelCase(taskName)];
 
     // GCP bucket names use a format like egma-math
     // will avoid language folder if not provided
     if (taskName !== 'memory-game') {
       // console.log({ taskName, })
       mediaAssets = await getMediaAssets(taskName, {}, language);
-      console.log({ mediaAssets })
+      console.log({ mediaAssets });
     }
 
     // TODO
     // const translations = await getTranslations(language)
 
-    const config = await initConfig(
-      this.firekit,
-      this.gameParams,
-      this.userParams,
-      this.displayElement,
-    );
-    
-    initStore()
+    const config = await initConfig(this.firekit, this.gameParams, this.userParams, this.displayElement);
 
-    store.session.set("config", config);
+    initStore();
+
+    store.session.set('config', config);
 
     // TODO: make hearts and flowers corpus
     if (taskName !== 'hearts-and-flowers' && taskName !== 'memory-game') {
       await loadCorpus(config);
     }
-  
+
     return buildTaskTimeline(config, mediaAssets);
   }
 

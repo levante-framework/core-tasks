@@ -1,12 +1,12 @@
-const path = require("path");
-const webpack = require("webpack");
-const { merge } = require("webpack-merge");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
+const path = require('path');
+const webpack = require('webpack');
+const { merge } = require('webpack-merge');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const commonConfig = {
   optimization: {
-    moduleIds: "deterministic",
-    runtimeChunk: "single",
+    moduleIds: 'deterministic',
+    runtimeChunk: 'single',
     splitChunks: {
       cacheGroups: {
         vendor: {
@@ -17,16 +17,16 @@ const commonConfig = {
             const packageName = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/)[1];
 
             // npm package names are URL-safe, but some servers don't like @ symbols
-            return `npm.${packageName.replace("@", "")}`;
+            return `npm.${packageName.replace('@', '')}`;
           },
-          chunks: "all",
+          chunks: 'all',
         },
       },
     },
   },
   resolve: {
     fallback: {
-      path: require.resolve("path-browserify"),
+      path: require.resolve('path-browserify'),
     },
   },
   module: {
@@ -39,23 +39,23 @@ const commonConfig = {
       },
       {
         test: /\.scss$/i,
-        use: ["style-loader", "css-loader", "sass-loader"],
+        use: ['style-loader', 'css-loader', 'sass-loader'],
       },
       {
         test: /\.(png|svg|jpg|jpeg|gif)$/i,
-        type: "asset/resource",
+        type: 'asset/resource',
         generator: {
-          filename: "img/[name][ext]",
+          filename: 'img/[name][ext]',
         },
       },
       {
         test: /\.mp3$/,
         use: [
           {
-            loader: "file-loader",
+            loader: 'file-loader',
             options: {
-              name: "[path][name].[ext]",
-              outputPath: "audio",
+              name: '[path][name].[ext]',
+              outputPath: 'audio',
             },
           },
         ],
@@ -64,10 +64,10 @@ const commonConfig = {
         test: /\.mp4$/,
         use: [
           {
-            loader: "file-loader",
+            loader: 'file-loader',
             options: {
-              name: "[name].[ext]",
-              outputPath: "video",
+              name: '[name].[ext]',
+              outputPath: 'video',
             },
           },
         ],
@@ -76,7 +76,7 @@ const commonConfig = {
         test: /\.csv$/,
         use: [
           {
-            loader: "csv-loader",
+            loader: 'csv-loader',
             options: {
               header: true,
               dynamicTyping: true,
@@ -94,36 +94,36 @@ const commonConfig = {
 
 const webConfig = merge(commonConfig, {
   entry: {
-    index: path.resolve(__dirname, "serve", "serve.js"),
+    index: path.resolve(__dirname, 'serve', 'serve.js'),
   },
   output: {
-    filename: "[name].[contenthash].bundle.js",
-    path: path.resolve(__dirname, "dist"),
+    filename: '[name].[contenthash].bundle.js',
+    path: path.resolve(__dirname, 'dist'),
     clean: {
       keep: /\.git/,
     },
   },
   plugins: [
     new HtmlWebpackPlugin({
-      title: "LEVANTE core tasks",
+      title: 'LEVANTE core tasks',
     }),
   ],
 });
 
 const productionConfig = merge(webConfig, {
-  mode: "production",
+  mode: 'production',
 });
 
 const developmentConfig = merge(webConfig, {
-  mode: "development",
-  devtool: "inline-source-map",
+  mode: 'development',
+  devtool: 'inline-source-map',
   devServer: {
-    static: "./dist",
+    static: './dist',
   },
 });
 
 module.exports = async (env, args) => {
-  const dbEnv = env.dbmode === "production" ? "production" : "development";
+  const dbEnv = env.dbmode === 'production' ? 'production' : 'development';
 
   const envDependentConfig = {
     plugins: [
@@ -132,17 +132,17 @@ module.exports = async (env, args) => {
         ENV: JSON.stringify(dbEnv),
       }),
       new webpack.ProvidePlugin({
-        process: "process/browser",
+        process: 'process/browser',
       }),
     ],
   };
 
   switch (args.mode) {
-    case "development":
+    case 'development':
       return merge(developmentConfig, envDependentConfig);
-    case "production":
+    case 'production':
       return merge(productionConfig, envDependentConfig);
     default:
-      throw new Error("No matching configuration was found!");
+      throw new Error('No matching configuration was found!');
   }
 };

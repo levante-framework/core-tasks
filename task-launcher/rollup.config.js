@@ -1,13 +1,12 @@
-import commonjs from "@rollup/plugin-commonjs";
-import dsv from "@rollup/plugin-dsv";
-import json from "@rollup/plugin-json";
-import terser from "@rollup/plugin-terser";
-import { nodeResolve } from "@rollup/plugin-node-resolve";
-import postcss from "rollup-plugin-postcss";
-
+import commonjs from '@rollup/plugin-commonjs';
+import dsv from '@rollup/plugin-dsv';
+import json from '@rollup/plugin-json';
+import terser from '@rollup/plugin-terser';
+import { nodeResolve } from '@rollup/plugin-node-resolve';
+import postcss from 'rollup-plugin-postcss';
 
 export default {
-  input: "src/index.js",
+  input: 'src/index.js',
   plugins: [
     postcss({
       inject: true, // This will inject the CSS to the HTML document
@@ -22,11 +21,11 @@ export default {
   ],
   output: [
     {
-      dir: "lib",
-      name: "core-tasks",
-      entryFileNames: "[name].[hash].js",
-      chunkFileNames: "[name].[hash].js",
-      format: "es",
+      dir: 'lib',
+      name: 'core-tasks',
+      entryFileNames: '[name].[hash].js',
+      chunkFileNames: '[name].[hash].js',
+      format: 'es',
     },
   ],
 };

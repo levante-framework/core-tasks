@@ -1,8 +1,8 @@
-import jsPsychAudioMultiResponse from "@jspsych-contrib/plugin-audio-multi-response";
-import store from "store2";
-import { mediaAssets } from "../../..";
-import "../../../i18n/i18n";
-import { isPractice } from "../helpers";
+import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
+import store from 'store2';
+import { mediaAssets } from '../../..';
+import '../../../i18n/i18n';
+import { isPractice } from '../helpers';
 
 export const practiceIncorrectFeedback = {
   type: jsPsychAudioMultiResponse,
@@ -10,29 +10,27 @@ export const practiceIncorrectFeedback = {
   stimulus: () => mediaAssets.audio.nullAudio,
   prompt: () => `
   <div>
-    <p class="prompt">${ store.session.get("nextStimulus").prompt }</p>
+    <p class="prompt">${store.session.get('nextStimulus').prompt}</p>
     <br>
-    <p class="stimulus">${ store.session.get("nextStimulus").item }</p>
+    <p class="stimulus">${store.session.get('nextStimulus').item}</p>
   </div>`,
   prompt_above_buttons: true,
   trial_ends_after_audio: false,
   trial_duration: 500000,
-  button_choices: () => store.session.get("choices"), 
+  button_choices: () => store.session.get('choices'),
   on_load: () => {
-    const btnOption = store.session.get("config").buttonLayout;
-    document
-      .getElementById("jspsych-audio-multi-response-btngroup")
-      .classList.add(`${btnOption}-layout`);
+    const btnOption = store.session.get('config').buttonLayout;
+    document.getElementById('jspsych-audio-multi-response-btngroup').classList.add(`${btnOption}-layout`);
 
-    const target = store.session.get("target");
+    const target = store.session.get('target');
 
-    const buttons = document.querySelectorAll(".feedback-btn");
+    const buttons = document.querySelectorAll('.feedback-btn');
 
     buttons.forEach((button) => {
       if (button.textContent.trim() === target) {
-        button.classList.add("glowingButton");
+        button.classList.add('glowingButton');
       } else {
-        button.parentElement.classList.add("disabled-btn");
+        button.parentElement.classList.add('disabled-btn');
       }
     });
   },
@@ -43,13 +41,13 @@ export const ifPracticeCorrect = {
   timeline: () => [storyByLabel.practiceCorrect],
   conditional_function: () => {
     // doesn't apply to real trials
-    const subTaskName = store.session("subTaskName");
+    const subTaskName = store.session('subTaskName');
     if (!isPractice(subTaskName)) {
       return false;
     }
 
     // check for correct response
-    if (store.session.get("correct") === 1) {
+    if (store.session.get('correct') === 1) {
       return true;
     }
     return false;
@@ -60,13 +58,13 @@ export const ifPracticeIncorrect = {
   timeline: [practiceIncorrectFeedback],
   conditional_function: () => {
     // doesn't apply to real trials
-    const subTaskName = store.session("subTaskName");
+    const subTaskName = store.session('subTaskName');
     if (!isPractice(subTaskName)) {
       return false;
     }
 
     // check for correct response
-    if (store.session.get("correct") === 0) {
+    if (store.session.get('correct') === 0) {
       return true;
     }
     return false;

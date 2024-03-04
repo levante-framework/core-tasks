@@ -1,29 +1,24 @@
-import "regenerator-runtime/runtime";
-import store from "store2";
+import 'regenerator-runtime/runtime';
+import store from 'store2';
 // setup
-import {
-  getStimulusCount,
-  initTrialSaving,
-  initTimeline,
-  createPreloadTrials,
-} from "../shared/helpers";
-import { jsPsych, initializeCat } from "../taskSetup";
+import { getStimulusCount, initTrialSaving, initTimeline, createPreloadTrials } from '../shared/helpers';
+import { jsPsych, initializeCat } from '../taskSetup';
 // trials
-import { ifRealTrialResponse, } from "./trials/afcStimulus";
-import { afcStimulus } from "../shared/trials/afcStimulus";
-import { slider } from "./trials/sliderStimulus";
-import { exitFullscreen } from "../shared/trials";
-import { setupPractice, setupStimulus, } from "../shared/trials";
-import { instructions1, instructions2, postPractice, taskFinished } from "./trials/instructions";
+import { ifRealTrialResponse } from './trials/afcStimulus';
+import { afcStimulus } from '../shared/trials/afcStimulus';
+import { slider } from './trials/sliderStimulus';
+import { exitFullscreen } from '../shared/trials';
+import { setupPractice, setupStimulus } from '../shared/trials';
+import { instructions1, instructions2, postPractice, taskFinished } from './trials/instructions';
 
 export default function buildMathTimeline(config, mediaAssets) {
-  const preloadTrials = createPreloadTrials(mediaAssets).default
+  const preloadTrials = createPreloadTrials(mediaAssets).default;
 
   initTrialSaving(config);
-  const initialTimeline = initTimeline(config); 
+  const initialTimeline = initTimeline(config);
 
   const timeline = [
-    preloadTrials, 
+    preloadTrials,
     initialTimeline,
     // instructions1, // for adult pilot, not kids
     // instructions2,
@@ -31,61 +26,47 @@ export default function buildMathTimeline(config, mediaAssets) {
 
   const afcStimulusBlock = {
     timeline: [
-      afcStimulus ({
+      afcStimulus({
         trialType: 'audio', // or 'html'
         responseAllowed: true,
         promptAboveButtons: true,
-        task: config.task
-      })
+        task: config.task,
+      }),
     ],
-    conditional_function: () => !store.session.get('nextStimulus').trialType.includes('Number Line')
-  }
+    conditional_function: () => !store.session.get('nextStimulus').trialType.includes('Number Line'),
+  };
 
   const sliderBlock = {
     timeline: [slider],
-    conditional_function: () => store.session.get('nextStimulus').trialType.includes('Number Line')
-  }
+    conditional_function: () => store.session.get('nextStimulus').trialType.includes('Number Line'),
+  };
 
-  const pushSubTaskToTimeline = (
-    fixationAndSetupBlock,
-    stimulusCounts,
-    trialType,
-  ) => {
+  const pushSubTaskToTimeline = (fixationAndSetupBlock, stimulusCounts, trialType) => {
     // loop through the list of trials per block within the subtest
     for (let i = 0; i < stimulusCounts.length; i++) {
       // add trials to the block (this is the core procedure for each trial)
       let surveyBlock;
 
-      if (trialType === "practice") {
+      if (trialType === 'practice') {
         surveyBlock = {
-          timeline: [
-            fixationAndSetupBlock,
-            afcStimulusBlock,
-            sliderBlock,
-            ifRealTrialResponse,
-          ],
+          timeline: [fixationAndSetupBlock, afcStimulusBlock, sliderBlock, ifRealTrialResponse],
           conditional_function: () => {
             if (stimulusCounts[i] === 0) {
               return false;
             }
-            store.session.set("currentBlockIndex", i);
+            store.session.set('currentBlockIndex', i);
             return true;
           },
           repetitions: stimulusCounts[i],
         };
       } else {
         surveyBlock = {
-          timeline: [
-            fixationAndSetupBlock,
-            afcStimulusBlock,
-            sliderBlock,
-            ifRealTrialResponse,
-          ],
+          timeline: [fixationAndSetupBlock, afcStimulusBlock, sliderBlock, ifRealTrialResponse],
           conditional_function: () => {
             if (stimulusCounts[i] === 0) {
               return false;
             }
-            store.session.set("currentBlockIndex", i);
+            store.session.set('currentBlockIndex', i);
             return true;
           },
           repetitions: stimulusCounts[i],
@@ -94,7 +75,6 @@ export default function buildMathTimeline(config, mediaAssets) {
 
       timeline.push(surveyBlock);
     }
-
   };
 
   initializeCat();
@@ -107,13 +87,9 @@ export default function buildMathTimeline(config, mediaAssets) {
 
   // timeline.push(postPractice)
 
-  pushSubTaskToTimeline(
-    setupStimulus,
-    getStimulusCount(),
-    "stimulus",
-  ); // Stimulus Trials
+  pushSubTaskToTimeline(setupStimulus, getStimulusCount(), 'stimulus'); // Stimulus Trials
 
-  timeline.push(taskFinished)
+  timeline.push(taskFinished);
 
   timeline.push(exitFullscreen);
 

@@ -1,6 +1,5 @@
-
 export const isPractice = (currentSubTask) => {
-  if (currentSubTask === "practice") {
+  if (currentSubTask === 'practice') {
     return true;
   }
   return false;

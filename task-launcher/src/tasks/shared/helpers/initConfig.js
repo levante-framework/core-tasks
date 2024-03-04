@@ -1,9 +1,9 @@
 // Used in Math and Matrix-reasoning so far
-import _omitBy from "lodash/omitBy";
-import _isNull from "lodash/isNull";
-import _isUndefined from "lodash/isUndefined";
-import i18next from "i18next";
-import { camelize } from "@bdelab/roar-utils";
+import _omitBy from 'lodash/omitBy';
+import _isNull from 'lodash/isNull';
+import _isUndefined from 'lodash/isUndefined';
+import i18next from 'i18next';
+import { camelize } from '@bdelab/roar-utils';
 
 const defaultCorpus = {
   egmaMath: 'math-item-bank',
@@ -12,14 +12,9 @@ const defaultCorpus = {
   sameDifferentSelection: 'same-different-selection-item-bank',
   trog: 'trog-item-bank',
   theoryOfMind: 'theory-of-mind-item-bank',
-}
+};
 
-export const initSharedConfig = async (
-  firekit,
-  gameParams,
-  userParams,
-  displayElement,
-) => {
+export const initSharedConfig = async (firekit, gameParams, userParams, displayElement) => {
   const cleanParams = _omitBy(_omitBy({ ...gameParams, ...userParams }, _isNull), _isUndefined);
 
   const {
@@ -36,15 +31,14 @@ export const initSharedConfig = async (
     stimulusBlocks,
     numOfPracticeTrials,
     keyHelpers,
-    age
+    age,
     // storyCorpus,
     // story,
   } = cleanParams;
 
-
   const config = {
     userMetadata: { ...userMetadata, age },
-    audioFeedback: audioFeedback || "neutral",
+    audioFeedback: audioFeedback || 'neutral',
     skipInstructions: skipInstructions ?? true,
     startTime: new Date(),
     firekit,
@@ -53,19 +47,19 @@ export const initSharedConfig = async (
     sequentialStimulus: sequentialStimulus ?? true,
     // name of the csv files in the storage bucket
     corpus: corpus,
-    buttonLayout: buttonLayout || "default",
+    buttonLayout: buttonLayout || 'default',
     numberOfTrials: numberOfTrials ?? 20,
     task: taskName ?? 'egma-math',
     stimulusBlocks: stimulusBlocks ?? 3,
     numOfPracticeTrials: numOfPracticeTrials ?? 2,
     keyHelpers: keyHelpers ?? true,
-    language: i18next.language
+    language: i18next.language,
     // storyCorpus: storyCorpus ?? 'story-lion',
     // story: story ?? false,
   };
 
   // default corpus if nothing is passed in
-  if (!config.corpus) config.corpus = defaultCorpus[camelize(taskName)]
+  if (!config.corpus) config.corpus = defaultCorpus[camelize(taskName)];
 
   const updatedGameParams = Object.fromEntries(
     Object.entries(gameParams).map(([key, value]) => [key, config[key] ?? value]),

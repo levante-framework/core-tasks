@@ -10,7 +10,6 @@ import { mediaAssets } from "../../..";
 import _toNumber from 'lodash/toNumber'
 import { camelize } from "@bdelab/roar-utils";
 import { getDevice } from "@bdelab/roar-utils";
-import { t } from "i18next";
 
 const isMobile = getDevice() === 'mobile'
 
@@ -107,12 +106,15 @@ function getStimulus(trialType) {
                                  stim.prompt : ''}
                 </p>
                 <br>
-                <img id="stimulus-img" src=${ mediaAssets.images[store.session.get('nextStimulus').item] || mediaAssets.images['blank'] }  alt=${ store.session.get('nextStimulus').image || `Stimulus` }/>
+                <img 
+                  id="stimulus-img" 
+                  src=${ mediaAssets.images[stim.item] || mediaAssets.images['blank'] }
+                  alt=${ stim.item || `Stimulus` }
+                />
             </div>`
         )
     }
 }
-
 
 
 function getButtonChoices(task, trialType) {
