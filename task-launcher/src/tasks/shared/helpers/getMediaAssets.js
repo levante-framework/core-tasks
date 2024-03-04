@@ -1,10 +1,9 @@
-import { getDevice } from "@bdelab/roar-utils";
+import { getDevice } from '@bdelab/roar-utils';
 // Grab by device, check nested shared
 
 // How to use whitelist: The key is the parent folder, the value is the actual (child) folder to whitelist
 // This is because we need to know the folder in which to whitelist
 // The value is an array of strings (folder names)
-
 
 // TODO:
 // 1. Add search device folder after language code folder
@@ -14,19 +13,18 @@ const wlist = {
   // desktop: ['ai1', 'anotherOne'],
   // ai1: ['woman']
 
-
   desktop: {
     ai1: ['women'],
     ai2: ['robotImages'],
     ai3: {
       animals: {
         mamals: {
-          color: ['brown', 'orange']
-        }
-      }
-    }
+          color: ['brown', 'orange'],
+        },
+      },
+    },
   },
-}
+};
 
 // export async function getMediaAssets(bucketName, whitelist = {}, language, nextPageToken = '', categorizedObjects = { images: {}, audio: {}, video: {} }) {
 //   const device = getDevice()
@@ -66,7 +64,13 @@ const wlist = {
 //   }
 // }
 
-export async function getMediaAssets(bucketName, whitelist = {}, language, nextPageToken = '', categorizedObjects = { images: {}, audio: {}, video: {} }) {
+export async function getMediaAssets(
+  bucketName,
+  whitelist = {},
+  language,
+  nextPageToken = '',
+  categorizedObjects = { images: {}, audio: {}, video: {} },
+) {
   const device = getDevice();
 
   const baseUrl = `https://storage.googleapis.com/storage/v1/b/${bucketName}/o`;
@@ -75,11 +79,10 @@ export async function getMediaAssets(bucketName, whitelist = {}, language, nextP
     url += `?pageToken=${nextPageToken}`;
   }
 
-
   const response = await fetch(url);
   const data = await response.json();
 
-  data.items.forEach(item => {
+  data.items.forEach((item) => {
     if (isLanguageAndDeviceValid(item.name, language, device) && isWhitelisted(item.name, whitelist)) {
       const contentType = item.contentType;
       const id = item.name;
@@ -122,20 +125,19 @@ function isLanguageAndDeviceValid(filePath, languageCode, device) {
 function isWhitelisted(filePath, whitelist) {
   const parts = filePath.split('/');
   for (const [parent, children] of Object.entries(whitelist)) {
-      const parentIndex = parts.indexOf(parent);
-      if (parentIndex !== -1 && parts.length > parentIndex + 1) {
-          const childFolder = parts[parentIndex + 1];
-          if (children.includes(childFolder)) {
-              return true;
-          } else {
-              return false; // Whitelist applies, but this folder is not allowed
-          }
+    const parentIndex = parts.indexOf(parent);
+    if (parentIndex !== -1 && parts.length > parentIndex + 1) {
+      const childFolder = parts[parentIndex + 1];
+      if (children.includes(childFolder)) {
+        return true;
+      } else {
+        return false; // Whitelist applies, but this folder is not allowed
       }
+    }
   }
   return true; // Whitelist does not apply to this file's level
 }
-  
-  
+
 // function isLanguageCodeValid(filePath, languageCode) {
 //   const parts = filePath.split('/');
 //   if (parts.length > 1) {
@@ -145,5 +147,5 @@ function isWhitelisted(filePath, whitelist) {
 // }
 
 function convertToCamelCase(str) {
-  return str.replace(/[-_\.]+(.)?/g, (_, c) => c ? c.toUpperCase() : '').replace(/^(.)/, c => c.toLowerCase());
+  return str.replace(/[-_\.]+(.)?/g, (_, c) => (c ? c.toUpperCase() : '')).replace(/^(.)/, (c) => c.toLowerCase());
 }
