@@ -5,7 +5,7 @@ import jsPsychAudioMultiResponse from "@jspsych-contrib/plugin-audio-multi-respo
 import jsPsychHTMLMultiResponse from "@jspsych-contrib/plugin-html-multi-response"
 import store from "store2";
 import { jsPsych } from "../../taskSetup";
-import { prepareChoices, updateProgressBar, addItemToSortedStoreList, isPractice } from "../../shared/helpers";
+import { prepareChoices, addItemToSortedStoreList, isPractice } from "../../shared/helpers";
 import { mediaAssets } from "../../..";
 import _toNumber from 'lodash/toNumber'
 import { camelize } from "@bdelab/roar-utils";
@@ -401,9 +401,6 @@ function doOnFinish(data, task) {
 
         // console.log('data: ', jsPsych.data.get().last(1).values()[0])
 
-        if (!isPractice(stimulus.notes)) {
-            updateProgressBar();
-        }
     } else {
         jsPsych.data.addDataToLastTrial({
         // false because it's not a real trial
