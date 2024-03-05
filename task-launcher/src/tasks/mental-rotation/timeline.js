@@ -18,10 +18,10 @@ export default function buildMentalRotationTimeline(config, mediaAssets) {
 
   const practiceBlock = {
     timeline: [
-      setupPractice,
+      //setupPractice,
       //stimulus,
       afcStimulus({
-        trialType: 'audio', // or 'html'
+        trialType: 'html', // or 'audio' (we want all trials to have an audio instruction button, but not audio stimuli)
         responseAllowed: true,
         promptAboveButtons: true,
         task: config.task,
