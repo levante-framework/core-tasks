@@ -12,7 +12,7 @@ import { camelize } from '@bdelab/roar-utils';
 
 export let corpora;
 
-let maxStimlulusTrials = 0;
+let maxStimulusTrials = 0;
 let maxPracticeTrials = 0;
 
 let stimulusData = [],
@@ -63,7 +63,7 @@ const transformCSV = (csvInput) => {
       maxPracticeTrials += 1;
     } else {
       stimulusData.push(newRow);
-      maxStimlulusTrials += 1;
+      maxStimulusTrials += 1;
     }
   });
   // console.log(stimulusData)
@@ -109,7 +109,7 @@ export const fetchAndParseCorpus = async (config) => {
 
     try {
       await parseCSVs(urls);
-      store.session.set('maxStimulusTrials', maxStimlulusTrials);
+      store.session.set('maxStimulusTrials', maxStimulusTrials);
 
       if (numOfPracticeTrials > maxPracticeTrials) config.numOfPracticeTrials = maxPracticeTrials;
 
