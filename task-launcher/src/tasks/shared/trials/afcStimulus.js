@@ -278,12 +278,14 @@ function doOnLoad(task, trialType) {
             }
 
 
-            if (task === 'matrix-reasoning' || task === 'theory-of-mind' || task === 'mental-rotation') {
-                el.children[0].classList.add('img-btn')
+            if (task === 'matrix-reasoning' || task === 'theory-of-mind') { // || task === 'mental-rotation'
+                el.children[0].classList.add('img-btn');
             }
 
             if (task === 'trog') {
-                el.children[0].classList.add('trog-img-btn')
+                el.children[0].classList.add('trog-img-btn');
+            } else if (task === 'mental-rotation') {
+                el.children[0].classList.add('mental-rotation-img-btn');
             }
 
             if (task === 'matrix-reasoning') {

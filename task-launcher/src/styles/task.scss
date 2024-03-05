@@ -123,7 +123,7 @@
 
         #stimulus-img {
           margin-bottom: 1rem;
-          width: 32vw;
+          width: 36vw;
           border: 6px solid #0F3CAC;
           border-radius: 2rem;
         }
@@ -281,8 +281,8 @@
 
       .math-btn {
         display: flex;
-        width: 200px;
-        height: 200px;
+        width: 12rem;
+        height: 12rem;
         padding: 8px;
         justify-content: center;
         align-items: center;
@@ -293,7 +293,7 @@
         // text
         color: #fbfbfd;
         font-family: 'Noto Sans';
-        font-size: 75px;
+        font-size: 5rem;
         font-style: normal;
         font-weight: 700;
         line-height: normal;
@@ -308,8 +308,8 @@
 
         img {
           border: none;
-          width: 12rem;
-          height: 12rem;
+          width: 12vw; // 12rem
+          height: 12vw; // 12rem
           padding: 0;
           margin: 0;
           border-radius: 2rem;
@@ -443,8 +443,8 @@
 
       #replay-btn {
         position: absolute;
-        bottom: 90%;
-        right: 10%;
+        top: 20px;
+        right: 20px;
         cursor: pointer;
         // width: 8vw;
         border-radius: 1rem;
@@ -627,6 +627,22 @@
           border: none;
           width: 17rem;
           height: 17rem;
+          padding: 0;
+          margin: 0;
+          border-radius: 2rem;
+        }
+      }
+
+      // Mental Rotation buttons should be same width as stimulus-img
+      .mental-rotation-img-btn {
+        background-color: transparent;
+        border: 0px;
+        cursor: pointer;
+
+        img {
+          border: none;
+          width: 40vw;
+          height: 40vw;
           padding: 0;
           margin: 0;
           border-radius: 2rem;
