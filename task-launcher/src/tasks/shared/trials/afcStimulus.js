@@ -46,7 +46,7 @@ function getStimulus(trialType) {
 
 function getPrompt(task, trialType) { // showItem itemIsImage
     const stim = store.session.get("nextStimulus")
-    // TODO: move this elsewhere...maybe a dedicated getBackground() ?
+    console.log({stim})
 
     //if(stim.taskType === 'instructions' || stim.trialType === 'Number Identification' || stim.trialType === 'Number Comparison') showItem = false
     // <img src=${mediaAssets.images.speakerIcon} id='replay-btn' alt='speaker replay icon'/>
@@ -64,11 +64,13 @@ function getPrompt(task, trialType) { // showItem itemIsImage
                 <p id="prompt">${ stim.prompt }</p>
             </div>
 
-            <img 
-              id="stimulus-img" 
-              src=${ mediaAssets.images[stim.item] || mediaAssets.images['blank'] }
-              alt=${ stim.item || `Stimulus` }
-            />
+            ${ stim.task === 'math' ? '' :
+                `<img 
+                id="stimulus-img" 
+                src=${ mediaAssets.images[stim.item] || mediaAssets.images['blank'] }
+                alt=${ stim.item || `Stimulus` }
+                />`
+            }
         </div>`)
     }
 
@@ -318,33 +320,35 @@ function doOnLoad(task, trialType) {
         if (!isPractice(stim.notes)) {
             store.session.transact("trialNumTotal", (oldVal) => oldVal + 1);
         }
+    }
 
-        const replayBtn = document.getElementById('replay-btn');
-        if(replayBtn) {
-            let isAudioPlaying = false; // TODO: this only stops the Replay button from being used if it was already used 
-            async function replayAudio() {
-                const jsPsychAudioCtx = jsPsych.pluginAPI.audioContext();
+    const replayBtn = document.getElementById('replay-btn');
+    let isAudioPlaying = false;
 
-                if (isAudioPlaying) {
-                    return; // Exit the function if audio is already playing
-                }
-                isAudioPlaying = true;
-
-                // Returns a promise of the AudioBuffer of the preloaded file path.
-                const audioBuffer = await jsPsych.pluginAPI.getAudioBuffer(mediaAssets.audio[camelize(stim.audioFile)] || mediaAssets.audio.nullAudio);
-
-                audioSource = jsPsychAudioCtx.createBufferSource();
-                audioSource.buffer = audioBuffer;
-                audioSource.connect(jsPsychAudioCtx.destination);
-                audioSource.start(0);
-
-                audioSource.onended = () => {
-                    isAudioPlaying = false;
-                };
+    if(replayBtn) { // TODO: this only stops the Replay button from being used if it was already used 
+        async function replayAudio() {
+            if (isAudioPlaying) {
+                return; // Exit the function if audio is already playing
             }
 
-            replayBtn.addEventListener('click', replayAudio);
+            const jsPsychAudioCtx = jsPsych.pluginAPI.audioContext();
+            
+            isAudioPlaying = true;
+
+            // Returns a promise of the AudioBuffer of the preloaded file path.
+            const audioBuffer = await jsPsych.pluginAPI.getAudioBuffer(mediaAssets.audio[camelize(stim.audioFile)] || mediaAssets.audio.nullAudio);
+
+            audioSource = jsPsychAudioCtx.createBufferSource();
+            audioSource.buffer = audioBuffer;
+            audioSource.connect(jsPsychAudioCtx.destination);
+            audioSource.start(0);
+
+            audioSource.onended = () => {
+                isAudioPlaying = false;
+            };
         }
+
+        replayBtn.addEventListener('click', replayAudio);
     }
 }
 
