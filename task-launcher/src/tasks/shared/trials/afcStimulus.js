@@ -132,18 +132,19 @@ function getButtonChoices(task, trialType) {
     if (stimulus.trialType === 'instructions' || stimulus.trialType === 'instructions') {
         return ['OK']
     } 
-    const { target, distractors } = stimulus;
+    const { answer, distractors } = stimulus;
     console.log(stimulus)
-    console.log({target, distractors}) // FIXME: target is undefined in mental rotation: should be stimulus.answer
+    console.log({answer, distractors}) // FIXME: target is undefined in mental rotation: should be stimulus.answer
 
     let trialInfo;
-    if(trialType=="Mental Rotation") { // don't randomize stimulus choice order, don't add target to choices
-        trialInfo = prepareChoices(target, distractors, false);
+
+    if(stimulus.task === "Mental Rotation") { // don't randomize stimulus choice order, don't add target to choices
+        trialInfo = prepareChoices(answer, distractors, false);
     } else {
-        trialInfo = prepareChoices(target, distractors);
+        trialInfo = prepareChoices(answer, distractors);
     }
     console.log(trialInfo);
-    store.session.set("target", target);
+    store.session.set("target", answer);
     store.session.set("choices", trialInfo.choices);
 
     // GK: what is this for?
