@@ -324,7 +324,7 @@ function doOnLoad(task, trialType) {
 
     const replayBtn = document.getElementById('replay-btn');
     let isAudioPlaying = false;
-    
+
     if(replayBtn) { // TODO: this only stops the Replay button from being used if it was already used 
         async function replayAudio() {
             if (isAudioPlaying) {
