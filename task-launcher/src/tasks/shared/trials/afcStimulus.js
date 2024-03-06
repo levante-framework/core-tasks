@@ -17,6 +17,7 @@ const isMobile = getDevice() === 'mobile'
 let practiceResponses = []
 let currPracticeChoiceMix = []
 let currPracticeAnswerIdx
+let trialsOfCurrentType = 0
 
 let audioSource;
 let keyboardResponseMap = {}
@@ -24,7 +25,11 @@ let keyboardResponseMap = {}
 function getStimulus(trialType) {
     const stim = store.session.get("nextStimulus")
     // all tasks should have the replay button play whatever is in stim.audioFile (might be just prompt/instructions)
-    return mediaAssets.audio[camelize(stim.audioFile)] || mediaAssets.audio.nullAudio
+    if ( trialsOfCurrentType < 2 ) {
+        return mediaAssets.audio[camelize(stim.audioFile)];
+    } else {
+        return mediaAssets.audio.nullAudio;
+    }
 }
 
 
@@ -179,7 +184,18 @@ function getButtonHtml(task, trialType) {
 
 function doOnLoad(task, trialType) { 
     const stim = store.session.get("nextStimulus") 
+    const currentTrialIndex = jsPsych.getProgress().current_trial_global;
+    const twoTrialsAgoIndex = currentTrialIndex - 2;
+    const twoTrialsAgoStimulus = jsPsych.data.get().filter({trial_index: twoTrialsAgoIndex}).values();
+    console.log(twoTrialsAgoStimulus);
     // console.log({stim})
+    console.log(stim.trialType); // or stim.task...
+    if ( twoTrialsAgoStimulus != undefined && stim.trialType === twoTrialsAgoStimulus[0]?.corpusTrialType ) {
+        trialsOfCurrentType += 1;
+    } else {
+        trialsOfCurrentType = 0;
+    }
+    
     if (stim.trialType !== 'instructions') {
         const { buttonLayout, keyHelpers } = store.session.get("config")
         
