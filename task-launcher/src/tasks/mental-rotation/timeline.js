@@ -21,7 +21,7 @@ export default function buildMentalRotationTimeline(config, mediaAssets) {
       //setupPractice,
       //stimulus,
       afcStimulus({
-        trialType: 'html', // ToDo: 'audio' (we want all trials to have an audio instruction button, but not audio stimuli)
+        trialType: 'audio',
         responseAllowed: true,
         promptAboveButtons: true,
         task: config.task,
@@ -35,7 +35,7 @@ export default function buildMentalRotationTimeline(config, mediaAssets) {
       setupStimulus,
       //stimulus
       afcStimulus({
-        trialType: 'html', // or 'audio'
+        trialType: 'audio', 
         responseAllowed: true,
         promptAboveButtons: true,
         task: config.task,

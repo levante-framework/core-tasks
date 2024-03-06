@@ -392,7 +392,8 @@
       // ----------------------------------------------------------------------------
 
       input[type='range'] {
-        accent-color: gray;
+        //accent-color: gray;
+        background: transparent;
 
         // -webkit-appearance: none;
         // appearance: none;
@@ -401,17 +402,36 @@
         /* WebKit-specific: Chrome, Safari, new Edge */
         &::-webkit-slider-runnable-track {
           background: transparent;
+          color: black;
         }
 
         /* Firefox */
         &::-moz-range-track {
           background: transparent;
+          color: black; 
+          height: 2px;
         }
 
         /* MS Edge */
         &::-ms-track {
           background: transparent;
-          color: transparent; /* Necessary for Edge */
+          color: black; /* transparent ? Necessary for Edge */
+          height: 2px;
+        }
+
+        // Chrome, Safari, and Edge Chromium
+        &::-webkit-slider-thumb {
+          height: 20px;
+          width: 3px;
+          color: black;
+        }
+
+        // Firefox
+        ::-moz-range-thumb {
+          height: 20px;
+          width: 3px;
+          color: black;
+          border: none;
         }
       }
 

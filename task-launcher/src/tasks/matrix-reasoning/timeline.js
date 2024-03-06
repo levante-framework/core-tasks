@@ -18,7 +18,7 @@ export default function buildMatrixTimeline(config, mediaAssets) {
     timeline: [
       setupPractice,
       afcCondtional({
-        trialType: 'html', // ToDo: 'audio' (we want all trials to have an audio instruction button, but not audio stimuli)
+        trialType: 'audio', 
         responseAllowed: true,
         promptAboveButtons: true,
         task: config.task,
@@ -31,7 +31,7 @@ export default function buildMatrixTimeline(config, mediaAssets) {
     timeline: [
       setupStimulus,
       afcCondtional({
-        trialType: 'html',
+        trialType: 'audio',
         responseAllowed: true,
         promptAboveButtons: true,
         task: config.task,

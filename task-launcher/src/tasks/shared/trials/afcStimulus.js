@@ -23,25 +23,8 @@ let keyboardResponseMap = {}
 
 function getStimulus(trialType) {
     const stim = store.session.get("nextStimulus")
-    // ToDo: all tasks should have the replay button play whatever is in stim.audioFile (might be just prompt/instructions)
-    if (trialType === 'audio') {
-        return mediaAssets.audio[camelize(stim.audioFile)] || mediaAssets.audio.nullAudio
-    } else {
-        return (`
-            <div id='stimulus-container'>
-                <p id="prompt">${stim.task === 'Matrix Reasoning' &&
-                                 stim.notes === 'practice' ?
-                                 stim.prompt : ''}
-                </p>
-                <br>
-                <img 
-                  id="stimulus-img" 
-                  src=${ mediaAssets.images[stim.item] || mediaAssets.images['blank'] }
-                  alt=${ stim.item || `Stimulus` }
-                />
-            </div>`
-        )
-    }
+    // all tasks should have the replay button play whatever is in stim.audioFile (might be just prompt/instructions)
+    return mediaAssets.audio[camelize(stim.audioFile)] || mediaAssets.audio.nullAudio
 }
 
 
@@ -56,7 +39,10 @@ function getPrompt(task, trialType) { // showItem itemIsImage
         </svg>
         </div>`
     //if(stim.taskType === 'instructions' || stim.trialType === 'Number Identification' || stim.trialType === 'Number Comparison') showItem = false
-    if(stim.trialType === 'instructions') {
+    let showImageStim = false;
+    if(stim.task === 'Mental Rotation' || stim.task === 'Matrix Reasoning') showImageStim = true;
+
+    if(stim.trialType === 'instructions' || stim.task === 'instructions' || showImageStim) {
         return (`
         <div id='stimulus-container' style='width: 80%;'>` + replayButtonDiv +
             `<div id="prompt-container-text">
@@ -72,7 +58,8 @@ function getPrompt(task, trialType) { // showItem itemIsImage
             }
         </div>`)
     }
-
+    
+    // just audio - no text prompt/stimulus
     if (task === 'trog' || stim.trialType === 'Number Identification') {
       return (`
         <div id='stimulus-container'>`
