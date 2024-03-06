@@ -10,7 +10,7 @@ import { createPreloadTrials } from '../shared/helpers';
 import { afcStimulus, afcCondtional } from '../shared/trials/afcStimulus';
 import { exitFullscreen, setupPractice, setupStimulus } from '../shared/trials';
 
-export default function buildMentalRotationTimline(config, mediaAssets) {
+export default function buildMentalRotationTimeline(config, mediaAssets) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
 
   initTrialSaving(config);
@@ -18,10 +18,10 @@ export default function buildMentalRotationTimline(config, mediaAssets) {
 
   const practiceBlock = {
     timeline: [
-      setupPractice,
+      //setupPractice,
       //stimulus,
       afcStimulus({
-        trialType: 'html', // or 'audio'
+        trialType: 'html', // ToDo: 'audio' (we want all trials to have an audio instruction button, but not audio stimuli)
         responseAllowed: true,
         promptAboveButtons: true,
         task: config.task,
