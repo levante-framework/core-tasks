@@ -44,7 +44,7 @@ function getPrompt(task, trialType) { // showItem itemIsImage
 
     if(stim.trialType === 'instructions' || stim.task === 'instructions' || showImageStim) {
         return (`
-        <div id='stimulus-container' style='width: 80%;'>` + replayButtonDiv +
+        <div id='stimulus-container' style='width: 100%;'>` + replayButtonDiv +
             `<div id="prompt-container-text">
                 <p id="prompt">${ stim.prompt }</p>
             </div>
@@ -62,7 +62,7 @@ function getPrompt(task, trialType) { // showItem itemIsImage
     // just audio - no text prompt/stimulus
     if (task === 'trog' || stim.trialType === 'Number Identification') {
       return (`
-        <div id='stimulus-container'>`
+        <div id='stimulus-container' style='width: 100%;>`
         + replayButtonDiv +
         `</div>`
       )
@@ -70,7 +70,7 @@ function getPrompt(task, trialType) { // showItem itemIsImage
 
     if (task === 'theory-of-mind') {
         return (`
-        <div id='stimulus-container'>`
+        <div id='stimulus-container' style='width: 100%;>`
         + replayButtonDiv +
             `<img 
               id="stimulus-img" 
@@ -83,7 +83,7 @@ function getPrompt(task, trialType) { // showItem itemIsImage
 
     if (stim.audioFile != '') {
         return (
-            `<div id='stimulus-container'>` +
+            `<div id='stimulus-container' style='width: 100%;>` +
             replayButtonDiv + // || stim.item
                 `<div id="prompt-container-text">
                     <p id="prompt">${ stim.prompt }</p>
