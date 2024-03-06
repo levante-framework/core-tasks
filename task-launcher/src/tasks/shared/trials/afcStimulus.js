@@ -1,5 +1,5 @@
 // For Matrix reasoning, TROG, Theory of mind, Mental rotation, and EGMA Math
-// Currently works in: TROG, Theory of mind, EGMA Math,
+// Currently works in: TROG, Theory of mind, Mental Rotation, Matrix Reasoning, and EGMA Math
 
 import jsPsychAudioMultiResponse from "@jspsych-contrib/plugin-audio-multi-response";
 import jsPsychHTMLMultiResponse from "@jspsych-contrib/plugin-html-multi-response"
@@ -23,7 +23,7 @@ let keyboardResponseMap = {}
 
 function getStimulus(trialType) {
     const stim = store.session.get("nextStimulus")
-
+    // ToDo: all tasks should have the replay button play whatever is in stim.audioFile (might be just prompt/instructions)
     if (trialType === 'audio') {
         return mediaAssets.audio[camelize(stim.audioFile)] || mediaAssets.audio.nullAudio
     } else {
@@ -56,7 +56,6 @@ function getPrompt(task, trialType) { // showItem itemIsImage
         </svg>
         </div>`
     //if(stim.taskType === 'instructions' || stim.trialType === 'Number Identification' || stim.trialType === 'Number Comparison') showItem = false
-    // <img src=${mediaAssets.images.speakerIcon} id='replay-btn' alt='speaker replay icon'/>
     if(stim.trialType === 'instructions') {
         return (`
         <div id='stimulus-container' style='width: 80%;'>` + replayButtonDiv +
@@ -64,7 +63,7 @@ function getPrompt(task, trialType) { // showItem itemIsImage
                 <p id="prompt">${ stim.prompt }</p>
             </div>
 
-            ${ stim.task === 'math' ? '' :
+            ${ stim.task === 'math' || stim.task === 'TROG' ? '' :
                 `<img 
                 id="stimulus-img" 
                 src=${ mediaAssets.images[stim.item] || mediaAssets.images['blank'] }
@@ -98,9 +97,11 @@ function getPrompt(task, trialType) { // showItem itemIsImage
     if (stim.audioFile != '') {
         return (
             `<div id='stimulus-container'>` +
-            replayButtonDiv +
-                //<p id="prompt">${ stim.prompt || stim.item }</p>
-               `<br>
+            replayButtonDiv + // || stim.item
+                `<div id="prompt-container-text">
+                    <p id="prompt">${ stim.prompt }</p>
+                </div>
+                <br>
                 ${task === 'egma-math' ? 
                     `<p id="stimulus-html" style="${stim.trialType === 'Number Identification' || stim.trialType === 'Number Comparison' ? "color: transparent;" : ''}">${ stim.item }</p>`
                     :
@@ -261,7 +262,7 @@ function doOnLoad(task, trialType) {
             }
 
 
-            if (task === 'matrix-reasoning' || task === 'theory-of-mind') { // || task === 'mental-rotation'
+            if (task === 'matrix-reasoning' || task === 'theory-of-mind') { 
                 el.children[0].classList.add('img-btn');
             }
 
@@ -269,7 +270,7 @@ function doOnLoad(task, trialType) {
                 el.children[0].classList.add('trog-img-btn');
             } else if (task === 'mental-rotation') {
                 el.children[0].classList.add('mental-rotation-img-btn');
-                let img = document.getElementById('stimulus-img'); // or create task-specific stimulus-img classes/ids?
+                let img = document.getElementById('stimulus-img'); 
                 img.style.width = '15vw';
                 img.style.height = '15vw';
             }
