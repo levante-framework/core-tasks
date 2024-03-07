@@ -23,9 +23,10 @@ let audioSource;
 let keyboardResponseMap = {}
 
 function getStimulus(trialType) {
+    // ToDo: trialType (audio/html) no longer varies -- remove
     const stim = store.session.get("nextStimulus")
     // all tasks should have the replay button play whatever is in stim.audioFile (might be just prompt/instructions)
-    if ( trialsOfCurrentType < 2 ) {
+    if ( stim.trialType === "Number Identification" || stim.task === "TROG" || trialsOfCurrentType < 3 ) {
         return mediaAssets.audio[camelize(stim.audioFile)];
     } else {
         return mediaAssets.audio.nullAudio;
@@ -49,7 +50,7 @@ function getPrompt(task, trialType) { // showItem itemIsImage
 
     if(stim.trialType === 'instructions' || stim.task === 'instructions' || showImageStim) {
         return (`
-        <div id='stimulus-container' style='width: 100%;'>` + replayButtonDiv +
+        <div id='stimulus-container'>` + replayButtonDiv +
             `<div id="prompt-container-text">
                 <p id="prompt">${ stim.prompt }</p>
             </div>
@@ -67,7 +68,7 @@ function getPrompt(task, trialType) { // showItem itemIsImage
     // just audio - no text prompt/stimulus
     if (task === 'trog' || stim.trialType === 'Number Identification') {
       return (`
-        <div id='stimulus-container' style='width: 100%;>`
+        <div id='stimulus-container'>`
         + replayButtonDiv +
         `</div>`
       )
@@ -75,7 +76,7 @@ function getPrompt(task, trialType) { // showItem itemIsImage
 
     if (task === 'theory-of-mind') {
         return (`
-        <div id='stimulus-container' style='width: 100%;>`
+        <div id='stimulus-container'>`
         + replayButtonDiv +
             `<img 
               id="stimulus-img" 
@@ -88,7 +89,7 @@ function getPrompt(task, trialType) { // showItem itemIsImage
 
     if (stim.audioFile != '') {
         return (
-            `<div id='stimulus-container' style='width: 100%;>` +
+            `<div id='stimulus-container'>` +
             replayButtonDiv + // || stim.item
                 `<div id="prompt-container-text">
                     <p id="prompt">${ stim.prompt }</p>
@@ -185,15 +186,29 @@ function getButtonHtml(task, trialType) {
 function doOnLoad(task, trialType) { 
     const stim = store.session.get("nextStimulus") 
     const currentTrialIndex = jsPsych.getProgress().current_trial_global;
-    const twoTrialsAgoIndex = currentTrialIndex - 2;
+    let twoTrialsAgoIndex = currentTrialIndex - 2;
+    if( stim.task === "math" ) {
+        twoTrialsAgoIndex = currentTrialIndex - 3; // math has a fixation or something
+    }
     const twoTrialsAgoStimulus = jsPsych.data.get().filter({trial_index: twoTrialsAgoIndex}).values();
-    console.log(twoTrialsAgoStimulus);
+    console.log("twoTrialsAgostim: ",twoTrialsAgoStimulus);
     // console.log({stim})
-    console.log(stim.trialType); // or stim.task...
-    if ( twoTrialsAgoStimulus != undefined && stim.trialType === twoTrialsAgoStimulus[0]?.corpusTrialType ) {
-        trialsOfCurrentType += 1;
+    console.log("stim: ",stim); 
+    // should log trialsOfCurrentType - race condition
+    if( stim.task === "math" ) {
+        if ( twoTrialsAgoStimulus != undefined && stim.trialType === twoTrialsAgoStimulus[0]?.trialType ) {
+            trialsOfCurrentType += 1;
+            console.log("increasing trialsOfCurrentType")
+            console.log(twoTrialsAgoStimulus[0]);
+            console.log("stim.trialType: ", stim.trialType)
+            console.log("twoTrialsAgoStimulus[0]?.trialType: ", twoTrialsAgoStimulus[0]?.trialType)
+        } else {
+            trialsOfCurrentType = 0;
+        }
     } else {
-        trialsOfCurrentType = 0;
+        if ( stim.notes != "practice" && stim.trialType != "instructions" ) {
+            trialsOfCurrentType += 1;
+        }
     }
     
     if (stim.trialType !== 'instructions') {
@@ -398,6 +413,7 @@ function doOnFinish(data, task) {
             item: _toNumber(stimulus.item) || stimulus.item,
             answer: target,
             distractors: stimulus.distractors,
+            trialType: stimulus.trialType,
             response: store.session("responseValue"),
             responseType: store.session('responseType'),
         });
