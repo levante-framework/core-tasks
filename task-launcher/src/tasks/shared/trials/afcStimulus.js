@@ -123,7 +123,7 @@ function getButtonChoices(task, trialType) {
     } else {
         trialInfo = prepareChoices(answer, distractors);
     }
-    console.log(trialInfo);
+    // console.log(trialInfo);
     store.session.set("target", answer);
     store.session.set("choices", trialInfo.choices);
 
@@ -158,7 +158,6 @@ function getButtonChoices(task, trialType) {
     }
 
     if (task === 'theory-of-mind') {
-        console.log({trialInfo})
         // for testing
         if (!trialInfo.choices.length) {
             return Array(2).fill(0).map((_, i) => `<img src='https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc' alt='something' />`)
@@ -192,7 +191,7 @@ function doOnLoad(task, trialType) {
         twoTrialsAgoIndex = currentTrialIndex - 3; // math has a fixation or something
     }
     const twoTrialsAgoStimulus = jsPsych.data.get().filter({trial_index: twoTrialsAgoIndex}).values();
-    console.log("twoTrialsAgostim: ",twoTrialsAgoStimulus);
+    // console.log("twoTrialsAgostim: ",twoTrialsAgoStimulus);
     // console.log({stim})
     console.log("stim: ",stim); 
     // should log trialsOfCurrentType - race condition

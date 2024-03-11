@@ -2,7 +2,7 @@ import store from 'store2';
 
 function createBlocks(numOfBlocks, numOfTrials) {
   // Minimum number of trials. Can change to whatever.
-  if (numOfTrials < 10) numOfTrials = 10;
+  if (numOfTrials < 3) numOfTrials = 4;
   const baseFraction = Math.floor(numOfTrials / numOfBlocks);
   const remainder = Math.round(numOfTrials % numOfBlocks);
 
@@ -26,6 +26,8 @@ export const getStimulusCount = (userMode) => {
   const maxNumberOfTrials = store.session.get('maxStimulusTrials');
 
   let countList;
+
+  console.log({numberOfTrials, maxNumberOfTrials})
 
   if (numberOfTrials > maxNumberOfTrials) {
     countList = createBlocks(stimulusBlocks, maxNumberOfTrials);

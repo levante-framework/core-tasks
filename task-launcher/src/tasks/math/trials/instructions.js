@@ -91,12 +91,10 @@ export const taskFinished = {
         <p>
             <a href="https://app.prolific.com/submissions/complete?cc=CHLGUDG0">Click here</a> to return to Prolific (completion code: CHLGUDG0).
         </p>
-
-        <footer>Click the button below or press <b>ANY KEY</b> to exit</footer>
     </div>`,
-  button_choices: [`Continue`],
-  keyboard_choices: 'ALL_KEYS',
-  button_html: '<button id="continue-btn">Exit</button>',
+  button_choices: [],
+  keyboard_choices: 'NO_KEYS',
+  // button_html: '<button id="continue-btn">Exit</button>',
   // trial_duration: 1000,
 };
 
