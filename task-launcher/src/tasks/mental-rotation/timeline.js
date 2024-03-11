@@ -8,6 +8,7 @@ import { createPreloadTrials } from '../shared/helpers';
 // trials
 //import { stimulus } from "./trials/stimulus";
 import { afcStimulus, afcCondtional } from '../shared/trials/afcStimulus';
+import { instructions1, taskFinished } from './trials/instructions';
 import { exitFullscreen, setupPractice, setupStimulus } from '../shared/trials';
 
 export default function buildMentalRotationTimeline(config, mediaAssets) {
@@ -47,8 +48,10 @@ export default function buildMentalRotationTimeline(config, mediaAssets) {
   const timeline = [
     preloadTrials,
     initialTimeline,
+    instructions1,
     // practiceBlock,
     stimulusBlock,
+    taskFinished,
   ];
 
   initializeCat();
