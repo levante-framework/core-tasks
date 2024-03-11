@@ -41,7 +41,7 @@ export const instructions2 = {
             There will also be some number line problems that require you to drag a slider to the indicated position. 
             Finally, some questions require listening to audio, so please be sure your speakers are on and volume is adjusted. 
             The audio can be repeated by clicking on the button with the speaker icon in the top right corner. 
-            Let's begin with a few practice trials.
+            Thank you for your participation!
         </p>
 
         <footer>Click the button below or press <b>ANY KEY</b> to continue</footer>
@@ -89,7 +89,7 @@ export const taskFinished = {
         <h1 class='instructions-title'>You've completed the task -- thank you!</h1>
 
         <p>
-            
+            <a href="https://app.prolific.com/submissions/complete?cc=CHLGUDG0">Click here</a> to return to Prolific (completion code: CHLGUDG0).
         </p>
 
         <footer>Click the button below or press <b>ANY KEY</b> to exit</footer>

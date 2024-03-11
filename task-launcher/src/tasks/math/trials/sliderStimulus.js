@@ -59,18 +59,19 @@ export const slider = {
   stimulus: () => {
     const stim = store.session.get('nextStimulus');
     const prompt = stim.prompt;
-    if (prompt.includes('dot')) {
+    if (prompt.includes('Move the slider')) {
       return `
-                <div id='stimulus-container'>
-                    <p id=prompt>${prompt} ${stim.answer}.</p>
-                </div>
-            `;
+        <div id='stimulus-container'>
+          <div id="prompt-container-text">
+            <p id="prompt">Move the slider to the number: ${stim.answer}</p>
+          </div>
+        </div>`;
     } else {
-      return `
-                <div id='stimulus-container'>
+      return `<div id='stimulus-container'>
+                <div id="prompt-container-text">
                     <p id=prompt>${prompt}</p>
                 </div>
-            `;
+              </div>`;
     }
   },
   labels: () => store.session.get('nextStimulus').item,
@@ -99,9 +100,9 @@ export const slider = {
 
     const sliderLabels = document.getElementsByTagName('span');
     Array.from(sliderLabels).forEach((el, i) => {
-      if (i == 1 || i == 2) {
+      //if (i == 1 || i == 2) {
         el.style.fontSize = '1.5rem';
-      }
+      //}
     });
     const { buttonLayout, keyHelpers } = store.session.get('config');
     const distractors = store.session('nextStimulus');

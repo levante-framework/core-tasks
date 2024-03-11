@@ -289,8 +289,8 @@ function doOnLoad(task, trialType) {
             } else if (task === 'mental-rotation') {
                 el.children[0].classList.add('mental-rotation-img-btn');
                 let img = document.getElementById('stimulus-img'); 
-                img.style.width = '15vw';
-                img.style.height = '15vw';
+                img.style.width = '17vw';
+                img.style.height = '17vw';
             }
 
             if (task === 'matrix-reasoning') {
