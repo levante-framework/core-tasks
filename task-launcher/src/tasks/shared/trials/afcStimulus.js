@@ -25,8 +25,9 @@ let keyboardResponseMap = {}
 function getStimulus(trialType) {
     // ToDo: trialType (audio/html) no longer varies -- remove
     const stim = store.session.get("nextStimulus")
+    if(!stim.audioFile) return mediaAssets.audio.nullAudio;
     // all tasks should have the replay button play whatever is in stim.audioFile (might be just prompt/instructions)
-    if ( stim.trialType === "Number Identification" || stim.task === "TROG" || trialsOfCurrentType < 3 ) {
+    if ( stim.audioFile != '' || stim.trialType === "Number Identification" || stim.task === "TROG" || trialsOfCurrentType < 3 ) {
         return mediaAssets.audio[camelize(stim.audioFile)];
     } else {
         return mediaAssets.audio.nullAudio;

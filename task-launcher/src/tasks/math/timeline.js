@@ -45,12 +45,18 @@ export default function buildMathTimeline(config, mediaAssets) {
         task: config.task,
       }),
     ],
-    conditional_function: () => !store.session.get('nextStimulus').trialType.includes('Number Line'),
+    conditional_function: () => {
+      console.log("afcCondition: ", store.session.get('nextStimulus').trialType)
+      return (!store.session.get('nextStimulus').trialType?.includes('Number Line'))
+    },
   };
 
   const sliderBlock = {
     timeline: [slider],
-    conditional_function: () => store.session.get('nextStimulus').trialType.includes('Number Line'),
+    conditional_function: () => {
+      console.log("sliderCondition: ", store.session.get('nextStimulus').trialType)
+      return (store.session.get('nextStimulus').trialType?.includes('Number Line'))
+    },
   };
 
   const pushSubTaskToTimeline = (fixationAndSetupBlock, stimulusCounts, trialType) => {
@@ -59,7 +65,7 @@ export default function buildMathTimeline(config, mediaAssets) {
       // add trials to the block (this is the core procedure for each trial)
       let surveyBlock;
 
-      if (trialType === 'practice') {
+      //if (trialType === 'practice') {
         surveyBlock = {
           timeline: [fixationAndSetupBlock, afcStimulusBlock, sliderBlock, ifRealTrialResponse],
           conditional_function: () => {
@@ -71,19 +77,7 @@ export default function buildMathTimeline(config, mediaAssets) {
           },
           repetitions: stimulusCounts[i],
         };
-      } else {
-        surveyBlock = {
-          timeline: [fixationAndSetupBlock, afcStimulusBlock, sliderBlock, ifRealTrialResponse],
-          conditional_function: () => {
-            if (stimulusCounts[i] === 0) {
-              return false;
-            }
-            store.session.set('currentBlockIndex', i);
-            return true;
-          },
-          repetitions: stimulusCounts[i],
-        };
-      }
+      //}
 
       timeline.push(surveyBlock);
     }
@@ -99,6 +93,7 @@ export default function buildMathTimeline(config, mediaAssets) {
 
   // timeline.push(postPractice)
 
+  console.log(getStimulusCount());
   pushSubTaskToTimeline(setupStimulus, getStimulusCount(), 'stimulus'); // Stimulus Trials
 
   timeline.push(taskFinished);
