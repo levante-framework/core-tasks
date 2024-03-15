@@ -67,7 +67,12 @@ export default function buildMathTimeline(config, mediaAssets) {
 
       //if (trialType === 'practice') {
         surveyBlock = {
-          timeline: [fixationAndSetupBlock, afcStimulusBlock, sliderBlock, ifRealTrialResponse],
+          timeline: [
+            fixationAndSetupBlock,
+            afcStimulusBlock, 
+            sliderBlock, 
+            ifRealTrialResponse
+          ],
           conditional_function: () => {
             if (stimulusCounts[i] === 0) {
               return false;
