@@ -131,6 +131,14 @@
         }
       }
 
+      .practice-correct {
+        box-shadow: 0 0 20px 5px rgb(85, 251, 56);
+      }
+
+      .practice-incorrect {
+        box-shadow: 0 0 30px 8px rgb(255, 43, 1);
+      }
+
       // 1 x 4 (default)
       .default-layout {
         display: flex;
