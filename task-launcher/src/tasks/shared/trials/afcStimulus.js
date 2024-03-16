@@ -141,7 +141,8 @@ function getButtonChoices(task, trialType) {
         }
     }
 
-    if (task === 'Fraction') {
+    if (stimulus.trialType === 'Fraction') {
+        console.log(trialInfo.choices)
         const mathMLChoices = [fractionToMathML(answer), ...distractors.map(d => fractionToMathML(d))];
         store.session.set("choices", mathMLChoices); // Update the session choices with MathML strings
         return mathMLChoices.map((mathML, i) => `<button type="button">${mathML}</button>`); // Return buttons with MathML
