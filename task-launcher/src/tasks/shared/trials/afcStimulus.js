@@ -27,7 +27,19 @@ function getStimulus(trialType) {
     const stim = store.session.get("nextStimulus")
     if(!stim.audioFile) return mediaAssets.audio.nullAudio;
     // all tasks should have the replay button play whatever is in stim.audioFile (might be just prompt/instructions)
-    if ( stim.audioFile != '' || stim.trialType === "Number Identification" || stim.task === "TROG" || trialsOfCurrentType < 3 ) {
+    
+    if (stim.task === 'Mental Rotation' && 
+        stim.notes !== 'practice' &&
+        stim.trialType !== 'instructions'
+    ) {
+        return mediaAssets.audio.nullAudio;
+    }
+    
+    if (stim.audioFile != '' || 
+        stim.trialType === "Number Identification" || 
+        stim.task === "TROG" || 
+        trialsOfCurrentType < 3 
+    ) {
         return mediaAssets.audio[camelize(stim.audioFile)];
     } else {
         return mediaAssets.audio.nullAudio;
@@ -128,7 +140,8 @@ function getButtonChoices(task, trialType) {
     store.session.set("choices", trialInfo.choices);
 
     // GK: what is this for?
-    if (task === 'matrix-reasoning' || task === 'mental-rotation') {
+    // || task === 'mental-rotation
+    if (task === 'matrix-reasoning') {
         if (!currPracticeChoiceMix.length && stimulus.notes === 'practice') {
             currPracticeChoiceMix = trialInfo.choices
             currPracticeAnswerIdx = store.session('correctResponseIdx')
@@ -136,7 +149,7 @@ function getButtonChoices(task, trialType) {
     }
 
     // for image buttons (trog, matrix reasoning, mental rotation...)
-    if (task === 'trog' && stimulus.trialType != 'instructions') {
+    if (task === 'trog' && stimulus.trialType !== 'instructions') {
         // if (stimulus.notes === 'practice') {
         //     return currPracticeChoiceMix.map((choice, i) => `<img src=${mediaAssets.images[camelize(choice)]} alt=${choice} />`)
         // } else {
@@ -144,7 +157,7 @@ function getButtonChoices(task, trialType) {
         // }
     }
 
-    if (task === 'matrix-reasoning' || task=="mental-rotation") {
+    if (task === 'matrix-reasoning') {
         // for testing
         if (!trialInfo.choices.length) {
             return Array(2).fill(0).map((_, i) => `<img src='https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc' alt='something' />`)
@@ -157,7 +170,7 @@ function getButtonChoices(task, trialType) {
         }
     }
 
-    if (task === 'theory-of-mind') {
+    if (task === 'theory-of-mind' || task === "mental-rotation") {
         // for testing
         if (!trialInfo.choices.length) {
             return Array(2).fill(0).map((_, i) => `<img src='https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc' alt='something' />`)
@@ -188,6 +201,63 @@ function enableBtns(btnElements) {
     btnElements.forEach(btn => btn.disabled = false);
 }
 
+async function keyboardBtnFeedback(e, practiceBtns, stim) {
+    if (
+        e.key === 'ArrowLeft' || 
+        e.key === 'ArrowRight' || 
+        e.key === 'ArrowUp' || 
+        e.key === 'ArrowDown') 
+    {
+        let feedbackAudio
+        const choice = keyboardResponseMap[e.key.toLowerCase()];
+        // Find button with response text
+        practiceBtns.forEach(btn => {
+            if (btn.children.length) {
+                const btnOption = btn.children[0].alt
+                if (choice == btnOption) {
+                    if (choice == stim.answer) {
+                        btn.classList.add('practice-correct');
+                        feedbackAudio = mediaAssets.audio.feedbackGoodJob;
+                        setTimeout(() => jsPsych.finishTrial(), 1000);
+                    } else {
+                        btn.classList.add('practice-incorrect');
+                        feedbackAudio = mediaAssets.audio.feedbackTryAgain;
+                        setTimeout(() => enableBtns(practiceBtns), 500);
+                    }
+                }
+            } else {
+                const btnOption = btn.textContent;
+                
+                if (choice == btnOption) {
+                    if (choice == stim.answer) {
+                        btn.classList.add('practice-correct');
+                        feedbackAudio = mediaAssets.audio.feedbackGoodJob;
+                        setTimeout(() => jsPsych.finishTrial(), 1000);
+                    } else {
+                        btn.classList.add('practice-incorrect');
+                        feedbackAudio = mediaAssets.audio.feedbackTryAgain;
+                        setTimeout(() => enableBtns(practiceBtns), 500); 
+                    }
+                }
+            }
+        });
+
+        const jsPsychAudioCtx = jsPsych.pluginAPI.audioContext();
+
+        // Returns a promise of the AudioBuffer of the preloaded file path.
+        const audioBuffer = await jsPsych
+            .pluginAPI
+            .getAudioBuffer(feedbackAudio);
+
+        audioSource = jsPsychAudioCtx.createBufferSource();
+        audioSource.buffer = audioBuffer;
+        audioSource.connect(jsPsychAudioCtx.destination);
+        audioSource.start(0);
+    }
+}
+
+let keyboardFeedbackHandler
+
 function doOnLoad(task, trialType) {
     const stim = store.session.get("nextStimulus") 
     const currentTrialIndex = jsPsych.getProgress().current_trial_global;
@@ -201,10 +271,11 @@ function doOnLoad(task, trialType) {
 
     if (stim.notes === "practice") {
         const practiceBtns = document.querySelectorAll('.practice-btn');
+        let feedbackAudio
+
         practiceBtns
             .forEach(btn => btn.addEventListener('click',
                 async (e) => {
-                    let feedbackAudio
                     // assume img btn
                     if (btn.children.length) {
                         const choice = btn.children[0].alt;
@@ -220,7 +291,7 @@ function doOnLoad(task, trialType) {
                         }
                     } else {
                         const choice = btn.textContent;
-                        console.log({choice});
+
                         if (choice == stim.answer) {
                             btn.classList.add('practice-correct');
                             feedbackAudio = mediaAssets.audio.feedbackGoodJob;
@@ -245,6 +316,16 @@ function doOnLoad(task, trialType) {
                     audioSource.start(0);
                 }
             ));
+        
+        if (!isMobile) {
+            function keyboardBtnFeedbackHandler(e) {
+                keyboardBtnFeedback(e, practiceBtns, stim);
+            }
+
+            keyboardFeedbackHandler = keyboardBtnFeedbackHandler
+
+            document.addEventListener('keydown', keyboardFeedbackHandler);
+        }
     }
 
     // should log trialsOfCurrentType - race condition
@@ -392,7 +473,7 @@ function doOnLoad(task, trialType) {
     const replayBtn = document.getElementById('replay-btn');
     let isAudioPlaying = false;
 
-    if(replayBtn) { // TODO: this only stops the Replay button from being used if it was already used 
+    if (replayBtn) { // TODO: this only stops the Replay button from being used if it was already used 
         async function replayAudio() {
             if (isAudioPlaying) {
                 return; // Exit the function if audio is already playing
@@ -471,6 +552,10 @@ function doOnFinish(data, task) {
             responseType: store.session('responseType'),
         });
 
+    // remove listner or it will stack since were adding it on the document itself
+        if (stimulus.notes === 'practice') {
+            document.removeEventListener('keydown', keyboardFeedbackHandler)
+        }
         // console.log('data: ', jsPsych.data.get().last(1).values()[0])
 
     } else {
