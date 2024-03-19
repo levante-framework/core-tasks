@@ -98,7 +98,7 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
     stimulusData = shuffleStimulusTrials(stimulusData);
   }
 
-  console.log('stimulus data from corpus parsing:', stimulusData)
+  // console.log('stimulus data from corpus parsing:', stimulusData)
 };
 
 export const fetchAndParseCorpus = async (config) => {
