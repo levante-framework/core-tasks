@@ -10,6 +10,8 @@ import { mediaAssets } from "../../..";
 import _toNumber from 'lodash/toNumber'
 import { camelize } from "@bdelab/roar-utils";
 import { getDevice } from "@bdelab/roar-utils";
+import { isMaxTimeoutReached } from '../helpers/appTimer';
+
 
 const isMobile = getDevice() === 'mobile'
 
@@ -494,5 +496,24 @@ export const afcCondtional = ({trialType, responseAllowed, promptAboveButtons, t
                 return false
             }
         }
+    }
+}
+
+export const afcStimulusWithTimeoutCondition = ({trialType, responseAllowed, promptAboveButtons, task } = {}) => {
+    return {
+        timeline: [
+            afcStimulus({
+            trialType: trialType,
+            responseAllowed: responseAllowed,
+            promptAboveButtons: promptAboveButtons,
+            task: task
+            })
+        ],
+        conditional_function: () => {
+            // don't play when skipping trials because app is finished
+            if (isMaxTimeoutReached())
+              return false;
+              
+          },
     }
 }

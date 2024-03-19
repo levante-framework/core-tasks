@@ -2,10 +2,11 @@ import 'regenerator-runtime/runtime';
 // setup
 import store from 'store2';
 import { initTrialSaving, initTimeline, createPreloadTrials } from '../shared/helpers';
+import { startAppTimer, clearAppTimer, isMaxTimeoutReached } from '../shared/helpers/appTimer';
 import { jsPsych, initializeCat } from '../taskSetup';
 // trials
-import { afcStimulus } from '../shared/trials/afcStimulus';
-import { exitFullscreen, setupPractice, setupStimulus } from '../shared/trials';
+import { afcStimulusWithTimeoutCondition } from '../shared/trials/afcStimulus';
+import { exitFullscreen, setupPractice, setupStimulus, setupStimulusConditional } from '../shared/trials';
 import { taskFinished } from './trials/instructions';
 
 export default function buildTROGTimeline(config, mediaAssets) {
@@ -32,19 +33,21 @@ export default function buildTROGTimeline(config, mediaAssets) {
   // }
 
   const stimulusBlock = {
-    timeline: [setupStimulus, afcStimulus(trialConfig)],
+    timeline: [setupStimulusConditional, afcStimulusWithTimeoutCondition(trialConfig)],
     repetitions: store.session.get('maxStimulusTrials'),
   };
 
   const timeline = [
     preloadTrials,
     initialTimeline,
+    startAppTimer,
     //instructions1, // TODO: fix audio and button
     // practiceBlock,
     stimulusBlock,
   ];
 
   initializeCat();
+  timeline.push(clearAppTimer);
   timeline.push(taskFinished);
   timeline.push(exitFullscreen);
 
