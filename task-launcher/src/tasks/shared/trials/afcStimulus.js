@@ -1,11 +1,10 @@
 // For Matrix reasoning, TROG, Theory of mind, Mental rotation, and EGMA Math
 // Currently works in: TROG, Theory of mind, Mental Rotation, Matrix Reasoning, and EGMA Math
-
 import jsPsychAudioMultiResponse from "@jspsych-contrib/plugin-audio-multi-response";
 import jsPsychHTMLMultiResponse from "@jspsych-contrib/plugin-html-multi-response"
 import store from "store2";
 import { jsPsych } from "../../taskSetup";
-import { prepareChoices, addItemToSortedStoreList, isPractice } from "../../shared/helpers";
+import { prepareChoices, addItemToSortedStoreList, isPractice, fractionToMathML } from "../../shared/helpers";
 import { mediaAssets } from "../../..";
 import _toNumber from 'lodash/toNumber'
 import { camelize } from "@bdelab/roar-utils";
@@ -54,6 +53,14 @@ function getStimulus(trialType) {
 
 function getPrompt(task, trialType) { // showItem itemIsImage
     const stim = store.session.get("nextStimulus");
+
+    let stimItem;
+    if (stim.trialType === 'Fraction') {
+        stimItem = fractionToMathML(stim.item);
+    } else {
+        stimItem = stim.item;
+    }
+
     const replayButtonDiv = `<div id='replay-btn'>
         <svg xmlns="http://www.w3.org/2000/svg" width="44" height="38" viewBox="0 0 44 38" fill="none">
             <path d="M34.561 11.7551C34.2268 11.3413 33.7419 11.0773 33.2131 11.021C32.6842 10.9648 32.1547 11.1209 31.741 11.4551C31.3272 11.7892 31.0632 12.2741 31.0069 12.8029C30.9507 13.3318 31.1068 13.8613 31.441 14.2751C32.4514 15.6489 32.9964 17.3097 32.9964 19.0151C32.9964 20.7205 32.4514 22.3812 31.441 23.7551C31.2025 24.049 31.0524 24.4045 31.008 24.7804C30.9635 25.1562 31.0267 25.537 31.1901 25.8784C31.3534 26.2198 31.6103 26.5078 31.9309 26.709C32.2514 26.9102 32.6225 27.0164 33.001 27.0151C33.2997 27.0161 33.595 26.9501 33.8649 26.8221C34.1349 26.694 34.3727 26.5071 34.561 26.2751C36.1474 24.1872 37.0063 21.6372 37.0063 19.0151C37.0063 16.3929 36.1474 13.8429 34.561 11.7551Z" fill="#275BDD"/>
@@ -74,15 +81,15 @@ function getPrompt(task, trialType) { // showItem itemIsImage
             ${ stim.task === 'math' || stim.task === 'TROG' ? '' :
                 `<img 
                 id="stimulus-img" 
-                src=${ mediaAssets.images[stim.item] || mediaAssets.images['blank'] }
-                alt=${ stim.item || `Stimulus` }
+                src=${ mediaAssets.images[stimItem] || mediaAssets.images['blank'] }
+                alt=${ stimItem || `Stimulus` }
                 />`
             }
         </div>`)
     }
     
     // just audio - no text prompt/stimulus
-    if (task === 'trog' || stim.trialType === 'Number Identification') {
+    if (task === 'trog' || stim.trialType === 'Number Identification' || stim.trialType === 'Number Comparison') {
       return (`
         <div id='stimulus-container'>`
         + replayButtonDiv +
@@ -96,8 +103,8 @@ function getPrompt(task, trialType) { // showItem itemIsImage
         + replayButtonDiv +
             `<img 
               id="stimulus-img" 
-              src=${ mediaAssets.images[stim.item] || mediaAssets.images['blank'] }
-              alt=${ stim.item || `Stimulus` }
+              src=${ mediaAssets.images[stimItem] || mediaAssets.images['blank'] }
+              alt=${ stimItem || `Stimulus` }
             />
         </div>`
       )
@@ -112,9 +119,9 @@ function getPrompt(task, trialType) { // showItem itemIsImage
                 </div>
                 <br>
                 ${task === 'egma-math' ? 
-                    `<p id="stimulus-html" style="${stim.trialType === 'Number Identification' || stim.trialType === 'Number Comparison' ? "color: transparent;" : ''}">${ stim.item }</p>`
+                    `<p id="stimulus-html">${ stimItem }</p>`
                     :
-                    `` //`<img id="stimulus-img" src=${ mediaAssets.images[stim.item] || mediaAssets.images['blank'] }  alt=${ stim.image }/>`
+                    ``
                 }
                 
             </div>`
@@ -148,6 +155,13 @@ function getButtonChoices(task, trialType) {
             currPracticeChoiceMix = trialInfo.choices
             currPracticeAnswerIdx = store.session('correctResponseIdx')
         }
+    }
+
+    if (stimulus.trialType === 'Fraction') {
+        const distractorMathML = distractors.map(d => fractionToMathML(d));
+        const mathMLChoices = [fractionToMathML(answer), ...distractorMathML];
+        store.session.set("choices", mathMLChoices); // Update the session choices with MathML strings
+        return mathMLChoices; 
     }
 
     // for image buttons (trog, matrix reasoning, mental rotation...)
@@ -188,14 +202,15 @@ function getButtonHtml(task, trialType) {
     const stimulus = store.session.get("nextStimulus");
     // TODO: add trial_type column to math item bank
     if (stimulus.trialType === 'instructions') {
-        return "<button id='continue-btn' class='jspsych-btn'>%choice%</button>"
+        return "<button id='continue-btn'>%choice%</button>"
     }
-
-    // practice-btn class does not add any styles, only used for querySelector
-    if (task === 'egma-math') {
-        return `<button class='math-btn jspsych-btn ${stimulus.notes === 'practice' ? 'practice-btn' : ''}'>%choice%</button>`
+    if (stimulus.trialType === 'Fraction') { 
+        return "<button class='math-btn'>%choice%</button>"; 
+    } else if (task === 'egma-math') {
+        // practice-btn class does not add any styles, only used for querySelector
+        return `<button class='math-btn ${stimulus.notes === 'practice' ? 'practice-btn' : ''}'>%choice%</button>`
     } else {
-        return `<button class='jspsych-btn ${stimulus.notes === 'practice' ? 'practice-btn' : ''}'>%choice%</button>`
+        return `<button class='${stimulus.notes === 'practice' ? 'practice-btn' : ''}'>%choice%</button>`
     }
 }
 
@@ -264,6 +279,7 @@ let keyboardFeedbackHandler
 
 function doOnLoad(task, trialType) {
     startTime = performance.now();
+
     const stim = store.session.get("nextStimulus") 
     const currentTrialIndex = jsPsych.getProgress().current_trial_global;
     let twoTrialsAgoIndex = currentTrialIndex - 2;

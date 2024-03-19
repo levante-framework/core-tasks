@@ -18,3 +18,4 @@ export * from './isPractice';
 export * from './isTaskFinished';
 export * from './prepareChoices';
 export * from './stringToBoolean';
+export * from './fractionToMathML';
