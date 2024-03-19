@@ -9,6 +9,8 @@ import 'regenerator-runtime/runtime';
 import { stringToNumberArray } from './stringToNumArray';
 import { dashToCamelCase } from './dashToCamelCase';
 import { camelize } from '@bdelab/roar-utils';
+import { shuffleStimulusTrials } from './randomizeStimulusBlocks';
+
 
 export let corpora;
 
@@ -31,7 +33,10 @@ function containsLettersOrSlash(str) {
   return /[a-zA-Z\/]/.test(str);
 }
 
-const transformCSV = (csvInput) => {
+const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
+  let currTrialTypeBlock = ''
+  let currPracticeAmount = 0
+
   csvInput.forEach((row) => {
     const newRow = {
       source: row.source,
@@ -48,7 +53,7 @@ const transformCSV = (csvInput) => {
       distractors: containsLettersOrSlash(row.response_alternatives)
         ? row.response_alternatives.split(',')
         : stringToNumberArray(row.response_alternatives),
-      difficulty: row.difficulty,
+      // difficulty: row.difficulty,
       audioFile: row.audio_file,
     };
 
@@ -58,15 +63,42 @@ const transformCSV = (csvInput) => {
       newRow.distractors = newRow.distractors.map((choice) => camelize(choice));
     }
 
-    if (row.notes === 'practice') {
-      practiceData.push(newRow);
-      maxPracticeTrials += 1;
-    } else {
-      stimulusData.push(newRow);
+    // if (row.notes === 'practice') {
+    //   practiceData.push(newRow);
+    //   maxPracticeTrials += 1;
+    // } else 
+    if (newRow.notes !== 'practice' && newRow.trialType !== 'instructions') {
       maxStimulusTrials += 1;
     }
+
+    let currentTrialType = newRow.trialType
+
+    // console.log('currentTrialType:', currentTrialType)
+    // console.log('currTrialTypeBlock:', currTrialTypeBlock)
+
+    if (currentTrialType !== currTrialTypeBlock) {
+      currTrialTypeBlock = currentTrialType
+      currPracticeAmount = 0
+    }
+
+    // Only push in the specified amount of practice trials
+    if (newRow.notes !== 'practice') {
+      stimulusData.push(newRow);
+    } else if (
+      newRow.notes === 'practice' && 
+      currPracticeAmount < numOfPracticeTrials
+    ) {
+      stimulusData.push(newRow);
+      currPracticeAmount += 1
+    }
+
   });
-  // console.log(stimulusData)
+
+  if (!sequentialStimulus) {
+    stimulusData = shuffleStimulusTrials(stimulusData);
+  }
+
+  console.log('stimulus data from corpus parsing:', stimulusData)
 };
 
 export const fetchAndParseCorpus = async (config) => {
@@ -88,8 +120,7 @@ export const fetchAndParseCorpus = async (config) => {
         header: true,
         skipEmptyLines: true,
         complete: function (results) {
-          transformCSV(results.data);
-          // console.log({stimulusData, practiceData})
+          transformCSV(results.data, numOfPracticeTrials, sequentialStimulus);
           resolve(results.data);
         },
         error: function (error) {
