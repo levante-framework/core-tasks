@@ -10,6 +10,8 @@ import { createPreloadTrials } from '../shared/helpers';
 import { afcStimulus, afcCondtional } from '../shared/trials/afcStimulus';
 import { instructions1, taskFinished } from './trials/instructions';
 import { exitFullscreen, setupPractice, setupStimulus } from '../shared/trials';
+import { getAudioResponse } from '../shared/trials';
+
 
 export default function buildMentalRotationTimeline(config, mediaAssets) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
@@ -17,18 +19,16 @@ export default function buildMentalRotationTimeline(config, mediaAssets) {
   initTrialSaving(config);
   const initialTimeline = initTimeline(config);
 
-  const practiceBlock = {
-    timeline: [
-      //setupPractice,
-      //stimulus,
-      afcStimulus({
-        trialType: 'audio',
-        responseAllowed: true,
-        promptAboveButtons: true,
-        task: config.task,
-      }),
-    ],
-    repetitions: config.numOfPracticeTrials,
+  const ifRealTrialResponse = {
+    timeline: [getAudioResponse(mediaAssets)],
+  
+    conditional_function: () => {
+      const subTask = store.session.get("nextStimulus").notes;
+      if (subTask === 'practice') {
+        return false;
+      }
+      return true;
+    },
   };
 
   const stimulusBlock = {
@@ -41,6 +41,7 @@ export default function buildMentalRotationTimeline(config, mediaAssets) {
         promptAboveButtons: true,
         task: config.task,
       }),
+      ifRealTrialResponse,
     ],
     repetitions: store.session.get('maxStimulusTrials'),
   };
@@ -49,7 +50,6 @@ export default function buildMentalRotationTimeline(config, mediaAssets) {
     preloadTrials,
     initialTimeline,
     instructions1,
-    // practiceBlock,
     stimulusBlock,
     taskFinished,
   ];
