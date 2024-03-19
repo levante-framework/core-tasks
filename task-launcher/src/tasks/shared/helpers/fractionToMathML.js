@@ -1,7 +1,8 @@
 // converts fractions or 2-term fraction addition or subtraction problems into MathML
 // e.g. accepts forms: single fractions "1/4", addition "3/4+1/4", or subtraction "4/5-1/2"
 export function fractionToMathML(problem) {
-    if (!problem.includes('/')) return problem;
+    console.log(problem);
+    if (typeof problem === "number" || !problem.includes('/')) return problem;
     // Identify the operation: addition or subtraction
     const operation = problem.includes('-') ? '-' : '+';
 
