@@ -29,8 +29,8 @@ function writeItem(row) {
   return row.item;
 }
 
-function containsLetters(str) {
-  return /[a-zA-Z]/.test(str);
+function containsLettersOrSlash(str) {
+  return /[a-zA-Z\/]/.test(str);
 }
 
 const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
@@ -50,7 +50,7 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
       timeLimit: row.time_limit,
       answer: _toNumber(row.answer) || row.answer,
       notes: row.notes,
-      distractors: containsLetters(row.response_alternatives)
+      distractors: containsLettersOrSlash(row.response_alternatives)
         ? row.response_alternatives.split(',')
         : stringToNumberArray(row.response_alternatives),
       // difficulty: row.difficulty,
@@ -98,7 +98,7 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
     stimulusData = shuffleStimulusTrials(stimulusData);
   }
 
-  console.log('stimulus data from corpus parsing:', stimulusData)
+  // console.log('stimulus data from corpus parsing:', stimulusData)
 };
 
 export const fetchAndParseCorpus = async (config) => {

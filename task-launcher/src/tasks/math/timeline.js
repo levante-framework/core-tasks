@@ -47,7 +47,7 @@ export default function buildMathTimeline(config, mediaAssets) {
       }),
     ],
     conditional_function: () => {
-      console.log("afcCondition: ", store.session.get('nextStimulus').trialType)
+      // console.log("afcCondition: ", store.session.get('nextStimulus').trialType)
       return (!store.session.get('nextStimulus').trialType?.includes('Number Line'))
     },
   };
@@ -55,7 +55,7 @@ export default function buildMathTimeline(config, mediaAssets) {
   const sliderBlock = {
     timeline: [slider],
     conditional_function: () => {
-      console.log("sliderCondition: ", store.session.get('nextStimulus').trialType)
+      // console.log("sliderCondition: ", store.session.get('nextStimulus').trialType)
       return (store.session.get('nextStimulus').trialType?.includes('Number Line'))
     },
   };
@@ -99,7 +99,7 @@ export default function buildMathTimeline(config, mediaAssets) {
 
   // timeline.push(postPractice)
 
-  console.log(getStimulusCount());
+  // console.log(getStimulusCount());
   pushSubTaskToTimeline(setupStimulus, getStimulusCount(), 'stimulus'); // Stimulus Trials
 
   timeline.push(taskFinished);
