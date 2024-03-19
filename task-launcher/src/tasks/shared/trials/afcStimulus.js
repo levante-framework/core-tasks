@@ -21,6 +21,10 @@ let trialsOfCurrentType = 0
 
 let audioSource;
 let keyboardResponseMap = {}
+// Only used for keyboard responses
+let startTime
+const incorrectPracticeResponses = []
+
 
 function getStimulus(trialType) {
     // ToDo: trialType (audio/html) no longer varies -- remove
@@ -50,7 +54,6 @@ function getStimulus(trialType) {
 
 function getPrompt(task, trialType) { // showItem itemIsImage
     const stim = store.session.get("nextStimulus");
-    console.log({stim});
     const replayButtonDiv = `<div id='replay-btn'>
         <svg xmlns="http://www.w3.org/2000/svg" width="44" height="38" viewBox="0 0 44 38" fill="none">
             <path d="M34.561 11.7551C34.2268 11.3413 33.7419 11.0773 33.2131 11.021C32.6842 10.9648 32.1547 11.1209 31.741 11.4551C31.3272 11.7892 31.0632 12.2741 31.0069 12.8029C30.9507 13.3318 31.1068 13.8613 31.441 14.2751C32.4514 15.6489 32.9964 17.3097 32.9964 19.0151C32.9964 20.7205 32.4514 22.3812 31.441 23.7551C31.2025 24.049 31.0524 24.4045 31.008 24.7804C30.9635 25.1562 31.0267 25.537 31.1901 25.8784C31.3534 26.2198 31.6103 26.5078 31.9309 26.709C32.2514 26.9102 32.6225 27.0164 33.001 27.0151C33.2997 27.0161 33.595 26.9501 33.8649 26.8221C34.1349 26.694 34.3727 26.5071 34.561 26.2751C36.1474 24.1872 37.0063 21.6372 37.0063 19.0151C37.0063 16.3929 36.1474 13.8429 34.561 11.7551Z" fill="#275BDD"/>
@@ -126,7 +129,6 @@ function getButtonChoices(task, trialType) {
         return ['OK']
     } 
     const { answer, distractors } = stimulus;
-    console.log({answer, distractors});
 
     let trialInfo;
 
@@ -135,7 +137,7 @@ function getButtonChoices(task, trialType) {
     } else {
         trialInfo = prepareChoices(answer, distractors);
     }
-    // console.log(trialInfo);
+
     store.session.set("target", answer);
     store.session.set("choices", trialInfo.choices);
 
@@ -186,14 +188,14 @@ function getButtonHtml(task, trialType) {
     const stimulus = store.session.get("nextStimulus");
     // TODO: add trial_type column to math item bank
     if (stimulus.trialType === 'instructions') {
-        return "<button id='continue-btn'>%choice%</button>"
+        return "<button id='continue-btn' class='jspsych-btn'>%choice%</button>"
     }
 
     // practice-btn class does not add any styles, only used for querySelector
     if (task === 'egma-math') {
-        return `<button class='math-btn ${stimulus.notes === 'practice' ? 'practice-btn' : ''}'>%choice%</button>`
+        return `<button class='math-btn jspsych-btn ${stimulus.notes === 'practice' ? 'practice-btn' : ''}'>%choice%</button>`
     } else {
-        return `<button class='${stimulus.notes === 'practice' ? 'practice-btn' : ''}'>%choice%</button>`
+        return `<button class='jspsych-btn ${stimulus.notes === 'practice' ? 'practice-btn' : ''}'>%choice%</button>`
     }
 }
 
@@ -218,11 +220,12 @@ async function keyboardBtnFeedback(e, practiceBtns, stim) {
                     if (choice == stim.answer) {
                         btn.classList.add('practice-correct');
                         feedbackAudio = mediaAssets.audio.feedbackGoodJob;
-                        setTimeout(() => jsPsych.finishTrial(), 1000);
+                        setTimeout(() => jsPsych.finishTrial({response: choice, incorrectPracticeResponses: incorrectPracticeResponses}), 1000);
                     } else {
                         btn.classList.add('practice-incorrect');
                         feedbackAudio = mediaAssets.audio.feedbackTryAgain;
                         setTimeout(() => enableBtns(practiceBtns), 500);
+                        incorrectPracticeResponses.push(choice)
                     }
                 }
             } else {
@@ -232,11 +235,12 @@ async function keyboardBtnFeedback(e, practiceBtns, stim) {
                     if (choice == stim.answer) {
                         btn.classList.add('practice-correct');
                         feedbackAudio = mediaAssets.audio.feedbackGoodJob;
-                        setTimeout(() => jsPsych.finishTrial(), 1000);
+                        setTimeout(() => jsPsych.finishTrial({response: choice, incorrectPracticeResponses: incorrectPracticeResponses}), 1000);
                     } else {
                         btn.classList.add('practice-incorrect');
                         feedbackAudio = mediaAssets.audio.feedbackTryAgain;
-                        setTimeout(() => enableBtns(practiceBtns), 500); 
+                        setTimeout(() => enableBtns(practiceBtns), 500);
+                        incorrectPracticeResponses.push(choice)
                     }
                 }
             }
@@ -259,6 +263,7 @@ async function keyboardBtnFeedback(e, practiceBtns, stim) {
 let keyboardFeedbackHandler
 
 function doOnLoad(task, trialType) {
+    startTime = performance.now();
     const stim = store.session.get("nextStimulus") 
     const currentTrialIndex = jsPsych.getProgress().current_trial_global;
     let twoTrialsAgoIndex = currentTrialIndex - 2;
@@ -283,11 +288,12 @@ function doOnLoad(task, trialType) {
                         if (choice == stim.answer) {
                             btn.classList.add('practice-correct');
                             feedbackAudio = mediaAssets.audio.feedbackGoodJob;
-                            setTimeout(() => jsPsych.finishTrial(), 1000);
+                            setTimeout(() => jsPsych.finishTrial({response: choice, incorrectPracticeResponses: incorrectPracticeResponses}), 1000);
                         } else {
                             btn.classList.add('practice-incorrect');
                             feedbackAudio = mediaAssets.audio.feedbackTryAgain;
-                            setTimeout(() => enableBtns(practiceBtns), 500); 
+                            setTimeout(() => enableBtns(practiceBtns), 500);
+                            incorrectPracticeResponses.push(choice)
                         }
                     } else {
                         const choice = btn.textContent;
@@ -295,11 +301,12 @@ function doOnLoad(task, trialType) {
                         if (choice == stim.answer) {
                             btn.classList.add('practice-correct');
                             feedbackAudio = mediaAssets.audio.feedbackGoodJob;
-                            setTimeout(() => jsPsych.finishTrial(), 1000);
+                            setTimeout(() => jsPsych.finishTrial({response: choice, incorrectPracticeResponses: incorrectPracticeResponses}), 1000);
                         } else {
                             btn.classList.add('practice-incorrect');
                             feedbackAudio = mediaAssets.audio.feedbackTryAgain;
-                            setTimeout(() => enableBtns(practiceBtns), 500); 
+                            setTimeout(() => enableBtns(practiceBtns), 500);
+                            incorrectPracticeResponses.push(choice)    
                         }
                     }
         
@@ -332,10 +339,6 @@ function doOnLoad(task, trialType) {
     if ( stim.task === "math" ) {
         if ( twoTrialsAgoStimulus != undefined && stim.trialType === twoTrialsAgoStimulus[0]?.trialType ) {
             trialsOfCurrentType += 1;
-            // console.log("increasing trialsOfCurrentType")
-            // console.log(twoTrialsAgoStimulus[0]);
-            // console.log("stim.trialType: ", stim.trialType)
-            // console.log("twoTrialsAgoStimulus[0]?.trialType: ", twoTrialsAgoStimulus[0]?.trialType)
         } else {
             trialsOfCurrentType = 0;
         }
@@ -507,7 +510,7 @@ function doOnFinish(data, task) {
     const stimulus = store.session("nextStimulus");
     // target is the actual value as a string
     const target = store.session('target')
-    
+
     if (stimulus.trialType !== 'instructions') {
         if (data.keyboard_response) {
             data.correct = keyboardResponseMap[data.keyboard_response] === target
@@ -548,14 +551,32 @@ function doOnFinish(data, task) {
             answer: target,
             distractors: stimulus.distractors,
             trialType: stimulus.trialType,
-            response: store.session("responseValue"),
             responseType: store.session('responseType'),
         });
+
+        // Adding this seperately or otherwise it will overide 
+        // the response value added from practice trials
+        if (stimulus.notes !== 'practice') {
+            jsPsych.data.addDataToLastTrial({
+                response: store.session("responseValue"),
+            })
+        }
+
+        // adding manually since trial does not log it properly
+        // for keyboard responses
+        if (data.responseType === 'keyboard' || data.response_source === 'keyboard') {
+            const endTime = performance.now();
+            const calculatedRt = Math.round((endTime - startTime));
+            jsPsych.data.addDataToLastTrial({
+                rt: calculatedRt
+            })
+        }
 
     // remove listner or it will stack since were adding it on the document itself
         if (stimulus.notes === 'practice') {
             document.removeEventListener('keydown', keyboardFeedbackHandler)
         }
+
         // console.log('data: ', jsPsych.data.get().last(1).values()[0])
 
     } else {
@@ -619,10 +640,6 @@ export const afcCondtional = ({trialType, responseAllowed, promptAboveButtons, t
                 const previousStimulus = jsPsych.data.get().filter({trial_index: twoTrialsAgoIndex + 1}).values();;
                 const isTwoTrialsAgoStimCorrect = twoTrialsAgoStimulus[0].correct;
                 const isPreviousStimulusCorrect = previousStimulus[0].correct;
-                // console.log('twoTrialsAgoStimulus: ', twoTrialsAgoStimulus)
-                // console.log('isTwoTrialsAgoStimCorrect: ', isTwoTrialsAgoStimCorrect)
-                // console.log('previousStimulus: ', previousStimulus)
-                // console.log('isPrevStimCorrect: ', isPreviousStimulusCorrect)
 
                 if (isTwoTrialsAgoStimCorrect || isPreviousStimulusCorrect) {
                     return false
