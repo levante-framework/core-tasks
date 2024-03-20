@@ -80,6 +80,7 @@ buttonLayout: "default" | "grid" | "column" | "diamond" | "triple" [string] (opt
 trials: [number] (optional),
 stimulusBlocks: [number] (optional),
 numOfPracticeTrials: [number] (optional),
+maxTime: [number] (optional),
 keyHelpers: [boolean] (optional)
 ```
 
