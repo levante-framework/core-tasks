@@ -133,7 +133,8 @@ function getPrompt(task, trialType) { // showItem itemIsImage
 
 function getButtonChoices(task, trialType) {
     const stimulus = store.session.get("nextStimulus");
-    if (stimulus.trialType === 'instructions' || stimulus.trialType === 'instructions') {
+    // Matrix Reasoning has first trial 'task' === 'instructions'
+    if (stimulus.trialType === 'instructions' || stimulus.task === 'instructions') {
         return ['OK']
     } 
     const { answer, distractors } = stimulus;
