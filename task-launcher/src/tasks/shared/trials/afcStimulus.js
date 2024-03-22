@@ -131,73 +131,41 @@ function getPrompt(task, trialType) { // showItem itemIsImage
 
 }
 
+function generateImageChoices(choices) {
+    const practiceUrl = 'https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc';
+    return choices.map(choice => {
+        const imageUrl = mediaAssets.images[camelize(choice)] || practiceUrl;
+        return `<img src=${imageUrl} alt=${choice} />`;
+    });
+}
+
 function getButtonChoices(task, trialType) {
     const stimulus = store.session.get("nextStimulus");
-    // Matrix Reasoning has first trial 'task' === 'instructions'
-    if (stimulus.trialType === 'instructions' || stimulus.task === 'instructions') {
-        return ['OK']
-    } 
-    const { answer, distractors } = stimulus;
-
-    let trialInfo;
-
-    if(stimulus.task === "Mental Rotation") { // don't randomize stimulus choice order, don't add target to choices
-        trialInfo = prepareChoices(answer, distractors, false);
-    } else {
-        trialInfo = prepareChoices(answer, distractors);
+    if (stimulus.trialType === 'instructions') {
+        return ['OK'];
     }
 
+    const { answer, distractors } = stimulus;
+    let trialInfo = stimulus.task === "Mental Rotation" ? prepareChoices(answer, distractors, false) : prepareChoices(answer, distractors);
     store.session.set("target", answer);
     store.session.set("choices", trialInfo.choices);
 
-    // GK: what is this for?
-    // || task === 'mental-rotation
-    if (task === 'matrix-reasoning') {
-        if (!currPracticeChoiceMix.length && stimulus.notes === 'practice') {
-            currPracticeChoiceMix = trialInfo.choices
-            currPracticeAnswerIdx = store.session('correctResponseIdx')
-        }
+    if (task === 'matrix-reasoning' && stimulus.notes === 'practice' && !currPracticeChoiceMix.length) {
+        currPracticeChoiceMix = trialInfo.choices;
+        currPracticeAnswerIdx = store.session.get('correctResponseIdx'); // Fixed: Use 'get' for consistency
     }
 
     if (stimulus.trialType === 'Fraction') {
-        const distractorMathML = distractors.map(d => fractionToMathML(d));
-        const mathMLChoices = [fractionToMathML(answer), ...distractorMathML];
-        store.session.set("choices", mathMLChoices); // Update the session choices with MathML strings
-        return mathMLChoices; 
+        const mathMLChoices = [fractionToMathML(answer), ...distractors.map(fractionToMathML)];
+        store.session.set("choices", mathMLChoices);
+        return mathMLChoices;
     }
 
-    // for image buttons (trog, matrix reasoning, mental rotation...)
-    if (task === 'trog' && stimulus.trialType !== 'instructions') {
-        // if (stimulus.notes === 'practice') {
-        //     return currPracticeChoiceMix.map((choice, i) => `<img src=${mediaAssets.images[camelize(choice)]} alt=${choice} />`)
-        // } else {
-            return trialInfo.choices.map((choice, i) => `<img src=${mediaAssets.images[camelize(choice)]} alt=${choice} />`)
-        // }
+    if (['trog', 'matrix-reasoning', 'mental-rotation'].includes(task) && stimulus.trialType !== 'instructions') {
+        return generateImageChoices(trialInfo.choices);
     }
 
-    if (task === 'matrix-reasoning') {
-        // for testing
-        if (!trialInfo.choices.length) {
-            return Array(2).fill(0).map((_, i) => `<img src='https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc' alt='something' />`)
-        } else {
-            if (stimulus.notes === 'practice') {
-                return currPracticeChoiceMix.map((choice, i) => `<img src=${mediaAssets.images[choice] || `https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc`} alt=${choice} />`)
-            } else {
-                return trialInfo.choices.map((choice, i) => `<img src=${mediaAssets.images[choice] || `https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc`} alt=${choice} />`)
-            }
-        }
-    }
-
-    if (task === 'theory-of-mind' || task === "mental-rotation") {
-        // for testing
-        if (!trialInfo.choices.length) {
-            return Array(2).fill(0).map((_, i) => `<img src='https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc' alt='something' />`)
-        } else {
-            return trialInfo.choices.map((choice, i) => `<img src=${mediaAssets.images[choice] || `https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc`} alt=${choice} />`)
-        }
-    }
-
-    return trialInfo.choices;
+    return trialInfo.choices; // Default return if no special conditions met
 }
 
 function getButtonHtml(task, trialType) {
@@ -611,6 +579,7 @@ function doOnFinish(data, task) {
     }
 
     if(store.session.get("incorrectTrials") >= NUM_INCORRECT_RESPONSES_TO_END) {
+        store.session.set("incorrectTrials", 0);
         jsPsych.endExperiment("The experiment is over. Thank you!"); // ToDo: audio message for kids?
     }
 }
