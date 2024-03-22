@@ -11,6 +11,7 @@ import { camelize } from "@bdelab/roar-utils";
 import { getDevice } from "@bdelab/roar-utils";
 
 const isMobile = getDevice() === 'mobile'
+const NUM_INCORRECT_RESPONSES_TO_END = 3
 
 // Previously chosen responses for current practice trial
 let practiceResponses = []
@@ -527,6 +528,10 @@ function doOnFinish(data, task) {
     // target is the actual value as a string
     const target = store.session('target')
 
+    if (store.session.get("incorrectTrials") === null) {
+        store.session.set("incorrectTrials", 0);
+    }
+
     if (stimulus.trialType !== 'instructions') {
         if (data.keyboard_response) {
             data.correct = keyboardResponseMap[data.keyboard_response] === target
@@ -550,11 +555,13 @@ function doOnFinish(data, task) {
             if (!isPractice(stimulus.notes)) {
                 // practice trials don't count toward total
                 store.session.transact("totalCorrect", (oldVal) => oldVal + 1);
+                store.session.set("incorrectTrials", 0); // reset incorrect trial count
             }
             practiceResponses = []
             currPracticeChoiceMix = []
             currPracticeAnswerIdx = null
         } else {
+            store.session.transact("incorrectTrials", (oldVal) => oldVal + 1);
             addItemToSortedStoreList("incorrectItems", target);
 
             const pushedResponse = store.session.get("responseValue")
@@ -600,6 +607,10 @@ function doOnFinish(data, task) {
         // false because it's not a real trial
             correct: false
         })
+    }
+
+    if(store.session.get("incorrectTrials") >= NUM_INCORRECT_RESPONSES_TO_END) {
+        jsPsych.endExperiment("The experiment is over. Thank you!"); // ToDo: audio message for kids?
     }
 }
 
