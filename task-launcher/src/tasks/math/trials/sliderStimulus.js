@@ -37,14 +37,25 @@ function captureBtnValue(event) {
   } else return;
 }
 
-function getRandomValue(max, avoid) {
+// function getRandomValue(max, avoid) {
+//   let result;
+
+//   do {
+//     result = Math.floor(Math.random() * (max + 1));
+//   } while (result === avoid);
+
+//   return result;
+// }
+
+function getRandomValue(max, avoid, tolerance = 0.1) {
+  const scaled_avoid = avoid / max;
   let result;
 
   do {
-    result = Math.floor(Math.random() * (max + 1));
-  } while (result === avoid);
+    result = Math.random();
+  } while (Math.abs(result - scaled_avoid) < tolerance);
 
-  return result;
+  return result * max;
 }
 
 export const slider = {
@@ -79,20 +90,24 @@ export const slider = {
   require_movement: () => store.session.get('nextStimulus').trialType === 'Number Line Slider',
   slider_width: 800,
   min: () => store.session.get('nextStimulus').item[0],
-  max: () => (store.session.get('nextStimulus').item[1] === 1 ? 100 : store.session.get('nextStimulus').item[1]),
+  max: () => store.session.get('nextStimulus').item[1],
+  // max: () => (store.session.get('nextStimulus').item[1] === 1 ? 100 : store.session.get('nextStimulus').item[1]),
   slider_start: () => {
     const stim = store.session.get('nextStimulus');
 
     if (stim.trialType.includes('Slider')) {
-      const max = stim.item[1] === 1 ? 100 : stim.item[1];
+      // const max = stim.item[1] === 1 ? 100 : stim.item[1];
+      const max = stim.item[1];
       sliderStart = getRandomValue(max, stim.answer);
     } else {
-      sliderStart = stim.answer < 1 ? stim.answer * 100 : stim.answer;
+      // sliderStart = stim.answer < 1 ? stim.answer * 100 : stim.answer;
+      sliderStart = stim.answer;
     }
 
     return sliderStart;
   },
-  step: 1,
+  // step: 1,
+  step: 'any',
   // response_ends_trial: true,
   on_load: () => {
     const slider = document.getElementById('jspsych-html-slider-response-response');
@@ -216,7 +231,9 @@ export const slider = {
       data.correct = null;
     }
 
-    const response = stimulus.task.includes('Slider') && stimulus.item[1] === 1 ? chosenAnswer / 100 : chosenAnswer;
+    // const response = stimulus.task.includes('Slider') && stimulus.item[1] === 1 ? chosenAnswer / 100 : chosenAnswer;
+    // const response = stimulus.task.includes('Slider') && chosenAnswer;
+    const response = chosenAnswer;
     const responseType = stimulus.task.includes('4afc') ? 'afc' : 'slider';
     const answer = stimulus.answer;
 
@@ -226,7 +243,8 @@ export const slider = {
       response: _toNumber(response),
       responseType: responseType,
       distractors: stimulus.distractors,
-      slider_start: stimulus.item[1] === 1 ? sliderStart / 100 : sliderStart,
+      // slider_start: stimulus.item[1] === 1 ? sliderStart / 100 : sliderStart,
+      slider_start: sliderStart,
     });
 
     console.log('data: ', data);
