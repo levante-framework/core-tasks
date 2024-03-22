@@ -3,7 +3,6 @@ import store from 'store2';
 import { mediaAssets } from '../../..';
 
 export const prepareChoices = (target, distractors, randomizeOrder = true) => {
-  console.log({ distractors });
   let choices;
   if (distractors.includes(target)) {
     choices = [...distractors];

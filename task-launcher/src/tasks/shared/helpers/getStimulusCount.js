@@ -27,8 +27,6 @@ export const getStimulusCount = (userMode) => {
 
   let countList;
 
-  console.log({numberOfTrials, maxNumberOfTrials})
-
   if (numberOfTrials > maxNumberOfTrials) {
     countList = createBlocks(stimulusBlocks, maxNumberOfTrials);
   } else {

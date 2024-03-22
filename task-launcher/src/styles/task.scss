@@ -131,6 +131,16 @@
         }
       }
 
+      .practice-correct {
+        box-shadow: 0 0 20px 5px rgb(85, 251, 56);
+        border-radius: 2rem;
+      }
+
+      .practice-incorrect {
+        box-shadow: 0 0 30px 8px rgb(255, 43, 1);
+        border-radius: 2rem;
+      }
+
       // 1 x 4 (default)
       .default-layout {
         display: flex;
@@ -394,46 +404,64 @@
       // ----------------------------------------------------------------------------
 
       input[type='range'] {
-        //accent-color: gray;
+        --line-height: 2px;
+        --line-color: gray;
+        --tick-width: 5px;
+        --tick-height-minmax: 50px;
+        --tick-height-target: 30px;
+        --tick-color-minmax: black;
+        --tick-color-target: red;
+
+        @mixin track {
+          height: 0;
+          border: var(--line-height) solid var(--line-color);
+        }
+
+        @mixin thumb {
+          background: var(--tick-color-target);
+          width: var(--tick-width);
+          height: var(--tick-height-target);
+        }
+
+        appearance: none;
         background: transparent;
+        margin: 0;
+        width: 100%;
+        height: var(--tick-height-minmax);
+        border-left: var(--tick-width) solid var(--tick-color-minmax);
+        border-right: var(--tick-width) solid var(--tick-color-minmax);
+        box-sizing: border-box;
 
-        // -webkit-appearance: none;
-        // appearance: none;
-        background-color: transparent;
-
-        /* WebKit-specific: Chrome, Safari, new Edge */
+        // WebKit-specific: Chrome, Safari, new Edge
         &::-webkit-slider-runnable-track {
-          background: transparent;
-          color: black;
+          @include track;
         }
 
-        /* Firefox */
+        // Firefox
         &::-moz-range-track {
-          background: transparent;
-          color: black; 
-          height: 2px;
-        }
-
-        /* MS Edge */
-        &::-ms-track {
-          background: transparent;
-          color: black; /* transparent ? Necessary for Edge */
-          height: 2px;
+          @include track;
         }
 
         // Chrome, Safari, and Edge Chromium
         &::-webkit-slider-thumb {
-          height: 20px;
-          width: 3px;
-          color: black;
+          @include thumb;
+          appearance: none;
+          transform: translateY(-50%);
         }
 
         // Firefox
-        ::-moz-range-thumb {
-          height: 20px;
-          width: 3px;
-          color: black;
+        &::-moz-range-thumb {
+          @include thumb;
           border: none;
+          border-radius: 0;
+        }
+
+        &:enabled::-webkit-slider-thumb {
+          cursor: pointer;
+        }
+
+        &:enabled::-moz-range-thumb {
+          cursor: pointer;
         }
       }
 

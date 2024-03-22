@@ -1,33 +1,34 @@
 import 'regenerator-runtime/runtime';
 import store from 'store2';
 // setup
-import { getStimulusCount, initTrialSaving, initTimeline, createPreloadTrials, isPractice } from '../shared/helpers';
+import { getStimulusCount, initTrialSaving, initTimeline, createPreloadTrials } from '../shared/helpers';
 import { jsPsych, initializeCat } from '../taskSetup';
 // trials
 import { afcStimulus } from '../shared/trials/afcStimulus';
 import { slider } from './trials/sliderStimulus';
 import { exitFullscreen } from '../shared/trials';
-import { setupPractice, setupStimulus } from '../shared/trials';
-import { instructions1, instructions2, postPractice, taskFinished } from './trials/instructions';
-import { audioResponse } from './trials/audioFeedback';
+import { setupStimulus } from '../shared/trials';
+import { instructions1, instructions2, taskFinished } from './trials/instructions';
+import { getAudioResponse } from '../shared/trials';
 
-const ifRealTrialResponse = {
-  timeline: [audioResponse],
-
-  conditional_function: () => {
-    const subTask = store.session.get("nextStimulus").notes;
-    if (isPractice(subTask)) {
-      return false;
-    }
-    return true;
-  },
-};
 
 export default function buildMathTimeline(config, mediaAssets) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
 
   initTrialSaving(config);
   const initialTimeline = initTimeline(config);
+
+  const ifRealTrialResponse = {
+    timeline: [getAudioResponse(mediaAssets)],
+  
+    conditional_function: () => {
+      const stim = store.session.get("nextStimulus");
+      if (stim.notes === 'practice' || stim.trialType === 'instructions') {
+        return false;
+      }
+      return true;
+    },
+  };
 
   const timeline = [
     preloadTrials,
@@ -46,7 +47,6 @@ export default function buildMathTimeline(config, mediaAssets) {
       }),
     ],
     conditional_function: () => {
-      console.log("afcCondition: ", store.session.get('nextStimulus').trialType)
       return (!store.session.get('nextStimulus').trialType?.includes('Number Line'))
     },
   };
@@ -54,7 +54,6 @@ export default function buildMathTimeline(config, mediaAssets) {
   const sliderBlock = {
     timeline: [slider],
     conditional_function: () => {
-      console.log("sliderCondition: ", store.session.get('nextStimulus').trialType)
       return (store.session.get('nextStimulus').trialType?.includes('Number Line'))
     },
   };
@@ -67,7 +66,12 @@ export default function buildMathTimeline(config, mediaAssets) {
 
       //if (trialType === 'practice') {
         surveyBlock = {
-          timeline: [fixationAndSetupBlock, afcStimulusBlock, sliderBlock, ifRealTrialResponse],
+          timeline: [
+            fixationAndSetupBlock,
+            afcStimulusBlock, 
+            sliderBlock, 
+            ifRealTrialResponse
+          ],
           conditional_function: () => {
             if (stimulusCounts[i] === 0) {
               return false;
@@ -93,7 +97,6 @@ export default function buildMathTimeline(config, mediaAssets) {
 
   // timeline.push(postPractice)
 
-  console.log(getStimulusCount());
   pushSubTaskToTimeline(setupStimulus, getStimulusCount(), 'stimulus'); // Stimulus Trials
 
   timeline.push(taskFinished);
