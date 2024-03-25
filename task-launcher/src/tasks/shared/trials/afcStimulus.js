@@ -582,7 +582,10 @@ function doOnFinish(data, task) {
 
     if(store.session.get("incorrectTrials") >= NUM_INCORRECT_RESPONSES_TO_END) {
         store.session.set("incorrectTrials", 0);
-        jsPsych.endExperiment("The experiment is over. Thank you!"); // ToDo: audio message for kids?
+        jsPsych.endExperiment(
+            `<div id="prompt-container-text">
+                <p id="prompt">The experiment is over. Thank you!</p>
+            </div>`); // ToDo: style text and add audio message?
     }
 }
 
