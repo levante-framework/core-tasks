@@ -530,7 +530,9 @@ function doOnFinish(data, task) {
             currPracticeChoiceMix = []
             currPracticeAnswerIdx = null
         } else {
-            store.session.transact("incorrectTrials", (oldVal) => oldVal + 1);
+            if (!isPractice(stimulus.notes)) {
+                store.session.transact("incorrectTrials", (oldVal) => oldVal + 1);
+            }
             addItemToSortedStoreList("incorrectItems", target);
 
             const pushedResponse = store.session.get("responseValue")
