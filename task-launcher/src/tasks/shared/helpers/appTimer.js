@@ -1,16 +1,13 @@
 import store from "store2";
-import jsPsychCallFunction from "@jspsych/plugin-call-function";
 
 // This feature allows the caller to set a time limit for the app, configured via url and store variable maxTime
-// startAppTimer can be added to the timeline after initialTimeline to limit the duration of the entire app 
-// thus excluding only the preload time, 
-// or can limit only the real trials duration by adding it to the timeline just before the real trials begin 
-// thus excluding preload time, instructions, and practice trials
-// Call clearAppTimer before exiting
+// the preload time is not included in the time limit
+// initAppTimer() can be called in initTimeline to limit the duration of the entire app 
+// Be sure to call clearTimeout() before exiting
 
-const initAppTimer = () => {
+export const initAppTimer = () => {
     const maxTime = store.session.get("config").maxTime
-    console.log("maxTime is " + maxTime + " minutes");
+    //console.log("maxTime is " + maxTime + " minutes");
     
     if (store.session("config").maxTime) {
         // create a timer to flag that it's time to exit the app
@@ -18,7 +15,7 @@ const initAppTimer = () => {
         
         const timerId = setTimeout(() => {
             store.session.set('maxTimeReached', true); 
-            console.log("AppTimer expired after:" + maxTimeMs + "ms");
+            //console.log("AppTimer expired after:" + maxTimeMs + "ms");
         }, maxTimeMs);
 
         store.session.set('maxTimerId', timerId);
@@ -28,24 +25,6 @@ const initAppTimer = () => {
     store.session.set("maxTimeReached", false);
 };
 
-
-// trial to start the application timer
-export const startAppTimer = {
-    type: jsPsychCallFunction,
-    func: function () {
-        initAppTimer();
-    },
-};
-
-// trial to clear the application timer
-export const clearAppTimer = {
-    type: jsPsychCallFunction,
-    func: function () {
-        if (store.session("config").maxTimerId) {
-            clearTimeout(store.session.get("maxTimerId"));
-        } 
-    },
-};
 
 export const isMaxTimeoutReached = () => {
     return(store.session("maxTimeReached"));

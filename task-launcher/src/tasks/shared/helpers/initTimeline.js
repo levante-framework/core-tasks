@@ -1,5 +1,6 @@
 import { enterFullscreen } from '../trials';
 import { makePid } from './makePID';
+import { initAppTimer } from './index'
 
 export const initTimeline = (config) => {
   const initialTimeline = [enterFullscreen];
@@ -13,6 +14,12 @@ export const initTimeline = (config) => {
         assessmentPid: config.pid,
         ...config.userMetadata,
       });
+      
+      
+      if (config.task === 'trog') {
+        initAppTimer();
+        //console.log('App Timer Initialized')
+      }
     },
   };
 

@@ -2,7 +2,6 @@ import 'regenerator-runtime/runtime';
 // setup
 import store from 'store2';
 import { initTrialSaving, initTimeline, createPreloadTrials } from '../shared/helpers';
-import { startAppTimer, clearAppTimer, isMaxTimeoutReached } from '../shared/helpers/appTimer';
 import { jsPsych, initializeCat } from '../taskSetup';
 // trials
 import { afcStimulusWithTimeoutCondition } from '../shared/trials/afcStimulus';
@@ -40,14 +39,14 @@ export default function buildTROGTimeline(config, mediaAssets) {
   const timeline = [
     preloadTrials,
     initialTimeline,
-    startAppTimer,
     //instructions1, // TODO: fix audio and button
     // practiceBlock,
     stimulusBlock,
   ];
 
   initializeCat();
-  timeline.push(clearAppTimer);
+
+  // final screens
   timeline.push(taskFinished);
   timeline.push(exitFullscreen);
 
