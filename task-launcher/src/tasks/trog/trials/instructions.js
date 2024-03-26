@@ -1,4 +1,5 @@
 import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
+import store from "store2";
 
 export const taskFinished = {
   type: jsPsychHTMLMultiResponse,
@@ -7,6 +8,13 @@ export const taskFinished = {
       // save_trial: true,
       assessment_stage: 'instructions',
     };
+  },
+  on_load: () => {
+    // timer cleanup
+    if (store.session.get("maxTimerId")) { 
+      clearTimeout(store.session.get("maxTimerId"));
+      store.session.set("maxTimerId", null);
+    }
   },
   stimulus: `
     <div class='instructions-container'>
