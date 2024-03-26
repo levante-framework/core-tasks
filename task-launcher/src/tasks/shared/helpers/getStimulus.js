@@ -20,12 +20,16 @@ export const getStimulus = (corpusType) => {
   corpus[corpusType] = itemSuggestion.remainingStimuli;
   store.session.set('corpora', corpus);
 
-  // Testing Slider AFC trials
+  // Testing - Slider AFC trials
   // const afcStim = corpus[corpusType].find(stim => stim.trialType === 'Number Line 4afc')
   // store.session.set("nextStimulus", afcStim);
 
-  // Testing 0-1 range slider trials
+  // Testing - 0-1 range slider trials
   // const sliderStim = corpus[corpusType].filter(stim => _isEqual(stim.item, [0,1]))
   // console.log(sliderStim)
   // store.session.set("nextStimulus", sliderStim[0]);
+
+  // Testing - Number Comparison (2afc)
+  // itemSuggestion = corpus[corpusType].find(stim => stim.trialType === 'Number Comparison')
+  // store.session.set('nextStimulus', itemSuggestion);
 };

@@ -189,11 +189,13 @@ function enableBtns(btnElements) {
 }
 
 async function keyboardBtnFeedback(e, practiceBtns, stim) {
-    if (
-        e.key === 'ArrowLeft' || 
-        e.key === 'ArrowRight' || 
-        e.key === 'ArrowUp' || 
-        e.key === 'ArrowDown') 
+    let allowedKeys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown']
+    
+    if (stim.distractors.length === 1) {
+        allowedKeys = ['ArrowLeft', 'ArrowRight']
+    }
+
+    if (allowedKeys.includes(e.key)) 
     {
         let feedbackAudio
         const choice = keyboardResponseMap[e.key.toLowerCase()];
@@ -608,7 +610,11 @@ export const afcStimulus = ({ trialType, responseAllowed, promptAboveButtons, ta
         stimulus: () => getStimulus(trialType),
         prompt: () => getPrompt(task, trialType),
         prompt_above_buttons: promptAboveButtons,
-        keyboard_choices: ['ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight'],
+        keyboard_choices: () => {
+            return store.session.get("nextStimulus").distractors?.length === 1 ? 
+            ['ArrowLeft', 'ArrowRight'] :
+            ['ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight']
+        },
         button_choices: () => getButtonChoices(task, trialType),
         button_html: () => getButtonHtml(task, trialType),
         on_load: () => doOnLoad(task, trialType),
