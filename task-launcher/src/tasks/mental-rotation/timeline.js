@@ -43,7 +43,7 @@ export default function buildMentalRotationTimeline(config, mediaAssets) {
       }),
       ifRealTrialResponse,
     ],
-    repetitions: store.session.get('maxStimulusTrials'),
+    repetitions: store.session.get('totalTrials'),
   };
 
   const timeline = [
