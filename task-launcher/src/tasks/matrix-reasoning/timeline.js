@@ -37,7 +37,7 @@ export default function buildMatrixTimeline(config, mediaAssets) {
         task: config.task,
       }),
     ],
-    repetitions: store.session.get('maxStimulusTrials'),
+    repetitions: store.session.get('totalTrials'),
   };
 
   const timeline = [preloadTrials, initialTimeline, practiceBlock, stimulusBlock];
