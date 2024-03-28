@@ -12,7 +12,7 @@ import { getDevice } from "@bdelab/roar-utils";
 
 
 const isMobile = getDevice() === 'mobile'
-const NUM_INCORRECT_RESPONSES_TO_END = 3
+const numIncorrectResponsesToEnd = 3
 
 // Previously chosen responses for current practice trial
 let practiceResponses = []
@@ -531,6 +531,7 @@ function doOnFinish(data, task) {
             currPracticeChoiceMix = []
             currPracticeAnswerIdx = null
         } else {
+            // Only increase incorrect trials if response is incorrect not a practice trial
             if (!isPractice(stimulus.notes)) {
                 store.session.transact("incorrectTrials", (oldVal) => oldVal + 1);
             }
@@ -581,8 +582,7 @@ function doOnFinish(data, task) {
         })
     }
 
-    if(store.session.get("incorrectTrials") >= NUM_INCORRECT_RESPONSES_TO_END) {
-        store.session.set("incorrectTrials", 0);
+    if(store.session.get("incorrectTrials") >= numIncorrectResponsesToEnd) {
         jsPsych.endExperiment(
             `<div id="prompt-container-text">
                 <p id="prompt">The experiment is over. Thank you!</p>

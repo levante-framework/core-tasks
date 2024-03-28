@@ -17,7 +17,7 @@ export default function buildMemoryTimeline(config, mediaAssets) {
 
   const corsiBlock = {
     timeline: [corsiBlocksDisplay, corsiBlocks],
-    repetitions: store.session.get('maxStimulusTrials'),
+    repetitions: store.session.get('totalTrials'),
   };
 
   const timeline = [
