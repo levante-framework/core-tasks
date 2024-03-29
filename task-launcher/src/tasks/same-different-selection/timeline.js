@@ -25,7 +25,7 @@ export default function buildSameDifferentTimeline(config, mediaAssets) {
 
   const stimulusBlock = {
     timeline: [setupStimulus, stimulus],
-    repetitions: store.session.get('maxStimulusTrials'),
+    repetitions: store.session.get('totalTrials'),
   };
 
   const afcBlock = {
