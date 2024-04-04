@@ -585,9 +585,10 @@ function doOnFinish(data, task) {
     }
 
     if(store.session.get("incorrectTrials") >= numIncorrectResponsesToEnd) {
+        store.session.set("incorrectTrials",0);
         jsPsych.endExperiment(
             `<div id="prompt-container-text">
-                <p id="prompt">The experiment is over. Thank you!</p>
+                <p id="prompt">You've completed the task. Thank you!</p>
             </div>`); // ToDo: style text and add audio message?
     }
 }
@@ -680,7 +681,12 @@ export const afcStimulusWithTimeoutCondition = ({trialType, responseAllowed, pro
             // }
 
             // don't play when skipping trials because app is finished
-            if (isMaxTimeoutReached()) { 
+            if (isMaxTimeoutReached()) {
+                // timer cleanup
+                if (store.session.get("maxTimerId")) { 
+                    clearTimeout(store.session.get("maxTimerId"));
+                    store.session.set("maxTimerId", null);
+                }
                 return false;
             }
             else {

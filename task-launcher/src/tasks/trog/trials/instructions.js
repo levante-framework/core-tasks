@@ -9,13 +9,6 @@ export const taskFinished = {
       assessment_stage: 'instructions',
     };
   },
-  on_load: () => {
-    // timer cleanup
-    if (store.session.get("maxTimerId")) { 
-      clearTimeout(store.session.get("maxTimerId"));
-      store.session.set("maxTimerId", null);
-    }
-  },
   stimulus: `
     <div class='instructions-container'>
         <h1 class='instructions-title'>You've completed the task -- thank you!</h1>
