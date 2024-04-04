@@ -4,8 +4,8 @@ import store from 'store2';
 import { initTrialSaving, initTimeline, createPreloadTrials } from '../shared/helpers';
 import { jsPsych, initializeCat } from '../taskSetup';
 // trials
-import { afcStimulus } from '../shared/trials/afcStimulus';
-import { exitFullscreen, setupPractice, setupStimulus } from '../shared/trials';
+import { afcStimulusWithTimeoutCondition } from '../shared/trials/afcStimulus';
+import { exitFullscreen, setupPractice, setupStimulus, setupStimulusConditional } from '../shared/trials';
 import { taskFinished } from './trials/instructions';
 
 export default function buildTROGTimeline(config, mediaAssets) {
@@ -32,7 +32,7 @@ export default function buildTROGTimeline(config, mediaAssets) {
   // }
 
   const stimulusBlock = {
-    timeline: [setupStimulus, afcStimulus(trialConfig)],
+    timeline: [setupStimulusConditional, afcStimulusWithTimeoutCondition(trialConfig)],
     repetitions: store.session.get('totalTrials'),
   };
 
@@ -45,6 +45,8 @@ export default function buildTROGTimeline(config, mediaAssets) {
   ];
 
   initializeCat();
+
+  // final screens
   timeline.push(taskFinished);
   timeline.push(exitFullscreen);
 

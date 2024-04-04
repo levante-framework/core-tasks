@@ -4,14 +4,14 @@ import jsPsychAudioMultiResponse from "@jspsych-contrib/plugin-audio-multi-respo
 import jsPsychHTMLMultiResponse from "@jspsych-contrib/plugin-html-multi-response"
 import store from "store2";
 import { jsPsych } from "../../taskSetup";
-import { prepareChoices, addItemToSortedStoreList, isPractice, fractionToMathML } from "../../shared/helpers";
+import { prepareChoices, addItemToSortedStoreList, isPractice, fractionToMathML, isMaxTimeoutReached } from "../../shared/helpers";
 import { mediaAssets } from "../../..";
 import _toNumber from 'lodash/toNumber'
 import { camelize } from "@bdelab/roar-utils";
 import { getDevice } from "@bdelab/roar-utils";
 
+
 const isMobile = getDevice() === 'mobile'
-const numIncorrectResponsesToEnd = 3
 
 // Previously chosen responses for current practice trial
 let practiceResponses = []
@@ -79,7 +79,7 @@ function getPrompt(task, trialType) { // showItem itemIsImage
                 <p id="prompt">${ stim.prompt }</p>
             </div>
 
-            ${ stim.task === 'math' || stim.task === 'TROG' ? '' :
+            ${ stim.task === 'math' || stimItem === '' ? '' :
                 `<img 
                 id="stimulus-img" 
                 src=${ mediaAssets.images[stimItem] || mediaAssets.images['blank'] }
@@ -172,7 +172,7 @@ function getButtonHtml(task, trialType) {
     const stimulus = store.session.get("nextStimulus");
     // TODO: add trial_type column to math item bank
     if (stimulus.trialType === 'instructions') {
-        return "<button id='continue-btn'>%choice%</button>"
+        return "<button id='continue-btn'>%choice%</button>"  
     }
     if (stimulus.trialType === 'Fraction') { 
         return "<button class='math-btn'>%choice%</button>"; 
@@ -576,17 +576,19 @@ function doOnFinish(data, task) {
 
         // console.log('data: ', jsPsych.data.get().last(1).values()[0])
 
-    } else {
+    } else {  // instructions
+        store.session.set("incorrectTrials", 0); // reset incorrect trial count
         jsPsych.data.addDataToLastTrial({
         // false because it's not a real trial
             correct: false
         })
     }
 
-    if(store.session.get("incorrectTrials") >= numIncorrectResponsesToEnd) {
+    if(store.session.get("incorrectTrials") >= store.session.get("config").maxIncorrect ) {
+        store.session.set("incorrectTrials",0);
         jsPsych.endExperiment(
             `<div id="prompt-container-text">
-                <p id="prompt">The experiment is over. Thank you!</p>
+                <p id="prompt">You've completed the task. Thank you!</p>
             </div>`); // ToDo: style text and add audio message?
     }
 }
@@ -658,5 +660,39 @@ export const afcCondtional = ({trialType, responseAllowed, promptAboveButtons, t
                 return false
             }
         }
+    }
+}
+
+export const afcStimulusWithTimeoutCondition = ({trialType, responseAllowed, promptAboveButtons, task } = {}) => {
+    return {
+        timeline: [
+            afcStimulus({
+            trialType: trialType,
+            responseAllowed: responseAllowed,
+            promptAboveButtons: promptAboveButtons,
+            task: task
+            })
+        ],
+        conditional_function: () => {
+            // TO DO if isRoar game parameter is desired
+            // const stim = store.session.get("nextStimulus")
+            // if (stim.notes.startsWith("roar-") && !isRoar) {
+            //     console.log("TO DO roar-only instructions start with roar- in notes field")
+            // }
+
+            // don't play when skipping trials because app is finished
+            if (isMaxTimeoutReached()) {
+                // timer cleanup
+                if (store.session.get("maxTimerId")) { 
+                    clearTimeout(store.session.get("maxTimerId"));
+                    store.session.set("maxTimerId", null);
+                }
+                return false;
+            }
+            else {
+                return true;
+            }
+            
+        },
     }
 }
