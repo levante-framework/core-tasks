@@ -80,7 +80,7 @@ function getPrompt(task, trialType) { // showItem itemIsImage
                 <p id="prompt">${ stim.prompt }</p>
             </div>
 
-            ${ stim.task === 'math' || stim.task === 'TROG' ? '' :
+            ${ stim.task === 'math' || stimItem === '' ? '' :
                 `<img 
                 id="stimulus-img" 
                 src=${ mediaAssets.images[stimItem] || mediaAssets.images['blank'] }
@@ -173,7 +173,7 @@ function getButtonHtml(task, trialType) {
     const stimulus = store.session.get("nextStimulus");
     // TODO: add trial_type column to math item bank
     if (stimulus.trialType === 'instructions') {
-        return "<button id='continue-btn'>%choice%</button>"
+        return "<button id='continue-btn'>%choice%</button>"  
     }
     if (stimulus.trialType === 'Fraction') { 
         return "<button class='math-btn'>%choice%</button>"; 
@@ -667,6 +667,12 @@ export const afcStimulusWithTimeoutCondition = ({trialType, responseAllowed, pro
             })
         ],
         conditional_function: () => {
+            // TO DO if isRoar game parameter is desired
+            // const stim = store.session.get("nextStimulus")
+            // if (stim.notes.startsWith("roar-") && !isRoar) {
+            //     console.log("TO DO roar-only instructions start with roar- in notes field")
+            // }
+
             // don't play when skipping trials because app is finished
             if (isMaxTimeoutReached()) { 
                 return false;
