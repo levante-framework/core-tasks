@@ -30,6 +30,7 @@ export const initSharedConfig = async (firekit, gameParams, userParams, displayE
     taskName,
     stimulusBlocks,
     numOfPracticeTrials,
+    maxIncorrect,
     keyHelpers,
     age,
     maxTime,    // maximum app duration in minutes
@@ -53,6 +54,7 @@ export const initSharedConfig = async (firekit, gameParams, userParams, displayE
     task: taskName ?? 'egma-math',
     stimulusBlocks: stimulusBlocks ?? 3,
     numOfPracticeTrials: numOfPracticeTrials ?? 2,
+    maxIncorrect: maxIncorrect ?? 3,
     keyHelpers: keyHelpers ?? true,
     language: i18next.language,
     maxTime: maxTime || null,   // default is no time limit

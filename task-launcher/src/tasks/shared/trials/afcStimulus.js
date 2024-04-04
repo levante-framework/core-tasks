@@ -12,7 +12,6 @@ import { getDevice } from "@bdelab/roar-utils";
 
 
 const isMobile = getDevice() === 'mobile'
-const numIncorrectResponsesToEnd = 3
 
 // Previously chosen responses for current practice trial
 let practiceResponses = []
@@ -577,14 +576,15 @@ function doOnFinish(data, task) {
 
         // console.log('data: ', jsPsych.data.get().last(1).values()[0])
 
-    } else {
+    } else {  // instructions
+        store.session.set("incorrectTrials", 0); // reset incorrect trial count
         jsPsych.data.addDataToLastTrial({
         // false because it's not a real trial
             correct: false
         })
     }
 
-    if(store.session.get("incorrectTrials") >= numIncorrectResponsesToEnd) {
+    if(store.session.get("incorrectTrials") >= store.session.get("config").maxIncorrect ) {
         store.session.set("incorrectTrials",0);
         jsPsych.endExperiment(
             `<div id="prompt-container-text">
