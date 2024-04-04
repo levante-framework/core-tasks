@@ -11,7 +11,6 @@ import { setupStimulus } from '../shared/trials';
 import { instructions1, instructions2, taskFinished } from './trials/instructions';
 import { getAudioResponse } from '../shared/trials';
 
-
 export default function buildMathTimeline(config, mediaAssets) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
 
@@ -20,9 +19,9 @@ export default function buildMathTimeline(config, mediaAssets) {
 
   const ifRealTrialResponse = {
     timeline: [getAudioResponse(mediaAssets)],
-  
+
     conditional_function: () => {
-      const stim = store.session.get("nextStimulus");
+      const stim = store.session.get('nextStimulus');
       if (stim.notes === 'practice' || stim.trialType === 'instructions') {
         return false;
       }
@@ -47,14 +46,14 @@ export default function buildMathTimeline(config, mediaAssets) {
       }),
     ],
     conditional_function: () => {
-      return (!store.session.get('nextStimulus').trialType?.includes('Number Line'))
+      return !store.session.get('nextStimulus').trialType?.includes('Number Line');
     },
   };
 
   const sliderBlock = {
     timeline: [slider],
     conditional_function: () => {
-      return (store.session.get('nextStimulus').trialType?.includes('Number Line'))
+      return store.session.get('nextStimulus').trialType?.includes('Number Line');
     },
   };
 
@@ -65,22 +64,17 @@ export default function buildMathTimeline(config, mediaAssets) {
       let surveyBlock;
 
       //if (trialType === 'practice') {
-        surveyBlock = {
-          timeline: [
-            fixationAndSetupBlock,
-            afcStimulusBlock, 
-            sliderBlock, 
-            ifRealTrialResponse
-          ],
-          conditional_function: () => {
-            if (stimulusCounts[i] === 0) {
-              return false;
-            }
-            store.session.set('currentBlockIndex', i);
-            return true;
-          },
-          repetitions: stimulusCounts[i],
-        };
+      surveyBlock = {
+        timeline: [fixationAndSetupBlock, afcStimulusBlock, sliderBlock, ifRealTrialResponse],
+        conditional_function: () => {
+          if (stimulusCounts[i] === 0) {
+            return false;
+          }
+          store.session.set('currentBlockIndex', i);
+          return true;
+        },
+        repetitions: stimulusCounts[i],
+      };
       //}
 
       timeline.push(surveyBlock);

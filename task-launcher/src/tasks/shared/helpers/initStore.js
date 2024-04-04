@@ -17,8 +17,7 @@ export const initSharedStore = (config) => {
 
   // variables to track current state of the experiment
   store.session.set('currentTrialCorrect', true);
-  store.session.set("maxTimeReached", false);
-
+  store.session.set('maxTimeReached', false);
 
   // running computations
   store.session.set('subtaskCorrect', 0);

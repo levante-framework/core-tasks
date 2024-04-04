@@ -1,5 +1,5 @@
 import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
-import { jsPsych } from "../../taskSetup";
+import { jsPsych } from '../../taskSetup';
 import { getStimulus, isMaxTimeoutReached } from '../helpers';
 
 // choosing the next stimulus from the corpus occurs during the fixation trial
@@ -42,7 +42,7 @@ export const setupPracticeConditional = {
   timeline: [setupPractice],
   conditional_function: () => {
     // don't play when skipping trials because app is finished
-    if (isMaxTimeoutReached()) { 
+    if (isMaxTimeoutReached()) {
       return false;
     } else {
       return true;
@@ -54,7 +54,7 @@ export const setupStimulusConditional = {
   timeline: [setupStimulus],
   conditional_function: () => {
     // don't play when skipping trials because app is finished
-    if (isMaxTimeoutReached()) { 
+    if (isMaxTimeoutReached()) {
       return false;
     } else {
       return true;

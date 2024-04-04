@@ -2,23 +2,22 @@ import jsPsychAudioKeyboardResponse from '@jspsych/plugin-audio-keyboard-respons
 import store from 'store2';
 
 export function getAudioResponse(mediaAssets) {
-
-  return ({
+  return {
     type: jsPsychAudioKeyboardResponse,
     stimulus: () => {
-        if (store.session.get('config').audioFeedback === 'binary' && store.session('currentTrialCorrect')) {
-            return mediaAssets.audio.coin;
-        }
+      if (store.session.get('config').audioFeedback === 'binary' && store.session('currentTrialCorrect')) {
+        return mediaAssets.audio.coin;
+      }
 
-        if (store.session.get('config').audioFeedback === 'binary' && !store.session('currentTrialCorrect')) {
-            return mediaAssets.audio.fail;
-        }
+      if (store.session.get('config').audioFeedback === 'binary' && !store.session('currentTrialCorrect')) {
+        return mediaAssets.audio.fail;
+      }
 
-        // neutral case
-        return mediaAssets.audio.select;
+      // neutral case
+      return mediaAssets.audio.select;
     },
     choices: 'NO_KEYS',
     trial_ends_after_audio: true,
     prompt: '',
-  });
-};
+  };
+}

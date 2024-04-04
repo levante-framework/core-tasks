@@ -18,7 +18,7 @@ const numberOfTrials = urlParams.get('trials') === null ? null : parseInt(urlPar
 const maxIncorrect = urlParams.get('maxIncorrect');
 const stimulusBlocks = urlParams.get('blocks') === null ? null : parseInt(urlParams.get('blocks'), 10);
 const age = urlParams.get('age') === null ? null : parseInt(urlParams.get('age'), 10);
-const maxTime = urlParams.get("maxTime") === null ? null : parseInt(urlParams.get("maxTime"), 10) // time limit for real trials
+const maxTime = urlParams.get('maxTime') === null ? null : parseInt(urlParams.get('maxTime'), 10); // time limit for real trials
 
 // const storyCorpus = urlParams.get("storyCopus")
 

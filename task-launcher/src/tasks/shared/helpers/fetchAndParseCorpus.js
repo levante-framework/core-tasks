@@ -11,7 +11,6 @@ import { dashToCamelCase } from './dashToCamelCase';
 import { camelize } from '@bdelab/roar-utils';
 import { shuffleStimulusTrials } from './randomizeStimulusBlocks';
 
-
 export let corpora;
 
 let totalTrials = 0;
@@ -36,9 +35,9 @@ function containsLettersOrSlash(str) {
 }
 
 const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
-  let currTrialTypeBlock = ''
-  let currPracticeAmount = 0
-  let totalPractice = 0
+  let currTrialTypeBlock = '';
+  let currPracticeAmount = 0;
+  let totalPractice = 0;
 
   csvInput.forEach((row) => {
     const newRow = {
@@ -72,31 +71,27 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
       totalPractice += 1;
     }
 
-    let currentTrialType = newRow.trialType
+    let currentTrialType = newRow.trialType;
 
     // console.log('currentTrialType:', currentTrialType)
     // console.log('currTrialTypeBlock:', currTrialTypeBlock)
 
     if (currentTrialType !== currTrialTypeBlock) {
-      currTrialTypeBlock = currentTrialType
-      currPracticeAmount = 0
+      currTrialTypeBlock = currentTrialType;
+      currPracticeAmount = 0;
     }
 
     // Only push in the specified amount of practice trials
     if (newRow.notes !== 'practice') {
       stimulusData.push(newRow);
-    } else if (
-      newRow.notes === 'practice' && 
-      currPracticeAmount < numOfPracticeTrials
-    ) {
+    } else if (newRow.notes === 'practice' && currPracticeAmount < numOfPracticeTrials) {
       stimulusData.push(newRow);
-      currPracticeAmount += 1
+      currPracticeAmount += 1;
     }
-
   });
 
   // Adjust totalTrials to account for practice trials that might not be added
-  totalTrials -= (totalPractice - numOfPracticeTrials);
+  totalTrials -= totalPractice - numOfPracticeTrials;
 
   if (!sequentialStimulus) {
     stimulusData = shuffleStimulusTrials(stimulusData);

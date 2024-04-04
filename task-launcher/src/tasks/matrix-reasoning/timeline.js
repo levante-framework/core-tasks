@@ -18,7 +18,7 @@ export default function buildMatrixTimeline(config, mediaAssets) {
     timeline: [
       setupPractice,
       afcCondtional({
-        trialType: 'audio', 
+        trialType: 'audio',
         responseAllowed: true,
         promptAboveButtons: true,
         task: config.task,

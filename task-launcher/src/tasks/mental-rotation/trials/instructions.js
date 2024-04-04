@@ -38,12 +38,10 @@ export const videoInstructions = {
   },
   stimulus: () => mediaAssets.audio.mentalRotationTrainingInstruct3,
   prompt: () => {
-    return (
-      `<video id='instruction-video' autoplay>
+    return `<video id='instruction-video' autoplay>
         <source src=${mediaAssets.video.mentalRotationExample} type="video/mp4"/>
         Your browser does not support the video tag.
-      </video>`
-    )
+      </video>`;
   },
   prompt_above_buttons: true,
   button_choices: ['Continue'],
@@ -52,12 +50,11 @@ export const videoInstructions = {
   trial_ends_after_audio: false,
   response_allowed_while_playing: false,
   on_load: () => {
-    const wrapper = document.getElementById('jspsych-audio-multi-response-prompt')
+    const wrapper = document.getElementById('jspsych-audio-multi-response-prompt');
     wrapper.style.display = 'flex';
     wrapper.style.justifyContent = 'center';
-  }
-}
-
+  },
+};
 
 export const taskFinished = {
   type: jsPsychHTMLMultiResponse,

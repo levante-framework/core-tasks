@@ -12,7 +12,6 @@ import { instructions1, videoInstructions, taskFinished } from './trials/instruc
 import { exitFullscreen, setupPractice, setupStimulus } from '../shared/trials';
 import { getAudioResponse } from '../shared/trials';
 
-
 export default function buildMentalRotationTimeline(config, mediaAssets) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
 
@@ -21,9 +20,9 @@ export default function buildMentalRotationTimeline(config, mediaAssets) {
 
   const ifRealTrialResponse = {
     timeline: [getAudioResponse(mediaAssets)],
-  
+
     conditional_function: () => {
-      const subTask = store.session.get("nextStimulus").notes;
+      const subTask = store.session.get('nextStimulus').notes;
       if (subTask === 'practice') {
         return false;
       }
@@ -36,7 +35,7 @@ export default function buildMentalRotationTimeline(config, mediaAssets) {
       setupStimulus,
       //stimulus
       afcStimulus({
-        trialType: 'audio', 
+        trialType: 'audio',
         responseAllowed: true,
         promptAboveButtons: true,
         task: config.task,
@@ -46,14 +45,7 @@ export default function buildMentalRotationTimeline(config, mediaAssets) {
     repetitions: store.session.get('totalTrials'),
   };
 
-  const timeline = [
-    preloadTrials,
-    initialTimeline,
-    instructions1,
-    videoInstructions,
-    stimulusBlock,
-    taskFinished,
-  ];
+  const timeline = [preloadTrials, initialTimeline, instructions1, videoInstructions, stimulusBlock, taskFinished];
 
   initializeCat();
 

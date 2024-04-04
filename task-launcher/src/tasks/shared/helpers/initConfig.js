@@ -33,7 +33,7 @@ export const initSharedConfig = async (firekit, gameParams, userParams, displayE
     maxIncorrect,
     keyHelpers,
     age,
-    maxTime,    // maximum app duration in minutes
+    maxTime, // maximum app duration in minutes
     // storyCorpus,
     // story,
   } = cleanParams;
@@ -57,7 +57,7 @@ export const initSharedConfig = async (firekit, gameParams, userParams, displayE
     maxIncorrect: maxIncorrect ?? 3,
     keyHelpers: keyHelpers ?? true,
     language: i18next.language,
-    maxTime: maxTime || null,   // default is no time limit
+    maxTime: maxTime || null, // default is no time limit
     // storyCorpus: storyCorpus ?? 'story-lion',
     // story: story ?? false,
   };
