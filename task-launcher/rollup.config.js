@@ -9,7 +9,7 @@ export default {
   input: 'src/index.js',
   plugins: [
     postcss({
-      inject: true, // This will inject the CSS to the HTML document
+      extract: 'resources/core-tasks.css',
     }),
     dsv(),
     json(),
