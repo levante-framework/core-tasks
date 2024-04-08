@@ -23,6 +23,10 @@ export const initTrialSaving = (config) => {
 
   jsPsych.opts.on_data_update = extend(jsPsych.opts.on_data_update, (data) => {
     if (data.save_trial) {
+      // save_trial is a flag that indicates whether the trial should
+      // be saved to Firestore. No point in writing it to the db.
+      delete data.save_trial;
+      delete data.internal_node_id;
       config.firekit.writeTrial(data);
     }
   });
