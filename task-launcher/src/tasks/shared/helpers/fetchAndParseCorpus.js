@@ -19,7 +19,8 @@ let totalTrials = 0;
 let maxPracticeTrials = 0;
 
 let stimulusData = [],
-  practiceData = [];
+    practiceData = [],
+    instructionData = [];
 
 function writeItem(row) {
   if (row.task === 'math' && row.trial_type.includes('Number Line')) {
@@ -46,6 +47,7 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
       task: row.task,
       // for testing, will be removed
       prompt: row.prompt,
+      origItemNum: row.orig_item_num,
       item: writeItem(row),
       trialType: row.trial_type,
       image: row.image,
@@ -82,20 +84,22 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
     }
 
     // Only push in the specified amount of practice trials
-    if (newRow.notes !== 'practice') {
-      stimulusData.push(newRow);
+    if (newRow.trialType === "instructions") {
+      instructionData.push(newRow);
     } else if (newRow.notes === 'practice' && currPracticeAmount < numOfPracticeTrials) {
-      stimulusData.push(newRow);
+      practiceData.push(newRow);
       currPracticeAmount += 1;
+    } else if (newRow.notes !== 'practice') {
+      stimulusData.push(newRow);
     }
   });
 
   // Adjust totalTrials to account for practice trials that might not be added
   totalTrials -= totalPractice - numOfPracticeTrials;
 
-  if (!sequentialStimulus) {
-    stimulusData = shuffleStimulusTrials(stimulusData);
-  }
+  // if (!sequentialStimulus) {
+  //   stimulusData = shuffleStimulusTrials(stimulusData);
+  // }
 
   // console.log('stimulus data from corpus parsing:', stimulusData)
 };
@@ -154,14 +158,16 @@ export const fetchAndParseCorpus = async (config) => {
   const csvTransformed = {
     practice: sequentialPractice ? practiceData : _shuffle(practiceData),
     stimulus: sequentialStimulus ? stimulusData : _shuffle(stimulusData),
+    instructions: instructionData,
   };
 
   corpora = {
+    instructions: csvTransformed.instructions,
     practice: csvTransformed.practice,
     stimulus: csvTransformed.stimulus,
   };
 
-  // console.log({corpora})
+  //console.log({corpora})
 
   store.session.set('corpora', corpora);
 };

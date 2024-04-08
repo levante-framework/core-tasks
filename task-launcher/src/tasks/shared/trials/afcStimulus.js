@@ -15,6 +15,7 @@ import { mediaAssets } from '../../..';
 import _toNumber from 'lodash/toNumber';
 import { camelize } from '@bdelab/roar-utils';
 import { getDevice } from '@bdelab/roar-utils';
+import { config } from 'process';
 
 const isMobile = getDevice() === 'mobile';
 
@@ -576,6 +577,8 @@ function doOnFinish(data, task) {
       distractors: stimulus.distractors,
       trialType: stimulus.trialType,
       responseType: store.session('responseType'),
+      corpusId: store.session.get('config').corpus,
+      itemId: stimulus.source + "-" + stimulus.origItemNum,
     });
 
     // Adding this seperately or otherwise it will overide
