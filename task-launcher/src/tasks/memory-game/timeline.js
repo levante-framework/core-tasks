@@ -19,7 +19,7 @@ export default function buildMemoryTimeline(config, mediaAssets) {
       getCorsiBlocks({ mode: 'display' }),
       getCorsiBlocks({ mode: 'input' }),
     ],
-    repetitions: store.session.get('totalTrials'),
+    repetitions: 10,
   };
 
   const timeline = [

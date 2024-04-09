@@ -15,6 +15,7 @@ const blockSpacing = 0.5;
 const sequenceLength = age > 6 ? 4 : 2;
 const grid = createGrid(x, y, numOfblocks, blockSize, gridSize, blockSpacing);
 let generatedSequence = generateRandomSequence(numOfblocks, sequenceLength);
+let selectedCoordinates = [];
 
 // This function produces both the display and input trials for the corsi blocks
 export function getCorsiBlocks({mode}) {
@@ -42,8 +43,10 @@ export function getCorsiBlocks({mode}) {
     on_finish: (data) => {
       if (mode === 'input') {
         jsPsych.data.addDataToLastTrial({
-          correct: _isEqual(data.response, data.sequence)
+          correct: _isEqual(data.response, data.sequence),
+          selectedCoordinates: selectedCoordinates
         });
+        selectedCoordinates = [];
 
         generatedSequence = generateRandomSequence(numOfblocks, sequenceLength);
       }
@@ -72,6 +75,12 @@ function doOnLoad(mode) {
     element.style.height = `unset`;
 
     element.classList.add('jspsych-corsi-block-overide');
+
+    if (mode === 'input') {
+      element.addEventListener('click', (event) => {
+        selectedCoordinates.push([event.clientX, event.clientY])
+      })
+    }
   });
 
   const contentWrapper = document.getElementById('jspsych-content');
