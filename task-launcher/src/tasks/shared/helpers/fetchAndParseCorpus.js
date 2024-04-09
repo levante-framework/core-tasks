@@ -16,7 +16,7 @@ export let corpora;
 let totalTrials = 0;
 let totalPractice = 0;
 let totalInstruction = 0;
-
+let totalStimulus = 0;
 
 // TODO: Remove (DEPRECATED)
 let maxPracticeTrials = 0;
@@ -95,6 +95,7 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
       totalPractice += 1;
     } else if (newRow.notes !== 'practice') {
       stimulusData.push(newRow);
+      totalStimulus += 1;
     }
   });
 
@@ -147,9 +148,10 @@ export const fetchAndParseCorpus = async (config) => {
 
     try {
       await parseCSVs(urls);
-      store.session.set('totalPractice', totalPractice);
-      store.session.set('totalTrials', totalTrials);
       store.session.set('totalInstruction', totalInstruction);
+      store.session.set('totalPractice', totalPractice);
+      store.session.set('totalStimulus', totalStimulus);
+      store.session.set('totalTrials', totalTrials);
 
       if (numOfPracticeTrials > maxPracticeTrials) config.numOfPracticeTrials = maxPracticeTrials;
 

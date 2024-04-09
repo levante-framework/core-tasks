@@ -34,7 +34,7 @@ export default function buildTROGTimeline(config, mediaAssets) {
 
   const stimulusBlock = {
     timeline: [setupStimulusConditional, afcStimulusWithTimeoutCondition(trialConfig)],
-    repetitions: store.session.get('totalTrials'),
+    repetitions: store.session.get('totalStimulus'),
   };
 
   const timeline = [
