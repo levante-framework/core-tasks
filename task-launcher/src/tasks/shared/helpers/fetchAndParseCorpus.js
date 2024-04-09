@@ -14,6 +14,9 @@ import { shuffleStimulusTrials } from './randomizeStimulusBlocks';
 export let corpora;
 
 let totalTrials = 0;
+let totalPractice = 0;
+let totalInstruction = 0;
+
 
 // TODO: Remove (DEPRECATED)
 let maxPracticeTrials = 0;
@@ -38,7 +41,6 @@ function containsLettersOrSlash(str) {
 const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
   let currTrialTypeBlock = '';
   let currPracticeAmount = 0;
-  let totalPractice = 0;
 
   csvInput.forEach((row) => {
     const newRow = {
@@ -69,9 +71,9 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
 
     totalTrials += 1;
 
-    if (row.notes === 'practice') {
-      totalPractice += 1;
-    }
+    // if (row.notes === 'practice') {
+    //   totalPractice += 1;
+    // }
 
     let currentTrialType = newRow.trialType;
 
@@ -86,9 +88,11 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
     // Only push in the specified amount of practice trials
     if (newRow.trialType === "instructions") {
       instructionData.push(newRow);
+      totalInstruction += 1;
     } else if (newRow.notes === 'practice' && currPracticeAmount < numOfPracticeTrials) {
       practiceData.push(newRow);
       currPracticeAmount += 1;
+      totalPractice += 1;
     } else if (newRow.notes !== 'practice') {
       stimulusData.push(newRow);
     }
@@ -143,7 +147,9 @@ export const fetchAndParseCorpus = async (config) => {
 
     try {
       await parseCSVs(urls);
+      store.session.set('totalPractice', totalPractice);
       store.session.set('totalTrials', totalTrials);
+      store.session.set('totalInstruction', totalInstruction);
 
       if (numOfPracticeTrials > maxPracticeTrials) config.numOfPracticeTrials = maxPracticeTrials;
 

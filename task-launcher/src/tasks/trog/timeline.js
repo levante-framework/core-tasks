@@ -5,7 +5,7 @@ import { initTrialSaving, initTimeline, createPreloadTrials } from '../shared/he
 import { jsPsych, initializeCat } from '../taskSetup';
 // trials
 import { afcStimulusWithTimeoutCondition } from '../shared/trials/afcStimulus';
-import { exitFullscreen, setupPractice, setupStimulus, setupStimulusConditional } from '../shared/trials';
+import { exitFullscreen, setupPracticeConditional, setupStimulusConditional, setupInstructionConditional } from '../shared/trials';
 import { taskFinished } from './trials/instructions';
 
 export default function buildTROGTimeline(config, mediaAssets) {
@@ -23,13 +23,14 @@ export default function buildTROGTimeline(config, mediaAssets) {
     task: config.task,
   };
 
-  // const practiceBlock = {
-  //   timeline: [
-  //     setupPractice,
-  //     afcStimulus(trialConfig)
-  //   ],
-  //   repetitions: config.numOfPracticeTrials
-  // }
+  const instructionBlock = {
+    timeline: [setupInstructionConditional,afcStimulusWithTimeoutCondition(trialConfig)],
+    repetitions: store.session.get('totalInstruction'),
+  }
+  const practiceBlock = {
+    timeline: [setupPracticeConditional,afcStimulusWithTimeoutCondition(trialConfig)],
+    repetitions: store.session.get('totalPractice'),
+  }
 
   const stimulusBlock = {
     timeline: [setupStimulusConditional, afcStimulusWithTimeoutCondition(trialConfig)],
@@ -39,8 +40,8 @@ export default function buildTROGTimeline(config, mediaAssets) {
   const timeline = [
     preloadTrials,
     initialTimeline,
-    //instructions1, // TODO: fix audio and button
-    // practiceBlock,
+    instructionBlock,
+    practiceBlock,
     stimulusBlock,
   ];
 
