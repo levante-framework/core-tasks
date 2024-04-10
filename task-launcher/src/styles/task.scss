@@ -5,6 +5,37 @@ $breakpoint-tablet: 600px;
 $breakpoint-desktop: 1024px;
 $breakpoint-large-desktop: 1440px;
 
+.toast {
+  // Initial style for the toast
+  position: fixed;
+  top: -100px; // Start off-screen
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: white;
+  color: #0f3cac;
+  padding: 10px 20px;
+  border: #275BDD solid 3px;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  display: block;
+  transition: top 0.5s ease;
+  font-size: 1.5rem;
+
+  @media(min-width: $breakpoint-tablet) {
+    font-size: 1.2rem;
+  }
+
+  &.show {
+    top: 10vh; // Final position
+
+    @media(min-width: $breakpoint-tablet) {
+      top: 5vh;
+    }
+  }
+}
+
+
 .jspsych-display-element {
   height: 100%;
   width: 100%;
@@ -48,6 +79,17 @@ $breakpoint-large-desktop: 1440px;
       #instruction-video {
         height: 60vh;
         width: 40vw;
+
+
+        @media (min-width: $breakpoint-tablet) {
+          height: 50vh;
+          width: 30vw;
+        }
+
+        @media (min-width: $breakpoint-desktop) {
+          height: 55vh;
+          width: 35vw;
+        }
       }
 
       #continue-btn {
@@ -59,6 +101,14 @@ $breakpoint-large-desktop: 1440px;
         font-size: 1.5rem;
         cursor: pointer;
         margin-top: 1.5rem;
+
+        @media (min-width: $breakpoint-tablet) {
+          margin-top: .8rem;
+        }
+
+        @media (min-width: $breakpoint-desktop) {
+          margin-top: 1.5rem;
+        }
       }
 
       #jspsych-fullscreen-btn {
@@ -95,6 +145,10 @@ $breakpoint-large-desktop: 1440px;
         }
       }
 
+      #footer {
+        font-size: 1.2rem;
+      }
+
       // Multichoice template
       #fixation-container {
         display: flex;
@@ -112,6 +166,10 @@ $breakpoint-large-desktop: 1440px;
         align-items: center;
         margin-top: 2rem;
         width: 100%;
+
+        #instruction-graphic {
+          width: 40%;
+        }
 
         #prompt-container-text {
           background-color: #fff;
@@ -676,6 +734,14 @@ $breakpoint-large-desktop: 1440px;
         width: 25rem;
         height: 25rem;
 
+        @media(min-width: $breakpoint-tablet) {
+          padding: 1rem;
+        }
+        
+        @media(min-width: $breakpoint-desktop) {
+          padding: 0;
+        }
+
         .jspsych-corsi-block-overide {
           background-color: rgba(215, 215, 215, 0.93);
           width: 100%;
@@ -687,6 +753,13 @@ $breakpoint-large-desktop: 1440px;
 
       .corsi-block-overide-prompt {
         font-size: 2.5rem;
+
+        @media(min-width: $breakpoint-tablet) {
+          font-size: 1.5rem;
+        }
+        @media(min-width: $breakpoint-desktop) {
+          font-size: 2rem;
+        }
       }
 
       // -----------------------------------------------------------------------

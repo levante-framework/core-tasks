@@ -22,7 +22,6 @@ const maxTime = urlParams.get('maxTime') === null ? null : parseInt(urlParams.ge
 const language = urlParams.get('lng');
 const pid = urlParams.get('pid');
 
-// const storyCorpus = urlParams.get("storyCopus")
 
 // Boolean parameters
 const keyHelpers = stringToBoolean(urlParams.get('keyHelpers'), true);
@@ -47,25 +46,23 @@ async function startWebApp() {
         pid,
       };
 
-      const gameParams = {
-        taskName,
-        skipInstructions,
-        sequentialPractice,
-        sequentialStimulus,
-        corpus,
-        buttonLayout,
-        numOfPracticeTrials,
-        numberOfTrials,
-        maxIncorrect,
-        stimulusBlocks,
-        keyHelpers,
-        language: language ?? i18next.language,
-        age,
-        maxTime,
-        storeItemId,
-        // story,
-        // storyCorpus,
-      };
+    const gameParams = {
+      taskName,
+      skipInstructions,
+      sequentialPractice,
+      sequentialStimulus,
+      corpus,
+      buttonLayout,
+      numOfPracticeTrials,
+      numberOfTrials,
+      maxIncorrect,
+      stimulusBlocks,
+      keyHelpers,
+      language: language ?? i18next.language,
+      age,
+      maxTime,
+      storeItemId,
+    };
 
       const taskInfo = {
         taskId: taskName,
