@@ -1,4 +1,5 @@
 import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
+import store from 'store2';
 import { jsPsych } from '../../taskSetup';
 import { getStimulus, isMaxTimeoutReached } from '../helpers';
 

@@ -16,10 +16,9 @@ export let corpora;
 let totalTrials = 0;
 let totalPractice = 0;
 let totalInstruction = 0;
-let totalStimulus = 0;
+let totalStimulus = 0; 
+let skippedPractice = 0; 
 
-// TODO: Remove (DEPRECATED)
-let maxPracticeTrials = 0;
 
 let stimulusData = [],
     practiceData = [],
@@ -41,6 +40,7 @@ function containsLettersOrSlash(str) {
 const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
   let currTrialTypeBlock = '';
   let currPracticeAmount = 0;
+  const task = store.session.get('config').task;
 
   csvInput.forEach((row) => {
     const newRow = {
@@ -69,12 +69,6 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
       newRow.distractors = newRow.distractors.map((choice) => camelize(choice));
     }
 
-    totalTrials += 1;
-
-    // if (row.notes === 'practice') {
-    //   totalPractice += 1;
-    // }
-
     let currentTrialType = newRow.trialType;
 
     // console.log('currentTrialType:', currentTrialType)
@@ -85,26 +79,41 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
       currPracticeAmount = 0;
     }
 
-    // Only push in the specified amount of practice trials
     if (newRow.trialType === "instructions") {
-      instructionData.push(newRow);
+      if (task == "trog") { 
+        instructionData.push(newRow);
+      } else { 
+        stimulusData.push(newRow);
+      }
       totalInstruction += 1;
-    } else if (newRow.notes === 'practice' && currPracticeAmount < numOfPracticeTrials) {
-      practiceData.push(newRow);
-      currPracticeAmount += 1;
-      totalPractice += 1;
+      totalTrials += 1;
+
+    } else if (newRow.notes === 'practice') { 
+      // Only push in the specified amount of practice trials
+      if (currPracticeAmount < numOfPracticeTrials) {
+        if (task === "trog") { 
+          practiceData.push(newRow);
+        } else { 
+          stimulusData.push.push(newRow);
+        }
+        currPracticeAmount += 1;
+        totalPractice += 1;
+        totalTrials += 1;
+      } else {
+        skippedPractice += 1;
+      }
+
     } else if (newRow.notes !== 'practice') {
+      // everything else is stimulus
       stimulusData.push(newRow);
       totalStimulus += 1;
+      totalTrials += 1;
     }
   });
 
-  // Adjust totalTrials to account for practice trials that might not be added
-  totalTrials -= totalPractice - numOfPracticeTrials;
-
-  // if (!sequentialStimulus) {
-  //   stimulusData = shuffleStimulusTrials(stimulusData);
-  // }
+  if (!sequentialStimulus ) {
+    stimulusData = shuffleStimulusTrials(stimulusData);
+  }
 
   // console.log('stimulus data from corpus parsing:', stimulusData)
 };
@@ -153,8 +162,6 @@ export const fetchAndParseCorpus = async (config) => {
       store.session.set('totalStimulus', totalStimulus);
       store.session.set('totalTrials', totalTrials);
 
-      if (numOfPracticeTrials > maxPracticeTrials) config.numOfPracticeTrials = maxPracticeTrials;
-
       store.session.set('config', config);
     } catch (error) {
       console.error('Error:', error);
@@ -176,6 +183,6 @@ export const fetchAndParseCorpus = async (config) => {
   };
 
   //console.log({corpora})
-
+  //console.log("instr:" + totalInstruction + " practice:" + totalPractice + " stimulus:" + totalStimulus + " total:" + totalTrials + " skippedPractice:" + skippedPractice)
   store.session.set('corpora', corpora);
 };

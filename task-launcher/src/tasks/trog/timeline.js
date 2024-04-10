@@ -22,28 +22,39 @@ export default function buildTROGTimeline(config, mediaAssets) {
     promptAboveButtons: true,
     task: config.task,
   };
-
-  const instructionBlock = {
-    timeline: [setupInstructionConditional,afcStimulusWithTimeoutCondition(trialConfig)],
-    repetitions: store.session.get('totalInstruction'),
-  }
-  const practiceBlock = {
-    timeline: [setupPracticeConditional,afcStimulusWithTimeoutCondition(trialConfig)],
-    repetitions: store.session.get('totalPractice'),
-  }
-
-  const stimulusBlock = {
-    timeline: [setupStimulusConditional, afcStimulusWithTimeoutCondition(trialConfig)],
-    repetitions: store.session.get('totalStimulus'),
-  };
-
+  
   const timeline = [
     preloadTrials,
     initialTimeline,
-    instructionBlock,
-    practiceBlock,
-    stimulusBlock,
   ];
+
+  let totalInstruction = store.session.get('totalInstruction') || 0;
+  let totalPractice = store.session.get('totalPractice') || 0;
+  let totalStimulus = store.session.get('totalStimulus') || 0;
+
+  if (totalInstruction > 0) { 
+    const instructionBlock = {
+      timeline: [setupInstructionConditional,afcStimulusWithTimeoutCondition(trialConfig)],
+      repetitions: totalInstruction,
+    }
+    timeline.push(instructionBlock);
+  }
+
+  if (totalPractice > 0) { 
+    const practiceBlock = {
+      timeline: [setupPracticeConditional,afcStimulusWithTimeoutCondition(trialConfig)],
+      repetitions: totalPractice,
+    }
+    timeline.push(practiceBlock);
+  }
+
+  if (totalStimulus > 0) { 
+    const stimulusBlock = {
+      timeline: [setupStimulusConditional, afcStimulusWithTimeoutCondition(trialConfig)],
+      repetitions: totalStimulus,
+    };
+    timeline.push(stimulusBlock);
+  }
 
   initializeCat();
 

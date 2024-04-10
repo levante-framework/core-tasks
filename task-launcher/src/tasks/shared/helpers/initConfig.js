@@ -25,6 +25,7 @@ export const initSharedConfig = async (firekit, gameParams, userParams, displayE
     sequentialPractice,
     sequentialStimulus,
     corpus,
+    storeItemId,
     buttonLayout,
     numberOfTrials,
     taskName,
@@ -34,6 +35,7 @@ export const initSharedConfig = async (firekit, gameParams, userParams, displayE
     keyHelpers,
     age,
     maxTime, // maximum app duration in minutes
+    roarDefaults,  
     // storyCorpus,
     // story,
   } = cleanParams;
@@ -41,23 +43,25 @@ export const initSharedConfig = async (firekit, gameParams, userParams, displayE
   const config = {
     userMetadata: { ...userMetadata, age },
     audioFeedback: audioFeedback || 'neutral',
-    skipInstructions: skipInstructions ?? true,
+    skipInstructions: skipInstructions,
     startTime: new Date(),
     firekit,
     displayElement: displayElement || null,
-    sequentialPractice: sequentialPractice ?? true,
-    sequentialStimulus: sequentialStimulus ?? true,
+    sequentialPractice: sequentialPractice,
+    sequentialStimulus: sequentialStimulus,
     // name of the csv files in the storage bucket
     corpus: corpus,
+    storeItemId: storeItemId,
     buttonLayout: buttonLayout || 'default',
-    numberOfTrials: numberOfTrials ?? 20,
-    task: taskName ?? 'egma-math',
+    numberOfTrials: numberOfTrials ?? roarDefaults ? null : 20,
+    task: taskName ?? roarDefaults ? 'trog' : 'egma-math',
     stimulusBlocks: stimulusBlocks ?? 3,
     numOfPracticeTrials: numOfPracticeTrials ?? 2,
-    maxIncorrect: maxIncorrect ?? 3,
+    maxIncorrect: maxIncorrect ?? roarDefaults ? 100 : 3,
     keyHelpers: keyHelpers ?? true,
     language: i18next.language,
-    maxTime: maxTime || null, // default is no time limit
+    maxTime: maxTime || roarDefaults ? 8 : null, // default is no time limit
+    roarDefaults: roarDefaults,
     // storyCorpus: storyCorpus ?? 'story-lion',
     // story: story ?? false,
   };
@@ -75,5 +79,6 @@ export const initSharedConfig = async (firekit, gameParams, userParams, displayE
     await config.firekit.updateUser({ assessmentPid: config.pid, ...userMetadata });
   }
 
+  //console.log(config);
   return config;
 };

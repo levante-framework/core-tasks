@@ -76,6 +76,7 @@ skipInstructions: [boolean] (optional),
 sequentialPractice: [boolean] (optional)
 sequentialStimulus: [boolean] (optional)
 corpus: "*task-name-here*-item-bank" [string] (optional),
+storeItemId: [boolean] (optional)
 buttonLayout: "default" | "grid" | "column" | "diamond" | "triple" [string] (optional),
 trials: [number] (optional),
 stimulusBlocks: [number] (optional),
@@ -83,6 +84,7 @@ numOfPracticeTrials: [number] (optional),
 maxIncorrect: [number] (optional),
 maxTime: [number] (optional),
 keyHelpers: [boolean] (optional)
+roarDefaults: [boolean] (optional)
 ```
 
 ### Math (includes Number Line) - Default
