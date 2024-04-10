@@ -43,6 +43,8 @@ export class TaskLauncher {
       await loadCorpus(config);
     }
 
+    await getTranslations();
+
     return buildTaskTimeline(config, mediaAssets);
   }
 

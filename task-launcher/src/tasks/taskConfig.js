@@ -1,5 +1,10 @@
 import mathTimeline from './math/timeline';
-import { fetchAndParseCorpus, initSharedConfig, initSharedStore } from './shared/helpers';
+import { 
+  fetchAndParseCorpus, 
+  initSharedConfig, 
+  initSharedStore,
+  getTranslations,
+} from './shared/helpers';
 import matrixTimeline from './matrix-reasoning/timeline';
 import mentalRotationTimeline from './mental-rotation/timeline';
 import heartsAndFlowersTimeline from './hearts-and-flowers/timeline';
@@ -16,7 +21,7 @@ export default {
     initConfig: initSharedConfig,
     initStore: initSharedStore,
     loadCorpus: fetchAndParseCorpus,
-    getTranslations: 'getTranslationsFunc()',
+    getTranslations: getTranslations,
     buildTaskTimeline: mathTimeline,
     variants: {
       // example
@@ -29,7 +34,7 @@ export default {
     initConfig: initSharedConfig,
     initStore: initSharedStore,
     loadCorpus: fetchAndParseCorpus,
-    getTranslations: 'getTranslationsFunc()',
+    getTranslations: getTranslations,
     buildTaskTimeline: matrixTimeline,
     variants: {},
   },
@@ -37,7 +42,7 @@ export default {
     initConfig: initSharedConfig,
     initStore: initSharedStore,
     loadCorpus: fetchAndParseCorpus,
-    getTranslations: 'getTranslationsFunc()',
+    getTranslations: getTranslations,
     buildTaskTimeline: mentalRotationTimeline,
     variants: {},
   },
@@ -45,7 +50,7 @@ export default {
     initConfig: initSharedConfig,
     initStore: initSharedStore,
     loadCorpus: fetchAndParseCorpus,
-    getTranslations: 'getTranslationsFunc()',
+    getTranslations: getTranslations,
     buildTaskTimeline: heartsAndFlowersTimeline,
     variants: {},
   },
@@ -53,7 +58,7 @@ export default {
     initConfig: initSharedConfig,
     initStore: initSharedStore,
     loadCorpus: fetchAndParseCorpus,
-    getTranslations: 'getTranslationsFunc()',
+    getTranslations: getTranslations,
     buildTaskTimeline: memoryGameTimeline,
     variants: {},
   },
@@ -61,7 +66,7 @@ export default {
     initConfig: initSharedConfig,
     initStore: initSharedStore,
     loadCorpus: fetchAndParseCorpus,
-    getTranslations: 'getTranslationsFunc()',
+    getTranslations: getTranslations,
     buildTaskTimeline: sameDifferentSelectionTimeline,
     variants: {},
   },
@@ -69,7 +74,7 @@ export default {
     initConfig: initSharedConfig,
     initStore: initSharedStore,
     loadCorpus: fetchAndParseCorpus,
-    getTranslations: 'getTranslationsFunc()',
+    getTranslations: getTranslations,
     buildTaskTimeline: tROGTimeline,
     variants: {},
   },
@@ -77,7 +82,7 @@ export default {
     initConfig: initSharedConfig,
     initStore: initSharedStore,
     loadCorpus: fetchAndParseCorpus,
-    getTranslations: 'getTranslationsFunc()',
+    getTranslations: getTranslations,
     buildTaskTimeline: tomTimeline,
     variants: {},
   },

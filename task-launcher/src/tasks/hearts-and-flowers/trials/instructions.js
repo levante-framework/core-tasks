@@ -1,5 +1,6 @@
 import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
+import store from 'store2';
 
 export const introduction = {
   type: jsPsychHTMLMultiResponse,
@@ -29,35 +30,45 @@ export const introduction = {
 
 const instructionData = [
   {
-    text: "This is the heart game. Here's how you play it.",
-    buttonText: 'Next',
+    text: () => store.session.get('translations').heartInstruct1,
+    buttonText: () => store.session.get('translations').continueButtonText || 'Continue',
     image: () => mediaAssets.images.animalWhole,
   },
   {
-    text: "This is the flower game. Here's how you play it.",
-    buttonText: 'Next',
+    text: () => store.session.get('translations').flowerInstruct1,
+    buttonText: () => store.session.get('translations').continueButtonText || 'Continue',
     image: () => mediaAssets.images.animalWhole,
   },
-  { text: 'Time to practice!', buttonText: 'Go', image: () => mediaAssets.images.animalWhole },
+  { text: () => store.session.get('translations').heartsAndFlowersPracticeTime, 
+    buttonText: () => store.session.get('translations').continueButtonText || 'Continue', 
+    image: () => mediaAssets.images.animalWhole 
+  },
   {
-    text: "This time the game will go faster. It won't tell you if you are right or wrong.",
-    buttonText: 'Next',
+    text: () => store.session.get('translations').heartsAndFlowersInstruct1,
+    buttonText: () => store.session.get('translations').continueButtonText || 'Continue',
     image: () => mediaAssets.images.keepup,
     bottomText: 'Try to Keep up!',
   },
   {
-    text: 'Try to answer as fast as you can without making mistakes.',
-    buttonText: 'Next',
+    text: () => store.session.get('translations').heartsAndFlowersInstruct2,
+    buttonText: () => store.session.get('translations').continueButtonText || 'Continue',
     image: () => mediaAssets.images.rocket,
     bottomText: 'If you make a mistake, just keep going!',
   },
-  { text: 'Time to play!', buttonText: 'Go', image: () => mediaAssets.images.animalWhole },
+  { 
+    text: () => store.session.get('translations').heartsAndFlowersPlayTime,
+    buttonText: () => store.session.get('translations').continueButtonText || 'Continue', 
+    image: () => mediaAssets.images.animalWhole },
   {
-    text: "Now we're going to play a game with hearts and flowers.",
-    buttonText: 'Next',
+    text: () => store.session.get('translations').heartsAndFlowersInstruct3,
+    buttonText: () => store.session.get('translations').continueButtonText || 'Continue',
     image: () => mediaAssets.images.animalWhole,
   },
-  { text: 'Great job! You completed the game!.', buttonText: 'Close', image: () => mediaAssets.images.animalWhole },
+  { 
+    text: 'Great job! You completed the game!.', 
+    buttonText: 'Close', 
+    image: () => mediaAssets.images.animalWhole 
+  },
 ];
 
 export const [
@@ -74,7 +85,7 @@ export const [
     type: jsPsychHTMLMultiResponse,
     stimulus: () => {
       return `<div id='stimulus-container'>
-                    <h1>${data.text}</h1>
+                    <h1>${typeof data.text === 'function' ? data.text() : data.text}</h1>
                     <div >
                         <img id='instruction-graphic' src=${data.image()} alt='Instruction graphic'/>
                     </div>
@@ -84,7 +95,7 @@ export const [
     button_choices: ['Next'],
     button_html: [
       `<button class='next-btn'>
-                    <p>${data.buttonText}</p>
+                    <p>${typeof data.buttonText === 'function' ? data.buttonText() : data.buttonText}</p>
                 </button>`,
     ],
     on_load: () => {

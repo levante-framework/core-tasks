@@ -22,7 +22,7 @@ i18next
   .init({
     debug: false,
     // which langauage codes to use. Ex. if 'en-US' detected, will use 'en'
-    load: 'languageOnly',
+    // load: 'languageOnly',
     fallbackLng: 'en',
     detection: {
       order: ['defaultToEnglish', 'querystring'],
