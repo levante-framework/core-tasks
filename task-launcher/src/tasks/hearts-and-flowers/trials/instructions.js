@@ -93,7 +93,7 @@ export const [
                 </div>`;
     },
     button_choices: ['Next'],
-    button_html: [
+    button_html: () => [
       `<button class='next-btn'>
                     <p>${typeof data.buttonText === 'function' ? data.buttonText() : data.buttonText}</p>
                 </button>`,
