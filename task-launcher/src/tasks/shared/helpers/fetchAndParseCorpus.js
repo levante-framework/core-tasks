@@ -1,3 +1,5 @@
+// Required to use top level await
+import 'regenerator-runtime/runtime';
 import i18next from 'i18next';
 import '../../../i18n/i18n';
 import _shuffle from 'lodash/shuffle';
@@ -5,7 +7,6 @@ import Papa from 'papaparse';
 import _compact from 'lodash/compact';
 import _toNumber from 'lodash/toNumber';
 import store from 'store2';
-import 'regenerator-runtime/runtime';
 import { stringToNumberArray } from './stringToNumArray';
 import { dashToCamelCase } from './dashToCamelCase';
 import { camelize } from '@bdelab/roar-utils';
@@ -135,7 +136,9 @@ export const fetchAndParseCorpus = async (config) => {
   }
 
   async function fetchData() {
-    const urls = [corpusLocation[dashToCamelCase(task)]];
+    const urls = [
+      corpusLocation[dashToCamelCase(task)],
+    ];
 
     try {
       await parseCSVs(urls);

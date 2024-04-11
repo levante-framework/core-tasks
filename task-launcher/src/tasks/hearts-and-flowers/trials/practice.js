@@ -4,27 +4,28 @@ import store from 'store2';
 
 const practiceData = [
   {
-    text: 'When you see a heart, press the button on the same side.',
+    text: () => store.session.get('translations').heartInstruct2,
     stimulus: 'heart',
   },
   {
-    text: 'The heart is on the right side. Press the right button.',
+    text: () => store.session.get('translations').heartPracticeFeedback1,
     stimulus: 'heart',
   },
   {
-    text: 'When you see a flower, press the button on the opposite side.',
+    text: () => store.session.get('translations').flowerInstruct2,
+    stimulus: 'flower',
+  },
+  // This was originally saying 'on the right side'. May need change.
+  {
+    text: () => store.session.get('translations').flowerPracticeFeedback1,
     stimulus: 'flower',
   },
   {
-    text: 'The flower is on the right side. Press the left button.',
-    stimulus: 'flower',
-  },
-  {
-    text: 'Remember! When you see a HEART, press the button on the SAME side.',
+    text: () => store.session.get('translations').heartPracticeFeedback2,
     stimulus: 'heart',
   },
   {
-    text: 'Remember! When you see a FLOWER, press the button on the OPPOSITE side.',
+    text: () => store.session.get('translations').flowerPracticeFeedback2,
     stimulus: 'flower',
   },
 ];
@@ -117,8 +118,8 @@ export const practiceFeedback = {
                         <p class='practice-text'>
                           ${
                             store.session.get('correct') === false
-                              ? "That's not right. Try again."
-                              : "Great! That's right!"
+                              ? store.session.get('translations').heartsAndFlowersTryAgain
+                              : store.session.get('translations').feedbackGoodJob
                           }
                         </p>
                     </div>
@@ -129,8 +130,8 @@ export const practiceFeedback = {
                         <p class='practice-text'>
                             ${
                               store.session.get('correct') === false
-                                ? "That's not right. Try again."
-                                : "Great! That's right!"
+                                ? store.session.get('translations').heartsAndFlowersTryAgain
+                                : store.session.get('translations').feedbackGoodJob
                             }
                         </p>
                     </div>
