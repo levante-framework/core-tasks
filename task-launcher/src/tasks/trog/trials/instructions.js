@@ -11,7 +11,7 @@ export const taskFinished = {
   },
   stimulus: `
     <div class='instructions-container'>
-        <h1 class='instructions-title'>You've completed the task -- thank you!</h1>
+        <h1 class='instructions-title'>You've completed the task. Thank you!</h1>
 
         <p>
             
