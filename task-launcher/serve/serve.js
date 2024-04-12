@@ -27,6 +27,9 @@ const keyHelpers = stringToBoolean(urlParams.get('keyHelpers'), true);
 const skipInstructions = stringToBoolean(urlParams.get('skip'), true);
 const sequentialPractice = stringToBoolean(urlParams.get('sequentialPractice'), true);
 const sequentialStimulus = stringToBoolean(urlParams.get('sequentialStimulus'), true);
+const storeItemId = stringToBoolean(urlParams.get('storeItemId'), false);
+
+
 const { language } = i18next;
 // const story = stringToBoolean(urlParams.get("story"));
 
@@ -57,6 +60,7 @@ onAuthStateChanged(appKit.auth, (user) => {
       language,
       age,
       maxTime,
+      storeItemId,
       // story,
       // storyCorpus,
     };

@@ -16,11 +16,7 @@ export let corpora;
 
 let totalTrials = 0;
 
-// TODO: Remove (DEPRECATED)
-let maxPracticeTrials = 0;
-
-let stimulusData = [],
-  practiceData = [];
+let stimulusData = [];
 
 function writeItem(row) {
   if (row.task === 'math' && row.trial_type.includes('Number Line')) {
@@ -48,6 +44,7 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
       // for testing, will be removed
       prompt: row.prompt,
       item: writeItem(row),
+      origItemNum: row.orig_item_num,
       trialType: row.trial_type,
       image: row.image,
       timeLimit: row.time_limit,
@@ -66,33 +63,25 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
       newRow.distractors = newRow.distractors.map((choice) => camelize(choice));
     }
 
-    totalTrials += 1;
-
-    if (row.notes === 'practice') {
-      totalPractice += 1;
-    }
-
     let currentTrialType = newRow.trialType;
-
-    // console.log('currentTrialType:', currentTrialType)
-    // console.log('currTrialTypeBlock:', currTrialTypeBlock)
-
     if (currentTrialType !== currTrialTypeBlock) {
       currTrialTypeBlock = currentTrialType;
       currPracticeAmount = 0;
     }
 
-    // Only push in the specified amount of practice trials
-    if (newRow.notes !== 'practice') {
+    if (newRow.notes === 'practice') { 
+      if (currPracticeAmount < numOfPracticeTrials) {
+        // Only push in the specified amount of practice trials
+        currPracticeAmount += 1;
+        stimulusData.push(newRow);
+        totalTrials += 1
+      } // else skip extra practice
+    } else {
+      // instruction and stimulus
       stimulusData.push(newRow);
-    } else if (newRow.notes === 'practice' && currPracticeAmount < numOfPracticeTrials) {
-      stimulusData.push(newRow);
-      currPracticeAmount += 1;
+      totalTrials += 1
     }
   });
-
-  // Adjust totalTrials to account for practice trials that might not be added
-  totalTrials -= totalPractice - numOfPracticeTrials;
 
   if (!sequentialStimulus) {
     stimulusData = shuffleStimulusTrials(stimulusData);
@@ -144,8 +133,6 @@ export const fetchAndParseCorpus = async (config) => {
       await parseCSVs(urls);
       store.session.set('totalTrials', totalTrials);
 
-      if (numOfPracticeTrials > maxPracticeTrials) config.numOfPracticeTrials = maxPracticeTrials;
-
       store.session.set('config', config);
     } catch (error) {
       console.error('Error:', error);
@@ -155,8 +142,7 @@ export const fetchAndParseCorpus = async (config) => {
   await fetchData();
 
   const csvTransformed = {
-    practice: sequentialPractice ? practiceData : _shuffle(practiceData),
-    stimulus: sequentialStimulus ? stimulusData : _shuffle(stimulusData),
+    stimulus: stimulusData,  // previously shuffled by shuffleStimulusTrials
   };
 
   corpora = {
@@ -165,6 +151,5 @@ export const fetchAndParseCorpus = async (config) => {
   };
 
   // console.log({corpora})
-
   store.session.set('corpora', corpora);
 };

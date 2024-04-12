@@ -10,7 +10,6 @@ import { taskFinished } from './trials/instructions';
 
 export default function buildTROGTimeline(config, mediaAssets) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
-  // console.log({mediaAssets})
 
   initTrialSaving(config);
   const initialTimeline = initTimeline(config);
@@ -23,14 +22,6 @@ export default function buildTROGTimeline(config, mediaAssets) {
     task: config.task,
   };
 
-  // const practiceBlock = {
-  //   timeline: [
-  //     setupPractice,
-  //     afcStimulus(trialConfig)
-  //   ],
-  //   repetitions: config.numOfPracticeTrials
-  // }
-
   const stimulusBlock = {
     timeline: [setupStimulusConditional, afcStimulusWithTimeoutCondition(trialConfig)],
     repetitions: store.session.get('totalTrials'),
@@ -39,8 +30,6 @@ export default function buildTROGTimeline(config, mediaAssets) {
   const timeline = [
     preloadTrials,
     initialTimeline,
-    //instructions1, // TODO: fix audio and button
-    // practiceBlock,
     stimulusBlock,
   ];
 

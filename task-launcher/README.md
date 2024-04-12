@@ -83,6 +83,8 @@ numOfPracticeTrials: [number] (optional),
 maxIncorrect: [number] (optional),
 maxTime: [number] (optional),
 keyHelpers: [boolean] (optional)
+storeItemId: [boolean] (optional)
+
 ```
 
 ### Math (includes Number Line) - Default
