@@ -40,13 +40,13 @@ const practiceTrials = practiceData.map((data, i) => {
                                 <img src=${mediaAssets.images[data.stimulus]} alt="heart or flower"/>
                             </div>
                             <div class='stimulus'>
-                                <p class='practice-text'>${data.text}</p>
+                                <p class='practice-text'>${data.text()}</p>
                             </div>
                         </div>`;
       } else {
         return `<div id='stimulus-container-hf'>
                             <div class='stimulus'>
-                                <p class='practice-text'>${data.text}</p>
+                                <p class='practice-text'>${data.text()}</p>
                             </div>
                             <div class='stimulus'>
                                 <img src=${mediaAssets.images[data.stimulus]} alt="heart or flower"/>
