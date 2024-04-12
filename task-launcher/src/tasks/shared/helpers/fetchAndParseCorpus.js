@@ -16,8 +16,7 @@ export let corpora;
 
 let totalTrials = 0;
 
-let stimulusData = [],
-  practiceData = [];
+let stimulusData = [];
 
 function writeItem(row) {
   if (row.task === 'math' && row.trial_type.includes('Number Line')) {
@@ -70,15 +69,15 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
       currPracticeAmount = 0;
     }
 
-    if (newRow.notes === 'instructions') {
-      stimulusData.push(newRow);
-      totalTrials += 1
-    } else if (newRow.notes === 'practice' && currPracticeAmount < numOfPracticeTrials) {
-      // Only push in the specified amount of practice trials
-      stimulusData.push(newRow);
-      currPracticeAmount += 1;
-      totalTrials += 1
-    } else if (newRow.notes !== 'practice') {
+    if (newRow.notes === 'practice') { 
+      if (currPracticeAmount < numOfPracticeTrials) {
+        // Only push in the specified amount of practice trials
+        currPracticeAmount += 1;
+        stimulusData.push(newRow);
+        totalTrials += 1
+      } // else skip extra practice
+    } else {
+      // instruction and stimulus
       stimulusData.push(newRow);
       totalTrials += 1
     }
@@ -143,7 +142,6 @@ export const fetchAndParseCorpus = async (config) => {
   await fetchData();
 
   const csvTransformed = {
-    practice: sequentialPractice ? practiceData : _shuffle(practiceData),
     stimulus: stimulusData,  // previously shuffled by shuffleStimulusTrials
   };
 
