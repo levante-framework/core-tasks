@@ -1,0 +1,10 @@
+{
+    "configurations": [
+        {
+            "type": "chrome",
+            "name": "http://localhost:8080/?task=hearts-and-flowers&participantAgeInMonths=60",
+            "request": "launch",
+            "url": "http://localhost:8080/?task=hearts-and-flowers&participantAgeInMonths=60"
+        }
+    ]
+}

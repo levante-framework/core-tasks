@@ -47,13 +47,13 @@ const instructionData = [
     text: () => store.session.get('translations').heartsAndFlowersInstruct1,
     buttonText: () => store.session.get('translations').continueButtonText || 'Continue',
     image: () => mediaAssets.images.keepup,
-    bottomText: 'Try to Keep up!',
+    bottomText: () => store.session.get('translations').heartsAndFlowersEncourage1 || 'Try to Keep up!',
   },
   {
     text: () => store.session.get('translations').heartsAndFlowersInstruct2,
     buttonText: () => store.session.get('translations').continueButtonText || 'Continue',
     image: () => mediaAssets.images.rocket,
-    bottomText: 'If you make a mistake, just keep going!',
+    bottomText: () => store.session.get('translations').heartsAndFlowersEncourage2 || 'If you make a mistake, just keep going!',
   },
   { 
     text: () => store.session.get('translations').heartsAndFlowersPlayTime,
@@ -65,8 +65,8 @@ const instructionData = [
     image: () => mediaAssets.images.animalWhole,
   },
   { 
-    text: 'Great job! You completed the game!.', 
-    buttonText: 'Close', 
+    text: () => store.session.get('translations').heartsAndFlowersEnd || 'Great job! You completed the game!.', 
+    buttonText: () => store.session.get('translations').closeButtonText || 'Close', 
     image: () => mediaAssets.images.animalWhole 
   },
 ];
@@ -89,7 +89,7 @@ export const [
                     <div >
                         <img id='instruction-graphic' src=${data.image()} alt='Instruction graphic'/>
                     </div>
-                    ${data.bottomText ? `<h2>${data.bottomText}</h2>` : ''}
+                    ${data.bottomText ? `<h2>${typeof data.bottomText === 'function' ? data.bottomText() : data.bottomText}</h2>` : ''}
                 </div>`;
     },
     button_choices: ['Next'],
