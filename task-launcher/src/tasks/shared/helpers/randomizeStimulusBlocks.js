@@ -4,7 +4,7 @@ export function shuffleStimulusTrials(trialArray) {
   // 1. Group stimulus trials by type
   const stimulusTrialsByType = {};
   for (const trial of trialArray) {
-    if (trial.trialType !== ' instructions' && trial.notes !== 'practice') {
+    if (trial.trialType !== 'instructions' && trial.notes !== 'practice') {
       const trialType = trial.trialType; // Example property
       if (!stimulusTrialsByType[trialType]) {
         stimulusTrialsByType[trialType] = [];
@@ -22,7 +22,7 @@ export function shuffleStimulusTrials(trialArray) {
   // 3. Reintegrate shuffled stimulus trials into original array
   let index = 0;
   for (const trial of trialArray) {
-    if (trial.trialType !== ' instructions' && trial.notes !== 'practice') {
+    if (trial.trialType !== 'instructions' && trial.notes !== 'practice') {
       const trialType = trial.trialType;
       trialArray[index] = stimulusTrialsByType[trialType].shift();
     }
