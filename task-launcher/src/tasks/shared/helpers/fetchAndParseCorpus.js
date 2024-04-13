@@ -34,7 +34,6 @@ function containsLettersOrSlash(str) {
 const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
   let currTrialTypeBlock = '';
   let currPracticeAmount = 0;
-  let totalPractice = 0;
 
   csvInput.forEach((row) => {
     const newRow = {
@@ -94,7 +93,7 @@ export const fetchAndParseCorpus = async (config) => {
   const { corpus, task, sequentialStimulus, sequentialPractice, numOfPracticeTrials } = config;
 
   const corpusLocation = {
-    egmaMath: `https://storage.googleapis.com/${task}/${i18next.language}/corpora/${corpus}.csv`,
+    egmaMath: `https://storage.googleapis.com/${task}/shared/corpora/${corpus}.csv`,
     matrixReasoning: `https://storage.googleapis.com/${task}/shared/corpora/${corpus}.csv`,
     mentalRotation: `https://storage.googleapis.com/${task}/shared/corpora/${corpus}.csv`,
     sameDifferentSelection: `https://storage.googleapis.com/${task}/shared/corpora/${corpus}.csv`,

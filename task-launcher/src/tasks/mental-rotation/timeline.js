@@ -45,7 +45,14 @@ export default function buildMentalRotationTimeline(config, mediaAssets) {
     repetitions: store.session.get('totalTrials'),
   };
 
-  const timeline = [preloadTrials, initialTimeline, instructions1, videoInstructions, stimulusBlock, taskFinished];
+  const timeline = [
+    preloadTrials, 
+    initialTimeline, 
+    instructions1, 
+    videoInstructions, 
+    stimulusBlock, 
+    taskFinished
+  ];
 
   initializeCat();
 

@@ -4,7 +4,7 @@ import { TaskLauncher } from '../src';
 import { firebaseConfig } from './firebaseConfig';
 import i18next from 'i18next';
 import { stringToBoolean } from '../src/tasks/shared/helpers';
-// Import necessary for async in the top level of the experiment script
+// Import necessary in order to use async/await at the top level
 import 'regenerator-runtime/runtime';
 
 // TODO: Add game params for all tasks
@@ -28,7 +28,6 @@ const skipInstructions = stringToBoolean(urlParams.get('skip'), true);
 const sequentialPractice = stringToBoolean(urlParams.get('sequentialPractice'), true);
 const sequentialStimulus = stringToBoolean(urlParams.get('sequentialStimulus'), true);
 const storeItemId = stringToBoolean(urlParams.get('storeItemId'), false);
-
 
 const { language } = i18next;
 // const story = stringToBoolean(urlParams.get("story"));

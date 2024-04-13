@@ -29,9 +29,6 @@ export class TaskLauncher {
       console.log({ mediaAssets });
     }
 
-    // TODO
-    // const translations = await getTranslations(language)
-
     const config = await initConfig(this.firekit, this.gameParams, this.userParams, this.displayElement);
 
     initStore();
