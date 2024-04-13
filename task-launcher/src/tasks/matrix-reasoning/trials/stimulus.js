@@ -15,7 +15,7 @@ export const stimulus = {
   stimulus: () => {
     return `
         <div id='stimulus-container'>
-          <p id="prompt">Choose the best pattern to fill in the blank.</p>
+          <p id="prompt">${store.session.get('translations').matrixReasoningPrompt1}</p>
           <br>
           <img id="stimulus-img" src=${mediaAssets.images[store.session.get('nextStimulus').item]}  alt=${
             store.session.get('nextStimulus').item
