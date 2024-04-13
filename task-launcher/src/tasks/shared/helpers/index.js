@@ -4,7 +4,7 @@ export * from './initConfig';
 export * from './initStore';
 export * from './stringToNumArray';
 export * from './fetchAndParseCorpus';
-export * from './getTranslations'
+export * from './getTranslations';
 export * from './initTimeline';
 export * from './initTrialSaving';
 export * from './makePID';

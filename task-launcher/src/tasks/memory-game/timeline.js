@@ -15,17 +15,11 @@ export default function buildMemoryTimeline(config, mediaAssets) {
   const initialTimeline = initTimeline(config);
 
   const corsiBlocks = {
-    timeline: [
-      getCorsiBlocks({ mode: 'display' }),
-      getCorsiBlocks({ mode: 'input' }),
-    ],
+    timeline: [getCorsiBlocks({ mode: 'display' }), getCorsiBlocks({ mode: 'input' })],
     repetitions: 10,
   };
 
-  const timeline = [
-    initialTimeline,
-    corsiBlocks,
-  ];
+  const timeline = [initialTimeline, corsiBlocks];
 
   initializeCat();
 

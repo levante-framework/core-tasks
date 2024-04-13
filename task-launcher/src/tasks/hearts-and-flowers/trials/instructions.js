@@ -39,9 +39,10 @@ const instructionData = [
     buttonText: () => store.session.get('translations').continueButtonText || 'Continue',
     image: () => mediaAssets.images.animalWhole,
   },
-  { text: () => store.session.get('translations').heartsAndFlowersPracticeTime, 
-    buttonText: () => store.session.get('translations').continueButtonText || 'Continue', 
-    image: () => mediaAssets.images.animalWhole 
+  {
+    text: () => store.session.get('translations').heartsAndFlowersPracticeTime,
+    buttonText: () => store.session.get('translations').continueButtonText || 'Continue',
+    image: () => mediaAssets.images.animalWhole,
   },
   {
     text: () => store.session.get('translations').heartsAndFlowersInstruct1,
@@ -55,19 +56,20 @@ const instructionData = [
     image: () => mediaAssets.images.rocket,
     bottomText: 'If you make a mistake, just keep going!',
   },
-  { 
+  {
     text: () => store.session.get('translations').heartsAndFlowersPlayTime,
-    buttonText: () => store.session.get('translations').continueButtonText || 'Continue', 
-    image: () => mediaAssets.images.animalWhole },
+    buttonText: () => store.session.get('translations').continueButtonText || 'Continue',
+    image: () => mediaAssets.images.animalWhole,
+  },
   {
     text: () => store.session.get('translations').heartsAndFlowersInstruct3,
     buttonText: () => store.session.get('translations').continueButtonText || 'Continue',
     image: () => mediaAssets.images.animalWhole,
   },
-  { 
-    text: 'Great job! You completed the game!.', 
-    buttonText: 'Close', 
-    image: () => mediaAssets.images.animalWhole 
+  {
+    text: 'Great job! You completed the game!.',
+    buttonText: 'Close',
+    image: () => mediaAssets.images.animalWhole,
   },
 ];
 

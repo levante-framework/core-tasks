@@ -578,12 +578,12 @@ function doOnFinish(data, task) {
       responseType: store.session('responseType'),
     });
 
-   // corpusId and itemId fields are used by ROAR but not ROAD
-   if (store.session.get('config').storeItemId) {
-    jsPsych.data.addDataToLastTrial({
+    // corpusId and itemId fields are used by ROAR but not ROAD
+    if (store.session.get('config').storeItemId) {
+      jsPsych.data.addDataToLastTrial({
         corpusId: store.session.get('config').corpus,
-        itemId: stimulus.source + "-" + stimulus.origItemNum,
-        });
+        itemId: stimulus.source + '-' + stimulus.origItemNum,
+      });
     }
 
     // Adding this seperately or otherwise it will overide

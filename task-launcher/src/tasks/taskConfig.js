@@ -1,10 +1,5 @@
 import mathTimeline from './math/timeline';
-import { 
-  fetchAndParseCorpus, 
-  initSharedConfig, 
-  initSharedStore,
-  getTranslations,
-} from './shared/helpers';
+import { fetchAndParseCorpus, initSharedConfig, initSharedStore, getTranslations } from './shared/helpers';
 import matrixTimeline from './matrix-reasoning/timeline';
 import mentalRotationTimeline from './mental-rotation/timeline';
 import heartsAndFlowersTimeline from './hearts-and-flowers/timeline';

@@ -18,7 +18,7 @@ let generatedSequence = generateRandomSequence(numOfblocks, sequenceLength);
 let selectedCoordinates = [];
 
 // This function produces both the display and input trials for the corsi blocks
-export function getCorsiBlocks({mode}) {
+export function getCorsiBlocks({ mode }) {
   return {
     type: jsPsychCorsiBlocks,
     sequence: () => generatedSequence,
@@ -44,15 +44,15 @@ export function getCorsiBlocks({mode}) {
       if (mode === 'input') {
         jsPsych.data.addDataToLastTrial({
           correct: _isEqual(data.response, data.sequence),
-          selectedCoordinates: selectedCoordinates
+          selectedCoordinates: selectedCoordinates,
         });
         selectedCoordinates = [];
 
         generatedSequence = generateRandomSequence(numOfblocks, sequenceLength);
       }
     },
-  }
-} 
+  };
+}
 
 function doOnLoad(mode) {
   const container = document.getElementById('jspsych-corsi-stimulus');
@@ -78,8 +78,8 @@ function doOnLoad(mode) {
 
     if (mode === 'input') {
       element.addEventListener('click', (event) => {
-        selectedCoordinates.push([event.clientX, event.clientY])
-      })
+        selectedCoordinates.push([event.clientX, event.clientY]);
+      });
     }
   });
 
@@ -87,8 +87,9 @@ function doOnLoad(mode) {
   const corsiBlocksHTML = contentWrapper.children[1];
 
   const prompt = document.createElement('p');
-  prompt.classList.add('corsi-block-overide-prompt')
-  prompt.textContent = mode === 'display' ? 'Watch the blocks light up' : 'Select the squares in the order that was highlighted';
+  prompt.classList.add('corsi-block-overide-prompt');
+  prompt.textContent =
+    mode === 'display' ? 'Watch the blocks light up' : 'Select the squares in the order that was highlighted';
   // Inserting element at the second child position rather than
   // changing the jspsych-content styles to avoid potential issues in the future
   contentWrapper.insertBefore(prompt, corsiBlocksHTML);

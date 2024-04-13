@@ -27,11 +27,7 @@ export default function buildTROGTimeline(config, mediaAssets) {
     repetitions: store.session.get('totalTrials'),
   };
 
-  const timeline = [
-    preloadTrials,
-    initialTimeline,
-    stimulusBlock,
-  ];
+  const timeline = [preloadTrials, initialTimeline, stimulusBlock];
 
   initializeCat();
 

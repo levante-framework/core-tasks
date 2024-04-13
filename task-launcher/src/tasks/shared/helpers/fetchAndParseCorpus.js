@@ -68,17 +68,17 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
       currPracticeAmount = 0;
     }
 
-    if (newRow.notes === 'practice') { 
+    if (newRow.notes === 'practice') {
       if (currPracticeAmount < numOfPracticeTrials) {
         // Only push in the specified amount of practice trials
         currPracticeAmount += 1;
         stimulusData.push(newRow);
-        totalTrials += 1
+        totalTrials += 1;
       } // else skip extra practice
     } else {
       // instruction and stimulus
       stimulusData.push(newRow);
-      totalTrials += 1
+      totalTrials += 1;
     }
   });
 
@@ -124,9 +124,7 @@ export const fetchAndParseCorpus = async (config) => {
   }
 
   async function fetchData() {
-    const urls = [
-      corpusLocation[dashToCamelCase(task)],
-    ];
+    const urls = [corpusLocation[dashToCamelCase(task)]];
 
     try {
       await parseCSVs(urls);
@@ -141,7 +139,7 @@ export const fetchAndParseCorpus = async (config) => {
   await fetchData();
 
   const csvTransformed = {
-    stimulus: stimulusData,  // previously shuffled by shuffleStimulusTrials
+    stimulus: stimulusData, // previously shuffled by shuffleStimulusTrials
   };
 
   corpora = {
