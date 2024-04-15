@@ -55,6 +55,7 @@ function getStimulus(trialType) {
 function getPrompt(task, trialType) {
   // showItem itemIsImage
   const stim = store.session.get('nextStimulus');
+  let t = store.session.get('translations');
 
   let stimItem;
   if (stim.trialType === 'Fraction') {
@@ -79,7 +80,7 @@ function getPrompt(task, trialType) {
         <div id='stimulus-container'>` +
       replayButtonDiv +
       `<div id="prompt-container-text">
-                <p id="prompt">${stim.prompt}</p>
+                <p id="prompt">${t[camelize(stim.audioFile)]}</p>
             </div>
 
             ${
@@ -124,7 +125,7 @@ function getPrompt(task, trialType) {
       `<div id='stimulus-container'>` +
       replayButtonDiv + // || stim.item
       `<div id="prompt-container-text">
-                    <p id="prompt">${stim.prompt}</p>
+                    <p id="prompt">${t[camelize(stim.audioFile)]}</p>
                 </div>
                 <br>
                 ${task === 'egma-math' ? `<p id="stimulus-html">${stimItem}</p>` : ``}

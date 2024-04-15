@@ -2,6 +2,7 @@ import HTMLSliderResponse from '@jspsych/plugin-html-slider-response';
 import _shuffle from 'lodash/shuffle';
 import _toNumber from 'lodash/toNumber';
 import { jsPsych } from '../../taskSetup';
+import { camelize } from '@bdelab/roar-utils';
 import store from 'store2';
 import { isPractice } from '../../shared/helpers';
 
@@ -69,24 +70,26 @@ export const slider = {
   },
   stimulus: () => {
     const stim = store.session.get('nextStimulus');
+    let t = store.session.get('translations');
+
     const prompt = stim.prompt;
     if (prompt.includes('Move the slider')) {
       return `
         <div id='stimulus-container'>
           <div id="prompt-container-text">
-            <p id="prompt">Move the slider to the number: ${stim.answer}</p>
+            <p id="prompt">${t[camelize(stim.audioFile)]} <br /> ${stim.answer}</p>
           </div>
         </div>`;
     } else {
       return `<div id='stimulus-container'>
                 <div id="prompt-container-text">
-                    <p id=prompt>${prompt}</p>
+                    <p id=prompt>${t[camelize(stim.audioFile)]}</p>
                 </div>
               </div>`;
     }
   },
   labels: () => store.session.get('nextStimulus').item,
-  // button_label: 'Continue',
+  // button_label: 'OK',
   require_movement: () => store.session.get('nextStimulus').trialType === 'Number Line Slider',
   slider_width: 800,
   min: () => store.session.get('nextStimulus').item[0],
