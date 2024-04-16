@@ -4,9 +4,12 @@ import store from 'store2';
 import { initTrialSaving, initTimeline, createPreloadTrials } from '../shared/helpers';
 import { jsPsych, initializeCat } from '../taskSetup';
 // trials
-import { afcStimulusWithTimeoutCondition } from '../shared/trials/afcStimulus';
-import { exitFullscreen, setupPractice, setupStimulus, setupStimulusConditional } from '../shared/trials';
-import { taskFinished } from './trials/instructions';
+import { 
+  afcStimulusWithTimeoutCondition, 
+  exitFullscreen, 
+  setupStimulusConditional,
+  taskFinished 
+} from '../shared/trials';
 
 export default function buildTROGTimeline(config, mediaAssets) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
@@ -22,12 +25,32 @@ export default function buildTROGTimeline(config, mediaAssets) {
     task: config.task,
   };
 
+
   const stimulusBlock = {
-    timeline: [setupStimulusConditional, afcStimulusWithTimeoutCondition(trialConfig)],
-    repetitions: store.session.get('totalTrials'),
+    timeline: [
+      afcStimulusWithTimeoutCondition(trialConfig)
+    ],
+    // true = execute normally, false = skip
+    conditional_function: () => {
+      if (store.session.get('skipCurrentTrial')) {
+        store.session.set('skipCurrentTrial', false);
+        return false;
+      } else {
+        return true;
+      }
+    },
   };
 
-  const timeline = [preloadTrials, initialTimeline, stimulusBlock];
+  const timeline = [
+    preloadTrials, 
+    initialTimeline, 
+  ];
+  
+  const numOfTrials =  store.session.get('totalTrials')
+  for (let i = 0 ; i < numOfTrials; i++) {
+    timeline.push(setupStimulusConditional)
+    timeline.push(stimulusBlock)
+  }
 
   initializeCat();
 

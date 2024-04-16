@@ -30,7 +30,7 @@ const sequentialStimulus = stringToBoolean(urlParams.get('sequentialStimulus'), 
 const storeItemId = stringToBoolean(urlParams.get('storeItemId'), false);
 
 const { language } = i18next;
-// const story = stringToBoolean(urlParams.get("story"));
+export const pid = urlParams.get('pid');
 
 // @ts-ignore
 const appKit = await initializeFirebaseProject(firebaseConfig, 'assessmentApp', 'none');

@@ -6,11 +6,10 @@ import { jsPsych } from '../taskSetup';
 import { initializeCat } from '../taskSetup';
 import { createPreloadTrials } from '../shared/helpers';
 // trials
-//import { stimulus } from "./trials/stimulus";
-import { afcStimulus, afcCondtional } from '../shared/trials/afcStimulus';
-import { instructions1, videoInstructions, taskFinished } from './trials/instructions';
-import { exitFullscreen, setupPractice, setupStimulus } from '../shared/trials';
-import { getAudioResponse } from '../shared/trials';
+
+import { afcStimulusWithTimeoutCondition, taskFinished } from '../shared/trials';
+import { instructions1, videoInstructions} from './trials/instructions';
+import { exitFullscreen,  setupStimulusConditional, getAudioResponse } from '../shared/trials';
 
 export default function buildMentalRotationTimeline(config, mediaAssets) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
@@ -30,25 +29,46 @@ export default function buildMentalRotationTimeline(config, mediaAssets) {
     },
   };
 
-  const stimulusBlock = {
-    timeline: [
-      setupStimulus,
-      //stimulus
-      afcStimulus({
-        trialType: 'audio',
-        responseAllowed: true,
-        promptAboveButtons: true,
-        task: config.task,
-      }),
-      ifRealTrialResponse,
-    ],
-    repetitions: store.session.get('totalTrials'),
+  const trialConfig = {
+    trialType: 'audio',
+    responseAllowed: true,
+    promptAboveButtons: true,
+    task: config.task,
   };
 
-  const timeline = [preloadTrials, initialTimeline, instructions1, videoInstructions, stimulusBlock, taskFinished];
+
+  const stimulusBlock = {
+    timeline: [
+      afcStimulusWithTimeoutCondition(trialConfig),
+      ifRealTrialResponse
+    ],
+    // true = execute normally, false = skip
+    conditional_function: () => {
+      if (store.session.get('skipCurrentTrial')) {
+        store.session.set('skipCurrentTrial', false);
+        return false;
+      } else {
+        return true;
+      }
+    },
+  };
+
+  const timeline = [
+    preloadTrials, 
+    initialTimeline, 
+    instructions1, 
+    videoInstructions, 
+  ];
+
+  const numOfTrials =  store.session.get('totalTrials')
+  for (let i = 0 ; i < numOfTrials; i++) {
+    timeline.push(setupStimulusConditional)
+    timeline.push(stimulusBlock)
+  }
 
   initializeCat();
 
+  timeline.push(taskFinished);
   timeline.push(exitFullscreen);
 
   return { jsPsych, timeline };

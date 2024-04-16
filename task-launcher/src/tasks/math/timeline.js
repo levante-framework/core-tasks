@@ -1,15 +1,18 @@
 import 'regenerator-runtime/runtime';
 import store from 'store2';
 // setup
-import { getStimulusCount, initTrialSaving, initTimeline, createPreloadTrials } from '../shared/helpers';
+import { getStimulusBlockCount, initTrialSaving, initTimeline, createPreloadTrials } from '../shared/helpers';
 import { jsPsych, initializeCat } from '../taskSetup';
 // trials
-import { afcStimulus } from '../shared/trials/afcStimulus';
 import { slider } from './trials/sliderStimulus';
-import { exitFullscreen } from '../shared/trials';
-import { setupStimulus } from '../shared/trials';
-import { instructions1, instructions2, taskFinished } from './trials/instructions';
-import { getAudioResponse } from '../shared/trials';
+import {
+  afcStimulusWithTimeoutCondition, 
+  exitFullscreen, 
+  getAudioResponse, 
+  setupStimulus,
+  taskFinished 
+} from '../shared/trials';
+import { instructions1, instructions2 } from './trials/instructions';
 
 export default function buildMathTimeline(config, mediaAssets) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
@@ -38,7 +41,7 @@ export default function buildMathTimeline(config, mediaAssets) {
 
   const afcStimulusBlock = {
     timeline: [
-      afcStimulus({
+      afcStimulusWithTimeoutCondition({
         trialType: 'audio', // or 'html'
         responseAllowed: true,
         promptAboveButtons: true,
@@ -57,44 +60,46 @@ export default function buildMathTimeline(config, mediaAssets) {
     },
   };
 
-  const pushSubTaskToTimeline = (fixationAndSetupBlock, stimulusCounts, trialType) => {
-    // loop through the list of trials per block within the subtest
-    for (let i = 0; i < stimulusCounts.length; i++) {
-      // add trials to the block (this is the core procedure for each trial)
-      let surveyBlock;
-
-      //if (trialType === 'practice') {
-      surveyBlock = {
-        timeline: [fixationAndSetupBlock, afcStimulusBlock, sliderBlock, ifRealTrialResponse],
-        conditional_function: () => {
-          if (stimulusCounts[i] === 0) {
-            return false;
-          }
-          store.session.set('currentBlockIndex', i);
-          return true;
-        },
-        repetitions: stimulusCounts[i],
+  const pushSubTaskToTimeline = (fixationAndSetupBlock, stimulusBlockCount,) => {
+    for (let i = 0; i < stimulusBlockCount.length; i++) {
+      const subTaskTimeline = []
+      // This is one block of subtask trials. ex. number-identification
+      const subTaskBlock = {
+        timeline: subTaskTimeline,
       };
-      //}
 
-      timeline.push(surveyBlock);
+      for (let j = 0; j < stimulusBlockCount[i]; j++) {
+        // add trials to the block (this is the core procedure for each stimulus)        
+        const stimulusBlock = {
+          timeline: [
+            afcStimulusBlock, 
+            sliderBlock, 
+            ifRealTrialResponse
+          ],
+          conditional_function: () => {
+            if (store.session.get('skipCurrentTrial')) {
+              store.session.set('skipCurrentTrial', false);
+              return false;
+            } else {
+              return true;
+            }
+          },
+        };
+
+        // Pushing in setup seperate so we can conditionally skip the stimulus block
+        subTaskTimeline.push(fixationAndSetupBlock);
+        subTaskTimeline.push(stimulusBlock);
+      }
+
+      timeline.push(subTaskBlock);
     }
   };
 
   initializeCat();
 
-  // pushSubTaskToTimeline(
-  //   setupPractice,
-  //   [config.numOfPracticeTrials],
-  //   "practice",
-  // ); // Practice Trials
-
-  // timeline.push(postPractice)
-
-  pushSubTaskToTimeline(setupStimulus, getStimulusCount(), 'stimulus'); // Stimulus Trials
+  pushSubTaskToTimeline(setupStimulus, getStimulusBlockCount(),); // Stimulus Trials
 
   timeline.push(taskFinished);
-
   timeline.push(exitFullscreen);
 
   return { jsPsych, timeline };

@@ -84,6 +84,7 @@ maxIncorrect: [number] (optional),
 maxTime: [number] (optional),
 keyHelpers: [boolean] (optional)
 storeItemId: [boolean] (optional)
+pid: [string] (optional)
 
 ```
 

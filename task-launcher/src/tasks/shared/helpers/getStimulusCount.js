@@ -21,7 +21,7 @@ function createBlocks(numOfBlocks, numOfTrials) {
 }
 
 // get size of blocks
-export const getStimulusCount = (userMode) => {
+export const getStimulusBlockCount = (userMode) => {
   const { numberOfTrials, stimulusBlocks } = store.session.get('config');
   const maxNumberOfTrials = store.session.get('totalTrials');
 

@@ -4,9 +4,12 @@ import store from 'store2';
 import { initTrialSaving, initTimeline, createPreloadTrials } from '../shared/helpers';
 import { jsPsych, initializeCat } from '../taskSetup';
 // trials
-// import { stimulus } from "./trials/stimulus";
-import { afcStimulus, afcCondtional } from '../shared/trials/afcStimulus';
-import { exitFullscreen, setupPractice, setupStimulus } from '../shared/trials';
+import { 
+  afcStimulusWithTimeoutCondition, 
+  exitFullscreen, 
+  setupStimulusConditional,
+  taskFinished
+} from '../shared/trials';
 
 export default function buildMatrixTimeline(config, mediaAssets) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
@@ -14,36 +17,42 @@ export default function buildMatrixTimeline(config, mediaAssets) {
   initTrialSaving(config);
   const initialTimeline = initTimeline(config);
 
-  const practiceBlock = {
-    timeline: [
-      setupPractice,
-      afcCondtional({
-        trialType: 'audio',
-        responseAllowed: true,
-        promptAboveButtons: true,
-        task: config.task,
-      }),
-    ],
-    repetitions: config.numOfPracticeTrials,
+  const trialConfig = {
+    trialType: 'audio',
+    responseAllowed: true,
+    promptAboveButtons: true,
+    task: config.task,
   };
 
   const stimulusBlock = {
     timeline: [
-      setupStimulus,
-      afcCondtional({
-        trialType: 'audio',
-        responseAllowed: true,
-        promptAboveButtons: true,
-        task: config.task,
-      }),
+      afcStimulusWithTimeoutCondition(trialConfig)
     ],
-    repetitions: store.session.get('totalTrials'),
+    // true = execute normally, false = skip
+    conditional_function: () => {
+      if (store.session.get('skipCurrentTrial')) {
+        store.session.set('skipCurrentTrial', false);
+        return false;
+      } else {
+        return true;
+      }
+    },
   };
 
-  const timeline = [preloadTrials, initialTimeline, practiceBlock, stimulusBlock];
+  const timeline = [
+    preloadTrials, 
+    initialTimeline, 
+  ];
+
+  const numOfTrials =  store.session.get('totalTrials')
+  for (let i = 0 ; i < numOfTrials; i++) {
+    timeline.push(setupStimulusConditional)
+    timeline.push(stimulusBlock)
+  }
 
   initializeCat();
 
+  timeline.push(taskFinished);
   timeline.push(exitFullscreen);
 
   return { jsPsych, timeline };
