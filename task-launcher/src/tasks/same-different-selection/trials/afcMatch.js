@@ -60,7 +60,7 @@ export const afcMatch = {
     // create continue button
     const continueButton = document.createElement('button');
     continueButton.id = 'continue-btn';
-    continueButton.textContent = 'Continue';
+    continueButton.textContent = 'OK';
 
     continueButton.addEventListener('click', () => {
       jsPsych.finishTrial();
