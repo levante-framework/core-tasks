@@ -10,7 +10,6 @@ export const initSharedStore = (config) => {
 
   // Counting variables
   store.session.set('practiceIndex', 0);
-  store.session.set('currentBlockIndex', 0); // counter for breaks within subtask
 
   store.session.set('trialNumSubtask', 0); // counter for trials in subtask
   store.session.set('trialNumTotal', 0); // counter for trials in experiment

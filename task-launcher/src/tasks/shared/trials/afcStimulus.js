@@ -34,6 +34,7 @@ function getStimulus(trialType) {
   // ToDo: trialType (audio/html) no longer varies -- remove
   const stim = store.session.get('nextStimulus');
   if (!stim.audioFile) return mediaAssets.audio.nullAudio;
+  if (!mediaAssets.audio[camelize(stim.audioFile)]) return mediaAssets.audio.nullAudio;
   // all tasks should have the replay button play whatever is in stim.audioFile (might be just prompt/instructions)
 
   if (stim.task === 'Mental Rotation' && stim.notes !== 'practice' && stim.trialType !== 'instructions') {
@@ -621,9 +622,10 @@ function doOnFinish(data, task) {
 
   if (store.session.get('incorrectTrials') >= store.session.get('config').maxIncorrect) {
     store.session.set('incorrectTrials', 0);
+    const t = store.session.get('translations');
     jsPsych.endExperiment(
       `<div id="prompt-container-text">
-                <p id="prompt">You've completed the task. Thank you!</p>
+                <p id="prompt">${t.taskCompletion}</p>
             </div>`,
     ); // ToDo: style text and add audio message?
   }

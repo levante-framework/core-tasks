@@ -18,8 +18,13 @@ export class TaskLauncher {
 
     const { taskName, language } = this.gameParams;
 
-    const { initConfig, initStore, loadCorpus, buildTaskTimeline, getTranslations } =
-      taskConfig[dashToCamelCase(taskName)];
+    const { 
+      initConfig, 
+      initStore, 
+      loadCorpus, 
+      buildTaskTimeline, 
+      getTranslations 
+    } = taskConfig[dashToCamelCase(taskName)];
 
     // GCP bucket names use a format like egma-math
     // will avoid language folder if not provided

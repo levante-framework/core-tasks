@@ -33,7 +33,13 @@ export default function buildSameDifferentTimeline(config, mediaAssets) {
     repetitions: 2,
   };
 
-  const timeline = [preloadTrials, initialTimeline, afcBlock, practiceBlock, stimulusBlock];
+  const timeline = [
+    preloadTrials, 
+    initialTimeline, 
+    afcBlock, 
+    practiceBlock, 
+    stimulusBlock
+  ];
 
   initializeCat();
 

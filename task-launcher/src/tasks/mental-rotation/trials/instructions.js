@@ -1,6 +1,7 @@
 import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
 import { mediaAssets } from '../../..';
+import store from 'store2';
 
 export const instructions1 = {
   type: jsPsychHTMLMultiResponse,
@@ -10,20 +11,25 @@ export const instructions1 = {
       assessment_stage: 'instructions',
     };
   },
-  stimulus: `
+  stimulus: () => {
+    const t = store.session.get('translations');
+    return (`
     <div class='instructions-container'>
-        <h1 class='instructions-title'>Instructions</h1>
+        <h1 class='instructions-title'>${t.instructions}</h1>
 
         <p>
-            In this task, you will be shown a series of images (e.g., a rabbit), and asked which of two silhouettes (outlines) the image matches, if it were rotated (*not* flipped).
-            Please try to answer accurately, but also quickly. Thank you for your participation!
+            ${t.mentalRotationAdultInstructions1}
         </p>
 
-        <footer>Click the button below or press <b>ANY KEY</b> to continue</footer>
-    </div>`,
+        <footer>${t.generalFooter}</footer>
+    </div>`)
+  },
   button_choices: [`Continue`],
   keyboard_choices: 'ALL_KEYS',
-  button_html: '<button id="continue-btn">Continue</button>',
+  button_html: () => {
+    const t = store.session.get('translations');
+    return (`<button id="continue-btn">${t.continueButtonText}</button>`)
+  },
   // trial_duration: 1000,
 };
 
@@ -45,7 +51,10 @@ export const videoInstructions = {
   },
   prompt_above_buttons: true,
   button_choices: ['Continue'],
-  button_html: '<button id="continue-btn" class="jspsych-btn">%choice%</button>',
+  button_html: () => {
+    const t = store.session.get('translations');
+    return (`<button id="continue-btn">${t.continueButtonText}</button>`)
+  },
   keyboard_choices: 'ALL_KEYS',
   trial_ends_after_audio: false,
   response_allowed_while_playing: false,
@@ -56,29 +65,6 @@ export const videoInstructions = {
   },
 };
 
-export const taskFinished = {
-  type: jsPsychHTMLMultiResponse,
-  data: () => {
-    return {
-      // save_trial: true,
-      assessment_stage: 'instructions',
-    };
-  },
-  stimulus: `
-    <div class='instructions-container'>
-        <h1 class='instructions-title'>You've completed the task -- thank you!</h1>
-
-        <p>
-            <a href="https://app.prolific.com/submissions/complete?cc=CO28HI56">Click here</a> to return to Prolific (completion code: CO28HI56).
-        </p>
-
-        <footer>Click the button below or press <b>ANY KEY</b> to exit</footer>
-    </div>`,
-  button_choices: [`Continue`],
-  keyboard_choices: 'ALL_KEYS',
-  button_html: '<button id="continue-btn">Exit</button>',
-  // trial_duration: 1000,
-};
 
 {
   /* <p>This will include addition, subtraction, and multiplication.</p>

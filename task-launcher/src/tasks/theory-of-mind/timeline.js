@@ -4,8 +4,12 @@ import store from 'store2';
 import { initTrialSaving, initTimeline, createPreloadTrials } from '../shared/helpers';
 import { jsPsych, initializeCat } from '../taskSetup';
 // trials
-import { afcStimulus } from '../shared/trials/afcStimulus';
-import { exitFullscreen, setupPractice, setupStimulus } from '../shared/trials';
+import { 
+  afcStimulusWithTimeoutCondition,
+  exitFullscreen, 
+  setupStimulusConditional,
+  taskFinished
+} from '../shared/trials';
 
 export default function buildTOMTimeline(config, mediaAssets) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
@@ -22,19 +26,34 @@ export default function buildTOMTimeline(config, mediaAssets) {
   };
 
   const stimulusBlock = {
-    timeline: [setupStimulus, afcStimulus(trialConfig)],
-    repetitions: store.session.get('totalTrials'),
+    timeline: [
+      afcStimulusWithTimeoutCondition(trialConfig)
+    ],
+    // true = execute normally, false = skip
+    conditional_function: () => {
+      if (store.session.get('skipCurrentTrial')) {
+        store.session.set('skipCurrentTrial', false);
+        return false;
+      } else {
+        return true;
+      }
+    },
   };
 
   const timeline = [
     preloadTrials,
     initialTimeline,
-    // practiceBlock,
-    stimulusBlock,
   ];
+
+  const numOfTrials =  store.session.get('totalTrials')
+  for (let i = 0 ; i < numOfTrials; i++) {
+    timeline.push(setupStimulusConditional)
+    timeline.push(stimulusBlock)
+  }
 
   initializeCat();
 
+  timeline.push(taskFinished);
   timeline.push(exitFullscreen);
 
   return { jsPsych, timeline };

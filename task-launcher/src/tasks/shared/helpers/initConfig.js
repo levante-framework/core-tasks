@@ -51,7 +51,7 @@ export const initSharedConfig = async (firekit, gameParams, userParams, displayE
     // name of the csv files in the storage bucket
     corpus: corpus,
     buttonLayout: buttonLayout || 'default',
-    numberOfTrials: numberOfTrials ?? 20,
+    numberOfTrials: numberOfTrials ?? 300,
     task: taskName ?? 'egma-math',
     stimulusBlocks: stimulusBlocks ?? 3,
     numOfPracticeTrials: numOfPracticeTrials ?? 2,
