@@ -35,8 +35,8 @@ export default function buildMathTimeline(config, mediaAssets) {
   const timeline = [
     preloadTrials,
     initialTimeline,
-    // instructions1, // for adult pilot, not kids
-    // instructions2,
+    //instructions1, // for adult pilot, not kids
+    //instructions2,
   ];
 
   const afcStimulusBlock = {
