@@ -3,9 +3,7 @@ import '../../../i18n/i18n';
 import Papa from 'papaparse';
 import store from 'store2';
 import 'regenerator-runtime/runtime';
-import { dashToCamelCase } from './dashToCamelCase';
 import { camelize } from '@bdelab/roar-utils';
-import { async } from 'regenerator-runtime';
 
 let translations = {};
 
@@ -25,7 +23,7 @@ function parseTranslations(translationData) {
     translations[camelize(row.item_id)] = getRowData(row, i18next.language);
   });
 
-  console.log('translations after parsing:', translations);
+  console.log('translations:', translations);
   store.session.set('translations', translations);
 }
 
