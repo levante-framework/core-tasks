@@ -91,7 +91,7 @@ export const slider = {
   labels: () => store.session.get('nextStimulus').item,
   // button_label: 'OK',
   require_movement: () => store.session.get('nextStimulus').trialType === 'Number Line Slider',
-  slider_width: 800,
+  // slider_width: 800,
   min: () => store.session.get('nextStimulus').item[0],
   max: () => store.session.get('nextStimulus').item[1],
   // max: () => (store.session.get('nextStimulus').item[1] === 1 ? 100 : store.session.get('nextStimulus').item[1]),
