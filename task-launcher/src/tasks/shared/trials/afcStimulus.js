@@ -56,7 +56,7 @@ function getStimulus(trialType) {
 function getPrompt(task, trialType) {
   // showItem itemIsImage
   const stim = store.session.get('nextStimulus');
-  let t = store.session.get('translations');
+  const t = store.session.get('translations');
 
   let stimItem;
   if (stim.trialType === 'Fraction') {
@@ -77,8 +77,7 @@ function getPrompt(task, trialType) {
 
   if (stim.trialType === 'instructions' || stim.task === 'instructions' || showImageStim) {
     return (
-      `
-        <div id='stimulus-container'>` +
+      `<div id='stimulus-container'>` +
       replayButtonDiv +
       `<div id="prompt-container-text">
                 <p id="prompt">${t[camelize(stim.audioFile)]}</p>
@@ -100,8 +99,7 @@ function getPrompt(task, trialType) {
   // just audio - no text prompt/stimulus
   if (task === 'trog' || stim.trialType === 'Number Identification' || stim.trialType === 'Number Comparison') {
     return (
-      `
-        <div id='stimulus-container'>` +
+      `<div id='stimulus-container'>` +
       replayButtonDiv +
       `</div>`
     );
@@ -121,7 +119,7 @@ function getPrompt(task, trialType) {
     );
   }
 
-  if (stim.audioFile != '') {
+  if (stim.audioFile) {
     return (
       `<div id='stimulus-container'>` +
       replayButtonDiv + // || stim.item
