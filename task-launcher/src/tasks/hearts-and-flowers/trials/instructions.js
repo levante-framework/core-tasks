@@ -20,12 +20,12 @@ export const introduction = {
         </button>`,
   ],
   on_load: () => {
-    document.getElementById('jspsych-content').style.backgroundColor = 'red';
+    document.getElementsByClassName('jspsych-content-wrapper')[0].style.backgroundColor = 'red';
     const goBtn = document.getElementById('jspsych-html-multi-response-btngroup');
     goBtn.style.justifyContent = 'end';
     goBtn.style.marginRight = '1rem';
   },
-  on_finish: () => (document.getElementById('jspsych-content').style.backgroundColor = 'white'),
+  on_finish: () => (document.getElementsByClassName('jspsych-content-wrapper')[0].style.backgroundColor = 'white'),
 };
 
 const instructionData = [
