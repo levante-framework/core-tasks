@@ -105,7 +105,7 @@ export const imageInstructions = {
   },
   stimulus: () => mediaAssets.audio.mentalRotationTrainingInstruct1,
   prompt: () => {
-    return `<img src=${mediaAssets.video.mentalRotationExampleFit} />`;
+    return `<img src=${mediaAssets.images.mentalRotationExample} width=430 />`;
   },
   prompt_above_buttons: true,
   button_choices: ['Continue'],
