@@ -487,6 +487,16 @@ $breakpoint-large-desktop: 1440px;
       }
 
       // Math-Egma
+      #jspsych-html-slider-response-wrapper {
+        width: min(800px, 95%);
+        max-height: 95%;
+        margin: 0 !important;
+      }
+
+      .jspsych-html-slider-response-container {
+        width: 100% !important;
+      }
+
       #jspsych-html-slider-response-response {
         width: 100%;
       }
