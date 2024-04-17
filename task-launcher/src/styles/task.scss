@@ -625,8 +625,17 @@ $breakpoint-large-desktop: 1440px;
       .btn-layout-hf {
         display: flex;
         justify-content: space-around;
-        margin-top: 2rem;
+        margin-top: 8vw;
         width: 100%;
+        
+        @keyframes pulse {
+          0%, 100% {
+            transform: scale(1);
+          }
+          50% {
+            transform: scale(1.1);
+          }
+        }
 
         .response-btn {
           background-color: rgb(1, 152, 1);
