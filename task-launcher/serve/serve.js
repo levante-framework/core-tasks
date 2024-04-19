@@ -2,7 +2,6 @@ import { RoarAppkit, initializeFirebaseProject } from '@bdelab/roar-firekit';
 import { onAuthStateChanged, signInAnonymously } from 'firebase/auth';
 import { TaskLauncher } from '../src';
 import { firebaseConfig } from './firebaseConfig';
-import i18next from 'i18next';
 import { stringToBoolean } from '../src/tasks/shared/helpers';
 // Import necessary in order to use async/await at the top level
 import 'regenerator-runtime/runtime';
@@ -19,6 +18,7 @@ const maxIncorrect = urlParams.get('maxIncorrect');
 const stimulusBlocks = urlParams.get('blocks') === null ? null : parseInt(urlParams.get('blocks'), 10);
 const age = urlParams.get('age') === null ? null : parseInt(urlParams.get('age'), 10);
 const maxTime = urlParams.get('maxTime') === null ? null : parseInt(urlParams.get('maxTime'), 10); // time limit for real trials
+const language = urlParams.get('lng');
 
 // const storyCorpus = urlParams.get("storyCopus")
 
@@ -29,7 +29,7 @@ const sequentialPractice = stringToBoolean(urlParams.get('sequentialPractice'), 
 const sequentialStimulus = stringToBoolean(urlParams.get('sequentialStimulus'), true);
 const storeItemId = stringToBoolean(urlParams.get('storeItemId'), false);
 
-const { language } = i18next;
+
 export const pid = urlParams.get('pid');
 
 // @ts-ignore
