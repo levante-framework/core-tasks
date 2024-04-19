@@ -2,8 +2,8 @@
   "name": "core-tasks",
   "version": "1.0.0-beta.3",
   "description": "",
-  "main": "lib/index.29e8c0a3.js",
-  "module": "lib/index.29e8c0a3.js",
+  "main": "lib/index.23aebb6a.js",
+  "module": "lib/index.23aebb6a.js",
   "type": "module",
   "files": [
     "lib"
