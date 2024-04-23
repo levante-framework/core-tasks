@@ -1,5 +1,3 @@
-import i18next from 'i18next';
-import '../../../i18n/i18n';
 import Papa from 'papaparse';
 import store from 'store2';
 import 'regenerator-runtime/runtime';
@@ -7,23 +5,23 @@ import { camelize } from '@bdelab/roar-utils';
 
 let translations = {};
 
-function getRowData(row, language) {
-  for (const key in row) {
-    // Ex 'es-co' -> 'es'
-    const nonLocalDialect = language.split('-')[0];
-    if (key === language || key.includes(nonLocalDialect)) {
-      return row[key];
-    }
-  }
+function getRowData(row, language, nonLocalDialect) {
+  const translation = row[language.toLowerCase()];
+
+  // Only need this because we don't have base language translations for all languages.
+  // Ex we have 'es-co' but not 'es'
+  const noBaseLang = Object.keys(row).find((key) => key.includes(nonLocalDialect))
+  return translation || row[nonLocalDialect] || row[noBaseLang] ||  row['en'];
 }
 
 function parseTranslations(translationData) {
+  const configLanguage = store.session.get('config').language;
+  const nonLocalDialect = configLanguage.split('-')[0].toLowerCase();
+
   translationData.forEach((row) => {
-    // console.log('row:', row)
-    translations[camelize(row.item_id)] = getRowData(row, i18next.language);
+    translations[camelize(row.item_id)] = getRowData(row, configLanguage, nonLocalDialect);
   });
 
-  console.log('translations:', translations);
   store.session.set('translations', translations);
 }
 

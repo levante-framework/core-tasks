@@ -35,8 +35,6 @@ export const initSharedConfig = async (firekit, gameParams, userParams, displayE
     age,
     maxTime, // maximum app duration in minutes
     storeItemId,
-    // storyCorpus,
-    // story,
   } = cleanParams;
 
   const config = {
@@ -60,9 +58,9 @@ export const initSharedConfig = async (firekit, gameParams, userParams, displayE
     language:  language ?? i18next.language,
     maxTime: maxTime || null, // default is no time limit
     storeItemId: storeItemId,
-    // storyCorpus: storyCorpus ?? 'story-lion',
-    // story: story ?? false,
   };
+
+  store.session.set('pid', userParams.pid);
 
   // default corpus if nothing is passed in
   if (!config.corpus) config.corpus = defaultCorpus[camelize(taskName)];
