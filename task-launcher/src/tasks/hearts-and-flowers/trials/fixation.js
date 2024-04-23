@@ -1,5 +1,5 @@
 import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
-import { StimulusSideType } from './enums';
+import { StimulusSideType } from './utils';
 
 export const fixation = {
   type: jsPsychHTMLMultiResponse,

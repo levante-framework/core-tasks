@@ -1,7 +1,8 @@
 import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
 import { jsPsych } from '../../taskSetup';
-import { StimulusType, StimulusSideType } from './enums';
+import { StimulusType, StimulusSideType, getCorrectInputSide } from './utils';
+import store from 'store2';
 
 export const stimulus = (isPractice = false, stage) => {
   return {
@@ -49,20 +50,43 @@ export const stimulus = (isPractice = false, stage) => {
     //TODO: save whether answer is correct/incorrect to fix practice feedback
     //TODO: check data is saved properly
     on_finish: (data) => {
-      let response;
+      const stimulusPosition = jsPsych.timelineVariable('position');
+      const stimulusType = jsPsych.timelineVariable('stimulus');
 
-      if (data.button_response || data.button_response === 0) {
+      // get response position
+      let response;
+      if (data.button_response === 0 || data.button_response === 1) {
         response = data.button_response;
-      } else {
+      } else if (data.keyboard_response === 'ArrowLeft' || data.keyboard_response === 'ArrowRight'){
         response = data.keyboard_response === 'ArrowLeft' ? 0 : 1;
+      } else {
+        errorMessage = `Invalid response: ${data.button_response} or ${data.keyboard_response} in ${data}`;
+        console.error(errorMessage);
+        throw new Error(errorMessage);
+      }
+      
+      // get stimulus side
+      let stimuluSide;
+      if (stimulusPosition === 0) {
+        stimuluSide = StimulusSideType.Left;
+      } else if (stimulusPosition === 1) {
+        stimuluSide = StimulusSideType.Right;
+      } else {
+        errorMessage = `Invalid stimuluSide: ${data.button_response} or ${data.keyboard_response} in ${data}`;
+        console.error(errorMessage);
+        throw new Error(errorMessage);
       }
 
-      data.correct = jsPsych.timelineVariable('position') === response;
+      // record whether answer was correct or not
+      const validAnswer = getCorrectInputSide(stimulusType, stimuluSide)
+      data.correct = validAnswer === response;
+      store.session.set('correct', data.correct);
 
+      //TODO: Double check what needs to be save as this is fishy
       jsPsych.data.addDataToLastTrial({
-        item: jsPsych.timelineVariable('stimulus'),
-        side: jsPsych.timelineVariable('position') <= 0.5 ? StimulusSideType.Left : StimulusSideType.Right,
-        answer: jsPsych.timelineVariable('position'),
+        item: stimulusType,
+        side: stimuluSide,
+        answer: validAnswer,
         response,
       });
     },

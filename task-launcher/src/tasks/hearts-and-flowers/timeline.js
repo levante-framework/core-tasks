@@ -23,7 +23,7 @@ import {
   endGame,
 } from './trials/instructions';
 import { t } from 'i18next';
-import { StimulusType, StimulusSideType, AssessmentStageType } from './trials/enums';
+import { StimulusType, StimulusSideType, AssessmentStageType } from './trials/utils';
 
 // export let cat;
 // export let cat2;

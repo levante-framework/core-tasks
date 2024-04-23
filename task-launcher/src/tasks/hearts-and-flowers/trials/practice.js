@@ -1,36 +1,7 @@
 import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
 import store from 'store2';
-import { StimulusType, StimulusSideType } from './enums';
-
-// TODO: better Exception/Error handling
-/**
- * Helper function to get expected valid answer (side) for a given stimulus type and side.
- * @param {*} stimulusType the type of stimulus: StimulusType.Heart or StimulusType.Flower
- * @param {*} stimulusSideType the side of the stimulus: StimulusSideType.Left or StimulusSideType.Right
- * @returns 0 for left, 1 for right
- */
-function getCorrectInputSide(stimulusType, stimulusSideType) {
-  if (stimulusType === StimulusType.Heart) {
-    if (stimulusSideType === StimulusSideType.Left) {
-      return 0;
-    } else if (stimulusSideType === StimulusSideType.Right) {
-      return 1;
-    } else {
-      console.error('Invalid stimulus side');
-    }
-  } else if (stimulusType === StimulusType.Flower) {
-    if (stimulusSideType === StimulusSideType.Left) {
-      return 1;
-    } else if (stimulusSideType === StimulusSideType.Right) {
-      return 0;
-    } else {
-      throw new Error('Invalid stimulus side');
-    }
-  } else {
-    throw new Error('Invalid stimulus');
-  }
-}
+import { StimulusType, StimulusSideType, getCorrectInputSide} from './utils';
 
 /**
  * 
