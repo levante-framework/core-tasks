@@ -1,4 +1,5 @@
 import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
+import { StimulusSideType } from './enums';
 
 export const fixation = {
   type: jsPsychHTMLMultiResponse,
@@ -10,7 +11,7 @@ export const fixation = {
   on_load: () => {
     document.getElementById('jspsych-html-multi-response-btngroup').classList.add('btn-layout-hf');
   },
-  button_choices: ['left', 'right'],
+  button_choices: [StimulusSideType.Left, StimulusSideType.Right],
   keyboard_choice: ['ArrowLeft', 'ArrowRight'],
   button_html: [`<button class='response-btn'></button>`, `<button class='response-btn'></button>`],
   trial_duration: 800,
