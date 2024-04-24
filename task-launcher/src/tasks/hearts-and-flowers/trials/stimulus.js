@@ -82,6 +82,7 @@ export const stimulus = (isPractice = false, stage) => {
       const validAnswer = getCorrectInputSide(stimulusType, stimuluSide)
       data.correct = validAnswer === response;
       store.session.set('correct', data.correct);
+      store.session.set('stimulus', stimulusType);
 
       //TODO: Double check what needs to be save as this is fishy
       jsPsych.data.addDataToLastTrial({
