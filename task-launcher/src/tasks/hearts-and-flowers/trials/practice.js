@@ -175,7 +175,7 @@ function buildPracticeFeedback(feedbackTexts, feedbackTextIncorrect, feedbackTex
         [`<button class='response-btn' id='${validAnswerButtonHtmlIdentifier}'></button>`, `<button class='response-btn'></button>`]
         : [`<button class='response-btn'></button>`, `<button class='response-btn' id='${validAnswerButtonHtmlIdentifier}'></button>`];
       } else {
-        return `<button class='response-btn'></button>`;
+        return `<button class='response-btn' style='display: none; pointer-events: none;'></button>`;
       }
     },
     // TODO: Double-check proper timeout length
