@@ -161,10 +161,14 @@ function buildPracticeFeedback(feedbackTexts, feedbackTextIncorrect, feedbackTex
     },
     on_load: () => {
       document.getElementById('jspsych-html-multi-response-btngroup').classList.add('btn-layout-hf');
-      const validAnswerButton = document.getElementById(validAnswerButtonHtmlIdentifier);
-      if (validAnswerButton) {
-        validAnswerButton.style.animation = 'pulse 2s infinite';
-      }
+      const buttons = document.querySelectorAll('.response-btn');
+      buttons.forEach(button => {
+        if (button.id === validAnswerButtonHtmlIdentifier) {
+          button.style.animation = 'pulse 2s infinite';
+        } else {
+          button.disabled = true;
+        }
+      });
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
     keyboard_choice: ['ArrowLeft', 'ArrowRight'],
@@ -175,7 +179,7 @@ function buildPracticeFeedback(feedbackTexts, feedbackTextIncorrect, feedbackTex
         [`<button class='response-btn' id='${validAnswerButtonHtmlIdentifier}'></button>`, `<button class='response-btn'></button>`]
         : [`<button class='response-btn'></button>`, `<button class='response-btn' id='${validAnswerButtonHtmlIdentifier}'></button>`];
       } else {
-        return `<button class='response-btn' style='display: none; pointer-events: none;'></button>`;
+        return `<button class='response-btn' style='display: none;'></button>`;
       }
     },
     // TODO: Double-check proper timeout length
