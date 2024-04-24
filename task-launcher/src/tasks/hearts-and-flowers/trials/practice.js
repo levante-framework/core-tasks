@@ -93,10 +93,21 @@ export function buildMixedPracticeFeedback(feedbackTexts) {
   return buildPracticeFeedback(feedbackTexts, undefined, undefined)
 }
 
+//TODO: rely on previous trial data instead of singleton store to pass stimulus type, side and correct answer.
+/*
+ * Relying on singleton for storing state is likely a bad pattern: it introduces risk of reading an outdated state
+ * in the event the previous trial forgets to update it. And it will make debugging and unit testing difficult.
+ * I recommend managing state as objects that are passed around and flow along the control flow of your app.
+ * Ideally you make these state objects immutable and updating them means creating a new copy. This allows you to enforce
+ * mutation of your state in more strict and predictable manner.
+ * You may also want state objects to be as lean as possible (don't store binaries, or large objects, or functions in them)
+ * ideally they should be serializable to JSON to make debugging and unit testing easier.
+ */
 /**
  * Builds a feedback trial for instructions practice trials and practice trials.
- */ 
+ */
 function buildPracticeFeedback(feedbackTexts, feedbackTextIncorrect, feedbackTextCorrect) {
+  const validAnswerButtonHtmlIdentifier = 'valid-answer-btn';
   return {
     type: jsPsychHTMLMultiResponse,
     stimulus: () => { //TODO: animate the correct answer for an "incorrect answer" feedback
@@ -148,10 +159,25 @@ function buildPracticeFeedback(feedbackTexts, feedbackTextIncorrect, feedbackTex
                   </div>`;
       }
     },
-    on_load: () => document.getElementById('jspsych-html-multi-response-btngroup').classList.add('btn-layout-hf'),
+    on_load: () => {
+      document.getElementById('jspsych-html-multi-response-btngroup').classList.add('btn-layout-hf');
+      const validAnswerButton = document.getElementById(validAnswerButtonHtmlIdentifier);
+      if (validAnswerButton) {
+        validAnswerButton.style.animation = 'pulse 2s infinite';
+      }
+    },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
     keyboard_choice: ['ArrowLeft', 'ArrowRight'],
-    button_html: [`<div class='response-btn'></div>`, `<div class='response-btn'></div>`],
+    button_html: () => {
+      if (store.session.get('correct') === false) {
+        const validAnswerPosition = getCorrectInputSide(store.session.get('stimulus'), store.session.get('side'));
+        return validAnswerPosition === 0 ? // is valid answer on the left?
+        [`<button class='response-btn' id='${validAnswerButtonHtmlIdentifier}'></button>`, `<button class='response-btn'></button>`]
+        : [`<button class='response-btn'></button>`, `<button class='response-btn' id='${validAnswerButtonHtmlIdentifier}'></button>`];
+      } else {
+        return `<button class='response-btn'></button>`;
+      }
+    },
     // TODO: Double-check proper timeout length
     trial_duration: () => {
       return store.session.get('correct') === false ? null : 1200;
