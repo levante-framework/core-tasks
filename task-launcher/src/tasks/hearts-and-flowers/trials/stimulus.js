@@ -3,6 +3,7 @@ import { mediaAssets } from '../../..';
 import { jsPsych } from '../../taskSetup';
 import { StimulusType, StimulusSideType, getCorrectInputSide } from './utils';
 import store from 'store2';
+import shuffle from 'lodash/shuffle';
 
 export const stimulus = (isPractice = false, stage) => {
   return {
@@ -108,7 +109,7 @@ const randomPosition = () => Math.round(Math.random());
  * @param {*} trialCount
  * @param {*} stimulusType StimulusType.Heart or StimulusType.Flower
  */
-export function buildSubtimelineVariables(trialCount, stimulusType) {
+export function buildHeartsOrFlowersTimelineVariables(trialCount, stimulusType) {
   if (stimulusType !== StimulusType.Heart && stimulusType !== StimulusType.Flower) {
     errorMessage = `Invalid stimulusType: ${stimulusType} for buildSubtimelineVariables()`;
     console.error(errorMessage);
@@ -131,6 +132,24 @@ export function buildSubtimelineVariables(trialCount, stimulusType) {
   }
   if (remainderCount >= 3) {
     jsPsychTimelineVariablesArray.push({ stimulus: stimulusType, position: randomPosition() });
+  }
+  return jsPsychTimelineVariablesArray;
+}
+
+export function buildMixedTimelineVariables(trialCount) {
+  const heartLeft = { stimulus: StimulusType.Heart, position: 0 }
+  const heartRight = { stimulus: StimulusType.Heart, position: 1 }
+  const flowerLeft = { stimulus: StimulusType.Flower, position: 0 }
+  const flowerRight = { stimulus: StimulusType.Flower, position: 1 }
+  const optionsToRandomize = [heartLeft, heartRight, flowerLeft, flowerRight];
+
+  const jsPsychTimelineVariablesArray = [];
+  let sequence = [];
+  for (let i = 0; i < trialCount; i++) {
+    if (sequence.length === 0) {
+      sequence = shuffle(optionsToRandomize);
+    }
+    jsPsychTimelineVariablesArray.push(sequence.pop());
   }
   return jsPsychTimelineVariablesArray;
 }

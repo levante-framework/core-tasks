@@ -67,20 +67,52 @@ export function buildInstructionPracticeTrial(properties, stimulusSideType) {
 }
 
 /**
- * build a feedback trial for instruction practice trials and practice trials
+ * Builds a feedback trial for cases where the feedback text may change only depending on
+ * whether the answer was correct or incorrect.
  * @param {*} feedbackTextIncorrect 
  * @param {*} feedbackTextCorrect
  */
-export function buildPracticeFeedback(feedbackTextIncorrect, feedbackTextCorrect) {
+export function buildStimulusInvariantPracticeFeedback(feedbackTextIncorrect, feedbackTextCorrect) {
+  return buildPracticeFeedback(undefined, feedbackTextIncorrect, feedbackTextCorrect);
+}
+
+/**
+ * Builds a feedback trial for cases where the feedback text may change depending on
+ * the stimulus type and whether the answer was correct or incorrect.
+ * 
+ * @param {*} feedbackTexts an object containing the feedback texts for correct and incorrect
+ * answers for both stimulus types, e.g.:
+ * feedbackTexts = {
+    feedbackTextCorrectHeart: feedbackTextCorrect,
+    feedbackTextIncorrectHeart: feedbackTextIncorrectHeart,
+    feedbackTextCorrectFlower: feedbackTextCorrect,
+    feedbackTextIncorrectFlower: feedbackTextIncorrectFlower,
+  }
+ */
+export function buildMixedPracticeFeedback(feedbackTexts) {
+  return buildPracticeFeedback(feedbackTexts, undefined, undefined)
+}
+
+/**
+ * Builds a feedback trial for instructions practice trials and practice trials.
+ */ 
+function buildPracticeFeedback(feedbackTexts, feedbackTextIncorrect, feedbackTextCorrect) {
   return {
     type: jsPsychHTMLMultiResponse,
     stimulus: () => { //TODO: animate the correct answer for an "incorrect answer" feedback
+      const stimulusType = store.session.get('stimulus');
+      if (feedbackTexts !== undefined) {
+        feedbackTextIncorrect = stimulusType === StimulusType.Heart ?
+          feedbackTexts.feedbackTextIncorrectHeart : feedbackTexts.feedbackTextIncorrectFlower;
+        feedbackTextCorrect = stimulusType === StimulusType.Heart ?
+          feedbackTexts.feedbackTextCorrectHeart : feedbackTexts.feedbackTextCorrectFlower;
+      }
       if (store.session.get('side') === StimulusSideType.Left) {
         return `<div id='stimulus-container-hf'>
                       <div class='stimulus'>
                           <img src='${
                             store.session.get('correct') === false
-                              ? mediaAssets.images[store.session.get('stimulus')]
+                              ? mediaAssets.images[stimulusType]
                               : mediaAssets.images.smilingFace
                           }' alt="heart or flower"/>
                       </div>

@@ -6,10 +6,11 @@ import store from 'store2';
 
 // trials
 import { exitFullscreen } from '../shared/trials';
-import { stimulus, buildSubtimelineVariables } from './trials/stimulus';
+import { stimulus, buildHeartsOrFlowersTimelineVariables, buildMixedTimelineVariables } from './trials/stimulus';
 import {
   buildInstructionPracticeTrial,
-  buildPracticeFeedback,
+  buildStimulusInvariantPracticeFeedback,
+  buildMixedPracticeFeedback,
 } from './trials/practice';
 import {
   introduction,
@@ -160,7 +161,7 @@ function getHeartOrFlowerInstructionsSection(adminConfig, stimulusType) {
 
   const feedbackTextCorrect = store.session.get('translations').feedbackGoodJob; // feedback-good-job, "Good job!" //TODO: double-check ok to use feedback-good-job instead of "Great! That's right!" which is absent from item bank anyway
   const feedbackTextIncorrect = store.session.get('translations').heartsAndFlowersTryAgain; // hearts-and-flowers-try-again, "That's not right. Try again."
-  const instructionPracticeFeedback = buildPracticeFeedback(feedbackTextIncorrect, feedbackTextCorrect);
+  const instructionPracticeFeedback = buildStimulusInvariantPracticeFeedback(feedbackTextIncorrect, feedbackTextCorrect);
 
   let instructions;
   // Let's build the feedback trials to pair with each instruction practice trial
@@ -235,7 +236,7 @@ function getHeartOrFlowerPracticeSection(adminConfig, stimulusType) {
     console.error(errorMessage);
     throw new Error(errorMessage);
   }
-  const practiceFeedback = buildPracticeFeedback(feedbackTextIncorrect, feedbackTextCorrect);
+  const practiceFeedback = buildStimulusInvariantPracticeFeedback(feedbackTextIncorrect, feedbackTextCorrect);
   
   const postPracticeBlock = {
     timeline: [
@@ -249,7 +250,7 @@ function getHeartOrFlowerPracticeSection(adminConfig, stimulusType) {
   subtimeline.push(timeToPractice);
   subtimeline.push({
     timeline: [fixation, stimulus(true, jsPsychAssessmentStage), practiceFeedback],
-    timeline_variables: buildSubtimelineVariables(adminConfig.practiceTrialCount, stimulusType),
+    timeline_variables: buildHeartsOrFlowersTimelineVariables(adminConfig.practiceTrialCount, stimulusType),
     randomize_order: false,
     //TODO: implement "end early" when user get multiple correct answer in a row = adminConfig.correctPracticeTrial
     //TODO: implement adminConfig.stimulusPresentationTime and adminConfig.interStimulusInterval
@@ -274,7 +275,7 @@ function getHeartOrFlowerTestSection(adminConfig, stimulusType) {
   const subtimeline = []
   subtimeline.push({
     timeline: [fixation, stimulus(false, jsPsychAssessmentStage)],
-    timeline_variables: buildSubtimelineVariables(adminConfig.testTrialCount, stimulusType),
+    timeline_variables: buildHeartsOrFlowersTimelineVariables(adminConfig.testTrialCount, stimulusType),
     randomize_order: false,
     //TODO: implement adminConfig.stimulusPresentationTime and adminConfig.interStimulusInterval
   });
@@ -284,9 +285,8 @@ function getHeartOrFlowerTestSection(adminConfig, stimulusType) {
 function getMixedInstructionsSection(adminConfig) {
   const feedbackTextCorrect = store.session.get('translations').feedbackGoodJob; // feedback-good-job, "Good job!" //TODO: double-check ok to use feedback-good-job instead of "Great! That's right!" which is absent from item bank anyway
   const feedbackTextIncorrect = store.session.get('translations').heartsAndFlowersTryAgain; // hearts-and-flowers-try-again, "That's not right. Try again."
-  const instructionPracticeFeedback = buildPracticeFeedback(feedbackTextIncorrect, feedbackTextCorrect);
+  const instructionPracticeFeedback = buildStimulusInvariantPracticeFeedback(feedbackTextIncorrect, feedbackTextCorrect);
 
-  const instructions = heartsAndFlowers;
   const practiceStimulusSide1 = StimulusSideType.Left;
   const instructionPracticeStaticData1 = {
     //TODO: check that we want this one and not "REMEMBER! When you see a [...]""
@@ -311,7 +311,7 @@ function getMixedInstructionsSection(adminConfig) {
   );
 
   const subtimeline = [];
-  subtimeline.push(instructions);
+  subtimeline.push(heartsAndFlowers);
   // Instruction practice trials do not advance until user gets it right
   subtimeline.push({
     timeline: [instructionPractice1, instructionPracticeFeedback],
@@ -325,21 +325,23 @@ function getMixedInstructionsSection(adminConfig) {
   return subtimeline;
 }
 
-const randomPosition = () => Math.round(Math.random());
-
-//TODO: implement correctly
 function getMixedPracticeSection(adminConfig) {
+  const feedbackTextCorrect = store.session.get('translations').feedbackGoodJob; // feedback-good-job, "Good job!" //TODO: double-check ok to use feedback-good-job instead of "Great! That's right!" which is absent from item bank anyway
+  const feedbackTextIncorrectHeart = store.session.get('translations').heartPracticeFeedback2; // heart-practice-feedback2, "Remember! When you see a HEART... on the SAME side."
+  const feedbackTextIncorrectFlower = store.session.get('translations').flowerPracticeFeedback2; // flower-practice-feedback2, "When you see a FLOWER, press the button on the OPPOSITE side."
+  const feedbackTexts = {
+    feedbackTextCorrectHeart: feedbackTextCorrect,
+    feedbackTextIncorrectHeart: feedbackTextIncorrectHeart,
+    feedbackTextCorrectFlower: feedbackTextCorrect,
+    feedbackTextIncorrectFlower: feedbackTextIncorrectFlower,
+  }
+  const practiceFeedback = buildMixedPracticeFeedback(feedbackTexts);
 
   const heartsAndFlowersPracticeTimeline = {
-    timeline: [fixation, stimulus(true, AssessmentStageType.HeartsAndFlowersPractice)],
-    timeline_variables: [
-      { stimulus: 'flower', position: 0 },
-      { stimulus: 'heart', position: 1 },
-      { stimulus: 'heart', position: randomPosition() },
-      { stimulus: 'flower', position: randomPosition() },
-      { stimulus: 'heart', position: randomPosition() },
-      { stimulus: 'flower', position: randomPosition() },
-    ],
+    timeline: [fixation, stimulus(true, AssessmentStageType.HeartsAndFlowersPractice), practiceFeedback],
+    timeline_variables: buildMixedTimelineVariables(adminConfig.practiceTrialCount),
+    randomize_order: false,
+    //TODO: implement adminConfig.stimulusPresentationTime and adminConfig.interStimulusInterval
   };
 
   const heartsAndFlowersPostPracticeBlock = {
@@ -349,23 +351,21 @@ function getMixedPracticeSection(adminConfig) {
   return [timeToPractice, heartsAndFlowersPracticeTimeline, heartsAndFlowersPostPracticeBlock];
 }
 
-//TODO: implement correctly
 function getMixedTestSection(adminConfig) {
   const heartsAndFlowersTimeline = {
     timeline: [fixation, stimulus(false, AssessmentStageType.HeartsAndFlowersStimulus)],
-    timeline_variables: [
-      { stimulus: 'heart', position: 0 },
-      { stimulus: 'heart', position: 1 },
-      { stimulus: 'flower', position: 0 },
-      { stimulus: 'flower', position: 1 },
-    ],
-    sample: {
-      type: 'without-replacement',
-      size: 1,
-    },
-    // With the sample parameter, the repetitions parameter is explicit.
-    // Without the sample parameter, the repetitions parameter is multiplied by the amount of timeline variables.
-    repetitions: 16,
+    timeline_variables: buildMixedTimelineVariables(adminConfig.testTrialCount),
+    randomize_order: false,
+    //TODO: implement adminConfig.stimulusPresentationTime and adminConfig.interStimulusInterval
+
+    //TODO: Not sure what to do with this. Double check we don't need it
+    // sample: {
+    //   type: 'without-replacement',
+    //   size: 1,
+    // },
+    // // With the sample parameter, the repetitions parameter is explicit.
+    // // Without the sample parameter, the repetitions parameter is multiplied by the amount of timeline variables.
+    // repetitions: 16,
   };
   return [heartsAndFlowersTimeline];
 }
