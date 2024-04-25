@@ -1,12 +1,13 @@
 {
   "name": "core-tasks",
-  "version": "1.0.0-beta.3",
+  "version": "1.0.0-beta.7",
   "description": "",
-  "main": "lib/index.23aebb6a.js",
-  "module": "lib/index.23aebb6a.js",
+  "main": "lib/index.712164d2.js",
+  "module": "lib/index.712164d2.js",
   "type": "module",
   "files": [
-    "lib"
+    "lib",
+    "lib/resources"
   ],
   "scripts": {
     "build": "npx webpack --mode production --env dbmode=production",

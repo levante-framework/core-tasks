@@ -103,7 +103,7 @@ export const imageInstructions = {
       assessment_stage: 'instructions',
     };
   },
-  stimulus: () => mediaAssets.audio.mentalRotationTrainingInstruct1,
+  stimulus: () => mediaAssets.audio.mentalRotationInstruct1,
   prompt: () => {
     return `<img src=${mediaAssets.images.mentalRotationExample} width=430 />`;
   },
