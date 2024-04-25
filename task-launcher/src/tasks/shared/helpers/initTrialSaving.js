@@ -18,9 +18,6 @@ export const initTrialSaving = (config) => {
     };
 
   jsPsych.opts.on_finish = extend(jsPsych.opts.on_finish, (data) => {
-    if (data.save_trial) {
-      config.firekit.writeTrial(data);
-    }
     config.firekit.finishRun();
   });
 

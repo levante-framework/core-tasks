@@ -1,7 +1,6 @@
 // For Matrix reasoning, TROG, Theory of mind, Mental rotation, and EGMA Math
 // Currently works in: TROG, Theory of mind, Mental Rotation, Matrix Reasoning, and EGMA Math
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
-import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import store from 'store2';
 import { jsPsych } from '../../taskSetup';
 import {
@@ -53,7 +52,7 @@ function getStimulus(trialType) {
   }
 }
 
-function getPrompt(task, trialType) {
+function getPrompt(task) {
   // showItem itemIsImage
   const stim = store.session.get('nextStimulus');
   const t = store.session.get('translations');
@@ -143,7 +142,7 @@ function generateImageChoices(choices) {
   });
 }
 
-function getButtonChoices(task, trialType) {
+function getButtonChoices(task) {
   const stimulus = store.session.get('nextStimulus');
   if (stimulus.trialType === 'instructions') {
     return ['OK'];
@@ -168,14 +167,14 @@ function getButtonChoices(task, trialType) {
     return mathMLChoices;
   }
 
-  if (['trog', 'matrix-reasoning', 'mental-rotation'].includes(task) && stimulus.trialType !== 'instructions') {
+  if (['trog', 'matrix-reasoning', 'mental-rotation', 'theory-of-mind'].includes(task) && stimulus.trialType !== 'instructions') {
     return generateImageChoices(trialInfo.choices);
   }
 
   return trialInfo.choices; // Default return if no special conditions met
 }
 
-function getButtonHtml(task, trialType) {
+function getButtonHtml(task) {
   const stimulus = store.session.get('nextStimulus');
   // TODO: add trial_type column to math item bank
   if (stimulus.trialType === 'instructions') {
@@ -259,7 +258,7 @@ async function keyboardBtnFeedback(e, practiceBtns, stim) {
 
 let keyboardFeedbackHandler;
 
-function doOnLoad(task, trialType) {
+function doOnLoad(task) {
   startTime = performance.now();
 
   const stim = store.session.get('nextStimulus');
@@ -352,25 +351,13 @@ function doOnLoad(task, trialType) {
   if (stim.trialType !== 'instructions') {
     const { buttonLayout, keyHelpers } = store.session.get('config');
 
-    let buttonContainer;
-    if (trialType === 'audio') {
-      buttonContainer = document.getElementById('jspsych-audio-multi-response-btngroup');
-    } else {
-      buttonContainer = document.getElementById('jspsych-html-multi-response-btngroup');
-    }
+    const buttonContainer = document.getElementById('jspsych-audio-multi-response-btngroup');
 
     if (buttonLayout !== 'default' && buttonContainer.children.length === 2) {
       buttonContainer.classList.add('default-layout');
     } else {
       buttonContainer.classList.add(`${buttonLayout}-layout`);
     }
-
-    // const arrowKeyEmojis = [
-    //     ['arrowup', '↑'],
-    //     ['arrowleft', '←'],
-    //     ['arrowright', '→'],
-    //     ['arrowdown', '↓']
-    // ]
 
     const arrowKeyEmojis = [
       [
@@ -574,7 +561,7 @@ function doOnFinish(data, task) {
       item: _toNumber(stimulus.item) || stimulus.item,
       answer: target,
       distractors: stimulus.distractors,
-      trialType: stimulus.trialType,
+      corpusTrialType: stimulus.trialType,
       responseType: store.session('responseType'),
     });
 
@@ -618,6 +605,7 @@ function doOnFinish(data, task) {
       correct: false,
     });
   }
+  console.log('mark://displayData', jsPsych.data.displayData(), task)
 
   if (store.session.get('incorrectTrials') >= store.session.get('config').maxIncorrect) {
     store.session.set('incorrectTrials', 0);
@@ -634,7 +622,7 @@ function doOnFinish(data, task) {
 export const afcStimulus = ({ trialType, responseAllowed, promptAboveButtons, task } = {}) => {
   // TODO: pull out task-specific parameters (e.g., getPrompt(.., showPrompt=false) for Number Identification, TROG, ..)
   return {
-    type: trialType === 'audio' ? jsPsychAudioMultiResponse : jsPsychHTMLMultiResponse,
+    type: jsPsychAudioMultiResponse,
     response_allowed_while_playing: responseAllowed,
     data: () => {
       return {
