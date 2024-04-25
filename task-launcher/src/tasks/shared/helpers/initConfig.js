@@ -4,6 +4,7 @@ import _isNull from 'lodash/isNull';
 import _isUndefined from 'lodash/isUndefined';
 import i18next from 'i18next';
 import { camelize } from '@bdelab/roar-utils';
+import store from 'store2';
 
 const defaultCorpus = {
   egmaMath: 'math-item-bank',

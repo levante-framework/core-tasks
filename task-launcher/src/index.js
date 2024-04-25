@@ -31,6 +31,7 @@ export class TaskLauncher {
     if (taskName !== 'memory-game') {
       mediaAssets = await getMediaAssets(taskName, {}, language);
     }
+    console.log('mediaAssets:', mediaAssets)
 
     const config = await initConfig(this.firekit, this.gameParams, this.userParams, this.displayElement);
 
