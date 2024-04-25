@@ -3,6 +3,7 @@ import { jsPsych } from '../taskSetup';
 import { fixation } from './trials/fixation';
 import { initTrialSaving, initTimeline, createPreloadTrials } from '../shared/helpers';
 import store from 'store2';
+import { mediaAssets } from '../..';
 
 // trials
 import { exitFullscreen } from '../shared/trials';
@@ -14,8 +15,7 @@ import {
 } from './trials/practice';
 import {
   introduction,
-  heartInstructions,
-  flowerInstructions,
+  buildInstructionTrial,
   timeToPractice,
   keepUp,
   keepGoing,
@@ -161,31 +161,40 @@ function getHeartOrFlowerInstructionsSection(adminConfig, stimulusType) {
 
   const feedbackTextCorrect = store.session.get('translations').feedbackGoodJob; // feedback-good-job, "Good job!" //TODO: double-check ok to use feedback-good-job instead of "Great! That's right!" which is absent from item bank anyway
   const feedbackTextIncorrect = store.session.get('translations').heartsAndFlowersTryAgain; // hearts-and-flowers-try-again, "That's not right. Try again."
-  const instructionPracticeFeedback = buildStimulusInvariantPracticeFeedback(feedbackTextIncorrect, feedbackTextCorrect);
 
-  let instructions;
-  // Let's build the feedback trials to pair with each instruction practice trial
+  // To build our trials for the Instruction section, let's first gather all the static data
+  let instructionsPromptAudioAsset, instructionsMascotAsset, instructionsPromptText;
   let practiceStimulusSide1, instructionPracticeStaticData1, practiceStimulusSide2, instructionPracticeStaticData2;
-  //TODO: remove function wrapping on our text properties
+  const audioAsset = mediaAssets.audio.heartInstruct1;
   if (stimulusType === StimulusType.Heart) {
-    instructions = heartInstructions;
+    //Intro screen
+    instructionsPromptText = store.session.get('translations').heartInstruct1; // heart-instruct1, "This is the heart game. Here's how you play it."
+    instructionsPromptAudioAsset = mediaAssets.audio.heartInstruct1;
+    instructionsMascotAsset = mediaAssets.images.animalWhole;
+    //First instruction practice
     practiceStimulusSide1 = StimulusSideType.Left;
     instructionPracticeStaticData1 = {
       text: () => store.session.get('translations').heartInstruct2, // heart-instruct2, "When you see a <b>heart</b>, press the button on the <b>same</b> side."
       stimulusType: stimulusType,
     };
+    //Second instruction practice
     practiceStimulusSide2 = StimulusSideType.Right;
     instructionPracticeStaticData2 = {
       text: () => store.session.get('translations').heartPracticeFeedback1, // heart-practice-feedback1, "The heart is on the right side. Press the right button.")
       stimulusType: stimulusType,
     };
   } else if (stimulusType === StimulusType.Flower) {
-    instructions = flowerInstructions;
+    //Intro screen
+    instructionsPromptText = store.session.get('translations').flowerInstruct1, // flower-instruct1, "This is the flower game. Here's how you play."
+    instructionsPromptAudioAsset = mediaAssets.audio.flowerInstruct1;
+    instructionsMascotAsset = mediaAssets.images.animalWhole;
+    //First instruction practice
     practiceStimulusSide1 = StimulusSideType.Right;
     instructionPracticeStaticData1 = {
       text: () => store.session.get('translations').flowerInstruct2, // flower-instruct2, "When you see a flower, press the button on the opposite side."
       stimulusType: stimulusType,
     };
+    //Second instruction practice
     practiceStimulusSide2 = StimulusSideType.Left;
     instructionPracticeStaticData2 = {
       text: () => store.session.get('translations').flowerPracticeFeedback1, // flower-practice-feedback1, "The flower is on the left side. Press the right button."
@@ -196,18 +205,28 @@ function getHeartOrFlowerInstructionsSection(adminConfig, stimulusType) {
     console.error(errorMessage);
     throw new Error(errorMessage);
   }
+
+  // Now let's build our trials
+  const introTrial = buildInstructionTrial(
+    instructionsMascotAsset,
+    instructionsPromptAudioAsset,
+    instructionsPromptText,
+    store.session.get('translations').continueButtonText,
+    //bottomText left undefined
+  )
+  const instructionPracticeFeedback = buildStimulusInvariantPracticeFeedback(feedbackTextIncorrect, feedbackTextCorrect);
   const instructionPractice1 = buildInstructionPracticeTrial(
     instructionPracticeStaticData1,
     practiceStimulusSide1,
   );
-
   const instructionPractice2 = buildInstructionPracticeTrial(
     instructionPracticeStaticData2,
     practiceStimulusSide2,
   );
 
+  // Now let's build our timeline. Notice how we are pairing each practice trials with a feedback trial
   const subtimeline = [];
-  subtimeline.push(instructions);
+  subtimeline.push(introTrial);
   // Instruction practice trials do not advance until user gets it right
   subtimeline.push({
     timeline: [instructionPractice1, instructionPracticeFeedback],

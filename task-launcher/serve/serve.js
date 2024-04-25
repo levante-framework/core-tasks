@@ -13,6 +13,8 @@ const taskName = urlParams.get('task') ?? 'egma-math';
 const corpus = urlParams.get('corpus');
 const buttonLayout = urlParams.get('buttonLayout');
 const numOfPracticeTrials = urlParams.get('practiceTrials');
+//TODO: remove default values: Curious why we would use default values here in case we cannot parse these int,
+// should we not just leave them as null? I'm worried about nasty silent bugs here where we end up running tasks with incorrect config.
 const numberOfTrials = urlParams.get('trials') === null ? null : parseInt(urlParams.get('trials'), 10);
 const maxIncorrect = urlParams.get('maxIncorrect');
 const stimulusBlocks = urlParams.get('blocks') === null ? null : parseInt(urlParams.get('blocks'), 10);

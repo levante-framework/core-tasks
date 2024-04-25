@@ -1,6 +1,9 @@
 import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
+import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
 import { mediaAssets } from '../../..';
 import store from 'store2';
+import { jsPsych } from '../../taskSetup';
+import { replayButtonSvg } from './utils';
 
 export const introduction = {
   type: jsPsychHTMLMultiResponse,
@@ -109,3 +112,66 @@ export const [
     },
   };
 });
+
+export function buildInstructionTrial(mascotImage, promptAudio, promptText, buttonText, bottomText=undefined) {
+  const replayButtonHtmlId = 'replay-btn';
+  let audioSource;
+  let isAudioReplayPlaying = false;
+
+  async function replayAudio(promptAudio) {
+    if (isAudioReplayPlaying) {
+      return; // Exit the function if audio is already playing
+    }
+
+    const jsPsychAudioCtx = jsPsych.pluginAPI.audioContext();
+
+    isAudioReplayPlaying = true;
+
+    console.log(`replaying audioId=${promptAudio}`);
+    // Returns a promise of the AudioBuffer of the preloaded file path.
+    const audioBuffer = await jsPsych.pluginAPI.getAudioBuffer(promptAudio);
+
+    audioSource = jsPsychAudioCtx.createBufferSource();
+    audioSource.buffer = audioBuffer;
+    audioSource.connect(jsPsychAudioCtx.destination);
+    audioSource.start(0);
+
+    audioSource.onended = () => {
+      isAudioReplayPlaying = false;
+    };
+  }
+
+  return {
+    type: jsPsychAudioMultiResponse,
+    stimulus: promptAudio,
+    prompt:
+      `<div id='stimulus-container'>
+        <h1>${promptText}</h1>
+        <div id='${replayButtonHtmlId}'>
+          ${replayButtonSvg}
+        </div>
+        <div >
+          <img id='instruction-graphic' src=${mascotImage} alt='Instruction graphic'/>
+        </div>
+        ${bottomText ? `<h2>${bottomText}</h2>` : ''}
+      </div>`,
+    button_choices: ['Next'],
+    button_html:[
+      `<button class='next-btn'>
+        <p>${buttonText}</p>
+      </button>`.trim(),],
+    on_load: (_) => {
+      const nextBtn = document.getElementById('jspsych-audio-multi-response-btngroup');
+      nextBtn.style.justifyContent = 'end';
+      nextBtn.style.marginRight = '1rem';
+      
+      const replayBtn = document.getElementById(replayButtonHtmlId);
+      replayBtn.addEventListener('click', () => { replayAudio(promptAudio) });
+    },
+    on_finish: (_) => {
+      if (audioSource) {
+        audioSource.stop();
+      }
+    },
+  };
+}
