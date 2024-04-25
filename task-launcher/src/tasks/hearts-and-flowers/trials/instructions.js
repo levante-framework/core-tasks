@@ -3,7 +3,7 @@ import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-respo
 import { mediaAssets } from '../../..';
 import store from 'store2';
 import { jsPsych } from '../../taskSetup';
-import { replayButtonSvg } from '../helpers/utils';
+import { replayButtonSvg, overrideAudioTrialForReplayableAudio } from '../helpers/audioTrials';
 
 export const introduction = {
   type: jsPsychHTMLMultiResponse,
@@ -115,33 +115,7 @@ export const [
 
 export function buildInstructionTrial(mascotImage, promptAudio, promptText, buttonText, bottomText=undefined) {
   const replayButtonHtmlId = 'replay-btn';
-  let audioSource;
-  let isAudioReplayPlaying = false;
-
-  async function replayAudio(promptAudio) {
-    if (isAudioReplayPlaying) {
-      return; // Exit the function if audio is already playing
-    }
-
-    const jsPsychAudioCtx = jsPsych.pluginAPI.audioContext();
-
-    isAudioReplayPlaying = true;
-
-    console.log(`replaying audioId=${promptAudio}`);
-    // Returns a promise of the AudioBuffer of the preloaded file path.
-    const audioBuffer = await jsPsych.pluginAPI.getAudioBuffer(promptAudio);
-
-    audioSource = jsPsychAudioCtx.createBufferSource();
-    audioSource.buffer = audioBuffer;
-    audioSource.connect(jsPsychAudioCtx.destination);
-    audioSource.start(0);
-
-    audioSource.onended = () => {
-      isAudioReplayPlaying = false;
-    };
-  }
-
-  return {
+  const trial = {
     type: jsPsychAudioMultiResponse,
     stimulus: promptAudio,
     prompt:
@@ -164,14 +138,8 @@ export function buildInstructionTrial(mascotImage, promptAudio, promptText, butt
       const nextBtn = document.getElementById('jspsych-audio-multi-response-btngroup');
       nextBtn.style.justifyContent = 'end';
       nextBtn.style.marginRight = '1rem';
-      
-      const replayBtn = document.getElementById(replayButtonHtmlId);
-      replayBtn.addEventListener('click', () => { replayAudio(promptAudio) });
-    },
-    on_finish: (_) => {
-      if (audioSource) {
-        audioSource.stop();
-      }
     },
   };
+  overrideAudioTrialForReplayableAudio(trial, jsPsych.pluginAPI, promptAudio, replayButtonHtmlId);
+  return trial;
 }
