@@ -1,7 +1,7 @@
 import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
 import store from 'store2';
-import { StimulusType, StimulusSideType, getCorrectInputSide} from './utils';
+import { StimulusType, StimulusSideType, getCorrectInputSide} from '../helpers/utils';
 
 /**
  * 

@@ -3,7 +3,7 @@ import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-respo
 import { mediaAssets } from '../../..';
 import store from 'store2';
 import { jsPsych } from '../../taskSetup';
-import { replayButtonSvg } from './utils';
+import { replayButtonSvg } from '../helpers/utils';
 
 export const introduction = {
   type: jsPsychHTMLMultiResponse,

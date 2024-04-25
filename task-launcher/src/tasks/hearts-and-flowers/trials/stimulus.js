@@ -1,7 +1,7 @@
 import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
 import { jsPsych } from '../../taskSetup';
-import { StimulusType, StimulusSideType, getCorrectInputSide } from './utils';
+import { StimulusType, StimulusSideType, getCorrectInputSide } from '../helpers/utils';
 import store from 'store2';
 import shuffle from 'lodash/shuffle';
 

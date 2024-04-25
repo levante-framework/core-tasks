@@ -24,7 +24,7 @@ import {
   endGame,
 } from './trials/instructions';
 import { t } from 'i18next';
-import { StimulusType, StimulusSideType, AssessmentStageType } from './trials/utils';
+import { StimulusType, StimulusSideType, AssessmentStageType } from './helpers/utils';
 
 // export let cat;
 // export let cat2;
