@@ -17,7 +17,7 @@ export const initTrialSaving = (config) => {
       code.apply(fn, arguments);
     };
 
-  jsPsych.opts.on_finish = extend(jsPsych.opts.on_finish, (data) => {
+  jsPsych.opts.on_finish = extend(jsPsych.opts.on_finish, () => {
     config.firekit.finishRun();
   });
 
