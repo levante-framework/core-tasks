@@ -117,6 +117,15 @@ export function getEndGame() {
 }
 
 function buildInstructionTrial(mascotImage, promptAudio, promptText, buttonText, bottomText=undefined) {
+  if (!mascotImage) {
+    throw new Error(`Missing mascot image for instruction trial`);
+  }
+  if (!promptAudio) {
+    throw new Error(`Missing prompt audio for instruction trial`);
+  }
+  if (!promptText) {
+    throw new Error(`Missing prompt text for instruction trial`);
+  }
   const replayButtonHtmlId = 'replay-btn';
   const trial = {
     type: jsPsychAudioMultiResponse,

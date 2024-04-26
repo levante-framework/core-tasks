@@ -130,6 +130,16 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
     IncorrectFlower:  mediaAssets.audio[flowerFeedbackPromptIncorrectKey],
     CorrectFlower:    mediaAssets.audio[flowerfeedbackPromptCorrectKey],
   }
+  Object.entries(feedbackTexts).forEach(([key, value]) => {
+    if (!value) {
+      throw new Error(`Missing feedback text for ${key}`);
+    }
+  });
+  Object.entries(feedbackAudio).forEach(([key, value]) => {
+    if (!value) {
+      throw new Error(`Missing feedback audio for ${key}`);
+    }
+  });
   const replayButtonHtmlId = 'replay-btn';
 
   const trial = {
