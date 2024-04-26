@@ -5,6 +5,7 @@ import store from 'store2';
 import { jsPsych } from '../../taskSetup';
 import { replayButtonSvg, overrideAudioTrialForReplayableAudio } from '../helpers/audioTrials';
 
+//TODO: figure out translations and update our strings accordingly
 export const introduction = {
   type: jsPsychHTMLMultiResponse,
   stimulus: () => {
