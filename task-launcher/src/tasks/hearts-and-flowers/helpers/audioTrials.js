@@ -35,8 +35,9 @@ export function overrideAudioTrialForReplayableAudio(trial, jsPsychPluginApi, pr
     promptAudio,
     audioReplaySource: null,
     replayAudioAsyncFunction: async () => {
+      // check whether audio is already playing
       if (trial.audioReplayOverrides.audioReplaySource) {
-        return; // Exit the function if audio is already playing
+        return;
       }
     
       const jsPsychAudioCtx = trial.audioReplayOverrides.jsPsychPluginApi.audioContext();
@@ -50,7 +51,10 @@ export function overrideAudioTrialForReplayableAudio(trial, jsPsychPluginApi, pr
       audioSource.start(0);
     
       audioSource.onended = () => {
-        trial.audioReplayOverrides.audioReplaySource = null;
+        // signal that replay audio is not playing
+        if (trial.audioReplayOverrides) { // we may have freed it up via on_finish
+          trial.audioReplayOverrides.audioReplaySource = null;
+        }
       };
       trial.audioReplayOverrides.audioReplaySource = audioSource;
     },
@@ -72,5 +76,8 @@ export function overrideAudioTrialForReplayableAudio(trial, jsPsychPluginApi, pr
       console.log(`Stopping audio replay because of on_finish`);
       trial.audioReplayOverrides.audioReplaySource.stop();
     }
+    //TODO: check that memory is not steadily increasing throughout experiment, which
+    // would indicate that audio buffer or other objects are not being released properly
+    trial.audioReplayOverrides = null; // free up memory in case trials are kept around
   };
 }
