@@ -84,31 +84,24 @@ export function buildInstructionPracticeTrial(stimulusType, promptText, promptAu
   return trial;
 }
 
-/**
- * Builds a feedback trial for cases where the feedback text may change only depending on
+//TODO: It may seem silly to keep and export these two functions below, but in case we want to
+// refactor the feedback trials to NOT dynamically change their prompt and side it will help
+// minimize the impact on the calling code.
+
+/**stimulusType, promptText, promptAudioAsset, stimulusSideType
+ * Builds a feedback trial for cases where the feedback prompt may change only depending on
  * whether the answer was correct or incorrect.
- * @param {*} feedbackTextIncorrect 
- * @param {*} feedbackTextCorrect
  */
-export function buildStimulusInvariantPracticeFeedback(feedbackTextIncorrect, feedbackTextCorrect) {
-  return buildPracticeFeedback(undefined, feedbackTextIncorrect, feedbackTextCorrect);
+export function buildStimulusInvariantPracticeFeedback(feedbackPromptIncorrectKey, feedbackPromptCorrectKey) {
+  return buildPracticeFeedback(feedbackPromptIncorrectKey, feedbackPromptCorrectKey, feedbackPromptIncorrectKey, feedbackPromptCorrectKey);
 }
 
 /**
- * Builds a feedback trial for cases where the feedback text may change depending on
+ * Builds a feedback trial for cases where the feedback prompt may change depending on
  * the stimulus type and whether the answer was correct or incorrect.
- * 
- * @param {*} feedbackTexts an object containing the feedback texts for correct and incorrect
- * answers for both stimulus types, e.g.:
- * feedbackTexts = {
-    feedbackTextCorrectHeart: feedbackTextCorrect,
-    feedbackTextIncorrectHeart: feedbackTextIncorrectHeart,
-    feedbackTextCorrectFlower: feedbackTextCorrect,
-    feedbackTextIncorrectFlower: feedbackTextIncorrectFlower,
-  }
  */
-export function buildMixedPracticeFeedback(feedbackTexts) {
-  return buildPracticeFeedback(feedbackTexts, undefined, undefined)
+export function buildMixedPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPromptCorrectKey, flowerFeedbackPromptIncorrectKey, flowerfeedbackPromptCorrectKey) {
+  return buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPromptCorrectKey, flowerFeedbackPromptIncorrectKey, flowerfeedbackPromptCorrectKey)
 }
 
 //TODO: rely on previous trial data instead of singleton store to pass stimulus type, side and correct answer.
@@ -124,18 +117,22 @@ export function buildMixedPracticeFeedback(feedbackTexts) {
 /**
  * Builds a feedback trial for instructions practice trials and practice trials.
  */
-function buildPracticeFeedback(feedbackTexts, feedbackTextIncorrect, feedbackTextCorrect) {
+function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPromptCorrectKey, flowerFeedbackPromptIncorrectKey, flowerfeedbackPromptCorrectKey) {
   const validAnswerButtonHtmlIdentifier = 'valid-answer-btn';
+  const feedbackTexts = {
+    IncorrectHeart:   store.session.get('translations')[heartFeedbackPromptIncorrectKey],
+    CorrectHeart:     store.session.get('translations')[heartfeedbackPromptCorrectKey],
+    IncorrectFlower:  store.session.get('translations')[flowerFeedbackPromptIncorrectKey],
+    CorrectFlower:    store.session.get('translations')[flowerfeedbackPromptCorrectKey],
+  }
   return {
     type: jsPsychHTMLMultiResponse,
-    stimulus: () => { //TODO: animate the correct answer for an "incorrect answer" feedback
+    stimulus: () => {
       const stimulusType = store.session.get('stimulus');
-      if (feedbackTexts !== undefined) {
-        feedbackTextIncorrect = stimulusType === StimulusType.Heart ?
-          feedbackTexts.feedbackTextIncorrectHeart : feedbackTexts.feedbackTextIncorrectFlower;
-        feedbackTextCorrect = stimulusType === StimulusType.Heart ?
-          feedbackTexts.feedbackTextCorrectHeart : feedbackTexts.feedbackTextCorrectFlower;
-      }
+      const feedbackTextIncorrect = stimulusType === StimulusType.Heart ?
+          feedbackTexts.IncorrectHeart : feedbackTexts.IncorrectFlower;
+      const feedbackTextCorrect = stimulusType === StimulusType.Heart ?
+          feedbackTexts.CorrectHeart : feedbackTexts.CorrectFlower;
       if (store.session.get('side') === StimulusSideType.Left) {
         return `<div id='stimulus-container-hf'>
                       <div class='stimulus'>

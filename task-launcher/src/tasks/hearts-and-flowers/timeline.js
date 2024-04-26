@@ -159,9 +159,6 @@ function getHeartOrFlowerSubtimelines(adminConfig, stimulusType) {
 //TODO: check if we need to repeat the whole pair when user gets it wrong or if getting right on the feedback trial is enough
 function getHeartOrFlowerInstructionsSection(adminConfig, stimulusType) {
 
-  const feedbackTextCorrect = store.session.get('translations').feedbackGoodJob; // feedback-good-job, "Good job!" //TODO: double-check ok to use feedback-good-job instead of "Great! That's right!" which is absent from item bank anyway
-  const feedbackTextIncorrect = store.session.get('translations').heartsAndFlowersTryAgain; // hearts-and-flowers-try-again, "That's not right. Try again."
-
   // To build our trials for the Instruction section, let's first gather all the static data
   let instructionsPromptAudioAsset, instructionsMascotAsset, instructionsPromptText;
   let instructionPracticeStimulusSide1, instructionPracticePromptText1, instructionPracticePromptAudio1;
@@ -207,7 +204,8 @@ function getHeartOrFlowerInstructionsSection(adminConfig, stimulusType) {
     store.session.get('translations').continueButtonText,
     //bottomText left undefined
   )
-  const instructionPracticeFeedback = buildStimulusInvariantPracticeFeedback(feedbackTextIncorrect, feedbackTextCorrect);
+  // feedback-good-job, "Good job!" //TODO: double-check ok to use feedback-good-job instead of "Great! That's right!" which is absent from item bank anyway
+  const instructionPracticeFeedback = buildStimulusInvariantPracticeFeedback('heartsAndFlowersTryAgain', 'feedbackGoodJob'); // hearts-and-flowers-try-again, "That's not right. Try again."
   const instructionPractice1 = buildInstructionPracticeTrial(
     stimulusType,
     instructionPracticePromptText1,
@@ -239,20 +237,20 @@ function getHeartOrFlowerInstructionsSection(adminConfig, stimulusType) {
 
 function getHeartOrFlowerPracticeSection(adminConfig, stimulusType) {
 
-  const feedbackTextCorrect = store.session.get('translations').feedbackGoodJob; // feedback-good-job, "Good job!" //TODO: double-check ok to use feedback-good-job instead of "Great! That's right!" which is absent from item bank anyway
-  let jsPsychAssessmentStage, feedbackTextIncorrect;
+  let jsPsychAssessmentStage, feedbackKeyIncorrect;
   if (stimulusType === StimulusType.Heart) {
     jsPsychAssessmentStage = AssessmentStageType.HeartsPractice;
-    feedbackTextIncorrect = store.session.get('translations').heartPracticeFeedback2; // heart-practice-feedback2, "Remember! When you see a HEART... on the SAME side."
+    feedbackKeyIncorrect = 'heartPracticeFeedback2'; // heart-practice-feedback2, "Remember! When you see a HEART... on the SAME side."
   } else if (stimulusType === StimulusType.Flower) {
     jsPsychAssessmentStage = AssessmentStageType.FlowersPractice;
-    feedbackTextIncorrect = store.session.get('translations').flowerPracticeFeedback2; // flower-practice-feedback2, "When you see a FLOWER, press the button on the OPPOSITE side."
+    feedbackKeyIncorrect = 'flowerPracticeFeedback2'; // flower-practice-feedback2, "When you see a FLOWER, press the button on the OPPOSITE side."
   } else {
     const errorMessage = `Invalid type: ${stimulusType} for getHeartOrFlowerPracticeSection`;
     console.error(errorMessage);
     throw new Error(errorMessage);
   }
-  const practiceFeedback = buildStimulusInvariantPracticeFeedback(feedbackTextIncorrect, feedbackTextCorrect);
+  // feedback-good-job, "Good job!" //TODO: double-check ok to use feedback-good-job instead of "Great! That's right!" which is absent from item bank anyway
+  const practiceFeedback = buildStimulusInvariantPracticeFeedback(feedbackKeyIncorrect, 'feedbackGoodJob');
   
   const postPracticeBlock = {
     timeline: [
@@ -299,9 +297,8 @@ function getHeartOrFlowerTestSection(adminConfig, stimulusType) {
 }
 
 function getMixedInstructionsSection(adminConfig) {
-  const feedbackTextCorrect = store.session.get('translations').feedbackGoodJob; // feedback-good-job, "Good job!" //TODO: double-check ok to use feedback-good-job instead of "Great! That's right!" which is absent from item bank anyway
-  const feedbackTextIncorrect = store.session.get('translations').heartsAndFlowersTryAgain; // hearts-and-flowers-try-again, "That's not right. Try again."
-  const instructionPracticeFeedback = buildStimulusInvariantPracticeFeedback(feedbackTextIncorrect, feedbackTextCorrect);
+  // feedback-good-job, "Good job!" //TODO: double-check ok to use feedback-good-job instead of "Great! That's right!" which is absent from item bank anyway
+  const instructionPracticeFeedback = buildStimulusInvariantPracticeFeedback('heartsAndFlowersTryAgain', 'feedbackGoodJob'); // hearts-and-flowers-try-again, "That's not right. Try again."
 
   const instructionPractice1 = buildInstructionPracticeTrial(
     StimulusType.Heart,
@@ -334,16 +331,10 @@ function getMixedInstructionsSection(adminConfig) {
 }
 
 function getMixedPracticeSection(adminConfig) {
-  const feedbackTextCorrect = store.session.get('translations').feedbackGoodJob; // feedback-good-job, "Good job!" //TODO: double-check ok to use feedback-good-job instead of "Great! That's right!" which is absent from item bank anyway
-  const feedbackTextIncorrectHeart = store.session.get('translations').heartPracticeFeedback2; // heart-practice-feedback2, "Remember! When you see a HEART... on the SAME side."
-  const feedbackTextIncorrectFlower = store.session.get('translations').flowerPracticeFeedback2; // flower-practice-feedback2, "When you see a FLOWER, press the button on the OPPOSITE side."
-  const feedbackTexts = {
-    feedbackTextCorrectHeart: feedbackTextCorrect,
-    feedbackTextIncorrectHeart: feedbackTextIncorrectHeart,
-    feedbackTextCorrectFlower: feedbackTextCorrect,
-    feedbackTextIncorrectFlower: feedbackTextIncorrectFlower,
-  }
-  const practiceFeedback = buildMixedPracticeFeedback(feedbackTexts);
+  // feedback-good-job, "Good job!" //TODO: double-check ok to use feedback-good-job instead of "Great! That's right!" which is absent from item bank anyway
+  // heart-practice-feedback2, "Remember! When you see a HEART... on the SAME side."
+  // flower-practice-feedback2, "When you see a FLOWER, press the button on the OPPOSITE side."
+  const practiceFeedback = buildMixedPracticeFeedback('heartPracticeFeedback2', 'feedbackGoodJob', 'flowerPracticeFeedback2', 'feedbackGoodJob');
 
   const heartsAndFlowersPracticeTimeline = {
     timeline: [fixation, stimulus(true, AssessmentStageType.HeartsAndFlowersPractice), practiceFeedback],
