@@ -119,15 +119,15 @@ export function getEndGame() {
 function buildInstructionTrial(mascotImage, promptAudio, promptText, buttonText, bottomText=undefined) {
   if (!mascotImage) {
     // throw new Error(`Missing mascot image for instruction trial`);
-    console.error(`Missing mascot image for instruction trial`);
+    console.error(`buildInstructionTrial: Missing mascot image`);
   }
   if (!promptAudio) {
     // throw new Error(`Missing prompt audio for instruction trial`);
-    console.error(`Missing prompt audio for instruction trial`);
+    console.error(`buildInstructionTrial: Missing prompt audio`);
   }
   if (!promptText) {
     // throw new Error(`Missing prompt text for instruction trial`);
-    console.error(`Missing prompt text for instruction trial`);
+    console.error(`buildInstructionTrial: Missing prompt text`);
   }
   const replayButtonHtmlId = 'replay-btn';
   const trial = {

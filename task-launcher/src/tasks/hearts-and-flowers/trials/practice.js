@@ -13,6 +13,14 @@ import { replayButtonSvg, overrideAudioTrialForReplayableAudio } from '../helper
  * @param {*} stimulusSideType
  */
 export function buildInstructionPracticeTrial(stimulusType, promptText, promptAudioAsset, stimulusSideType) {
+  if (!promptAudioAsset) {
+    // throw new Error(`Missing prompt audio for instruction practice trial`);
+    console.error(`buildInstructionPracticeTrial: Missing prompt audio`);
+  }
+  if (!promptText) {
+    // throw new Error(`Missing prompt text for instruction practice trial`);
+    console.error(`buildInstructionPracticeTrial: Missing prompt text`);
+  }
   const replayButtonHtmlId = 'replay-btn';
   const validAnswer = getCorrectInputSide(stimulusType, stimulusSideType);
   const trial = {
@@ -133,13 +141,13 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
   Object.entries(feedbackTexts).forEach(([key, value]) => {
     if (!value) {
       // throw new Error(`Missing feedback text for ${key}`);
-      console.error(`Missing feedback text for ${key}`);
+      console.error(`buildPracticeFeedback: Missing feedback text for ${key}`);
     }
   });
   Object.entries(feedbackAudio).forEach(([key, value]) => {
     if (!value) {
       // throw new Error(`Missing feedback audio for ${key}`);
-      console.error(`Missing feedback audio for ${key}`);
+      console.error(`buildPracticeFeedback: Missing feedback audio for ${key}`);
     }
   });
   const replayButtonHtmlId = 'replay-btn';
