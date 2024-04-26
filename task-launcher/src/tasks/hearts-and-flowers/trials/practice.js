@@ -1,4 +1,3 @@
-import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
 import { mediaAssets } from '../../..';
 import store from 'store2';
@@ -125,57 +124,65 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
     IncorrectFlower:  store.session.get('translations')[flowerFeedbackPromptIncorrectKey],
     CorrectFlower:    store.session.get('translations')[flowerfeedbackPromptCorrectKey],
   }
-  return {
-    type: jsPsychHTMLMultiResponse,
+  const feedbackAudio = {
+    IncorrectHeart:   mediaAssets.audio[heartFeedbackPromptIncorrectKey],
+    CorrectHeart:     mediaAssets.audio[heartfeedbackPromptCorrectKey],
+    IncorrectFlower:  mediaAssets.audio[flowerFeedbackPromptIncorrectKey],
+    CorrectFlower:    mediaAssets.audio[flowerfeedbackPromptCorrectKey],
+  }
+  const replayButtonHtmlId = 'replay-btn';
+
+  const trial = {
+    type: jsPsychAudioMultiResponse,
     stimulus: () => {
       const stimulusType = store.session.get('stimulus');
-      const feedbackTextIncorrect = stimulusType === StimulusType.Heart ?
-          feedbackTexts.IncorrectHeart : feedbackTexts.IncorrectFlower;
-      const feedbackTextCorrect = stimulusType === StimulusType.Heart ?
-          feedbackTexts.CorrectHeart : feedbackTexts.CorrectFlower;
+      const incorrect = store.session.get('correct') === false
+      const audioPrompt = stimulusType === StimulusType.Heart ?
+          incorrect? feedbackAudio.IncorrectHeart : feedbackAudio.CorrectHeart
+          : incorrect? feedbackAudio.IncorrectFlower : feedbackAudio.CorrectFlower;
+      return audioPrompt;
+    },
+    prompt: () => {
+      const stimulusType = store.session.get('stimulus');
+      const incorrect = store.session.get('correct') === false
+      const image = incorrect ? mediaAssets.images[stimulusType] : mediaAssets.images.smilingFace;
+      const textPrompt = stimulusType === StimulusType.Heart ?
+          incorrect? feedbackTexts.IncorrectHeart : feedbackTexts.CorrectHeart
+          : incorrect? feedbackTexts.IncorrectFlower : feedbackTexts.CorrectFlower;
       if (store.session.get('side') === StimulusSideType.Left) {
         return `<div id='stimulus-container-hf'>
+                      <div id='${replayButtonHtmlId}'>
+                        ${replayButtonSvg}
+                      </div>
                       <div class='stimulus'>
-                          <img src='${
-                            store.session.get('correct') === false
-                              ? mediaAssets.images[stimulusType]
-                              : mediaAssets.images.smilingFace
-                          }' alt="heart or flower"/>
+                          <img src='${image}' alt="heart or flower"/>
                       </div>
                       <div class='stimulus'>
                           <p class='practice-text'>
-                            ${
-                              store.session.get('correct') === false
-                                ? feedbackTextIncorrect
-                                : feedbackTextCorrect
-                            }
+                            ${textPrompt}
                           </p>
                       </div>
                   </div>`;
       } else {
         return `<div id='stimulus-container-hf'>
+                      <div id='${replayButtonHtmlId}'>
+                        ${replayButtonSvg}
+                      </div>
                       <div class='stimulus'>
                           <p class='practice-text'>
-                              ${
-                                store.session.get('correct') === false
-                                  ? feedbackTextIncorrect
-                                  : feedbackTextCorrect
-                              }
+                              ${textPrompt}
                           </p>
                       </div>
                       <div class='stimulus'>
-                          <img src='${
-                            store.session.get('correct') === false
-                              ? mediaAssets.images[store.session.get('stimulus')]
-                              : mediaAssets.images.smilingFace
-                          }' alt="heart or flower"/>
+                          <img src='${image}' alt="heart or flower"/>
                       </div>
 
                   </div>`;
       }
     },
+    prompt_above_buttons: true,
     on_load: () => {
-      document.getElementById('jspsych-html-multi-response-btngroup').classList.add('btn-layout-hf');
+      document.getElementById('jspsych-audio-multi-response-btngroup').classList.add('btn-layout-hf');
       const buttons = document.querySelectorAll('.response-btn');
       buttons.forEach(button => {
         if (button.id === validAnswerButtonHtmlIdentifier) {
@@ -202,4 +209,6 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
       return store.session.get('correct') === false ? null : 1200;
     },
   };
+  overrideAudioTrialForReplayableAudio(trial, jsPsych.pluginAPI, replayButtonHtmlId);
+  return trial;
 };
