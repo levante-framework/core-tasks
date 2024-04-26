@@ -52,9 +52,7 @@ export function overrideAudioTrialForReplayableAudio(trial, jsPsychPluginApi, pr
     
       audioSource.onended = () => {
         // signal that replay audio is not playing
-        if (trial.audioReplayOverrides) { // we may have freed it up via on_finish
-          trial.audioReplayOverrides.audioReplaySource = null;
-        }
+        trial.audioReplayOverrides.audioReplaySource = null;
       };
       trial.audioReplayOverrides.audioReplaySource = audioSource;
     },
@@ -78,6 +76,5 @@ export function overrideAudioTrialForReplayableAudio(trial, jsPsychPluginApi, pr
     }
     //TODO: check that memory is not steadily increasing throughout experiment, which
     // would indicate that audio buffer or other objects are not being released properly
-    trial.audioReplayOverrides = null; // free up memory in case trials are kept around
   };
 }
