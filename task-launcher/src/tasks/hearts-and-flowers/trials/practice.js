@@ -132,12 +132,14 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
   }
   Object.entries(feedbackTexts).forEach(([key, value]) => {
     if (!value) {
-      throw new Error(`Missing feedback text for ${key}`);
+      // throw new Error(`Missing feedback text for ${key}`);
+      console.error(`Missing feedback text for ${key}`);
     }
   });
   Object.entries(feedbackAudio).forEach(([key, value]) => {
     if (!value) {
-      throw new Error(`Missing feedback audio for ${key}`);
+      // throw new Error(`Missing feedback audio for ${key}`);
+      console.error(`Missing feedback audio for ${key}`);
     }
   });
   const replayButtonHtmlId = 'replay-btn';
