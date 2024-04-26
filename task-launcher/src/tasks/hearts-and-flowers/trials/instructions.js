@@ -138,6 +138,10 @@ export function buildInstructionTrial(mascotImage, promptAudio, promptText, butt
       const nextBtn = document.getElementById('jspsych-audio-multi-response-btngroup');
       nextBtn.style.justifyContent = 'end';
       nextBtn.style.marginRight = '1rem';
+      nextBtn.style.order = '1'; // parent is flex, move button node to below the prompt node
+      // no need to change prompt style order as it's 0 by default
+      //const prompt = document.getElementById('jspsych-audio-multi-response-prompt');
+      //prompt.style.order = '0';
     },
   };
   overrideAudioTrialForReplayableAudio(trial, jsPsych.pluginAPI, promptAudio, replayButtonHtmlId);
