@@ -268,8 +268,6 @@ function doOnLoad(task) {
     twoTrialsAgoIndex = currentTrialIndex - 3; // math has a fixation or something
   }
   const twoTrialsAgoStimulus = jsPsych.data.get().filter({ trial_index: twoTrialsAgoIndex }).values();
-  // console.log("twoTrialsAgostim: ",twoTrialsAgoStimulus);
-  // console.log({stim})
 
   if (stim.notes === 'practice') {
     const practiceBtns = document.querySelectorAll('.practice-btn');
@@ -595,8 +593,6 @@ function doOnFinish(data, task) {
     if (stimulus.notes === 'practice') {
       document.removeEventListener('keydown', keyboardFeedbackHandler);
     }
-
-    // console.log('data: ', jsPsych.data.get().last(1).values()[0])
   } else {
     // instructions
     store.session.set('incorrectTrials', 0); // reset incorrect trial count
@@ -605,7 +601,6 @@ function doOnFinish(data, task) {
       correct: false,
     });
   }
-  console.log('mark://displayData', jsPsych.data.displayData(), task)
 
   if (store.session.get('incorrectTrials') >= store.session.get('config').maxIncorrect) {
     store.session.set('incorrectTrials', 0);
