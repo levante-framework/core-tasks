@@ -85,8 +85,6 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
   if (!sequentialStimulus) {
     stimulusData = shuffleStimulusTrials(stimulusData);
   }
-
-  // console.log('stimulus data from corpus parsing:', stimulusData)
 };
 
 export const fetchAndParseCorpus = async (config) => {
@@ -147,6 +145,5 @@ export const fetchAndParseCorpus = async (config) => {
     stimulus: csvTransformed.stimulus,
   };
 
-  // console.log({corpora})
   store.session.set('corpora', corpora);
 };
