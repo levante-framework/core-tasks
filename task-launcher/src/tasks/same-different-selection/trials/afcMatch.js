@@ -1,4 +1,5 @@
-import JsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
+import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
+import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
 import store from 'store2';
 import { jsPsych } from '../../taskSetup';
@@ -6,19 +7,38 @@ import { jsPsych } from '../../taskSetup';
 let selectedCards = [];
 
 export const afcMatch = {
-  type: JsPsychHTMLMultiResponse,
+  type: jsPsychAudioMultiResponse,
   stimulus: () => {
-    return `<div>
-        <h1 id='prompt'>Touch two pictures that are the same in a different way.</h1>
+    const stimulus = store.session.get('nextStimulus');
+    //console.log(stimulus.audioFile);
+    const file = stimulus.audioFile.split(',')[0];
+    //console.log(file);
+    return mediaAssets.audio[file] || mediaAssets.audio['circle'];
+  },
+  prompt: () => {
+    const stimulus = store.session.get('nextStimulus');
+
+    return (
+      `<div>
+        <h1 id='prompt'>` +
+      stimulus.item +
+      `</h1>
       </div>
-      `;
+      `
+    );
   },
   on_load: () => {
     // create img elements and arrange in grid as cards
     // on click they will be selected
     // can select multiple cards and deselect them
     const stimulus = store.session.get('nextStimulus');
+    //console.log(stimulus);
+    //this presupposes only one target,
     const numberOfCards = stimulus.distractors.length + 1;
+    //console.log(numberOfCards);
+
+    const expected = stimulus.trialType[0];
+    console.log(expected); // eventually pull this as how many answers wanted
 
     const jsPsychContent = document.getElementById('jspsych-content');
 
@@ -27,7 +47,7 @@ export const afcMatch = {
     cardContainer.id = 'card-container';
 
     // create cards
-    for (let i = 0; i < 7; i++) {
+    for (let i = 0; i < numberOfCards; i++) {
       const card = document.createElement('div');
       card.className = 'card';
       card.id = `card-${i}`;
@@ -63,7 +83,9 @@ export const afcMatch = {
     continueButton.textContent = 'OK';
 
     continueButton.addEventListener('click', () => {
-      jsPsych.finishTrial();
+      if (selectedCards.length == expected) {
+        jsPsych.finishTrial();
+      }
     });
 
     jsPsychContent.appendChild(continueButton);
@@ -71,7 +93,6 @@ export const afcMatch = {
   response_ends_trial: false,
   on_finish: (data) => {
     const stimulus = store.session.get('nextStimulus');
-
     // save data
     jsPsych.data.addDataToLastTrial({
       trialType: stimulus.trialType,
