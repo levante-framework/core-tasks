@@ -164,7 +164,8 @@ function getHeartOrFlowerInstructionsSection(adminConfig, stimulusType) {
 
   // To build our trials for the Instruction section, let's first gather all the static data
   let instructionsPromptAudioAsset, instructionsMascotAsset, instructionsPromptText;
-  let practiceStimulusSide1, instructionPracticeStaticData1, practiceStimulusSide2, instructionPracticeStaticData2;
+  let instructionPracticeStimulusSide1, instructionPracticePromptText1, instructionPracticePromptAudio1;
+  let instructionPracticeStimulusSide2, instructionPracticePromptText2, instructionPracticePromptAudio2;
   const audioAsset = mediaAssets.audio.heartInstruct1;
   if (stimulusType === StimulusType.Heart) {
     //Intro screen
@@ -172,34 +173,26 @@ function getHeartOrFlowerInstructionsSection(adminConfig, stimulusType) {
     instructionsPromptAudioAsset = mediaAssets.audio.heartInstruct1;
     instructionsMascotAsset = mediaAssets.images.animalWhole;
     //First instruction practice
-    practiceStimulusSide1 = StimulusSideType.Left;
-    instructionPracticeStaticData1 = {
-      text: store.session.get('translations').heartInstruct2, // heart-instruct2, "When you see a <b>heart</b>, press the button on the <b>same</b> side."
-      stimulusType: stimulusType,
-    };
+    instructionPracticeStimulusSide1 = StimulusSideType.Left;
+    instructionPracticePromptText1 = store.session.get('translations').heartInstruct2; // heart-instruct2, "When you see a <b>heart</b>, press the button on the <b>same</b> side."
+    instructionPracticePromptAudio1 = mediaAssets.audio.heartInstruct2;
     //Second instruction practice
-    practiceStimulusSide2 = StimulusSideType.Right;
-    instructionPracticeStaticData2 = {
-      text: store.session.get('translations').heartPracticeFeedback1, // heart-practice-feedback1, "The heart is on the right side. Press the right button.")
-      stimulusType: stimulusType,
-    };
+    instructionPracticeStimulusSide2 = StimulusSideType.Right;
+    instructionPracticePromptText2 = store.session.get('translations').heartPracticeFeedback1; // heart-practice-feedback1, "The heart is on the right side. Press the right button.")
+    instructionPracticePromptAudio2 = mediaAssets.audio.heartPracticeFeedback1;
   } else if (stimulusType === StimulusType.Flower) {
     //Intro screen
     instructionsPromptText = store.session.get('translations').flowerInstruct1, // flower-instruct1, "This is the flower game. Here's how you play."
     instructionsPromptAudioAsset = mediaAssets.audio.flowerInstruct1;
     instructionsMascotAsset = mediaAssets.images.animalWhole;
     //First instruction practice
-    practiceStimulusSide1 = StimulusSideType.Right;
-    instructionPracticeStaticData1 = {
-      text: store.session.get('translations').flowerInstruct2, // flower-instruct2, "When you see a flower, press the button on the opposite side."
-      stimulusType: stimulusType,
-    };
+    instructionPracticeStimulusSide1 = StimulusSideType.Right;
+    instructionPracticePromptText1 = store.session.get('translations').flowerInstruct2; // flower-instruct2, "When you see a flower, press the button on the opposite side."
+    instructionPracticePromptAudio1 = mediaAssets.audio.flowerInstruct2;
     //Second instruction practice
-    practiceStimulusSide2 = StimulusSideType.Left;
-    instructionPracticeStaticData2 = {
-      text: store.session.get('translations').flowerPracticeFeedback1, // flower-practice-feedback1, "The flower is on the left side. Press the right button."
-      stimulusType: stimulusType,
-    };
+    instructionPracticeStimulusSide2 = StimulusSideType.Left;
+    instructionPracticePromptText2 = store.session.get('translations').flowerPracticeFeedback1; // flower-practice-feedback1, "The flower is on the left side. Press the right button."
+    instructionPracticePromptAudio2 = mediaAssets.audio.flowerPracticeFeedback1;
   } else {
     const errorMessage = `Invalid type: ${stimulusType} for getHeartOrFlowerInstructionsSection`;
     console.error(errorMessage);
@@ -216,12 +209,16 @@ function getHeartOrFlowerInstructionsSection(adminConfig, stimulusType) {
   )
   const instructionPracticeFeedback = buildStimulusInvariantPracticeFeedback(feedbackTextIncorrect, feedbackTextCorrect);
   const instructionPractice1 = buildInstructionPracticeTrial(
-    instructionPracticeStaticData1,
-    practiceStimulusSide1,
+    stimulusType,
+    instructionPracticePromptText1,
+    instructionPracticePromptAudio1,
+    instructionPracticeStimulusSide1,
   );
   const instructionPractice2 = buildInstructionPracticeTrial(
-    instructionPracticeStaticData2,
-    practiceStimulusSide2,
+    stimulusType,
+    instructionPracticePromptText2,
+    instructionPracticePromptAudio2,
+    instructionPracticeStimulusSide2,
   );
 
   // Now let's build our timeline. Notice how we are pairing each practice trials with a feedback trial
@@ -306,27 +303,19 @@ function getMixedInstructionsSection(adminConfig) {
   const feedbackTextIncorrect = store.session.get('translations').heartsAndFlowersTryAgain; // hearts-and-flowers-try-again, "That's not right. Try again."
   const instructionPracticeFeedback = buildStimulusInvariantPracticeFeedback(feedbackTextIncorrect, feedbackTextCorrect);
 
-  const practiceStimulusSide1 = StimulusSideType.Left;
-  const instructionPracticeStaticData1 = {
-    //TODO: check that we want this one and not "REMEMBER! When you see a [...]""
-    text: store.session.get('translations').heartInstruct2, // heart-instruct2, "When you see a <b>heart</b>, press the button on the <b>same</b> side."
-    stimulusType: StimulusType.Heart,
-  };
-  const practiceStimulusSide2 = StimulusSideType.Right;
-  const instructionPracticeStaticData2 = {
-    //TODO: check that we want this one and not "REMEMBER! When you see a [...]""
-    text: store.session.get('translations').flowerInstruct2, // flower-instruct2, "When you see a flower, press the button on the opposite side."
-    stimulusType: StimulusType.Flower,
-  };
-
   const instructionPractice1 = buildInstructionPracticeTrial(
-    instructionPracticeStaticData1,
-    practiceStimulusSide1,
+    StimulusType.Heart,
+    store.session.get('translations').heartInstruct2, // heart-instruct2, "When you see a <b>heart</b>, press the button on the <b>same</b> side."
+    mediaAssets.audio.heartInstruct2,
+    StimulusSideType.Left,
   );
 
   const instructionPractice2 = buildInstructionPracticeTrial(
-    instructionPracticeStaticData2,
-    practiceStimulusSide2,
+    StimulusType.Flower,
+    //TODO: check that we want this one and not "REMEMBER! When you see a [...]"
+    store.session.get('translations').flowerInstruct2, // flower-instruct2, "When you see a flower, press the button on the opposite side."
+    mediaAssets.audio.flowerInstruct2,
+    StimulusSideType.Right,
   );
 
   const subtimeline = [];

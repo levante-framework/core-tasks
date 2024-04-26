@@ -1,50 +1,67 @@
 import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
+import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
 import { mediaAssets } from '../../..';
 import store from 'store2';
+import { jsPsych } from '../../taskSetup';
 import { StimulusType, StimulusSideType, getCorrectInputSide} from '../helpers/utils';
+import { replayButtonSvg, overrideAudioTrialForReplayableAudio } from '../helpers/audioTrials';
 
 /**
- * 
- * @param {*} properties static set of properties containing {stimulusType: StimulusType, text: String}
- * @param {*} stimulusSide a StimulusSideType: the side the stimulus should be on
+ * Builds a practice trial for the Instruction sections.
+ * @param {*} stimulusType
+ * @param {*} promptText
+ * @param {*} promptAudioAsset
+ * @param {*} stimulusSideType
  */
-export function buildInstructionPracticeTrial(properties, stimulusSideType) {
-  const validAnswer = getCorrectInputSide(properties.stimulusType, stimulusSideType);
-  return {
-    type: jsPsychHTMLMultiResponse,
-    stimulus: () => {
+export function buildInstructionPracticeTrial(stimulusType, promptText, promptAudioAsset, stimulusSideType) {
+  const replayButtonHtmlId = 'replay-btn';
+  const validAnswer = getCorrectInputSide(stimulusType, stimulusSideType);
+  const trial = {
+    type: jsPsychAudioMultiResponse,
+    stimulus: promptAudioAsset,
+    prompt: () => {
       if (stimulusSideType === StimulusSideType.Left) {
         return `<div id='stimulus-container-hf'>
-                            <div class='stimulus'>
-                                <img src=${mediaAssets.images[properties.stimulusType]} alt="heart or flower"/>
+                            <div id='${replayButtonHtmlId}'>
+                              ${replayButtonSvg}
                             </div>
                             <div class='stimulus'>
-                                <p class='practice-text'>${properties.text}</p>
+                                <img src=${mediaAssets.images[stimulusType]} alt="heart or flower"/>
+                            </div>
+                            <div class='stimulus'>
+                                <p class='practice-text'>${promptText}</p>
                             </div>
                         </div>`;
       } else {
         return `<div id='stimulus-container-hf'>
                             <div class='stimulus'>
-                                <p class='practice-text'>${properties.text}</p>
+                                <p class='practice-text'>${promptText}</p>
                             </div>
                             <div class='stimulus'>
-                                <img src=${mediaAssets.images[properties.stimulusType]} alt="heart or flower"/>
+                                <img src=${mediaAssets.images[stimulusType]} alt="heart or flower"/>
                             </div>
                         </div>`;
       }
     },
     on_start: () => {
-      store.session.set('stimulus', properties.stimulusType);
+      store.session.set('stimulus', stimulusType);
       store.session.set('side', stimulusSideType);
     },
     on_load: () => {
-      document.getElementById('jspsych-html-multi-response-btngroup').classList.add('btn-layout-hf');
+      const btngroup = document.getElementById('jspsych-audio-multi-response-btngroup')
+      btngroup.classList.add('btn-layout-hf');
+      btngroup.style.order = '1'; // parent is flex, move button node to below the prompt node
+      // no need to change prompt style order as it's 0 by default
+      //const prompt = document.getElementById('jspsych-audio-multi-response-prompt');
+      //prompt.style.order = '0';
+
       //TODO: use alt tag to query the proper button directly
       const buttons = document.querySelectorAll('.response-btn');
       if (buttons.length != 2) {
         console.error(`There are ${buttons.length} instead of 2 wrappers in the practice trials`);
       }
       buttons[validAnswer].style.animation = 'pulse 2s infinite';
+
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
     keyboard_choice: ['ArrowLeft', 'ArrowRight'],
@@ -64,6 +81,8 @@ export function buildInstructionPracticeTrial(properties, stimulusSideType) {
     },
     // TODO handle stimulus presentation timeout and other parameters
   }
+  overrideAudioTrialForReplayableAudio(trial, jsPsych.pluginAPI, promptAudioAsset, replayButtonHtmlId);
+  return trial;
 }
 
 /**
