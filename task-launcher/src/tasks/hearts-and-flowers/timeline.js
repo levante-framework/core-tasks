@@ -78,7 +78,7 @@ export default function buildHeartsAndFlowersTimeline(config, mediaAssets) {
       // 2nd block of mixed trials does not repeat instructions nor practice sections
       // practiceTrialCount: 6,
       // correctPracticeTrial: 2,
-      // testTrialCount: 16,
+      testTrialCount: 16,
       stimulusPresentationTime: 1500,
       interStimulusInterval: 500,
     },
