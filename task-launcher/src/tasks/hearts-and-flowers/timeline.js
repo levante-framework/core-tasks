@@ -15,13 +15,14 @@ import {
 } from './trials/practice';
 import {
   introduction,
-  buildInstructionTrial,
-  timeToPractice,
-  keepUp,
-  keepGoing,
-  timeToPlay,
-  heartsAndFlowers,
-  endGame,
+  getHeartInstructions,
+  getFlowerInstructions,
+  getTimeToPractice,
+  getKeepUp,
+  getKeepGoing,
+  getTimeToPlay,
+  getMixedInstructions,
+  getEndGame,
 } from './trials/instructions';
 import { t } from 'i18next';
 import { StimulusType, StimulusSideType, AssessmentStageType } from './helpers/utils';
@@ -127,7 +128,7 @@ export default function buildHeartsAndFlowersTimeline(config, mediaAssets) {
   if (timelineAdminConfig.mixed2) {
     timeline.push(...getMixedTestSection(timelineAdminConfig.mixed2));
   }
-  timeline.push(endGame);
+  timeline.push(getEndGame());
   timeline.push(exitFullscreen);
 
   return { jsPsych, timeline };
@@ -160,15 +161,10 @@ function getHeartOrFlowerSubtimelines(adminConfig, stimulusType) {
 function getHeartOrFlowerInstructionsSection(adminConfig, stimulusType) {
 
   // To build our trials for the Instruction section, let's first gather all the static data
-  let instructionsPromptAudioAsset, instructionsMascotAsset, instructionsPromptText;
   let instructionPracticeStimulusSide1, instructionPracticePromptText1, instructionPracticePromptAudio1;
   let instructionPracticeStimulusSide2, instructionPracticePromptText2, instructionPracticePromptAudio2;
   const audioAsset = mediaAssets.audio.heartInstruct1;
   if (stimulusType === StimulusType.Heart) {
-    //Intro screen
-    instructionsPromptText = store.session.get('translations').heartInstruct1; // heart-instruct1, "This is the heart game. Here's how you play it."
-    instructionsPromptAudioAsset = mediaAssets.audio.heartInstruct1;
-    instructionsMascotAsset = mediaAssets.images.animalWhole;
     //First instruction practice
     instructionPracticeStimulusSide1 = StimulusSideType.Left;
     instructionPracticePromptText1 = store.session.get('translations').heartInstruct2; // heart-instruct2, "When you see a <b>heart</b>, press the button on the <b>same</b> side."
@@ -178,10 +174,6 @@ function getHeartOrFlowerInstructionsSection(adminConfig, stimulusType) {
     instructionPracticePromptText2 = store.session.get('translations').heartPracticeFeedback1; // heart-practice-feedback1, "The heart is on the right side. Press the right button.")
     instructionPracticePromptAudio2 = mediaAssets.audio.heartPracticeFeedback1;
   } else if (stimulusType === StimulusType.Flower) {
-    //Intro screen
-    instructionsPromptText = store.session.get('translations').flowerInstruct1, // flower-instruct1, "This is the flower game. Here's how you play."
-    instructionsPromptAudioAsset = mediaAssets.audio.flowerInstruct1;
-    instructionsMascotAsset = mediaAssets.images.animalWhole;
     //First instruction practice
     instructionPracticeStimulusSide1 = StimulusSideType.Right;
     instructionPracticePromptText1 = store.session.get('translations').flowerInstruct2; // flower-instruct2, "When you see a flower, press the button on the opposite side."
@@ -197,13 +189,9 @@ function getHeartOrFlowerInstructionsSection(adminConfig, stimulusType) {
   }
 
   // Now let's build our trials
-  const introTrial = buildInstructionTrial(
-    instructionsMascotAsset,
-    instructionsPromptAudioAsset,
-    instructionsPromptText,
-    store.session.get('translations').continueButtonText,
-    //bottomText left undefined
-  )
+  const introTrial = stimulusType === StimulusType.Heart?
+    getHeartInstructions() : getFlowerInstructions();
+
   // feedback-good-job, "Good job!" //TODO: double-check ok to use feedback-good-job instead of "Great! That's right!" which is absent from item bank anyway
   const instructionPracticeFeedback = buildStimulusInvariantPracticeFeedback('heartsAndFlowersTryAgain', 'feedbackGoodJob'); // hearts-and-flowers-try-again, "That's not right. Try again."
   const instructionPractice1 = buildInstructionPracticeTrial(
@@ -251,17 +239,18 @@ function getHeartOrFlowerPracticeSection(adminConfig, stimulusType) {
   }
   // feedback-good-job, "Good job!" //TODO: double-check ok to use feedback-good-job instead of "Great! That's right!" which is absent from item bank anyway
   const practiceFeedback = buildStimulusInvariantPracticeFeedback(feedbackKeyIncorrect, 'feedbackGoodJob');
-  
+
+  //TODO: do we really need to nest these into a sub-timeline?
   const postPracticeBlock = {
     timeline: [
-      keepUp,
-      keepGoing,
-      timeToPlay
+      getKeepUp(),
+      getKeepGoing(),
+      getTimeToPlay(),
     ],
   };
 
   const subtimeline = [];
-  subtimeline.push(timeToPractice);
+  subtimeline.push(getTimeToPractice());
   subtimeline.push({
     timeline: [fixation, stimulus(true, jsPsychAssessmentStage), practiceFeedback],
     timeline_variables: buildHeartsOrFlowersTimelineVariables(adminConfig.practiceTrialCount, stimulusType),
@@ -316,7 +305,7 @@ function getMixedInstructionsSection(adminConfig) {
   );
 
   const subtimeline = [];
-  subtimeline.push(heartsAndFlowers);
+  subtimeline.push(getMixedInstructions());
   // Instruction practice trials do not advance until user gets it right
   subtimeline.push({
     timeline: [instructionPractice1, instructionPracticeFeedback],
@@ -343,11 +332,16 @@ function getMixedPracticeSection(adminConfig) {
     //TODO: implement adminConfig.stimulusPresentationTime and adminConfig.interStimulusInterval
   };
 
+  //TODO: do we really need to nest these into a sub-timeline?
   const heartsAndFlowersPostPracticeBlock = {
-    timeline: [keepUp, keepGoing, timeToPlay],
+    timeline: [
+      getKeepUp(),
+      getKeepGoing(),
+      getTimeToPlay(),
+    ],
   };
 
-  return [timeToPractice, heartsAndFlowersPracticeTimeline, heartsAndFlowersPostPracticeBlock];
+  return [getTimeToPractice(), heartsAndFlowersPracticeTimeline, heartsAndFlowersPostPracticeBlock];
 }
 
 function getMixedTestSection(adminConfig) {
