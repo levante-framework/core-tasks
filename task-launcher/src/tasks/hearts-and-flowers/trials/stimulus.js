@@ -5,6 +5,10 @@ import { StimulusType, StimulusSideType, getCorrectInputSide } from '../helpers/
 import store from 'store2';
 import shuffle from 'lodash/shuffle';
 
+/**
+ *TODO: we should perhaps allow {@link https://www.jspsych.org/7.2/overview/media-preloading/#automatic-preloading automatic preload}
+  of the stimulus image and modify the DOM nodes that jsPsych creates in on_load?
+  */
 export const stimulus = (isPractice = false, stage) => {
   return {
     type: jsPsychHTMLMultiResponse,
