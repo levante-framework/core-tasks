@@ -3,7 +3,8 @@ import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-respons
 import { mediaAssets } from '../../..';
 import store from 'store2';
 import { jsPsych } from '../../taskSetup';
-
+import { dashToCamelCase } from '../../shared/helpers';
+import { shuffle } from 'lodash';
 let selectedCards = [];
 
 export const afcMatch = {
@@ -11,7 +12,7 @@ export const afcMatch = {
   stimulus: () => {
     const stimulus = store.session.get('nextStimulus');
     //console.log(stimulus.audioFile);
-    const file = stimulus.audioFile.split(',')[0];
+    const file = dashToCamelCase(stimulus.audioFile.split(',')[0]);
     //console.log(file);
     return mediaAssets.audio[file] || mediaAssets.audio['circle'];
   },
@@ -34,7 +35,10 @@ export const afcMatch = {
     const stimulus = store.session.get('nextStimulus');
     //console.log(stimulus);
     //this presupposes only one target,
-    const numberOfCards = stimulus.distractors.length + 1;
+    const images = stimulus.distractors.slice();
+    _.shuffle(images);
+    console.log(images);
+    const numberOfCards = images.length;
     //console.log(numberOfCards);
 
     const expected = stimulus.trialType[0];
@@ -54,11 +58,11 @@ export const afcMatch = {
 
       const img = document.createElement('img');
       img.src =
-        mediaAssets.images[stimulus.distractors[i]] ||
+        mediaAssets.images[dashToCamelCase(images[i])] ||
         `https://imgs.search.brave.com/wH6NX0ADUKmdx5h4d9Tho1WEpa3NBj2USMxzllhYDFc/rs:fit:860:0:0/g:ce/aHR0cHM6Ly90My5m/dGNkbi5uZXQvanBn/LzAxLzk1LzcwLzUw/LzM2MF9GXzE5NTcw/NTAxM19NcW5YZFIx/dUV4dW5xazJjSldm/Z2hZbXE3ZTBwbmJz/ei5qcGc`;
       img.alt = 'stimulus';
 
-      card.dataset.id = stimulus.distractors[i] || i;
+      card.dataset.id = images[i] || i;
 
       card.addEventListener('click', () => {
         if (card.classList.contains('selected')) {

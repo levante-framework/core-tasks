@@ -23,7 +23,6 @@ export default function buildSameDifferentTimeline(config, mediaAssets) {
     conditional_function: () => {
       const stim = store.session.get('nextStimulus');
       console.log(stim.trialType);
-      return true;
       console.log(stim.trialType);
       if (stim.trialType.includes('match') || stim.trialType.includes('unique')) {
         console.log('afcMatch');
@@ -40,7 +39,6 @@ export default function buildSameDifferentTimeline(config, mediaAssets) {
     conditional_function: () => {
       const stim = store.session.get('nextStimulus');
       console.log(stim.trialType);
-      return true;
       if (stim.trialType.includes('match') || stim.trialType.includes('unique')) {
         console.log('afcMatch');
         return true;
@@ -53,7 +51,7 @@ export default function buildSameDifferentTimeline(config, mediaAssets) {
 
   console.log(store.session.get('totalTrials'));
   const allBlocks = {
-    timeline: [stimulusBlock],
+    //timeline: [stimulusBlock],
     //timeline: [afcBlock],
     timeline: [stimulusBlock, afcBlock],
     repetitions: store.session.get('totalTrials'),
