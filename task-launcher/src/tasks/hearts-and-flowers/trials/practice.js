@@ -34,6 +34,9 @@ export function buildInstructionPracticeTrial(stimulusType, promptText, promptAu
                         </div>`;
       } else {
         return `<div id='stimulus-container-hf'>
+                            <div id='${replayButtonHtmlId}'>
+                              ${replayButtonSvg}
+                            </div>
                             <div class='stimulus'>
                                 <p class='practice-text'>${promptText}</p>
                             </div>
