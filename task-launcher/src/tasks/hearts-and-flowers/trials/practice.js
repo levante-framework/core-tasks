@@ -19,13 +19,13 @@ export function buildInstructionPracticeTrial(properties, stimulusSideType) {
                                 <img src=${mediaAssets.images[properties.stimulusType]} alt="heart or flower"/>
                             </div>
                             <div class='stimulus'>
-                                <p class='practice-text'>${properties.text()}</p>
+                                <p class='practice-text'>${properties.text}</p>
                             </div>
                         </div>`;
       } else {
         return `<div id='stimulus-container-hf'>
                             <div class='stimulus'>
-                                <p class='practice-text'>${properties.text()}</p>
+                                <p class='practice-text'>${properties.text}</p>
                             </div>
                             <div class='stimulus'>
                                 <img src=${mediaAssets.images[properties.stimulusType]} alt="heart or flower"/>

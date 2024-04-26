@@ -174,13 +174,13 @@ function getHeartOrFlowerInstructionsSection(adminConfig, stimulusType) {
     //First instruction practice
     practiceStimulusSide1 = StimulusSideType.Left;
     instructionPracticeStaticData1 = {
-      text: () => store.session.get('translations').heartInstruct2, // heart-instruct2, "When you see a <b>heart</b>, press the button on the <b>same</b> side."
+      text: store.session.get('translations').heartInstruct2, // heart-instruct2, "When you see a <b>heart</b>, press the button on the <b>same</b> side."
       stimulusType: stimulusType,
     };
     //Second instruction practice
     practiceStimulusSide2 = StimulusSideType.Right;
     instructionPracticeStaticData2 = {
-      text: () => store.session.get('translations').heartPracticeFeedback1, // heart-practice-feedback1, "The heart is on the right side. Press the right button.")
+      text: store.session.get('translations').heartPracticeFeedback1, // heart-practice-feedback1, "The heart is on the right side. Press the right button.")
       stimulusType: stimulusType,
     };
   } else if (stimulusType === StimulusType.Flower) {
@@ -191,13 +191,13 @@ function getHeartOrFlowerInstructionsSection(adminConfig, stimulusType) {
     //First instruction practice
     practiceStimulusSide1 = StimulusSideType.Right;
     instructionPracticeStaticData1 = {
-      text: () => store.session.get('translations').flowerInstruct2, // flower-instruct2, "When you see a flower, press the button on the opposite side."
+      text: store.session.get('translations').flowerInstruct2, // flower-instruct2, "When you see a flower, press the button on the opposite side."
       stimulusType: stimulusType,
     };
     //Second instruction practice
     practiceStimulusSide2 = StimulusSideType.Left;
     instructionPracticeStaticData2 = {
-      text: () => store.session.get('translations').flowerPracticeFeedback1, // flower-practice-feedback1, "The flower is on the left side. Press the right button."
+      text: store.session.get('translations').flowerPracticeFeedback1, // flower-practice-feedback1, "The flower is on the left side. Press the right button."
       stimulusType: stimulusType,
     };
   } else {
@@ -309,13 +309,13 @@ function getMixedInstructionsSection(adminConfig) {
   const practiceStimulusSide1 = StimulusSideType.Left;
   const instructionPracticeStaticData1 = {
     //TODO: check that we want this one and not "REMEMBER! When you see a [...]""
-    text: () => store.session.get('translations').heartInstruct2, // heart-instruct2, "When you see a <b>heart</b>, press the button on the <b>same</b> side."
+    text: store.session.get('translations').heartInstruct2, // heart-instruct2, "When you see a <b>heart</b>, press the button on the <b>same</b> side."
     stimulusType: StimulusType.Heart,
   };
   const practiceStimulusSide2 = StimulusSideType.Right;
   const instructionPracticeStaticData2 = {
     //TODO: check that we want this one and not "REMEMBER! When you see a [...]""
-    text: () => store.session.get('translations').flowerInstruct2, // flower-instruct2, "When you see a flower, press the button on the opposite side."
+    text: store.session.get('translations').flowerInstruct2, // flower-instruct2, "When you see a flower, press the button on the opposite side."
     stimulusType: StimulusType.Flower,
   };
 
