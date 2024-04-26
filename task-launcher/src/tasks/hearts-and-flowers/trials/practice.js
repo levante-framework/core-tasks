@@ -80,7 +80,7 @@ export function buildInstructionPracticeTrial(stimulusType, promptText, promptAu
     },
     // TODO handle stimulus presentation timeout and other parameters
   }
-  overrideAudioTrialForReplayableAudio(trial, jsPsych.pluginAPI, promptAudioAsset, replayButtonHtmlId);
+  overrideAudioTrialForReplayableAudio(trial, jsPsych.pluginAPI, replayButtonHtmlId);
   return trial;
 }
 

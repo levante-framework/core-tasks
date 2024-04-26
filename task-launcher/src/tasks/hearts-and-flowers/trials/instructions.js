@@ -141,6 +141,6 @@ export function buildInstructionTrial(mascotImage, promptAudio, promptText, butt
       nextBtn.style.marginRight = '1rem';
     },
   };
-  overrideAudioTrialForReplayableAudio(trial, jsPsych.pluginAPI, promptAudio, replayButtonHtmlId);
+  overrideAudioTrialForReplayableAudio(trial, jsPsych.pluginAPI, replayButtonHtmlId);
   return trial;
 }

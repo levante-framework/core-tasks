@@ -11,18 +11,14 @@ export const replayButtonSvg =
  * This function should be called before the trial is added to the timeline.
  * @param trial the jsPsychAudioMultiResponse object to override
  * @param jsPsychPluginApi the jsPsych pluginApi from which to retrieve the audio context and audio buffer
- * @param promptAudio the audio file path to replay
  * @param replayButtonHtmlId the html id of the replay button
  */
-export function overrideAudioTrialForReplayableAudio(trial, jsPsychPluginApi, promptAudio, replayButtonHtmlId) {
+export function overrideAudioTrialForReplayableAudio(trial, jsPsychPluginApi, replayButtonHtmlId) {
   if (trial.type !== jsPsychAudioMultiResponse) {
     throw new Error(`Expected jsPsychAudioTrial to be of type jsPsychAudioMultiResponse but got ${trial.type}`);
   }
   if (!jsPsychPluginApi) {
     throw new Error(`Expected jsPsychPluginApi to be defined but got ${jsPsychPluginApi}`);
-  }
-  if (!promptAudio) {
-    throw new Error(`Expected promptAudio to be defined but got ${promptAudio}`);
   }
   if (!replayButtonHtmlId) {
     throw new Error(`Expected replayButtonHtmlId to be defined but got ${replayButtonHtmlId}`);
@@ -32,7 +28,7 @@ export function overrideAudioTrialForReplayableAudio(trial, jsPsychPluginApi, pr
     originalOnLoad: trial.on_load,
     originalOnFinish: trial.on_finish,
     jsPsychPluginApi,
-    promptAudio,
+    promptAudio: trial.stimulus,
     audioReplaySource: null,
     replayAudioAsyncFunction: async () => {
       // check whether audio is already playing
@@ -42,8 +38,10 @@ export function overrideAudioTrialForReplayableAudio(trial, jsPsychPluginApi, pr
     
       const jsPsychAudioCtx = trial.audioReplayOverrides.jsPsychPluginApi.audioContext();
     
-      console.log(`replaying audioId=${trial.audioReplayOverrides.promptAudio}`);
-      const audioBuffer = await trial.audioReplayOverrides.jsPsychPluginApi.getAudioBuffer(trial.audioReplayOverrides.promptAudio);
+      const audioAsset = (typeof trial.audioReplayOverrides.promptAudio === 'function') ?
+        trial.audioReplayOverrides.promptAudio() : trial.audioReplayOverrides.promptAudio;
+      console.log(`replaying audioId=${audioAsset}`);
+      const audioBuffer = await trial.audioReplayOverrides.jsPsychPluginApi.getAudioBuffer(audioAsset);
     
       const audioSource = jsPsychAudioCtx.createBufferSource();
       audioSource.buffer = audioBuffer;
@@ -56,7 +54,7 @@ export function overrideAudioTrialForReplayableAudio(trial, jsPsychPluginApi, pr
       };
       trial.audioReplayOverrides.audioReplaySource = audioSource;
     },
-  }
+  };
   trial.on_load = (_) => {
     if (trial.audioReplayOverrides.originalOnLoad) {
       trial.audioReplayOverrides.originalOnLoad(_);
