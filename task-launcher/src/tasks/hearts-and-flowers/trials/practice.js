@@ -43,17 +43,13 @@ export function buildInstructionPracticeTrial(stimulusType, promptText, promptAu
                         </div>`;
       }
     },
+    prompt_above_buttons: true,
     on_start: () => {
       store.session.set('stimulus', stimulusType);
       store.session.set('side', stimulusSideType);
     },
     on_load: () => {
-      const btngroup = document.getElementById('jspsych-audio-multi-response-btngroup')
-      btngroup.classList.add('btn-layout-hf');
-      btngroup.style.order = '1'; // parent is flex, move button node to below the prompt node
-      // no need to change prompt style order as it's 0 by default
-      //const prompt = document.getElementById('jspsych-audio-multi-response-prompt');
-      //prompt.style.order = '0';
+      document.getElementById('jspsych-audio-multi-response-btngroup').classList.add('btn-layout-hf');
 
       //TODO: use alt tag to query the proper button directly
       const buttons = document.querySelectorAll('.response-btn');
