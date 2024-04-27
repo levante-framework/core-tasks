@@ -1,6 +1,5 @@
 import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import store from 'store2';
-import { updateProgressBar } from '../../shared/helpers';
 import { mediaAssets } from '../../..';
 
 export const stimulus = {

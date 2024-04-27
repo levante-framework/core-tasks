@@ -3,6 +3,7 @@ import { onAuthStateChanged, signInAnonymously } from 'firebase/auth';
 import { TaskLauncher } from '../src';
 import { firebaseConfig } from './firebaseConfig';
 import { stringToBoolean } from '../src/tasks/shared/helpers';
+import i18next from 'i18next';
 // Import necessary in order to use async/await at the top level
 import 'regenerator-runtime/runtime';
 
@@ -21,6 +22,7 @@ const stimulusBlocks = urlParams.get('blocks') === null ? null : parseInt(urlPar
 const age = urlParams.get('age') === null ? null : parseInt(urlParams.get('age'), 10);
 const maxTime = urlParams.get('maxTime') === null ? null : parseInt(urlParams.get('maxTime'), 10); // time limit for real trials
 const language = urlParams.get('lng');
+const pid = urlParams.get('pid');
 
 // const storyCorpus = urlParams.get("storyCopus")
 
@@ -32,54 +34,58 @@ const sequentialStimulus = stringToBoolean(urlParams.get('sequentialStimulus'), 
 const storeItemId = stringToBoolean(urlParams.get('storeItemId'), false);
 
 
-export const pid = urlParams.get('pid');
+async function startWebApp() {
+  // @ts-ignore
+  const appKit = await initializeFirebaseProject(firebaseConfig, 'assessmentApp', 'none');
 
-// @ts-ignore
-const appKit = await initializeFirebaseProject(firebaseConfig, 'assessmentApp', 'none');
+  onAuthStateChanged(appKit.auth, (user) => {
+    if (user) {
+      const userInfo = {
+        assessmentUid: user.uid,
+        userMetadata: {},
+      };
 
-onAuthStateChanged(appKit.auth, (user) => {
-  if (user) {
-    const userInfo = {
-      assessmentUid: user.uid,
-      userMetadata: {},
-    };
+      const userParams = {
+        pid,
+      };
 
-    const userParams = {};
+      const gameParams = {
+        taskName,
+        skipInstructions,
+        sequentialPractice,
+        sequentialStimulus,
+        corpus,
+        buttonLayout,
+        numOfPracticeTrials,
+        numberOfTrials,
+        maxIncorrect,
+        stimulusBlocks,
+        keyHelpers,
+        language: language ?? i18next.language,
+        age,
+        maxTime,
+        storeItemId,
+        // story,
+        // storyCorpus,
+      };
 
-    const gameParams = {
-      taskName,
-      skipInstructions,
-      sequentialPractice,
-      sequentialStimulus,
-      corpus,
-      buttonLayout,
-      numOfPracticeTrials,
-      numberOfTrials,
-      maxIncorrect,
-      stimulusBlocks,
-      keyHelpers,
-      language,
-      age,
-      maxTime,
-      storeItemId,
-      // story,
-      // storyCorpus,
-    };
+      const taskInfo = {
+        taskId: taskName,
+        variantParams: gameParams,
+      };
 
-    const taskInfo = {
-      taskId: taskName,
-      variantParams: gameParams,
-    };
+      const firekit = new RoarAppkit({
+        firebaseProject: appKit,
+        taskInfo,
+        userInfo,
+      });
 
-    const firekit = new RoarAppkit({
-      firebaseProject: appKit,
-      taskInfo,
-      userInfo,
-    });
+      const task = new TaskLauncher(firekit, gameParams, userParams);
+      task.run();
+    }
+  });
 
-    const task = new TaskLauncher(firekit, gameParams, userParams);
-    task.run();
-  }
-});
+  await signInAnonymously(appKit.auth);
+}
 
-await signInAnonymously(appKit.auth);
+startWebApp();

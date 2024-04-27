@@ -29,10 +29,9 @@ export class TaskLauncher {
     // GCP bucket names use a format like egma-math
     // will avoid language folder if not provided
     if (taskName !== 'memory-game') {
-      // console.log({ taskName, })
       mediaAssets = await getMediaAssets(taskName, {}, language);
-      console.log({ mediaAssets });
     }
+    console.log('mediaAssets:', mediaAssets)
 
     const config = await initConfig(this.firekit, this.gameParams, this.userParams, this.displayElement);
 
