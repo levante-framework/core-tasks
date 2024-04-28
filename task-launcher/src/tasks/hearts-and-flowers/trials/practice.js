@@ -1,184 +1,234 @@
-import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
+import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
 import { mediaAssets } from '../../..';
 import store from 'store2';
+import { jsPsych } from '../../taskSetup';
+import { StimulusType, StimulusSideType, getCorrectInputSide} from '../helpers/utils';
+import { replayButtonSvg, overrideAudioTrialForReplayableAudio } from '../helpers/audioTrials';
 
-const practiceData = [
-  {
-    text: () => store.session.get('translations').heartInstruct2,
-    stimulus: 'heart',
-  },
-  {
-    text: () => store.session.get('translations').heartPracticeFeedback1,
-    stimulus: 'heart',
-  },
-  {
-    text: () => store.session.get('translations').flowerInstruct2,
-    stimulus: 'flower',
-  },
-  // This was originally saying 'on the right side'. May need change.
-  {
-    text: () => store.session.get('translations').flowerPracticeFeedback1,
-    stimulus: 'flower',
-  },
-  {
-    text: () => store.session.get('translations').heartPracticeFeedback2,
-    stimulus: 'heart',
-  },
-  {
-    text: () => store.session.get('translations').flowerPracticeFeedback2,
-    stimulus: 'flower',
-  },
-];
-
-const practiceTrials = practiceData.map((data, i) => {
-  return {
-    type: jsPsychHTMLMultiResponse,
-    stimulus: () => {
-      if (i % 2 === 0) {
+/**
+ * Builds a practice trial for the Instruction sections.
+ * @param {*} stimulusType
+ * @param {*} promptText
+ * @param {*} promptAudioAsset
+ * @param {*} stimulusSideType
+ */
+export function buildInstructionPracticeTrial(stimulusType, promptText, promptAudioAsset, stimulusSideType) {
+  if (!promptAudioAsset) {
+    // throw new Error(`Missing prompt audio for instruction practice trial`);
+    console.error(`buildInstructionPracticeTrial: Missing prompt audio`);
+  }
+  if (!promptText) {
+    // throw new Error(`Missing prompt text for instruction practice trial`);
+    console.error(`buildInstructionPracticeTrial: Missing prompt text`);
+  }
+  const replayButtonHtmlId = 'replay-btn';
+  const validAnswer = getCorrectInputSide(stimulusType, stimulusSideType);
+  const trial = {
+    type: jsPsychAudioMultiResponse,
+    stimulus: promptAudioAsset,
+    prompt: () => {
+      if (stimulusSideType === StimulusSideType.Left) {
         return `<div id='stimulus-container-hf'>
-                            <div class='stimulus'>
-                                <img src=${mediaAssets.images[data.stimulus]} alt="heart or flower"/>
+                            <div id='${replayButtonHtmlId}'>
+                              ${replayButtonSvg}
                             </div>
                             <div class='stimulus'>
-                                <p class='practice-text'>${data.text()}</p>
+                                <img src=${mediaAssets.images[stimulusType]} alt="heart or flower"/>
+                            </div>
+                            <div class='stimulus'>
+                                <p class='practice-text'>${promptText}</p>
                             </div>
                         </div>`;
       } else {
         return `<div id='stimulus-container-hf'>
-                            <div class='stimulus'>
-                                <p class='practice-text'>${data.text()}</p>
+                            <div id='${replayButtonHtmlId}'>
+                              ${replayButtonSvg}
                             </div>
                             <div class='stimulus'>
-                                <img src=${mediaAssets.images[data.stimulus]} alt="heart or flower"/>
+                                <p class='practice-text'>${promptText}</p>
+                            </div>
+                            <div class='stimulus'>
+                                <img src=${mediaAssets.images[stimulusType]} alt="heart or flower"/>
                             </div>
                         </div>`;
       }
     },
+    prompt_above_buttons: true,
     on_start: () => {
-      store.session.set('stimulus', data.stimulus);
-      store.session.set('side', i % 2 === 0 ? 'left' : 'right');
+      store.session.set('stimulus', stimulusType);
+      store.session.set('side', stimulusSideType);
     },
     on_load: () => {
-      document.getElementById('jspsych-html-multi-response-btngroup').classList.add('btn-layout-hf');
+      document.getElementById('jspsych-audio-multi-response-btngroup').classList.add('btn-layout-hf');
+
+      //TODO: use alt tag to query the proper button directly
+      const buttons = document.querySelectorAll('.response-btn');
+      if (buttons.length != 2) {
+        console.error(`There are ${buttons.length} instead of 2 wrappers in the practice trials`);
+      }
+      buttons[validAnswer].style.animation = 'pulse 2s infinite';
+
     },
-    button_choices: ['left', 'right'],
+    button_choices: [StimulusSideType.Left, StimulusSideType.Right],
     keyboard_choice: ['ArrowLeft', 'ArrowRight'],
     button_html: [`<button class='response-btn'></button>`, `<button class='response-btn'></button>`],
     on_finish: (data) => {
       // console.log('data in practice: ', data)
-      if (store.session.get('stimulus') === 'heart') {
-        if (data.button_response === 0 || data.button_response === 1) {
-          if (
-            (data.button_response === 0 && store.session.get('side') === 'left') ||
-            (data.button_response === 1 && store.session.get('side') === 'right')
-          ) {
-            store.session.set('correct', true);
-          } else {
-            store.session.set('correct', false);
-          }
+      if (data.button_response === 0 || data.button_response === 1) {
+        if (data.button_response === validAnswer) {
+          store.session.set('correct', true);
         } else {
-          // Add same logic for keyboard
-          store.session.set('correct', data.keyboard_response);
+          store.session.set('correct', false);
         }
       } else {
-        if (data.button_response === 0 || data.button_response === 1) {
-          if (
-            (data.button_response === 0 && store.session.get('side') === 'right') ||
-            (data.button_response === 1 && store.session.get('side') === 'left')
-          ) {
-            store.session.set('correct', true);
-          } else {
-            store.session.set('correct', false);
-          }
-        } else {
-          // Add same logic for keyboard
-          store.session.set('correct', data.keyboard_response);
-        }
+        // Add same logic for keyboard
+        store.session.set('correct', data.keyboard_response);
       }
     },
-  };
-});
+    // TODO handle stimulus presentation timeout and other parameters
+  }
+  overrideAudioTrialForReplayableAudio(trial, jsPsych.pluginAPI, replayButtonHtmlId);
+  return trial;
+}
 
-export const [heartPractice1, heartPractice2, flowerPractice1, flowerPractice2, reminderHeart, reminderFlower] =
-  practiceTrials;
+//TODO: It may seem silly to keep and export these two functions below, but in case we want to
+// refactor the feedback trials to NOT dynamically change their prompt and side it will help
+// minimize the impact on the calling code.
 
-export const practiceFeedback = {
-  type: jsPsychHTMLMultiResponse,
-  stimulus: () => {
-    if (store.session.get('side') === 'left') {
-      return `<div id='stimulus-container-hf'>
-                    <div class='stimulus'>
-                        <img src='${
-                          store.session.get('correct') === false
-                            ? mediaAssets.images[store.session.get('stimulus')]
-                            : mediaAssets.images.smilingFace
-                        }' alt="heart or flower"/>
-                    </div>
-                    <div class='stimulus'>
-                        <p class='practice-text'>
-                          ${
-                            store.session.get('correct') === false
-                              ? store.session.get('translations').heartsAndFlowersTryAgain
-                              : store.session.get('translations').feedbackGoodJob
-                          }
-                        </p>
-                    </div>
-                </div>`;
-    } else {
-      return `<div id='stimulus-container-hf'>
-                    <div class='stimulus'>
-                        <p class='practice-text'>
-                            ${
-                              store.session.get('correct') === false
-                                ? store.session.get('translations').heartsAndFlowersTryAgain
-                                : store.session.get('translations').feedbackGoodJob
-                            }
-                        </p>
-                    </div>
-                    <div class='stimulus'>
-                        <img src='${
-                          store.session.get('correct') === false
-                            ? mediaAssets.images[store.session.get('stimulus')]
-                            : mediaAssets.images.smilingFace
-                        }' alt="heart or flower"/>
-                    </div>
+/**stimulusType, promptText, promptAudioAsset, stimulusSideType
+ * Builds a feedback trial for cases where the feedback prompt may change only depending on
+ * whether the answer was correct or incorrect.
+ */
+export function buildStimulusInvariantPracticeFeedback(feedbackPromptIncorrectKey, feedbackPromptCorrectKey) {
+  return buildPracticeFeedback(feedbackPromptIncorrectKey, feedbackPromptCorrectKey, feedbackPromptIncorrectKey, feedbackPromptCorrectKey);
+}
 
-                </div>`;
+/**
+ * Builds a feedback trial for cases where the feedback prompt may change depending on
+ * the stimulus type and whether the answer was correct or incorrect.
+ */
+export function buildMixedPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPromptCorrectKey, flowerFeedbackPromptIncorrectKey, flowerfeedbackPromptCorrectKey) {
+  return buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPromptCorrectKey, flowerFeedbackPromptIncorrectKey, flowerfeedbackPromptCorrectKey)
+}
+
+//TODO: rely on previous trial data instead of singleton store to pass stimulus type, side and correct answer.
+/*
+ * Relying on singleton for storing state is likely a bad pattern: it introduces risk of reading an outdated state
+ * in the event the previous trial forgets to update it. And it will make debugging and unit testing difficult.
+ * I recommend managing state as objects that are passed around and flow along the control flow of your app.
+ * Ideally you make these state objects immutable and updating them means creating a new copy. This allows you to enforce
+ * mutation of your state in more strict and predictable manner.
+ * You may also want state objects to be as lean as possible (don't store binaries, or large objects, or functions in them)
+ * ideally they should be serializable to JSON to make debugging and unit testing easier.
+ */
+/**
+ * Builds a feedback trial for instructions practice trials and practice trials.
+ */
+function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPromptCorrectKey, flowerFeedbackPromptIncorrectKey, flowerfeedbackPromptCorrectKey) {
+  const validAnswerButtonHtmlIdentifier = 'valid-answer-btn';
+  const feedbackTexts = {
+    IncorrectHeart:   store.session.get('translations')[heartFeedbackPromptIncorrectKey],
+    CorrectHeart:     store.session.get('translations')[heartfeedbackPromptCorrectKey],
+    IncorrectFlower:  store.session.get('translations')[flowerFeedbackPromptIncorrectKey],
+    CorrectFlower:    store.session.get('translations')[flowerfeedbackPromptCorrectKey],
+  }
+  const feedbackAudio = {
+    IncorrectHeart:   mediaAssets.audio[heartFeedbackPromptIncorrectKey],
+    CorrectHeart:     mediaAssets.audio[heartfeedbackPromptCorrectKey],
+    IncorrectFlower:  mediaAssets.audio[flowerFeedbackPromptIncorrectKey],
+    CorrectFlower:    mediaAssets.audio[flowerfeedbackPromptCorrectKey],
+  }
+  Object.entries(feedbackTexts).forEach(([key, value]) => {
+    if (!value) {
+      // throw new Error(`Missing feedback text for ${key}`);
+      console.error(`buildPracticeFeedback: Missing feedback text for ${key}`);
     }
-  },
-  on_load: () => document.getElementById('jspsych-html-multi-response-btngroup').classList.add('btn-layout-hf'),
-  button_choices: ['left', 'right'],
-  keyboard_choice: ['ArrowLeft', 'ArrowRight'],
-  button_html: [`<div class='response-btn'></div>`, `<div class='response-btn'></div>`],
-  trial_duration: 1200,
-};
+  });
+  Object.entries(feedbackAudio).forEach(([key, value]) => {
+    if (!value) {
+      // throw new Error(`Missing feedback audio for ${key}`);
+      console.error(`buildPracticeFeedback: Missing feedback audio for ${key}`);
+    }
+  });
+  const replayButtonHtmlId = 'replay-btn';
 
-export const heartPracticeBlock1 = {
-  timeline: [heartPractice1, practiceFeedback],
-  loop_function: (data) => store.session.get('correct') === false,
-};
+  const trial = {
+    type: jsPsychAudioMultiResponse,
+    stimulus: () => {
+      const stimulusType = store.session.get('stimulus');
+      const incorrect = store.session.get('correct') === false
+      const audioPrompt = stimulusType === StimulusType.Heart ?
+          incorrect? feedbackAudio.IncorrectHeart : feedbackAudio.CorrectHeart
+          : incorrect? feedbackAudio.IncorrectFlower : feedbackAudio.CorrectFlower;
+      return audioPrompt;
+    },
+    prompt: () => {
+      const stimulusType = store.session.get('stimulus');
+      const incorrect = store.session.get('correct') === false
+      const image = incorrect ? mediaAssets.images[stimulusType] : mediaAssets.images.smilingFace;
+      const textPrompt = stimulusType === StimulusType.Heart ?
+          incorrect? feedbackTexts.IncorrectHeart : feedbackTexts.CorrectHeart
+          : incorrect? feedbackTexts.IncorrectFlower : feedbackTexts.CorrectFlower;
+      if (store.session.get('side') === StimulusSideType.Left) {
+        return `<div id='stimulus-container-hf'>
+                      <div id='${replayButtonHtmlId}'>
+                        ${replayButtonSvg}
+                      </div>
+                      <div class='stimulus'>
+                          <img src='${image}' alt="heart or flower"/>
+                      </div>
+                      <div class='stimulus'>
+                          <p class='practice-text'>
+                            ${textPrompt}
+                          </p>
+                      </div>
+                  </div>`;
+      } else {
+        return `<div id='stimulus-container-hf'>
+                      <div id='${replayButtonHtmlId}'>
+                        ${replayButtonSvg}
+                      </div>
+                      <div class='stimulus'>
+                          <p class='practice-text'>
+                              ${textPrompt}
+                          </p>
+                      </div>
+                      <div class='stimulus'>
+                          <img src='${image}' alt="heart or flower"/>
+                      </div>
 
-export const heartPracticeBlock2 = {
-  timeline: [heartPractice2, practiceFeedback],
-  loop_function: (data) => store.session.get('correct') === false,
-};
-
-export const flowerPracticeBlock1 = {
-  timeline: [flowerPractice1, practiceFeedback],
-  loop_function: (data) => store.session.get('correct') === false,
-};
-
-export const flowerPracticeBlock2 = {
-  timeline: [flowerPractice2, practiceFeedback],
-  loop_function: (data) => store.session.get('correct') === false,
-};
-
-export const reminderHeartBlock = {
-  timeline: [reminderHeart, practiceFeedback],
-  loop_function: (data) => store.session.get('correct') === false,
-};
-
-export const reminderFlowerBlock = {
-  timeline: [reminderFlower, practiceFeedback],
-  loop_function: (data) => store.session.get('correct') === false,
+                  </div>`;
+      }
+    },
+    prompt_above_buttons: true,
+    on_load: () => {
+      document.getElementById('jspsych-audio-multi-response-btngroup').classList.add('btn-layout-hf');
+      const buttons = document.querySelectorAll('.response-btn');
+      buttons.forEach(button => {
+        if (button.id === validAnswerButtonHtmlIdentifier) {
+          button.style.animation = 'pulse 2s infinite';
+        } else {
+          button.disabled = true;
+        }
+      });
+    },
+    button_choices: [StimulusSideType.Left, StimulusSideType.Right],
+    keyboard_choice: ['ArrowLeft', 'ArrowRight'],
+    button_html: () => {
+      if (store.session.get('correct') === false) {
+        const validAnswerPosition = getCorrectInputSide(store.session.get('stimulus'), store.session.get('side'));
+        return validAnswerPosition === 0 ? // is valid answer on the left?
+        [`<button class='response-btn' id='${validAnswerButtonHtmlIdentifier}'></button>`, `<button class='response-btn'></button>`]
+        : [`<button class='response-btn'></button>`, `<button class='response-btn' id='${validAnswerButtonHtmlIdentifier}'></button>`];
+      } else {
+        return `<button class='response-btn' style='display: none;'></button>`;
+      }
+    },
+    // TODO: Double-check proper timeout length
+    trial_duration: () => {
+      return store.session.get('correct') === false ? null : 1200;
+    },
+  };
+  overrideAudioTrialForReplayableAudio(trial, jsPsych.pluginAPI, replayButtonHtmlId);
+  return trial;
 };

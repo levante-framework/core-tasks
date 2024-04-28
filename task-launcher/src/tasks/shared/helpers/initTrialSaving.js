@@ -1,6 +1,7 @@
 import { jsPsych } from '../../taskSetup';
 import taskConfig from '../../taskConfig';
 import { dashToCamelCase } from './dashToCamelCase';
+import cloneDeep from 'lodash/cloneDeep';
 
 export const initTrialSaving = (config) => {
   if (config.displayElement) {
@@ -25,9 +26,12 @@ export const initTrialSaving = (config) => {
     if (data.save_trial) {
       // save_trial is a flag that indicates whether the trial should
       // be saved to Firestore. No point in writing it to the db.
-      delete data.save_trial;
-      delete data.internal_node_id;
-      config.firekit.writeTrial(data);
+      // creating a deep copy to prevent modifying of original data
+      // since it is used down the line for the rest of the pipeline
+      const dataCopy =  cloneDeep(data);
+      delete dataCopy.save_trial;
+      delete dataCopy.internal_node_id;
+      config.firekit.writeTrial(dataCopy);
     }
   });
 
