@@ -44,9 +44,6 @@ export const stimulus = (isPractice = false, stage) => {
                 </div>`;
     },
     on_load: () => {
-      // console.log('stim timeline var:', jsPsych.timelineVariable('stimulus'))
-      console.log('position timeline var:', jsPsych.timelineVariable('position'));
-
       document.getElementById('jspsych-html-multi-response-btngroup').classList.add('btn-layout-hf');
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
