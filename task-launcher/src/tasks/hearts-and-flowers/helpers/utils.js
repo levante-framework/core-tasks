@@ -10,6 +10,13 @@ export const StimulusSideType = Object.freeze({
   Right: 'right',
 });
 
+// Enum for the keyboard inputs
+export const InputKey = Object.freeze({
+  ArrowLeft: 'arrowleft',
+  ArrowRight: 'arrowright',
+});
+
+
 export const AssessmentStageType = Object.freeze({
     HeartsPractice: 'hearts practice',
     FlowersPractice: 'flowers practice',

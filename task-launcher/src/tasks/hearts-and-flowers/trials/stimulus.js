@@ -1,7 +1,7 @@
 import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
 import { jsPsych } from '../../taskSetup';
-import { StimulusType, StimulusSideType, getCorrectInputSide } from '../helpers/utils';
+import { StimulusType, StimulusSideType, InputKey, getCorrectInputSide } from '../helpers/utils';
 import store from 'store2';
 import shuffle from 'lodash/shuffle';
 
@@ -49,7 +49,7 @@ export function stimulus(isPractice = false, stage, stimulusDuration, postTrialG
       document.getElementById('jspsych-html-multi-response-btngroup').classList.add('btn-layout-hf');
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
-    keyboard_choice: ['ArrowLeft', 'ArrowRight'],
+    keyboard_choices: [InputKey.ArrowLeft, InputKey.ArrowRight],
     button_html: [`<div class='response-btn'></div>`, `<div class='response-btn'></div>`],
     //TODO: save whether answer is correct/incorrect to fix practice feedback
     //TODO: check data is saved properly
@@ -61,10 +61,10 @@ export function stimulus(isPractice = false, stage, stimulusDuration, postTrialG
       let response;
       if (data.button_response === 0 || data.button_response === 1) {
         response = data.button_response;
-      } else if (data.keyboard_response === 'ArrowLeft' || data.keyboard_response === 'ArrowRight'){
-        response = data.keyboard_response === 'ArrowLeft' ? 0 : 1;
+      } else if (data.keyboard_response === InputKey.ArrowLeft || data.keyboard_response === InputKey.ArrowRight){
+        response = data.keyboard_response === InputKey.ArrowLeft ? 0 : 1;
       } else {
-        errorMessage = `Invalid response: ${data.button_response} or ${data.keyboard_response} in ${data}`;
+        const errorMessage = `Invalid response: ${data.button_response} or ${data.keyboard_response} in ${data}`;
         console.error(errorMessage);
         throw new Error(errorMessage);
       }
@@ -76,9 +76,8 @@ export function stimulus(isPractice = false, stage, stimulusDuration, postTrialG
       } else if (stimulusPosition === 1) {
         stimuluSide = StimulusSideType.Right;
       } else {
-        errorMessage = `Invalid stimuluSide: ${data.button_response} or ${data.keyboard_response} in ${data}`;
+        const errorMessage = `Invalid stimuluSide: ${data.button_response} or ${data.keyboard_response} in ${data}`;
         console.error(errorMessage);
-        throw new Error(errorMessage);
       }
 
       // record whether answer was correct or not
@@ -115,7 +114,7 @@ const randomPosition = () => Math.round(Math.random());
  */
 export function buildHeartsOrFlowersTimelineVariables(trialCount, stimulusType) {
   if (stimulusType !== StimulusType.Heart && stimulusType !== StimulusType.Flower) {
-    errorMessage = `Invalid stimulusType: ${stimulusType} for buildSubtimelineVariables()`;
+    const errorMessage = `Invalid stimulusType: ${stimulusType} for buildSubtimelineVariables()`;
     console.error(errorMessage);
     throw new Error(errorMessage);
   }
