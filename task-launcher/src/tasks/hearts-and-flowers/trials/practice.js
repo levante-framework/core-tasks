@@ -2,7 +2,7 @@ import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-respo
 import { mediaAssets } from '../../..';
 import store from 'store2';
 import { jsPsych } from '../../taskSetup';
-import { StimulusType, StimulusSideType, getCorrectInputSide} from '../helpers/utils';
+import { StimulusType, StimulusSideType, InputKey, getCorrectInputSide} from '../helpers/utils';
 import { replayButtonSvg, overrideAudioTrialForReplayableAudio } from '../helpers/audioTrials';
 
 /**
@@ -70,19 +70,25 @@ export function buildInstructionPracticeTrial(stimulusType, promptText, promptAu
 
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
-    keyboard_choice: ['ArrowLeft', 'ArrowRight'],
+    keyboard_choices: [InputKey.ArrowLeft, InputKey.ArrowRight],
     button_html: [`<button class='response-btn'></button>`, `<button class='response-btn'></button>`],
     on_finish: (data) => {
       // console.log('data in practice: ', data)
+
+      let response;
       if (data.button_response === 0 || data.button_response === 1) {
-        if (data.button_response === validAnswer) {
-          store.session.set('correct', true);
-        } else {
-          store.session.set('correct', false);
-        }
+        response = data.button_response;
+      } else if (data.keyboard_response === InputKey.ArrowLeft || data.keyboard_response === InputKey.ArrowRight){
+        response = data.keyboard_response === InputKey.ArrowLeft ? 0 : 1;
       } else {
-        // Add same logic for keyboard
-        store.session.set('correct', data.keyboard_response);
+        const errorMessage = `Invalid response: ${data.button_response} or ${data.keyboard_response} in ${data}`;
+        console.error(errorMessage);
+      }
+      
+      if (response === validAnswer) {
+        store.session.set('correct', true);
+      } else {
+        store.session.set('correct', false);
       }
     },
     // TODO handle stimulus presentation timeout and other parameters
@@ -213,7 +219,15 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
       });
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
-    keyboard_choice: ['ArrowLeft', 'ArrowRight'],
+    keyboard_choices: () => {
+      if (store.session.get('correct') === false) {
+        const validAnswerPosition = getCorrectInputSide(store.session.get('stimulus'), store.session.get('side'));
+        return validAnswerPosition === 0?
+          InputKey.ArrowLeft : InputKey.ArrowRight;
+      } else {
+        return 'ALL_KEYS';
+      }
+    },
     button_html: () => {
       if (store.session.get('correct') === false) {
         const validAnswerPosition = getCorrectInputSide(store.session.get('stimulus'), store.session.get('side'));

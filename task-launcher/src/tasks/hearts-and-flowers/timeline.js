@@ -251,7 +251,7 @@ function getHeartOrFlowerPracticeSection(adminConfig, stimulusType) {
   const subtimeline = [];
   subtimeline.push(getTimeToPractice());
   subtimeline.push({
-    timeline: [fixation, stimulus(true, jsPsychAssessmentStage), practiceFeedback],
+    timeline: [fixation, stimulus(true, jsPsychAssessmentStage, adminConfig.stimulusPresentationTime, adminConfig.interStimulusInterval), practiceFeedback],
     timeline_variables: buildHeartsOrFlowersTimelineVariables(adminConfig.practiceTrialCount, stimulusType),
     randomize_order: false,
     //TODO: implement "end early" when user get multiple correct answer in a row = adminConfig.correctPracticeTrial
@@ -276,7 +276,7 @@ function getHeartOrFlowerTestSection(adminConfig, stimulusType) {
   
   const subtimeline = []
   subtimeline.push({
-    timeline: [fixation, stimulus(false, jsPsychAssessmentStage)],
+    timeline: [fixation, stimulus(false, jsPsychAssessmentStage, adminConfig.stimulusPresentationTime, adminConfig.interStimulusInterval)],
     timeline_variables: buildHeartsOrFlowersTimelineVariables(adminConfig.testTrialCount, stimulusType),
     randomize_order: false,
     //TODO: implement adminConfig.stimulusPresentationTime and adminConfig.interStimulusInterval
@@ -325,7 +325,7 @@ function getMixedPracticeSection(adminConfig) {
   const practiceFeedback = buildMixedPracticeFeedback('heartPracticeFeedback2', 'feedbackGoodJob', 'flowerPracticeFeedback2', 'feedbackGoodJob');
 
   const heartsAndFlowersPracticeTimeline = {
-    timeline: [fixation, stimulus(true, AssessmentStageType.HeartsAndFlowersPractice), practiceFeedback],
+    timeline: [fixation, stimulus(true, AssessmentStageType.HeartsAndFlowersPractice, adminConfig.stimulusPresentationTime, adminConfig.interStimulusInterval), practiceFeedback],
     timeline_variables: buildMixedTimelineVariables(adminConfig.practiceTrialCount),
     randomize_order: false,
     //TODO: implement adminConfig.stimulusPresentationTime and adminConfig.interStimulusInterval
@@ -345,7 +345,7 @@ function getMixedPracticeSection(adminConfig) {
 
 function getMixedTestSection(adminConfig) {
   const heartsAndFlowersTimeline = {
-    timeline: [fixation, stimulus(false, AssessmentStageType.HeartsAndFlowersStimulus)],
+    timeline: [fixation, stimulus(false, AssessmentStageType.HeartsAndFlowersStimulus, adminConfig.stimulusPresentationTime, adminConfig.interStimulusInterval)],
     timeline_variables: buildMixedTimelineVariables(adminConfig.testTrialCount),
     randomize_order: false,
     //TODO: implement adminConfig.stimulusPresentationTime and adminConfig.interStimulusInterval
