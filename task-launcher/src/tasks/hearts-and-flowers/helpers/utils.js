@@ -17,6 +17,7 @@ export const ResponseSideType = StimulusSideType;
 export const InputKey = Object.freeze({
   ArrowLeft: 'arrowleft',
   ArrowRight: 'arrowright',
+  AllKeys: 'ALL_KEYS'
 });
 
 
