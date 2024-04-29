@@ -34,7 +34,7 @@ from PIL import Image, ImageDraw
 #         # Adjust centers to ensure no overlap
 #         if cardinality == 2:
 #             # Place two shapes vertically centered
-#             centers = [(canvas_size // 2, canvas_size // 3), (canvas_size // 2, 2 * canvas_size // 3)]
+#             centers = [(canvas_size // 2, canvas_size // 5), (canvas_size // 2, 4 * canvas_size // 5)]
 #             for center in centers:
 #                 draw_shape(draw, shape, center, size, color)
 #         else:
@@ -108,7 +108,7 @@ def save_shape(shape, size, color, cardinality):
     if size != 150 and cardinality in [2, 3]:
         # Adjust centers to ensure no overlap
         if cardinality == 2:
-            centers = [(canvas_size // 2, canvas_size // 3), (canvas_size // 2, 2 * canvas_size // 3)]
+            centers = [(canvas_size // 2, canvas_size // 4), (canvas_size // 2, 3 * canvas_size // 4)]
             for center in centers:
                 draw_shape(draw, shape, center, size, color)
         else:
