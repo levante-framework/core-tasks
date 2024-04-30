@@ -1,8 +1,9 @@
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
 import store from 'store2';
 import { mediaAssets } from '../../..';
-import { jsPsych } from '../../taskSetup';
-import { dashToCamelCase, prepareChoices } from '../../shared/helpers';
+import { prepareChoices } from '../../shared/helpers';
+import { camelize } from '@bdelab/roar-utils';
+
 export const stimulus = {
   type: jsPsychAudioMultiResponse,
   data: () => {
@@ -10,19 +11,18 @@ export const stimulus = {
   },
   stimulus: () => {
     const stimulus = store.session.get('nextStimulus');
-    const file = dashToCamelCase(stimulus.audioFile.replace(',', '-'));
-    console.log(file);
-    return mediaAssets.audio[file] || mediaAssets.audio['circle'];
+    const file = camelize(stimulus.audioFile);
+    return mediaAssets.audio[file];
   },
   prompt: () => {
     const stim = store.session.get('nextStimulus');
+    const audiofile = camelize(stim.audioFile);
+    const t = store.session.get('translations');
     let html = `<div id='stimulus-container'>
-          <h1 id='prompt'>${stim.item}</h1>
+          <h1 id='prompt'>${t[audiofile]}</h1>
           <div >`;
     if (stim.image != '') {
-      let img =
-        mediaAssets.images[dashToCamelCase(stim.image)] ||
-        `https://imgs.search.brave.com/wH6NX0ADUKmdx5h4d9Tho1WEpa3NBj2USMxzllhYDFc/rs:fit:860:0:0/g:ce/aHR0cHM6Ly90My5m/dGNkbi5uZXQvanBn/LzAxLzk1LzcwLzUw/LzM2MF9GXzE5NTcw/NTAxM19NcW5YZFIx/dUV4dW5xazJjSldm/Z2hZbXE3ZTBwbmJz/ei5qcGc`;
+      let img = mediaAssets.images[camelize(stim.image)];
 
       html =
         html +
@@ -34,10 +34,7 @@ export const stimulus = {
       let foo = prepareChoices(stim.answer, stim.distractors);
       let choices = store.session.get('choices');
       let all_buttons = choices.map((choice, ind) => {
-        console.log(choice);
-        var img =
-          mediaAssets.images[dashToCamelCase(choice)] ||
-          `https://imgs.search.brave.com/wH6NX0ADUKmdx5h4d9Tho1WEpa3NBj2USMxzllhYDFc/rs:fit:860:0:0/g:ce/aHR0cHM6Ly90My5m/dGNkbi5uZXQvanBn/LzAxLzk1LzcwLzUw/LzM2MF9GXzE5NTcw/NTAxM19NcW5YZFIx/dUV4dW5xazJjSldm/Z2hZbXE3ZTBwbmJz/ei5qcGc`;
+        var img = mediaAssets.images[camelize(choice)];
         var button_html = "<button class='img-btn'> <img src=" + img + " alt='shape' /> </button>";
 
         return button_html;
@@ -73,10 +70,7 @@ export const stimulus = {
     }
     let choices = store.session.get('choices');
     let all_buttons = choices.map((choice, ind) => {
-      console.log(choice);
-      var img =
-        mediaAssets.images[dashToCamelCase(choice)] ||
-        `https://imgs.search.brave.com/wH6NX0ADUKmdx5h4d9Tho1WEpa3NBj2USMxzllhYDFc/rs:fit:860:0:0/g:ce/aHR0cHM6Ly90My5m/dGNkbi5uZXQvanBn/LzAxLzk1LzcwLzUw/LzM2MF9GXzE5NTcw/NTAxM19NcW5YZFIx/dUV4dW5xazJjSldm/Z2hZbXE3ZTBwbmJz/ei5qcGc`;
+      var img = mediaAssets.images[camelize(choice)];
       var html = "<button class='img-btn'> <img src=" + img + " alt='shape' /> </button>";
 
       return html;

@@ -15,8 +15,7 @@ export const getStimulus = (corpusType) => {
 
   itemSuggestion = cat.findNextItem(corpus[corpusType]);
 
-  const stimAudio = itemSuggestion.nextStimulus.audioFile.split(',')[0];
-
+  const stimAudio = itemSuggestion.nextStimulus.audioFile;
   if (stimAudio && !mediaAssets.audio[camelize(stimAudio)]) {
     console.warn('Trial skipped. Audio file not found:', stimAudio);
     store.session.set('skipCurrentTrial', true);
