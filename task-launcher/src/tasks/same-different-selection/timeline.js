@@ -46,14 +46,12 @@ export default function buildSameDifferentTimeline(config, mediaAssets) {
   };
 
   const allBlocks = {
-    //timeline: [stimulusBlock],
-    //timeline: [afcBlock],
     timeline: [setupStimulus, stimulusBlock, afcBlock],
     repetitions: store.session.get('totalTrials'),
   };
 
   const timeline = [preloadTrials, initialTimeline, allBlocks];
-  console.log(timeline);
+  //console.log(timeline);
 
   initializeCat();
 

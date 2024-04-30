@@ -1,27 +1,27 @@
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
-import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
 import store from 'store2';
 import { jsPsych } from '../../taskSetup';
-import { dashToCamelCase, prepareChoices } from '../../shared/helpers';
-import { shuffle } from 'lodash';
+import { prepareChoices } from '../../shared/helpers';
+import { camelize } from '@bdelab/roar-utils';
+
 let selectedCards = [];
 
 export const afcMatch = {
   type: jsPsychAudioMultiResponse,
   stimulus: () => {
     const stimulus = store.session.get('nextStimulus');
-    const file = dashToCamelCase(stimulus.audioFile.replace(',', '-'));
-    console.log(file);
-    return mediaAssets.audio[file] || mediaAssets.audio['circle'];
+    const file = camelize(stimulus.audioFile);
+    return mediaAssets.audio[file];
   },
   prompt: () => {
     const stimulus = store.session.get('nextStimulus');
-
+    const audiofile = camelize(stimulus.audioFile);
+    const t = store.session.get('translations');
     return (
       `<div>
         <h1 id='prompt'>` +
-      stimulus.item +
+      t[audiofile] +
       `</h1>
       </div>
       `
@@ -32,20 +32,15 @@ export const afcMatch = {
     // on click they will be selected
     // can select multiple cards and deselect them
     const stimulus = store.session.get('nextStimulus');
-    //this presupposes only one target,
     let images;
-    console.log(stimulus);
     if (stimulus.audioFile.includes('prompt1')) {
-      console.log(stimulus.answer);
       images = prepareChoices(stimulus.answer, stimulus.distractors).choices;
     } else {
       images = store.session.get('choices');
     }
     const numberOfCards = images.length;
-    //console.log(numberOfCards);
 
     const expected = stimulus.trialType[0];
-    console.log(expected); // eventually pull this as how many answers wanted
 
     const jsPsychContent = document.getElementById('jspsych-content');
 
@@ -61,9 +56,7 @@ export const afcMatch = {
       card.id = `card-${i}`;
 
       const img = document.createElement('img');
-      img.src =
-        mediaAssets.images[dashToCamelCase(images[i])] ||
-        `https://imgs.search.brave.com/wH6NX0ADUKmdx5h4d9Tho1WEpa3NBj2USMxzllhYDFc/rs:fit:860:0:0/g:ce/aHR0cHM6Ly90My5m/dGNkbi5uZXQvanBn/LzAxLzk1LzcwLzUw/LzM2MF9GXzE5NTcw/NTAxM19NcW5YZFIx/dUV4dW5xazJjSldm/Z2hZbXE3ZTBwbmJz/ei5qcGc`;
+      img.src = mediaAssets.images[camelize(images[i])];
       img.alt = 'stimulus';
 
       card.dataset.id = images[i] || i;
@@ -76,7 +69,6 @@ export const afcMatch = {
           card.classList.add('selected');
           selectedCards.push(card.dataset.id);
         }
-        console.log(selectedCards);
       });
 
       card.appendChild(img);
