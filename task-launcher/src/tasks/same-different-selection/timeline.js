@@ -19,41 +19,36 @@ export default function buildSameDifferentTimeline(config, mediaAssets) {
   const initialTimeline = initTimeline(config);
 
   const stimulusBlock = {
-    timeline: [setupStimulus, stimulus],
+    timeline: [stimulus],
     conditional_function: () => {
       const stim = store.session.get('nextStimulus');
-      console.log(stim.trialType);
-      console.log(stim.trialType);
-      if (stim.trialType.includes('match') || stim.trialType.includes('unique')) {
-        console.log('afcMatch');
+      if (
+        stim.trialType.includes('match') ||
+        stim.trialType.includes('unique') /*|| stim.trialType.includes('test')*/
+      ) {
         return false;
       }
-      console.log('stimulus');
       return true;
     },
     repetitions: 1,
   };
 
   const afcBlock = {
-    timeline: [setupStimulus, afcMatch],
+    timeline: [afcMatch],
     conditional_function: () => {
       const stim = store.session.get('nextStimulus');
-      console.log(stim.trialType);
       if (stim.trialType.includes('match') || stim.trialType.includes('unique')) {
-        console.log('afcMatch');
         return true;
       }
-      console.log('stimulus');
       return false;
     },
     repetitions: 1,
   };
 
-  console.log(store.session.get('totalTrials'));
   const allBlocks = {
     //timeline: [stimulusBlock],
     //timeline: [afcBlock],
-    timeline: [stimulusBlock, afcBlock],
+    timeline: [setupStimulus, stimulusBlock, afcBlock],
     repetitions: store.session.get('totalTrials'),
   };
 
