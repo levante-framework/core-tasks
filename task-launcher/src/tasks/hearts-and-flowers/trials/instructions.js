@@ -24,12 +24,12 @@ export const introduction = {
         </button>`,
   ],
   on_load: () => {
-    document.getElementsByClassName('jspsych-content-wrapper')[0].style.backgroundColor = 'red';
+    // document.getElementsByClassName('jspsych-content-wrapper')[0].style.backgroundColor = 'red';
     const goBtn = document.getElementById('jspsych-html-multi-response-btngroup');
     goBtn.style.justifyContent = 'end';
     goBtn.style.marginRight = '1rem';
   },
-  on_finish: () => (document.getElementsByClassName('jspsych-content-wrapper')[0].style.backgroundColor = 'white'),
+  // on_finish: () => (document.getElementsByClassName('jspsych-content-wrapper')[0].style.backgroundColor = 'white'),
 };
 
 // These are the instruction "trials" they are full screen with no stimulus
@@ -150,11 +150,6 @@ function buildInstructionTrial(mascotImage, promptAudio, promptText, buttonText,
       `<button class='next-btn'>
         <p>${buttonText}</p>
       </button>`.trim(),],
-    on_load: (_) => {
-      const nextBtn = document.getElementById('jspsych-audio-multi-response-btngroup');
-      nextBtn.style.justifyContent = 'end';
-      nextBtn.style.marginRight = '1rem';
-    },
   };
   overrideAudioTrialForReplayableAudio(trial, jsPsych.pluginAPI, replayButtonHtmlId);
   return trial;

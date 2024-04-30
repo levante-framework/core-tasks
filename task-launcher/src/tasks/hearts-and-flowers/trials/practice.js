@@ -2,7 +2,13 @@ import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-respo
 import { mediaAssets } from '../../..';
 import store from 'store2';
 import { jsPsych } from '../../taskSetup';
-import { StimulusType, StimulusSideType, InputKey, getCorrectInputSide} from '../helpers/utils';
+import {
+  StimulusType,
+  StimulusSideType,
+  InputKey,
+  getCorrectInputSide,
+  getLayoutTemplate
+} from '../helpers/utils';
 import { replayButtonSvg, overrideAudioTrialForReplayableAudio } from '../helpers/audioTrials';
 
 /**
@@ -27,31 +33,11 @@ export function buildInstructionPracticeTrial(stimulusType, promptText, promptAu
     type: jsPsychAudioMultiResponse,
     stimulus: promptAudioAsset,
     prompt: () => {
-      if (stimulusSideType === StimulusSideType.Left) {
-        return `<div id='stimulus-container-hf'>
-                            <div id='${replayButtonHtmlId}'>
-                              ${replayButtonSvg}
-                            </div>
-                            <div class='stimulus'>
-                                <img src=${mediaAssets.images[stimulusType]} alt="heart or flower"/>
-                            </div>
-                            <div class='stimulus'>
-                                <p class='practice-text'>${promptText}</p>
-                            </div>
-                        </div>`;
-      } else {
-        return `<div id='stimulus-container-hf'>
-                            <div id='${replayButtonHtmlId}'>
-                              ${replayButtonSvg}
-                            </div>
-                            <div class='stimulus'>
-                                <p class='practice-text'>${promptText}</p>
-                            </div>
-                            <div class='stimulus'>
-                                <img src=${mediaAssets.images[stimulusType]} alt="heart or flower"/>
-                            </div>
-                        </div>`;
-      }
+      return getLayoutTemplate(
+        promptText,
+        mediaAssets.images[stimulusType],
+        stimulusSideType === StimulusSideType.Left
+      );
     },
     prompt_above_buttons: true,
     on_start: () => {
@@ -171,24 +157,42 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
     prompt: () => {
       const stimulusType = store.session.get('stimulus');
       const incorrect = store.session.get('correct') === false
-      const image = incorrect ? mediaAssets.images[stimulusType] : mediaAssets.images.smilingFace;
-      const textPrompt = stimulusType === StimulusType.Heart ?
-          incorrect? feedbackTexts.IncorrectHeart : feedbackTexts.CorrectHeart
-          : incorrect? feedbackTexts.IncorrectFlower : feedbackTexts.CorrectFlower;
+      if (!incorrect) {
+        const correctPrompt = StimulusType.Heart ? feedbackTexts.CorrectHeart : feedbackTexts.CorrectFlower;
+        return `
+          <div class='cr-container-hf'>
+            <img src='${mediaAssets.images.smilingFace}' />
+            <p>${correctPrompt}</p>
+          </div>
+        `;
+      }
+      const imageSrc = mediaAssets.images[stimulusType];
+      const promptText = stimulusType === StimulusType.Heart
+        ? feedbackTexts.IncorrectHeart
+        : feedbackTexts.IncorrectFlower;
+      return getLayoutTemplate(
+        promptText,
+        imageSrc,
+        store.session.get('side') === StimulusSideType.Left
+      )
       if (store.session.get('side') === StimulusSideType.Left) {
-        return `<div id='stimulus-container-hf'>
-                      <div id='${replayButtonHtmlId}'>
-                        ${replayButtonSvg}
-                      </div>
-                      <div class='stimulus'>
-                          <img src='${image}' alt="heart or flower"/>
-                      </div>
-                      <div class='stimulus'>
-                          <p class='practice-text'>
-                            ${textPrompt}
-                          </p>
-                      </div>
-                  </div>`;
+        return `
+          <div class='parent-stimulus-hf'>
+            <div id='${replayButtonHtmlId}'>
+              ${replayButtonSvg}
+            </div>
+            <div class='instruction-container'>
+                <p class='practice-text'>
+                  ${textPrompt}
+                </p>
+            </div>
+            <div id='stimulus-container-hf'>
+                <div class='stimulus'>
+                    <img src='${image}' alt="heart or flower"/>
+                </div>
+            </div>
+          </div>
+        `;
       } else {
         return `<div id='stimulus-container-hf'>
                       <div id='${replayButtonHtmlId}'>
