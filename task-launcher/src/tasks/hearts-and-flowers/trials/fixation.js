@@ -12,7 +12,7 @@ export const fixation = {
     document.getElementById('jspsych-html-multi-response-btngroup').classList.add('btn-layout-hf');
   },
   button_choices: [StimulusSideType.Left, StimulusSideType.Right],
-  keyboard_choice: [InputKey.ArrowLeft, InputKey.ArrowRight],
+  keyboard_choices: [InputKey.ArrowLeft, InputKey.ArrowRight],
   button_html: [`<button class='response-btn'></button>`, `<button class='response-btn'></button>`],
   trial_duration: 800,
   response_ends_trial: false,
