@@ -3,7 +3,7 @@ import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-respons
 import { mediaAssets } from '../../..';
 import store from 'store2';
 import { jsPsych } from '../../taskSetup';
-import { dashToCamelCase } from '../../shared/helpers';
+import { dashToCamelCase, prepareChoices } from '../../shared/helpers';
 import { shuffle } from 'lodash';
 let selectedCards = [];
 
@@ -11,9 +11,8 @@ export const afcMatch = {
   type: jsPsychAudioMultiResponse,
   stimulus: () => {
     const stimulus = store.session.get('nextStimulus');
-    //console.log(stimulus.audioFile);
-    const file = dashToCamelCase(stimulus.audioFile.split(',')[0]);
-    //console.log(file);
+    const file = dashToCamelCase(stimulus.audioFile.replace(',', '-'));
+    console.log(file);
     return mediaAssets.audio[file] || mediaAssets.audio['circle'];
   },
   prompt: () => {
@@ -33,11 +32,15 @@ export const afcMatch = {
     // on click they will be selected
     // can select multiple cards and deselect them
     const stimulus = store.session.get('nextStimulus');
-    //console.log(stimulus);
     //this presupposes only one target,
-    const images = stimulus.distractors.slice();
-    _.shuffle(images);
-    console.log(images);
+    let images;
+    console.log(stimulus);
+    if (stimulus.audioFile.includes('prompt1')) {
+      console.log(stimulus.answer);
+      images = prepareChoices(stimulus.answer, stimulus.distractors).choices;
+    } else {
+      images = store.session.get('choices');
+    }
     const numberOfCards = images.length;
     //console.log(numberOfCards);
 
