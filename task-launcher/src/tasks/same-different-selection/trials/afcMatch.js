@@ -52,11 +52,12 @@ export const afcMatch = {
     // create card container
     const cardContainer = document.createElement('div');
     cardContainer.id = 'card-container';
+    cardContainer.class = '';
 
     // create cards
     for (let i = 0; i < numberOfCards; i++) {
       const card = document.createElement('div');
-      card.className = 'card';
+      card.className = 'img-btn';
       card.id = `card-${i}`;
 
       const img = document.createElement('img');
