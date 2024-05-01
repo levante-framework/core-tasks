@@ -34,8 +34,6 @@ export function stimulus(isPractice = false, stage, stimulusDuration, postTrialG
         jsPsych.timelineVariable('position') <= 0.5
       );
     },
-    stimulus_duration: stimulusDuration,
-    post_trial_gap: isPractice? null : postTrialGap,
     on_load: () => {
       document.getElementById('jspsych-html-multi-response-btngroup').classList.add('btn-layout-hf');
     },
