@@ -65,7 +65,7 @@ export function getCorrectInputSide(stimulusType, stimulusSideType) {
  * @param {*} replayButtonHtmlId if you need to show an audio replay button
  * @returns 
  */
-export const getLayoutTemplate = (imageSrc, isLeft, promptText=undefined, replayButtonHtmlId=undefined) => {
+export const getStimulusLayout = (imageSrc, isLeft, promptText=undefined, replayButtonHtmlId=undefined) => {
   const stimulusClass = isLeft ? 'stimulus-left' : 'stimulus-right';
   let template = `
   <div class='parent-stimulus-hf'>`;

@@ -6,7 +6,7 @@ import {
   StimulusSideType,
   InputKey,
   getCorrectInputSide,
-  getLayoutTemplate
+  getStimulusLayout
 } from '../helpers/utils';
 import store from 'store2';
 import shuffle from 'lodash/shuffle';
@@ -28,7 +28,7 @@ export function stimulus(isPractice = false, stage, stimulusDuration) {
       };
     },
     stimulus: () => {
-      return getLayoutTemplate(
+      return getStimulusLayout(
         mediaAssets.images[jsPsych.timelineVariable('stimulus')],
         jsPsych.timelineVariable('position') <= 0.5,
       );

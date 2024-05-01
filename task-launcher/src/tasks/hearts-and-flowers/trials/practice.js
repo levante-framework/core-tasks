@@ -7,7 +7,7 @@ import {
   StimulusSideType,
   InputKey,
   getCorrectInputSide,
-  getLayoutTemplate
+  getStimulusLayout
 } from '../helpers/utils';
 import { replayButtonSvg, overrideAudioTrialForReplayableAudio } from '../helpers/audioTrials';
 
@@ -33,7 +33,7 @@ export function buildInstructionPracticeTrial(stimulusType, promptText, promptAu
     type: jsPsychAudioMultiResponse,
     stimulus: promptAudioAsset,
     prompt: () => {
-      return getLayoutTemplate(
+      return getStimulusLayout(
         mediaAssets.images[stimulusType],
         stimulusSideType === StimulusSideType.Left,
         promptText,
@@ -172,7 +172,7 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
       const promptText = stimulusType === StimulusType.Heart
         ? feedbackTexts.IncorrectHeart
         : feedbackTexts.IncorrectFlower;
-      return getLayoutTemplate(
+      return getStimulusLayout(
         imageSrc,
         store.session.get('side') === StimulusSideType.Left,
         promptText,
