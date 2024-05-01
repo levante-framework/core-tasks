@@ -175,40 +175,6 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
         imageSrc,
         store.session.get('side') === StimulusSideType.Left
       )
-      if (store.session.get('side') === StimulusSideType.Left) {
-        return `
-          <div class='parent-stimulus-hf'>
-            <div id='${replayButtonHtmlId}'>
-              ${replayButtonSvg}
-            </div>
-            <div class='instruction-container'>
-                <p class='practice-text'>
-                  ${textPrompt}
-                </p>
-            </div>
-            <div id='stimulus-container-hf'>
-                <div class='stimulus'>
-                    <img src='${image}' alt="heart or flower"/>
-                </div>
-            </div>
-          </div>
-        `;
-      } else {
-        return `<div id='stimulus-container-hf'>
-                      <div id='${replayButtonHtmlId}'>
-                        ${replayButtonSvg}
-                      </div>
-                      <div class='stimulus'>
-                          <p class='practice-text'>
-                              ${textPrompt}
-                          </p>
-                      </div>
-                      <div class='stimulus'>
-                          <img src='${image}' alt="heart or flower"/>
-                      </div>
-
-                  </div>`;
-      }
     },
     prompt_above_buttons: true,
     on_load: () => {
