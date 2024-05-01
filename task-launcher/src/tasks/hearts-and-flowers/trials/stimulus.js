@@ -15,7 +15,7 @@ import shuffle from 'lodash/shuffle';
  *TODO: we should perhaps allow {@link https://www.jspsych.org/7.2/overview/media-preloading/#automatic-preloading automatic preload}
   of the stimulus image and modify the DOM nodes that jsPsych creates in on_load?
   */
-export function stimulus(isPractice = false, stage, stimulusDuration, postTrialGap) {
+export function stimulus(isPractice = false, stage, stimulusDuration) {
   return {
     type: jsPsychHTMLMultiResponse,
     data: () => {
@@ -34,6 +34,8 @@ export function stimulus(isPractice = false, stage, stimulusDuration, postTrialG
         jsPsych.timelineVariable('position') <= 0.5
       );
     },
+    //TODO: apply stimulusDuration but only on the heart or flower, the stimulus container should remain visible.
+    // stimulus_duration: stimulusDuration,
     on_load: () => {
       document.getElementById('jspsych-html-multi-response-btngroup').classList.add('btn-layout-hf');
     },
