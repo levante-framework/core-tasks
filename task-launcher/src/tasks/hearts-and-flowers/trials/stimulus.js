@@ -29,9 +29,8 @@ export function stimulus(isPractice = false, stage, stimulusDuration) {
     },
     stimulus: () => {
       return getLayoutTemplate(
-        null,
         mediaAssets.images[jsPsych.timelineVariable('stimulus')],
-        jsPsych.timelineVariable('position') <= 0.5
+        jsPsych.timelineVariable('position') <= 0.5,
       );
     },
     //TODO: apply stimulusDuration but only on the heart or flower, the stimulus container should remain visible.

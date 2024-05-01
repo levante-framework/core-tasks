@@ -34,9 +34,10 @@ export function buildInstructionPracticeTrial(stimulusType, promptText, promptAu
     stimulus: promptAudioAsset,
     prompt: () => {
       return getLayoutTemplate(
-        promptText,
         mediaAssets.images[stimulusType],
-        stimulusSideType === StimulusSideType.Left
+        stimulusSideType === StimulusSideType.Left,
+        promptText,
+        replayButtonHtmlId,
       );
     },
     prompt_above_buttons: true,
@@ -166,14 +167,16 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
           </div>
         `;
       }
+      //no else: user input was incorrect
       const imageSrc = mediaAssets.images[stimulusType];
       const promptText = stimulusType === StimulusType.Heart
         ? feedbackTexts.IncorrectHeart
         : feedbackTexts.IncorrectFlower;
       return getLayoutTemplate(
-        promptText,
         imageSrc,
-        store.session.get('side') === StimulusSideType.Left
+        store.session.get('side') === StimulusSideType.Left,
+        promptText,
+        replayButtonHtmlId,
       )
     },
     prompt_above_buttons: true,
