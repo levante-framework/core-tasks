@@ -14,7 +14,6 @@ import {
   buildMixedPracticeFeedback,
 } from './trials/practice';
 import {
-  introduction,
   getHeartInstructions,
   getFlowerInstructions,
   getTimeToPractice,
@@ -110,7 +109,6 @@ export default function buildHeartsAndFlowersTimeline(config, mediaAssets) {
   let timeline = [
     preloadTrials,
     initialTimeline,
-    introduction,
   ]
   if (timelineAdminConfig.heart) {
     timeline.push(...getHeartOrFlowerSubtimelines(timelineAdminConfig.heart, StimulusType.Heart));
@@ -251,7 +249,11 @@ function getHeartOrFlowerPracticeSection(adminConfig, stimulusType) {
   const subtimeline = [];
   subtimeline.push(getTimeToPractice());
   subtimeline.push({
-    timeline: [fixation, stimulus(true, jsPsychAssessmentStage, adminConfig.stimulusPresentationTime, adminConfig.interStimulusInterval), practiceFeedback],
+    timeline: [
+      fixation(adminConfig.interStimulusInterval),
+      stimulus(true, jsPsychAssessmentStage, adminConfig.stimulusPresentationTime),
+      practiceFeedback,
+    ],
     timeline_variables: buildHeartsOrFlowersTimelineVariables(adminConfig.practiceTrialCount, stimulusType),
     randomize_order: false,
     //TODO: implement "end early" when user get multiple correct answer in a row = adminConfig.correctPracticeTrial
@@ -276,7 +278,10 @@ function getHeartOrFlowerTestSection(adminConfig, stimulusType) {
   
   const subtimeline = []
   subtimeline.push({
-    timeline: [fixation, stimulus(false, jsPsychAssessmentStage, adminConfig.stimulusPresentationTime, adminConfig.interStimulusInterval)],
+    timeline: [
+      fixation(adminConfig.interStimulusInterval),
+      stimulus(false, jsPsychAssessmentStage, adminConfig.stimulusPresentationTime),
+    ],
     timeline_variables: buildHeartsOrFlowersTimelineVariables(adminConfig.testTrialCount, stimulusType),
     randomize_order: false,
     //TODO: implement adminConfig.stimulusPresentationTime and adminConfig.interStimulusInterval
@@ -325,7 +330,11 @@ function getMixedPracticeSection(adminConfig) {
   const practiceFeedback = buildMixedPracticeFeedback('heartPracticeFeedback2', 'feedbackGoodJob', 'flowerPracticeFeedback2', 'feedbackGoodJob');
 
   const heartsAndFlowersPracticeTimeline = {
-    timeline: [fixation, stimulus(true, AssessmentStageType.HeartsAndFlowersPractice, adminConfig.stimulusPresentationTime, adminConfig.interStimulusInterval), practiceFeedback],
+    timeline: [
+      fixation(adminConfig.interStimulusInterval),
+      stimulus(true, AssessmentStageType.HeartsAndFlowersPractice, adminConfig.stimulusPresentationTime),
+      practiceFeedback,
+    ],
     timeline_variables: buildMixedTimelineVariables(adminConfig.practiceTrialCount),
     randomize_order: false,
     //TODO: implement adminConfig.stimulusPresentationTime and adminConfig.interStimulusInterval
@@ -345,7 +354,10 @@ function getMixedPracticeSection(adminConfig) {
 
 function getMixedTestSection(adminConfig) {
   const heartsAndFlowersTimeline = {
-    timeline: [fixation, stimulus(false, AssessmentStageType.HeartsAndFlowersStimulus, adminConfig.stimulusPresentationTime, adminConfig.interStimulusInterval)],
+    timeline: [
+      fixation(adminConfig.interStimulusInterval),
+      stimulus(false, AssessmentStageType.HeartsAndFlowersStimulus, adminConfig.stimulusPresentationTime),
+    ],
     timeline_variables: buildMixedTimelineVariables(adminConfig.testTrialCount),
     randomize_order: false,
     //TODO: implement adminConfig.stimulusPresentationTime and adminConfig.interStimulusInterval

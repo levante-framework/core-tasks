@@ -7,7 +7,7 @@ import {
   StimulusSideType,
   InputKey,
   getCorrectInputSide,
-  getLayoutTemplate
+  getStimulusLayout
 } from '../helpers/utils';
 import { replayButtonSvg, overrideAudioTrialForReplayableAudio } from '../helpers/audioTrials';
 
@@ -33,10 +33,11 @@ export function buildInstructionPracticeTrial(stimulusType, promptText, promptAu
     type: jsPsychAudioMultiResponse,
     stimulus: promptAudioAsset,
     prompt: () => {
-      return getLayoutTemplate(
-        promptText,
+      return getStimulusLayout(
         mediaAssets.images[stimulusType],
-        stimulusSideType === StimulusSideType.Left
+        stimulusSideType === StimulusSideType.Left,
+        promptText,
+        replayButtonHtmlId,
       );
     },
     prompt_above_buttons: true,
@@ -157,23 +158,31 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
     prompt: () => {
       const stimulusType = store.session.get('stimulus');
       const incorrect = store.session.get('correct') === false
+      //TODO: now that the 'correct' feedback layout differs significantly from the 'incorrect' feedback layout, we should consider
+      // moving them to separate trials and using conditional trials
       if (!incorrect) {
         const correctPrompt = StimulusType.Heart ? feedbackTexts.CorrectHeart : feedbackTexts.CorrectFlower;
+        //TODO: consider removing the replay button from the correct feedback once we separate the correct and incorrect feedback
         return `
+          <div id='${replayButtonHtmlId}'>
+            ${replayButtonSvg}
+          </div>
           <div class='cr-container-hf'>
             <img src='${mediaAssets.images.smilingFace}' />
             <p>${correctPrompt}</p>
           </div>
         `;
       }
+      //no else: user input was incorrect
       const imageSrc = mediaAssets.images[stimulusType];
       const promptText = stimulusType === StimulusType.Heart
         ? feedbackTexts.IncorrectHeart
         : feedbackTexts.IncorrectFlower;
-      return getLayoutTemplate(
-        promptText,
+      return getStimulusLayout(
         imageSrc,
-        store.session.get('side') === StimulusSideType.Left
+        store.session.get('side') === StimulusSideType.Left,
+        promptText,
+        replayButtonHtmlId,
       )
     },
     prompt_above_buttons: true,

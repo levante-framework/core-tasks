@@ -5,29 +5,6 @@ import store from 'store2';
 import { jsPsych } from '../../taskSetup';
 import { replayButtonSvg, overrideAudioTrialForReplayableAudio } from '../helpers/audioTrials';
 
-//TODO: figure out translations and update our strings accordingly
-export const introduction = {
-  type: jsPsychHTMLMultiResponse,
-  stimulus: () => {
-    return `
-    <div >
-      <h1 id="header">Hearts and Flowers Game</h1>
-      <div >
-        <img id='instruction-graphic' src=${mediaAssets.images.animalWhole} alt='Gray bear'/>
-      </div>
-    </div>
-  `;
-  },
-  button_choices: ['Go'],
-  button_html: [
-    `
-      <button class='go-btn'>
-          <p>Go</p>
-      </button>
-    `,
-  ],
-};
-
 // These are the instruction "trials" they are full screen with no stimulus
 
 export function getHeartInstructions() {

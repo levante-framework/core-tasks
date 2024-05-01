@@ -11,6 +11,8 @@ export const StimulusSideType = Object.freeze({
   Right: 'right',
 });
 
+export const ResponseSideType = StimulusSideType;
+
 // Enum for the keyboard inputs
 export const InputKey = Object.freeze({
   ArrowLeft: 'arrowleft',
@@ -57,14 +59,27 @@ export function getCorrectInputSide(stimulusType, stimulusSideType) {
   }
 }
 
-export const getLayoutTemplate = (promptText, imageSrc, isLeft) => {
+/**
+ * retrieve html for the visual stimulus container
+ * @param {*} imageSrc stimulus image source
+ * @param {*} isLeft whether the stimulus should be shown on the left side
+ * @param {*} promptText if you need to show a prompt text, 
+ * @param {*} replayButtonHtmlId if you need to show an audio replay button
+ * @returns 
+ */
+export const getStimulusLayout = (imageSrc, isLeft, promptText=undefined, replayButtonHtmlId=undefined) => {
   const stimulusClass = isLeft ? 'stimulus-left' : 'stimulus-right';
-  let template = `<div class='parent-stimulus-hf'>`;
-  if (promptText) { // This is practice
+  let template = `
+  <div class='parent-stimulus-hf'>`;
+  if (replayButtonHtmlId) {
     template += `
-      <div id='replay-btn'>
+      <div id='${replayButtonHtmlId}'>
         ${replayButtonSvg}
       </div>
+    `
+  }
+  if (promptText) {
+    template += `
       <div class='instruction-container'>
           <p class='practice-text'>
             ${promptText}
