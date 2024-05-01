@@ -14,7 +14,6 @@ import {
   buildMixedPracticeFeedback,
 } from './trials/practice';
 import {
-  introduction,
   getHeartInstructions,
   getFlowerInstructions,
   getTimeToPractice,
@@ -110,7 +109,6 @@ export default function buildHeartsAndFlowersTimeline(config, mediaAssets) {
   let timeline = [
     preloadTrials,
     initialTimeline,
-    introduction,
   ]
   if (timelineAdminConfig.heart) {
     timeline.push(...getHeartOrFlowerSubtimelines(timelineAdminConfig.heart, StimulusType.Heart));
