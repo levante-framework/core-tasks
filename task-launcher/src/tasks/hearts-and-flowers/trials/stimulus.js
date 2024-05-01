@@ -4,6 +4,7 @@ import { jsPsych } from '../../taskSetup';
 import {
   StimulusType,
   StimulusSideType,
+  ResponseSideType,
   InputKey,
   getCorrectInputSide,
   getStimulusLayout
@@ -80,9 +81,8 @@ export function stimulus(isPractice = false, stage, stimulusDuration) {
       //TODO: Double check what needs to be save as this is fishy
       jsPsych.data.addDataToLastTrial({
         item: stimulusType,
-        side: stimuluSide,
-        answer: validAnswer,
-        response,
+        answer: validAnswer === 0? ResponseSideType.Left : ResponseSideType.Right,
+        response: response === 0? ResponseSideType.Left : ResponseSideType.Right,
       });
     },
 

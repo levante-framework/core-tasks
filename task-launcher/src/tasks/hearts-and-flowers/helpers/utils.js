@@ -11,6 +11,8 @@ export const StimulusSideType = Object.freeze({
   Right: 'right',
 });
 
+export const ResponseSideType = StimulusSideType;
+
 // Enum for the keyboard inputs
 export const InputKey = Object.freeze({
   ArrowLeft: 'arrowleft',
