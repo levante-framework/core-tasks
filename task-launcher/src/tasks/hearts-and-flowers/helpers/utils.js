@@ -1,3 +1,4 @@
+import { replayButtonSvg } from './audioTrials';
 
 export const StimulusType = Object.freeze({
   Heart: 'heart',
@@ -55,3 +56,30 @@ export function getCorrectInputSide(stimulusType, stimulusSideType) {
     throw new Error('Invalid stimulus');
   }
 }
+
+export const getLayoutTemplate = (promptText, imageSrc, isLeft) => {
+  const stimulusClass = isLeft ? 'stimulus-left' : 'stimulus-right';
+  let template = `<div class='parent-stimulus-hf'>`;
+  if (promptText) { // This is practice
+    template += `
+      <div id='replay-btn'>
+        ${replayButtonSvg}
+      </div>
+      <div class='instruction-container'>
+          <p class='practice-text'>
+            ${promptText}
+          </p>
+      </div>
+    `
+  }
+  template += `
+      <div id='stimulus-container-hf'>
+        <div class='${stimulusClass}'>
+            <img src='${imageSrc}' alt="heart or flower"/>
+        </div>
+      </div>
+    </div>
+  `
+
+  return template;
+}; 

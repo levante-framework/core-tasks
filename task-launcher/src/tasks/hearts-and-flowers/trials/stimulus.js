@@ -1,7 +1,13 @@
 import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
 import { jsPsych } from '../../taskSetup';
-import { StimulusType, StimulusSideType, InputKey, getCorrectInputSide } from '../helpers/utils';
+import {
+  StimulusType,
+  StimulusSideType,
+  InputKey,
+  getCorrectInputSide,
+  getLayoutTemplate
+} from '../helpers/utils';
 import store from 'store2';
 import shuffle from 'lodash/shuffle';
 
@@ -22,29 +28,12 @@ export function stimulus(isPractice = false, stage, stimulusDuration, postTrialG
       };
     },
     stimulus: () => {
-      return `<div id='stimulus-container-hf'>
-                    <div class='stimulus'>
-                        ${
-                          jsPsych.timelineVariable('position') <= 0.5
-                            ? `<img src=${
-                                mediaAssets.images[jsPsych.timelineVariable('stimulus')]
-                              } alt="heart or flower"/>`
-                            : ''
-                        }
-                    </div>
-                    <div class='stimulus'>
-                        ${
-                          jsPsych.timelineVariable('position') > 0.5
-                            ? `<img src=${
-                                mediaAssets.images[jsPsych.timelineVariable('stimulus')]
-                              } alt="heart or flower"/>`
-                            : ''
-                        }
-                    </div>
-                </div>`;
+      return getLayoutTemplate(
+        null,
+        mediaAssets.images[jsPsych.timelineVariable('stimulus')],
+        jsPsych.timelineVariable('position') <= 0.5
+      );
     },
-    stimulus_duration: stimulusDuration,
-    post_trial_gap: isPractice? null : postTrialGap,
     on_load: () => {
       document.getElementById('jspsych-html-multi-response-btngroup').classList.add('btn-layout-hf');
     },
