@@ -23,6 +23,7 @@ export const initSharedStore = (config) => {
   store.session.set('totalCorrect', 0);
   store.session.set('correctItems', []);
   store.session.set('incorrectItems', []);
+  store.session.set('incorrectTrials', 0);
 
   store.session.set('initialized', true);
 };

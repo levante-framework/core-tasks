@@ -22,6 +22,7 @@ function parseTranslations(translationData) {
     translations[camelize(row.item_id)] = getRowData(row, configLanguage, nonLocalDialect);
   });
 
+
   store.session.set('translations', translations);
 }
 

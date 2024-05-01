@@ -21,3 +21,5 @@ export * from './prepareChoices';
 export * from './stringToBoolean';
 export * from './fractionToMathML';
 export * from './appTimer';
+export * from './components'
+export * from './replayAudio';

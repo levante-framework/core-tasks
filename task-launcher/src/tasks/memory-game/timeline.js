@@ -1,28 +1,50 @@
-import 'regenerator-runtime/runtime';
 import { initTimeline, initTrialSaving } from '../shared/helpers';
-
 // setup
 import { jsPsych } from '../taskSetup';
 import { initializeCat } from '../taskSetup';
-import store from 'store2';
-
 // trials
-import { exitFullscreen } from '../shared/trials';
+import { instructions, readyToPlay, reverseOrderPrompt } from './trials/instructions';
+import { exitFullscreen, feedback } from '../shared/trials';
 import { getCorsiBlocks } from './trials/stimulus';
 
 export default function buildMemoryTimeline(config, mediaAssets) {
   initTrialSaving(config);
   const initialTimeline = initTimeline(config);
 
-  const corsiBlocks = {
+  const corsiBlocksPractice = {
     timeline: [
-      getCorsiBlocks({ mode: 'display' }), 
-      getCorsiBlocks({ mode: 'input' })
+      getCorsiBlocks({ mode: 'display', isPractice: true }),
+      getCorsiBlocks({ mode: 'input', isPractice: true }),
+      feedback(true),
     ],
-    repetitions: 10,
+    repetitions: 3,
   };
 
-  const timeline = [initialTimeline, corsiBlocks];
+  const corsiBlocksStimulus = {
+    timeline: [
+      getCorsiBlocks({ mode: 'display' }),
+      getCorsiBlocks({ mode: 'input' }),
+    ],
+    repetitions: 21,
+  };
+
+  const corsiBlocksReverse = {
+    timeline: [
+      getCorsiBlocks({ mode: 'display', reverse: true}),
+      getCorsiBlocks({ mode: 'input', reverse: true}),
+    ],
+    repetitions: 21,
+  };
+
+  const timeline = [
+    initialTimeline,
+    ...instructions,
+    corsiBlocksPractice,
+    readyToPlay,
+    corsiBlocksStimulus,
+    reverseOrderPrompt,
+    corsiBlocksReverse,
+  ];
 
   initializeCat();
 
