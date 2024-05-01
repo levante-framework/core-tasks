@@ -38,7 +38,6 @@ export function stimulus(isPractice = false, stage, stimulusDuration, postTrialG
     post_trial_gap: isPractice? null : postTrialGap,
     on_load: () => {
       document.getElementById('jspsych-html-multi-response-btngroup').classList.add('btn-layout-hf');
-      document.getElementById('jspsych-html-multi-response-stimulus').style.width = '100%';
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
     keyboard_choices: [InputKey.ArrowLeft, InputKey.ArrowRight],
