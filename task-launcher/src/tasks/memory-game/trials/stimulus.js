@@ -24,8 +24,8 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false}) {
     sequence: () => {
       // On very first trial, generate initial sequence
       if (!generatedSequence) {
-        const numOfblocks = store.session.get('memoryGameConfig').numOfblocks;
-        generatedSequence = generateRandomSequence(numOfblocks, sequenceLength, true)
+        const numOfBlocks = store.session.get('memoryGameConfig').numOfBlocks;
+        generatedSequence = generateRandomSequence({numOfBlocks, sequenceLength})
       }
 
       if (mode === 'input' && reverse) {
@@ -37,8 +37,8 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false}) {
     blocks: () => {
       if (!grid) {
         store.session.get('memoryGameConfig')
-        const { numOfblocks, blockSize, gridSize } = store.session.get('memoryGameConfig');
-        grid = createGrid(x, y, numOfblocks, blockSize, gridSize, blockSpacing)
+        const { numOfBlocks, blockSize, gridSize } = store.session.get('memoryGameConfig');
+        grid = createGrid({x, y, numOfBlocks, blockSize, gridSize, blockSpacing})
       }
       return grid;
     },
@@ -89,21 +89,21 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false}) {
 
         selectedCoordinates = [];
 
-        const numOfblocks = store.session.get('memoryGameConfig').numOfblocks;
+        const numOfBlocks = store.session.get('memoryGameConfig').numOfBlocks;
 
         // Avoid generating the same sequence twice in a row
-        let newSequence = generateRandomSequence(
-            numOfblocks, 
-            sequenceLength, 
-            isPractice
-          );
+        let newSequence = generateRandomSequence({
+            numOfBlocks, 
+            sequenceLength,
+            previousSequence: generatedSequence
+        });
 
         while (_isEqual(newSequence, generatedSequence)) {
-          newSequence = generateRandomSequence(
-            numOfblocks, 
+          newSequence = generateRandomSequence({
+            numOfBlocks, 
             sequenceLength, 
-            isPractice
-          );
+            previousSequence: generatedSequence
+          });
         }
 
         generatedSequence = newSequence;
