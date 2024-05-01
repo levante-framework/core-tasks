@@ -29,9 +29,21 @@ export class TaskLauncher {
     // GCP bucket names use a format like egma-math
     // will avoid language folder if not provided
     if (taskName !== 'memory-game') {
-      mediaAssets = await getMediaAssets(taskName, {}, language);
+      try {
+        mediaAssets = await getMediaAssets(taskName, {}, language);
+      } catch (error) {
+        throw new Error('Error fetching media assets: ', error);
+      }
+
+    } else {
+      // Couldn't choose 'memory-game' for the bucket name because it was taken :(
+      try {
+        mediaAssets = await getMediaAssets('memory-game-levante', {}, language);
+      } catch (error) {
+        throw new Error('Error fetching media assets: ', error);
+      }
+      
     }
-    console.log('mediaAssets:', mediaAssets)
 
     const config = await initConfig(this.firekit, this.gameParams, this.userParams, this.displayElement);
 
