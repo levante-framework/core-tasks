@@ -24,8 +24,8 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false}) {
     sequence: () => {
       // On very first trial, generate initial sequence
       if (!generatedSequence) {
-        const numOfblocks = store.session.get('memoryGameConfig').numOfblocks;
-        generatedSequence = generateRandomSequence(numOfblocks, sequenceLength, true)
+        const numOfBlocks = store.session.get('memoryGameConfig').numOfBlocks;
+        generatedSequence = generateRandomSequence({numOfBlocks, sequenceLength})
       }
 
       if (mode === 'input' && reverse) {
@@ -37,8 +37,8 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false}) {
     blocks: () => {
       if (!grid) {
         store.session.get('memoryGameConfig')
-        const { numOfblocks, blockSize, gridSize } = store.session.get('memoryGameConfig');
-        grid = createGrid(x, y, numOfblocks, blockSize, gridSize, blockSpacing)
+        const { numOfBlocks, blockSize, gridSize } = store.session.get('memoryGameConfig');
+        grid = createGrid({x, y, numOfBlocks, blockSize, gridSize, blockSpacing})
       }
       return grid;
     },
@@ -52,18 +52,13 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false}) {
     // Show feedback only for practice
     correct_color: () => '#8CAEDF',
     incorrect_color: () => isPractice ? '#f00' : 'rgba(215, 215, 215, 0.93)',
-    // Show feedback only for practice
-    correct_color: () => '#8CAEDF',
-    incorrect_color: () => isPractice ? '#f00' : 'rgba(215, 215, 215, 0.93)',
     data: {
       // not camelCase because firekit
       save_trial: mode === 'input',
       assessment_stage: 'memory-game',
       // not for firekit
       isPracticeTrial: isPractice,
-      isPracticeTrial: isPractice,
     },
-    on_load: () => doOnLoad(mode, isPractice),
     on_load: () => doOnLoad(mode, isPractice),
     on_finish: (data) => {
       if (mode === 'input') {
@@ -92,46 +87,23 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false}) {
           finishExperiment();
         }
 
-          selectedCoordinates: selectedCoordinates
-        });
-        store.session.set('currentTrialCorrect', data.correct)
-
-        if (data.correct && !isPractice) {
-          store.session.set('incorrectTrials', 0)
-          numCorrect++;
-
-          if (numCorrect === 3) {
-            sequenceLength++;
-            numCorrect = 0;
-          }
-        }
-
-        if (!data.correct && !isPractice) {
-          store.session.transact('incorrectTrials', (value) => value + 1)
-          numCorrect = 0;
-        }
-
-        if (store.session.get('incorrectTrials') == 3 || store.session.get('maxTimeReached')) {
-          finishExperiment();
-        }
-
         selectedCoordinates = [];
 
-        const numOfblocks = store.session.get('memoryGameConfig').numOfblocks;
+        const numOfBlocks = store.session.get('memoryGameConfig').numOfBlocks;
 
         // Avoid generating the same sequence twice in a row
-        let newSequence = generateRandomSequence(
-            numOfblocks, 
-            sequenceLength, 
-            isPractice
-          );
+        let newSequence = generateRandomSequence({
+            numOfBlocks, 
+            sequenceLength,
+            previousSequence: generatedSequence
+        });
 
         while (_isEqual(newSequence, generatedSequence)) {
-          newSequence = generateRandomSequence(
-            numOfblocks, 
+          newSequence = generateRandomSequence({
+            numOfBlocks, 
             sequenceLength, 
-            isPractice
-          );
+            previousSequence: generatedSequence
+          });
         }
 
         generatedSequence = newSequence;
@@ -172,22 +144,6 @@ function doOnLoad(mode, isPractice) {
       document.body.appendChild(toast);
     }
   }
-  
-  const t = store.session.get('translations');
-
-  if (!isPractice) {
-    const toast = document.getElementById('toast');
-
-    // Avoid creating multiple toasts since we are adding it to the body
-    // and it will not be removed from the DOM unlike jsPsych trials
-    if (mode === 'input' && !toast) {
-      const toast = document.createElement('div');
-      toast.id = 'toast';
-      toast.classList.add('toast');
-      toast.textContent = t.generalEncourage;
-      document.body.appendChild(toast);
-    }
-  }
 
   const blocks = document.getElementsByClassName('jspsych-corsi-block');
 
@@ -206,28 +162,6 @@ function doOnLoad(mode, isPractice) {
     if (mode === 'input') {
       element.addEventListener('click', (event) => {
         selectedCoordinates.push([event.clientX, event.clientY]);
-
-        if (!isPractice) {
-          // Avoid stacking timeouts
-          if (timeoutIDs.length) {
-            timeoutIDs.forEach(id => clearTimeout(id));
-            timeoutIDs = [];
-          }
-
-          // start a timer for toast notification
-          const toastTimer = setTimeout(() => {
-            const toast = document.getElementById('toast');
-            toast.classList.add('show');
-          }, 10000);
-
-          const hideToast = setTimeout(() => {
-            const toast = document.getElementById('toast');
-            toast.classList.remove('show');
-          }, 13000);
-
-          timeoutIDs.push(toastTimer);
-          timeoutIDs.push(hideToast);
-        }
 
         if (!isPractice) {
           // Avoid stacking timeouts
