@@ -9,27 +9,23 @@ import { replayButtonSvg, overrideAudioTrialForReplayableAudio } from '../helper
 export const introduction = {
   type: jsPsychHTMLMultiResponse,
   stimulus: () => {
-    return `<div >
-            <h1 id="header">Hearts and Flowers Game</h1>
-            <div >
-                <img id='instruction-graphic' src=${mediaAssets.images.animalWhole} alt='Gray bear'/>
-            </div>
-        </div>`;
+    return `
+    <div >
+      <h1 id="header">Hearts and Flowers Game</h1>
+      <div >
+        <img id='instruction-graphic' src=${mediaAssets.images.animalWhole} alt='Gray bear'/>
+      </div>
+    </div>
+  `;
   },
   button_choices: ['Go'],
   button_html: [
     `
-        <button class='go-btn'>
-            <p>Go</p>
-        </button>`,
+      <button class='go-btn'>
+          <p>Go</p>
+      </button>
+    `,
   ],
-  on_load: () => {
-    // document.getElementsByClassName('jspsych-content-wrapper')[0].style.backgroundColor = 'red';
-    const goBtn = document.getElementById('jspsych-html-multi-response-btngroup');
-    goBtn.style.justifyContent = 'end';
-    goBtn.style.marginRight = '1rem';
-  },
-  // on_finish: () => (document.getElementsByClassName('jspsych-content-wrapper')[0].style.backgroundColor = 'white'),
 };
 
 // These are the instruction "trials" they are full screen with no stimulus
