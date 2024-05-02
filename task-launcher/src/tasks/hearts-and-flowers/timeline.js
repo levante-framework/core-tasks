@@ -83,29 +83,6 @@ export default function buildHeartsAndFlowersTimeline(config, mediaAssets) {
     },
   };
 
-  // introductionTrials, ifNotFullscreen,
-  // const timeline = [
-  //   preloadTrials,
-  //   initialTimeline,
-  //   introduction,
-  //   heartInstructions,
-  //   heartPracticeBlock1,
-  //   heartPracticeBlock2,
-  //   timeToPractice,
-  //   heartPracticeTimeline,
-  //   heartPostPracticeBlock,
-  //   heartTimeline,
-  //   flowerInstructionsBlock,
-  //   flowerPracticeTimeline,
-  //   flowerPostPracticeBlock,
-  //   flowerTimeline,
-  //   heartsAndFlowersInstructionsBlock,
-  //   heartsAndFlowersPracticeTimeline,
-  //   heartsAndFlowersPostPracticeBlock,
-  //   heartsAndFlowersTimeline,
-  //   endGame,
-  //   exitFullscreen,
-  // ];
   let timeline = [
     preloadTrials,
     initialTimeline,
@@ -152,8 +129,6 @@ function getHeartOrFlowerSubtimelines(adminConfig, stimulusType) {
   return subtimelines;
 }
 
-//TODO: check that it's ok to not have full screen feedback in case of correct answer,
-// for both instruction practice trials and practice trials
 //TODO: check if we need to repeat the whole pair when user gets it wrong or if getting right on the feedback trial is enough
 function getHeartOrFlowerInstructionsSection(adminConfig, stimulusType) {
 
@@ -262,7 +237,12 @@ function getHeartOrFlowerPracticeSection(adminConfig, stimulusType) {
   subtimeline.push({
     timeline: [
       fixation(adminConfig.interStimulusInterval),
-      stimulus(true, jsPsychAssessmentStage, adminConfig.stimulusPresentationTime, onTrialFinishTimelineCallback),
+      stimulus(
+        true,
+        jsPsychAssessmentStage,
+        adminConfig.stimulusPresentationTime,
+        onTrialFinishTimelineCallback
+      ),
       practiceFeedback,
     ],
     timeline_variables: buildHeartsOrFlowersTimelineVariables(adminConfig.practiceTrialCount, stimulusType),
@@ -367,7 +347,7 @@ function getMixedPracticeSection(adminConfig) {
     ],
     timeline_variables: buildMixedTimelineVariables(adminConfig.practiceTrialCount),
     randomize_order: false,
-  }
+  };
 
   //TODO: do we really need to nest these into a sub-timeline?
   const heartsAndFlowersPostPracticeBlock = {
