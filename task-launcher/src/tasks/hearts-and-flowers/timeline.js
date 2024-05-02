@@ -246,18 +246,33 @@ function getHeartOrFlowerPracticeSection(adminConfig, stimulusType) {
     ],
   };
 
+  // Let's prepare a callback to pass to our stimuli trials and keep track of successive correct practice trials
+  let practiceWinStreakCount = 0;
+  function onTrialFinishTimelineCallback(data) {
+    practiceWinStreakCount = data.correct ? practiceWinStreakCount+1 : 0;
+    console.log(`Practice block win streak=${practiceWinStreakCount}`);
+    if (practiceWinStreakCount >= adminConfig.correctPracticeTrial) {
+      console.log(`Ending practice block early: win streak=${practiceWinStreakCount}`);
+      jsPsych.endCurrentTimeline();
+    }
+  };
+
   const subtimeline = [];
   subtimeline.push(getTimeToPractice());
   subtimeline.push({
     timeline: [
       fixation(adminConfig.interStimulusInterval),
-      stimulus(true, jsPsychAssessmentStage, adminConfig.stimulusPresentationTime),
+      stimulus(true, jsPsychAssessmentStage, adminConfig.stimulusPresentationTime, onTrialFinishTimelineCallback),
       practiceFeedback,
     ],
     timeline_variables: buildHeartsOrFlowersTimelineVariables(adminConfig.practiceTrialCount, stimulusType),
     randomize_order: false,
-    //TODO: implement "end early" when user get multiple correct answer in a row = adminConfig.correctPracticeTrial
-    //TODO: implement adminConfig.stimulusPresentationTime and adminConfig.interStimulusInterval
+    //TODO: Let's standardize the way on_finish callbacks can be defined here vs in the trial object:
+    // here, only the "fixation" trial does not define an on_finish callback so it's the only one for which the
+    // below commented code would get executed.
+    // on_finish: (data) => {
+    //   console.error(data);
+    // },
   });
   subtimeline.push(postPracticeBlock);
 
@@ -284,7 +299,6 @@ function getHeartOrFlowerTestSection(adminConfig, stimulusType) {
     ],
     timeline_variables: buildHeartsOrFlowersTimelineVariables(adminConfig.testTrialCount, stimulusType),
     randomize_order: false,
-    //TODO: implement adminConfig.stimulusPresentationTime and adminConfig.interStimulusInterval
   });
   return subtimeline;
 }
@@ -329,16 +343,31 @@ function getMixedPracticeSection(adminConfig) {
   // flower-practice-feedback2, "When you see a FLOWER, press the button on the OPPOSITE side."
   const practiceFeedback = buildMixedPracticeFeedback('heartPracticeFeedback2', 'feedbackGoodJob', 'flowerPracticeFeedback2', 'feedbackGoodJob');
 
+  // Let's prepare a callback to pass to our stimuli trials and keep track of successive correct practice trials
+  let practiceWinStreakCount = 0;
+  function onTrialFinishTimelineCallback(data) {
+    practiceWinStreakCount = data.correct ? practiceWinStreakCount+1 : 0;
+    console.log(`Practice block win streak=${practiceWinStreakCount}`);
+    if (practiceWinStreakCount >= adminConfig.correctPracticeTrial) {
+      console.log(`Ending practice block early: win streak=${practiceWinStreakCount}`);
+      jsPsych.endCurrentTimeline();
+    }
+  };
+
   const heartsAndFlowersPracticeTimeline = {
     timeline: [
       fixation(adminConfig.interStimulusInterval),
-      stimulus(true, AssessmentStageType.HeartsAndFlowersPractice, adminConfig.stimulusPresentationTime),
+      stimulus(
+        true,
+        AssessmentStageType.HeartsAndFlowersPractice,
+        adminConfig.stimulusPresentationTime,
+        onTrialFinishTimelineCallback
+      ),
       practiceFeedback,
     ],
     timeline_variables: buildMixedTimelineVariables(adminConfig.practiceTrialCount),
     randomize_order: false,
-    //TODO: implement adminConfig.stimulusPresentationTime and adminConfig.interStimulusInterval
-  };
+  }
 
   //TODO: do we really need to nest these into a sub-timeline?
   const heartsAndFlowersPostPracticeBlock = {
@@ -360,7 +389,6 @@ function getMixedTestSection(adminConfig) {
     ],
     timeline_variables: buildMixedTimelineVariables(adminConfig.testTrialCount),
     randomize_order: false,
-    //TODO: implement adminConfig.stimulusPresentationTime and adminConfig.interStimulusInterval
 
     //TODO: Not sure what to do with this. Double check we don't need it
     // sample: {
