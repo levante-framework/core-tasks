@@ -121,6 +121,7 @@ function getPrompt(task) {
   }
 
   if (task === 'theory-of-mind') {
+    console.log("camelized:", camelize(stimItem), "stimItem:", stimItem);
     return (
       `
         <div id='stimulus-container'>` +
