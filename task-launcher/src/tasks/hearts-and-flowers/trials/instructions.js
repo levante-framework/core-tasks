@@ -41,9 +41,8 @@ export function getKeepUp() {
   return buildInstructionTrial(
     mediaAssets.images.keepup,
     mediaAssets.audio.heartsAndFlowersInstruct1,
-    store.session.get('translations').heartsAndFlowersInstruct1, // hearts-and-flowers-instruct1:	"This time the game will go faster. It won't tell you if you are right or wrong. Try to keep up!"
+    store.session.get('translations').heartsAndFlowersInstruct1, // hearts-and-flowers-instruct1:	"This time the game will go faster. It won't tell you if you are right or wrong."
     store.session.get('translations').continueButtonText,
-    //TODO: check whether we need to cut instruction text short to avoid duplicate phrase
     store.session.get('translations').heartsAndFlowersEncourage1,//Try to keep up!
   );
 }
@@ -52,9 +51,8 @@ export function getKeepGoing() {
   return buildInstructionTrial(
     mediaAssets.images.rocket,
     mediaAssets.audio.heartsAndFlowersInstruct2,
-    store.session.get('translations').heartsAndFlowersInstruct2, //hearts-and-flowers-instruct2: "Try to answer as fast as you can without making mistakes. If you make a mistake, just keep going!"
+    store.session.get('translations').heartsAndFlowersInstruct2, //hearts-and-flowers-instruct2: "Try to answer as fast as you can without making mistakes."
     store.session.get('translations').continueButtonText,
-    //TODO: check whether we need to cut instruction text short to avoid duplicate phrase
     store.session.get('translations').heartsAndFlowersEncourage2,// If you make a mistake, just keep going!
   );
 }
@@ -108,7 +106,7 @@ function buildInstructionTrial(mascotImage, promptAudio, promptText, buttonText,
     stimulus: promptAudio,
     prompt:
       `<div id='stimulus-container'>
-        <h1>${promptText}</h1>
+        <h2>${promptText}</h2>
         <div id='${replayButtonHtmlId}'>
           ${replayButtonSvg}
         </div>
