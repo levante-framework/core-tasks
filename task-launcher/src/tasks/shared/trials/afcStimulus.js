@@ -29,6 +29,28 @@ let keyboardResponseMap = {};
 let startTime;
 const incorrectPracticeResponses = [];
 
+const playAudio = async (audioUri) => {
+  const jsPsychAudioCtx = jsPsych.pluginAPI.audioContext();
+  // Returns a promise of the AudioBuffer of the preloaded file path.
+  const audioBuffer = await jsPsych.pluginAPI.getAudioBuffer(audioUri);
+  const audioSource = jsPsychAudioCtx.createBufferSource();
+  audioSource.buffer = audioBuffer;
+  audioSource.connect(jsPsychAudioCtx.destination);
+  audioSource.start(0);
+};
+
+const showStaggeredBtnAndPlaySound = (btn) => {
+  btn.style.display = 'flex';
+  btn.style.flexDirection = 'column';
+  btn.style.alignItems = 'center';
+  btn.style.maxWidth = 'none';
+  const img = btn.getElementsByTagName('img')?.[0];
+  if (img) {
+    const altValue = img.alt;
+    playAudio(mediaAssets.audio[camelize(altValue)]);
+  }
+}
+
 function getStimulus(trialType) {
   // ToDo: trialType (audio/html) no longer varies -- remove
   const stim = store.session.get('nextStimulus');
@@ -256,6 +278,19 @@ function doOnLoad(task) {
   startTime = performance.now();
 
   const stim = store.session.get('nextStimulus');
+  if (task === 'theory-of-mind' && stim.trialType === 'audio_question') {
+    const parentResponseDiv = document.getElementById('jspsych-audio-multi-response-btngroup');
+    parentResponseDiv.style.display = 'none';
+    let i = 0;
+    const intialDelay = 4000;
+    for (const jsResponseEl of parentResponseDiv.children) {
+      jsResponseEl.style.display = 'none';
+      setTimeout(() => showStaggeredBtnAndPlaySound(jsResponseEl), intialDelay + 2000 * i);
+      i += 1;
+    }
+    parentResponseDiv.style.display = 'flex';
+    parentResponseDiv.style.flexDirection = 'row';
+  }
   const currentTrialIndex = jsPsych.getProgress().current_trial_global;
   let twoTrialsAgoIndex = currentTrialIndex - 2;
   if (stim.task === 'math') {
