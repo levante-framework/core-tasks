@@ -121,7 +121,6 @@ function getPrompt(task) {
   }
 
   if (task === 'theory-of-mind') {
-    console.log("camelized:", camelize(stimItem), "stimItem:", stimItem);
     return (
       `
         <div id='stimulus-container'>` +
@@ -166,7 +165,6 @@ function getButtonChoices(task) {
   }
 
   const { answer, distractors } = stimulus;
-  console.log("distractors:", distractors); // need to split these on comma?
   let trialInfo =
     stimulus.task === 'Mental Rotation'
       ? prepareChoices(answer, distractors, false)
