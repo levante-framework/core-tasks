@@ -13,11 +13,14 @@ export const StimulusSideType = Object.freeze({
 
 export const ResponseSideType = StimulusSideType;
 
-// Enum for the keyboard inputs
+// Enum for the jsPsych keyboard inputs
 export const InputKey = Object.freeze({
   ArrowLeft: 'arrowleft',
   ArrowRight: 'arrowright',
-  AllKeys: 'ALL_KEYS'
+  NoKeys: 'NO_KEYS', // aka no key input accepted
+  AllKeys: 'ALL_KEYS', // aka any keys is accepted
+  SpaceBar: 'spacebar',
+  Enter: 'enter',
 });
 
 

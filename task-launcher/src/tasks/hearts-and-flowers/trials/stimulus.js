@@ -1,6 +1,6 @@
 import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
-import { jsPsych } from '../../taskSetup';
+import { jsPsych, isTouchScreen } from '../../taskSetup';
 import {
   StimulusType,
   StimulusSideType,
@@ -40,7 +40,7 @@ export function stimulus(isPractice, stage, stimulusDuration, onTrialFinishTimel
       document.getElementById('jspsych-html-multi-response-btngroup').classList.add('btn-layout-hf');
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
-    keyboard_choices: [InputKey.ArrowLeft, InputKey.ArrowRight],
+    keyboard_choices: isTouchScreen? InputKey.NoKeys : [InputKey.ArrowLeft, InputKey.ArrowRight],
     button_html: [`<div class='response-btn'></div>`, `<div class='response-btn'></div>`],
     //TODO: save whether answer is correct/incorrect to fix practice feedback
     //TODO: check data is saved properly
