@@ -166,6 +166,7 @@ function getButtonChoices(task) {
   }
 
   const { answer, distractors } = stimulus;
+  console.log("distractors:", distractors); // need to split these on comma?
   let trialInfo =
     stimulus.task === 'Mental Rotation'
       ? prepareChoices(answer, distractors, false)
