@@ -112,8 +112,12 @@ function buildInstructionTrial(mascotImage, promptAudio, promptText, buttonText,
         <div id='${replayButtonHtmlId}'>
           ${replayButtonSvg}
         </div>
-        <div >
-          <img id='instruction-graphic' src=${mascotImage} alt='Instruction graphic'/>
+        <div class='centered-container-haf'>
+          <img
+            id='instruction-graphic'
+            src=${mascotImage}
+            alt='Instruction graphic'
+          />
         </div>
         ${bottomText ? `<h2>${bottomText}</h2>` : ''}
       </div>`,
