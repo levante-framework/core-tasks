@@ -215,7 +215,6 @@ $border-color: #0f3cac;
           border: 3px solid #0f3cac;
           border-radius: 1rem;
         }
-
       }
 
       .practice-correct {
@@ -588,7 +587,8 @@ $border-color: #0f3cac;
         font-size: 1.5rem;
       }
 
-      #replay-btn {// This is also used by the Hearts and Flowers task
+      #replay-btn {
+        // This is also used by the Hearts and Flowers task
         position: absolute;
         top: 20px;
         right: 20px;
@@ -706,9 +706,10 @@ $border-color: #0f3cac;
         justify-content: space-around;
         margin-top: 8vw;
         width: 100%;
-        
+
         @keyframes pulse {
-          0%, 100% {
+          0%,
+          100% {
             transform: scale(1);
           }
           50% {
@@ -717,14 +718,14 @@ $border-color: #0f3cac;
         }
 
         .response-btn {
-          background-image: linear-gradient(to right, #7ab746 0%, #89CE00 51%, #5BA300  100%);
+          background-image: linear-gradient(to right, #7ab746 0%, #89ce00 51%, #5ba300 100%);
           margin: 10px;
           // padding: 15px 45px;
           text-align: center;
           text-transform: uppercase;
           transition: 0.5s;
           background-size: 200% auto;
-          color: white;            
+          color: white;
           box-shadow: 0 0 20px #eee;
           border-radius: 10px;
           display: block;
@@ -755,7 +756,7 @@ $border-color: #0f3cac;
       .parent-stimulus-hf {
         .instruction-container {
           display: flex;
-          border: 3px solid #275BDD;
+          border: 3px solid #275bdd;
           border-radius: 32px;
           background-color: #fff;
           text-align: center;
@@ -770,7 +771,7 @@ $border-color: #0f3cac;
         }
 
         #stimulus-container-hf {
-          border: 3px solid #275BDD;
+          border: 3px solid #275bdd;
           border-radius: 32px;
           display: flex;
           justify-content: space-between;
@@ -778,7 +779,7 @@ $border-color: #0f3cac;
           width: 70vw;
           height: 40vh;
           margin: auto;
-  
+
           .stimulus-left {
             margin-top: auto;
             margin-bottom: auto;

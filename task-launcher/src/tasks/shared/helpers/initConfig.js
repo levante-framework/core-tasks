@@ -56,7 +56,7 @@ export const initSharedConfig = async (firekit, gameParams, userParams, displayE
     numOfPracticeTrials: numOfPracticeTrials ?? 2,
     maxIncorrect: maxIncorrect ?? 3,
     keyHelpers: keyHelpers ?? true,
-    language:  language ?? i18next.language,
+    language: language ?? i18next.language,
     maxTime: maxTime || null, // default is no time limit
     storeItemId: storeItemId,
   };

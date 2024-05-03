@@ -2,6 +2,7 @@ import { jsPsych } from '../../taskSetup';
 import taskConfig from '../../taskConfig';
 import { dashToCamelCase } from './dashToCamelCase';
 import cloneDeep from 'lodash/cloneDeep';
+import { computedScoreCallback } from '../../trog/scores';
 
 export const initTrialSaving = (config) => {
   if (config.displayElement) {
@@ -28,7 +29,7 @@ export const initTrialSaving = (config) => {
       // be saved to Firestore. No point in writing it to the db.
       // creating a deep copy to prevent modifying of original data
       // since it is used down the line for the rest of the pipeline
-      const dataCopy =  cloneDeep(data);
+      const dataCopy = cloneDeep(data);
       delete dataCopy.save_trial;
       delete dataCopy.internal_node_id;
       delete dataCopy.button_response;
@@ -37,7 +38,11 @@ export const initTrialSaving = (config) => {
       dataCopy.responseSource = data.response_source;
       delete dataCopy.trial_index;
       delete dataCopy.trial_type;
-      config.firekit.writeTrial(dataCopy);
+      if (config.task === 'trog') {
+        config.firekit.writeTrial(dataCopy, computedScoreCallback);
+      } else {
+        config.firekit.writeTrial(dataCopy);
+      }
     }
   });
 

@@ -113,11 +113,7 @@ function getPrompt(task) {
 
   // just audio - no text prompt/stimulus
   if (task === 'trog' || stim.trialType === 'Number Identification' || stim.trialType === 'Number Comparison') {
-    return (
-      `<div id='stimulus-container'>` +
-      replayButtonDiv +
-      `</div>`
-    );
+    return `<div id='stimulus-container'>` + replayButtonDiv + `</div>`;
   }
 
   if (task === 'theory-of-mind') {
@@ -185,7 +181,10 @@ function getButtonChoices(task) {
     return mathMLChoices;
   }
 
-  if (['trog', 'matrix-reasoning', 'mental-rotation', 'theory-of-mind'].includes(task) && stimulus.trialType !== 'instructions') {
+  if (
+    ['trog', 'matrix-reasoning', 'mental-rotation', 'theory-of-mind'].includes(task) &&
+    stimulus.trialType !== 'instructions'
+  ) {
     return generateImageChoices(trialInfo.choices);
   }
 
@@ -586,7 +585,9 @@ export const afcStimulus = ({ trialType, responseAllowed, promptAboveButtons, ta
       return {
         // not camelCase because firekit
         save_trial: true,
-        assessment_stage: store.session.get('nextStimulus').task,
+        // In order for ROAR to write computed scores to the run doc in the correct format,
+        // assessment_stage must be explicitly "test_response" or "practice_response"
+        assessment_stage: task === 'trog' ? 'test_response' : store.session.get('nextStimulus').task,
         // not for firekit
         isPracticeTrial: store.session.get('nextStimulus').notes === 'practice',
       };

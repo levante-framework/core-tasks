@@ -10,8 +10,8 @@ function getRowData(row, language, nonLocalDialect) {
 
   // Only need this because we don't have base language translations for all languages.
   // Ex we have 'es-co' but not 'es'
-  const noBaseLang = Object.keys(row).find((key) => key.includes(nonLocalDialect))
-  return translation || row[nonLocalDialect] || row[noBaseLang] ||  row['en'];
+  const noBaseLang = Object.keys(row).find((key) => key.includes(nonLocalDialect));
+  return translation || row[nonLocalDialect] || row[noBaseLang] || row['en'];
 }
 
 function parseTranslations(translationData) {
