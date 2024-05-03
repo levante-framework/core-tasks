@@ -16,7 +16,7 @@ import shuffle from 'lodash/shuffle';
  *TODO: we should perhaps allow {@link https://www.jspsych.org/7.2/overview/media-preloading/#automatic-preloading automatic preload}
   of the stimulus image and modify the DOM nodes that jsPsych creates in on_load?
   */
-export function stimulus(isPractice = false, stage, stimulusDuration) {
+export function stimulus(isPractice, stage, stimulusDuration, onTrialFinishTimelineCallback = undefined ) {
   return {
     type: jsPsychHTMLMultiResponse,
     data: () => {
@@ -74,16 +74,20 @@ export function stimulus(isPractice = false, stage, stimulusDuration) {
       // record whether answer was correct or not
       const validAnswer = getCorrectInputSide(stimulusType, stimuluSide)
       data.correct = validAnswer === response;
+      //TODO: move these to timeline-level callback/variables
       store.session.set('correct', data.correct);
       store.session.set('stimulus', stimulusType);
       store.session.set('side', stimuluSide);
 
-      //TODO: Double check what needs to be save as this is fishy
       jsPsych.data.addDataToLastTrial({
         item: stimulusType,
         answer: validAnswer === 0? ResponseSideType.Left : ResponseSideType.Right,
         response: response === 0? ResponseSideType.Left : ResponseSideType.Right,
       });
+
+      if (onTrialFinishTimelineCallback) {
+        onTrialFinishTimelineCallback(data);
+      }
     },
 
     // DEFAULTS
