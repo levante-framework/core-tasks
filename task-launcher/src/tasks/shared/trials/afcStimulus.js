@@ -103,7 +103,7 @@ function getPrompt(task) {
                 ? ''
                 : `<img 
                 id="stimulus-img" 
-                src=${mediaAssets.images[stimItem] || mediaAssets.images['blank']}
+                src=${mediaAssets.images[camelize(stimItem)] || mediaAssets.images['blank']}
                 alt=${stimItem || `Stimulus`}
                 />`
             }
@@ -127,7 +127,7 @@ function getPrompt(task) {
       replayButtonDiv +
       `<img 
               id="stimulus-img" 
-              src=${mediaAssets.images[stimItem] || mediaAssets.images['blank']}
+              src=${mediaAssets.images[camelize(stimItem)] || mediaAssets.images['blank']}
               alt=${stimItem || `Stimulus`}
             />
         </div>`
