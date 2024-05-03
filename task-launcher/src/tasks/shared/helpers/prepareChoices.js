@@ -4,7 +4,7 @@ import { mediaAssets } from '../../..';
 
 export const prepareChoices = (target, distractors, randomizeOrder = true) => {
   let choices;
-  if (distractors.includes(target)) {
+  if (!target || distractors.includes(target)) { // If target is not present, don't add to options
     choices = [...distractors];
   } else {
     choices = [target, ...distractors]; // add target to options
