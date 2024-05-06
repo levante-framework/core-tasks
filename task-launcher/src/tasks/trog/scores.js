@@ -56,7 +56,7 @@ export const computedScoreCallback = (rawScores) => {
   computedScores.composite = {
     totalCorrect: store.session.get('totalCorrect'),
     totalNumAttempted: store.session.get('trialNumTotal'),
-    totalPercentCorrect: (store.session.get('totalCorrect') / store.session.get('trialNumTotal')) * 100,
+    totalPercentCorrect: Math.round((store.session.get('totalCorrect') / store.session.get('trialNumTotal')) * 100),
   };
 
   return computedScores;
