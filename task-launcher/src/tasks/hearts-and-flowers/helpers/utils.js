@@ -19,7 +19,7 @@ export const InputKey = Object.freeze({
   ArrowRight: 'arrowright',
   NoKeys: 'NO_KEYS', // aka no key input accepted
   AllKeys: 'ALL_KEYS', // aka any keys is accepted
-  SpaceBar: 'spacebar',
+  SpaceBar: ' ',
   Enter: 'enter',
 });
 
