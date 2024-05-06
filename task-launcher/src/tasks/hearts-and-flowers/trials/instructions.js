@@ -121,7 +121,7 @@ function buildInstructionTrial(mascotImage, promptAudio, promptText, buttonText,
         ${bottomText ? `<h2>${bottomText}</h2>` : ''}
       </div>`,
     prompt_above_buttons: true,
-    keyboard_choices: isTouchScreen? InputKey.NoKeys : [InputKey.ArrowRight, InputKey.SpaceBar, InputKey.Enter],
+    keyboard_choices: isTouchScreen? InputKey.NoKeys : [InputKey.SpaceBar, InputKey.Enter],
     button_choices: ['Next'],
     button_html:[
       `<button class='next-btn'>
