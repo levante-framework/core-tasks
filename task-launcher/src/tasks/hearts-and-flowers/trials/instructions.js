@@ -3,6 +3,7 @@ import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-respo
 import { mediaAssets } from '../../..';
 import store from 'store2';
 import { jsPsych } from '../../taskSetup';
+import { InputKey } from '../helpers/utils';
 import { replayButtonSvg, overrideAudioTrialForReplayableAudio } from '../helpers/audioTrials';
 
 // These are the instruction "trials" they are full screen with no stimulus
@@ -120,6 +121,7 @@ function buildInstructionTrial(mascotImage, promptAudio, promptText, buttonText,
         ${bottomText ? `<h2>${bottomText}</h2>` : ''}
       </div>`,
     prompt_above_buttons: true,
+    keyboard_choices: InputKey.AllKeys,
     button_choices: ['Next'],
     button_html:[
       `<button class='next-btn'>

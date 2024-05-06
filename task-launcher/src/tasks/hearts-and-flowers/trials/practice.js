@@ -217,9 +217,13 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
         return `<button class='response-btn' style='display: none;'></button>`;
       }
     },
-    // TODO: Double-check proper timeout length
-    trial_duration: () => {
-      return store.session.get('correct') === false ? null : 1200;
+    trial_ends_after_audio: () => {
+      // when showing correct feedback, the trial should end with the end of the audio
+      return store.session.get('correct') === true ? true : false;
+    },
+    response_ends_trial: () => {
+      // when showing incorrect feedback, the trial should only end with response
+      return store.session.get('correct') === false ? true : false;
     },
   };
   overrideAudioTrialForReplayableAudio(trial, jsPsych.pluginAPI, replayButtonHtmlId);

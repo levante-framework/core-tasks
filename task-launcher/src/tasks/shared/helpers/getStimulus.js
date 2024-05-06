@@ -16,7 +16,6 @@ export const getStimulus = (corpusType) => {
   itemSuggestion = cat.findNextItem(corpus[corpusType]);
 
   const stimAudio = itemSuggestion.nextStimulus.audioFile;
-
   if (stimAudio && !mediaAssets.audio[camelize(stimAudio)]) {
     console.warn('Trial skipped. Audio file not found:', stimAudio);
     store.session.set('skipCurrentTrial', true);
@@ -31,6 +30,8 @@ export const getStimulus = (corpusType) => {
   corpus[corpusType] = itemSuggestion.remainingStimuli;
   store.session.set('corpora', corpus);
 
+  // --------------------------------------------------------
+
   // Testing - Slider AFC trials
   // const afcStim = corpus[corpusType].find(stim => stim.trialType === 'Number Line 4afc')
   // store.session.set("nextStimulus", afcStim);
@@ -42,5 +43,9 @@ export const getStimulus = (corpusType) => {
 
   // Testing - Number Comparison (2afc)
   // itemSuggestion = corpus[corpusType].find(stim => stim.trialType === 'Number Comparison')
+  // store.session.set('nextStimulus', itemSuggestion);
+
+  // // Testing - same-different-selection
+  // itemSuggestion = corpus[corpusType].find(stim => stim.trialType.includes('something-same-1'))
   // store.session.set('nextStimulus', itemSuggestion);
 };

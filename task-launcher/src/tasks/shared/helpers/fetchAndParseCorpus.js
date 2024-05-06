@@ -35,6 +35,11 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
   let currTrialTypeBlock = '';
   let currPracticeAmount = 0;
 
+  // Phase 1 is test-dimensions and something-same
+  // Phase 2 is match and unique
+  let sdsPhase1Count = 0
+  let sdsPhase2Count = 0
+
   csvInput.forEach((row) => {
     const newRow = {
       source: row.source,
@@ -45,7 +50,7 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
       item: writeItem(row),
       origItemNum: row.orig_item_num,
       trialType: row.trial_type,
-      image: row.image,
+      image: row?.image?.includes(',') ? row.image.split(',') : row?.image,
       timeLimit: row.time_limit,
       answer: _toNumber(row.answer) || row.answer,
       notes: row.notes,
@@ -60,6 +65,24 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
       newRow.item = camelize(newRow.item);
       newRow.answer = camelize(newRow.answer);
       newRow.distractors = newRow.distractors.map((choice) => camelize(choice));
+    }
+
+    if (row.task === 'same-different-selection') {
+      newRow.requiredSelections = parseInt(row.required_selections)
+      newRow.sameDifferent = row.same_different,
+      newRow.affix = row.affix
+
+      if (newRow.trialType.includes('something-same') || 
+          newRow.trialType.includes('test-dimensions')
+      ) {
+        sdsPhase1Count += 1
+      } else {
+        sdsPhase2Count += 1
+      }
+      store.session.set('sdsPhasesCount', {
+        phase1: sdsPhase1Count,
+        phase2: sdsPhase2Count
+      })
     }
 
     let currentTrialType = newRow.trialType;

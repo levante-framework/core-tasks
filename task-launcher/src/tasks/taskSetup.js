@@ -21,7 +21,6 @@ export const initializeCat = () => {
 };
 
 export const jsPsych = initJsPsych({
-  on_load: () => console.log('jsPsych loaded'),
   on_finish: () => {
     // navigate to prolific page
     // swap url
