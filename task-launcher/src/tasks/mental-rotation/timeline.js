@@ -60,7 +60,7 @@ export default function buildMentalRotationTimeline(config, mediaAssets) {
     imageInstructions,
     videoInstructionsMisfit,
     videoInstructionsFit,
-    nowYouTry,
+    //nowYouTry,
   ];
 
   const numOfTrials =  store.session.get('totalTrials')
