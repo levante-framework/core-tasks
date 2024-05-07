@@ -31,6 +31,12 @@ export const initTrialSaving = (config) => {
       const dataCopy =  cloneDeep(data);
       delete dataCopy.save_trial;
       delete dataCopy.internal_node_id;
+      delete dataCopy.button_response;
+      delete dataCopy.keyboard_response;
+      delete dataCopy.response_source;
+      dataCopy.responseSource = data.response_source;
+      delete dataCopy.trial_index;
+      delete dataCopy.trial_type;
       config.firekit.writeTrial(dataCopy);
     }
   });

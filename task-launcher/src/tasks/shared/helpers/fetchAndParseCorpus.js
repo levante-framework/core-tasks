@@ -41,6 +41,7 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
   let sdsPhase2Count = 0
 
   csvInput.forEach((row) => {
+
     const newRow = {
       source: row.source,
       block_index: row.block_index,
