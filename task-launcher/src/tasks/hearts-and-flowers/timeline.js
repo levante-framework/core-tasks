@@ -225,9 +225,8 @@ function getHeartOrFlowerPracticeSection(adminConfig, stimulusType) {
   let practiceWinStreakCount = 0;
   function onTrialFinishTimelineCallback(data) {
     practiceWinStreakCount = data.correct ? practiceWinStreakCount+1 : 0;
-    console.log(`Practice block win streak=${practiceWinStreakCount}`);
     if (practiceWinStreakCount >= adminConfig.correctPracticeTrial) {
-      console.log(`Ending practice block early: win streak=${practiceWinStreakCount}`);
+      // console.log(`Ending practice block early: win streak=${practiceWinStreakCount}`);
       jsPsych.endCurrentTimeline();
     }
   };
@@ -327,9 +326,8 @@ function getMixedPracticeSection(adminConfig) {
   let practiceWinStreakCount = 0;
   function onTrialFinishTimelineCallback(data) {
     practiceWinStreakCount = data.correct ? practiceWinStreakCount+1 : 0;
-    console.log(`Practice block win streak=${practiceWinStreakCount}`);
     if (practiceWinStreakCount >= adminConfig.correctPracticeTrial) {
-      console.log(`Ending practice block early: win streak=${practiceWinStreakCount}`);
+      // console.log(`Ending practice block early: win streak=${practiceWinStreakCount}`);
       jsPsych.endCurrentTimeline();
     }
   };

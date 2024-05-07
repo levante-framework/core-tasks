@@ -13,7 +13,7 @@ export function fixation(interStimulusInterval) {
       document.getElementById('jspsych-html-multi-response-btngroup').classList.add('btn-layout-hf');
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
-    keyboard_choice: [InputKey.ArrowLeft, InputKey.ArrowRight],
+    keyboard_choice: InputKey.NoKeys,
     button_html: [`<button class='response-btn'></button>`, `<button class='response-btn'></button>`],
     trial_duration: interStimulusInterval,
     response_ends_trial: false,
