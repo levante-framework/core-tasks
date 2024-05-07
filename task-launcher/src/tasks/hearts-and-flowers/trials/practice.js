@@ -1,7 +1,7 @@
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
 import { mediaAssets } from '../../..';
 import store from 'store2';
-import { jsPsych } from '../../taskSetup';
+import { jsPsych, isTouchScreen } from '../../taskSetup';
 import {
   StimulusType,
   StimulusSideType,
@@ -57,7 +57,7 @@ export function buildInstructionPracticeTrial(stimulusType, promptText, promptAu
 
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
-    keyboard_choices: [InputKey.ArrowLeft, InputKey.ArrowRight],
+    keyboard_choices: isTouchScreen? InputKey.NoKeys : [InputKey.ArrowLeft, InputKey.ArrowRight],
     button_html: [`<button class='response-btn'></button>`, `<button class='response-btn'></button>`],
     on_finish: (data) => {
       // console.log('data in practice: ', data)
@@ -199,12 +199,14 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
     keyboard_choices: () => {
+      if (isTouchScreen) return InputKey.NoKeys;
+      //else: allow keyboard input
       if (store.session.get('correct') === false) {
         const validAnswerPosition = getCorrectInputSide(store.session.get('stimulus'), store.session.get('side'));
         return validAnswerPosition === 0?
           InputKey.ArrowLeft : InputKey.ArrowRight;
       } else {
-        return 'ALL_KEYS';
+        return InputKey.AllKeys;
       }
     },
     button_html: () => {
