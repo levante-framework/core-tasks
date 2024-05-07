@@ -106,18 +106,16 @@ function buildInstructionTrial(mascotImage, promptAudio, promptText, buttonText,
     type: jsPsychAudioMultiResponse,
     stimulus: promptAudio,
     prompt:
-      `<div id='stimulus-container'>
+      `<div id='instructions-centered-prompt-container'>
         <h2>${promptText}</h2>
         <div id='${replayButtonHtmlId}'>
           ${replayButtonSvg}
         </div>
-        <div class='centered-container-haf'>
-          <img
-            id='instruction-graphic'
-            src=${mascotImage}
-            alt='Instruction graphic'
-          />
-        </div>
+        <img
+          class='instructions-centered-image'
+          src=${mascotImage}
+          alt='Instructions graphic'
+        />
         ${bottomText ? `<h2>${bottomText}</h2>` : ''}
       </div>`,
     prompt_above_buttons: true,
@@ -127,6 +125,9 @@ function buildInstructionTrial(mascotImage, promptAudio, promptText, buttonText,
       `<button class='secondary-button'>
         <p>${buttonText}</p>
       </button>`.trim(),],
+    on_load: (_) => {
+      document.getElementById('jspsych-content').classList.add('instructions-screen');
+    },
   };
   overrideAudioTrialForReplayableAudio(trial, jsPsych.pluginAPI, replayButtonHtmlId);
   return trial;

@@ -133,6 +133,34 @@ $border-color: #0f3cac;
     width: $button-width-secondary;
   }
 
+  // Instructions heights for a centered instructions screen with up to:
+  // - 1 title
+  // - 1 media container
+  // - 1 subtitle
+  // - 1 secondary button
+  /*
+    These are based on approximate measurement taken from the figma.
+    We here set the height of the prompt container and use 'space-evenly' to 
+    spread the rest of the space around it and the button container.
+    in relative units. 
+    Then within the prompt container, we just set the image height and spread
+    the rest of the space via space-between.
+  */
+  $instructions-centered-prompt-container-height: 69vh;
+  $instructions-centered-image-height: 37vh;
+
+  .instructions-centered-image {
+    max-height: $instructions-centered-image-height;
+  }
+
+  #instructions-centered-prompt-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    height: $instructions-centered-prompt-container-height;
+  }
+
   .jspsych-content-wrapper {
     height: 100%;
     width: 100%;
@@ -147,6 +175,10 @@ $border-color: #0f3cac;
       flex-direction: column;
       justify-content: center;
       align-items: center;
+
+      &.instructions-screen { // spread out jsPsych stimulu/prompt container and button containers
+        justify-content: space-evenly;
+      }
 
       #fullscreen {
         width: 80vw;
@@ -248,11 +280,6 @@ $border-color: #0f3cac;
 
         #instruction-graphic {
           width: 40%;
-        }
-
-        .centered-container-haf {
-          display: flex;
-          justify-content: center;
         }
 
         #prompt-container-text {
