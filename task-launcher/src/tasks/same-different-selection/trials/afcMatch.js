@@ -4,8 +4,11 @@ import store from 'store2';
 import { jsPsych } from '../../taskSetup';
 import { prepareChoices, replayButtonDiv, setupReplayAudio } from '../../shared/helpers';
 import { camelize } from '@bdelab/roar-utils';
+import { finishExperiment } from '../../shared/trials';
+import { numIncorrect } from './stimulus';
 
 let selectedCards = [];
+let previousSelections = [];
 
 export const afcMatch = {
   type: jsPsychAudioMultiResponse,
@@ -104,39 +107,82 @@ export const afcMatch = {
       corpusTrialType: stim.trialType,
       answer: stim.answer || "No answer provided",
       response: selectedCards,
-      correct: true,
+      distractors: stim.distractors,
+      item: stim.item,
     });
 
-    // const shapes = ["square", "triangle", "circle"];
-    // const sizes = ["sm", "med", "lg"];
-    // const colors = ["red", "green", "blue"];
+    if (stim.audioFile.split('-')[2] === 'prompt1') {
+      // Prompt 1 is the start and prompt 2 trials are when the selections
+      // Must be different from previous selections
+      previousSelections = [];
+    }
+
+    // First check amongst the selections if they all share one trait
+    // Second check if any previous selections used those EXACT same selections
+    // At least one selection must be different from previous selections
 
 
-    // if (stim.requiredSelections == 2 &&
-    //     stim.sameDifferent === 'same'
-    //    ) 
-    // {
-    //   // Compare if strings in selectedCards are the same in any way
-    //   // A string is the same if it shares the  same shape, size, or color
-    //   const splitCards = selectedCards.map(card => card.split('-'));
-
-      
-    //   if (sameShape && sameSize && sameColor) {
-    //     data.correct = true;
-    //   }
-
-    // } else if (stim.requiredSelections == 2 && 
-    //            stim.sameDifferent === 'different'
-    //           ) 
-    // {
+    function compareSelections(selections, previousSelections) {  
+      const parsedSelections = selections.map(sel => sel.split("-"));
   
-    // } else if (stim.requiredSelections == 3 && 
-    //            stim.sameDifferent === 'same' && 
-    //            affix === 'one way'
-    //           ) 
-    // {
+      // Check if all selections share at least one common trait
+      function sharedTrait(selections) {
+          const sizesAt = selections.map(sel => sel[0]);
+          const colorsAt = selections.map(sel => sel[1]);
+          const shapesAt = selections.map(sel => sel[2]);
+          const numsAt = selections.map(sel => sel[3]);
+  
+          const sizeSet = new Set(sizesAt);
+          const colorSet = new Set(colorsAt);
+          const shapeSet = new Set(shapesAt);
+          
+          let numSet = new Set();
+
+          if (numsAt[0]) {
+            numSet.add(numsAt);
+          }
+  
+          return sizeSet.size === 1 || colorSet.size === 1 || shapeSet.size === 1 || numSet.size === 1;
+      }
+  
+      // Check if any selection is different from all previous selections
+      function hasNewSelection(selections, previousSelections) {
+          // If there are no previous selections, every current selection is considered new
+          if (!previousSelections || previousSelections.length === 0) {
+              return true;
+          }
+
+          const allPrevious = new Set(previousSelections);
+          return selections.some(sel => !allPrevious.has(sel));
+      }
+  
+      // Perform checks
+      const traitShared = sharedTrait(parsedSelections);
+      const containsNew = hasNewSelection(selections, previousSelections);
+  
+      return traitShared && containsNew;
+    }
+
+    const isCorrect = compareSelections(selectedCards, previousSelections);
+
+    if (!isCorrect) {
+      numIncorrect.transact('numIncorrect', (n) => n + 1);
+    } else {
+      numIncorrect('numIncorrect', 0);
+    }
+
+    const maxIncorrect = store.session.get('config').maxIncorrect;
+
+    if (numIncorrect('numIncorrect') == maxIncorrect) {
+      finishExperiment();
+    }
     
-    // }
+    
+    jsPsych.data.addDataToLastTrial({
+      correct: isCorrect,
+    });
+
+    previousSelections.push(...selectedCards);
 
     selectedCards = [];
   },

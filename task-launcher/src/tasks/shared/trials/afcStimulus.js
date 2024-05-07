@@ -169,6 +169,8 @@ function getButtonChoices(task) {
     stimulus.task === 'Mental Rotation'
       ? prepareChoices(answer, distractors, false)
       : prepareChoices(answer, distractors);
+
+  // TODO: Don't think we need this since we set vars in prepareChoices
   store.session.set('target', answer);
   store.session.set('choices', trialInfo.choices);
 
