@@ -7,7 +7,9 @@ import {
   StimulusSideType,
   InputKey,
   getCorrectInputSide,
-  getStimulusLayout
+  getStimulusLayout,
+  inputButtonClasses,
+  inputButtons
 } from '../helpers/utils';
 import { replayButtonSvg, overrideAudioTrialForReplayableAudio } from '../helpers/audioTrials';
 
@@ -58,7 +60,7 @@ export function buildInstructionPracticeTrial(stimulusType, promptText, promptAu
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
     keyboard_choices: [InputKey.ArrowLeft, InputKey.ArrowRight],
-    button_html: [`<button class='response-btn'></button>`, `<button class='response-btn'></button>`],
+    button_html: inputButtons,
     on_finish: (data) => {
       // console.log('data in practice: ', data)
 
@@ -211,10 +213,10 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
       if (store.session.get('correct') === false) {
         const validAnswerPosition = getCorrectInputSide(store.session.get('stimulus'), store.session.get('side'));
         return validAnswerPosition === 0 ? // is valid answer on the left?
-        [`<button class='response-btn' id='${validAnswerButtonHtmlIdentifier}'></button>`, `<button class='response-btn'></button>`]
-        : [`<button class='response-btn'></button>`, `<button class='response-btn' id='${validAnswerButtonHtmlIdentifier}'></button>`];
+        [`<button class='${inputButtonClasses}' id='${validAnswerButtonHtmlIdentifier}'></button>`, `<button class='${inputButtonClasses}'></button>`]
+        : [`<button class='${inputButtonClasses}'></button>`, `<button class='${inputButtonClasses}' id='${validAnswerButtonHtmlIdentifier}'></button>`];
       } else {
-        return `<button class='response-btn' style='display: none;'></button>`;
+        return `<button class='${inputButtonClasses}' style='display: none;'></button>`;
       }
     },
     trial_ends_after_audio: () => {

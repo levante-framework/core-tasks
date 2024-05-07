@@ -7,7 +7,8 @@ import {
   ResponseSideType,
   InputKey,
   getCorrectInputSide,
-  getStimulusLayout
+  getStimulusLayout,
+  inputButtons
 } from '../helpers/utils';
 import store from 'store2';
 import shuffle from 'lodash/shuffle';
@@ -41,7 +42,7 @@ export function stimulus(isPractice, stage, stimulusDuration, onTrialFinishTimel
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
     keyboard_choices: [InputKey.ArrowLeft, InputKey.ArrowRight],
-    button_html: [`<div class='response-btn'></div>`, `<div class='response-btn'></div>`],
+    button_html: inputButtons,
     //TODO: save whether answer is correct/incorrect to fix practice feedback
     //TODO: check data is saved properly
     on_finish: (data) => {
