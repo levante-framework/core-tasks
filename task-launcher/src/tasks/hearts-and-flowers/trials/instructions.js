@@ -124,7 +124,7 @@ function buildInstructionTrial(mascotImage, promptAudio, promptText, buttonText,
     keyboard_choices: InputKey.AllKeys,
     button_choices: ['Next'],
     button_html:[
-      `<button class='next-btn'>
+      `<button class='secondary-button'>
         <p>${buttonText}</p>
       </button>`.trim(),],
   };
