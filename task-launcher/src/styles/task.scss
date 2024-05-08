@@ -800,10 +800,8 @@ $border-color: #0f3cac;
 
       .parent-stimulus-hf {
         .instruction-container {
+          @include frame-style;
           display: flex;
-          border: 3px solid #275BDD;
-          border-radius: 32px;
-          background-color: #fff;
           text-align: center;
           justify-content: center;
           width: $hf-components-width;
@@ -816,11 +814,9 @@ $border-color: #0f3cac;
         }
 
         #stimulus-container-hf {
-          border: 3px solid #275BDD;
-          border-radius: 32px;
+          @include frame-style;
           display: flex;
           justify-content: space-between;
-          background-color: #fff;
           width: $hf-components-width;
           height: $hf-stimulus-frame-height;
           margin: auto;
@@ -843,9 +839,7 @@ $border-color: #0f3cac;
       }
 
       #fixation-container-hf {
-        border: 2px solid black;
-        border-radius: 32px;
-        background-color: #fff;
+        @include frame-style;
         display: flex;
         justify-content: center;
         align-items: center;
