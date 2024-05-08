@@ -837,12 +837,8 @@ $border-color: #0f3cac;
         display: flex;
         flex-direction: column;
         align-items: center;
-        font-size: 2rem;
-        color: #0f3cac;
-
-        p {
-          margin-top: 16px;
-        }
+        justify-content: space-evenly;
+        height: 50vh; // it's akwardly seating on top of an invisible button container
       }
 
       .parent-stimulus-hf {

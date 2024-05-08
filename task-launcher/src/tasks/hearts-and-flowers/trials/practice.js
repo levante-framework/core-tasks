@@ -171,7 +171,7 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
           </div>
           <div class='cr-container-hf'>
             <img src='${mediaAssets.images.smilingFace}' />
-            <p>${correctPrompt}</p>
+            <h2>${correctPrompt}</h2>
           </div>
         `;
       }
