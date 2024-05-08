@@ -126,7 +126,11 @@ function buildInstructionTrial(mascotImage, promptAudio, promptText, buttonText,
         <p>${buttonText}</p>
       </button>`.trim(),],
     on_load: (_) => {
+      // Careful the jspsych-content div sticks around between trials so we need to remove this class when we are done
       document.getElementById('jspsych-content').classList.add('instructions-screen');
+    },
+    on_finish: (_) => {
+      document.getElementById('jspsych-content').classList.remove('instructions-screen');
     },
   };
   overrideAudioTrialForReplayableAudio(trial, jsPsych.pluginAPI, replayButtonHtmlId);
