@@ -55,11 +55,14 @@ export const initSharedConfig = async (firekit, gameParams, userParams, displayE
     stimulusBlocks: stimulusBlocks ?? 3,
     numOfPracticeTrials: numOfPracticeTrials ?? 2,
     maxIncorrect: maxIncorrect ?? 3,
-    keyHelpers: keyHelpers ?? true,
+    keyHelpers: keyHelpers ?? false,
     language:  language ?? i18next.language,
-    maxTime: maxTime || null, // default is no time limit
+    maxTime: maxTime || 10, // default to 10-minute time limit
     storeItemId: storeItemId,
   };
+
+// getTaskConfig() # returns default
+//getTaskConfig({maxTime: 10})
 
   store.session.set('pid', userParams.pid);
 
