@@ -180,6 +180,10 @@ $border-color: #0f3cac;
         justify-content: space-evenly;
       }
 
+      &.stack-from-bottom { // for HaF we want to stack things from the bottom to prevent the components from moving around between trials
+        justify-content: flex-end;
+      }
+
       #fullscreen {
         width: 80vw;
         text-align: center;
@@ -752,64 +756,19 @@ $border-color: #0f3cac;
       // ----------------------------------------------------------------------------
       // Hearts and Flowers
 
-      #header {
-        color: #0f3cac;
-      }
+      // $hf-instruction-frame-height: 22vh; // TODO: apply as max height?
+      $hf-stimulus-frame-height: 36vh;
+      $hf-response-button-height: 16vh;
+      $hf-space-around-btn-grp: 8vh;
 
-      //TODO: remove this one as it looks like it's no longer in use
-      .go-btn {
-        background-color: white;
-        width: 15vw;
-        height: 7vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 1rem;
-        border: none;
-        cursor: pointer;
-        transition: 0.3s;
-
-        &:hover {
-          background-color: #3e8e41;
-          color: white;
-          cursor: pointer;
-        }
-
-        p {
-          margin: 0;
-          font-size: 2rem;
-        }
-      }
-
-      .next-btn {
-        background-color: red;
-        width: 15vw;
-        height: 7vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 1rem;
-        border: none;
-        cursor: pointer;
-        transition: 0.4s;
-        margin-top: 16px;
-
-        &:hover {
-          background-color: rgb(220, 3, 3);
-        }
-
-        p {
-          margin: 0;
-          font-size: 2rem;
-          color: white;
-        }
-      }
+      $hf-components-width: 70vw;
 
       .btn-layout-hf {
         display: flex;
+        width: 100%; // take full width of parent and spread it via 'space-around'
         justify-content: space-around;
-        margin-top: 8vw;
-        width: 100%;
+        margin-top: $hf-space-around-btn-grp;
+        margin-bottom: $hf-space-around-btn-grp;
         
         @keyframes pulse {
           0%, 100% {
@@ -821,14 +780,12 @@ $border-color: #0f3cac;
         }
 
         .response-btn {
-          margin: 10px;
-          // padding: 15px 45px;
           text-align: center;
           text-transform: uppercase;
-          color: white;            
+          color: white;
           display: block;
-          width: 10vw;
-          height: 10vw;
+          width: $hf-response-button-height;
+          height: $hf-response-button-height;
           cursor: pointer;
         }
       }
@@ -849,7 +806,7 @@ $border-color: #0f3cac;
           background-color: #fff;
           text-align: center;
           justify-content: center;
-          width: 70vw;
+          width: $hf-components-width;
           margin: 16px auto;
 
           .practice-text {
@@ -864,8 +821,8 @@ $border-color: #0f3cac;
           display: flex;
           justify-content: space-between;
           background-color: #fff;
-          width: 70vw;
-          height: 40vh;
+          width: $hf-components-width;
+          height: $hf-stimulus-frame-height;
           margin: auto;
   
           .stimulus-left {
@@ -892,8 +849,8 @@ $border-color: #0f3cac;
         display: flex;
         justify-content: center;
         align-items: center;
-        width: 70vw;
-        height: 40vh;
+        width: $hf-components-width;
+        height: $hf-stimulus-frame-height;
 
         #fixation {
           font-size: 7vh;
