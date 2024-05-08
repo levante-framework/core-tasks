@@ -38,7 +38,6 @@ export class TaskLauncher {
       }
 
     }
-    console.log('mediaAssets:', mediaAssets)
 
     const config = await initConfig(this.firekit, this.gameParams, this.userParams, this.displayElement);
 

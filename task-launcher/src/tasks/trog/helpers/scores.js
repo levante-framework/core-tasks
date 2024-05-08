@@ -1,8 +1,6 @@
 import _mapValues from 'lodash/mapValues';
 import store from 'store2';
 
-// Taken from Letter, Adjust for multichoice
-
 /**
  * This function calculates computed scores given raw scores for each subtask.
  *

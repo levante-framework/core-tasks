@@ -5,6 +5,7 @@ import _isUndefined from 'lodash/isUndefined';
 import i18next from 'i18next';
 import { camelize } from '@bdelab/roar-utils';
 import store from 'store2';
+import {isRoarApp} from "./isRoarApp.js";
 
 const defaultCorpus = {
   egmaMath: 'math-item-bank',
@@ -59,8 +60,8 @@ export const initSharedConfig = async (firekit, gameParams, userParams, displayE
     language: language ?? i18next.language,
     maxTime: maxTime || null, // default is no time limit
     storeItemId: storeItemId,
+    isRoarApp: isRoarApp(firekit)
   };
-
   store.session.set('pid', userParams.pid);
 
   // For memory game

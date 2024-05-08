@@ -2,7 +2,7 @@ import { jsPsych } from '../../taskSetup';
 import taskConfig from '../../taskConfig';
 import { dashToCamelCase } from './dashToCamelCase';
 import cloneDeep from 'lodash/cloneDeep';
-import { computedScoreCallback } from '../../trog/scores';
+import { computedScoreCallback } from '../../trog/helpers/scores';
 
 export const initTrialSaving = (config) => {
   if (config.displayElement) {
@@ -38,7 +38,7 @@ export const initTrialSaving = (config) => {
       dataCopy.responseSource = data.response_source;
       delete dataCopy.trial_index;
       delete dataCopy.trial_type;
-      if (config.task === 'trog') {
+      if (config.isRoarApp) {
         config.firekit.writeTrial(dataCopy, computedScoreCallback);
       } else {
         config.firekit.writeTrial(dataCopy);
