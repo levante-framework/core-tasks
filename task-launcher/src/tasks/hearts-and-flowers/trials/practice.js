@@ -9,7 +9,7 @@ import {
   getCorrectInputSide,
   getStimulusLayout
 } from '../helpers/utils';
-import { replayButtonSvg, overrideAudioTrialForReplayableAudio } from '../helpers/audioTrials';
+import { replayButtonSvg, overrideAudioTrialForReplayableAudio } from '../../shared/helpers/replayAudio';
 
 /**
  * Builds a practice trial for the Instruction sections.

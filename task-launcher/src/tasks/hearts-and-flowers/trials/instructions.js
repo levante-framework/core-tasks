@@ -4,7 +4,7 @@ import { mediaAssets } from '../../..';
 import store from 'store2';
 import { jsPsych, isTouchScreen} from '../../taskSetup';
 import { InputKey } from '../helpers/utils';
-import { replayButtonSvg, overrideAudioTrialForReplayableAudio } from '../helpers/audioTrials';
+import { replayButtonSvg, overrideAudioTrialForReplayableAudio } from '../../shared/helpers/replayAudio';
 
 // These are the instruction "trials" they are full screen with no stimulus
 

@@ -1,4 +1,4 @@
-import { replayButtonSvg } from './audioTrials';
+import { replayButtonSvg } from '../../shared/helpers/replayAudio';
 
 export const StimulusType = Object.freeze({
   Heart: 'heart',
