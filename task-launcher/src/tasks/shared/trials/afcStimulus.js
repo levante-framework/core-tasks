@@ -570,7 +570,7 @@ function doOnFinish(data, task) {
     });
   }
 
-  if (store.session.get('incorrectTrials') >= store.session.get('config').maxIncorrect) {
+  if ((store.session.get('incorrectTrials') >= store.session.get('config').maxIncorrect) || store.session.get('maxTimeReached')) {
     finishExperiment();
   }
 }
