@@ -35,19 +35,21 @@ export function overrideAudioTrialForReplayableAudio(trial, jsPsychPluginApi, re
       if (trial.audioReplayOverrides.audioReplaySource) {
         return;
       }
-    
+
       const jsPsychAudioCtx = trial.audioReplayOverrides.jsPsychPluginApi.audioContext();
-    
-      const audioAsset = (typeof trial.audioReplayOverrides.promptAudio === 'function') ?
-        trial.audioReplayOverrides.promptAudio() : trial.audioReplayOverrides.promptAudio;
+
+      const audioAsset =
+        typeof trial.audioReplayOverrides.promptAudio === 'function'
+          ? trial.audioReplayOverrides.promptAudio()
+          : trial.audioReplayOverrides.promptAudio;
       console.log(`replaying audioId=${audioAsset}`);
       const audioBuffer = await trial.audioReplayOverrides.jsPsychPluginApi.getAudioBuffer(audioAsset);
-    
+
       const audioSource = jsPsychAudioCtx.createBufferSource();
       audioSource.buffer = audioBuffer;
       audioSource.connect(jsPsychAudioCtx.destination);
       audioSource.start(0);
-    
+
       audioSource.onended = () => {
         // signal that replay audio is not playing
         trial.audioReplayOverrides.audioReplaySource = null;

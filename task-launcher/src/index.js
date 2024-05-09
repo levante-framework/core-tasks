@@ -1,8 +1,7 @@
 import store from 'store2';
-import { isTaskFinished } from './tasks/shared/helpers';
+import { isTaskFinished, getMediaAssets, dashToCamelCase } from './tasks/shared/helpers';
 import './styles/task.scss';
 import taskConfig from './tasks/taskConfig';
-import { getMediaAssets, dashToCamelCase } from './tasks/shared/helpers';
 
 export let mediaAssets;
 export class TaskLauncher {
@@ -18,13 +17,8 @@ export class TaskLauncher {
 
     const { taskName, language } = this.gameParams;
 
-    const { 
-      initConfig, 
-      initStore, 
-      loadCorpus, 
-      buildTaskTimeline, 
-      getTranslations 
-    } = taskConfig[dashToCamelCase(taskName)];
+    const { initConfig, initStore, loadCorpus, buildTaskTimeline, getTranslations } =
+      taskConfig[dashToCamelCase(taskName)];
 
     // GCP bucket names use a format like egma-math
     // will avoid language folder if not provided
@@ -42,7 +36,7 @@ export class TaskLauncher {
       } catch (error) {
         throw new Error('Error fetching media assets: ', error);
       }
-      
+
     }
 
     const config = await initConfig(this.firekit, this.gameParams, this.userParams, this.displayElement);

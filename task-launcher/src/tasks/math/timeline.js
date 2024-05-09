@@ -6,11 +6,11 @@ import { jsPsych, initializeCat } from '../taskSetup';
 // trials
 import { slider } from './trials/sliderStimulus';
 import {
-  afcStimulusWithTimeoutCondition, 
-  exitFullscreen, 
-  getAudioResponse, 
+  afcStimulusWithTimeoutCondition,
+  exitFullscreen,
+  getAudioResponse,
   setupStimulus,
-  taskFinished 
+  taskFinished,
 } from '../shared/trials';
 import { instructions1, instructions2 } from './trials/instructions';
 
@@ -60,22 +60,18 @@ export default function buildMathTimeline(config, mediaAssets) {
     },
   };
 
-  const pushSubTaskToTimeline = (fixationAndSetupBlock, stimulusBlockCount,) => {
+  const pushSubTaskToTimeline = (fixationAndSetupBlock, stimulusBlockCount) => {
     for (let i = 0; i < stimulusBlockCount.length; i++) {
-      const subTaskTimeline = []
+      const subTaskTimeline = [];
       // This is one block of subtask trials. ex. number-identification
       const subTaskBlock = {
         timeline: subTaskTimeline,
       };
 
       for (let j = 0; j < stimulusBlockCount[i]; j++) {
-        // add trials to the block (this is the core procedure for each stimulus)        
+        // add trials to the block (this is the core procedure for each stimulus)
         const stimulusBlock = {
-          timeline: [
-            afcStimulusBlock, 
-            sliderBlock, 
-            ifRealTrialResponse
-          ],
+          timeline: [afcStimulusBlock, sliderBlock, ifRealTrialResponse],
           conditional_function: () => {
             if (store.session.get('skipCurrentTrial')) {
               store.session.set('skipCurrentTrial', false);
@@ -97,7 +93,7 @@ export default function buildMathTimeline(config, mediaAssets) {
 
   initializeCat();
 
-  pushSubTaskToTimeline(setupStimulus, getStimulusBlockCount(),); // Stimulus Trials
+  pushSubTaskToTimeline(setupStimulus, getStimulusBlockCount()); // Stimulus Trials
 
   timeline.push(taskFinished);
   timeline.push(exitFullscreen);

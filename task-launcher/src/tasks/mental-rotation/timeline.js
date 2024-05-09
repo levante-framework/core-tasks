@@ -9,7 +9,7 @@ import { createPreloadTrials } from '../shared/helpers';
 
 import { afcStimulusWithTimeoutCondition, taskFinished } from '../shared/trials';
 import { imageInstructions, nowYouTry, videoInstructionsFit, videoInstructionsMisfit } from './trials/instructions';
-import { exitFullscreen,  setupStimulusConditional, getAudioResponse } from '../shared/trials';
+import { exitFullscreen, setupStimulusConditional, getAudioResponse } from '../shared/trials';
 
 export default function buildMentalRotationTimeline(config, mediaAssets) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
@@ -36,12 +36,8 @@ export default function buildMentalRotationTimeline(config, mediaAssets) {
     task: config.task,
   };
 
-
   const stimulusBlock = {
-    timeline: [
-      afcStimulusWithTimeoutCondition(trialConfig),
-      ifRealTrialResponse
-    ],
+    timeline: [afcStimulusWithTimeoutCondition(trialConfig), ifRealTrialResponse],
     // true = execute normally, false = skip
     conditional_function: () => {
       if (store.session.get('skipCurrentTrial')) {
@@ -54,8 +50,8 @@ export default function buildMentalRotationTimeline(config, mediaAssets) {
   };
 
   const timeline = [
-    preloadTrials, 
-    initialTimeline, 
+    preloadTrials,
+    initialTimeline,
     //instructions1, // adult instructions
     imageInstructions,
     videoInstructionsMisfit,
@@ -63,10 +59,10 @@ export default function buildMentalRotationTimeline(config, mediaAssets) {
     //nowYouTry,
   ];
 
-  const numOfTrials =  store.session.get('totalTrials')
-  for (let i = 0 ; i < numOfTrials; i++) {
-    timeline.push(setupStimulusConditional)
-    timeline.push(stimulusBlock)
+  const numOfTrials = store.session.get('totalTrials');
+  for (let i = 0; i < numOfTrials; i++) {
+    timeline.push(setupStimulusConditional);
+    timeline.push(stimulusBlock);
   }
 
   initializeCat();
