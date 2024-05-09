@@ -29,7 +29,7 @@ export function overrideAudioTrialForReplayableAudio(trial, jsPsychPluginApi, re
     originalOnFinish: trial.on_finish,
     jsPsychPluginApi,
     promptAudio: trial.stimulus,
-    audioReplaySource: null,
+    audioReplaySource: undefined,
     replayAudioAsyncFunction: async () => {
       // check whether audio is already playing
       if (trial.audioReplayOverrides.audioReplaySource) {
@@ -42,7 +42,7 @@ export function overrideAudioTrialForReplayableAudio(trial, jsPsychPluginApi, re
         typeof trial.audioReplayOverrides.promptAudio === 'function'
           ? trial.audioReplayOverrides.promptAudio()
           : trial.audioReplayOverrides.promptAudio;
-      console.log(`replaying audioId=${audioAsset}`);
+      console.info(`replaying audioId=${audioAsset}`);
       const audioBuffer = await trial.audioReplayOverrides.jsPsychPluginApi.getAudioBuffer(audioAsset);
 
       const audioSource = jsPsychAudioCtx.createBufferSource();
@@ -51,8 +51,10 @@ export function overrideAudioTrialForReplayableAudio(trial, jsPsychPluginApi, re
       audioSource.start(0);
 
       audioSource.onended = () => {
-        // signal that replay audio is not playing
-        trial.audioReplayOverrides.audioReplaySource = null;
+        if (trial.audioReplayOverrides.audioReplaySource) {
+          // signal that replay audio is not playing
+          trial.audioReplayOverrides.audioReplaySource = null;
+        }
       };
       trial.audioReplayOverrides.audioReplaySource = audioSource;
     },
@@ -71,8 +73,9 @@ export function overrideAudioTrialForReplayableAudio(trial, jsPsychPluginApi, re
     }
 
     if (trial.audioReplayOverrides.audioReplaySource) {
-      console.log(`Stopping audio replay because of on_finish`);
+      console.info(`Stopping audio replay because of on_finish`);
       trial.audioReplayOverrides.audioReplaySource.stop();
+      trial.audioReplayOverrides.audioReplaySource = null;
     }
     //TODO: check that memory is not steadily increasing throughout experiment, which
     // would indicate that audio buffer or other objects are not being released properly
