@@ -27,6 +27,7 @@ export function overrideAudioTrialForReplayableAudio(trial, jsPsychPluginApi, re
     replayAudioAsyncFunction: async () => {
       // check whether audio is already playing
       if (trial.audioReplayOverrides.audioReplaySource) {
+        console.info(`replayAudioAsyncFunction: audio is already playing`);
         return;
       }
 
