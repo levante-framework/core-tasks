@@ -206,7 +206,7 @@ export const slider = {
 
           btnWrapper.appendChild(btn);
 
-          if (keyHelpers && !isTouchScreen) {
+          if (keyHelpers && !isTouchScreen && !(buttonLayout === 'default')) {
             // Margin on the actual button element
             btn.style.marginBottom = '.5rem';
 

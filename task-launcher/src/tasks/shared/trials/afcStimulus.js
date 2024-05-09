@@ -443,7 +443,7 @@ function doOnLoad(task) {
         }
       }
 
-      if (keyHelpers && !isTouchScreen) {
+      if (keyHelpers && !isTouchScreen) { // GK: add && !(buttonLayout === 'default') ? (exception: mental rotation)
         // Margin on the actual button element
         el.children[0].style.marginBottom = '.5rem';
 
