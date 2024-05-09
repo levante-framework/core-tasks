@@ -1,8 +1,9 @@
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
 import store from 'store2';
-import { isTouchScreen } from '../../taskSetup';
+import { isTouchScreen, jsPsych } from '../../taskSetup';
 import { mediaAssets } from '../../..';
-import { replayButtonDiv, setupReplayAudio } from '../../shared/helpers';
+import { replayButtonDiv, replayButtonDivId } from '../../shared/helpers';
+import { overrideAudioTrialForReplayableAudio } from '../../shared/helpers/replayAudio';
 
 const instructionData = [
     {
@@ -39,7 +40,7 @@ const instructionData = [
 ]
 
 export const instructions = instructionData.map(data => {
-    return {
+    trial = {
         type: jsPsychAudioMultiResponse,
         stimulus: () => mediaAssets.audio[data.prompt],
         prompt: () => {
@@ -76,6 +77,9 @@ export const instructions = instructionData.map(data => {
             setupReplayAudio(audioSource, data.prompt)
         }
     }
+
+    overrideAudioTrialForReplayableAudio(trial, jsPsych.pluginAPI, replayButtonDivId);
+    return trial;
 })
 
 export const reverseOrderPrompt = instructions.pop()

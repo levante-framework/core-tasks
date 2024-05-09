@@ -21,13 +21,13 @@ export default function buildSameDifferentTimeline(config, mediaAssets) {
 
   const stimulusBlock = {
     timeline: [
-      stimulus
+      stimulus()
     ],
   };
 
   const afcBlock = {
     timeline: [
-      afcMatch
+      afcMatch(),
     ],
   };
 
