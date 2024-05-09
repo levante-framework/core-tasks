@@ -7,7 +7,7 @@ import { initializeCat } from '../taskSetup';
 import { createPreloadTrials } from '../shared/helpers';
 // trials
 
-import { afcStimulusWithTimeoutCondition, taskFinished } from '../shared/trials';
+import { afcStimulus, taskFinished } from '../shared/trials';
 import { imageInstructions, nowYouTry, videoInstructionsFit, videoInstructionsMisfit } from './trials/instructions';
 import { exitFullscreen, setupStimulusConditional, getAudioResponse } from '../shared/trials';
 
@@ -37,7 +37,10 @@ export default function buildMentalRotationTimeline(config, mediaAssets) {
   };
 
   const stimulusBlock = {
-    timeline: [afcStimulusWithTimeoutCondition(trialConfig), ifRealTrialResponse],
+    timeline: [
+      afcStimulusWithTimeoutCondition(trialConfig), 
+      ifRealTrialResponse
+    ],
     // true = execute normally, false = skip
     conditional_function: () => {
       if (store.session.get('skipCurrentTrial')) {

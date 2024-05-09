@@ -4,9 +4,9 @@ import store from 'store2';
 import { initTrialSaving, initTimeline, createPreloadTrials } from '../shared/helpers';
 import { jsPsych, initializeCat } from '../taskSetup';
 // trials
-import {
-  afcStimulusWithTimeoutCondition,
-  exitFullscreen,
+import { 
+  afcStimulus, 
+  exitFullscreen, 
   setupStimulusConditional,
   taskFinished,
 } from '../shared/trials';
@@ -25,7 +25,9 @@ export default function buildMatrixTimeline(config, mediaAssets) {
   };
 
   const stimulusBlock = {
-    timeline: [afcStimulusWithTimeoutCondition(trialConfig)],
+    timeline: [
+      afcStimulusWithTimeoutCondition(trialConfig) 
+    ],
     // true = execute normally, false = skip
     conditional_function: () => {
       if (store.session.get('skipCurrentTrial')) {
