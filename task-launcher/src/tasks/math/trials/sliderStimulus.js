@@ -1,7 +1,7 @@
 import HTMLSliderResponse from '@jspsych/plugin-html-slider-response';
 import _shuffle from 'lodash/shuffle';
 import _toNumber from 'lodash/toNumber';
-import { jsPsych } from '../../taskSetup';
+import { jsPsych, isTouchScreen } from '../../taskSetup';
 import { camelize } from '@bdelab/roar-utils';
 import store from 'store2';
 import { isPractice } from '../../shared/helpers';
@@ -206,7 +206,7 @@ export const slider = {
 
           btnWrapper.appendChild(btn);
 
-          if (keyHelpers) {
+          if (keyHelpers && !isTouchScreen) {
             // Margin on the actual button element
             btn.style.marginBottom = '.5rem';
 
