@@ -62,6 +62,7 @@ export const initSharedConfig = async (firekit, gameParams, userParams, displayE
     storeItemId: storeItemId,
     isRoarApp: isRoarApp(firekit)
   };
+
   store.session.set('pid', userParams.pid);
 
   // For memory game

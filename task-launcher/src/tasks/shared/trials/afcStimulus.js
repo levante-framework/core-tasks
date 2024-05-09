@@ -587,7 +587,7 @@ export const afcStimulus = ({ trialType, responseAllowed, promptAboveButtons, ta
         save_trial: true,
         // In order for ROAR to write computed scores to the run doc in the correct format,
         // assessment_stage must be explicitly "test_response" or "practice_response"
-        assessment_stage: task === 'trog' ? 'test_response' : store.session.get('nextStimulus').task,
+        assessment_stage: store.session.get('config').isRoarApp ? 'test_response' : store.session.get('nextStimulus').task,
         // not for firekit
         isPracticeTrial: store.session.get('nextStimulus').notes === 'practice',
       };
