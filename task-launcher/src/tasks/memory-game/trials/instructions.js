@@ -26,61 +26,75 @@ const instructionData = [
         image: 'catAvatar',
         buttonText: 'continueButtonText',
     },
-    {
-        prompt: 'memoryGameInstruct5',
-        image: 'catAvatar',
-        buttonText: 'continueButtonText',
-        bottomText: 'memoryGameInstruct7',
-    },
-    {
-        prompt: 'memoryGameBackwardPrompt',
-        image: 'highlightedBlock',
-        buttonText: 'continueButtonText',
-    },
 ]
 
-export const instructions = instructionData.map(data => {
-    trial = {
-        type: jsPsychAudioMultiResponse,
-        stimulus: () => mediaAssets.audio[data.prompt],
-        prompt: () => {
-            const t = store.session.get('translations');
-            return `<div id='stimulus-container'>
-                        ${replayButtonDiv}
-                        <div id='prompt-container-text'>
-                            <h1 id='prompt'>${t[data.prompt]}</h1>
-                        </div>
+export function getReadyToPlayInstruction() {
+    const t = store.session.get('translations');
+    const promptKey = 'memoryGameInstruct5';
+    const promptAudio = mediaAssets.audio[promptKey];
+    const promptText = t[promptKey];
+    const buttonText = t['continueButtonText'];
+    const video = undefined;
+    const image = mediaAssets.images['catAvatar'];
+    const bottomText = undefined;
+    return getInstructionTrial(promptAudio, promptText, buttonText, video, image, bottomText);
+}
 
-                        ${data.video ? 
-                            `<video id='instruction-video' autoplay loop>
-                                <source src=${mediaAssets.video[data.video]} type='video/mp4'>
-                            </video>` :
-                            `<img id='instruction-graphic' src=${mediaAssets.images[data.image]} alt='Instruction graphic'/>`
-                        }
-                        
-                        ${data.bottomText ? `<footer id='footer'>${t[data.bottomText]}</footer>` : ''}
-                    </div>`;
-        },
+export function getReverseOrderPromptInstruction() {
+    const t = store.session.get('translations');
+    const promptKey = 'memoryGameBackwardPrompt';
+    const promptAudio = mediaAssets.audio[promptKey];
+    const promptText = t[promptKey];
+    const buttonText = t['continueButtonText'];
+    const video = undefined;
+    const image = mediaAssets.images['highlightedBlock'];
+    const bottomText = t['memoryGameInstruct7'];
+    return getInstructionTrial(promptAudio, promptText, buttonText, video, image, bottomText);
+}
+
+export function getInitialInstructionTrials() {
+    const instructions = instructionData.map(data => {
+        const t = store.session.get('translations');
+        const promptAudio = mediaAssets.audio[data.prompt];
+        const promptText = t[data.prompt];
+        const buttonText = t[data.buttonText];
+        const video = data.video ? mediaAssets.video[data.video] : undefined;
+        const image = data.image ? mediaAssets.images[data.image] : undefined;
+        const bottomText = data.bottomText ? t[data.bottomText] : undefined;
+        return getInstructionTrial(promptAudio, promptText, buttonText, video, image, bottomText);
+    });
+    
+    return instructions;
+}
+
+function getInstructionTrial(promptAudio, promptText, buttonText, video=undefined, image=undefined, bottomText=undefined) {
+    if (video && image) throw new Error('Cannot have both video and image in instruction');
+    else if (!video && !image) throw new Error('Must have either video or image in instruction');
+
+    const trial = {
+        type: jsPsychAudioMultiResponse,
+        stimulus: promptAudio,
+        prompt: `<div id='stimulus-container'>
+                    ${replayButtonDiv}
+                    <div id='prompt-container-text'>
+                        <h1 id='prompt'>${promptText}</h1>
+                    </div>
+
+                    ${video ?
+                        `<video id='instruction-video' autoplay loop>
+                            <source src=${video} type='video/mp4'>
+                        </video>`
+                        : `<img id='instruction-graphic' src=${image} alt='Instruction graphic'/>`
+                    }
+                    
+                    ${bottomText ? `<footer id='footer'>${bottomText}</footer>` : ''}
+                </div>`,
         prompt_above_buttons: true,
         button_choices: ['Next'],
-        button_html: () => {
-            const t = store.session.get('translations');
-            return [
-            `<button id='continue-btn'>
-                ${t[data.buttonText]}
-            </button>`,
-            ]
-        },
+        button_html: `<button id='continue-btn'>${buttonText}</button>`,
         keyboard_choices: () => isTouchScreen ? 'NO_KEYS' : 'ALL_KEYS',
-        on_load: () => {
-            let audioSource
-            setupReplayAudio(audioSource, data.prompt)
-        }
     }
 
     overrideAudioTrialForReplayableAudio(trial, jsPsych.pluginAPI, replayButtonDivId);
     return trial;
-})
-
-export const reverseOrderPrompt = instructions.pop()
-export const readyToPlay = instructions.pop()
+}
