@@ -83,7 +83,7 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false}) {
           numCorrect = 0;
         }
 
-        if (store.session.get('incorrectTrials') == 3 || store.session.get('maxTimeReached')) {
+        if ((store.session.get('incorrectTrials') == store.session.get('config').maxIncorrect) || store.session.get('maxTimeReached')) {
           finishExperiment();
         }
 
