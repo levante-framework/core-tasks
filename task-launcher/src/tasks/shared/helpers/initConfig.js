@@ -63,6 +63,9 @@ export const initSharedConfig = async (firekit, gameParams, userParams, displayE
     isRoarApp: isRoarApp(firekit)
   };
 
+// getTaskConfig() # returns default
+//getTaskConfig({maxTime: 10})
+
   store.session.set('pid', userParams.pid);
 
   // For memory game
