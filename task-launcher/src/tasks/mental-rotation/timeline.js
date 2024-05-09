@@ -38,7 +38,7 @@ export default function buildMentalRotationTimeline(config, mediaAssets) {
 
   const stimulusBlock = {
     timeline: [
-      afcStimulusWithTimeoutCondition(trialConfig), 
+      afcStimulus(trialConfig), 
       ifRealTrialResponse
     ],
     // true = execute normally, false = skip

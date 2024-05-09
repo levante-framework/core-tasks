@@ -576,7 +576,7 @@ function doOnFinish(data, task) {
 }
 
 // { trialType, responseAllowed, promptAboveButtons, task }
-export const afcStimulus = ({ trialType, responseAllowed, promptAboveButtons, task } = {}) => {
+export const afcStimulusTemplate = ({ trialType, responseAllowed, promptAboveButtons, task } = {}) => {
   // TODO: pull out task-specific parameters (e.g., getPrompt(.., showPrompt=false) for Number Identification, TROG, ..)
   return {
     type: jsPsychAudioMultiResponse,
@@ -608,50 +608,10 @@ export const afcStimulus = ({ trialType, responseAllowed, promptAboveButtons, ta
   };
 };
 
-export const afcCondtional = ({ trialType, responseAllowed, promptAboveButtons, task } = {}) => {
+export const afcStimulus = ({ trialType, responseAllowed, promptAboveButtons, task } = {}) => {
   return {
     timeline: [
-      afcStimulus({
-        trialType: trialType,
-        responseAllowed: responseAllowed,
-        promptAboveButtons: promptAboveButtons,
-        task: task,
-      }),
-    ],
-
-    loop_function: () => {
-      const stim = store.session.get('nextStimulus');
-
-      if (stim.notes === 'practice') {
-        // getting data from two trials ago due to setup trial being in the timeline
-        const currentTrialIndex = jsPsych.getProgress().current_trial_global;
-        const twoTrialsAgoIndex = currentTrialIndex - 2;
-
-        // get data from 2 trials ago
-        const twoTrialsAgoStimulus = jsPsych.data.get().filter({ trial_index: twoTrialsAgoIndex }).values();
-        const previousStimulus = jsPsych.data
-          .get()
-          .filter({ trial_index: twoTrialsAgoIndex + 1 })
-          .values();
-        const isTwoTrialsAgoStimCorrect = twoTrialsAgoStimulus[0].correct;
-        const isPreviousStimulusCorrect = previousStimulus[0].correct;
-
-        if (isTwoTrialsAgoStimCorrect || isPreviousStimulusCorrect) {
-          return false;
-        } else {
-          return true;
-        }
-      } else {
-        return false;
-      }
-    },
-  };
-};
-
-export const afcStimulusWithTimeoutCondition = ({ trialType, responseAllowed, promptAboveButtons, task } = {}) => {
-  return {
-    timeline: [
-      afcStimulus({
+      afcStimulusTemplate({
         trialType: trialType,
         responseAllowed: responseAllowed,
         promptAboveButtons: promptAboveButtons,

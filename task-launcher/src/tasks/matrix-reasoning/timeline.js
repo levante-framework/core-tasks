@@ -26,7 +26,7 @@ export default function buildMatrixTimeline(config, mediaAssets) {
 
   const stimulusBlock = {
     timeline: [
-      afcStimulusWithTimeoutCondition(trialConfig) 
+      afcStimulus(trialConfig) 
     ],
     // true = execute normally, false = skip
     conditional_function: () => {
