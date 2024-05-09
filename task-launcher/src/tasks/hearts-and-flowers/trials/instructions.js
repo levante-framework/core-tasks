@@ -4,7 +4,8 @@ import { mediaAssets } from '../../..';
 import store from 'store2';
 import { jsPsych, isTouchScreen} from '../../taskSetup';
 import { InputKey } from '../helpers/utils';
-import { replayButtonSvg, overrideAudioTrialForReplayableAudio } from '../../shared/helpers/replayAudio';
+import { overrideAudioTrialForReplayableAudio } from '../../shared/helpers/replayAudio';
+import { replayButtonDivId, replayButtonSvg } from '../../shared/helpers';
 
 // These are the instruction "trials" they are full screen with no stimulus
 
@@ -101,14 +102,13 @@ function buildInstructionTrial(mascotImage, promptAudio, promptText, buttonText,
     // throw new Error(`Missing prompt text for instruction trial`);
     console.error(`buildInstructionTrial: Missing prompt text`);
   }
-  const replayButtonHtmlId = 'replay-btn';
   const trial = {
     type: jsPsychAudioMultiResponse,
     stimulus: promptAudio,
     prompt:
       `<div id='stimulus-container'>
         <h2>${promptText}</h2>
-        <div id='${replayButtonHtmlId}'>
+        <div id='${replayButtonDivId}'>
           ${replayButtonSvg}
         </div>
         <div class='centered-container-haf'>
@@ -128,6 +128,6 @@ function buildInstructionTrial(mascotImage, promptAudio, promptText, buttonText,
         <p>${buttonText}</p>
       </button>`.trim(),],
   };
-  overrideAudioTrialForReplayableAudio(trial, jsPsych.pluginAPI, replayButtonHtmlId);
+  overrideAudioTrialForReplayableAudio(trial, jsPsych.pluginAPI, replayButtonDivId);
   return trial;
 }

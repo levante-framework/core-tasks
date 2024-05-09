@@ -9,7 +9,8 @@ import {
   getCorrectInputSide,
   getStimulusLayout
 } from '../helpers/utils';
-import { replayButtonSvg, overrideAudioTrialForReplayableAudio } from '../../shared/helpers/replayAudio';
+import { overrideAudioTrialForReplayableAudio } from '../../shared/helpers/replayAudio';
+import { replayButtonDivId, replayButtonSvg } from '../../shared/helpers';
 
 /**
  * Builds a practice trial for the Instruction sections.
@@ -27,7 +28,7 @@ export function buildInstructionPracticeTrial(stimulusType, promptText, promptAu
     // throw new Error(`Missing prompt text for instruction practice trial`);
     console.error(`buildInstructionPracticeTrial: Missing prompt text`);
   }
-  const replayButtonHtmlId = 'replay-btn';
+  const replayButtonHtmlId = replayButtonDivId;
   const validAnswer = getCorrectInputSide(stimulusType, stimulusSideType);
   const trial = {
     type: jsPsychAudioMultiResponse,
@@ -143,7 +144,7 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
       console.error(`buildPracticeFeedback: Missing feedback audio for ${key}`);
     }
   });
-  const replayButtonHtmlId = 'replay-btn';
+  const replayButtonHtmlId = replayButtonDivId;
 
   const trial = {
     type: jsPsychAudioMultiResponse,

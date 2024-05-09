@@ -10,6 +10,7 @@ import {
   isMaxTimeoutReached,
   arrowKeyEmojis,
   replayButtonDiv,
+  replayButtonDivId,
 } from '../../shared/helpers';
 import { mediaAssets } from '../../..';
 import _toNumber from 'lodash/toNumber';
@@ -494,7 +495,7 @@ function doOnLoad(task, _, trialScopedVariables) {
     }
   }
 
-  const replayBtn = document.getElementById('replay-btn');
+  const replayBtn = document.getElementById(replayButtonDivId);
   const audioPromptPath = mediaAssets.audio[camelize(stim.audioFile)];
   replayBtn.addEventListener('click', () => {
       playAudioAsync(audioPromptPath,
