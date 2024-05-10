@@ -6,9 +6,9 @@ import { jsPsych, initializeCat } from '../taskSetup';
 // trials
 import { slider } from './trials/sliderStimulus';
 import {
-  afcStimulusWithTimeoutCondition,
-  exitFullscreen,
-  getAudioResponse,
+  afcStimulus, 
+  exitFullscreen, 
+  getAudioResponse, 
   setupStimulus,
   taskFinished,
 } from '../shared/trials';
@@ -41,7 +41,7 @@ export default function buildMathTimeline(config, mediaAssets) {
 
   const afcStimulusBlock = {
     timeline: [
-      afcStimulusWithTimeoutCondition({
+      afcStimulus({ 
         trialType: 'audio', // or 'html'
         responseAllowed: true,
         promptAboveButtons: true,
