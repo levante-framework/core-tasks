@@ -58,7 +58,7 @@ $border-color: #0f3cac;
   background-size: cover;
 
   // TODO: gather here common color and sizes from figma
-  $cta-font-size: 2rem;
+  $cta-font-size: 6vh;
 
   $button-height: 10vh;
   $button-width-primary: 60vh;
@@ -81,15 +81,15 @@ $border-color: #0f3cac;
   // call to action buttons have a gradient background and a subtle shadow
   // they give feedbacks to the user on hover and click
   @mixin cta-style($background-bottom-color, $background-color, $border-color) {
-    border: 6px solid $border-color;
-    border-radius: 1.5rem;
+    border: 0.6vh solid $border-color;
+    border-radius: 3vh;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     background: linear-gradient(0.95turn, $background-bottom-color 10%, $background-color 50%);
     transition: transform 0.1s, box-shadow 0.3s;
-    box-shadow: 0 3px 7px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 3px 7px rgba(0, 0, 0, 0.5); // using vh makes the shadow opaque: e.g.: 0.3vh 0.7vh rgba(0, 0, 0, 0.5);
   
     &:hover {
       background: linear-gradient(0.95turn, $background-bottom-color 10%, darken($background-color, 5%) 50%);
@@ -112,8 +112,8 @@ $border-color: #0f3cac;
 
   // frame style for instructions and stimuli
   @mixin frame-style() {
-    border: 3px solid $primary-100;
-    border-radius: 32px;
+    border: 0.3vh solid $primary-100;
+    border-radius: 3vh;
     background-color: #fff;
   }
 
