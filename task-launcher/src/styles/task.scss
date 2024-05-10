@@ -63,7 +63,7 @@ $border-color: #0f3cac;
   $button-height: 10vh;
   $button-width-primary: 60vh;
   $button-width-secondary: 40vh;
-
+  
   $frame-border-thickness: 0.4vh;
   $cta-border-thickness: 0.6vh;
   $cta-border-radius: 3vh;
@@ -108,7 +108,7 @@ $border-color: #0f3cac;
       background: linear-gradient(0.45turn, $background-bottom-color 10%, $background-color 50%);
     }
   }
-  
+
   @mixin _cta-style-no-gradient($background-color, $border-color) {
     border: $cta-border-thickness solid $border-color;
     border-radius: $cta-border-radius;
@@ -176,6 +176,19 @@ $border-color: #0f3cac;
     height: $button-square-side-length;
   }
 
+  .square-button-no-gradient-white {
+    @extend .square-button-dimensions;
+    @extend .cta-style-no-gradient-white;
+
+    img {
+      border: none;
+      padding: 0;
+      margin: 0;
+      border-radius: $cta-border-radius;
+      max-height: 100%;
+      max-width: 100%;
+    }
+  }
   // Instructions heights for a centered instructions screen with up to:
   // - 1 title
   // - 1 media container
@@ -1025,22 +1038,6 @@ $border-color: #0f3cac;
       }
 
       // -----------------------------------------------------------------------
-      // TROG
-      .trog-img-btn {
-        background-color: #fff;
-        border: #0f3cac solid 6px;
-        border-radius: 2rem;
-        cursor: pointer;
-
-        img {
-          border: none;
-          width: 20vw;
-          height: 20vw;
-          padding: 0;
-          margin: 0;
-          border-radius: 2rem;
-        }
-      }
 
       // Mental Rotation buttons need to be same width as stimulus-img
       .mental-rotation-img-btn {

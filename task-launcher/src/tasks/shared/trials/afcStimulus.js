@@ -444,7 +444,7 @@ function doOnLoad(task, _, trialScopedVariables) {
       }
 
       if (task === 'trog') {
-        el.children[0].classList.add('trog-img-btn');
+        el.children[0].classList.add('square-button-no-gradient-white');
       } else if (task === 'mental-rotation') {
         el.children[0].classList.add('mental-rotation-img-btn');
         let img = document.getElementById('stimulus-img');
