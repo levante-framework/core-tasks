@@ -803,11 +803,11 @@ $border-color: #0f3cac;
       $hf-response-button-height: 16vh;
       $hf-space-around-btn-grp: 8vh;
 
-      $hf-components-width: 70vw;
+      $hf-components-width: 77vw; // from figma 1054/1366 ~77vw
 
       .btn-layout-hf {
         display: flex;
-        width: 100%; // take full width of parent and spread it via 'space-around'
+        width: $hf-components-width;
         justify-content: space-around;
         margin-top: $hf-space-around-btn-grp;
         margin-bottom: $hf-space-around-btn-grp;
