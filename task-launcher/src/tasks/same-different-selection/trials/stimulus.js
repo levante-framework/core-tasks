@@ -2,8 +2,12 @@ import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-respo
 import store from 'store2';
 import { mediaAssets } from '../../..';
 import { prepareChoices, replayButtonDiv, setupReplayAudio } from '../../shared/helpers';
+import { finishExperiment } from '../../shared/trials';
 import { camelize } from '@bdelab/roar-utils';
 import { jsPsych } from '../../taskSetup';
+
+// This value is only saved in memory. It will reset to 0 when the page is reloaded.
+export const numIncorrect = store.page.namespace('numIncorrect', 0);
 
 export const stimulus = {
   type: jsPsychAudioMultiResponse,
@@ -53,7 +57,7 @@ export const stimulus = {
             }
             <div class='sds-prompt-pyramid-base'>
               ${stim.image.map(shape => {
-                return `<div class='base-image-container'>
+                return `<div class='base-image-container' style='cursor: default;'>
                           <img 
                             src=${mediaAssets.images[camelize(shape)]} 
                             alt=${shape} 
@@ -99,9 +103,39 @@ export const stimulus = {
     setupReplayAudio(audioSource, audioFile);
   },
   on_finish: (data) => {
+    const stim = store.session.get('nextStimulus');
+    const choices = store.session.get('choices');
+
+    // Always need to write correct key because of firekit.
+    // TODO: Discuss with ROAR team to remove this check
+    const isCorrect = data.button_response === store.session.get('correctResponseIdx')
+
+    if (!isCorrect) {
+      numIncorrect.transact('numIncorrect', (n) => n + 1);
+    } else {
+      numIncorrect('numIncorrect', 0);
+    }
+
+    const maxIncorrect = store.session.get('config').maxIncorrect;
+
+    if (numIncorrect('numIncorrect') == maxIncorrect) {
+      finishExperiment();
+    }
+
     jsPsych.data.addDataToLastTrial({
-      correct: true,
+      correct: isCorrect,
     });
 
+    // Only save on ss2 since ss1 is a display trial
+    if (stim.trialType === 'something-same-2' || stim.trialType == 'test-dimensions') {
+      jsPsych.data.addDataToLastTrial({
+        // specific to this trial
+        item: stim.item,
+        answer: stim.answer,
+        distractors: stim.distractors,
+        corpusTrialType: stim.trialType,
+        response: choices[data.button_response],
+      });
+    }
   },
 };

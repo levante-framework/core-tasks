@@ -5,520 +5,901 @@
    "name": "page1",
    "elements": [
     {
+     "type": "html",
+     "name": "ChildSurveyIntro",
+     "html": {
+      "default": "<font face=\"Verdana\" size=\"4\">These questions ask you about how you feel at school and some of the things you do at school. There are no right or wrong answers. Choose the answer that best describes what you think. <b><font face=\"Verdana\" size=\"4\">No, never; Yes, some of the time; Yes, most of the time; Yes, all of the time.<br><br>The first two are for practice.",
+      "es": "<font face=\"Verdana\" size=\"4\">Estas preguntas se refieren a cómo te sientes en la escuela y a lo que haces en la escuela. No hay respuestas correctas ni incorrectas. Elige la respuesta que más se acerque a lo que piensas. <br><b><font face=\"Verdana\" size=\"4\"> No, nunca; Sí, algunas veces; Sí, muchas veces; Sí, siempre. <br><br>Ensaya con las dos primeras preguntas cómo responder."
+     }
+    }
+   ]
+  },
+  {
+   "name": "page2",
+   "elements": [
+    {
      "type": "panel",
      "name": "ChildQuestions",
      "elements": [
       {
        "type": "radiogroup",
        "name": "Example1Comic",
-       "title": "Do you like to read comic books?",
+       "title": {
+        "default": "Do you like to read comic books?",
+        "es": "¿Te gusta leer historietas (comics)?"
+       },
        "choices": [
         {
          "value": "0",
-         "text": "No, never"
+         "text": {
+          "default": "No, never",
+          "es": "No, nunca"
+         }
         },
         {
          "value": "1",
-         "text": "Yes, some of the time"
+         "text": {
+          "default": "Yes, some of the time",
+          "es": "Sí, algunas veces"
+         }
         },
         {
          "value": "2",
-         "text": "Yes, most of the time"
+         "text": {
+          "default": "Yes, most of the time",
+          "es": "Sí, muchas veces"
+         }
         },
         {
          "value": "3",
-         "text": "Yes, always"
+         "text": {
+          "default": "Yes, always",
+          "es": "Sí, siempre"
+         }
         }
        ]
       },
       {
        "type": "radiogroup",
        "name": "Example2Neat",
-       "title": "Are you neat and tidy?",
+       "title": {
+        "default": "Are you neat and tidy at school?",
+        "es": "¿Eres limpio y ordenado en el colegio?"
+       },
        "choices": [
         {
          "value": "0",
-         "text": "No, never"
+         "text": {
+          "default": "No, never",
+          "es": "No, nunca"
+         }
         },
         {
          "value": "1",
-         "text": "Yes, some of the time"
+         "text": {
+          "default": "Yes, some of the time",
+          "es": "Sí, algunas veces"
+         }
         },
         {
          "value": "2",
-         "text": "Yes, most of the time"
+         "text": {
+          "default": "Yes, most of the time",
+          "es": "Sí, muchas veces"
+         }
         },
         {
          "value": "3",
-         "text": "Yes, always"
+         "text": {
+          "default": "Yes, always",
+          "es": "Sí, siempre"
+         }
         }
        ]
       },
       {
        "type": "radiogroup",
        "name": "TeacherNice",
-       "title": "Is your teacher nice to you?",
+       "title": {
+        "default": "Is your teacher nice to you?",
+        "es": "¿Te trata bien tu profesor?"
+       },
        "choices": [
         {
          "value": "0",
-         "text": "No, never"
+         "text": {
+          "default": "No, never",
+          "es": "No, nunca"
+         }
         },
         {
          "value": "1",
-         "text": "Yes, some of the time"
+         "text": {
+          "default": "Yes, some of the time",
+          "es": "Sí, algunas veces"
+         }
         },
         {
          "value": "2",
-         "text": "Yes, most of the time"
+         "text": {
+          "default": "Yes, most of the time",
+          "es": "Sí, muchas veces"
+         }
         },
         {
          "value": "3",
-         "text": "Yes, always"
+         "text": {
+          "default": "Yes, always",
+          "es": "Sí, siempre"
+         }
         }
        ]
       },
       {
        "type": "radiogroup",
        "name": "TeacherLike",
-       "title": "Does your teacher like you?",
+       "title": {
+        "default": "Does your teacher like you?",
+        "es": "¿Le caes bien a tu profesor?"
+       },
        "choices": [
         {
          "value": "0",
-         "text": "No, never"
+         "text": {
+          "default": "No, never",
+          "es": "No, nunca"
+         }
         },
         {
          "value": "1",
-         "text": "Yes, some of the time"
+         "text": {
+          "default": "Yes, some of the time",
+          "es": "Sí, algunas veces"
+         }
         },
         {
          "value": "2",
-         "text": "Yes, most of the time"
+         "text": {
+          "default": "Yes, most of the time",
+          "es": "Sí, muchas veces"
+         }
         },
         {
          "value": "3",
-         "text": "Yes, always"
+         "text": {
+          "default": "Yes, always",
+          "es": "Sí, siempre"
+         }
         }
        ]
       },
       {
        "type": "radiogroup",
        "name": "TeacherListen",
-       "title": "Does your teacher listen to you?",
+       "title": {
+        "default": "Does your teacher listen to you?",
+        "es": "¿Te escucha tu profesor?"
+       },
        "choices": [
         {
          "value": "0",
-         "text": "No, never"
+         "text": {
+          "default": "No, never",
+          "es": "No, nunca"
+         }
         },
         {
          "value": "1",
-         "text": "Yes, some of the time"
+         "text": {
+          "default": "Yes, some of the time",
+          "es": "Sí, algunas veces"
+         }
         },
         {
          "value": "2",
-         "text": "Yes, most of the time"
+         "text": {
+          "default": "Yes, most of the time",
+          "es": "Sí, muchas veces"
+         }
         },
         {
          "value": "3",
-         "text": "Yes, always"
+         "text": {
+          "default": "Yes, always",
+          "es": "Sí, siempre"
+         }
         }
        ]
       },
       {
        "type": "radiogroup",
        "name": "SchoolFun",
-       "title": "Is school fun?",
+       "title": {
+        "default": "Is school fun?",
+        "es": "¿Te diviertes en el colegio?"
+       },
        "choices": [
         {
          "value": "0",
-         "text": "No, never"
+         "text": {
+          "default": "No, never",
+          "es": "No, nunca"
+         }
         },
         {
          "value": "1",
-         "text": "Yes, some of the time"
+         "text": {
+          "default": "Yes, some of the time",
+          "es": "Sí, algunas veces"
+         }
         },
         {
          "value": "2",
-         "text": "Yes, most of the time"
+         "text": {
+          "default": "Yes, most of the time",
+          "es": "Sí, muchas veces"
+         }
         },
         {
          "value": "3",
-         "text": "Yes, always"
+         "text": {
+          "default": "Yes, always",
+          "es": "Sí, siempre"
+         }
         }
        ]
       },
       {
        "type": "radiogroup",
        "name": "SchoolEnjoy",
-       "title": "Do you enjoy school?",
+       "title": {
+        "default": "Do you enjoy school?",
+        "es": "¿Te gusta la escuela?"
+       },
        "choices": [
         {
          "value": "0",
-         "text": "No, never"
+         "text": {
+          "default": "No, never",
+          "es": "No, nunca"
+         }
         },
         {
          "value": "1",
-         "text": "Yes, some of the time"
+         "text": {
+          "default": "Yes, some of the time",
+          "es": "Sí, algunas veces"
+         }
         },
         {
          "value": "2",
-         "text": "Yes, most of the time"
+         "text": {
+          "default": "Yes, most of the time",
+          "es": "Sí, muchas veces"
+         }
         },
         {
          "value": "3",
-         "text": "Yes, always"
+         "text": {
+          "default": "Yes, always",
+          "es": "Sí, siempre"
+         }
         }
        ]
       },
       {
        "type": "radiogroup",
        "name": "SchoolHappy",
-       "title": "Are you happy at school?",
+       "title": {
+        "default": "Are you happy at school?",
+        "es": "¿Te sientes feliz en la escuela?"
+       },
        "choices": [
         {
          "value": "0",
-         "text": "No, never"
+         "text": {
+          "default": "No, never",
+          "es": "No, nunca"
+         }
         },
         {
          "value": "1",
-         "text": "Yes, some of the time"
+         "text": {
+          "default": "Yes, some of the time",
+          "es": "Sí, algunas veces"
+         }
         },
         {
          "value": "2",
-         "text": "Yes, most of the time"
+         "text": {
+          "default": "Yes, most of the time",
+          "es": "Sí, muchas veces"
+         }
         },
         {
          "value": "3",
-         "text": "Yes, always"
+         "text": {
+          "default": "Yes, always",
+          "es": "Sí, siempre"
+         }
         }
        ]
       },
       {
        "type": "radiogroup",
        "name": "SchoolSafe",
-       "title": "Do you feel safe at school?",
+       "title": {
+        "default": "Do you feel safe at school?",
+        "es": "¿Te sientes seguro o segura en el colegio?"
+       },
        "choices": [
         {
          "value": "0",
-         "text": "No, never"
+         "text": {
+          "default": "No, never",
+          "es": "No, nunca"
+         }
         },
         {
          "value": "1",
-         "text": "Yes, some of the time"
+         "text": {
+          "default": "Yes, some of the time",
+          "es": "Sí, algunas veces"
+         }
         },
         {
          "value": "2",
-         "text": "Yes, most of the time"
+         "text": {
+          "default": "Yes, most of the time",
+          "es": "Sí, muchas veces"
+         }
         },
         {
          "value": "3",
-         "text": "Yes, always"
+         "text": {
+          "default": "Yes, always",
+          "es": "Sí, siempre"
+         }
         }
        ]
       },
       {
        "type": "radiogroup",
        "name": "ClassFriends",
-       "title": "Do you have friends in your class?",
+       "title": {
+        "default": "Do you have friends in your class?",
+        "es": "¿Tienes amigos o amigas en tu clase?"
+       },
        "choices": [
         {
          "value": "0",
-         "text": "No, never"
+         "text": {
+          "default": "No, never",
+          "es": "No, nunca"
+         }
         },
         {
          "value": "1",
-         "text": "Yes, some of the time"
+         "text": {
+          "default": "Yes, some of the time",
+          "es": "Sí, algunas veces"
+         }
         },
         {
          "value": "2",
-         "text": "Yes, most of the time"
+         "text": {
+          "default": "Yes, most of the time",
+          "es": "Sí, muchas veces"
+         }
         },
         {
          "value": "3",
-         "text": "Yes, always"
+         "text": {
+          "default": "Yes, always",
+          "es": "Sí, siempre"
+         }
         }
        ]
       },
       {
        "type": "radiogroup",
        "name": "ClassHelp",
-       "title": "Do the kids in your class help you when you need it?",
+       "title": {
+        "default": "Do the kids in your class help you when you need it?",
+        "es": "¿Te ayudan los niños y las niñas de tu clase cuando lo necesitas?"
+       },
        "choices": [
         {
          "value": "0",
-         "text": "No, never"
+         "text": {
+          "default": "No, never",
+          "es": "No, nunca"
+         }
         },
         {
          "value": "1",
-         "text": "Yes, some of the time"
+         "text": {
+          "default": "Yes, some of the time",
+          "es": "Sí, algunas veces"
+         }
         },
         {
          "value": "2",
-         "text": "Yes, most of the time"
+         "text": {
+          "default": "Yes, most of the time",
+          "es": "Sí, muchas veces"
+         }
         },
         {
          "value": "3",
-         "text": "Yes, always"
+         "text": {
+          "default": "Yes, always",
+          "es": "Sí, siempre"
+         }
         }
        ]
       },
       {
        "type": "radiogroup",
        "name": "ClassPlay",
-       "title": "Do the kids in your class play with you?",
+       "title": {
+        "default": "Do the kids in your class play with you?",
+        "es": "¿Los niños y las niñas de tu clase juegan contigo?"
+       },
        "choices": [
         {
          "value": "0",
-         "text": "No, never"
+         "text": {
+          "default": "No, never",
+          "es": "No, nunca"
+         }
         },
         {
          "value": "1",
-         "text": "Yes, some of the time"
+         "text": {
+          "default": "Yes, some of the time",
+          "es": "Sí, algunas veces"
+         }
         },
         {
          "value": "2",
-         "text": "Yes, most of the time"
+         "text": {
+          "default": "Yes, most of the time",
+          "es": "Sí, muchas veces"
+         }
         },
         {
          "value": "3",
-         "text": "Yes, always"
+         "text": {
+          "default": "Yes, always",
+          "es": "Sí, siempre"
+         }
         }
        ]
       },
       {
        "type": "radiogroup",
        "name": "ClassNice",
-       "title": "Are the kids in your class nice to you?",
+       "title": {
+        "default": "Are the kids in your class nice to you?",
+        "es": "¿Los niños y las niñas de tu clase son amables contigo?"
+       },
        "choices": [
         {
          "value": "0",
-         "text": "No, never"
+         "text": {
+          "default": "No, never",
+          "es": "No, nunca"
+         }
         },
         {
          "value": "1",
-         "text": "Yes, some of the time"
+         "text": {
+          "default": "Yes, some of the time",
+          "es": "Sí, algunas veces"
+         }
         },
         {
          "value": "2",
-         "text": "Yes, most of the time"
+         "text": {
+          "default": "Yes, most of the time",
+          "es": "Sí, muchas veces"
+         }
         },
         {
          "value": "3",
-         "text": "Yes, always"
+         "text": {
+          "default": "Yes, always",
+          "es": "Sí, siempre"
+         }
         }
        ]
       },
       {
        "type": "radiogroup",
        "name": "LonelySchool",
-       "title": "Do you feel lonely at school?",
+       "title": {
+        "default": "Do you feel lonely at school?",
+        "es": "¿Te sientes solo o sola en el colegio?"
+       },
        "choices": [
         {
          "value": "0",
-         "text": "No, never"
+         "text": {
+          "default": "No, never",
+          "es": "No, nunca"
+         }
         },
         {
          "value": "1",
-         "text": "Yes, some of the time"
+         "text": {
+          "default": "Yes, some of the time",
+          "es": "Sí, algunas veces"
+         }
         },
         {
          "value": "2",
-         "text": "Yes, most of the time"
+         "text": {
+          "default": "Yes, most of the time",
+          "es": "Sí, muchas veces"
+         }
         },
         {
          "value": "3",
-         "text": "Yes, always"
+         "text": {
+          "default": "Yes, always",
+          "es": "Sí, siempre"
+         }
         }
        ]
       },
       {
        "type": "radiogroup",
        "name": "LearningGood",
-       "title": "Are you good at learning things in school?",
+       "title": {
+        "default": "Are you good at learning things in school?",
+        "es": "¿Eres bueno o buena para aprender en el colegio?"
+       },
        "choices": [
         {
          "value": "0",
-         "text": "No, never"
+         "text": {
+          "default": "No, never",
+          "es": "No, nunca"
+         }
         },
         {
          "value": "1",
-         "text": "Yes, some of the time"
+         "text": {
+          "default": "Yes, some of the time",
+          "es": "Sí, algunas veces"
+         }
         },
         {
          "value": "2",
-         "text": "Yes, most of the time"
+         "text": {
+          "default": "Yes, most of the time",
+          "es": "Sí, muchas veces"
+         }
         },
         {
          "value": "3",
-         "text": "Yes, always"
+         "text": {
+          "default": "Yes, always",
+          "es": "Sí, siempre"
+         }
+        }
+       ]
+      },
+      {
+       "type": "radiogroup",
+       "name": "SchoolGiveUp",
+       "title": {
+        "default": "When schoolwork is hard, do you give up right away?",
+        "es": "Cuando las tareas del colegio son difíciles, ¿te rindes en seguida?"
+       },
+       "choices": [
+        {
+         "value": "0",
+         "text": {
+          "default": "No, never",
+          "es": "No, nunca"
+         }
+        },
+        {
+         "value": "1",
+         "text": {
+          "default": "Yes, some of the time",
+          "es": "Sí, algunas veces"
+         }
+        },
+        {
+         "value": "2",
+         "text": {
+          "default": "Yes, most of the time",
+          "es": "Sí, muchas veces"
+         }
+        },
+        {
+         "value": "3",
+         "text": {
+          "default": "Yes, always",
+          "es": "Sí, siempre"
+         }
         }
        ]
       },
       {
        "type": "radiogroup",
        "name": "ReadingEnjoy",
-       "title": "Do you enjoy doing work in reading?",
+       "title": {
+        "default": "Do you enjoy doing reading activities at school?",
+        "es": "¿Te gusta hacer actividades de lectura en el colegio?"
+       },
        "choices": [
         {
          "value": "0",
-         "text": "No, never"
+         "text": {
+          "default": "No, never",
+          "es": "No, nunca"
+         }
         },
         {
          "value": "1",
-         "text": "Yes, some of the time"
+         "text": {
+          "default": "Yes, some of the time",
+          "es": "Sí, algunas veces"
+         }
         },
         {
          "value": "2",
-         "text": "Yes, most of the time"
+         "text": {
+          "default": "Yes, most of the time",
+          "es": "Sí, muchas veces"
+         }
         },
         {
          "value": "3",
-         "text": "Yes, always"
+         "text": {
+          "default": "Yes, always",
+          "es": "Sí, siempre"
+         }
         }
        ]
       },
       {
        "type": "radiogroup",
        "name": "MathEnjoy",
-       "title": "Do you enjoy doing work in math?",
+       "title": {
+        "default": "Do you enjoy doing math activities at school?",
+        "es": "¿Te gusta hacer actividades de matemáticas en el colegio?"
+       },
        "choices": [
         {
          "value": "0",
-         "text": "No, never"
+         "text": {
+          "default": "No, never",
+          "es": "No, nunca"
+         }
         },
         {
          "value": "1",
-         "text": "Yes, some of the time"
+         "text": {
+          "default": "Yes, some of the time",
+          "es": "Sí, algunas veces"
+         }
         },
         {
          "value": "2",
-         "text": "Yes, most of the time"
+         "text": {
+          "default": "Yes, most of the time",
+          "es": "Sí, muchas veces"
+         }
         },
         {
          "value": "3",
-         "text": "Yes, always"
+         "text": {
+          "default": "Yes, always",
+          "es": "Sí, siempre"
+         }
         }
        ]
       },
       {
        "type": "radiogroup",
        "name": "ReadingGood",
-       "title": "Are you good at reading?",
+       "title": {
+        "default": "Are you good at reading?",
+        "es": "¿Eres bueno o buena para la lectura?"
+       },
        "choices": [
         {
          "value": "0",
-         "text": "No, never"
+         "text": {
+          "default": "No, never",
+          "es": "No, nunca"
+         }
         },
         {
          "value": "1",
-         "text": "Yes, some of the time"
+         "text": {
+          "default": "Yes, some of the time",
+          "es": "Sí, algunas veces"
+         }
         },
         {
          "value": "2",
-         "text": "Yes, most of the time"
+         "text": {
+          "default": "Yes, most of the time",
+          "es": "Sí, muchas veces"
+         }
         },
         {
          "value": "3",
-         "text": "Yes, always"
+         "text": {
+          "default": "Yes, always",
+          "es": "Sí, siempre"
+         }
         }
        ]
       },
       {
        "type": "radiogroup",
        "name": "MathGood",
-       "title": "Are you good at math?",
+       "title": {
+        "default": "Are you good at math?",
+        "es": "¿Eres bueno o buena para las matemáticas?"
+       },
        "choices": [
         {
          "value": "0",
-         "text": "No, never"
+         "text": {
+          "default": "No, never",
+          "es": "No, nunca"
+         }
         },
         {
          "value": "1",
-         "text": "Yes, some of the time"
+         "text": {
+          "default": "Yes, some of the time",
+          "es": "Sí, algunas veces"
+         }
         },
         {
          "value": "2",
-         "text": "Yes, most of the time"
+         "text": {
+          "default": "Yes, most of the time",
+          "es": "Sí, muchas veces"
+         }
         },
         {
          "value": "3",
-         "text": "Yes, always"
+         "text": {
+          "default": "Yes, always",
+          "es": "Sí, siempre"
+         }
         }
        ]
       },
       {
        "type": "radiogroup",
        "name": "GrowthMindSmart",
-       "title": "Some kids think they can get smarter if they work really hard. Do you agree that you can get smarter if you work really hard?",
+       "title": {
+        "default": "Some kids think they can get smarter if they work really hard. Do you think that you can get smarter if you work really hard?",
+        "es": "Algunos niños y niñas piensan que pueden ser más inteligentes si se esfuerzan mucho. ¿Crees que tú puedes ser más inteligente si te esfuerzas mucho?"
+       },
        "choices": [
         {
          "value": "0",
-         "text": "No, never"
+         "text": {
+          "default": "No, never",
+          "es": "No, nunca"
+         }
         },
         {
          "value": "1",
-         "text": "Yes, some of the time"
+         "text": {
+          "default": "Yes, some of the time",
+          "es": "Sí, algunas veces"
+         }
         },
         {
          "value": "2",
-         "text": "Yes, most of the time"
+         "text": {
+          "default": "Yes, most of the time",
+          "es": "Sí, muchas veces"
+         }
         },
         {
          "value": "3",
-         "text": "Yes, always"
+         "text": {
+          "default": "Yes, always",
+          "es": "Sí, siempre"
+         }
         }
        ]
       },
       {
        "type": "radiogroup",
        "name": "GrowthMindRead",
-       "title": "Some kids think they can get better at reading if they work really hard. Do you agree that you can get better at reading if you work really hard?",
+       "title": {
+        "default": "Some kids think they can get better at reading if they work really hard. Do you think that you can get better at reading if you work really hard?",
+        "es": "Algunos niños y niñas creen que pueden mejorar en lectura si se esfuerzan mucho. ¿Crees que tú puedes mejorar en lectura si te esfuerzas mucho?"
+       },
        "choices": [
         {
          "value": "0",
-         "text": "No, never"
+         "text": {
+          "default": "No, never",
+          "es": "No, nunca"
+         }
         },
         {
          "value": "1",
-         "text": "Yes, some of the time"
+         "text": {
+          "default": "Yes, some of the time",
+          "es": "Sí, algunas veces"
+         }
         },
         {
          "value": "2",
-         "text": "Yes, most of the time"
+         "text": {
+          "default": "Yes, most of the time",
+          "es": "Sí, muchas veces"
+         }
         },
         {
          "value": "3",
-         "text": "Yes, always"
+         "text": {
+          "default": "Yes, always",
+          "es": "Sí, siempre"
+         }
         }
        ]
       },
       {
        "type": "radiogroup",
        "name": "GrowthMindMath",
-       "title": "Some kids think they can get better at math if they work really hard. Do you agree that you can get better at math if you work really hard?",
+       "title": {
+        "default": "Some kids think they can get better at math if they work really hard. Do you think that you can get better at math if you work really hard?",
+        "es": "Algunos niños y niñas creen que pueden mejorar en matemáticas si se esfuerzan mucho. ¿Crees que tú puedes mejorar en matemáticas si te esfuerzas mucho?"
+       },
        "choices": [
         {
          "value": "0",
-         "text": "No, never"
+         "text": {
+          "default": "No, never",
+          "es": "No, nunca"
+         }
         },
         {
          "value": "1",
-         "text": "Yes, some of the time"
+         "text": {
+          "default": "Yes, some of the time",
+          "es": "Sí, algunas veces"
+         }
         },
         {
          "value": "2",
-         "text": "Yes, most of the time"
+         "text": {
+          "default": "Yes, most of the time",
+          "es": "Sí, muchas veces"
+         }
         },
         {
          "value": "3",
-         "text": "Yes, always"
+         "text": {
+          "default": "Yes, always",
+          "es": "Sí, siempre"
+         }
         }
        ]
       }
      ],
-     "title": "These questions ask you about how you feel at school and some of the things you do at school. There are no right or wrong answers. Choose the answer that best describes what you think. The first two are for practice.",
      "showQuestionNumbers": "off"
     }
    ]
   }
- ]
+ ],
+ "firstPageIsStarted": true
 }

@@ -13,7 +13,7 @@ export const instructions1 = {
   },
   stimulus: () => {
     const t = store.session.get('translations');
-    return (`
+    return `
     <div class='instructions-container'>
         <h1 class='instructions-title'>${t.instructions}</h1>
 
@@ -22,13 +22,13 @@ export const instructions1 = {
         </p>
 
         <footer>${t.generalFooter}</footer>
-    </div>`)
+    </div>`;
   },
   button_choices: [`Continue`],
   keyboard_choices: 'ALL_KEYS',
   button_html: () => {
     const t = store.session.get('translations');
-    return (`<button id="continue-btn">${t.continueButtonText}</button>`)
+    return `<button id="continue-btn">${t.continueButtonText}</button>`;
   },
   // trial_duration: 1000,
 };
@@ -53,7 +53,7 @@ export const videoInstructionsFit = {
   button_choices: ['Continue'],
   button_html: () => {
     const t = store.session.get('translations');
-    return (`<button id="continue-btn">${t.continueButtonText}</button>`)
+    return `<button id="continue-btn">${t.continueButtonText}</button>`;
   },
   keyboard_choices: 'ALL_KEYS',
   trial_ends_after_audio: false,
@@ -64,7 +64,6 @@ export const videoInstructionsFit = {
     wrapper.style.justifyContent = 'center';
   },
 };
-
 
 export const videoInstructionsMisfit = {
   type: jsPsychAudioMultiResponse,
@@ -84,7 +83,7 @@ export const videoInstructionsMisfit = {
   button_choices: ['Continue'],
   button_html: () => {
     const t = store.session.get('translations');
-    return (`<button id="continue-btn">${t.continueButtonText}</button>`)
+    return `<button id="continue-btn">${t.continueButtonText}</button>`;
   },
   keyboard_choices: 'ALL_KEYS',
   trial_ends_after_audio: false,
@@ -111,7 +110,7 @@ export const imageInstructions = {
   button_choices: ['Continue'],
   button_html: () => {
     const t = store.session.get('translations');
-    return (`<button id="continue-btn">${t.continueButtonText}</button>`)
+    return `<button id="continue-btn">${t.continueButtonText}</button>`;
   },
   keyboard_choices: 'ALL_KEYS',
   trial_ends_after_audio: false,
@@ -123,7 +122,6 @@ export const imageInstructions = {
   },
 };
 
-
 export const nowYouTry = {
   type: jsPsychHTMLMultiResponse,
   data: () => {
@@ -133,19 +131,19 @@ export const nowYouTry = {
   },
   stimulus: () => {
     const t = store.session.get('translations');
-    return (`
+    return `
     <div class='instructions-container'>
         <p>
             ${t.mentalRotationTestInstruct4}
         </p>
         <footer>${t.generalFooter}</footer>
-    </div>`)
+    </div>`;
   },
   button_choices: [`OK`],
   keyboard_choices: 'ALL_KEYS',
   button_html: () => {
     const t = store.session.get('translations');
-    return (`<button id="continue-btn">${t.continueButtonText}</button>`)
+    return `<button id="continue-btn">${t.continueButtonText}</button>`;
   },
   // trial_duration: 1000,
 };

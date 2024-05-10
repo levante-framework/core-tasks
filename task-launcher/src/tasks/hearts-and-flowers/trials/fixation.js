@@ -18,7 +18,7 @@ export function fixation(interStimulusInterval) {
       document.getElementById('jspsych-content').classList.remove('stack-from-bottom');
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
-    keyboard_choice: [InputKey.ArrowLeft, InputKey.ArrowRight],
+    keyboard_choice: InputKey.NoKeys,
     button_html: inputButtons,
     trial_duration: interStimulusInterval,
     response_ends_trial: false,

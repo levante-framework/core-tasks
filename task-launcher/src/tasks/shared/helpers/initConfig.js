@@ -5,6 +5,7 @@ import _isUndefined from 'lodash/isUndefined';
 import i18next from 'i18next';
 import { camelize } from '@bdelab/roar-utils';
 import store from 'store2';
+import {isRoarApp} from "./isRoarApp.js";
 
 const defaultCorpus = {
   egmaMath: 'math-item-bank',
@@ -56,10 +57,14 @@ export const initSharedConfig = async (firekit, gameParams, userParams, displayE
     numOfPracticeTrials: numOfPracticeTrials ?? 2,
     maxIncorrect: maxIncorrect ?? 3,
     keyHelpers: keyHelpers ?? true,
-    language:  language ?? i18next.language,
+    language: language ?? i18next.language,
     maxTime: maxTime || null, // default is no time limit
     storeItemId: storeItemId,
+    isRoarApp: isRoarApp(firekit)
   };
+
+// getTaskConfig() # returns default
+//getTaskConfig({maxTime: 10})
 
   store.session.set('pid', userParams.pid);
 

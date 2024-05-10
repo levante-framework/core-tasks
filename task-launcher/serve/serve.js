@@ -30,7 +30,6 @@ const sequentialPractice = stringToBoolean(urlParams.get('sequentialPractice'), 
 const sequentialStimulus = stringToBoolean(urlParams.get('sequentialStimulus'), true);
 const storeItemId = stringToBoolean(urlParams.get('storeItemId'), false);
 
-
 async function startWebApp() {
   // @ts-ignore
   const appKit = await initializeFirebaseProject(firebaseConfig, 'assessmentApp', 'none');
@@ -83,4 +82,4 @@ async function startWebApp() {
   await signInAnonymously(appKit.auth);
 }
 
-startWebApp();
+await startWebApp();

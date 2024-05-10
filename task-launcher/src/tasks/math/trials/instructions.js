@@ -11,7 +11,7 @@ export const instructions1 = {
   },
   stimulus: () => {
     const t = store.session.get('translations');
-    return (`<div class='instructions-container'>
+    return `<div class='instructions-container'>
         <h1 class='instructions-title'>${t.instructions}</h1>
 
         <p>
@@ -19,13 +19,13 @@ export const instructions1 = {
         </p>
 
         <footer>${t.generalFooter}</footer>
-    </div>`)
+    </div>`;
   },
   button_choices: [`Continue`],
   keyboard_choices: 'ALL_KEYS',
   button_html: () => {
     const t = store.session.get('translations');
-    return (`<button id="continue-btn">${t.continueButtonText}</button>`)
+    return `<button id="continue-btn">${t.continueButtonText}</button>`;
   },
   // trial_duration: 1000,
 };
@@ -40,7 +40,7 @@ export const instructions2 = {
   },
   stimulus: () => {
     const t = store.session.get('translations');
-    return (`<div class='instructions-container'>
+    return `<div class='instructions-container'>
         <h1 class='instructions-title'>${t.instructions}</h1>
 
         <p> 
@@ -48,13 +48,13 @@ export const instructions2 = {
         </p>
 
         <footer>${t.generalFooter}</footer>
-    </div>`)
+    </div>`;
   },
   button_choices: [`Continue`],
   keyboard_choices: 'ALL_KEYS',
   button_html: () => {
     const t = store.session.get('translations');
-    return (`<button id="continue-btn">${t.continueButtonText}</button>`)
+    return `<button id="continue-btn">${t.continueButtonText}</button>`;
   },
   // trial_duration: 1000,
 };
@@ -69,7 +69,7 @@ export const postPractice = {
   },
   stimulus: () => {
     const t = store.session.get('translations');
-    return (`<div class='instructions-container'>
+    return `<div class='instructions-container'>
         <h1 class='instructions-title'>Great job!</h1>
 
         <p>
@@ -77,13 +77,13 @@ export const postPractice = {
         </p>
 
         <footer>${t.generalFooter}</footer>
-    </div>`)
+    </div>`;
   },
   button_choices: [`Continue`],
   keyboard_choices: 'ALL_KEYS',
   button_html: () => {
     const t = store.session.get('translations');
-    return (`<button id="continue-btn">${t.continueButtonText}</button>`)
+    return `<button id="continue-btn">${t.continueButtonText}</button>`;
   },
   // trial_duration: 1000,
 };

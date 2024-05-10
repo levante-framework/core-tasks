@@ -322,7 +322,6 @@ $border-color: #0f3cac;
           border: 3px solid #0f3cac;
           border-radius: 1rem;
         }
-
       }
 
       .practice-correct {
@@ -695,7 +694,8 @@ $border-color: #0f3cac;
         font-size: 1.5rem;
       }
 
-      #replay-btn {// This is also used by the Hearts and Flowers task
+      #replay-btn {
+        // This is also used by the Hearts and Flowers task
         position: absolute;
         top: 20px;
         right: 20px;
@@ -771,7 +771,8 @@ $border-color: #0f3cac;
         margin-bottom: $hf-space-around-btn-grp;
         
         @keyframes pulse {
-          0%, 100% {
+          0%,
+          100% {
             transform: scale(1);
           }
           50% {
@@ -820,7 +821,7 @@ $border-color: #0f3cac;
           width: $hf-components-width;
           height: $hf-stimulus-frame-height;
           margin: auto;
-  
+
           .stimulus-left {
             margin-top: auto;
             margin-bottom: auto;
@@ -917,6 +918,7 @@ $border-color: #0f3cac;
         border: #0f3cac solid 6px;
         border-radius: 2rem;
         margin: 1.5rem auto;
+        cursor: pointer;
 
         img {
           border: none;
@@ -924,6 +926,7 @@ $border-color: #0f3cac;
           padding: 0;
           margin: 0;
           border-radius: 2rem;
+
         }
       }
       
@@ -932,7 +935,6 @@ $border-color: #0f3cac;
         background-color: #fff;
         border: #0f3cac solid 6px;
         border-radius: 2rem;
-        cursor: pointer;
         margin: 1rem auto;
 
         img {
