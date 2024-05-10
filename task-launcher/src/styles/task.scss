@@ -64,6 +64,9 @@ $border-color: #0f3cac;
   $button-width-primary: 60vh;
   $button-width-secondary: 40vh;
 
+  $frame-border-thickness: 0.4vh;
+  $cta-border-thickness: 0.6vh;
+  $cta-border-radius: 3vh;
   $button-square-side-length: 18vh; // from figma 192/1024
   $button-number-font-size: 10vh; // from figma 104/1024
 
@@ -85,8 +88,8 @@ $border-color: #0f3cac;
   // they give feedbacks to the user on hover and click
 
   @mixin _cta-style($background-bottom-color, $background-color, $border-color) {
-    border: 0.6vh solid $border-color;
-    border-radius: 3vh;
+    border: $cta-border-thickness solid $border-color;
+    border-radius: $cta-border-radius;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -107,12 +110,13 @@ $border-color: #0f3cac;
   }
   
   @mixin _cta-style-no-gradient($background-color, $border-color) {
-    border: 0.6vh solid $border-color;
-    border-radius: 3vh;
+    border: $cta-border-thickness solid $border-color;
+    border-radius: $cta-border-radius;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
+    background: $background-color;
     transition: transform 0.1s, box-shadow 0.3s;
     box-shadow: 0 3px 7px rgba(0, 0, 0, 0.5); // using vh makes the shadow opaque: e.g.: 0.3vh 0.7vh rgba(0, 0, 0, 0.5);
   
@@ -145,8 +149,8 @@ $border-color: #0f3cac;
 
   // frame style for instructions and stimuli
   @mixin frame-style() {
-    border: 0.3vh solid $primary-100;
-    border-radius: 3vh;
+    border: $frame-border-thickness solid $primary-100;
+    border-radius: $cta-border-radius;
     background-color: #fff;
   }
 
