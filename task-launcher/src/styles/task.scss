@@ -83,7 +83,8 @@ $border-color: #0f3cac;
   // TODO: gather common components here
   // call to action buttons have a gradient background and a subtle shadow
   // they give feedbacks to the user on hover and click
-  @mixin cta-style($background-bottom-color, $background-color, $border-color) {
+
+  @mixin _cta-style($background-bottom-color, $background-color, $border-color) {
     border: 0.6vh solid $border-color;
     border-radius: 3vh;
     cursor: pointer;
@@ -105,12 +106,41 @@ $border-color: #0f3cac;
     }
   }
   
-  .cta-style-default {
-    @include cta-style($primary-200, $primary-100, $primary-200);
+  @mixin _cta-style-no-gradient($background-color, $border-color) {
+    border: 0.6vh solid $border-color;
+    border-radius: 3vh;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.1s, box-shadow 0.3s;
+    box-shadow: 0 3px 7px rgba(0, 0, 0, 0.5); // using vh makes the shadow opaque: e.g.: 0.3vh 0.7vh rgba(0, 0, 0, 0.5);
+  
+    &:hover {
+      background: darken($background-color, 5%);
+    }
+  
+    &:active {
+      transform: scale(0.97);
+      box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.5);
+      background: darken($background-color, 10%);
+    }
   }
   
-  .cta-style-hf { // for HaF, it's added via javascript
-    @include cta-style($green-200, $green-100, $green-200);
+  .cta-style-default {
+    @include _cta-style($primary-200, $primary-100, $primary-200);
+  }
+  
+  .cta-style-green { // for HaF, it's added via javascript
+    @include _cta-style($green-200, $green-100, $green-200);
+  }
+
+  .cta-style-white {
+    @include _cta-style($grey-50, #fff, $primary-200);
+  }
+
+  .cta-style-no-gradient-white {
+    @include _cta-style-no-gradient(#fff, $primary-200);
   }
 
   // frame style for instructions and stimuli
@@ -136,8 +166,8 @@ $border-color: #0f3cac;
     width: $button-width-secondary;
   }
 
-  .number-button {
-    @extend .cta-style-default;
+  .square-button-dimensions {
+    // cta style is applied separately sometimes via javascript
     width:  $button-square-side-length;
     height: $button-square-side-length;
   }
@@ -493,9 +523,10 @@ $border-color: #0f3cac;
         }
       }
 
-      .math-btn {
-        @extend .number-button;
-        // text //TODO: double check these font attributes against and incorporate to common color palette and font styles
+      .math-btn { //TODO: move the font attributes out of here, assign extended styles from js and eliminate the need for this class
+        @extend .square-button-dimensions;
+        @extend .cta-style-default;
+        // text //TODO: double check these font attributes against common color palette and font styles
         color: #fbfbfd;
         font-family: 'Noto Sans';
         font-size: $button-number-font-size;
@@ -504,7 +535,7 @@ $border-color: #0f3cac;
         line-height: normal;
       }
 
-      .img-btn {
+      .img-btn { //TODO: same as for math-btn: ultimately eliminate the need for this class
         background-color: #fff;
         border: #0f3cac solid 6px;
         border-radius: 2rem;
