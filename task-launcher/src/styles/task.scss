@@ -64,7 +64,7 @@ $border-color: #0f3cac;
   $button-width-primary: 60vh;
   $button-width-secondary: 40vh;
 
-  $button-number-side-length: 18vh; // from figma 192/1024
+  $button-square-side-length: 18vh; // from figma 192/1024
   $button-number-font-size: 10vh; // from figma 104/1024
 
   //common color theme
@@ -138,8 +138,8 @@ $border-color: #0f3cac;
 
   .number-button {
     @extend .cta-style-default;
-    width: $button-number-side-length;
-    height: $button-number-side-length;
+    width:  $button-square-side-length;
+    height: $button-square-side-length;
   }
 
   // Instructions heights for a centered instructions screen with up to:
