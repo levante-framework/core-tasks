@@ -30,6 +30,8 @@ def save_shape(shape, size, color, cardinality):
     # Size mapping
     size_mapping = {35: 'sm', 70: 'med', 105: 'lg'}
     word_size = size_mapping[size]  # Convert size to word label
+    color_mapping = {'red': '#D81B60', 'green': '#004D40', 'blue': '#1E88E5'} # color-blind friendly
+    hex_color = color_mapping[color]
 
     canvas_size = 220
     image = Image.new("RGB", (canvas_size, canvas_size), "white")
@@ -40,7 +42,7 @@ def save_shape(shape, size, color, cardinality):
         if cardinality == 2:
             centers = [(canvas_size // 2, canvas_size // 4), (canvas_size // 2, 3 * canvas_size // 4)]
             for center in centers:
-                draw_shape(draw, shape, center, size, color)
+                draw_shape(draw, shape, center, size, hex_color)
         else:
             centers = [
                 (canvas_size // 2, canvas_size // 4),
@@ -48,22 +50,22 @@ def save_shape(shape, size, color, cardinality):
                 (3 * canvas_size // 4, 3 * canvas_size // 4)
             ]
             for center in centers:
-                draw_shape(draw, shape, center, size, color)
+                draw_shape(draw, shape, center, size, hex_color)
         filename = f"{word_size}-{color}-{shape}-{cardinality}.jpg"
     else:
         center = (canvas_size // 2, canvas_size // 2)
         if shape == 'circle':
-            draw_circle(draw, center, size // 2, color)
+            draw_circle(draw, center, size // 2, hex_color)
         elif shape == 'square':
-            draw_square(draw, center, size, color)
+            draw_square(draw, center, size, hex_color)
         elif shape == 'triangle':
-            draw_triangle(draw, center, size, color)
+            draw_triangle(draw, center, size, hex_color)
         filename = f"{word_size}-{color}-{shape}.jpg"
     image.save(filename)
 
 shapes = ['circle', 'square', 'triangle']
 sizes = [35, 70, 105]
-colors = ['red', 'green', 'blue']
+colors = ['red', 'green', 'blue'] # not color-blind friendly
 cardinalities = [1, 2, 3]
 
 for shape in shapes:
