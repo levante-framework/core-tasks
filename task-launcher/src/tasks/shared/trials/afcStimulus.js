@@ -368,7 +368,7 @@ function doOnLoad(task, _, trialScopedVariables) {
 
         playAudioAsync(feedbackAudio,
           jsPsych.pluginAPI,
-          audioSources,
+          trialScopedVariables.extraAudioSources, 
           ExtraAudioSourceKeys.ButtonFeedback,
         );
       }),
