@@ -41,6 +41,8 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
   let sdsPhase2Count = 0
 
   csvInput.forEach((row) => {
+    // Leaving this here for quick testing of a certain type of trial
+    // if (!row.trial_type.includes('Fraction')) return;
 
     const newRow = {
       source: row.source,

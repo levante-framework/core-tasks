@@ -170,14 +170,15 @@ export function afcMatch() {
 
       const maxIncorrect = store.session.get('config').maxIncorrect;
 
-      if (numIncorrect('numIncorrect') == maxIncorrect) {
-        finishExperiment();
-      }
-      
-      
-      jsPsych.data.addDataToLastTrial({
-        correct: isCorrect,
-      });
+
+    if ((numIncorrect('numIncorrect') == maxIncorrect) || store.session.get('maxTimeReached')) {
+      finishExperiment();
+    }
+    
+    
+    jsPsych.data.addDataToLastTrial({
+      correct: isCorrect,
+    });
 
       previousSelections.push(...selectedCards);
 

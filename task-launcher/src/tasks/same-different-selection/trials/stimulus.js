@@ -90,10 +90,60 @@ export function stimulus() {
         return "<button id='sds-continue-btn'>OK</button>";
       }
 
-      const choices = store.session.get('choices');
-      const allButtons = choices.map((choice, ind) => {
-        const img = mediaAssets.images[camelize(choice)];
-        return`<button class='base-image-container'> <img src=${img} alt='shape' /> </button>`;
+    return choices;
+  },
+  button_html: () => {
+    const stim = store.session.get('nextStimulus');
+    if (stim.trialType == 'something-same-1') {
+      return "<button id='sds-continue-btn'>OK</button>";
+    }
+
+    const choices = store.session.get('choices');
+    const allButtons = choices.map((choice, ind) => {
+      const img = mediaAssets.images[camelize(choice)];
+      return`<button class='base-image-container'> <img src=${img} alt='shape' /> </button>`;
+    });
+
+    return allButtons;
+  },
+  on_load: () => {
+    let audioSource
+    const audioFile = camelize(store.session.get('nextStimulus').audioFile);
+    setupReplayAudio(audioSource, audioFile);
+  },
+  on_finish: (data) => {
+    const stim = store.session.get('nextStimulus');
+    const choices = store.session.get('choices');
+
+    // Always need to write correct key because of firekit.
+    // TODO: Discuss with ROAR team to remove this check
+    const isCorrect = data.button_response === store.session.get('correctResponseIdx')
+
+    if (!isCorrect) {
+      numIncorrect.transact('numIncorrect', (n) => n + 1);
+    } else {
+      numIncorrect('numIncorrect', 0);
+    }
+
+    const maxIncorrect = store.session.get('config').maxIncorrect;
+
+    if ((numIncorrect('numIncorrect') == maxIncorrect) || store.session.get('maxTimeReached')) {
+      finishExperiment();
+    }
+
+    jsPsych.data.addDataToLastTrial({
+      correct: isCorrect,
+    });
+
+    // Only save on ss2 since ss1 is a display trial
+    if (stim.trialType === 'something-same-2' || stim.trialType == 'test-dimensions') {
+      jsPsych.data.addDataToLastTrial({
+        // specific to this trial
+        item: stim.item,
+        answer: stim.answer,
+        distractors: stim.distractors,
+        corpusTrialType: stim.trialType,
+        response: choices[data.button_response],
       });
 
       return allButtons;
