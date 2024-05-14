@@ -101,4 +101,8 @@ export const getStimulusLayout = (imageSrc, isLeft, promptText=undefined, replay
   `
 
   return template;
-}; 
+};
+
+export const inputButtonClasses = `response-btn cta-style-green`
+
+export const inputButtons = [`<button class='${inputButtonClasses}'></button>`, `<button class='${inputButtonClasses}'></button>`];

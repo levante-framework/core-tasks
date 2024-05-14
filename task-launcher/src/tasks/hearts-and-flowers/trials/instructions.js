@@ -106,27 +106,32 @@ function buildInstructionTrial(mascotImage, promptAudio, promptText, buttonText,
     type: jsPsychAudioMultiResponse,
     stimulus: promptAudio,
     prompt:
-      `<div id='stimulus-container'>
+      `<div id='instructions-centered-prompt-container'>
         <h2>${promptText}</h2>
         <div id='${replayButtonHtmlId}'>
           ${replayButtonSvg}
         </div>
-        <div class='centered-container-haf'>
-          <img
-            id='instruction-graphic'
-            src=${mascotImage}
-            alt='Instruction graphic'
-          />
-        </div>
+        <img
+          class='instructions-centered-image'
+          src=${mascotImage}
+          alt='Instructions graphic'
+        />
         ${bottomText ? `<h2>${bottomText}</h2>` : ''}
       </div>`,
     prompt_above_buttons: true,
     keyboard_choices: isTouchScreen? InputKey.NoKeys : [InputKey.SpaceBar, InputKey.Enter],
     button_choices: ['Next'],
     button_html:[
-      `<button class='next-btn'>
+      `<button class='secondary-button'>
         <p>${buttonText}</p>
       </button>`.trim(),],
+    on_load: (_) => {
+      // Careful the jspsych-content div sticks around between trials so we need to remove this class when we are done
+      document.getElementById('jspsych-content').classList.add('instructions-screen');
+    },
+    on_finish: (_) => {
+      document.getElementById('jspsych-content').classList.remove('instructions-screen');
+    },
   };
   overrideAudioTrialForReplayableAudio(trial, jsPsych.pluginAPI, replayButtonHtmlId);
   return trial;

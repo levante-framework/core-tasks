@@ -7,7 +7,9 @@ import {
   StimulusSideType,
   InputKey,
   getCorrectInputSide,
-  getStimulusLayout
+  getStimulusLayout,
+  inputButtonClasses,
+  inputButtons
 } from '../helpers/utils';
 import { replayButtonSvg, overrideAudioTrialForReplayableAudio } from '../helpers/audioTrials';
 
@@ -47,6 +49,7 @@ export function buildInstructionPracticeTrial(stimulusType, promptText, promptAu
     },
     on_load: () => {
       document.getElementById('jspsych-audio-multi-response-btngroup').classList.add('btn-layout-hf');
+      document.getElementById('jspsych-content').classList.add('stack-from-bottom');
 
       //TODO: use alt tag to query the proper button directly
       const buttons = document.querySelectorAll('.response-btn');
@@ -58,8 +61,9 @@ export function buildInstructionPracticeTrial(stimulusType, promptText, promptAu
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
     keyboard_choices: isTouchScreen? InputKey.NoKeys : [InputKey.ArrowLeft, InputKey.ArrowRight],
-    button_html: [`<button class='response-btn'></button>`, `<button class='response-btn'></button>`],
+    button_html: inputButtons,
     on_finish: (data) => {
+      document.getElementById('jspsych-content').classList.remove('stack-from-bottom');
       // console.log('data in practice: ', data)
 
       let response;
@@ -170,7 +174,7 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
           </div>
           <div class='cr-container-hf'>
             <img src='${mediaAssets.images.smilingFace}' />
-            <p>${correctPrompt}</p>
+            <h2>${correctPrompt}</h2>
           </div>
         `;
       }
@@ -189,6 +193,7 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
     prompt_above_buttons: true,
     on_load: () => {
       document.getElementById('jspsych-audio-multi-response-btngroup').classList.add('btn-layout-hf');
+      document.getElementById('jspsych-content').classList.add('stack-from-bottom');
       const buttons = document.querySelectorAll('.response-btn');
       buttons.forEach(button => {
         if (button.id === validAnswerButtonHtmlIdentifier) {
@@ -197,6 +202,9 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
           button.disabled = true;
         }
       });
+    },
+    on_finish: () => {
+      document.getElementById('jspsych-content').classList.remove('stack-from-bottom');
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
     keyboard_choices: () => {
@@ -214,10 +222,10 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
       if (store.session.get('correct') === false) {
         const validAnswerPosition = getCorrectInputSide(store.session.get('stimulus'), store.session.get('side'));
         return validAnswerPosition === 0 ? // is valid answer on the left?
-        [`<button class='response-btn' id='${validAnswerButtonHtmlIdentifier}'></button>`, `<button class='response-btn'></button>`]
-        : [`<button class='response-btn'></button>`, `<button class='response-btn' id='${validAnswerButtonHtmlIdentifier}'></button>`];
+        [`<button class='${inputButtonClasses}' id='${validAnswerButtonHtmlIdentifier}'></button>`, `<button class='${inputButtonClasses}'></button>`]
+        : [`<button class='${inputButtonClasses}'></button>`, `<button class='${inputButtonClasses}' id='${validAnswerButtonHtmlIdentifier}'></button>`];
       } else {
-        return `<button class='response-btn' style='display: none;'></button>`;
+        return `<button class='${inputButtonClasses}' style='display: none;'></button>`;
       }
     },
     trial_ends_after_audio: () => {

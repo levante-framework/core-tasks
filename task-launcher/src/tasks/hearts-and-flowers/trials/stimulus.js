@@ -7,7 +7,8 @@ import {
   ResponseSideType,
   InputKey,
   getCorrectInputSide,
-  getStimulusLayout
+  getStimulusLayout,
+  inputButtons
 } from '../helpers/utils';
 import store from 'store2';
 import shuffle from 'lodash/shuffle';
@@ -38,13 +39,16 @@ export function stimulus(isPractice, stage, stimulusDuration, onTrialFinishTimel
     // stimulus_duration: stimulusDuration,
     on_load: () => {
       document.getElementById('jspsych-html-multi-response-btngroup').classList.add('btn-layout-hf');
+      document.getElementById('jspsych-content').classList.add('stack-from-bottom');
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
     keyboard_choices: isTouchScreen? InputKey.NoKeys : [InputKey.ArrowLeft, InputKey.ArrowRight],
-    button_html: [`<div class='response-btn'></div>`, `<div class='response-btn'></div>`],
+    button_html: inputButtons,
     //TODO: save whether answer is correct/incorrect to fix practice feedback
     //TODO: check data is saved properly
     on_finish: (data) => {
+      document.getElementById('jspsych-content').classList.remove('stack-from-bottom');
+
       const stimulusPosition = jsPsych.timelineVariable('position');
       const stimulusType = jsPsych.timelineVariable('stimulus');
 
