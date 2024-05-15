@@ -6,7 +6,7 @@ def convert_pngs_to_jpgs(source_dir):
     # Ensure the 'original' subdirectory exists
     original_dir = os.path.join(source_dir, 'original')
     os.makedirs(original_dir, exist_ok=True)
-    
+
     # Iterate over all files in the source directory
     for filename in os.listdir(source_dir):
         if filename.endswith('.png'):
@@ -31,7 +31,7 @@ def convert_pngs_to_webps(source_dir):
     # Ensure the 'original' subdirectory exists
     original_dir = os.path.join(source_dir, 'original')
     os.makedirs(original_dir, exist_ok=True)
-    
+
     # Iterate over all files in the source directory
     for filename in os.listdir(source_dir):
         if filename.endswith('.png'):
@@ -56,7 +56,7 @@ def convert_jpgs_to_webps(source_dir):
     # Ensure the 'original' subdirectory exists
     original_dir = os.path.join(source_dir, 'original')
     os.makedirs(original_dir, exist_ok=True)
-    
+
     # Iterate over all files in the source directory
     for filename in os.listdir(source_dir):
         if filename.endswith('.jpg'):
@@ -75,6 +75,7 @@ def convert_jpgs_to_webps(source_dir):
             # Move the original PNG to the 'original' subdirectory
             shutil.move(original_path, os.path.join(original_dir, filename))
     print("JPGs converted to WEBP.")
+
 
 
 convert_pngs_to_webps('shared')
