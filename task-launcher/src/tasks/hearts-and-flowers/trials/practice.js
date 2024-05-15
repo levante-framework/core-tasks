@@ -92,16 +92,16 @@ export function buildInstructionPracticeTrial(stimulusType, promptText, promptAu
  * Builds a feedback trial for cases where the feedback prompt may change only depending on
  * whether the answer was correct or incorrect.
  */
-export function buildStimulusInvariantPracticeFeedback(feedbackPromptIncorrectKey, feedbackPromptCorrectKey) {
-  return buildPracticeFeedback(feedbackPromptIncorrectKey, feedbackPromptCorrectKey, feedbackPromptIncorrectKey, feedbackPromptCorrectKey);
+export function buildStimulusInvariantPracticeFeedback(feedbackPromptIncorrectKey, feedbackPromptCorrectKey, onFinishTimelineCallback=undefined) {
+  return buildPracticeFeedback(feedbackPromptIncorrectKey, feedbackPromptCorrectKey, feedbackPromptIncorrectKey, feedbackPromptCorrectKey, onFinishTimelineCallback);
 }
 
 /**
  * Builds a feedback trial for cases where the feedback prompt may change depending on
  * the stimulus type and whether the answer was correct or incorrect.
  */
-export function buildMixedPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPromptCorrectKey, flowerFeedbackPromptIncorrectKey, flowerfeedbackPromptCorrectKey) {
-  return buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPromptCorrectKey, flowerFeedbackPromptIncorrectKey, flowerfeedbackPromptCorrectKey)
+export function buildMixedPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPromptCorrectKey, flowerFeedbackPromptIncorrectKey, flowerfeedbackPromptCorrectKey, onFinishTimelineCallback=undefined) {
+  return buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPromptCorrectKey, flowerFeedbackPromptIncorrectKey, flowerfeedbackPromptCorrectKey, onFinishTimelineCallback)
 }
 
 //TODO: rely on previous trial data instead of singleton store to pass stimulus type, side and correct answer.
@@ -117,7 +117,8 @@ export function buildMixedPracticeFeedback(heartFeedbackPromptIncorrectKey, hear
 /**
  * Builds a feedback trial for instructions practice trials and practice trials.
  */
-function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPromptCorrectKey, flowerFeedbackPromptIncorrectKey, flowerfeedbackPromptCorrectKey) {
+function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPromptCorrectKey, flowerFeedbackPromptIncorrectKey, flowerfeedbackPromptCorrectKey,
+  onFinishTimelineCallback) {
   const validAnswerButtonHtmlIdentifier = 'valid-answer-btn';
   const feedbackTexts = {
     IncorrectHeart:   store.session.get('translations')[heartFeedbackPromptIncorrectKey],
@@ -226,6 +227,11 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
     response_ends_trial: () => {
       // when showing incorrect feedback, the trial should only end with response
       return store.session.get('correct') === false ? true : false;
+    },
+    on_finish: (data) => {
+      if (onFinishTimelineCallback) {
+        onFinishTimelineCallback(data);
+      }
     },
   };
   overrideAudioTrialForReplayableAudio(trial, jsPsych.pluginAPI, replayButtonHtmlId);
