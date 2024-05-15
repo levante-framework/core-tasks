@@ -101,7 +101,7 @@ export async function getMediaAssets(
   });
 
   if (data.nextPageToken) {
-    return listObjects(bucketName, whitelist, language, data.nextPageToken, categorizedObjects);
+    return getMediaAssets(bucketName, whitelist, language, data.nextPageToken, categorizedObjects);
   } else {
     // console.log({categorizedObjects})
     return categorizedObjects;
