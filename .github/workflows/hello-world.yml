@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - spyne/ci
   pull_request:
     branches:
       - main
