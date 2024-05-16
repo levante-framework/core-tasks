@@ -7,9 +7,15 @@ Collating item banks for all tasks [here](https://docs.google.com/spreadsheets/d
 
 For local testing during development:
 
-```
+```shell
+# the task-launcher directory contains the task apps
 cd task-launcher
-run npm run dev
+
+# install dependencies
+npm install
+
+# run the development server
+npm run dev
 ```
 
 
