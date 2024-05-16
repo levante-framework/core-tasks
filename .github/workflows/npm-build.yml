@@ -1,4 +1,4 @@
-name: npm build
+name: npm install and build
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
       - main
 
 jobs:
-  npmbuild:
+  npm-build:
     runs-on: ubuntu-latest
 
     steps:
