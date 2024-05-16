@@ -22,3 +22,4 @@ jobs:
       - run: npm install
         working-directory: ./task-launcher
       - run: npm run build
+        working-directory: ./task-launcher
