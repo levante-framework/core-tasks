@@ -26,6 +26,14 @@ jobs:
         run: npm install
         working-directory: ./task-launcher
 
+      - name: Cache npm dependencies
+        uses: actions/cache@v3
+        with:
+          path: ./task-launcher/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/task-launcher/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
       - name: Build the project
         run: npm run build
         working-directory: ./task-launcher
