@@ -92,6 +92,7 @@ function getPrompt(task) {
   if (stim.task === 'Mental Rotation' || stim.task === 'Matrix Reasoning') showImageStim = true;
 
   if (stim.trialType === 'instructions' || stim.task === 'instructions' || showImageStim) {
+    if(!stimItem) stimItem = ''; // was undefined in vocab instruction trials
     return (
       `<div id='stimulus-container'>` +
       replayButtonDiv +
