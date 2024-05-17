@@ -5,6 +5,7 @@ import mentalRotationTimeline from './mental-rotation/timeline';
 import heartsAndFlowersTimeline from './hearts-and-flowers/timeline';
 import memoryGameTimeline from './memory-game/timeline';
 import sameDifferentSelectionTimeline from './same-different-selection/timeline';
+import vocabTimeline from './vocab/timeline';
 import tROGTimeline from './trog/timeline';
 import tomTimeline from './theory-of-mind/timeline';
 
@@ -72,6 +73,13 @@ export default {
     getTranslations: getTranslations,
     buildTaskTimeline: tROGTimeline,
     variants: {},
+  },
+  vocab: {
+    initConfig: initSharedConfig,
+    initStore: initSharedStore,
+    loadCorpus: fetchAndParseCorpus,
+    getTranslations: getTranslations,
+    buildTaskTimeline: vocabTimeline,
   },
   theoryOfMind: {
     initConfig: initSharedConfig,
