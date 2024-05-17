@@ -123,6 +123,7 @@ export const fetchAndParseCorpus = async (config) => {
     sameDifferentSelection: `https://storage.googleapis.com/${task}/shared/corpora/${corpus}.csv`,
     trog: `https://storage.googleapis.com/${task}/shared/corpora/${corpus}.csv`,
     theoryOfMind: `https://storage.googleapis.com/${task}/shared/corpora/${corpus}.csv`,
+    vocab: `https://storage.googleapis.com/vocab-test/shared/corpora/${corpus}.csv`,
   };
 
   function downloadCSV(url, i) {

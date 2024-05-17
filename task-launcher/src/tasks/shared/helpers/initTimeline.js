@@ -15,7 +15,7 @@ export const initTimeline = (config) => {
         ...config.userMetadata,
       });
 
-      if (config.task === 'trog') {
+      if (config.task === 'trog' || config.task === 'vocab') {
         initAppTimer();
       }
     },

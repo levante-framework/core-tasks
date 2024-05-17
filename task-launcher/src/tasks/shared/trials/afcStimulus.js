@@ -66,6 +66,7 @@ function getStimulus(trialType) {
     stim.audioFile != '' ||
     stim.trialType === 'Number Identification' ||
     stim.task === 'TROG' ||
+    stim.task === 'vocab' ||
     trialsOfCurrentType < 3
   ) {
     return mediaAssets.audio[camelize(stim.audioFile)];
@@ -112,7 +113,7 @@ function getPrompt(task) {
   }
 
   // just audio - no text prompt/stimulus
-  if (task === 'trog' || stim.trialType === 'Number Identification' || stim.trialType === 'Number Comparison') {
+  if (task === 'vocab' || task === 'trog' || stim.trialType === 'Number Identification' || stim.trialType === 'Number Comparison') {
     return `<div id='stimulus-container'>` + replayButtonDiv + `</div>`;
   }
 
@@ -182,7 +183,7 @@ function getButtonChoices(task) {
   }
 
   if (
-    ['trog', 'matrix-reasoning', 'mental-rotation', 'theory-of-mind'].includes(task) &&
+    ['vocab', 'trog', 'matrix-reasoning', 'mental-rotation', 'theory-of-mind'].includes(task) &&
     stimulus.trialType !== 'instructions'
   ) {
     return generateImageChoices(trialInfo.choices);
@@ -420,7 +421,7 @@ function doOnLoad(task) {
         el.children[0].classList.add('img-btn');
       }
 
-      if (task === 'trog') {
+      if (task === 'trog' || task === 'vocab') {
         el.children[0].classList.add('trog-img-btn');
       } else if (task === 'mental-rotation') {
         el.children[0].classList.add('mental-rotation-img-btn');
