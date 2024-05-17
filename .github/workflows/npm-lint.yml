@@ -1,4 +1,4 @@
-name: npm install and build
+name: npm-lint
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
       - main
 
 jobs:
-  npm-build:
+  npm-lint:
     runs-on: ubuntu-latest
 
     steps:
@@ -33,6 +33,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - name: Build the project
-        run: npm run build
+      - name: Run the linter
+        run: npm run lint
         working-directory: ./task-launcher
