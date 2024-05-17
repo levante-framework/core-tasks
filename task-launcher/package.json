@@ -1,9 +1,9 @@
 {
   "name": "core-tasks",
-  "version": "1.0.0-beta.7",
+  "version": "1.0.0-beta.8",
   "description": "",
-  "main": "lib/index.eb82cd28.js",
-  "module": "lib/index.eb82cd28.js",
+  "main": "lib/index.5f593193.js",
+  "module": "lib/index.5f593193.js",
   "type": "module",
   "files": [
     "lib",
