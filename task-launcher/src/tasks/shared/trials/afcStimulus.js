@@ -23,43 +23,23 @@ let currPracticeChoiceMix = [];
 let currPracticeAnswerIdx;
 let trialsOfCurrentType = 0;
 
+let audioSource;
 let keyboardResponseMap = {};
 // Only used for keyboard responses
 let startTime;
 const incorrectPracticeResponses = [];
 
-
-// Enum for the side the stimulus is shown on and also for button_choices
-const ExtraAudioSourceKeys = Object.freeze({
-  Replay: 'Replay',
-  ButtonFeedback: 'ButtonFeedback',
-  KeyFeedback: 'KeyFeedback',
-  StaggeredButton: 'StaggeredButton',
-});
-
-async function playAudioAsync(audioUri, jsPsychPluginAPI, extraAudioSources, extraAudioSourceKey) {
-  // Don't play audio if it's already playing
-  if (extraAudioSources[extraAudioSourceKey]) {
-    console.info(`Audio is already playing for ${extraAudioSourceKey}`);
-    return;
-  }
-
+const playAudio = async (audioUri) => {
+  const jsPsychAudioCtx = jsPsych.pluginAPI.audioContext();
   // Returns a promise of the AudioBuffer of the preloaded file path.
-  const audioBuffer = await jsPsychPluginAPI.getAudioBuffer(audioUri);
-  const jsPsychAudioCtx = jsPsychPluginAPI.audioContext();
+  const audioBuffer = await jsPsych.pluginAPI.getAudioBuffer(audioUri);
   const audioSource = jsPsychAudioCtx.createBufferSource();
   audioSource.buffer = audioBuffer;
   audioSource.connect(jsPsychAudioCtx.destination);
   audioSource.start(0);
-  extraAudioSources[extraAudioSourceKey] = audioSource;
-  audioSource.onended = () => {
-    if (extraAudioSources[extraAudioSourceKey]) {
-      extraAudioSources[extraAudioSourceKey] = null;
-    }
-  };
 };
 
-function showStaggeredBtnAndPlaySound(btn, jsPsychPluginApi, extraAudioSources) {
+const showStaggeredBtnAndPlaySound = (btn) => {
   btn.style.display = 'flex';
   btn.style.flexDirection = 'column';
   btn.style.alignItems = 'center';
@@ -67,11 +47,7 @@ function showStaggeredBtnAndPlaySound(btn, jsPsychPluginApi, extraAudioSources) 
   const img = btn.getElementsByTagName('img')?.[0];
   if (img) {
     const altValue = img.alt;
-    playAudioAsync(mediaAssets.audio[camelize(altValue)],
-      jsPsychPluginApi,
-      extraAudioSources,
-      ExtraAudioSourceKeys.StaggeredButton,
-    );
+    playAudio(mediaAssets.audio[camelize(altValue)]);
   }
 }
 
@@ -235,7 +211,7 @@ function enableBtns(btnElements) {
   btnElements.forEach((btn) => (btn.disabled = false));
 }
 
-async function keyboardBtnFeedback(e, practiceBtns, stim, jsPsychPluginApi, extraAudioSources) {
+async function keyboardBtnFeedback(e, practiceBtns, stim) {
   let allowedKeys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
 
   if (stim.distractors.length === 1) {
@@ -285,17 +261,21 @@ async function keyboardBtnFeedback(e, practiceBtns, stim, jsPsychPluginApi, extr
       }
     });
 
-    playAudioAsync(feedbackAudio,
-      jsPsychPluginApi,
-      extraAudioSources,
-      ExtraAudioSourceKeys.KeyFeedback,
-    );
+    const jsPsychAudioCtx = jsPsych.pluginAPI.audioContext();
+
+    // Returns a promise of the AudioBuffer of the preloaded file path.
+    const audioBuffer = await jsPsych.pluginAPI.getAudioBuffer(feedbackAudio);
+
+    audioSource = jsPsychAudioCtx.createBufferSource();
+    audioSource.buffer = audioBuffer;
+    audioSource.connect(jsPsychAudioCtx.destination);
+    audioSource.start(0);
   }
 }
 
 let keyboardFeedbackHandler;
 
-function doOnLoad(task, _, trialScopedVariables) {
+function doOnLoad(task) {
   startTime = performance.now();
 
   const stim = store.session.get('nextStimulus');
@@ -306,13 +286,7 @@ function doOnLoad(task, _, trialScopedVariables) {
     const intialDelay = 4000;
     for (const jsResponseEl of parentResponseDiv.children) {
       jsResponseEl.style.display = 'none';
-      setTimeout(() => 
-        showStaggeredBtnAndPlaySound(jsResponseEl,
-          jsPsych.pluginAPI,
-          trialScopedVariables.extraAudioSources,
-        ),
-        intialDelay + 2000 * i
-      );
+      setTimeout(() => showStaggeredBtnAndPlaySound(jsResponseEl), intialDelay + 2000 * i);
       i += 1;
     }
     parentResponseDiv.style.display = 'flex';
@@ -366,18 +340,21 @@ function doOnLoad(task, _, trialScopedVariables) {
           }
         }
 
-        playAudioAsync(feedbackAudio,
-          jsPsych.pluginAPI,
-          audioSources,
-          ExtraAudioSourceKeys.ButtonFeedback,
-        );
+        const jsPsychAudioCtx = jsPsych.pluginAPI.audioContext();
+
+        // Returns a promise of the AudioBuffer of the preloaded file path.
+        const audioBuffer = await jsPsych.pluginAPI.getAudioBuffer(feedbackAudio);
+
+        audioSource = jsPsychAudioCtx.createBufferSource();
+        audioSource.buffer = audioBuffer;
+        audioSource.connect(jsPsychAudioCtx.destination);
+        audioSource.start(0);
       }),
     );
 
     if (!isTouchScreen) {
       function keyboardBtnFeedbackHandler(e) {
-        keyboardBtnFeedback(e, practiceBtns, stim,
-          jsPsych.pluginAPI, trialScopedVariables.extraAudioSources);
+        keyboardBtnFeedback(e, practiceBtns, stim);
       }
 
       keyboardFeedbackHandler = keyboardBtnFeedbackHandler;
@@ -495,26 +472,11 @@ function doOnLoad(task, _, trialScopedVariables) {
     }
   }
 
-  const replayBtn = document.getElementById('replay-btn');
-  const audioPromptPath = mediaAssets.audio[camelize(stim.audioFile)];
-  replayBtn.addEventListener('click', () => {
-      playAudioAsync(audioPromptPath,
-        jsPsych.pluginAPI,
-        trialScopedVariables.extraAudioSources,
-        ExtraAudioSourceKeys.Replay,
-      )
-    }
-  );
+  setupReplayAudio(audioSource, stim.audioFile);
 }
 
-function doOnFinish(data, task, _, trialScopedVariables) {
-  // stop all extra audio sources
-  Object.keys(trialScopedVariables.extraAudioSources).forEach(key => {
-    if (trialScopedVariables.extraAudioSources[key]) {
-      console.info(`doOnFinish: extraAudioSources, stopping ${key}`);
-      trialScopedVariables.extraAudioSources[key].stop();
-    }
-  });
+function doOnFinish(data, task) {
+  if (audioSource) audioSource.stop();
 
   // note: nextStimulus is actually the current stimulus
   const stimulus = store.session('nextStimulus');
@@ -616,14 +578,6 @@ function doOnFinish(data, task, _, trialScopedVariables) {
 // { trialType, responseAllowed, promptAboveButtons, task }
 export const afcStimulus = ({ trialType, responseAllowed, promptAboveButtons, task } = {}) => {
   // TODO: pull out task-specific parameters (e.g., getPrompt(.., showPrompt=false) for Number Identification, TROG, ..)
-  const trialScopedVariables = {
-    extraAudioSources: {
-      [ExtraAudioSourceKeys.Replay]: undefined,
-      [ExtraAudioSourceKeys.ButtonFeedback]: undefined,
-      [ExtraAudioSourceKeys.KeyFeedback]: undefined,
-      [ExtraAudioSourceKeys.StaggeredButton]: undefined,
-    },
-  }
   return {
     type: jsPsychAudioMultiResponse,
     response_allowed_while_playing: responseAllowed,
@@ -648,8 +602,8 @@ export const afcStimulus = ({ trialType, responseAllowed, promptAboveButtons, ta
     },
     button_choices: () => getButtonChoices(task, trialType),
     button_html: () => getButtonHtml(task, trialType),
-    on_load: () => doOnLoad(task, trialType, trialScopedVariables),
-    on_finish: (data) => doOnFinish(data, task, trialType, trialScopedVariables),
+    on_load: () => doOnLoad(task, trialType),
+    on_finish: (data) => doOnFinish(data, task, trialType),
     response_ends_trial: () => (store.session.get('nextStimulus').notes === 'practice' ? false : true),
   };
 };
