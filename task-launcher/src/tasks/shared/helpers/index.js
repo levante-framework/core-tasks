@@ -23,3 +23,4 @@ export * from './fractionToMathML';
 export * from './appTimer';
 export * from './components'
 export * from './replayAudio';
+export * from './loadingScreen';

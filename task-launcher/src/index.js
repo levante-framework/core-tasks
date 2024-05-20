@@ -1,5 +1,5 @@
 import store from 'store2';
-import { isTaskFinished, getMediaAssets, dashToCamelCase } from './tasks/shared/helpers';
+import { isTaskFinished, getMediaAssets, dashToCamelCase, showLevanteLogoLoading, hideLevanteLogoLoading } from './tasks/shared/helpers';
 import './styles/task.scss';
 import taskConfig from './tasks/taskConfig';
 
@@ -51,7 +51,9 @@ export class TaskLauncher {
   }
 
   async run() {
+    showLevanteLogoLoading();
     const { jsPsych, timeline } = await this.init();
+    hideLevanteLogoLoading();
     jsPsych.run(timeline);
     await isTaskFinished(() => this.firekit.run.completed === true);
   }
