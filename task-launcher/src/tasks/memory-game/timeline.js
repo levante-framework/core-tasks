@@ -3,7 +3,7 @@ import { initTimeline, initTrialSaving } from '../shared/helpers';
 import { jsPsych } from '../taskSetup';
 import { initializeCat } from '../taskSetup';
 // trials
-import { instructions, readyToPlay, reverseOrderPrompt } from './trials/instructions';
+import { getInitialInstructionTrials, getReadyToPlayInstruction, getReverseOrderPromptInstruction } from './trials/instructions';
 import { exitFullscreen, feedback } from '../shared/trials';
 import { getCorsiBlocks } from './trials/stimulus';
 
@@ -38,11 +38,11 @@ export default function buildMemoryTimeline(config, mediaAssets) {
 
   const timeline = [
     initialTimeline,
-    ...instructions,
+    ...getInitialInstructionTrials(),
     corsiBlocksPractice,
-    readyToPlay,
+    getReadyToPlayInstruction(),
     corsiBlocksStimulus,
-    reverseOrderPrompt,
+    getReverseOrderPromptInstruction(),
     corsiBlocksReverse,
   ];
 
