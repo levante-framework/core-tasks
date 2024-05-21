@@ -4,7 +4,8 @@ import _toNumber from 'lodash/toNumber';
 import { jsPsych, isTouchScreen } from '../../taskSetup';
 import { camelize } from '@bdelab/roar-utils';
 import store from 'store2';
-import { arrowKeyEmojis } from '../../shared/helpers';
+import { arrowKeyEmojis, isPractice, setSkipCurrentBlock } from '../../shared/helpers';
+import { finishExperiment } from '../../shared/trials';
 
 let chosenAnswer,
   sliderStart,
@@ -210,9 +211,16 @@ export const slider = {
     document.removeEventListener('keydown', captureBtnValue);
 
     const stimulus = store.session.get('nextStimulus');
-
+    console.log('mark://', 'Slider Stimulus', stimulus);
     if (stimulus.trialType === 'Number Line 4afc') {
       data.correct = chosenAnswer === store.session.get('target');
+      if (!isPractice(stimulus.notes)) {
+        if (data.correct) {
+          store.session.set('incorrectTrials', 0);
+        } else {
+          store.session.transact('incorrectTrials', (oldVal) => oldVal + 1);
+        }
+      }
     } else {
       // slider version is an approximation so we can't mark it as true/false
       data.correct = null;
@@ -233,6 +241,8 @@ export const slider = {
       // slider_start: stimulus.item[1] === 1 ? sliderStart / 100 : sliderStart,
       slider_start: sliderStart,
     });
+  
+    setSkipCurrentBlock(stimulus.trialType, finishExperiment);
 
   },
 };
