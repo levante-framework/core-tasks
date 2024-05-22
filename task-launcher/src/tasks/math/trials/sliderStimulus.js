@@ -211,7 +211,6 @@ export const slider = {
     document.removeEventListener('keydown', captureBtnValue);
 
     const stimulus = store.session.get('nextStimulus');
-    console.log('mark://', 'Slider Stimulus', stimulus);
     if (stimulus.trialType === 'Number Line 4afc') {
       data.correct = chosenAnswer === store.session.get('target');
       if (!isPractice(stimulus.notes)) {

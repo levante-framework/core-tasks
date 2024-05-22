@@ -79,7 +79,6 @@ export default function buildMathTimeline(config, mediaAssets) {
             }
             const stim = store.session.get('nextStimulus');
             const skipBlockTrialType = store.page.get('skipCurrentBlock');
-            console.log('mark://', 'conditional Function', {trialType: stim.trialType, skipBlockTrialType});
             if (stim.trialType === skipBlockTrialType) {
               return false;
             } else {
