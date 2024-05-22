@@ -76,6 +76,12 @@ export default function buildMathTimeline(config, mediaAssets) {
             if (store.session.get('skipCurrentTrial')) {
               store.session.set('skipCurrentTrial', false);
               return false;
+            }
+            const stim = store.session.get('nextStimulus');
+            const skipBlockTrialType = store.page.get('skipCurrentBlock');
+            console.log('mark://', 'conditional Function', {trialType: stim.trialType, skipBlockTrialType});
+            if (stim.trialType === skipBlockTrialType) {
+              return false;
             } else {
               return true;
             }
@@ -94,7 +100,6 @@ export default function buildMathTimeline(config, mediaAssets) {
   initializeCat();
 
   pushSubTaskToTimeline(setupStimulus, getStimulusBlockCount()); // Stimulus Trials
-
   timeline.push(taskFinished);
   timeline.push(exitFullscreen);
 

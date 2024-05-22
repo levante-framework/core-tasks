@@ -10,7 +10,8 @@ import {
   isMaxTimeoutReached,
   arrowKeyEmojis,
   replayButtonDiv,
-  setupReplayAudio
+  setupReplayAudio,
+  setSkipCurrentBlock
 } from '../../shared/helpers';
 import { mediaAssets } from '../../..';
 import _toNumber from 'lodash/toNumber';
@@ -572,7 +573,9 @@ function doOnFinish(data, task) {
     });
   }
 
-  if ((store.session.get('incorrectTrials') >= store.session.get('config').maxIncorrect) || store.session.get('maxTimeReached')) {
+  if (task === 'egma-math') {
+    setSkipCurrentBlock(stimulus.trialType, finishExperiment);
+  } else if ((store.session.get('incorrectTrials') >= store.session.get('config').maxIncorrect) || store.session.get('maxTimeReached')) {
     finishExperiment();
   }
 }
