@@ -2,6 +2,7 @@ import 'regenerator-runtime/runtime';
 // setup
 import store from 'store2';
 import { initTrialSaving, initTimeline, createPreloadTrials } from '../shared/helpers';
+import { instructions } from './trials/instructions';
 import { jsPsych, initializeCat } from '../taskSetup';
 // trials
 import { 
@@ -39,7 +40,7 @@ export default function buildMatrixTimeline(config, mediaAssets) {
     },
   };
 
-  const timeline = [preloadTrials, initialTimeline];
+  const timeline = [preloadTrials, initialTimeline, ...instructions];
 
   const numOfTrials = store.session.get('totalTrials');
   for (let i = 0; i < numOfTrials; i++) {
