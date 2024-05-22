@@ -54,5 +54,9 @@ function createJsPsychPreloadObject() {
     images: [],
     audio: [],
     video: [],
+    // TODO: Make LEVANTE loading screen disappear when preload is done
+    // on_finish: () => {
+    //   hideLevanteLogoLoading();
+    // },
   };
 }

@@ -11,11 +11,14 @@ import {
 } from '../helpers/utils';
 import store from 'store2';
 import shuffle from 'lodash/shuffle';
+import { finishExperiment } from '../../shared/trials';
 
 /**
  *TODO: we should perhaps allow {@link https://www.jspsych.org/7.2/overview/media-preloading/#automatic-preloading automatic preload}
   of the stimulus image and modify the DOM nodes that jsPsych creates in on_load?
   */
+const numIncorrect = store.page.namespace('numIncorrect', 0);
+
 export function stimulus(isPractice, stage, stimulusDuration, onTrialFinishTimelineCallback = undefined ) {
   return {
     type: jsPsychHTMLMultiResponse,
@@ -74,6 +77,23 @@ export function stimulus(isPractice, stage, stimulusDuration, onTrialFinishTimel
       // record whether answer was correct or not
       const validAnswer = getCorrectInputSide(stimulusType, stimuluSide)
       data.correct = validAnswer === response;
+
+      if (!isPractice) {
+        if (!data.correct) {  
+          numIncorrect.transact('numIncorrect', (oldVal) => oldVal + 1);
+  
+          console.log('numIncorrect: ', numIncorrect('numIncorrect'));
+        } else {
+          numIncorrect('numIncorrect', 0);
+        }
+      }
+
+      const maxIncorrect = store.session.get('config').maxIncorrect;
+
+      if ((numIncorrect('numIncorrect') == maxIncorrect) || store.session.get('maxTimeReached')) {
+        finishExperiment();
+      }
+
       //TODO: move these to timeline-level callback/variables
       store.session.set('correct', data.correct);
       store.session.set('stimulus', stimulusType);
