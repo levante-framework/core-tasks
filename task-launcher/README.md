@@ -107,3 +107,17 @@ pid: [string] (optional)
 ## How ROAR / LEVANTE Tasks work within the greater ROAD infrastructure
 
 [Data flow diagram](https://miro.com/app/board/uXjVNY-_qDA=/?share_link_id=967374624080)
+
+
+# End to End Testing
+
+We leverage the cypress framework for end to end testing. The tests are located in the `cypress` directory. To run the tests, you can use the following command:
+
+```shell
+# Ensure dependencies are installed
+npm install
+
+# Run the tests
+npx cypress open
+```
+
