@@ -1,6 +1,6 @@
 import store from 'store2';
 
-export const setSkipCurrentBlock = (skipTrialType, finishExperiment) => {
+export const setSkipCurrentBlock = (skipTrialType) => {
   if (!!store.page.get('failedPrimaryTrials') && store.session.get('incorrectTrials') >= 1) {
     store.session.set('incorrectTrials', 0);
     store.page.set('skipCurrentBlock', skipTrialType);
@@ -8,7 +8,5 @@ export const setSkipCurrentBlock = (skipTrialType, finishExperiment) => {
     store.session.set('incorrectTrials', 0);
     store.page.set('skipCurrentBlock', skipTrialType);
     store.page.set('failedPrimaryTrials', true);
-  } else if (store.session.get('maxTimeReached') && finishExperiment) {
-    finishExperiment();
   }
 };

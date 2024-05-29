@@ -9,7 +9,7 @@ import { createPreloadTrials } from '../shared/helpers';
 
 import { afcStimulus, taskFinished } from '../shared/trials';
 import { imageInstructions, nowYouTry, videoInstructionsFit, videoInstructionsMisfit } from './trials/instructions';
-import { exitFullscreen, setupStimulusConditional, getAudioResponse } from '../shared/trials';
+import { exitFullscreen, setupStimulus, getAudioResponse } from '../shared/trials';
 
 export default function buildMentalRotationTimeline(config, mediaAssets) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
@@ -64,7 +64,7 @@ export default function buildMentalRotationTimeline(config, mediaAssets) {
 
   const numOfTrials = store.session.get('totalTrials');
   for (let i = 0; i < numOfTrials; i++) {
-    timeline.push(setupStimulusConditional);
+    timeline.push(setupStimulus);
     timeline.push(stimulusBlock);
   }
 

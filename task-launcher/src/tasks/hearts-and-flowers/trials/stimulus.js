@@ -60,7 +60,6 @@ export function stimulus(isPractice, stage, stimulusDuration, onTrialFinishTimel
       } else {
         const errorMessage = `Invalid response: ${data.button_response} or ${data.keyboard_response} in ${data}`;
         console.error(errorMessage);
-        throw new Error(errorMessage);
       }
       
       // get stimulus side
@@ -90,7 +89,7 @@ export function stimulus(isPractice, stage, stimulusDuration, onTrialFinishTimel
 
       const maxIncorrect = store.session.get('config').maxIncorrect;
 
-      if ((numIncorrect('numIncorrect') == maxIncorrect) || store.session.get('maxTimeReached')) {
+      if ((numIncorrect('numIncorrect') == maxIncorrect)) {
         finishExperiment();
       }
 

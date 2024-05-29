@@ -241,7 +241,7 @@ export const slider = {
       slider_start: sliderStart,
     });
   
-    setSkipCurrentBlock(stimulus.trialType, finishExperiment);
+    setSkipCurrentBlock(stimulus.trialType);
 
   },
 };

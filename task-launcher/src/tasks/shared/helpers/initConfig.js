@@ -59,13 +59,11 @@ export const initSharedConfig = async (firekit, gameParams, userParams, displayE
     maxIncorrect: maxIncorrect ?? 3,
     keyHelpers: keyHelpers ?? true,
     language: language ?? i18next.language,
-    maxTime: maxTime || null, // default is no time limit
+    maxTime: maxTime || 100,
     storeItemId: storeItemId,
     isRoarApp: isRoarApp(firekit)
   };
 
-// getTaskConfig() # returns default
-//getTaskConfig({maxTime: 10})
 
   store.session.set('pid', userParams.pid);
 

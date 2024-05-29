@@ -22,7 +22,6 @@ const maxTime = urlParams.get('maxTime') === null ? null : parseInt(urlParams.ge
 const language = urlParams.get('lng');
 const pid = urlParams.get('pid');
 
-
 // Boolean parameters
 const keyHelpers = stringToBoolean(urlParams.get('keyHelpers')); // GK: shouldn't this default to false?
 const skipInstructions = stringToBoolean(urlParams.get('skip'), true);

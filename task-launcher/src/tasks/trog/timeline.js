@@ -7,7 +7,7 @@ import { jsPsych, initializeCat } from '../taskSetup';
 import { 
   afcStimulus, 
   exitFullscreen, 
-  setupStimulusConditional,
+  setupStimulus,
   taskFinished,
 } from '../shared/trials';
 
@@ -43,7 +43,7 @@ export default function buildTROGTimeline(config, mediaAssets) {
 
   const numOfTrials = store.session.get('totalTrials');
   for (let i = 0; i < numOfTrials; i++) {
-    timeline.push(setupStimulusConditional);
+    timeline.push(setupStimulus);
     timeline.push(stimulusBlock);
   }
 

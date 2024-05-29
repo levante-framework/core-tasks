@@ -1,6 +1,6 @@
 import { enterFullscreen } from '../trials';
 import { makePid } from './makePID';
-import { initAppTimer } from './index';
+import { startAppTimer } from './index';
 import store from 'store2';
 
 export const initTimeline = (config) => {
@@ -15,9 +15,7 @@ export const initTimeline = (config) => {
         ...config.userMetadata,
       });
 
-      if (config.task === 'trog' || config.task === 'vocab') {
-        initAppTimer();
-      }
+      startAppTimer();
     },
   };
 
