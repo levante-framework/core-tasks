@@ -631,6 +631,8 @@ export const afcStimulus = ({ trialType, responseAllowed, promptAboveButtons, ta
       // }
 
       // don't play when skipping trials because app is finished
+      console.log('maxTimeReached in afcStimulus: ', store.session.get('maxTimeReached'));
+
       if (isMaxTimeoutReached()) {
         // timer cleanup
         if (store.session.get('maxTimerId')) {
