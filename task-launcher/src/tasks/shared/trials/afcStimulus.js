@@ -7,7 +7,6 @@ import {
   addItemToSortedStoreList,
   isPractice,
   fractionToMathML,
-  isMaxTimeoutReached,
   arrowKeyEmojis,
   replayButtonDiv,
   setupReplayAudio,
@@ -574,8 +573,8 @@ function doOnFinish(data, task) {
   }
 
   if (task === 'egma-math') {
-    setSkipCurrentBlock(stimulus.trialType, finishExperiment);
-  } else if ((store.session.get('incorrectTrials') >= store.session.get('config').maxIncorrect) || store.session.get('maxTimeReached')) {
+    setSkipCurrentBlock(stimulus.trialType);
+  } else if ((store.session.get('incorrectTrials') >= store.session.get('config').maxIncorrect)) {
     finishExperiment();
   }
 }
@@ -622,27 +621,6 @@ export const afcStimulus = ({ trialType, responseAllowed, promptAboveButtons, ta
         promptAboveButtons: promptAboveButtons,
         task: task,
       }),
-    ],
-    conditional_function: () => {
-      // TO DO if isRoar game parameter is desired
-      // const stim = store.session.get("nextStimulus")
-      // if (stim.notes.startsWith("roar-") && !isRoar) {
-      //     console.log("TO DO roar-only instructions start with roar- in notes field")
-      // }
-
-      // don't play when skipping trials because app is finished
-      console.log('maxTimeReached in afcStimulus: ', store.session.get('maxTimeReached'));
-
-      if (isMaxTimeoutReached()) {
-        // timer cleanup
-        if (store.session.get('maxTimerId')) {
-          clearTimeout(store.session.get('maxTimerId'));
-          store.session.set('maxTimerId', null);
-        }
-        return false;
-      } else {
-        return true;
-      }
-    },
-  };
+    ]
+    }
 };

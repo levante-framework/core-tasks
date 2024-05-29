@@ -118,7 +118,7 @@ export const stimulus = {
 
     const maxIncorrect = store.session.get('config').maxIncorrect;
 
-    if ((numIncorrect('numIncorrect') == maxIncorrect) || store.session.get('maxTimeReached')) {
+    if ((numIncorrect('numIncorrect') == maxIncorrect)) {
       finishExperiment();
     }
 

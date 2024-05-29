@@ -66,25 +66,25 @@ In standalone web app mode, tasks and parameters can be changes through query st
 
 ### Common Parameters
 
-_Note: corpus is no longer a required parameter, each task has it's defaults_
+_Note: All tasks are timed. The default is listed below.
 
 ```
 task: 'egma-math' | 'matrix-reasoning' | 'mental-rotation' | 'hearts-and-flowers' | 'memory-game' | 'same-different-selection' | 'theory-of-mind' | 'trog' [string] (optional)
 age: [number] (optional) ,
-audioFeedback: "neutral" ['string'] (optional),
-skipInstructions: [boolean] (optional),
-sequentialPractice: [boolean] (optional)
-sequentialStimulus: [boolean] (optional)
-corpus: "*task-name-here*-item-bank" [string] (optional),
-buttonLayout: "default" | "grid" | "column" | "diamond" | "triple" [string] (optional),
+audioFeedback: "neutral" ['string'] (optional) {Default: "neutral"},
+skipInstructions: [boolean] (optional) {Default: true},
+sequentialPractice: [boolean] (optional) {Default: true},
+sequentialStimulus: [boolean] (optional) {Default: true},
+corpus: "*task-name-here*-item-bank" [string] (optional) {Default: math-item-bank},
+buttonLayout: "default" | "grid" | "column" | "diamond" | "triple" [string] (optional) {Default: "default"},
 trials: [number] (optional),
-stimulusBlocks: [number] (optional),
-numOfPracticeTrials: [number] (optional),
-maxIncorrect: [number] (optional),
-maxTime: [number] (optional),
-keyHelpers: [boolean] (optional)
-storeItemId: [boolean] (optional)
-pid: [string] (optional)
+stimulusBlocks: [number] (optional) {Default: 3},
+numOfPracticeTrials: [number] (optional) {Default: 2},
+maxIncorrect: [number] (optional) {Default: 3},
+maxTime (minutes): [number] (optional) {Default: 100},
+keyHelpers: [boolean] (optional) {Default: true},
+storeItemId: [boolean] (optional) {Default: false},
+pid: [string] (optional) {Default: random generated string}
 
 ```
 
