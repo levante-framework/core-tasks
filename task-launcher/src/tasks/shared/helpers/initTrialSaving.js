@@ -36,8 +36,8 @@ export const initTrialSaving = (config) => {
       delete dataCopy.keyboard_response;
       delete dataCopy.response_source;
       dataCopy.responseSource = data.response_source;
-      delete dataCopy.trial_index;
       delete dataCopy.trial_type;
+      dataCopy.trialIndex = dataCopy.trial_index;
 
       if (config.isRoarApp) {
         config.firekit.writeTrial(dataCopy, computedScoreCallback);

@@ -237,6 +237,8 @@ export const slider = {
       response: _toNumber(response),
       responseType: responseType,
       distractors: stimulus.distractors,
+      corpusTrialType: stim.trialType,
+      trialIndex: stim.trialIndex,
       // slider_start: stimulus.item[1] === 1 ? sliderStart / 100 : sliderStart,
       slider_start: sliderStart,
     });
