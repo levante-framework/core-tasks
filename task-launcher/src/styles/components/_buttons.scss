@@ -3,62 +3,79 @@
 button {
   &.button-base {
     border-radius: $button-default-border-radius;
+    border-width: $button-default-border-width;
+    border-style: solid;
     text-align: center;
     font-size: $button-default-font-size;
     font-weight: $button-default-font-weight;
     color: $txt-white;
     min-width: 60px;
+    min-height: 60px;
     cursor: pointer;
   }
   &.primary {
     @extend .button-base;
     background: $bg-button-primary;
     padding: $button-primary-padding;
-    border: $button-default-border-width solid $bg-accent_secondary;
+    border-color: $bg-accent_secondary;
     box-shadow: $button-default-box-shadow rgba($bg-accent_secondary, 0.5) inset;
 
     &:hover {
       background: $bg-button-primary-hover;
-      border: $button-default-border-width solid $border-button-primary-hover;
+      border-color: $border-button-primary-hover;
       box-shadow: $button-default-box-shadow rgba($border-button-primary-hover, 0.5) inset;
     }
 
     &:active {
       background: $bg-button-primary-clicked;
-      border: 6px solid $border-button-primary-clicked;
+      border-color: $border-button-primary-clicked;
       box-shadow:$button-default-box-shadow rgba($border-button-primary-clicked, 0.5) inset;
     }
   }
 
   &.secondary {
     @extend .button-base;
-    background: #275BDD;
-    padding: 4vw 4vw;
-    border: 6px solid #0F3CAC;
-    box-shadow: -8px -10px 0px 0px #0F3CAC inset,
-      0px 0px 12px 0px $bg-button-secondary inset;
+    background: $border-accent;
+    padding: $button-secondary-padding;
+    border-color: $bg-accent_secondary;
+    box-shadow: $button-secondary-box-shadow $bg-accent_secondary inset,
+      $button-secondary-inner-shadow $bg-button-secondary inset;
 
     &:hover {
-      background: #2051CB;
-      border: 6px solid #0D3496;
-      box-shadow: -8px -10px 0px 0px #0D3496 inset,
-        0px 0px 12px 0px $bg-button-secondary inset;
+      background: $bg-button-primary-hover;
+      border-color: $border-button-primary-hover;
+      box-shadow: $button-secondary-box-shadow $border-button-primary-hover inset,
+        $button-secondary-inner-shadow $bg-button-secondary inset;
     }
 
     &:active {
-      background: #1D4AB9;
-      border: 6px solid #0B2E83;
-      box-shadow: -8px -10px 0px 0px #0B2E83 inset,
-        0px 0px 12px 0px $bg-button-secondary inset;
+      background: $bg-button-primary-clicked;
+      border-color: $border-button-primary-clicked;
+      box-shadow: $button-secondary-box-shadow $border-button-primary-clicked inset,
+        $button-secondary-inner-shadow $bg-button-secondary inset;
     }
   }
   &.secondary--green {
     @extend .button-base;
     background: $bg-green_base;
-    padding: 4vw 4vw;
-    border: 6px solid $border-green_dark;
-    box-shadow: -8px -10px 0px 0px $border-green_dark inset,
-      0px 0px 12px 0px $bg-button-secondary inset;
+    padding: $button-secondary-padding;
+    border-color: $border-green_dark;
+    box-shadow: $button-secondary-box-shadow $border-green_dark inset,
+      $button-secondary-inner-shadow $bg-green-gradient inset;
+
+    &:hover {
+      background: $bg-green-base-hover;
+      border-color: $border-button-green-hover;
+      box-shadow: $button-secondary-box-shadow $border-button-green-hover inset,
+        $button-secondary-inner-shadow $bg-green-gradient inset;
+    }
+
+    &:active {
+      background: $bg-green-base-clicked;
+      border-color: $border-button-green-clicked;
+      box-shadow: $button-secondary-box-shadow $border-button-green-clicked inset,
+        $button-secondary-inner-shadow $bg-green-gradient inset;
+    }
   }
 
 }
