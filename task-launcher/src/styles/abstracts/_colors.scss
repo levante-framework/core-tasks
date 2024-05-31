@@ -1,9 +1,13 @@
 $bg-button-primary: #275BDD;
+$bg-button-primary-hover: #2051CB;
+$bg-button-primary-clicked: #1D4AB9;
 $bg-accent_secondary: #0F3CAC;
 $bg-button-secondary: #D4DEF8;
 $bg-button-shadow: #E7ECF7;
 $bg-green_dark: #5BA300;
 $bg-green_base: #89CE00;
+$bg-green-base-hover: #7AB800;
+$bg-green-base-clicked: #70A800;
 $bg-black_base: #010D18;
 $bg-grey-light: #EDEDED;
 $bg-bubble-base: #FFFFFF;
@@ -24,6 +28,10 @@ $txt-white: #FBFBFD;
 
 $border-grey: #BDBDBD;
 $border-button-accent: #0F3CAC;
+$border-button-primary-hover: #0D3496;
+$border-button-primary-clicked: #0B2E83;
+$border-button-secondary-hover: #4D8A00;
+$border-button-secondary-clicked: #539400;
 $border-button-secondary: #A0BBFF;
 $border-green_dark: #5BA300;
 $border-accent: #275BDD;
