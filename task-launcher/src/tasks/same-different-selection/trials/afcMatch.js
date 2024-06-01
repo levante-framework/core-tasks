@@ -105,7 +105,7 @@ export const afcMatch = {
     // save data
     jsPsych.data.addDataToLastTrial({
       corpusTrialType: stim.trialType,
-      answer: stim.answer || "No answer provided",
+      answer: stim.answer || null,
       response: selectedCards,
       distractors: stim.distractors,
       item: stim.item,
