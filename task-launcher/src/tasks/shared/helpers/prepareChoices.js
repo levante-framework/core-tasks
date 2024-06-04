@@ -1,8 +1,8 @@
 import _shuffle from 'lodash/shuffle';
 import store from 'store2';
-import { mediaAssets } from '../../..';
+import { fractionToMathML } from './';
 
-export const prepareChoices = (target, distractors, randomizeOrder = true) => {
+export const prepareChoices = (target, distractors, randomizeOrder = true, trialType) => {
   let choices;
   if (!target || distractors.includes(target)) { // If target is not present, don't add to options
     choices = [...distractors];
@@ -15,8 +15,13 @@ export const prepareChoices = (target, distractors, randomizeOrder = true) => {
     choices = _shuffle(choices);
   }
 
+  if (trialType === 'Fraction') {
+    store.session.set('nonFractionSelections', choices);
+    choices = choices.map((choice) => fractionToMathML(choice));
+  }
+
   // Update session variables
-  const correctResponseIdx = choices.indexOf(target); // Find the new index of the target
+  const correctResponseIdx = trialType === 'Fraction' ? store.session('nonFractionSelections').indexOf(target) : choices.indexOf(target);
   store.session.set('target', target);
   store.session.set('correctResponseIdx', correctResponseIdx);
   store.session.set('choices', choices);
