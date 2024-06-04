@@ -165,22 +165,12 @@ function getButtonChoices(task) {
   const { answer, distractors } = stimulus;
   let trialInfo =
     stimulus.task === 'Mental Rotation'
-      ? prepareChoices(answer, distractors, false)
-      : prepareChoices(answer, distractors);
-
-  // TODO: Don't think we need this since we set vars in prepareChoices
-  store.session.set('target', answer);
-  store.session.set('choices', trialInfo.choices);
+      ? prepareChoices(answer, distractors, false, stimulus.trialType)
+      : prepareChoices(answer, distractors, true, stimulus.trialType);
 
   if (task === 'matrix-reasoning' && stimulus.notes === 'practice' && !currPracticeChoiceMix.length) {
     currPracticeChoiceMix = trialInfo.choices;
     currPracticeAnswerIdx = store.session.get('correctResponseIdx'); // Fixed: Use 'get' for consistency
-  }
-
-  if (stimulus.trialType === 'Fraction') {
-    const mathMLChoices = [fractionToMathML(answer), ...distractors.map(fractionToMathML)];
-    store.session.set('choices', mathMLChoices);
-    return mathMLChoices;
   }
 
   if (
@@ -232,7 +222,7 @@ async function keyboardBtnFeedback(e, practiceBtns, stim) {
             btn.classList.add('practice-correct');
             feedbackAudio = mediaAssets.audio.feedbackGoodJob;
             setTimeout(
-              () => jsPsych.finishTrial({ response: choice, incorrectPracticeResponses: incorrectPracticeResponses }),
+              () => jsPsych.finishTrial({ response: choice, incorrectPracticeResponses: incorrectPracticeResponses, keyboard_response: e.key.toLowerCase(), button_response: null }),
               1000,
             );
           } else {
@@ -250,7 +240,7 @@ async function keyboardBtnFeedback(e, practiceBtns, stim) {
             btn.classList.add('practice-correct');
             feedbackAudio = mediaAssets.audio.feedbackGoodJob;
             setTimeout(
-              () => jsPsych.finishTrial({ response: choice, incorrectPracticeResponses: incorrectPracticeResponses }),
+              () => jsPsych.finishTrial({ response: choice, incorrectPracticeResponses: incorrectPracticeResponses, keyboard_response: e.key.toLowerCase(), button_response: null }),
               1000,
             );
           } else {
@@ -305,7 +295,7 @@ function doOnLoad(task) {
     const practiceBtns = document.querySelectorAll('.practice-btn');
     let feedbackAudio;
 
-    practiceBtns.forEach((btn) =>
+    practiceBtns.forEach((btn, i) =>
       btn.addEventListener('click', async (e) => {
         // assume img btn
         if (btn.children.length) {
@@ -315,7 +305,7 @@ function doOnLoad(task) {
             btn.classList.add('practice-correct');
             feedbackAudio = mediaAssets.audio.feedbackGoodJob;
             setTimeout(
-              () => jsPsych.finishTrial({ response: choice, incorrectPracticeResponses: incorrectPracticeResponses }),
+              () => jsPsych.finishTrial({ response: choice, incorrectPracticeResponses: incorrectPracticeResponses, button_response: i, keyboard_response: null  }),
               1000,
             );
           } else {
@@ -331,7 +321,7 @@ function doOnLoad(task) {
             btn.classList.add('practice-correct');
             feedbackAudio = mediaAssets.audio.feedbackGoodJob;
             setTimeout(
-              () => jsPsych.finishTrial({ response: choice, incorrectPracticeResponses: incorrectPracticeResponses }),
+              () => jsPsych.finishTrial({ response: choice, incorrectPracticeResponses: incorrectPracticeResponses, button_response: i, keyboard_response: null }),
               1000,
             );
           } else {
@@ -389,7 +379,12 @@ function doOnLoad(task) {
       buttonContainer.classList.add(`${buttonLayout}-layout`);
     }
 
-    const responseChoices = store.session('choices');
+    let responseChoices 
+    if (stim.trialType === 'Fraction') {
+      responseChoices = store.session('nonFractionSelections');
+    } else {
+      responseChoices = store.session('choices');
+    }
 
     Array.from(buttonContainer.children).forEach((el, i) => {
       if (buttonContainer.children.length === 2) {
@@ -484,18 +479,19 @@ function doOnFinish(data, task) {
   const stimulus = store.session('nextStimulus');
   // target is the actual value as a string
   const target = store.session('target');
+  let responseValue = null
 
   if (stimulus.trialType !== 'instructions') {
     if (data.keyboard_response) {
       data.correct = keyboardResponseMap[data.keyboard_response] === target;
-      store.session.set('responseValue', keyboardResponseMap[data.keyboard_response]);
+      responseValue = keyboardResponseMap[data.keyboard_response];
     } else {
       if (stimulus.notes === 'practice' && task === 'matrix-reasoning') {
         data.correct = data.button_response === currPracticeAnswerIdx;
-        store.session.set('responseValue', currPracticeChoiceMix[data.button_response]);
+        responseValue = currPracticeChoiceMix[data.button_response];
       } else {
         data.correct = data.button_response === store.session('correctResponseIdx');
-        store.session.set('responseValue', store.session('choices')[data.button_response]);
+        responseValue = stimulus.trialType === 'Fraction' ? store.session('nonFractionSelections')[data.button_response] : store.session('choices')[data.button_response];
       }
     }
 
@@ -520,8 +516,7 @@ function doOnFinish(data, task) {
       }
       addItemToSortedStoreList('incorrectItems', target);
 
-      const pushedResponse = store.session.get('responseValue');
-      practiceResponses.push(pushedResponse);
+      practiceResponses.push(responseValue);
     }
 
     jsPsych.data.addDataToLastTrial({
@@ -545,7 +540,7 @@ function doOnFinish(data, task) {
     // the response value added from practice trials
     if (stimulus.notes !== 'practice') {
       jsPsych.data.addDataToLastTrial({
-        response: store.session('responseValue'),
+        response: responseValue,
       });
     }
 
