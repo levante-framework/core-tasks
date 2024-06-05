@@ -243,6 +243,5 @@ export const slider = {
     });
   
     setSkipCurrentBlock(stimulus.trialType);
-
   },
 };

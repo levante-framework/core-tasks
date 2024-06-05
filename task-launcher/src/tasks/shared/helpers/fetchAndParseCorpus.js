@@ -42,7 +42,7 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
 
   csvInput.forEach((row) => {
     // Leaving this here for quick testing of a certain type of trial
-    // if (!row.trial_type.includes('Fraction')) return;
+    // if (!row.trial_type.includes('Slider')) return;
 
     const newRow = {
       source: row.source,
