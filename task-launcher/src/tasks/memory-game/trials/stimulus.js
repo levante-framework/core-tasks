@@ -5,6 +5,7 @@ import { jsPsych } from '../../taskSetup';
 import _isEqual from 'lodash/isEqual';
 import { finishExperiment } from '../../shared/trials';
 import { mediaAssets } from '../../..';
+import { getMemoryGameType } from '../helpers/getMemoryGameType';
 
 
 const x = 20;
@@ -54,18 +55,20 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false}) {
     incorrect_color: () => isPractice ? '#f00' : 'rgba(215, 215, 215, 0.93)',
     data: {
       // not camelCase because firekit
-      save_trial: mode === 'input',
+      save_trial: true,
       assessment_stage: 'memory-game',
       // not for firekit
       isPracticeTrial: isPractice,
     },
     on_load: () => doOnLoad(mode, isPractice),
     on_finish: (data) => {
+      jsPsych.data.addDataToLastTrial({
+        correct: _isEqual(data.response, data.sequence),
+        selectedCoordinates: selectedCoordinates,
+        corpusTrialType: getMemoryGameType(mode, reverse),
+      });
+
       if (mode === 'input') {
-        jsPsych.data.addDataToLastTrial({
-          correct: _isEqual(data.response, data.sequence),
-          selectedCoordinates: selectedCoordinates
-        });
         store.session.set('currentTrialCorrect', data.correct)
 
         if (data.correct && !isPractice) {

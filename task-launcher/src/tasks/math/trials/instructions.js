@@ -13,7 +13,7 @@ export const instructions1 = {
     const t = store.session.get('translations');
     return `<div class='instructions-container'>
         <h1 class='instructions-title'>${t.instructions}</h1>
-
+    
         <p>
             ${t.mathAdultInstructions1}
         </p>

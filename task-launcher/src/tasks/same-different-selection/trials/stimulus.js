@@ -126,16 +126,13 @@ export const stimulus = {
       correct: isCorrect,
     });
 
-    // Only save on ss2 since ss1 is a display trial
-    if (stim.trialType === 'something-same-2' || stim.trialType == 'test-dimensions') {
-      jsPsych.data.addDataToLastTrial({
-        // specific to this trial
-        item: stim.item,
-        answer: stim.answer,
-        distractors: stim.distractors,
-        corpusTrialType: stim.trialType,
-        response: choices[data.button_response],
-      });
-    }
+    jsPsych.data.addDataToLastTrial({
+      // specific to this trial
+      item: stim.item,
+      answer: stim.answer,
+      distractors: stim.distractors,
+      corpusTrialType: stim.trialType,
+      response: choices[data.button_response],
+    });
   },
 };
