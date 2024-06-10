@@ -18,30 +18,47 @@
       color: $txt-white;
       justify-content: center;
       align-items: center;
-      background-color: red;
+      // background-color: red;
       @include respond-to('medium') {
         display: flex;
         width: calc(25% - 10px);
-        min-width: 90px;
+        // min-width: 90px;
         aspect-ratio: 1;
         font-size: $font-size-l;
         font-weight: $font-weight-bold;
         color: $txt-primary;
         justify-content: center;
         align-items: center;
-        background-color: green;
+        // background-color: green;
       }
       @include respond-to('small') {
         display: flex;
         width: calc(25% - 10px);
-        min-width: 60px;
+        // min-width: 60px;
         aspect-ratio: 1;
         font-size: $font-size-m;
         font-weight: $font-weight-normal;
         color: $txt-secondary;
         justify-content: center;
         align-items: center;
-        background-color: yellow;
+        // background-color: yellow;
+      }
+
+      &--small {
+        @extend .response-container;
+        // min-width: 100px;
+        max-width: 150px;
+        // background-color: green;
+        @include respond-to('medium') {
+          // min-width: 70px;
+          color: purple;
+          // background-color: orange;
+        }
+        @include respond-to('small') {
+          // min-width: 50px;
+          color: pink;
+          // background-color: chocolate;
+        }
       }
     }
   }

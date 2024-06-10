@@ -19,6 +19,17 @@ button {
     padding: $button-primary-padding;
     border-color: $bg-accent_secondary;
     box-shadow: $button-default-box-shadow rgba($bg-accent_secondary, 0.5) inset;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-dark;
+    color: $txt-white;
+
+    @include respond-to('small') {
+      font-size: $font-size-xxs;
+      font-weight: $font-weight-normal;
+      color: $txt-white;
+      padding: $button-primary-padding-small;
+      border-radius: $button-default-border-radius-small;
+    }
 
     &:hover {
       background: $bg-button-primary-hover;
@@ -62,6 +73,16 @@ button {
     border-color: $border-green_dark;
     box-shadow: $button-secondary-box-shadow $border-green_dark inset,
       $button-secondary-inner-shadow $bg-green-gradient inset;
+    
+    @include respond-to('small') {
+      font-size: $font-size-xxs;
+      font-weight: $font-weight-normal;
+      color: $txt-white;
+      padding: $button-secondary-padding-small;
+      border-radius: $button-default-border-radius-small;
+      min-width: 40px;
+      min-height: 40px;
+    }
 
     &:hover {
       background: $bg-green-base-hover;
