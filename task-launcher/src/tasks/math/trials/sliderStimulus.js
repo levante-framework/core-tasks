@@ -228,7 +228,7 @@ export const slider = {
     // const response = stimulus.task.includes('Slider') && stimulus.item[1] === 1 ? chosenAnswer / 100 : chosenAnswer;
     // const response = stimulus.task.includes('Slider') && chosenAnswer;
     const response = chosenAnswer;
-    const responseType = stimulus.task.includes('4afc') ? 'afc' : 'slider';
+    const responseType = stimulus.trialType.includes('4afc') ? 'button' : 'slider';
     const answer = stimulus.answer;
 
     jsPsych.data.addDataToLastTrial({
