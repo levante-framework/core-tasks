@@ -34,7 +34,7 @@
   "license": "",
   "dependencies": {
     "@bdelab/jscat": "^3.0.3",
-    "@bdelab/roar-firekit": "^3.12.8",
+    "@bdelab/roar-firekit": "^6.1.2",
     "@bdelab/roar-utils": "^1.0.11",
     "@jspsych-contrib/plugin-audio-multi-response": "^1.0.0",
     "@jspsych-contrib/plugin-corsi-blocks": "^1.0.0",
