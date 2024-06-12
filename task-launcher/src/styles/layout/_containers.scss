@@ -37,7 +37,7 @@
       overflow: scroll;
   
       p {
-        font-size: $font-size-xs;
+        font-size: $font-size-xxs;
         font-weight: $font-weight-normal;
       }
     }
@@ -51,7 +51,7 @@
     text-align: center;
     border: 3px solid $bg-accent_secondary;
     border-radius: 32px;
-    background-color: $bg-grey-light;
+    background-color: $bg-bubble-base;
 
     p {
       font-size: $font-size-xs;

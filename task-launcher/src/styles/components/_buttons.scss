@@ -99,4 +99,37 @@ button {
     }
   }
 
+  &.replay {
+    // This is also used by the Hearts and Flowers task
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    cursor: pointer;
+    border-radius: 16px;
+    padding: 16px;
+    background-color: rgba($bg-button-primary, 0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 64px;
+    height: 64px;
+    border: 2px solid $border-button-accent;
+
+    @include respond-to('small') {
+      width: 48px;
+      height: 48px;
+      padding: 12px;
+    }
+
+    &:hover {
+      background-color: rgba($bg-button-primary-hover, 0.4);
+      border: 2px solid $border-button-primary-hover;
+    }
+
+    &:active {
+      background-color: rgba($bg-button-primary-clicked, 0.6);
+      border: 2px solid $border-button-primary-clicked;
+    }
+  }
+
 }
