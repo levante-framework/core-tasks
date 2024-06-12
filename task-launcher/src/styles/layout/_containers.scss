@@ -1,0 +1,87 @@
+@use '../abstracts/' as *;
+
+.lev-row-container {
+  display: flex;
+  padding: 64px;
+  justify-content: center;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: $txt-primary;
+
+  &.header {
+    p {
+      font-size: $font-size-m;
+      font-weight: $font-weight-bold;
+    }
+    
+    @include respond-to('medium') {
+      display: flex;
+      padding: 32px;
+      justify-content: center;
+      align-items: center;
+  
+      p {
+        font-size: $font-size-s;
+        font-weight: $font-weight-normal;
+      }
+    }
+  
+    @include respond-to('small') {
+      display: flex;
+      padding: 16px;
+      justify-content: center;
+      align-items: center;
+  
+      p {
+        font-size: $font-size-xxs;
+        font-weight: $font-weight-normal;
+      }
+    }
+  }
+
+  &.instruction {
+    display: flex;
+    padding: 32px;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    border: 3px solid $bg-accent_secondary;
+    border-radius: 32px;
+    background-color: $bg-bubble-base;
+
+    p {
+      font-size: $font-size-xs;
+      font-weight: $font-weight-light;
+      line-height: 1.0;
+    }
+    
+    @include respond-to('medium') {
+      display: flex;
+      padding: 16px;
+      justify-content: center;
+      align-items: center;
+      border-radius: 24px;
+  
+      p {
+        font-size: $font-size-xxs;
+        font-weight: $font-weight-light;
+        line-height: 1.0;
+      }
+    }
+  
+    @include respond-to('small') {
+      display: flex;
+      padding: 8px 8px;
+      justify-content: center;
+      align-items: center;
+      border-radius: 16px;
+  
+      p {
+        font-size: $font-size-xxxs;
+        font-weight: $font-weight-light;
+        line-height: 1.0;
+      }
+    }
+  }
+}
