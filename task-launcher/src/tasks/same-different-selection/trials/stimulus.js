@@ -123,13 +123,10 @@ export const stimulus = {
     }
 
     jsPsych.data.addDataToLastTrial({
-      correct: isCorrect,
-    });
-
-    jsPsych.data.addDataToLastTrial({
       // specific to this trial
       item: stim.item,
       answer: stim.answer,
+      correct: isCorrect,
       distractors: stim.distractors,
       corpusTrialType: stim.trialType,
       response: choices[data.button_response],
