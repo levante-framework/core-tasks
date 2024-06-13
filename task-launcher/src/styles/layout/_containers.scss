@@ -2,7 +2,7 @@
 
 .lev-row-container {
   display: flex;
-  padding: 64px;
+  padding: 24px;
   justify-content: center;
   align-items: center;
   justify-content: center;
@@ -17,7 +17,7 @@
     
     @include respond-to('medium') {
       display: flex;
-      padding: 32px;
+      padding: 16px;
       justify-content: center;
       align-items: center;
   
@@ -29,7 +29,7 @@
   
     @include respond-to('small') {
       display: flex;
-      padding: 16px;
+      padding: 12px;
       justify-content: center;
       align-items: center;
   
@@ -42,7 +42,7 @@
 
   &.instruction {
     display: flex;
-    padding: 32px;
+    padding: 24px;
     justify-content: center;
     align-items: center;
     text-align: center;

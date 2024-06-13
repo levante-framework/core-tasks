@@ -53,13 +53,13 @@
   margin-top: 8px;
   
   img {
-    width: 150px;
+    width: 220px;
     max-width: 40%;
   }
 
   @include respond-to('small') {
     img {
-      width: 80px;
+      width: 120px;
     }
   }
 }
