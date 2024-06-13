@@ -73,8 +73,7 @@ export function getCorrectInputSide(stimulusType, stimulusSideType) {
  */
 export const getStimulusLayout = (imageSrc, isLeft, promptText=undefined, replayButtonHtmlId=undefined) => {
   const stimulusClass = isLeft ? 'stimulus-left' : 'stimulus-right';
-  let template = `
-  <div class='parent-stimulus-hf'>`;
+  let template = '<div>';
   if (replayButtonHtmlId) {
     template += `
       <button id='${replayButtonHtmlId}' class="replay">

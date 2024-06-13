@@ -177,9 +177,9 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
           <button class="replay" id='${replayButtonHtmlId}'>
             ${replayButtonSvg}
           </button>
-          <div class='cr-container-hf'>
+          <div class='haf-cr-container'>
             <img src='${mediaAssets.images.smilingFace}' />
-            <p>${correctPrompt}</p>
+            <p class='lev-text h4 primary'>${correctPrompt}</p>
           </div>
         `;
       }
