@@ -27,7 +27,7 @@ export function buildInstructionPracticeTrial(stimulusType, promptText, promptAu
     // throw new Error(`Missing prompt text for instruction practice trial`);
     console.error(`buildInstructionPracticeTrial: Missing prompt text`);
   }
-  const replayButtonHtmlId = 'replay-btn';
+  const replayButtonHtmlId = 'replay-btn-revisited';
   const validAnswer = getCorrectInputSide(stimulusType, stimulusSideType);
   const trial = {
     type: jsPsychAudioMultiResponse,
@@ -46,10 +46,13 @@ export function buildInstructionPracticeTrial(stimulusType, promptText, promptAu
       store.session.set('side', stimulusSideType);
     },
     on_load: () => {
-      document.getElementById('jspsych-audio-multi-response-btngroup').classList.add('btn-layout-hf');
+      document.getElementById('jspsych-audio-multi-response-prompt').classList.add('haf-parent-container');
+      document.getElementById('jspsych-audio-multi-response-btngroup').classList.add('haf-parent-container');
+      document.getElementById('jspsych-audio-multi-response-btngroup').classList.add('lev-response-row');
+      document.getElementById('jspsych-audio-multi-response-btngroup').classList.add('linear-4');
 
       //TODO: use alt tag to query the proper button directly
-      const buttons = document.querySelectorAll('.response-btn');
+      const buttons = document.querySelectorAll('.secondary--green');
       if (buttons.length != 2) {
         console.error(`There are ${buttons.length} instead of 2 wrappers in the practice trials`);
       }
@@ -58,7 +61,13 @@ export function buildInstructionPracticeTrial(stimulusType, promptText, promptAu
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
     keyboard_choices: isTouchScreen? InputKey.NoKeys : [InputKey.ArrowLeft, InputKey.ArrowRight],
-    button_html: [`<button class='response-btn'></button>`, `<button class='response-btn'></button>`],
+    button_html: [`
+    <div class='response-container--small'>
+      <button class='secondary--green'></button>
+    </div>`, 
+    `<div class='response-container--small'>
+      <button class='secondary--green'></button>
+    </div>`],
     on_finish: (data) => {
       // console.log('data in practice: ', data)
 
@@ -144,7 +153,7 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
       console.error(`buildPracticeFeedback: Missing feedback audio for ${key}`);
     }
   });
-  const replayButtonHtmlId = 'replay-btn';
+  const replayButtonHtmlId = 'replay-btn-revisited';
 
   const trial = {
     type: jsPsychAudioMultiResponse,
@@ -165,9 +174,9 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
         const correctPrompt = StimulusType.Heart ? feedbackTexts.CorrectHeart : feedbackTexts.CorrectFlower;
         //TODO: consider removing the replay button from the correct feedback once we separate the correct and incorrect feedback
         return `
-          <div id='${replayButtonHtmlId}'>
+          <button class="replay" id='${replayButtonHtmlId}'>
             ${replayButtonSvg}
-          </div>
+          </button>
           <div class='cr-container-hf'>
             <img src='${mediaAssets.images.smilingFace}' />
             <p>${correctPrompt}</p>
@@ -188,8 +197,11 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
     },
     prompt_above_buttons: true,
     on_load: () => {
-      document.getElementById('jspsych-audio-multi-response-btngroup').classList.add('btn-layout-hf');
-      const buttons = document.querySelectorAll('.response-btn');
+      document.getElementById('jspsych-audio-multi-response-prompt').classList.add('haf-parent-container');
+      document.getElementById('jspsych-audio-multi-response-btngroup').classList.add('haf-parent-container');
+      document.getElementById('jspsych-audio-multi-response-btngroup').classList.add('lev-response-row');
+      document.getElementById('jspsych-audio-multi-response-btngroup').classList.add('linear-4');
+      const buttons = document.querySelectorAll('.secondary--green');
       buttons.forEach(button => {
         if (button.id === validAnswerButtonHtmlIdentifier) {
           button.style.animation = 'pulse 2s infinite';
@@ -214,10 +226,32 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
       if (store.session.get('correct') === false) {
         const validAnswerPosition = getCorrectInputSide(store.session.get('stimulus'), store.session.get('side'));
         return validAnswerPosition === 0 ? // is valid answer on the left?
-        [`<button class='response-btn' id='${validAnswerButtonHtmlIdentifier}'></button>`, `<button class='response-btn'></button>`]
-        : [`<button class='response-btn'></button>`, `<button class='response-btn' id='${validAnswerButtonHtmlIdentifier}'></button>`];
+        [
+          `
+          <div class='response-container--small'>
+            <button class='secondary--green' id='${validAnswerButtonHtmlIdentifier}'></button>
+          </div>
+          `,
+          `
+          <div class='response-container--small'>
+            <button class='secondary--green'></button>
+          </div>
+          `
+        ]
+        : [
+          `
+          <div class='response-container--small'>
+            <button class='secondary--green'></button>
+          </div>
+          `,
+          `
+          <div class='response-container--small'>
+            <button class='secondary--green' id='${validAnswerButtonHtmlIdentifier}'></button>
+          </div>
+          `,
+        ];
       } else {
-        return `<button class='response-btn' style='display: none;'></button>`;
+        return `<button class='secondary--green' style='display: none;'></button>`;
       }
     },
     trial_ends_after_audio: () => {

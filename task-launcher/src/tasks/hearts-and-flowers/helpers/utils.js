@@ -77,24 +77,24 @@ export const getStimulusLayout = (imageSrc, isLeft, promptText=undefined, replay
   <div class='parent-stimulus-hf'>`;
   if (replayButtonHtmlId) {
     template += `
-      <div id='${replayButtonHtmlId}'>
+      <button id='${replayButtonHtmlId}' class="replay">
         ${replayButtonSvg}
-      </div>
+      </button>
     `
   }
   if (promptText) {
     template += `
-      <div class='instruction-container'>
-          <p class='practice-text'>
-            ${promptText}
-          </p>
+      <div class='lev-row-container instruction'>
+        <p>
+          ${promptText}
+        </p>
       </div>
     `
   }
   template += `
-      <div id='stimulus-container-hf'>
+      <div class='haf-stimulus-container'>
         <div class='${stimulusClass}'>
-            <img src='${imageSrc}' alt="heart or flower"/>
+          <img src='${imageSrc}' alt="heart or flower"/>
         </div>
       </div>
     </div>
