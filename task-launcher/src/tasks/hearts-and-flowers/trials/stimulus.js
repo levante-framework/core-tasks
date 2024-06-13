@@ -89,7 +89,7 @@ export function stimulus(isPractice, stage, stimulusDuration, onTrialFinishTimel
 
       const maxIncorrect = store.session.get('config').maxIncorrect;
 
-      if ((numIncorrect('numIncorrect') == maxIncorrect)) {
+      if (numIncorrect('numIncorrect') == maxIncorrect) {
         finishExperiment();
       }
 

@@ -1,8 +1,9 @@
 import { jsPsych } from '../../taskSetup';
-import taskConfig from '../../taskConfig';
-import { dashToCamelCase } from './dashToCamelCase';
 import cloneDeep from 'lodash/cloneDeep';
 import { computedScoreCallback } from '../../trog/helpers/scores';
+import { maxTimeReached } from './';
+import { taskStore } from './';
+import store from 'store2';
 
 export const initTrialSaving = (config) => {
   if (config.displayElement) {
@@ -20,7 +21,26 @@ export const initTrialSaving = (config) => {
     };
 
   jsPsych.opts.on_finish = extend(jsPsych.opts.on_finish, () => {
-    config.firekit.finishRun();
+    // Add finishing metadata to run doc
+    const finishingMetadata = {}
+
+    const incorrectTrials = store.session.get('incorrectTrials')
+    const maxIncorrect = taskStore().maxIncorrect
+
+    console.log('incorrectTrials in on_finish cb:', store.session)
+    console.log('maxIncorrect in on_finish cb:', maxIncorrect)
+
+    if (maxTimeReached('maxTimeReached')) {
+      finishingMetadata.reasonForEnd = ' Max Time'
+    } else if (incorrectTrials >= maxIncorrect) {
+      finishingMetadata.reasonForEnd = 'Max Incorrect Trials'
+    } else {
+      finishingMetadata.reasonForEnd = 'Completed Task'
+    }
+
+    console.log('finishingMetadata in on_finish cb:', finishingMetadata)
+
+    config.firekit.finishRun(finishingMetadata);
   });
 
   jsPsych.opts.on_data_update = extend(jsPsych.opts.on_data_update, (data) => {
@@ -47,6 +67,4 @@ export const initTrialSaving = (config) => {
       }
     }
   });
-
-  taskConfig[dashToCamelCase(config.task)].initStore(config);
 };

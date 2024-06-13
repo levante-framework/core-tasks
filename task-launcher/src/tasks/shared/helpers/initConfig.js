@@ -43,7 +43,7 @@ export const initSharedConfig = async (firekit, gameParams, userParams, displayE
   const config = {
     userMetadata: { ...userMetadata, age },
     audioFeedback: audioFeedback || 'neutral',
-    skipInstructions: skipInstructions ?? true,
+    skipInstructions: skipInstructions ?? true, // Not used in any task
     startTime: new Date(),
     firekit,
     displayElement: displayElement || null,

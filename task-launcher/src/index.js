@@ -1,5 +1,5 @@
 import store from 'store2';
-import { isTaskFinished, getMediaAssets, dashToCamelCase, showLevanteLogoLoading, hideLevanteLogoLoading } from './tasks/shared/helpers';
+import { isTaskFinished, getMediaAssets, dashToCamelCase, showLevanteLogoLoading, hideLevanteLogoLoading, setTaskStore} from './tasks/shared/helpers';
 import './styles/task.scss';
 import taskConfig from './tasks/taskConfig';
 
@@ -36,7 +36,9 @@ export class TaskLauncher {
 
     const config = await initConfig(this.firekit, this.gameParams, this.userParams, this.displayElement);
 
-    initStore();
+    initStore(config);
+
+    setTaskStore(config)
 
     store.session.set('config', config);
 
