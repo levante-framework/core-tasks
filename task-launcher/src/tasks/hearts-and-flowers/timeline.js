@@ -49,7 +49,6 @@ export default function buildHeartsAndFlowersTimeline(config, mediaAssets) {
   //     itemSelect: store.session('itemSelect'),
   //   });
 
-
   // TODO: parse from user input
   const timelineAdminConfig = {
     heart: {

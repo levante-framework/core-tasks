@@ -18,7 +18,7 @@
     "preversion": "npm run lint",
     "version": "npm run format && git add -A",
     "postversion": "GIT_REMOTE=$(git remote -v | grep \"levante-framework/core-tasks.git \\(push\\)\" | cut -f 1) && git push $GIT_REMOTE && git push $GIT_REMOTE --tags",
-    "dev": "npx webpack serve --open --mode development --env dbmode=development",
+    "dev": "npx webpack serve --mode development --env dbmode=development",
     "deploy": "npm run build && firebase deploy --only hosting",
     "lint": "npx eslint --ext .ts,.tsx,.js,.jsx",
     "format": "npx prettier . --write"
@@ -52,6 +52,7 @@
     "lodash": "^4.17.21",
     "papaparse": "^5.4.1",
     "regenerator-runtime": "^0.13.9",
+    "roar-firekit": "^6.1.7",
     "store2": "^2.13.2"
   },
   "devDependencies": {
