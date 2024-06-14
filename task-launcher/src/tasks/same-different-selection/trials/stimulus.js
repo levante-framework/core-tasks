@@ -1,7 +1,7 @@
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
 import store from 'store2';
 import { mediaAssets } from '../../..';
-import { prepareChoices, replayButtonDiv, setupReplayAudio } from '../../shared/helpers';
+import { prepareChoices, replayButtonDiv, setupReplayAudio, taskStore } from '../../shared/helpers';
 import { finishExperiment } from '../../shared/trials';
 import { camelize } from '@bdelab/roar-utils';
 import { jsPsych } from '../../taskSetup';
@@ -12,7 +12,7 @@ export const numIncorrect = store.page.namespace('numIncorrect', 0);
 export const stimulus = {
   type: jsPsychAudioMultiResponse,
   data: () => {
-    const stim = store.session.get('nextStimulus');
+    const stim = taskStore().nextStimulus;
     return {
       save_trial: stim.trialType !== 'instructions',
       assessment_stage: stim.task,
@@ -21,13 +21,13 @@ export const stimulus = {
     };
   },
   stimulus: () => {
-    const stimulusAudio = store.session.get('nextStimulus').audioFile;
+    const stimulusAudio = taskStore().nextStimulus.audioFile;
     return mediaAssets.audio[camelize(stimulusAudio)];
   },
   prompt: () => {
-    const stim = store.session.get('nextStimulus');
+    const stim = taskStore().nextStimulus;
     const prompt = camelize(stim.audioFile);
-    const t = store.session.get('translations');
+    const t = taskStore().translations;
     return (
       `<div id='stimulus-container'>
         ${replayButtonDiv}
@@ -73,7 +73,7 @@ export const stimulus = {
   },
   prompt_above_buttons: true,
   button_choices: () => {
-    const stim = store.session.get('nextStimulus');
+    const stim = taskStore().nextStimulus;
     if (stim.trialType == 'something-same-1') {
       return ['OK'];
     } else if (stim.trialType == 'something-same-2' || stim.trialType == 'test-dimensions') {
@@ -84,7 +84,7 @@ export const stimulus = {
     return choices;
   },
   button_html: () => {
-    const stim = store.session.get('nextStimulus');
+    const stim = taskStore().nextStimulus;
     if (stim.trialType == 'something-same-1') {
       return "<button id='sds-continue-btn'>OK</button>";
     }
@@ -99,11 +99,11 @@ export const stimulus = {
   },
   on_load: () => {
     let audioSource
-    const audioFile = camelize(store.session.get('nextStimulus').audioFile);
+    const audioFile = camelize(taskStore().nextStimulus.audioFile);
     setupReplayAudio(audioSource, audioFile);
   },
   on_finish: (data) => {
-    const stim = store.session.get('nextStimulus');
+    const stim = taskStore().nextStimulus;
     const choices = store.session.get('choices');
 
     // Always need to write correct key because of firekit.
@@ -116,7 +116,7 @@ export const stimulus = {
       numIncorrect('numIncorrect', 0);
     }
 
-    const maxIncorrect = store.session.get('config').maxIncorrect;
+    const maxIncorrect = taskStore().maxIncorrect;
 
     if ((numIncorrect('numIncorrect') == maxIncorrect)) {
       finishExperiment();

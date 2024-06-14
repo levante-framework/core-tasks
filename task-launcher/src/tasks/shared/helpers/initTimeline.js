@@ -15,7 +15,7 @@ export const initTimeline = (config) => {
         ...config.userMetadata,
       });
 
-      startAppTimer();
+      startAppTimer(config);
     },
   };
 

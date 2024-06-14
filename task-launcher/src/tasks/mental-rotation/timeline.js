@@ -4,7 +4,7 @@ import { initTrialSaving, initTimeline } from '../shared/helpers';
 // setup
 import { jsPsych } from '../taskSetup';
 import { initializeCat } from '../taskSetup';
-import { createPreloadTrials } from '../shared/helpers';
+import { createPreloadTrials, taskStore } from '../shared/helpers';
 // trials
 
 import { afcStimulus, taskFinished } from '../shared/trials';
@@ -21,7 +21,7 @@ export default function buildMentalRotationTimeline(config, mediaAssets) {
     timeline: [getAudioResponse(mediaAssets)],
 
     conditional_function: () => {
-      const subTask = store.session.get('nextStimulus').notes;
+      const subTask = taskStore().nextStimulus.notes;
       if (subTask === 'practice') {
         return false;
       }
@@ -62,7 +62,7 @@ export default function buildMentalRotationTimeline(config, mediaAssets) {
     //nowYouTry,
   ];
 
-  const numOfTrials = store.session.get('totalTrials');
+  const numOfTrials = taskStore().totalTrials;
   for (let i = 0; i < numOfTrials; i++) {
     timeline.push(setupStimulus);
     timeline.push(stimulusBlock);

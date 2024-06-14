@@ -6,6 +6,8 @@ import _isEqual from 'lodash/isEqual';
 import { finishExperiment } from '../../shared/trials';
 import { mediaAssets } from '../../..';
 import { getMemoryGameType } from '../helpers/getMemoryGameType';
+import { memoryStore } from '../helpers/store';
+import { taskStore } from '../../shared/helpers';
 
 
 const x = 20;
@@ -25,7 +27,7 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false}) {
     sequence: () => {
       // On very first trial, generate initial sequence
       if (!generatedSequence) {
-        const numOfBlocks = store.session.get('memoryGameConfig').numOfBlocks;
+        const numOfBlocks = memoryStore().numOfBlocks;
         generatedSequence = generateRandomSequence({numOfBlocks, sequenceLength})
       }
 
@@ -37,14 +39,13 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false}) {
     },
     blocks: () => {
       if (!grid) {
-        store.session.get('memoryGameConfig')
-        const { numOfBlocks, blockSize, gridSize } = store.session.get('memoryGameConfig');
+        const { numOfBlocks, blockSize, gridSize } = memoryStore();
         grid = createGrid({x, y, numOfBlocks, blockSize, gridSize, blockSpacing})
       }
       return grid;
     },
     mode: mode,
-    block_size: () => store.session.get('memoryGameConfig').blockSize,
+    block_size: () => memoryStore().blockSize,
     // light gray
     // Must be specified here as well as in the stylesheet. This is because
     // We need it for the initial render (our code) and when jspsych changes the color after highlighting.
@@ -69,10 +70,10 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false}) {
       });
 
       if (mode === 'input') {
-        store.session.set('currentTrialCorrect', data.correct)
+        taskStore('currentTrialCorrect', data.correct)
 
         if (data.correct && !isPractice) {
-          store.session.set('incorrectTrials', 0)
+          taskStore('incorrectTrials', 0)
           numCorrect++;
 
           if (numCorrect === 3) {
@@ -82,17 +83,18 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false}) {
         }
 
         if (!data.correct && !isPractice) {
-          store.session.transact('incorrectTrials', (value) => value + 1)
+          taskStore().transact('incorrectTrials', (value) => value + 1)
+          console.log('incorrectTrials', taskStore().incorrectTrials)
           numCorrect = 0;
         }
 
-        if ((store.session.get('incorrectTrials') == store.session.get('config').maxIncorrect)) {
+        if (taskStore().incorrectTrials == taskStore().maxIncorrect) {
           finishExperiment();
         }
 
         selectedCoordinates = [];
 
-        const numOfBlocks = store.session.get('memoryGameConfig').numOfBlocks;
+        const numOfBlocks = memoryStore().numOfBlocks;
 
         // Avoid generating the same sequence twice in a row
         let newSequence = generateRandomSequence({
@@ -127,12 +129,12 @@ function doOnLoad(mode, isPractice) {
   container.id = '';
   container.classList.add('jspsych-corsi-overide');
 
-  const gridSize = store.session.get('memoryGameConfig').gridSize;
+  const gridSize = memoryStore().gridSize;
 
   container.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
   container.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;
   
-  const t = store.session.get('translations');
+  const t = taskStore().translations;
 
   if (!isPractice) {
     const toast = document.getElementById('toast');

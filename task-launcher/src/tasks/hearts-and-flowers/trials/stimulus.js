@@ -7,11 +7,13 @@ import {
   ResponseSideType,
   InputKey,
   getCorrectInputSide,
-  getStimulusLayout
+  getStimulusLayout,
 } from '../helpers/utils';
+import { hfStore } from '../helpers/store';
 import store from 'store2';
 import shuffle from 'lodash/shuffle';
 import { finishExperiment } from '../../shared/trials';
+import { taskStore } from '../../shared/helpers';
 
 /**
  *TODO: we should perhaps allow {@link https://www.jspsych.org/7.2/overview/media-preloading/#automatic-preloading automatic preload}
@@ -87,16 +89,16 @@ export function stimulus(isPractice, stage, stimulusDuration, onTrialFinishTimel
         }
       }
 
-      const maxIncorrect = store.session.get('config').maxIncorrect;
+      const maxIncorrect = taskStore().maxIncorrect;
 
       if (numIncorrect('numIncorrect') == maxIncorrect) {
         finishExperiment();
       }
 
       //TODO: move these to timeline-level callback/variables
-      store.session.set('correct', data.correct);
-      store.session.set('stimulus', stimulusType);
-      store.session.set('side', stimuluSide);
+      hfStore('correct', data.correct);
+      hfStore('stimulus', stimulusType);
+      hfStore('stimulusSide', stimuluSide);
 
       jsPsych.data.addDataToLastTrial({
         item: stimulusType,

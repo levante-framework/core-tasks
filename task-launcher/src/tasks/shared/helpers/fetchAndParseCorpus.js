@@ -11,6 +11,7 @@ import { stringToNumberArray } from './stringToNumArray';
 import { dashToCamelCase } from './dashToCamelCase';
 import { camelize } from '@bdelab/roar-utils';
 import { shuffleStimulusTrials } from './randomizeStimulusBlocks';
+import { taskStore } from './';
 
 export let corpora;
 
@@ -153,9 +154,9 @@ export const fetchAndParseCorpus = async (config) => {
 
     try {
       await parseCSVs(urls);
-      store.session.set('totalTrials', totalTrials);
+      taskStore('totalTrials', totalTrials);
 
-      store.session.set('config', config);
+      // store.session.set('config', config);
     } catch (error) {
       console.error('Error:', error);
     }
@@ -172,5 +173,5 @@ export const fetchAndParseCorpus = async (config) => {
     stimulus: csvTransformed.stimulus,
   };
 
-  store.session.set('corpora', corpora);
+  taskStore('corpora', corpora);
 };

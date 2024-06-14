@@ -10,7 +10,7 @@ export const taskFinished = {
     };
   },
   stimulus: () => {
-    const t = store.session.get('translations');
+    const t = taskStore().translations;
     return `
         <div class='instructions-container'>
             <h1 class='instructions-title'>${t.taskFinished}</h1>

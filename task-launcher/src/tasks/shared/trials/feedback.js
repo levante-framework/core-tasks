@@ -1,6 +1,7 @@
 import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import store from 'store2';
 import { mediaAssets } from '../../..';
+import { taskStore } from '../helpers';
 
 // isPractice parameter is for tasks that don't have a corpus (e.g. memory game)
 export const feedback = (isPractice = false) => {
@@ -9,7 +10,7 @@ export const feedback = (isPractice = false) => {
             {
                 type: jsPsychHTMLMultiResponse,
                 stimulus: () => {
-                    const t = store.session.get('translations');
+                    const t = taskStore().translations;
                     const isCorrect = store.session.get('currentTrialCorrect');
                     return (
                         `<div id='stimulus-container'>
@@ -31,7 +32,7 @@ export const feedback = (isPractice = false) => {
                 button_choices: [`Continue`],
                 keyboard_choices: 'ALL_KEYS',
                 button_html: () => {
-                    const t = store.session.get('translations');
+                    const t = taskStore().translations;
                     return (`<button id="continue-btn">${t.continueButtonText}</button>`)
                 }
             } 
