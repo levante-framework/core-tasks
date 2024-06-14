@@ -1,12 +1,10 @@
 // Required to use top level await
 import 'regenerator-runtime/runtime';
-import i18next from 'i18next';
 import '../../../i18n/i18n';
 import _shuffle from 'lodash/shuffle';
 import Papa from 'papaparse';
 import _compact from 'lodash/compact';
 import _toNumber from 'lodash/toNumber';
-import store from 'store2';
 import { stringToNumberArray } from './stringToNumArray';
 import { dashToCamelCase } from './dashToCamelCase';
 import { camelize } from '@bdelab/roar-utils';
@@ -14,6 +12,7 @@ import { shuffleStimulusTrials } from './randomizeStimulusBlocks';
 import { taskStore } from './';
 
 export let corpora;
+export const sdsPhaseCount = {}
 
 let totalTrials = 0;
 
@@ -43,7 +42,7 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
 
   csvInput.forEach((row) => {
     // Leaving this here for quick testing of a certain type of trial
-    // if (!row.trial_type.includes('Slider')) return;
+    // if (!row.trial_type.includes('Number Line')) return;
 
     const newRow = {
       source: row.source,
@@ -83,10 +82,9 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
       } else {
         sdsPhase2Count += 1
       }
-      store.session.set('sdsPhasesCount', {
-        phase1: sdsPhase1Count,
-        phase2: sdsPhase2Count
-      })
+
+      sdsPhaseCount.phase1 = sdsPhase1Count
+      sdsPhaseCount.phase2 = sdsPhase2Count
     }
 
     let currentTrialType = newRow.trialType;
@@ -114,7 +112,7 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
   }
 };
 
-export const fetchAndParseCorpus = async (config) => {
+export const getCorpus = async (config) => {
   const { corpus, task, sequentialStimulus, sequentialPractice, numOfPracticeTrials } = config;
 
   const corpusLocation = {
@@ -156,7 +154,6 @@ export const fetchAndParseCorpus = async (config) => {
       await parseCSVs(urls);
       taskStore('totalTrials', totalTrials);
 
-      // store.session.set('config', config);
     } catch (error) {
       console.error('Error:', error);
     }

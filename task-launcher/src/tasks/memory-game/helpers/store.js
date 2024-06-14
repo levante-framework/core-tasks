@@ -1,5 +1,7 @@
 import store from 'store2';
 
+// NOTE: This isn't stateful right now but may be in the future when we make tasks adaptive
+
 /**
  * The memoryStore object stores various parameters related to stimuli and responses.
  * 

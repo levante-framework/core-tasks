@@ -1,8 +1,6 @@
-import store from 'store2';
 import { getDevice } from '@bdelab/roar-utils';
 import { Cat } from '@bdelab/jscat';
 import { initJsPsych } from 'jspsych';
-import i18next from 'i18next';
 import '../i18n/i18n';
 import { taskStore } from './shared/helpers';
 

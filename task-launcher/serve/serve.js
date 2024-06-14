@@ -1,4 +1,4 @@
-import { RoarAppkit, initializeFirebaseProject } from 'roar-firekit';
+import { RoarAppkit, initializeFirebaseProject } from '@bdelab/roar-firekit';
 import { onAuthStateChanged, signInAnonymously } from 'firebase/auth';
 import { TaskLauncher } from '../src';
 import { firebaseConfig } from './firebaseConfig';

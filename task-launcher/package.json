@@ -52,7 +52,6 @@
     "lodash": "^4.17.21",
     "papaparse": "^5.4.1",
     "regenerator-runtime": "^0.13.9",
-    "roar-firekit": "^6.1.7",
     "store2": "^2.13.2"
   },
   "devDependencies": {

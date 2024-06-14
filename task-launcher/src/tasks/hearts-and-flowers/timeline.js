@@ -2,7 +2,6 @@
 import { jsPsych } from '../taskSetup';
 import { fixation } from './trials/fixation';
 import { initTrialSaving, initTimeline, createPreloadTrials, taskStore } from '../shared/helpers';
-import store from 'store2';
 import { mediaAssets } from '../..';
 
 // trials

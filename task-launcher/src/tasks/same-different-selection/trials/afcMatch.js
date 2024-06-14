@@ -1,6 +1,5 @@
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
 import { mediaAssets } from '../../..';
-import store from 'store2';
 import { jsPsych } from '../../taskSetup';
 import { prepareChoices, replayButtonDiv, setupReplayAudio, taskStore } from '../../shared/helpers';
 import { camelize } from '@bdelab/roar-utils';
@@ -52,7 +51,7 @@ export const afcMatch = {
     if (stim.audioFile.includes('prompt1')) {
       images = prepareChoices(stim.answer, stim.distractors).choices;
     } else {
-      images = store.session.get('choices');
+      images = taskStore().choices;
     }
     const numberOfCards = images.length;
 

@@ -1,10 +1,9 @@
 import 'regenerator-runtime/runtime';
-import store from 'store2';
 import { initTrialSaving, initTimeline } from '../shared/helpers';
 
 // setup
 import { jsPsych } from '../taskSetup';
-import { createPreloadTrials } from '../shared/helpers';
+import { createPreloadTrials, sdsPhaseCount } from '../shared/helpers';
 import { initializeCat } from '../taskSetup';
 
 // trials
@@ -37,7 +36,7 @@ export default function buildSameDifferentTimeline(config, mediaAssets) {
     initialTimeline, 
   ];
 
-  const { phase1, phase2 } = store.session.get('sdsPhasesCount')
+  const { phase1, phase2 } = sdsPhaseCount
 
   for (let i = 0; i < phase1; i++) {
     timeline.push(setupStimulus)

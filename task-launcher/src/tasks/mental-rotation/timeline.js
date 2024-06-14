@@ -1,5 +1,4 @@
 import 'regenerator-runtime/runtime';
-import store from 'store2';
 import { initTrialSaving, initTimeline } from '../shared/helpers';
 // setup
 import { jsPsych } from '../taskSetup';
@@ -43,8 +42,8 @@ export default function buildMentalRotationTimeline(config, mediaAssets) {
     ],
     // true = execute normally, false = skip
     conditional_function: () => {
-      if (store.session.get('skipCurrentTrial')) {
-        store.session.set('skipCurrentTrial', false);
+      if (taskStore().skipCurrentTrial) {
+        taskStore('skipCurrentTrial', false);
         return false;
       } else {
         return true;

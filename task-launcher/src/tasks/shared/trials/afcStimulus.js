@@ -4,7 +4,6 @@ import store from 'store2';
 import { jsPsych, isTouchScreen } from '../../taskSetup';
 import {
   prepareChoices,
-  addItemToSortedStoreList,
   isPractice,
   fractionToMathML,
   arrowKeyEmojis,
@@ -171,7 +170,7 @@ function getButtonChoices(task) {
 
   if (task === 'matrix-reasoning' && stimulus.notes === 'practice' && !currPracticeChoiceMix.length) {
     currPracticeChoiceMix = trialInfo.choices;
-    currPracticeAnswerIdx = store.session.get('correctResponseIdx'); // Fixed: Use 'get' for consistency
+    currPracticeAnswerIdx = taskStore().correctResponseIdx; // Fixed: Use 'get' for consistency
   }
 
   if (
@@ -382,9 +381,9 @@ function doOnLoad(task) {
 
     let responseChoices 
     if (stim.trialType === 'Fraction') {
-      responseChoices = store.session('nonFractionSelections');
+      responseChoices = taskStore().nonFractionSelections;
     } else {
-      responseChoices = store.session('choices');
+      responseChoices = taskStore().choices;
     }
 
     Array.from(buttonContainer.children).forEach((el, i) => {
@@ -463,10 +462,10 @@ function doOnLoad(task) {
     });
 
     // update the trial number
-    store.session.transact('trialNumSubtask', (oldVal) => oldVal + 1);
+    taskStore.transact('trialNumSubtask', (oldVal) => oldVal + 1);
     // update total real trials
     if (!isPractice(stim.notes)) {
-      store.session.transact('trialNumTotal', (oldVal) => oldVal + 1);
+      taskStore.transact('trialNumTotal', (oldVal) => oldVal + 1);
     }
   }
 
@@ -479,7 +478,7 @@ function doOnFinish(data, task) {
   // note: nextStimulus is actually the current stimulus
   const stimulus = taskStore().nextStimulus;
   // target is the actual value as a string
-  const target = store.session('target');
+  const target = taskStore().target;
   let responseValue = null
 
   if (stimulus.trialType !== 'instructions') {
@@ -491,21 +490,20 @@ function doOnFinish(data, task) {
         data.correct = data.button_response === currPracticeAnswerIdx;
         responseValue = currPracticeChoiceMix[data.button_response];
       } else {
-        data.correct = data.button_response === store.session('correctResponseIdx');
-        responseValue = stimulus.trialType === 'Fraction' ? store.session('nonFractionSelections')[data.button_response] : store.session('choices')[data.button_response];
+        data.correct = data.button_response === taskStore().correctResponseIdx;
+        responseValue = stimulus.trialType === 'Fraction' ? taskStore().nonFractionSelections[data.button_response] : taskStore().choices[data.button_response];
       }
     }
 
     // check response and record it
-    store.session.set('correct', data.correct);
-    store.session.set('responseType', data.button_response ? 'mouse' : 'keyboard');
+    const responseType = data.button_response ? 'mouse' : 'keyboard';
 
     // update running score and answer lists
     if (data.correct) {
       if (!isPractice(stimulus.notes)) {
         // practice trials don't count toward total
-        store.session.transact('totalCorrect', (oldVal) => oldVal + 1);
-        store.session.set('incorrectTrials', 0); // reset incorrect trial count
+        taskStore.transact('totalCorrect', (oldVal) => oldVal + 1);
+        taskStore('numIncorrect', 0); // reset incorrect trial count
       }
       practiceResponses = [];
       currPracticeChoiceMix = [];
@@ -513,9 +511,8 @@ function doOnFinish(data, task) {
     } else {
       // Only increase incorrect trials if response is incorrect not a practice trial
       if (!isPractice(stimulus.notes)) {
-        store.session.transact('incorrectTrials', (oldVal) => oldVal + 1);
+        taskStore.transact('numIncorrect', (oldVal) => oldVal + 1);
       }
-      addItemToSortedStoreList('incorrectItems', target);
 
       practiceResponses.push(responseValue);
     }
@@ -526,13 +523,13 @@ function doOnFinish(data, task) {
       answer: target,
       distractors: stimulus.distractors,
       corpusTrialType: stimulus.trialType,
-      responseType: store.session('responseType'),
+      responseType,
     });
 
     // corpusId and itemId fields are used by ROAR but not ROAD
     if (taskStore().storeItemId) {
       jsPsych.data.addDataToLastTrial({
-        corpusId: taskStore().corpus,
+        corpusId: taskStore().corpusId,
         itemId: stimulus.source + '-' + stimulus.origItemNum,
       });
     }
@@ -547,7 +544,7 @@ function doOnFinish(data, task) {
 
     // adding manually since trial does not log it properly
     // for keyboard responses
-    if (data.responseType === 'keyboard' || data.response_source === 'keyboard') {
+    if (responseType === 'keyboard' || data.response_source === 'keyboard') {
       const endTime = performance.now();
       const calculatedRt = Math.round(endTime - startTime);
       jsPsych.data.addDataToLastTrial({
@@ -561,7 +558,7 @@ function doOnFinish(data, task) {
     }
   } else {
     // instructions
-    store.session.set('incorrectTrials', 0); // reset incorrect trial count
+    taskStore('numIncorrect', 0); // reset incorrect trial count
     jsPsych.data.addDataToLastTrial({
       // false because it's not a real trial
       correct: false,
@@ -570,7 +567,7 @@ function doOnFinish(data, task) {
 
   if (task === 'egma-math') {
     setSkipCurrentBlock(stimulus.trialType);
-  } else if ((store.session.get('incorrectTrials') >= taskStore().maxIncorrect)) {
+  } else if ((taskStore().numIncorrect >= taskStore().maxIncorrect)) {
     finishExperiment();
   }
 }

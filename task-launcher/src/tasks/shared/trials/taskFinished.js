@@ -1,5 +1,5 @@
 import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
-import store from 'store2';
+import { taskStore } from '../helpers';
 
 export const taskFinished = {
   type: jsPsychHTMLMultiResponse,

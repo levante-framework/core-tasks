@@ -1,5 +1,4 @@
 import Papa from 'papaparse';
-import store from 'store2';
 import 'regenerator-runtime/runtime';
 import { camelize } from '@bdelab/roar-utils';
 import { taskStore } from './';

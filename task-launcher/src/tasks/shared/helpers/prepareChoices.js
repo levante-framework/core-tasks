@@ -1,6 +1,6 @@
 import _shuffle from 'lodash/shuffle';
-import store from 'store2';
 import { fractionToMathML } from './';
+import { taskStore } from './';
 
 export const prepareChoices = (target, distractors, randomizeOrder = true, trialType) => {
   let choices;
@@ -16,15 +16,15 @@ export const prepareChoices = (target, distractors, randomizeOrder = true, trial
   }
 
   if (trialType === 'Fraction') {
-    store.session.set('nonFractionSelections', choices);
+    taskStore('nonFractionSelections', choices);
     choices = choices.map((choice) => fractionToMathML(choice));
   }
 
   // Update session variables
-  const correctResponseIdx = trialType === 'Fraction' ? store.session('nonFractionSelections').indexOf(target) : choices.indexOf(target);
-  store.session.set('target', target);
-  store.session.set('correctResponseIdx', correctResponseIdx);
-  store.session.set('choices', choices);
+  const correctResponseIdx = trialType === 'Fraction' ? taskStore().nonFractionSelections.indexOf(target) : choices.indexOf(target);
+  taskStore('target', target);
+  taskStore('correctResponseIdx', correctResponseIdx);
+  taskStore('choices', choices);
 
   return {
     target: target,

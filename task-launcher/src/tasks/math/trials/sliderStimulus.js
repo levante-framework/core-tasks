@@ -3,9 +3,7 @@ import _shuffle from 'lodash/shuffle';
 import _toNumber from 'lodash/toNumber';
 import { jsPsych, isTouchScreen } from '../../taskSetup';
 import { camelize } from '@bdelab/roar-utils';
-import store from 'store2';
 import { arrowKeyEmojis, isPractice, setSkipCurrentBlock, taskStore } from '../../shared/helpers';
-import { finishExperiment } from '../../shared/trials';
 
 let chosenAnswer,
   sliderStart,
@@ -153,10 +151,10 @@ export const slider = {
 
       distractors.push(answer);
 
-      store.session.set('target', answer);
-      store.session.set('choices', distractors);
+      taskStore('target', answer);
+      taskStore('choices', distractors);
 
-      const responseChoices = store.session('choices');
+      const responseChoices = taskStore().choices;
 
       // create buttons
       for (let i = 0; i < responseChoices.length; i++) {
@@ -212,12 +210,12 @@ export const slider = {
 
     const stimulus = taskStore().nextStimulus;
     if (stimulus.trialType === 'Number Line 4afc') {
-      data.correct = chosenAnswer === store.session.get('target');
+      data.correct = chosenAnswer === taskStore().target;
       if (!isPractice(stimulus.notes)) {
         if (data.correct) {
-          store.session.set('incorrectTrials', 0);
+          taskStore('numIncorrect', 0);
         } else {
-          store.session.transact('incorrectTrials', (oldVal) => oldVal + 1);
+          taskStore.transact('numIncorrect', (oldVal) => oldVal + 1);
         }
       }
     } else {
@@ -225,10 +223,8 @@ export const slider = {
       data.correct = null;
     }
 
-    // const response = stimulus.task.includes('Slider') && stimulus.item[1] === 1 ? chosenAnswer / 100 : chosenAnswer;
-    // const response = stimulus.task.includes('Slider') && chosenAnswer;
     const response = chosenAnswer;
-    const responseType = stimulus.task.includes('4afc') ? 'afc' : 'slider';
+    const responseType = stimulus.trialType.includes('4afc') ? 'afc' : 'slider';
     const answer = stimulus.answer;
 
     jsPsych.data.addDataToLastTrial({

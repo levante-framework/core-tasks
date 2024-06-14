@@ -1,35 +1,14 @@
 import store from 'store2';
 
-export const initSharedStore = (config) => {
-  // For jsCat
-  store.session.set('itemSelect', 'mfi');
-
-  // Counting variables
-  store.session.set('trialNumSubtask', 0); // counter for trials in subtask
-  store.session.set('trialNumTotal', 0); // counter for trials in experiment
-
-  // variables to track current state of the experiment
-  store.session.set('currentTrialCorrect', true);
-
-  store.session.set('incorrectTrials', 0);
-
-  // For ROAR syntax (TROG)
-  store.session.set('totalCorrect', 0);
-  store.session.set('correctItems', []);
-  store.session.set('incorrectItems', []);
-};
-
-
 /**
  * @typedef {Object} TaskStore
  * @property {string} itemSelect - Identifier for the selected item, default is 'mfi'. Options include: ['mfi', 'random'].
  * @property {number} trialNumSubtask - Counter for trials in the current subtask, starting at 0.
  * @property {number} trialNumTotal - Counter for total trials in the experiment, starting at 0.
  * @property {boolean} currentTrialCorrect - Indicates if the current trial is correct, default is true.
- * @property {number} incorrectTrials - Counter for incorrect trials, starting at 0.
+ * @property {number} numIncorrect - Counter for incorrect responses, starting at 0.
  * @property {number} totalCorrect - Counter for total correct trials, starting at 0.
  * @property {Array} correctItems - List of correct items, starting as an empty array.
- * @property {Array} incorrectItems - List of incorrect items, starting as an empty array.
  * @property {string} audioFeedback - Audio feedback to use, default is 'neutral'.
  * @property {boolean} skipInstructions - Whether to skip instructions, default is true.
  * @property {string} corpusId - Name of the corpus file.
@@ -39,15 +18,20 @@ export const initSharedStore = (config) => {
  * @property {boolean} keyHelpers - Whether to use keyboard helpers, default is true.
  * @property {boolean} storeItemId - Whether to store the item ID, default is false.
  * @property {boolean} isRoarApp - Whether the app is running in ROAR mode, default is false.
+ * @property {boolean} maxTimeReached - Whether the max time has been reached, default is false.
  * ------- Added after config is parsed -------
  * @property {number} totalTrials - Counter for total trials in the experiment, starting at 0.
  * @property {Object} corpora - Object containing the corpus data (stimulus).
  * @property {Object} translations - Object containing the translations.
  * @property {Object} nextStimulus - Object containing the next stimulus.
- * @property {boolean} skipCurrentTrial - Whether to skip the current trial, default is false.
  * ------- AFC and SDS only -------
  * @property {string} target - Target item.
  * @property {Array} choices - List of choices.
+ * ------- AFC only -------
+ * @property {boolean} skipCurrentTrial - Whether to skip the current trial, default is false.
+ * @property {number} correctResponseIdx - Index of the correct response, starting at 0.
+ * ------- Math only -------
+ * @property {Array} nonFractionSelections - List of non-fraction selections.
  */
 
 /**
@@ -63,11 +47,10 @@ export const setTaskStore = (config) => {
     trialNumSubtask: 0,
     trialNumTotal: 0,
     currentTrialCorrect: false,
-    incorrectTrials: 0,
+    numIncorrect: 0,
     // For ROAR syntax (TROG)
     totalCorrect: 0,
     correctItems: [],
-    incorrectItems: [],
     // -----
     audioFeedback: config.audioFeedback,
     skipInstructions: config.skipInstructions,
@@ -78,6 +61,7 @@ export const setTaskStore = (config) => {
     keyHelpers: config.keyHelpers,
     storeItemId: config.storeItemId,
     isRoarApp: config.isRoarApp,
+    maxTimeReached: false,
   });
 };
 
@@ -87,7 +71,7 @@ export const setTaskStore = (config) => {
 // STATE
 // audioFeedback: audioFeedback || 'neutral',
 // skipInstructions: skipInstructions ?? true,
-// comes from fetchAndParseCorpus after parsing the corpus
+// comes from getCorpus after parsing the corpus
 // corpora
 // For ROAR. The name of the corpus file.
 // corpusId: corpusId,
