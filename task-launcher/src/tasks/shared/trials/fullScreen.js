@@ -1,6 +1,5 @@
 import jsPsychFullScreen from '@jspsych/plugin-fullscreen';
 import fscreen from 'fscreen';
-import store from 'store2';
 import { taskStore } from '../helpers';
 
 export const enterFullscreen = {

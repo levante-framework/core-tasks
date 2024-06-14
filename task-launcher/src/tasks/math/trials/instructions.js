@@ -1,5 +1,5 @@
 import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
-import store from 'store2';
+import { taskStore } from '../../shared/helpers';
 
 export const instructions1 = {
   type: jsPsychHTMLMultiResponse,

@@ -10,7 +10,6 @@ import {
   getStimulusLayout,
 } from '../helpers/utils';
 import { hfStore } from '../helpers/store';
-import store from 'store2';
 import shuffle from 'lodash/shuffle';
 import { finishExperiment } from '../../shared/trials';
 import { taskStore } from '../../shared/helpers';
@@ -19,7 +18,6 @@ import { taskStore } from '../../shared/helpers';
  *TODO: we should perhaps allow {@link https://www.jspsych.org/7.2/overview/media-preloading/#automatic-preloading automatic preload}
   of the stimulus image and modify the DOM nodes that jsPsych creates in on_load?
   */
-const numIncorrect = store.page.namespace('numIncorrect', 0);
 
 export function stimulus(isPractice, stage, stimulusDuration, onTrialFinishTimelineCallback = undefined ) {
   return {
@@ -81,17 +79,16 @@ export function stimulus(isPractice, stage, stimulusDuration, onTrialFinishTimel
 
       if (!isPractice) {
         if (!data.correct) {  
-          numIncorrect.transact('numIncorrect', (oldVal) => oldVal + 1);
-  
-          console.log('numIncorrect: ', numIncorrect('numIncorrect'));
+          taskStore.transact('numIncorrect', (oldVal) => oldVal + 1);
+
         } else {
-          numIncorrect('numIncorrect', 0);
+          taskStore('numIncorrect', 0);
         }
       }
 
       const maxIncorrect = taskStore().maxIncorrect;
 
-      if (numIncorrect('numIncorrect') == maxIncorrect) {
+      if (taskStore().numIncorrect == maxIncorrect) {
         finishExperiment();
       }
 

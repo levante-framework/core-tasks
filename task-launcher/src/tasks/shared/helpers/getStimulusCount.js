@@ -1,4 +1,3 @@
-import store from 'store2';
 import { taskStore } from './';
 
 function createBlocks(numOfBlocks, numOfTrials) {
@@ -33,6 +32,5 @@ export const getStimulusBlockCount = (numberOfTrials, stimulusBlocks) => {
     countList = createBlocks(stimulusBlocks, numberOfTrials);
   }
 
-  store.session.set('stimulusCountList', countList);
   return countList;
 };

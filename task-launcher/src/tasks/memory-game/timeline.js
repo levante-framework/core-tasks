@@ -41,7 +41,7 @@ export default function buildMemoryTimeline(config, mediaAssets) {
     ...instructions,
     corsiBlocksPractice,
     readyToPlay,
-    corsiBlocksStimulus,
+    // corsiBlocksStimulus,
     reverseOrderPrompt,
     corsiBlocksReverse,
   ];

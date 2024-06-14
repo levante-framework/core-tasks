@@ -12,7 +12,7 @@ import {
   setupStimulus,
   taskFinished,
 } from '../shared/trials';
-import { instructions1, instructions2 } from './trials/instructions';
+
 
 export default function buildMathTimeline(config, mediaAssets) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
@@ -73,8 +73,8 @@ export default function buildMathTimeline(config, mediaAssets) {
         const stimulusBlock = {
           timeline: [afcStimulusBlock, sliderBlock, ifRealTrialResponse],
           conditional_function: () => {
-            if (store.session.get('skipCurrentTrial')) {
-              store.session.set('skipCurrentTrial', false);
+            if (taskStore().skipCurrentTrial) {
+              taskStore('skipCurrentTrial', false);
               return false;
             }
             const stim = taskStore().nextStimulus;

@@ -1,6 +1,5 @@
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
 import { mediaAssets } from '../../..';
-import store from 'store2';
 import { jsPsych, isTouchScreen } from '../../taskSetup';
 import {
   StimulusType,
@@ -45,7 +44,7 @@ export function buildInstructionPracticeTrial(stimulusType, promptText, promptAu
     prompt_above_buttons: true,
     on_start: () => {
       hfStore('stimulus', stimulusType);
-      hfStore('side', stimulusSideType);
+      hfStore('stimulusSide', stimulusSideType);
     },
     on_load: () => {
       document.getElementById('jspsych-audio-multi-response-btngroup').classList.add('btn-layout-hf');

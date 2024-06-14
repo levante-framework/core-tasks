@@ -8,11 +8,6 @@ import store from "store2";
  * @property {string} stimulusSide - The side of the stimulus, e.g., 'left'.
  * @property {number} stimulusPosition - The position of the stimulus, e.g., 0.
  * @property {boolean} correct - Indicates whether the response was correct.
- * @property {boolean} incorrect - Indicates whether the response was incorrect.
- * @property {string} audioFile - The name of the audio file to be played, e.g., 'heart'.
- * @property {string} promptText - The text of the prompt to be displayed.
- * @property {string} promptAudio - The name of the audio file for the prompt.
- * @property {any} audioReplayOverrides - Overrides for audio replay, if any.
  */
 
 /**
@@ -27,9 +22,4 @@ hfStore({
     stimulusSide: 'left',
     stimulusPosition: 0,
     correct: false,
-    incorrect: false,
-    audioFile: 'heart',
-    promptText: '',
-    promptAudio: '',
-    audioReplayOverrides: null,
 });

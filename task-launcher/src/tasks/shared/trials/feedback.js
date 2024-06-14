@@ -1,5 +1,4 @@
 import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
-import store from 'store2';
 import { mediaAssets } from '../../..';
 import { taskStore } from '../helpers';
 
@@ -11,7 +10,7 @@ export const feedback = (isPractice = false) => {
                 type: jsPsychHTMLMultiResponse,
                 stimulus: () => {
                     const t = taskStore().translations;
-                    const isCorrect = store.session.get('currentTrialCorrect');
+                    const isCorrect = taskStore().currentTrialCorrect;
                     return (
                         `<div id='stimulus-container'>
                             <div id='prompt-container-text'>
@@ -37,6 +36,8 @@ export const feedback = (isPractice = false) => {
                 }
             } 
         ],
-        conditional_function: () => store.session.get('stimulus')?.notes === 'practice' || isPractice
+        conditional_function: () => {
+            return taskStore().nextStimulus?.notes === 'practice' || taskStore().nextStimulus?.trialType === 'practice' || isPractice
+        },
     }
 }

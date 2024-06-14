@@ -1,5 +1,5 @@
 import _mapValues from 'lodash/mapValues';
-import store from 'store2';
+import { taskStore } from '../../shared/helpers';
 
 /**
  * This function calculates computed scores given raw scores for each subtask.
@@ -39,8 +39,8 @@ export const computedScoreCallback = (rawScores) => {
     const subPercentCorrect = subtaskScores.test?.numCorrect / subtaskScores.numAttempted || 0;
 
     // add list of correct/incorrect items per subtask
-    // const correctItems = store.session("correctItems");
-    // const incorrectItems = store.session("incorrectItems");
+    // const correctItems = taskStore().correctItems;
+    // const incorrectItems = taskStore().incorrectItems;
 
     return {
       subScore: subScore,
@@ -51,10 +51,12 @@ export const computedScoreCallback = (rawScores) => {
   // computedScores should now have keys for each subtask.
   // But we also want to update the total score so we add up all of the others.
   //const totalScore = _reduce(_omit(computedScores, ['composite']), (sum, score) => sum + score.subScore, 0);
+  const { totalCorrect, trialNumTotal } = taskStore();
+
   computedScores.composite = {
-    totalCorrect: store.session.get('totalCorrect'),
-    totalNumAttempted: store.session.get('trialNumTotal'),
-    totalPercentCorrect: Math.round((store.session.get('totalCorrect') / store.session.get('trialNumTotal')) * 100),
+    totalCorrect: totalCorrect,
+    totalNumAttempted: trialNumTotal,
+    totalPercentCorrect: Math.round((totalCorrect / trialNumTotal) * 100),
   };
 
   return computedScores;

@@ -1,6 +1,5 @@
 import jsPsychCorsiBlocks from '@jspsych-contrib/plugin-corsi-blocks';
 import { createGrid, generateRandomSequence } from '../helpers/grid';
-import store from 'store2';
 import { jsPsych } from '../../taskSetup';
 import _isEqual from 'lodash/isEqual';
 import { finishExperiment } from '../../shared/trials';
@@ -73,7 +72,7 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false}) {
         taskStore('currentTrialCorrect', data.correct)
 
         if (data.correct && !isPractice) {
-          taskStore('incorrectTrials', 0)
+          taskStore('numIncorrect', 0)
           numCorrect++;
 
           if (numCorrect === 3) {
@@ -83,12 +82,11 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false}) {
         }
 
         if (!data.correct && !isPractice) {
-          taskStore().transact('incorrectTrials', (value) => value + 1)
-          console.log('incorrectTrials', taskStore().incorrectTrials)
+          taskStore.transact('numIncorrect', (value) => value + 1)
           numCorrect = 0;
         }
 
-        if (taskStore().incorrectTrials == taskStore().maxIncorrect) {
+        if (taskStore().numIncorrect == taskStore().maxIncorrect) {
           finishExperiment();
         }
 

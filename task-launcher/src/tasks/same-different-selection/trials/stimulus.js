@@ -89,7 +89,7 @@ export const stimulus = {
       return "<button id='sds-continue-btn'>OK</button>";
     }
 
-    const choices = store.session.get('choices');
+    const choices = taskStore().choices;
     const allButtons = choices.map((choice, ind) => {
       const img = mediaAssets.images[camelize(choice)];
       return`<button class='base-image-container'> <img src=${img} alt='shape' /> </button>`;
@@ -104,11 +104,11 @@ export const stimulus = {
   },
   on_finish: (data) => {
     const stim = taskStore().nextStimulus;
-    const choices = store.session.get('choices');
+    const choices = taskStore().choices;
 
     // Always need to write correct key because of firekit.
     // TODO: Discuss with ROAR team to remove this check
-    const isCorrect = data.button_response === store.session.get('correctResponseIdx')
+    const isCorrect = data.button_response === taskStore().correctResponseIdx
 
     if (!isCorrect) {
       numIncorrect.transact('numIncorrect', (n) => n + 1);
