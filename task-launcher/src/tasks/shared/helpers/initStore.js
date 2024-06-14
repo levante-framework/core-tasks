@@ -21,7 +21,7 @@ export const initSharedStore = (config) => {
 
 
 /**
- * @typedef {Object} TrialStore
+ * @typedef {Object} TaskStore
  * @property {string} itemSelect - Identifier for the selected item, default is 'mfi'. Options include: ['mfi', 'random'].
  * @property {number} trialNumSubtask - Counter for trials in the current subtask, starting at 0.
  * @property {number} trialNumTotal - Counter for total trials in the experiment, starting at 0.
@@ -39,17 +39,26 @@ export const initSharedStore = (config) => {
  * @property {boolean} keyHelpers - Whether to use keyboard helpers, default is true.
  * @property {boolean} storeItemId - Whether to store the item ID, default is false.
  * @property {boolean} isRoarApp - Whether the app is running in ROAR mode, default is false.
+ * ------- Added after config is parsed -------
+ * @property {number} totalTrials - Counter for total trials in the experiment, starting at 0.
+ * @property {Object} corpora - Object containing the corpus data (stimulus).
+ * @property {Object} translations - Object containing the translations.
+ * @property {Object} nextStimulus - Object containing the next stimulus.
+ * @property {boolean} skipCurrentTrial - Whether to skip the current trial, default is false.
+ * ------- AFC and SDS only -------
+ * @property {string} target - Target item.
+ * @property {Array} choices - List of choices.
  */
 
 /**
- * Store for managing trial data in the tasks.
+ * Store for managing task state. For all tasks.
  * 
- * @type {import('store2').StoreAPI & (() => TrialStore)}
+ * @type {import('store2').StoreAPI & (() => TaskStore)}
  */
-export const taskStore = store.page.namespace('trialStore');
+export const taskStore = store.page.namespace('taskStore');
 
 export const setTaskStore = (config) => {
-  trialStore({
+  taskStore({
     itemSelect: 'mfi',
     trialNumSubtask: 0,
     trialNumTotal: 0,
@@ -59,6 +68,7 @@ export const setTaskStore = (config) => {
     totalCorrect: 0,
     correctItems: [],
     incorrectItems: [],
+    // -----
     audioFeedback: config.audioFeedback,
     skipInstructions: config.skipInstructions,
     corpusId: config.corpusId,
@@ -71,6 +81,8 @@ export const setTaskStore = (config) => {
   });
 };
 
+
+// Leaving this for ROAR fork / documentation
 
 // STATE
 // audioFeedback: audioFeedback || 'neutral',

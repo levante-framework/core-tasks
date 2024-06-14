@@ -1,7 +1,7 @@
 import 'regenerator-runtime/runtime';
 import store from 'store2';
 // setup
-import { getStimulusBlockCount, initTrialSaving, initTimeline, createPreloadTrials } from '../shared/helpers';
+import { getStimulusBlockCount, initTrialSaving, initTimeline, createPreloadTrials, taskStore } from '../shared/helpers';
 import { jsPsych, initializeCat } from '../taskSetup';
 // trials
 import { slider } from './trials/sliderStimulus';
@@ -24,7 +24,7 @@ export default function buildMathTimeline(config, mediaAssets) {
     timeline: [getAudioResponse(mediaAssets)],
 
     conditional_function: () => {
-      const stim = store.session.get('nextStimulus');
+      const stim = taskStore().nextStimulus;
       if (stim.notes === 'practice' || stim.trialType === 'instructions') {
         return false;
       }
@@ -49,14 +49,14 @@ export default function buildMathTimeline(config, mediaAssets) {
       }),
     ],
     conditional_function: () => {
-      return !store.session.get('nextStimulus').trialType?.includes('Number Line');
+      return !taskStore().nextStimulus.trialType?.includes('Number Line');
     },
   };
 
   const sliderBlock = {
     timeline: [slider],
     conditional_function: () => {
-      return store.session.get('nextStimulus').trialType?.includes('Number Line');
+      return taskStore().nextStimulus.trialType?.includes('Number Line');
     },
   };
 
@@ -77,7 +77,7 @@ export default function buildMathTimeline(config, mediaAssets) {
               store.session.set('skipCurrentTrial', false);
               return false;
             }
-            const stim = store.session.get('nextStimulus');
+            const stim = taskStore().nextStimulus;
             const skipBlockTrialType = store.page.get('skipCurrentBlock');
             if (stim.trialType === skipBlockTrialType) {
               return false;
@@ -98,7 +98,7 @@ export default function buildMathTimeline(config, mediaAssets) {
 
   initializeCat();
 
-  pushSubTaskToTimeline(setupStimulus, getStimulusBlockCount()); // Stimulus Trials
+  pushSubTaskToTimeline(setupStimulus, getStimulusBlockCount(config.numberOfTrials, config.stimulusBlocks)); // Stimulus Trials
   timeline.push(taskFinished);
   timeline.push(exitFullscreen);
 

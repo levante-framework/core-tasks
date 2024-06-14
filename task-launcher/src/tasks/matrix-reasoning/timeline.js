@@ -1,7 +1,7 @@
 import 'regenerator-runtime/runtime';
 // setup
 import store from 'store2';
-import { initTrialSaving, initTimeline, createPreloadTrials } from '../shared/helpers';
+import { initTrialSaving, initTimeline, createPreloadTrials, taskStore } from '../shared/helpers';
 import { instructions } from './trials/instructions';
 import { jsPsych, initializeCat } from '../taskSetup';
 // trials

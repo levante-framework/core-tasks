@@ -2,7 +2,7 @@ import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-respo
 import { mediaAssets } from '../../..';
 import store from 'store2';
 import { jsPsych } from '../../taskSetup';
-import { prepareChoices, replayButtonDiv, setupReplayAudio } from '../../shared/helpers';
+import { prepareChoices, replayButtonDiv, setupReplayAudio, taskStore } from '../../shared/helpers';
 import { camelize } from '@bdelab/roar-utils';
 import { finishExperiment } from '../../shared/trials';
 import { numIncorrect } from './stimulus';
@@ -13,7 +13,7 @@ let previousSelections = [];
 export const afcMatch = {
   type: jsPsychAudioMultiResponse,
   data: () => {
-    const stim = store.session.get('nextStimulus');
+    const stim = taskStore().nextStimulus;
     return {
       save_trial: stim.trialType !== 'instructions',
       assessment_stage: stim.task,
@@ -22,12 +22,12 @@ export const afcMatch = {
     };
   },
   stimulus: () => {
-    const stimulusAudio = camelize(store.session.get('nextStimulus').audioFile);
+    const stimulusAudio = camelize(taskStore().nextStimulus.audioFile);
     return mediaAssets.audio[stimulusAudio];
   },
   prompt: () => {
-    const prompt = camelize(store.session.get('nextStimulus').audioFile);
-    const t = store.session.get('translations');
+    const prompt = camelize(taskStore().nextStimulus.audioFile);
+    const t = taskStore().translations;
     return (
       `<div id='stimulus-container'>
         ${replayButtonDiv}
@@ -43,7 +43,7 @@ export const afcMatch = {
     // can select multiple cards and deselect them
     let audioSource
 
-    const stim = store.session.get('nextStimulus');
+    const stim = taskStore().nextStimulus;
     
     const audioFile = camelize(stim.audioFile);
     setupReplayAudio(audioSource, audioFile);
@@ -101,7 +101,7 @@ export const afcMatch = {
   },
   response_ends_trial: false,
   on_finish: (data) => {
-    const stim = store.session.get('nextStimulus');
+    const stim = taskStore().nextStimulus;
     // save data
     jsPsych.data.addDataToLastTrial({
       corpusTrialType: stim.trialType,
@@ -171,7 +171,7 @@ export const afcMatch = {
       numIncorrect('numIncorrect', 0);
     }
 
-    const maxIncorrect = store.session.get('config').maxIncorrect;
+    const maxIncorrect = taskStore().maxIncorrect;
 
     if ((numIncorrect('numIncorrect') === maxIncorrect)) {
       finishExperiment();

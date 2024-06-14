@@ -10,7 +10,7 @@ export const instructions1 = {
     };
   },
   stimulus: () => {
-    const t = store.session.get('translations');
+    const t = taskStore().translations;
     return `<div class='instructions-container'>
         <h1 class='instructions-title'>${t.instructions}</h1>
     
@@ -24,7 +24,7 @@ export const instructions1 = {
   button_choices: [`Continue`],
   keyboard_choices: 'ALL_KEYS',
   button_html: () => {
-    const t = store.session.get('translations');
+    const t = taskStore().translations;
     return `<button id="continue-btn">${t.continueButtonText}</button>`;
   },
   // trial_duration: 1000,
@@ -39,7 +39,7 @@ export const instructions2 = {
     };
   },
   stimulus: () => {
-    const t = store.session.get('translations');
+    const t = taskStore().translations;
     return `<div class='instructions-container'>
         <h1 class='instructions-title'>${t.instructions}</h1>
 
@@ -53,7 +53,7 @@ export const instructions2 = {
   button_choices: [`Continue`],
   keyboard_choices: 'ALL_KEYS',
   button_html: () => {
-    const t = store.session.get('translations');
+    const t = taskStore().translations;
     return `<button id="continue-btn">${t.continueButtonText}</button>`;
   },
   // trial_duration: 1000,
@@ -68,7 +68,7 @@ export const postPractice = {
     };
   },
   stimulus: () => {
-    const t = store.session.get('translations');
+    const t = taskStore().translations;
     return `<div class='instructions-container'>
         <h1 class='instructions-title'>Great job!</h1>
 
@@ -82,7 +82,7 @@ export const postPractice = {
   button_choices: [`Continue`],
   keyboard_choices: 'ALL_KEYS',
   button_html: () => {
-    const t = store.session.get('translations');
+    const t = taskStore().translations;
     return `<button id="continue-btn">${t.continueButtonText}</button>`;
   },
   // trial_duration: 1000,

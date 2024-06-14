@@ -2,7 +2,7 @@ import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-respo
 import store from 'store2';
 import { isTouchScreen } from '../../taskSetup';
 import { mediaAssets } from '../../..';
-import { replayButtonDiv, setupReplayAudio } from '../../shared/helpers';
+import { replayButtonDiv, setupReplayAudio, taskStore } from '../../shared/helpers';
 
 const instructionData = [
     {
@@ -43,7 +43,7 @@ export const instructions = instructionData.map(data => {
         type: jsPsychAudioMultiResponse,
         stimulus: () => mediaAssets.audio[data.prompt],
         prompt: () => {
-            const t = store.session.get('translations');
+            const t = taskStore().translations;
             return `<div id='stimulus-container'>
                         ${replayButtonDiv}
                         <div id='prompt-container-text'>
@@ -63,7 +63,7 @@ export const instructions = instructionData.map(data => {
         prompt_above_buttons: true,
         button_choices: ['Next'],
         button_html: () => {
-            const t = store.session.get('translations');
+            const t = taskStore().translations;
             return [
             `<button id='continue-btn'>
                 ${t[data.buttonText]}

@@ -2,6 +2,7 @@ import store from 'store2';
 import { isTaskFinished, getMediaAssets, dashToCamelCase, showLevanteLogoLoading, hideLevanteLogoLoading, setTaskStore} from './tasks/shared/helpers';
 import './styles/task.scss';
 import taskConfig from './tasks/taskConfig';
+import { setMemoryStore } from './tasks/memory-game/helpers/store';
 
 export let mediaAssets;
 export class TaskLauncher {
@@ -36,9 +37,19 @@ export class TaskLauncher {
 
     const config = await initConfig(this.firekit, this.gameParams, this.userParams, this.displayElement);
 
+    // ---- STORE ----
+
     initStore(config);
 
     setTaskStore(config)
+
+    if (taskName === 'memory-game') {
+      setMemoryStore(config.userMetadata.age);
+    }
+
+
+
+    // ---------------
 
     store.session.set('config', config);
 
@@ -47,7 +58,7 @@ export class TaskLauncher {
       await loadCorpus(config);
     }
 
-    await getTranslations();
+    await getTranslations(config.language);
 
     return buildTaskTimeline(config, mediaAssets);
   }

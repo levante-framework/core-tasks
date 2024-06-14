@@ -7,8 +7,8 @@ import { reasonForEnd } from './';
 
 export const maxTimeReached = store.page.namespace('maxTimeReached', false);
 
-export const startAppTimer = () => {
-  const maxTimeInMinutes = store.session.get('config').maxTime;
+export const startAppTimer = (config) => {
+  const maxTimeInMinutes = config.maxTime;
 
   // Minimum time is 1 minute
   const maxTimeInMilliseconds = Math.max(maxTimeInMinutes, 1) * 60000;

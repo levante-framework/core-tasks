@@ -1,4 +1,5 @@
 import store from 'store2';
+import { taskStore } from './';
 
 function createBlocks(numOfBlocks, numOfTrials) {
   // Minimum number of trials. Can change to whatever.
@@ -21,9 +22,8 @@ function createBlocks(numOfBlocks, numOfTrials) {
 }
 
 // get size of blocks
-export const getStimulusBlockCount = (userMode) => {
-  const { numberOfTrials, stimulusBlocks } = store.session.get('config');
-  const maxNumberOfTrials = store.session.get('totalTrials');
+export const getStimulusBlockCount = (numberOfTrials, stimulusBlocks) => {
+  const maxNumberOfTrials = taskStore().totalTrials;
 
   let countList;
 

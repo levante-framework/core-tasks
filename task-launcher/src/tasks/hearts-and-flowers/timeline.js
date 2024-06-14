@@ -1,7 +1,7 @@
 // setup
 import { jsPsych } from '../taskSetup';
 import { fixation } from './trials/fixation';
-import { initTrialSaving, initTimeline, createPreloadTrials } from '../shared/helpers';
+import { initTrialSaving, initTimeline, createPreloadTrials, taskStore } from '../shared/helpers';
 import store from 'store2';
 import { mediaAssets } from '../..';
 
@@ -24,6 +24,7 @@ import {
   getEndGame,
 } from './trials/instructions';
 import { StimulusType, StimulusSideType, AssessmentStageType } from './helpers/utils';
+import { hfStore } from './helpers/store';
 
 // export let cat;
 // export let cat2;
@@ -38,7 +39,7 @@ export default function buildHeartsAndFlowersTimeline(config, mediaAssets) {
   //     method: 'MLE',
   //     minTheta: -6,
   //     maxTheta: 6,
-  //     itemSelect: store.session('itemSelect'),
+  //     itemSelect: taskStore().itemSelect,
   //   });
 
   //   // Include new items in thetaEstimate
@@ -46,7 +47,7 @@ export default function buildHeartsAndFlowersTimeline(config, mediaAssets) {
   //     method: 'MLE',
   //     minTheta: -6,
   //     maxTheta: 6,
-  //     itemSelect: store.session('itemSelect'),
+  //     itemSelect: taskStore().itemSelect,
   //   });
 
   // TODO: parse from user input
@@ -138,20 +139,20 @@ function getHeartOrFlowerInstructionsSection(adminConfig, stimulusType) {
   if (stimulusType === StimulusType.Heart) {
     //First instruction practice
     instructionPracticeStimulusSide1 = StimulusSideType.Left;
-    instructionPracticePromptText1 = store.session.get('translations').heartInstruct2; // heart-instruct2, "When you see a <b>heart</b>, press the button on the <b>same</b> side."
+    instructionPracticePromptText1 = taskStore().translations.heartInstruct2; // heart-instruct2, "When you see a <b>heart</b>, press the button on the <b>same</b> side."
     instructionPracticePromptAudio1 = mediaAssets.audio.heartInstruct2;
     //Second instruction practice
     instructionPracticeStimulusSide2 = StimulusSideType.Right;
-    instructionPracticePromptText2 = store.session.get('translations').heartPracticeFeedback1; // heart-practice-feedback1, "The heart is on the right side. Press the right button.")
+    instructionPracticePromptText2 = taskStore().translations.heartPracticeFeedback1; // heart-practice-feedback1, "The heart is on the right side. Press the right button.")
     instructionPracticePromptAudio2 = mediaAssets.audio.heartPracticeFeedback1;
   } else if (stimulusType === StimulusType.Flower) {
     //First instruction practice
     instructionPracticeStimulusSide1 = StimulusSideType.Right;
-    instructionPracticePromptText1 = store.session.get('translations').flowerInstruct2; // flower-instruct2, "When you see a flower, press the button on the opposite side."
+    instructionPracticePromptText1 = taskStore().translations.flowerInstruct2; // flower-instruct2, "When you see a flower, press the button on the opposite side."
     instructionPracticePromptAudio1 = mediaAssets.audio.flowerInstruct2;
     //Second instruction practice
     instructionPracticeStimulusSide2 = StimulusSideType.Left;
-    instructionPracticePromptText2 = store.session.get('translations').flowerPracticeFeedback1; // flower-practice-feedback1, "The flower is on the left side. Press the right button."
+    instructionPracticePromptText2 = taskStore().translations.flowerPracticeFeedback1; // flower-practice-feedback1, "The flower is on the left side. Press the right button."
     instructionPracticePromptAudio2 = mediaAssets.audio.flowerPracticeFeedback1;
   } else {
     const errorMessage = `Invalid type: ${stimulusType} for getHeartOrFlowerInstructionsSection`;
@@ -184,11 +185,11 @@ function getHeartOrFlowerInstructionsSection(adminConfig, stimulusType) {
   // Instruction practice trials do not advance until user gets it right
   subtimeline.push({
     timeline: [instructionPractice1, instructionPracticeFeedback],
-    loop_function: (data) => store.session.get('correct') === false,
+    loop_function: (data) => hfStore().correct === false,
   });
   subtimeline.push({
     timeline: [instructionPractice2, instructionPracticeFeedback],
-    loop_function: (data) => store.session.get('correct') === false,
+    loop_function: (data) => hfStore().correct === false,
   });
 
   return subtimeline;
@@ -290,7 +291,7 @@ function getMixedInstructionsSection(adminConfig) {
 
   const instructionPractice1 = buildInstructionPracticeTrial(
     StimulusType.Heart,
-    store.session.get('translations').heartInstruct2, // heart-instruct2, "When you see a <b>heart</b>, press the button on the <b>same</b> side."
+    taskStore().translations.heartInstruct2, // heart-instruct2, "When you see a <b>heart</b>, press the button on the <b>same</b> side."
     mediaAssets.audio.heartInstruct2,
     StimulusSideType.Left,
   );
@@ -298,7 +299,7 @@ function getMixedInstructionsSection(adminConfig) {
   const instructionPractice2 = buildInstructionPracticeTrial(
     StimulusType.Flower,
     //TODO: check that we want this one and not "REMEMBER! When you see a [...]"
-    store.session.get('translations').flowerInstruct2, // flower-instruct2, "When you see a flower, press the button on the opposite side."
+    taskStore().translations.flowerInstruct2, // flower-instruct2, "When you see a flower, press the button on the opposite side."
     mediaAssets.audio.flowerInstruct2,
     StimulusSideType.Right,
   );
@@ -308,11 +309,11 @@ function getMixedInstructionsSection(adminConfig) {
   // Instruction practice trials do not advance until user gets it right
   subtimeline.push({
     timeline: [instructionPractice1, instructionPracticeFeedback],
-    loop_function: (data) => store.session.get('correct') === false,
+    loop_function: (data) => hfStore().correct === false,
   });
   subtimeline.push({
     timeline: [instructionPractice2, instructionPracticeFeedback],
-    loop_function: (data) => store.session.get('correct') === false,
+    loop_function: (data) => hfStore().correct === false,
   });
 
   return subtimeline;
