@@ -106,7 +106,7 @@ function buildInstructionTrial(mascotImage, promptAudio, promptText, buttonText,
     type: jsPsychAudioMultiResponse,
     stimulus: promptAudio,
     prompt:
-      `<div>
+      `<div class="haf-stimulus-holder">
         <div class="lev-row-container header">
           <p>${promptText}</p>
         </div>
