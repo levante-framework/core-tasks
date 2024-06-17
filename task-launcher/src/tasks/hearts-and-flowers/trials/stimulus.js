@@ -9,7 +9,6 @@ import {
   getCorrectInputSide,
   getStimulusLayout,
 } from '../helpers/utils';
-import { hfStore } from '../helpers/store';
 import shuffle from 'lodash/shuffle';
 import { finishExperiment } from '../../shared/trials';
 import { taskStore } from '../../shared/helpers';
@@ -93,9 +92,9 @@ export function stimulus(isPractice, stage, stimulusDuration, onTrialFinishTimel
       }
 
       //TODO: move these to timeline-level callback/variables
-      hfStore('correct', data.correct);
-      hfStore('stimulus', stimulusType);
-      hfStore('stimulusSide', stimuluSide);
+      taskStore('isCorrect', data.correct);
+      taskStore('stimulus', stimulusType);
+      taskStore('stimulusSide', stimuluSide);
 
       jsPsych.data.addDataToLastTrial({
         item: stimulusType,

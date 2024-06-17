@@ -10,7 +10,7 @@ export const feedback = (isPractice = false) => {
                 type: jsPsychHTMLMultiResponse,
                 stimulus: () => {
                     const t = taskStore().translations;
-                    const isCorrect = taskStore().currentTrialCorrect;
+                    const isCorrect = taskStore().isCorrect;
                     return (
                         `<div id='stimulus-container'>
                             <div id='prompt-container-text'>

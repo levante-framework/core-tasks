@@ -50,4 +50,3 @@ export const instructions = instructionData.map(data => {
         }
     }
 })
-

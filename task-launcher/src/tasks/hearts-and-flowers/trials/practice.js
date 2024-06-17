@@ -10,7 +10,6 @@ import {
 } from '../helpers/utils';
 import { replayButtonSvg, overrideAudioTrialForReplayableAudio } from '../helpers/audioTrials';
 import { taskStore } from '../../shared/helpers';
-import { hfStore } from '../helpers/store';
 
 /**
  * Builds a practice trial for the Instruction sections.
@@ -43,8 +42,8 @@ export function buildInstructionPracticeTrial(stimulusType, promptText, promptAu
     },
     prompt_above_buttons: true,
     on_start: () => {
-      hfStore('stimulus', stimulusType);
-      hfStore('stimulusSide', stimulusSideType);
+      taskStore('stimulus', stimulusType);
+      taskStore('stimulusSide', stimulusSideType);
     },
     on_load: () => {
       document.getElementById('jspsych-audio-multi-response-btngroup').classList.add('btn-layout-hf');
@@ -74,9 +73,9 @@ export function buildInstructionPracticeTrial(stimulusType, promptText, promptAu
       }
       
       if (response === validAnswer) {
-        hfStore('correct', true);
+        taskStore('isCorrect', true);
       } else {
-        hfStore('correct', false);
+        taskStore('isCorrect', false);
       }
     },
     // TODO handle stimulus presentation timeout and other parameters
@@ -150,16 +149,16 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
   const trial = {
     type: jsPsychAudioMultiResponse,
     stimulus: () => {
-      const stimulusType = hfStore().stimulus;
-      const incorrect = hfStore().correct === false
+      const stimulusType = taskStore().stimulus;
+      const incorrect = taskStore().isCorrect === false
       const audioPrompt = stimulusType === StimulusType.Heart ?
           incorrect? feedbackAudio.IncorrectHeart : feedbackAudio.CorrectHeart
           : incorrect? feedbackAudio.IncorrectFlower : feedbackAudio.CorrectFlower;
       return audioPrompt;
     },
     prompt: () => {
-      const stimulusType = hfStore().stimulus;
-      const incorrect = hfStore().correct === false
+      const stimulusType = taskStore().stimulus;
+      const incorrect = taskStore().isCorrect === false
       //TODO: now that the 'correct' feedback layout differs significantly from the 'incorrect' feedback layout, we should consider
       // moving them to separate trials and using conditional trials
       if (!incorrect) {
@@ -182,7 +181,7 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
         : feedbackTexts.IncorrectFlower;
       return getStimulusLayout(
         imageSrc,
-        hfStore().stimulusSide === StimulusSideType.Left,
+        taskStore().stimulusSide === StimulusSideType.Left,
         promptText,
         replayButtonHtmlId,
       )
@@ -203,8 +202,8 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
     keyboard_choices: () => {
       if (isTouchScreen) return InputKey.NoKeys;
       //else: allow keyboard input
-      if (hfStore().correct === false) {
-        const validAnswerPosition = getCorrectInputSide(hfStore().stimulus, hfStore().stimulusSide);
+      if (taskStore().isCorrect === false) {
+        const validAnswerPosition = getCorrectInputSide(taskStore().stimulus, taskStore().stimulusSide);
         return validAnswerPosition === 0?
           InputKey.ArrowLeft : InputKey.ArrowRight;
       } else {
@@ -212,8 +211,8 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
       }
     },
     button_html: () => {
-      if (hfStore().correct === false) {
-        const validAnswerPosition = getCorrectInputSide(hfStore().stimulus, hfStore().stimulusSide);
+      if (taskStore().isCorrect === false) {
+        const validAnswerPosition = getCorrectInputSide(taskStore().stimulus, taskStore().stimulusSide);
         return validAnswerPosition === 0 ? // is valid answer on the left?
         [`<button class='response-btn' id='${validAnswerButtonHtmlIdentifier}'></button>`, `<button class='response-btn'></button>`]
         : [`<button class='response-btn'></button>`, `<button class='response-btn' id='${validAnswerButtonHtmlIdentifier}'></button>`];
@@ -223,11 +222,11 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
     },
     trial_ends_after_audio: () => {
       // when showing correct feedback, the trial should end with the end of the audio
-      return hfStore().correct === true ? true : false;
+      return taskStore().isCorrect === true ? true : false;
     },
     response_ends_trial: () => {
       // when showing incorrect feedback, the trial should only end with response
-      return hfStore().correct === false ? true : false;
+      return taskStore().isCorrect === false ? true : false;
     },
     on_finish: (data) => {
       if (onFinishTimelineCallback) {

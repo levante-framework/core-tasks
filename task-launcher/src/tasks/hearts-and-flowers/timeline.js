@@ -23,7 +23,6 @@ import {
   getEndGame,
 } from './trials/instructions';
 import { StimulusType, StimulusSideType, AssessmentStageType } from './helpers/utils';
-import { hfStore } from './helpers/store';
 
 // export let cat;
 // export let cat2;
@@ -184,11 +183,11 @@ function getHeartOrFlowerInstructionsSection(adminConfig, stimulusType) {
   // Instruction practice trials do not advance until user gets it right
   subtimeline.push({
     timeline: [instructionPractice1, instructionPracticeFeedback],
-    loop_function: (data) => hfStore().correct === false,
+    loop_function: (data) => taskStore().correct === false,
   });
   subtimeline.push({
     timeline: [instructionPractice2, instructionPracticeFeedback],
-    loop_function: (data) => hfStore().correct === false,
+    loop_function: (data) => taskStore().correct === false,
   });
 
   return subtimeline;
@@ -308,11 +307,11 @@ function getMixedInstructionsSection(adminConfig) {
   // Instruction practice trials do not advance until user gets it right
   subtimeline.push({
     timeline: [instructionPractice1, instructionPracticeFeedback],
-    loop_function: (data) => hfStore().correct === false,
+    loop_function: (data) => taskStore().correct === false,
   });
   subtimeline.push({
     timeline: [instructionPractice2, instructionPracticeFeedback],
-    loop_function: (data) => hfStore().correct === false,
+    loop_function: (data) => taskStore().correct === false,
   });
 
   return subtimeline;

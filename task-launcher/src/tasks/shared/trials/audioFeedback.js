@@ -5,11 +5,11 @@ export function getAudioResponse(mediaAssets) {
   return {
     type: jsPsychAudioKeyboardResponse,
     stimulus: () => {
-      if (taskStore().audioFeedback === 'binary' && taskStore().currentTrialCorrect) {
+      if (taskStore().audioFeedback === 'binary' && taskStore().isCorrect) {
         return mediaAssets.audio.coin;
       }
 
-      if (taskStore().audioFeedback === 'binary' && !taskStore().currentTrialCorrect) {
+      if (taskStore().audioFeedback === 'binary' && !taskStore().isCorrect) {
         return mediaAssets.audio.fail;
       }
 

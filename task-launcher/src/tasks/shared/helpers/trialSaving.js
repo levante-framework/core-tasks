@@ -20,8 +20,6 @@ export const initTrialSaving = (config) => {
     };
 
   jsPsych.opts.on_finish = extend(jsPsych.opts.on_finish, () => {
-    // ENABLE WHEN FIREKIT PR IS MERGED AND RELEASED
-
     // Add finishing metadata to run doc
     // const finishingMetadata = {}
     // const { maxTimeReached, numIncorrect, maxIncorrect } = taskStore();

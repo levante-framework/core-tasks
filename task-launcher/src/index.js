@@ -8,7 +8,6 @@ import {
 } from './tasks/shared/helpers';
 import './styles/task.scss';
 import taskConfig from './tasks/taskConfig';
-import { setMemoryStore } from './tasks/memory-game/helpers/store';
 
 export let mediaAssets;
 export class TaskLauncher {
@@ -44,10 +43,6 @@ export class TaskLauncher {
     const config = await setConfig(this.firekit, this.gameParams, this.userParams, this.displayElement);
 
     setTaskStore(config)
-
-    if (taskName === 'memory-game') {
-      setMemoryStore(config.userMetadata.age);
-    }
 
     // TODO: make hearts and flowers corpus
     if (taskName !== 'hearts-and-flowers' && taskName !== 'memory-game') {
