@@ -5,7 +5,6 @@ import store from 'store2';
  * @property {string} itemSelect - Identifier for the selected item, default is 'mfi'. Options include: ['mfi', 'random'].
  * @property {number} trialNumSubtask - Counter for trials in the current subtask, starting at 0.
  * @property {number} trialNumTotal - Counter for total trials in the experiment, starting at 0.
- * @property {boolean} currentTrialCorrect - Indicates if the current trial is correct, default is true.
  * @property {number} numIncorrect - Counter for incorrect responses, starting at 0.
  * @property {number} totalCorrect - Counter for total correct trials, starting at 0.
  * @property {Array} correctItems - List of correct items, starting as an empty array.
@@ -32,6 +31,16 @@ import store from 'store2';
  * @property {number} correctResponseIdx - Index of the correct response, starting at 0.
  * ------- Math only -------
  * @property {Array} nonFractionSelections - List of non-fraction selections.
+ * ------- H&F only -------
+ * @property {string} stimulus - Name of the stimulus, default is 'heart'.
+ * @property {string} stimulusSide - Side of the stimulus, default is 'left'.
+ * @property {number} stimulusPosition - Position of the stimulus, default is 0.
+ * ------- Memory Game only -------
+ * @property {number} numOfBlocks - Number of blocks in the memory game, default is 4.
+ * @property {number} blockSize - Size of each block in the memory game, default is 50.
+ * @property {number} gridSize - Size of the grid in the memory game, default is 2x2.
+ * ------- H&F & Memory Game only -------
+ * @property {boolean} isCorrect - Whether the response to the previous trial was correct, default is false.
  */
 
 /**
@@ -46,7 +55,6 @@ export const setTaskStore = (config) => {
     itemSelect: 'mfi',
     trialNumSubtask: 0,
     trialNumTotal: 0,
-    currentTrialCorrect: false,
     numIncorrect: 0,
     // For ROAR syntax (TROG)
     totalCorrect: 0,
@@ -61,7 +69,14 @@ export const setTaskStore = (config) => {
     keyHelpers: config.keyHelpers,
     storeItemId: config.storeItemId,
     isRoarApp: config.isRoarApp,
+    numOfBlocks: config.userMetadata.age > 12 ? 9 : 4,
+    blockSize: config.userMetadata.age > 12 ? 30 : 50,
+    gridSize: config.userMetadata.age > 12 ? 3 : 2,
     maxTimeReached: false,
+    stimulus: 'heart',
+    stimulusSide: 'left',
+    stimulusPosition: 0,
+    isCorrect: false,
   });
 };
 

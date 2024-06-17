@@ -5,7 +5,6 @@ import _isEqual from 'lodash/isEqual';
 import { finishExperiment } from '../../shared/trials';
 import { mediaAssets } from '../../..';
 import { getMemoryGameType } from '../helpers/getMemoryGameType';
-import { memoryStore } from '../helpers/store';
 import { taskStore } from '../../shared/helpers';
 
 
@@ -26,7 +25,7 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false}) {
     sequence: () => {
       // On very first trial, generate initial sequence
       if (!generatedSequence) {
-        const numOfBlocks = memoryStore().numOfBlocks;
+        const numOfBlocks = taskStore().numOfBlocks;
         generatedSequence = generateRandomSequence({numOfBlocks, sequenceLength})
       }
 
@@ -38,13 +37,13 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false}) {
     },
     blocks: () => {
       if (!grid) {
-        const { numOfBlocks, blockSize, gridSize } = memoryStore();
+        const { numOfBlocks, blockSize, gridSize } = taskStore();
         grid = createGrid({x, y, numOfBlocks, blockSize, gridSize, blockSpacing})
       }
       return grid;
     },
     mode: mode,
-    block_size: () => memoryStore().blockSize,
+    block_size: () => taskStore().blockSize,
     // light gray
     // Must be specified here as well as in the stylesheet. This is because
     // We need it for the initial render (our code) and when jspsych changes the color after highlighting.
@@ -69,7 +68,7 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false}) {
       });
 
       if (mode === 'input') {
-        taskStore('currentTrialCorrect', data.correct)
+        taskStore('isCorrect', data.correct)
 
         if (data.correct && !isPractice) {
           taskStore('numIncorrect', 0)
@@ -92,7 +91,7 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false}) {
 
         selectedCoordinates = [];
 
-        const numOfBlocks = memoryStore().numOfBlocks;
+        const numOfBlocks = taskStore().numOfBlocks;
 
         // Avoid generating the same sequence twice in a row
         let newSequence = generateRandomSequence({
@@ -127,7 +126,7 @@ function doOnLoad(mode, isPractice) {
   container.id = '';
   container.classList.add('jspsych-corsi-overide');
 
-  const gridSize = memoryStore().gridSize;
+  const gridSize = taskStore().gridSize;
 
   container.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
   container.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;

@@ -17,4 +17,3 @@ export const startAppTimer = (config) => {
     clearTimeout(timerId);
   }, maxTimeInMilliseconds);
 };
-
