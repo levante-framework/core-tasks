@@ -101,32 +101,34 @@ function buildInstructionTrial(mascotImage, promptAudio, promptText, buttonText,
     // throw new Error(`Missing prompt text for instruction trial`);
     console.error(`buildInstructionTrial: Missing prompt text`);
   }
-  const replayButtonHtmlId = 'replay-btn';
+  const replayButtonHtmlId = 'replay-btn-revisited';
   const trial = {
     type: jsPsychAudioMultiResponse,
     stimulus: promptAudio,
     prompt:
-      `<div id='stimulus-container'>
-        <h2>${promptText}</h2>
-        <div id='${replayButtonHtmlId}'>
-          ${replayButtonSvg}
+      `<div class="haf-stimulus-holder">
+        <div class="lev-row-container header">
+          <p>${promptText}</p>
         </div>
-        <div class='centered-container-haf'>
+        <button id="${replayButtonHtmlId}" class="replay">
+          ${replayButtonSvg}
+        </button>
+        <div class='haf-image-container'>
           <img
             id='instruction-graphic'
             src=${mascotImage}
             alt='Instruction graphic'
           />
         </div>
-        ${bottomText ? `<h2>${bottomText}</h2>` : ''}
+        ${bottomText ? `<div class="lev-row-container header"><p>${bottomText}</p></div>` : ''}
       </div>`,
     prompt_above_buttons: true,
     keyboard_choices: isTouchScreen? InputKey.NoKeys : [InputKey.SpaceBar, InputKey.Enter],
     button_choices: ['Next'],
     button_html:[
-      `<button class='next-btn'>
-        <p>${buttonText}</p>
-      </button>`.trim(),],
+      `<button class='primary'>
+        ${buttonText.trim()}
+      </button>`,],
   };
   overrideAudioTrialForReplayableAudio(trial, jsPsych.pluginAPI, replayButtonHtmlId);
   return trial;

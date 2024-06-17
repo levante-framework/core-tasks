@@ -2,7 +2,7 @@
 
 .lev-row-container {
   display: flex;
-  padding: 64px;
+  padding: $lev-spacing-s;
   justify-content: center;
   align-items: center;
   justify-content: center;
@@ -13,36 +13,39 @@
     p {
       font-size: $font-size-m;
       font-weight: $font-weight-bold;
+      margin: 0;
     }
     
     @include respond-to('medium') {
       display: flex;
-      padding: 32px;
+      padding: $lev-spacing-xs;
       justify-content: center;
       align-items: center;
   
       p {
         font-size: $font-size-s;
         font-weight: $font-weight-normal;
+        margin: 0;
       }
     }
   
     @include respond-to('small') {
       display: flex;
-      padding: 16px;
+      padding: $lev-spacing-xxs;
       justify-content: center;
       align-items: center;
   
       p {
         font-size: $font-size-xxs;
         font-weight: $font-weight-normal;
+        margin: 0;
       }
     }
   }
 
   &.instruction {
     display: flex;
-    padding: 32px;
+    padding: $lev-spacing-s;
     justify-content: center;
     align-items: center;
     text-align: center;
@@ -54,11 +57,12 @@
       font-size: $font-size-xs;
       font-weight: $font-weight-light;
       line-height: 1.0;
+      margin: 0;
     }
     
     @include respond-to('medium') {
       display: flex;
-      padding: 16px;
+      padding: $lev-spacing-xs;
       justify-content: center;
       align-items: center;
       border-radius: 24px;
@@ -67,12 +71,13 @@
         font-size: $font-size-xxs;
         font-weight: $font-weight-light;
         line-height: 1.0;
+        margin: 0;
       }
     }
   
     @include respond-to('small') {
       display: flex;
-      padding: 8px 8px;
+      padding: $lev-spacing-xxs;
       justify-content: center;
       align-items: center;
       border-radius: 16px;
@@ -81,6 +86,7 @@
         font-size: $font-size-xxxs;
         font-weight: $font-weight-light;
         line-height: 1.0;
+        margin: 0;
       }
     }
   }

@@ -40,11 +40,21 @@ export function stimulus(isPractice, stage, stimulusDuration, onTrialFinishTimel
     //TODO: apply stimulusDuration but only on the heart or flower, the stimulus container should remain visible.
     // stimulus_duration: stimulusDuration,
     on_load: () => {
-      document.getElementById('jspsych-html-multi-response-btngroup').classList.add('btn-layout-hf');
+      // document.getElementById('jspsych-html-multi-response-btngroup').classList.add('btn-layout-hf');
+      document.getElementById('jspsych-html-multi-response-stimulus').classList.add('haf-parent-container');
+      document.getElementById('jspsych-html-multi-response-btngroup').classList.add('haf-parent-container');
+      document.getElementById('jspsych-html-multi-response-btngroup').classList.add('lev-response-row');
+      document.getElementById('jspsych-html-multi-response-btngroup').classList.add('linear-4');
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
     keyboard_choices: isTouchScreen? InputKey.NoKeys : [InputKey.ArrowLeft, InputKey.ArrowRight],
-    button_html: [`<div class='response-btn'></div>`, `<div class='response-btn'></div>`],
+    button_html: [`
+    <div class='response-container--small'>
+      <button class='secondary--green'></button>
+    </div>`, 
+    `<div class='response-container--small'>
+      <button class='secondary--green'></button>
+    </div>`],
     //TODO: save whether answer is correct/incorrect to fix practice feedback
     //TODO: check data is saved properly
     on_finish: (data) => {
