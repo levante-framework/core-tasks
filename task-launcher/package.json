@@ -20,7 +20,7 @@
     "postversion": "GIT_REMOTE=$(git remote -v | grep \"levante-framework/core-tasks.git \\(push\\)\" | cut -f 1) && git push $GIT_REMOTE && git push $GIT_REMOTE --tags",
     "dev": "npx webpack serve --mode development --env dbmode=development",
     "deploy": "npm run build && firebase deploy --only hosting",
-    "lint": "npx eslint --ext .ts,.tsx,.js,.jsx",
+    "lint": "eslint --ext .ts,.js --ignore-path .gitignore --fix src",
     "format": "npx prettier . --write"
   },
   "repository": {
