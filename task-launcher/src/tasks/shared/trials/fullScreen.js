@@ -1,19 +1,19 @@
 import jsPsychFullScreen from '@jspsych/plugin-fullscreen';
 import fscreen from 'fscreen';
-import store from 'store2';
+import { taskStore } from '../helpers';
 
 export const enterFullscreen = {
   type: jsPsychFullScreen,
   fullscreen_mode: true,
   message: () => {
-    const t = store.session.get('translations');
+    const t = taskStore().translations;
     return `<div class="lev-row-container header">
         <p>${t.generalFullscreen || 'Switch to full screen mode'}</p>
       </div>
       `;
   },
   delay_after: 0,
-  button_label: () => `${store.session.get('translations').continueButtonText || 'Continue'}`,
+  button_label: () => `${taskStore().translations.continueButtonText || 'Continue'}`,
   on_load: () => {
     const continueButton = document.getElementById('jspsych-fullscreen-btn');
     if (continueButton) {

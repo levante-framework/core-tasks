@@ -3,9 +3,7 @@ import _shuffle from 'lodash/shuffle';
 import _toNumber from 'lodash/toNumber';
 import { jsPsych, isTouchScreen } from '../../taskSetup';
 import { camelize } from '@bdelab/roar-utils';
-import store from 'store2';
-import { arrowKeyEmojis, isPractice, setSkipCurrentBlock } from '../../shared/helpers';
-import { finishExperiment } from '../../shared/trials';
+import { arrowKeyEmojis, isPractice, setSkipCurrentBlock, taskStore } from '../../shared/helpers';
 
 let chosenAnswer,
   sliderStart,
@@ -15,7 +13,7 @@ function captureValue(btnElement, event) {
   let containerEl = document.getElementById('slider-btn-container') || null;
 
   if (!containerEl) {
-    const layout = store.session('config').buttonLayout;
+    const layout = taskStore().buttonLayout;
     containerEl = document.getElementsByClassName(`${layout}-layout`)[0];
   }
 
@@ -65,13 +63,13 @@ export const slider = {
   data: () => {
     return {
       save_trial: true,
-      assessment_stage: store.session.get('nextStimulus').task,
-      isPracticeTrial: store.session.get('nextStimulus').notes === 'practice',
+      assessment_stage: taskStore().nextStimulus.task,
+      isPracticeTrial: taskStore().nextStimulus.notes === 'practice',
     };
   },
   stimulus: () => {
-    const stim = store.session.get('nextStimulus');
-    let t = store.session.get('translations');
+    const stim = taskStore().nextStimulus;
+    let t = taskStore().translations;
 
     const prompt = stim.prompt;
     if (prompt.includes('Move the slider')) {
@@ -89,15 +87,15 @@ export const slider = {
               </div>`;
     }
   },
-  labels: () => store.session.get('nextStimulus').item,
+  labels: () => taskStore().nextStimulus.item,
   // button_label: 'OK',
-  require_movement: () => store.session.get('nextStimulus').trialType === 'Number Line Slider',
+  require_movement: () => taskStore().nextStimulus.trialType === 'Number Line Slider',
   // slider_width: 800,
-  min: () => store.session.get('nextStimulus').item[0],
-  max: () => store.session.get('nextStimulus').item[1],
-  // max: () => (store.session.get('nextStimulus').item[1] === 1 ? 100 : store.session.get('nextStimulus').item[1]),
+  min: () => taskStore().nextStimulus.item[0],
+  max: () => taskStore().nextStimulus.item[1],
+  // max: () => (taskStore().nextStimulus.item[1] === 1 ? 100 : taskStore().nextStimulus.item[1]),
   slider_start: () => {
-    const stim = store.session.get('nextStimulus');
+    const stim = taskStore().nextStimulus;
 
     if (stim.trialType.includes('Slider')) {
       // const max = stim.item[1] === 1 ? 100 : stim.item[1];
@@ -123,8 +121,8 @@ export const slider = {
       el.style.fontSize = '1.5rem';
       //}
     });
-    const { buttonLayout, keyHelpers } = store.session.get('config');
-    const distractors = store.session('nextStimulus');
+    const { buttonLayout, keyHelpers } = taskStore();
+    const distractors = taskStore().nextStimulus;
 
     const wrapper = document.getElementById('jspsych-html-slider-response-wrapper');
     const buttonContainer = document.createElement('div');
@@ -138,7 +136,7 @@ export const slider = {
       buttonContainer.classList.add(`${buttonLayout}-layout`);
     }
 
-    if (store.session.get('nextStimulus').trialType === 'Number Line 4afc') {
+    if (taskStore().nextStimulus.trialType === 'Number Line 4afc') {
       // don't let participant move slider
       slider.disabled = true;
 
@@ -149,14 +147,14 @@ export const slider = {
       continueBtn.disabled = true;
       continueBtn.style.visibility = 'hidden';
 
-      const { answer, distractors } = store.session.get('nextStimulus');
+      const { answer, distractors } = taskStore().nextStimulus;
 
       distractors.push(answer);
 
-      store.session.set('target', answer);
-      store.session.set('choices', distractors);
+      taskStore('target', answer);
+      taskStore('choices', distractors);
 
-      const responseChoices = store.session('choices');
+      const responseChoices = taskStore().choices;
 
       // create buttons
       for (let i = 0; i < responseChoices.length; i++) {
@@ -210,14 +208,14 @@ export const slider = {
     // Need to remove event listener after trial completion or they will stack and cause an error.
     document.removeEventListener('keydown', captureBtnValue);
 
-    const stimulus = store.session.get('nextStimulus');
+    const stimulus = taskStore().nextStimulus;
     if (stimulus.trialType === 'Number Line 4afc') {
-      data.correct = chosenAnswer === store.session.get('target');
+      data.correct = chosenAnswer === taskStore().target;
       if (!isPractice(stimulus.notes)) {
         if (data.correct) {
-          store.session.set('incorrectTrials', 0);
+          taskStore('numIncorrect', 0);
         } else {
-          store.session.transact('incorrectTrials', (oldVal) => oldVal + 1);
+          taskStore.transact('numIncorrect', (oldVal) => oldVal + 1);
         }
       }
     } else {
@@ -225,10 +223,8 @@ export const slider = {
       data.correct = null;
     }
 
-    // const response = stimulus.task.includes('Slider') && stimulus.item[1] === 1 ? chosenAnswer / 100 : chosenAnswer;
-    // const response = stimulus.task.includes('Slider') && chosenAnswer;
     const response = chosenAnswer;
-    const responseType = stimulus.task.includes('4afc') ? 'afc' : 'slider';
+    const responseType = stimulus.trialType.includes('4afc') ? 'afc' : 'slider';
     const answer = stimulus.answer;
 
     jsPsych.data.addDataToLastTrial({

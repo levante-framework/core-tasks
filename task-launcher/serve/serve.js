@@ -2,7 +2,7 @@ import { RoarAppkit, initializeFirebaseProject } from '@bdelab/roar-firekit';
 import { onAuthStateChanged, signInAnonymously } from 'firebase/auth';
 import { TaskLauncher } from '../src';
 import { firebaseConfig } from './firebaseConfig';
-import { stringToBoolean } from '../src/tasks/shared/helpers';
+import { stringToBoolean, } from '../src/tasks/shared/helpers';
 import i18next from 'i18next';
 // Import necessary in order to use async/await at the top level
 import 'regenerator-runtime/runtime';

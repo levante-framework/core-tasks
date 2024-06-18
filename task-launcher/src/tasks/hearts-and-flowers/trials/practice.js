@@ -1,6 +1,5 @@
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
 import { mediaAssets } from '../../..';
-import store from 'store2';
 import { jsPsych, isTouchScreen } from '../../taskSetup';
 import {
   StimulusType,
@@ -10,6 +9,7 @@ import {
   getStimulusLayout
 } from '../helpers/utils';
 import { replayButtonSvg, overrideAudioTrialForReplayableAudio } from '../helpers/audioTrials';
+import { taskStore } from '../../shared/helpers';
 
 /**
  * Builds a practice trial for the Instruction sections.
@@ -42,8 +42,8 @@ export function buildInstructionPracticeTrial(stimulusType, promptText, promptAu
     },
     prompt_above_buttons: true,
     on_start: () => {
-      store.session.set('stimulus', stimulusType);
-      store.session.set('side', stimulusSideType);
+      taskStore('stimulus', stimulusType);
+      taskStore('stimulusSide', stimulusSideType);
     },
     on_load: () => {
       document.getElementById('jspsych-audio-multi-response-prompt').classList.add('haf-parent-container');
@@ -82,9 +82,9 @@ export function buildInstructionPracticeTrial(stimulusType, promptText, promptAu
       }
       
       if (response === validAnswer) {
-        store.session.set('correct', true);
+        taskStore('isCorrect', true);
       } else {
-        store.session.set('correct', false);
+        taskStore('isCorrect', false);
       }
     },
     // TODO handle stimulus presentation timeout and other parameters
@@ -130,10 +130,10 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
   onFinishTimelineCallback) {
   const validAnswerButtonHtmlIdentifier = 'valid-answer-btn';
   const feedbackTexts = {
-    IncorrectHeart:   store.session.get('translations')[heartFeedbackPromptIncorrectKey],
-    CorrectHeart:     store.session.get('translations')[heartfeedbackPromptCorrectKey],
-    IncorrectFlower:  store.session.get('translations')[flowerFeedbackPromptIncorrectKey],
-    CorrectFlower:    store.session.get('translations')[flowerfeedbackPromptCorrectKey],
+    IncorrectHeart:   taskStore().translations[heartFeedbackPromptIncorrectKey],
+    CorrectHeart:     taskStore().translations[heartfeedbackPromptCorrectKey],
+    IncorrectFlower:  taskStore().translations[flowerFeedbackPromptIncorrectKey],
+    CorrectFlower:    taskStore().translations[flowerfeedbackPromptCorrectKey],
   }
   const feedbackAudio = {
     IncorrectHeart:   mediaAssets.audio[heartFeedbackPromptIncorrectKey],
@@ -158,16 +158,16 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
   const trial = {
     type: jsPsychAudioMultiResponse,
     stimulus: () => {
-      const stimulusType = store.session.get('stimulus');
-      const incorrect = store.session.get('correct') === false
+      const stimulusType = taskStore().stimulus;
+      const incorrect = taskStore().isCorrect === false
       const audioPrompt = stimulusType === StimulusType.Heart ?
           incorrect? feedbackAudio.IncorrectHeart : feedbackAudio.CorrectHeart
           : incorrect? feedbackAudio.IncorrectFlower : feedbackAudio.CorrectFlower;
       return audioPrompt;
     },
     prompt: () => {
-      const stimulusType = store.session.get('stimulus');
-      const incorrect = store.session.get('correct') === false
+      const stimulusType = taskStore().stimulus;
+      const incorrect = taskStore().isCorrect === false
       //TODO: now that the 'correct' feedback layout differs significantly from the 'incorrect' feedback layout, we should consider
       // moving them to separate trials and using conditional trials
       if (!incorrect) {
@@ -190,7 +190,7 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
         : feedbackTexts.IncorrectFlower;
       return getStimulusLayout(
         imageSrc,
-        store.session.get('side') === StimulusSideType.Left,
+        taskStore().stimulusSide === StimulusSideType.Left,
         promptText,
         replayButtonHtmlId,
       )
@@ -214,8 +214,8 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
     keyboard_choices: () => {
       if (isTouchScreen) return InputKey.NoKeys;
       //else: allow keyboard input
-      if (store.session.get('correct') === false) {
-        const validAnswerPosition = getCorrectInputSide(store.session.get('stimulus'), store.session.get('side'));
+      if (taskStore().isCorrect === false) {
+        const validAnswerPosition = getCorrectInputSide(taskStore().stimulus, taskStore().stimulusSide);
         return validAnswerPosition === 0?
           InputKey.ArrowLeft : InputKey.ArrowRight;
       } else {
@@ -223,8 +223,8 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
       }
     },
     button_html: () => {
-      if (store.session.get('correct') === false) {
-        const validAnswerPosition = getCorrectInputSide(store.session.get('stimulus'), store.session.get('side'));
+      if (taskStore().isCorrect === false) {
+        const validAnswerPosition = getCorrectInputSide(taskStore().stimulus, taskStore().stimulusSide);
         return validAnswerPosition === 0 ? // is valid answer on the left?
         [
           `
@@ -256,11 +256,11 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
     },
     trial_ends_after_audio: () => {
       // when showing correct feedback, the trial should end with the end of the audio
-      return store.session.get('correct') === true ? true : false;
+      return taskStore().isCorrect === true ? true : false;
     },
     response_ends_trial: () => {
       // when showing incorrect feedback, the trial should only end with response
-      return store.session.get('correct') === false ? true : false;
+      return taskStore().isCorrect === false ? true : false;
     },
     on_finish: (data) => {
       if (onFinishTimelineCallback) {
