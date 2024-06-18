@@ -1,5 +1,11 @@
-import store from 'store2';
-import { isTaskFinished, getMediaAssets, dashToCamelCase, showLevanteLogoLoading, hideLevanteLogoLoading } from './tasks/shared/helpers';
+import { 
+  isTaskFinished, 
+  getMediaAssets, 
+  dashToCamelCase, 
+  showLevanteLogoLoading, 
+  hideLevanteLogoLoading, 
+  setTaskStore
+} from './tasks/shared/helpers';
 import './styles/task.scss';
 import taskConfig from './tasks/taskConfig';
 
@@ -17,7 +23,7 @@ export class TaskLauncher {
 
     const { taskName, language } = this.gameParams;
 
-    const { initConfig, initStore, loadCorpus, buildTaskTimeline, getTranslations } =
+    const { setConfig, getCorpus, buildTaskTimeline, getTranslations } =
       taskConfig[dashToCamelCase(taskName)];
 
     // GCP bucket names use a format like egma-math
@@ -34,18 +40,16 @@ export class TaskLauncher {
       throw new Error('Error fetching media assets: ', error);
     }
 
-    const config = await initConfig(this.firekit, this.gameParams, this.userParams, this.displayElement);
+    const config = await setConfig(this.firekit, this.gameParams, this.userParams, this.displayElement);
 
-    initStore();
-
-    store.session.set('config', config);
+    setTaskStore(config)
 
     // TODO: make hearts and flowers corpus
     if (taskName !== 'hearts-and-flowers' && taskName !== 'memory-game') {
-      await loadCorpus(config);
+      await getCorpus(config);
     }
 
-    await getTranslations();
+    await getTranslations(config.language);
 
     return buildTaskTimeline(config, mediaAssets);
   }

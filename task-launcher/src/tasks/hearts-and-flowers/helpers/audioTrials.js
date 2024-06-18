@@ -42,7 +42,7 @@ export function overrideAudioTrialForReplayableAudio(trial, jsPsychPluginApi, re
         typeof trial.audioReplayOverrides.promptAudio === 'function'
           ? trial.audioReplayOverrides.promptAudio()
           : trial.audioReplayOverrides.promptAudio;
-      console.log(`replaying audioId=${audioAsset}`);
+
       const audioBuffer = await trial.audioReplayOverrides.jsPsychPluginApi.getAudioBuffer(audioAsset);
 
       const audioSource = jsPsychAudioCtx.createBufferSource();
@@ -71,7 +71,6 @@ export function overrideAudioTrialForReplayableAudio(trial, jsPsychPluginApi, re
     }
 
     if (trial.audioReplayOverrides.audioReplaySource) {
-      console.log(`Stopping audio replay because of on_finish`);
       trial.audioReplayOverrides.audioReplaySource.stop();
     }
     //TODO: check that memory is not steadily increasing throughout experiment, which

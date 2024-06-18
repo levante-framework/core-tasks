@@ -1,11 +1,8 @@
-import store from 'store2';
 import { getDevice } from '@bdelab/roar-utils';
 import { Cat } from '@bdelab/jscat';
 import { initJsPsych } from 'jspsych';
-import i18next from 'i18next';
 import '../i18n/i18n';
-
-// const bucketURI = `https://storage.googleapis.com/`;
+import { taskStore } from './shared/helpers';
 
 export const isTouchScreen = getDevice() === 'mobile';
 
@@ -16,7 +13,7 @@ export const initializeCat = () => {
     method: 'MLE',
     // minTheta: -6,
     // maxTheta: 6,
-    itemSelect: store.session('itemSelect'),
+    itemSelect: taskStore().itemSelect,
   });
 };
 

@@ -1,7 +1,7 @@
 import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
 import { mediaAssets } from '../../..';
-import store from 'store2';
+import { taskStore } from '../../shared/helpers';
 
 export const instructions1 = {
   type: jsPsychHTMLMultiResponse,
@@ -12,7 +12,7 @@ export const instructions1 = {
     };
   },
   stimulus: () => {
-    const t = store.session.get('translations');
+    const t = taskStore().translations;
     return `
     <div class='instructions-container'>
         <h1 class='instructions-title'>${t.instructions}</h1>
@@ -27,7 +27,7 @@ export const instructions1 = {
   button_choices: [`Continue`],
   keyboard_choices: 'ALL_KEYS',
   button_html: () => {
-    const t = store.session.get('translations');
+    const t = taskStore().translations;
     return `<button id="continue-btn">${t.continueButtonText}</button>`;
   },
   // trial_duration: 1000,
@@ -52,7 +52,7 @@ export const videoInstructionsFit = {
   prompt_above_buttons: true,
   button_choices: ['Continue'],
   button_html: () => {
-    const t = store.session.get('translations');
+    const t = taskStore().translations;
     return `<button id="continue-btn">${t.continueButtonText}</button>`;
   },
   keyboard_choices: 'ALL_KEYS',
@@ -82,7 +82,7 @@ export const videoInstructionsMisfit = {
   prompt_above_buttons: true,
   button_choices: ['Continue'],
   button_html: () => {
-    const t = store.session.get('translations');
+    const t = taskStore().translations;
     return `<button id="continue-btn">${t.continueButtonText}</button>`;
   },
   keyboard_choices: 'ALL_KEYS',
@@ -109,7 +109,7 @@ export const imageInstructions = {
   prompt_above_buttons: true,
   button_choices: ['Continue'],
   button_html: () => {
-    const t = store.session.get('translations');
+    const t = taskStore().translations;
     return `<button id="continue-btn">${t.continueButtonText}</button>`;
   },
   keyboard_choices: 'ALL_KEYS',
@@ -130,7 +130,7 @@ export const nowYouTry = {
     };
   },
   stimulus: () => {
-    const t = store.session.get('translations');
+    const t = taskStore().translations;
     return `
     <div class='instructions-container'>
         <p>
@@ -142,7 +142,7 @@ export const nowYouTry = {
   button_choices: [`OK`],
   keyboard_choices: 'ALL_KEYS',
   button_html: () => {
-    const t = store.session.get('translations');
+    const t = taskStore().translations;
     return `<button id="continue-btn">${t.continueButtonText}</button>`;
   },
   // trial_duration: 1000,

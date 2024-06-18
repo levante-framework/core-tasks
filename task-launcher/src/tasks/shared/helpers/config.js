@@ -17,7 +17,7 @@ const defaultCorpus = {
   vocab: 'vocab-item-bank',
 };
 
-export const initSharedConfig = async (firekit, gameParams, userParams, displayElement) => {
+export const setSharedConfig = async (firekit, gameParams, userParams, displayElement) => {
   const cleanParams = _omitBy(_omitBy({ ...gameParams, ...userParams }, _isNull), _isUndefined);
 
   const {
@@ -43,7 +43,7 @@ export const initSharedConfig = async (firekit, gameParams, userParams, displayE
   const config = {
     userMetadata: { ...userMetadata, age },
     audioFeedback: audioFeedback || 'neutral',
-    skipInstructions: skipInstructions ?? true,
+    skipInstructions: skipInstructions ?? true, // Not used in any task
     startTime: new Date(),
     firekit,
     displayElement: displayElement || null,
@@ -63,20 +63,6 @@ export const initSharedConfig = async (firekit, gameParams, userParams, displayE
     storeItemId: storeItemId,
     isRoarApp: isRoarApp(firekit)
   };
-
-
-  store.session.set('pid', userParams.pid);
-
-  // For memory game
-  if (taskName === 'memory-game') {
-    const memoryGameConfig = {
-      numOfBlocks: config.userMetadata.age > 12 ? 9 : 4,
-      blockSize: config.userMetadata.age > 12 ? 30 : 50,
-      gridSize: config.userMetadata.age > 12 ? 3 : 2,
-    };
-    store.session.set('memoryGameConfig', memoryGameConfig);
-  }
-
 
   // default corpus if nothing is passed in
   if (!config.corpus) config.corpus = defaultCorpus[camelize(taskName)];

@@ -1,7 +1,7 @@
 import Papa from 'papaparse';
-import store from 'store2';
 import 'regenerator-runtime/runtime';
 import { camelize } from '@bdelab/roar-utils';
+import { taskStore } from './';
 
 let translations = {};
 
@@ -14,8 +14,7 @@ function getRowData(row, language, nonLocalDialect) {
   return translation || row[nonLocalDialect] || row[noBaseLang] || row['en'];
 }
 
-function parseTranslations(translationData) {
-  const configLanguage = store.session.get('config').language;
+function parseTranslations(translationData, configLanguage) {
   const nonLocalDialect = configLanguage.split('-')[0].toLowerCase();
 
   translationData.forEach((row) => {
@@ -23,10 +22,10 @@ function parseTranslations(translationData) {
   });
 
 
-  store.session.set('translations', translations);
+  taskStore('translations', translations);
 }
 
-export const getTranslations = async () => {
+export const getTranslations = async (configLanguage) => {
   function downloadCSV(url, i) {
     return new Promise((resolve, reject) => {
       Papa.parse(url, {
@@ -34,7 +33,7 @@ export const getTranslations = async () => {
         header: true,
         skipEmptyLines: true,
         complete: function (results) {
-          parseTranslations(results.data);
+          parseTranslations(results.data, configLanguage);
           resolve(results.data);
         },
         error: function (error) {

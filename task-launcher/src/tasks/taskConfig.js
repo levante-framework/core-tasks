@@ -1,5 +1,5 @@
 import mathTimeline from './math/timeline';
-import { fetchAndParseCorpus, initSharedConfig, initSharedStore, getTranslations } from './shared/helpers';
+import { getCorpus, setSharedConfig, getTranslations } from './shared/helpers';
 import matrixTimeline from './matrix-reasoning/timeline';
 import mentalRotationTimeline from './mental-rotation/timeline';
 import heartsAndFlowersTimeline from './hearts-and-flowers/timeline';
@@ -14,9 +14,8 @@ import tomTimeline from './theory-of-mind/timeline';
 export default {
   // Need to change bucket name to match task name (math)
   egmaMath: {
-    initConfig: initSharedConfig,
-    initStore: initSharedStore,
-    loadCorpus: fetchAndParseCorpus,
+    setConfig: setSharedConfig,
+    getCorpus: getCorpus,
     getTranslations: getTranslations,
     buildTaskTimeline: mathTimeline,
     variants: {
@@ -27,64 +26,56 @@ export default {
     },
   },
   matrixReasoning: {
-    initConfig: initSharedConfig,
-    initStore: initSharedStore,
-    loadCorpus: fetchAndParseCorpus,
+    setConfig: setSharedConfig,
+    getCorpus: getCorpus,
     getTranslations: getTranslations,
     buildTaskTimeline: matrixTimeline,
     variants: {},
   },
   mentalRotation: {
-    initConfig: initSharedConfig,
-    initStore: initSharedStore,
-    loadCorpus: fetchAndParseCorpus,
+    setConfig: setSharedConfig,
+    getCorpus: getCorpus,
     getTranslations: getTranslations,
     buildTaskTimeline: mentalRotationTimeline,
     variants: {},
   },
   heartsAndFlowers: {
-    initConfig: initSharedConfig,
-    initStore: initSharedStore,
-    loadCorpus: fetchAndParseCorpus,
+    setConfig: setSharedConfig,
+    getCorpus: getCorpus,
     getTranslations: getTranslations,
     buildTaskTimeline: heartsAndFlowersTimeline,
     variants: {},
   },
   memoryGame: {
-    initConfig: initSharedConfig,
-    initStore: initSharedStore,
-    loadCorpus: fetchAndParseCorpus,
+    setConfig: setSharedConfig,
+    getCorpus: getCorpus,
     getTranslations: getTranslations,
     buildTaskTimeline: memoryGameTimeline,
     variants: {},
   },
   sameDifferentSelection: {
-    initConfig: initSharedConfig,
-    initStore: initSharedStore,
-    loadCorpus: fetchAndParseCorpus,
+    setConfig: setSharedConfig,
+    getCorpus: getCorpus,
     getTranslations: getTranslations,
     buildTaskTimeline: sameDifferentSelectionTimeline,
     variants: {},
   },
   trog: {
-    initConfig: initSharedConfig,
-    initStore: initSharedStore,
-    loadCorpus: fetchAndParseCorpus,
+    setConfig: setSharedConfig,
+    getCorpus: getCorpus,
     getTranslations: getTranslations,
     buildTaskTimeline: tROGTimeline,
     variants: {},
   },
   vocab: {
-    initConfig: initSharedConfig,
-    initStore: initSharedStore,
-    loadCorpus: fetchAndParseCorpus,
+    setConfig: setSharedConfig,
+    getCorpus: getCorpus,
     getTranslations: getTranslations,
     buildTaskTimeline: vocabTimeline,
   },
   theoryOfMind: {
-    initConfig: initSharedConfig,
-    initStore: initSharedStore,
-    loadCorpus: fetchAndParseCorpus,
+    setConfig: setSharedConfig,
+    getCorpus: getCorpus,
     getTranslations: getTranslations,
     buildTaskTimeline: tomTimeline,
     variants: {},
