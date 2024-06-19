@@ -8,6 +8,7 @@ import sameDifferentSelectionTimeline from './same-different-selection/timeline'
 import vocabTimeline from './vocab/timeline';
 import tROGTimeline from './trog/timeline';
 import tomTimeline from './theory-of-mind/timeline';
+import introTimeline from './intro/timeline';
 
 // TODO: Abstract to import config from specifc task folder
 // Will allow for multiple devs to work on the repo without merge conflicts
@@ -78,6 +79,13 @@ export default {
     getCorpus: getCorpus,
     getTranslations: getTranslations,
     buildTaskTimeline: tomTimeline,
+    variants: {},
+  },
+  intro: {
+    setConfig: setSharedConfig,
+    getCorpus: null, // no corpus needed
+    getTranslations: getTranslations,
+    buildTaskTimeline: introTimeline,
     variants: {},
   },
 };
