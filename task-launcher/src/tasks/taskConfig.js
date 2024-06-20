@@ -83,7 +83,7 @@ export default {
   },
   intro: {
     setConfig: setSharedConfig,
-    getCorpus: null, // no corpus needed
+    getCorpus: getCorpus,
     getTranslations: getTranslations,
     buildTaskTimeline: introTimeline,
     variants: {},
