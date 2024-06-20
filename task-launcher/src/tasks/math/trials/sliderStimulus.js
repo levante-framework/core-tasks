@@ -5,6 +5,8 @@ import { jsPsych, isTouchScreen } from '../../taskSetup';
 import { camelize } from '@bdelab/roar-utils';
 import { arrowKeyEmojis, isPractice, setSkipCurrentBlock, taskStore } from '../../shared/helpers';
 
+const SLIDER_SCORING_THRESHOLD = 0.05 // proportion of maximum slider value that response must fall within to be scored correct
+
 let chosenAnswer,
   sliderStart,
   keyboardResponseMap = {};
@@ -211,6 +213,7 @@ export const slider = {
     const stimulus = taskStore().nextStimulus;
     if (stimulus.trialType === 'Number Line 4afc') {
       data.correct = chosenAnswer === taskStore().target;
+      console.log("correct answer:", taskStore().target, "response:", chosenAnswer);
       if (!isPractice(stimulus.notes)) {
         if (data.correct) {
           taskStore('numIncorrect', 0);
@@ -219,12 +222,12 @@ export const slider = {
         }
       }
     } else {
-      // slider version is an approximation so we can't mark it as true/false
-      data.correct = null;
+      // console.log("correct answer:", stimulus.answer, "response:", chosenAnswer, "max value:", stimulus.item[1]);
+      data.correct = (Math.abs(chosenAnswer - stimulus.answer) / stimulus.item[1]) < SLIDER_SCORING_THRESHOLD;
     }
 
     const response = chosenAnswer;
-    const responseType = stimulus.trialType.includes('4afc') ? 'afc' : 'slider';
+    const responseType = stimulus.trialType.includes('4afc') ? 'button' : 'slider';
     const answer = stimulus.answer;
 
     jsPsych.data.addDataToLastTrial({
