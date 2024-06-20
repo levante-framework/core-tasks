@@ -6,7 +6,7 @@ import { replayButtonDiv, setupReplayAudio, taskStore } from '../../shared/helpe
 const instructionData = [
     {
         prompt: 'generalIntro1',
-        image: 'avatar_owl', // GIF?
+        image: 'avatarOwl', // GIF?
         buttonText: 'continueButtonText',
     },
     // prompt: 'generalIntro2', // "First, you get to choose a buddy to play along with you. ..."
@@ -15,12 +15,12 @@ const instructionData = [
     // images: ['avatar_owl', 'avatar_cat', 'avatar_penguin'],
     {
         prompt: 'generalIntro4',
-        image: 'avatar_owl', // ToDo: replay button with arrow?
+        image: 'avatarOwl', // ToDo: replay button with arrow?
         buttonText: 'continueButtonText',
     },
     {
         prompt: 'generalIntro5',
-        image: 'avatar_owl',
+        image: 'avatarOwl',
         buttonText: 'continueButtonText',
     },
 ]
