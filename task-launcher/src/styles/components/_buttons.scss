@@ -102,8 +102,8 @@ button {
   &.replay {
     // This is also used by the Hearts and Flowers task
     position: absolute;
-    top: 20px;
-    right: 20px;
+    top: 8px;
+    right: 8px;
     cursor: pointer;
     border-radius: 16px;
     padding: 16px;
@@ -131,4 +131,54 @@ button {
       border: 2px solid $border-button-primary-clicked;
     }
   }
+
+  &.image {
+    @extend .button-base;
+    padding: 0;
+    box-sizing: border-box;
+    border-color: $bg-button-primary;;
+
+    img {
+      border: none;
+      width: 12vw;
+      height: 12vw;
+      max-width: 150px;
+      max-height: 150px;
+      min-height: 120px;
+      min-width: 120px;
+      padding: 0;
+      margin: 0;
+      border-radius: $button-default-border-radius;
+    }
+
+    @include respond-to('small-medium') {
+      img {
+        width: 20vw;
+        height: 20vw;
+        min-height: 100px;
+        min-width: 100px;
+        border-radius: $button-default-border-radius-small;
+      }
+    }
+
+    @include respond-to('small') {
+      img {
+        width: 25vw;
+        height: 25vw;
+        border-radius: $button-default-border-radius-small;
+      }
+    }
+
+    &:hover {
+      border-color: $bg-accent_secondary;
+      box-shadow: $button-default-box-shadow rgba($bg-accent_secondary, 0.5) inset;
+    }
+
+    &:active {
+      border-color: $border-button-primary-clicked;
+      box-shadow: $button-secondary-box-shadow $border-button-primary-clicked inset,
+        $button-secondary-inner-shadow $bg-button-secondary inset;
+    }
+  }
+
 }

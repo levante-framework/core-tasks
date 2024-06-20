@@ -5,7 +5,7 @@ import { camelize } from "@bdelab/roar-utils";
 
 export function setupReplayAudio(audioSource, audioFile) {
     // Hardcoded since it uses the replayButtonDiv comopnent
-    const replayBtn = document.getElementById('replay-btn');
+    const replayBtn = document.getElementById('replay-btn-revisited');
 
     if (replayBtn) {
       // TODO: this only stops the Replay button from being used if it was already used
