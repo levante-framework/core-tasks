@@ -91,3 +91,24 @@
     }
   }
 }
+
+.lev-stimulus-container {
+  width: 100%;
+  max-width: 900px;
+  justify-content: center;
+  margin-top: 32px;
+}
+
+.lev-stim-content {
+  width: 100%;
+  text-align: center;
+  justify-content: center;
+
+  img {
+    width: 40vw;
+    min-width: 300px;
+    max-width: 500px;
+    border-radius: 16px;
+    margin: 8px;
+  }
+}
