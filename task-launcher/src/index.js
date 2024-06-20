@@ -29,7 +29,9 @@ export class TaskLauncher {
     // GCP bucket names use a format like egma-math
     // will avoid language folder if not provided
     try {
-      if (taskName === 'vocab') {
+      if (taskName === 'intro') {
+        mediaAssets = await getMediaAssets('intro-levante', {}, language);
+      } else if (taskName === 'vocab') {
         mediaAssets = await getMediaAssets('vocab-test', {}, language);
       } else if (taskName === 'memory-game') {
         mediaAssets = await getMediaAssets('memory-game-levante', {}, language);
@@ -44,8 +46,8 @@ export class TaskLauncher {
 
     setTaskStore(config)
 
-    // TODO: make hearts and flowers corpus
-    if (taskName !== 'hearts-and-flowers' && taskName !== 'memory-game') {
+    // TODO: make hearts and flowers corpus? make list of tasks that don't need corpora?
+    if (taskName !== 'hearts-and-flowers' && taskName !== 'memory-game' && taskName !== 'intro') {
       await getCorpus(config);
     }
 
