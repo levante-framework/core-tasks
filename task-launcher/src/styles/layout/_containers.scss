@@ -100,15 +100,60 @@
 }
 
 .lev-stim-content {
+  display: flex;
   width: 100%;
   text-align: center;
   justify-content: center;
+  font-size: $font-size-l;
+  color: $txt-primary;
+  margin: $lev-spacing-s 0;
 
   img {
-    width: 40vw;
-    min-width: 300px;
-    max-width: 500px;
-    border-radius: 16px;
-    margin: 8px;
+    border: none;
+    width: clamp(120px, 12vw, 150px);
+    height: clamp(120px, 12vw, 150px);
+    padding: 0;
+    margin: 0;
+    border-radius: $lev-spacing-s;
   }
+
+  @include respond-to('small-medium') {
+    img {
+      width: clamp(100px, 20vw, 150px);
+      height: clamp(100px, 20vw, 150px);
+      border-radius: $lev-spacing-xs;
+    }
+  }
+
+  @include respond-to('small') {
+    img {
+      width: 25vw;
+      height: 25vw;
+      border-radius: $lev-spacing-xs;
+    }
+  }
+}
+
+.lev-stim-content-x-3 {
+  @extend .lev-stim-content;
+
+  img {
+    width: calc(3 * clamp(120px, 12vw, 150px));
+    height: calc(3 * clamp(120px, 12vw, 150px));
+  }
+
+  @include respond-to('small-medium') {
+    img {
+      width: calc(3 * clamp(100px, 20vw, 150px));
+      height: calc(3 * clamp(100px, 20vw, 150px));
+    }
+  }
+
+  @include respond-to('small') {
+    img {
+      width: 3 * 25vw;
+      height: 3 * 25vw;
+    }
+  }
+
 }

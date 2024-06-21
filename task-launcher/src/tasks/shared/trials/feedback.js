@@ -32,7 +32,7 @@ export const feedback = (isPractice = false) => {
                 keyboard_choices: 'ALL_KEYS',
                 button_html: () => {
                     const t = taskStore().translations;
-                    return (`<button id="continue-btn">${t.continueButtonText}</button>`)
+                    return (`<button class="primary">${t.continueButtonText}</button>`)
                 }
             } 
         ],

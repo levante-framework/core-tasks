@@ -47,10 +47,28 @@ button {
   &.secondary {
     @extend .button-base;
     background: $border-accent;
-    padding: $button-secondary-padding;
     border-color: $bg-accent_secondary;
     box-shadow: $button-secondary-box-shadow $bg-accent_secondary inset,
       $button-secondary-inner-shadow $bg-button-secondary inset;
+    font-size: $font-size-l;
+    width: 2.5 * $font-size-l;
+    height: 2.5 * $font-size-l;
+
+    @include respond-to('small-medium') {
+      font-size: $font-size-m;
+      font-weight: $font-weight-normal;
+      border-radius: $button-default-border-radius-small;
+      width: 2.4 * $font-size-m;
+      height: 2.4 * $font-size-m;
+    }
+
+    @include respond-to('small') {
+      font-size: $font-size-m;
+      font-weight: $font-weight-normal;
+      border-radius: $button-default-border-radius-small;
+      width: 3*$font-size-m;
+      height: 3*$font-size-m;
+    }
 
     &:hover {
       background: $bg-button-primary-hover;
@@ -75,7 +93,7 @@ button {
       $button-secondary-inner-shadow $bg-green-gradient inset;
     
     @include respond-to('small') {
-      font-size: $font-size-xxs;
+      font-size: $font-size-l;
       font-weight: $font-weight-normal;
       color: $txt-white;
       padding: $button-secondary-padding-small;
@@ -136,48 +154,45 @@ button {
     @extend .button-base;
     padding: 0;
     box-sizing: border-box;
-    border-color: $bg-button-primary;;
+    border-color: $bg-button-primary;
 
     img {
       border: none;
-      width: 12vw;
-      height: 12vw;
-      max-width: 150px;
-      max-height: 150px;
-      min-height: 120px;
-      min-width: 120px;
+      width: clamp(120px, 12vw, 150px);
+      height: clamp(120px, 12vw, 150px);
       padding: 0;
       margin: 0;
-      border-radius: $button-default-border-radius;
+      border-radius: $lev-spacing-s;
+      float: left;
     }
 
     @include respond-to('small-medium') {
+      border-radius: $lev-spacing-s;
       img {
-        width: 20vw;
-        height: 20vw;
-        min-height: 100px;
-        min-width: 100px;
-        border-radius: $button-default-border-radius-small;
+        width: clamp(100px, 20vw, 150px);
+        height: clamp(100px, 20vw, 150px);
+        border-radius: $lev-spacing-xs;
       }
     }
 
     @include respond-to('small') {
+      border-radius: $lev-spacing-s;
       img {
         width: 25vw;
         height: 25vw;
-        border-radius: $button-default-border-radius-small;
+        border-radius: $lev-spacing-xs;
       }
     }
 
     &:hover {
       border-color: $bg-accent_secondary;
-      box-shadow: $button-default-box-shadow rgba($bg-accent_secondary, 0.5) inset;
+      // box-shadow: $button-default-box-shadow rgba($bg-accent_secondary, 0.5) inset;
     }
 
     &:active {
       border-color: $border-button-primary-clicked;
-      box-shadow: $button-secondary-box-shadow $border-button-primary-clicked inset,
-        $button-secondary-inner-shadow $bg-button-secondary inset;
+      // box-shadow: $button-secondary-box-shadow $border-button-primary-clicked inset,
+      //   $button-secondary-inner-shadow $bg-button-secondary inset;
     }
   }
 

@@ -76,7 +76,7 @@ function getStimulus(trialType) {
   }
 }
 
-const getPromptTemplate = (prompt, mediaSrc, mediaAlt, stimText) => {
+const getPromptTemplate = (prompt, mediaSrc, mediaAlt, stimText, equalSizeStim) => {
   let template = `
     <div class="lev-stimulus-container">
       <button id="${replayButtonHtmlId}" class="replay">
@@ -106,8 +106,11 @@ const getPromptTemplate = (prompt, mediaSrc, mediaAlt, stimText) => {
         <p>${stimText}</p>
       `;
     }
+    const containerClass = equalSizeStim
+      ? 'lev-stim-content'
+      : 'lev-stim-content-x-3';
     template += `
-      <div class="lev-stim-content">
+      <div class=${containerClass}>
         ${contentTemplate}
       </div>
     `;
@@ -134,24 +137,30 @@ function getPrompt(task) {
     ['vocab', 'trog'].includes(task) ||
     ['Number Identification', 'Number Comparison'].includes(stimTrialType)
   ) {
-    return getPromptTemplate(null, null, null, null);
+    return getPromptTemplate(null, null, null, null, false);
+  } else if (stimTask === 'Mental Rotation') {
+    const mediaSrc = stimItem 
+      ? mediaAssets.images[camelize(stimItem)] || mediaAssets.images['blank']
+      : null;
+    const mediaAlt = stimItem || 'Stimulus';
+    return getPromptTemplate(t[camelize(stim.audioFile)], mediaSrc, mediaAlt, null, true);
   } else if (
-    ['Mental Rotation', 'Matrix Reasoning', 'instructions'].includes(stimTask) ||
+    ['Matrix Reasoning', 'instructions'].includes(stimTask) ||
     stim.trialType === 'instructions'
   ) {
     const mediaSrc = stimItem 
       ? mediaAssets.images[camelize(stimItem)] || mediaAssets.images['blank']
       : null;
     const mediaAlt = stimItem || 'Stimulus';
-    return getPromptTemplate(t[camelize(stim.audioFile)], mediaSrc, mediaAlt, null);
+    return getPromptTemplate(t[camelize(stim.audioFile)], mediaSrc, mediaAlt, null, false);
   } else if (task === 'theory-of-mind') {
     const mediaSrc = stimItem 
       ? mediaAssets.images[camelize(stimItem)] || mediaAssets.images['blank']
       : null;
     const mediaAlt = stimItem || 'Stimulus';
-    return getPromptTemplate(null, mediaSrc, mediaAlt, null);
+    return getPromptTemplate(null, mediaSrc, mediaAlt, null, false);
   } else if (task === 'egma-math') {
-    return getPromptTemplate(t[camelize(stim.audioFile)], null, null, stimItem);
+    return getPromptTemplate(t[camelize(stim.audioFile)], null, null, stimItem, false);
   }
 
 }
