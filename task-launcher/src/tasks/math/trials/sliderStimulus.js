@@ -161,7 +161,7 @@ export const slider = {
         const btnWrapper = document.createElement('div');
         const btn = document.createElement('button');
         btn.textContent = responseChoices[i];
-        btn.classList.add('math-btn');
+        btn.classList.add('secondary');
         btn.addEventListener('click', () => captureValue(btn));
         // To not duplicate event listeners
         if (i === 0) {
