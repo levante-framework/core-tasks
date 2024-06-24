@@ -208,6 +208,7 @@ export const slider = {
     // Need to remove event listener after trial completion or they will stack and cause an error.
     document.removeEventListener('keydown', captureBtnValue);
 
+    const sliderScoringThreshold = 0.05 // proportion of maximum slider value that response must fall within to be scored correct
     const stimulus = taskStore().nextStimulus;
     if (stimulus.trialType === 'Number Line 4afc') {
       data.correct = chosenAnswer === taskStore().target;
@@ -219,12 +220,11 @@ export const slider = {
         }
       }
     } else {
-      // slider version is an approximation so we can't mark it as true/false
-      data.correct = null;
+      data.correct = (Math.abs(chosenAnswer - stimulus.answer) / stimulus.item[1]) < sliderScoringThreshold;
     }
 
     const response = chosenAnswer;
-    const responseType = stimulus.trialType.includes('4afc') ? 'afc' : 'slider';
+    const responseType = stimulus.trialType.includes('4afc') ? 'button' : 'slider';
     const answer = stimulus.answer;
 
     jsPsych.data.addDataToLastTrial({
