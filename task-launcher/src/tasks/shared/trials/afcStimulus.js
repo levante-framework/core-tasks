@@ -7,7 +7,6 @@ import {
   isPractice,
   fractionToMathML,
   arrowKeyEmojis,
-  replayButtonDiv,
   replayButtonSvg,
   setupReplayAudio,
   setSkipCurrentBlock,
