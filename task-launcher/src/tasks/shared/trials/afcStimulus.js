@@ -133,10 +133,11 @@ function getPrompt(task) {
   }
 
   if (
-    ['vocab', 'trog'].includes(task) ||
     ['Number Identification', 'Number Comparison'].includes(stimTrialType)
   ) {
     return getPromptTemplate(null, null, null, null, false);
+  } else if (['vocab', 'trog'].includes(task)) {
+    return getPromptTemplate(t[camelize(stim.audioFile)], null, null, null, false);
   } else if (['Mental Rotation'].includes(stimTask)) {
     const mediaSrc = stimItem 
       ? mediaAssets.images[camelize(stimItem)] || mediaAssets.images['blank']
