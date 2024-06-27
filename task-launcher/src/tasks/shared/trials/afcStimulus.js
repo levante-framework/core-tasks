@@ -137,7 +137,7 @@ function getPrompt(task) {
     ['Number Identification', 'Number Comparison'].includes(stimTrialType)
   ) {
     return getPromptTemplate(null, null, null, null, false);
-  } else if (stimTask === 'Mental Rotation') {
+  } else if (['Mental Rotation'].includes(stimTask)) {
     const mediaSrc = stimItem 
       ? mediaAssets.images[camelize(stimItem)] || mediaAssets.images['blank']
       : null;
@@ -419,7 +419,11 @@ function doOnLoad(task) {
         }
       }
       if (task !== 'egma-math') {
-        el.children[0].classList.add('image');
+        if (task === 'mental-rotation') {
+          el.children[0].classList.add('image-large');
+        } else {
+          el.children[0].classList.add('image');
+        }
       }
 
       if (task === 'matrix-reasoning') {

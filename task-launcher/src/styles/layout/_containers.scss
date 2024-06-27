@@ -119,27 +119,11 @@
 
   img {
     border: none;
-    width: clamp(120px, 12vw, 150px);
-    height: clamp(120px, 12vw, 150px);
+    width: $lev-resized-buttons-2;
+    height: $lev-resized-buttons-2;
     padding: 0;
     margin: 0;
     border-radius: $lev-spacing-s;
-  }
-
-  @include respond-to('small-medium') {
-    img {
-      width: clamp(100px, 20vw, 150px);
-      height: clamp(100px, 20vw, 150px);
-      border-radius: $lev-spacing-xs;
-    }
-  }
-
-  @include respond-to('small') {
-    img {
-      width: 25vw;
-      height: 25vw;
-      border-radius: $lev-spacing-xs;
-    }
   }
 }
 
