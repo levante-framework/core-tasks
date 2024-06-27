@@ -52,6 +52,7 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false}) {
     // Show feedback only for practice
     correct_color: () => '#8CAEDF',
     incorrect_color: () => isPractice ? '#f00' : 'rgba(215, 215, 215, 0.93)',
+    post_trial_gap: 1000,
     data: {
       // not camelCase because firekit
       save_trial: true,
