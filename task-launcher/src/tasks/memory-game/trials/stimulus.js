@@ -191,17 +191,16 @@ function doOnLoad(mode, isPractice) {
     }
   });
 
-  if (isPractice) {
-    const contentWrapper = document.getElementById('jspsych-content');
-    const corsiBlocksHTML = contentWrapper.children[1];
 
-    const prompt = document.createElement('p');
-    prompt.classList.add('corsi-block-overide-prompt');
-    prompt.textContent = mode === 'display' ? t.memoryGameDisplay : t.memoryGameInput;
-    // Inserting element at the second child position rather than
-    // changing the jspsych-content styles to avoid potential issues in the future
-    contentWrapper.insertBefore(prompt, corsiBlocksHTML);
-  }
+  const contentWrapper = document.getElementById('jspsych-content');
+  const corsiBlocksHTML = contentWrapper.children[1];
+
+  const prompt = document.createElement('p');
+  prompt.classList.add('corsi-block-overide-prompt');
+  prompt.textContent = mode === 'display' ? t.memoryGameDisplay : t.memoryGameInput;
+  // Inserting element at the second child position rather than
+  // changing the jspsych-content styles to avoid potential issues in the future
+  contentWrapper.insertBefore(prompt, corsiBlocksHTML);
 
   // play audio cue
   async function playAudioCue() {
@@ -209,7 +208,7 @@ function doOnLoad(mode, isPractice) {
 
     const jsPsychAudioCtx = jsPsych.pluginAPI.audioContext();
   
-    const cue = mode === 'display' ? 'displayAudioCue' : 'inputAudioCue';
+    const cue = mode === 'display' ? 'memoryGamePrompt1' : 'inputAudioCue';
 
     // Returns a promise of the AudioBuffer of the preloaded file path.
     const audioBuffer = await jsPsych
