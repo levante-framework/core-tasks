@@ -28,7 +28,7 @@ export const instructions1 = {
   keyboard_choices: 'ALL_KEYS',
   button_html: () => {
     const t = taskStore().translations;
-    return `<button id="continue-btn">${t.continueButtonText}</button>`;
+    return `<button class="primary">${t.continueButtonText}</button>`;
   },
   // trial_duration: 1000,
 };
@@ -53,7 +53,7 @@ export const videoInstructionsFit = {
   button_choices: ['Continue'],
   button_html: () => {
     const t = taskStore().translations;
-    return `<button id="continue-btn">${t.continueButtonText}</button>`;
+    return `<button class="primary">${t.continueButtonText}</button>`;
   },
   keyboard_choices: 'ALL_KEYS',
   trial_ends_after_audio: false,
@@ -83,7 +83,7 @@ export const videoInstructionsMisfit = {
   button_choices: ['Continue'],
   button_html: () => {
     const t = taskStore().translations;
-    return `<button id="continue-btn">${t.continueButtonText}</button>`;
+    return `<button class="primary">${t.continueButtonText}</button>`;
   },
   keyboard_choices: 'ALL_KEYS',
   trial_ends_after_audio: false,
@@ -110,7 +110,7 @@ export const imageInstructions = {
   button_choices: ['Continue'],
   button_html: () => {
     const t = taskStore().translations;
-    return `<button id="continue-btn">${t.continueButtonText}</button>`;
+    return `<button class="primary">${t.continueButtonText}</button>`;
   },
   keyboard_choices: 'ALL_KEYS',
   trial_ends_after_audio: false,
@@ -143,7 +143,7 @@ export const nowYouTry = {
   keyboard_choices: 'ALL_KEYS',
   button_html: () => {
     const t = taskStore().translations;
-    return `<button id="continue-btn">${t.continueButtonText}</button>`;
+    return `<button class="primary">${t.continueButtonText}</button>`;
   },
   // trial_duration: 1000,
 };
