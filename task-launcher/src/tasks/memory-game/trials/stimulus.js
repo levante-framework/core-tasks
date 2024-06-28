@@ -208,7 +208,7 @@ function doOnLoad(mode, isPractice) {
 
     const jsPsychAudioCtx = jsPsych.pluginAPI.audioContext();
   
-    const cue = mode === 'display' ? 'memoryGamePrompt1' : 'inputAudioCue';
+    const cue = mode === 'display' ? 'memoryGameDisplay' : 'memoryGameInput';
 
     // Returns a promise of the AudioBuffer of the preloaded file path.
     const audioBuffer = await jsPsych
