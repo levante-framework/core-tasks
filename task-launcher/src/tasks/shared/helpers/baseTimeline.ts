@@ -1,8 +1,9 @@
+//@ts-ignore
 import { enterFullscreen } from '../trials';
 import { makePid } from './makePID';
-import { startAppTimer } from './index';
+import { startAppTimer } from './appTimer';
 
-export const initTimeline = (config) => {
+export const initTimeline = (config: Record<string, any>) => {
   const initialTimeline = [enterFullscreen];
 
   const beginningTimeline = {

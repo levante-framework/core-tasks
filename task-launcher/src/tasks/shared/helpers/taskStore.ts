@@ -50,7 +50,7 @@ import store from 'store2';
  */
 export const taskStore = store.page.namespace('taskStore');
 
-export const setTaskStore = (config) => {
+export const setTaskStore = (config: Record<string, any>) => {
   taskStore({
     itemSelect: 'mfi',
     trialNumSubtask: 0,

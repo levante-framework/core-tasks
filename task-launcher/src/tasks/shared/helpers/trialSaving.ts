@@ -1,17 +1,30 @@
+import { cloneDeep } from 'lodash';
+//@ts-ignore
 import { jsPsych } from '../../taskSetup';
-import cloneDeep from 'lodash/cloneDeep';
+//@ts-ignore
 import { computedScoreCallback } from '../../trog/helpers/scores';
-import { maxTimeReached } from './';
-import { taskStore } from './';
 
-export const initTrialSaving = (config) => {
+type FinalDataType = {
+  save_trial?: boolean;
+  response_source?: string;
+  trial_index?: number;
+  internal_node_id?: number;
+  button_response?: number;
+  keyboard_response?: number;
+  responseSource?: string;
+  trial_type?: string;
+  trialIndex?: number;
+};
+
+
+export const initTrialSaving = (config: Record<string, any>) => {
   if (config.displayElement) {
     jsPsych.opts.display_element = config.display_element;
   }
 
   // Extend jsPsych's on_finish and on_data_update lifecycle functions to mark the
   // run as completed and write data to Firestore, respectively.
-  const extend = (fn, code) =>
+  const extend = (fn: Function, code: Function) =>
     function () {
       // eslint-disable-next-line prefer-rest-params
       fn.apply(fn, arguments);
@@ -37,7 +50,7 @@ export const initTrialSaving = (config) => {
     config.firekit.finishRun();
   });
 
-  jsPsych.opts.on_data_update = extend(jsPsych.opts.on_data_update, (data) => {
+  jsPsych.opts.on_data_update = extend(jsPsych.opts.on_data_update, (data: FinalDataType) => {
     if (data.save_trial) {
       // save_trial is a flag that indicates whether the trial should
       // be saved to Firestore. No point in writing it to the db.

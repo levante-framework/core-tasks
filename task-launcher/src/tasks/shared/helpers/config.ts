@@ -1,11 +1,9 @@
 // Used in Math and Matrix-reasoning so far
-import _omitBy from 'lodash/omitBy';
-import _isNull from 'lodash/isNull';
-import _isUndefined from 'lodash/isUndefined';
+import { omitBy, isNull, isUndefined } from 'lodash';
 import i18next from 'i18next';
 import { camelize } from '@bdelab/roar-utils';
 import store from 'store2';
-import {isRoarApp} from "./isRoarApp.js";
+import { isRoarApp } from "./isRoarApp.js";
 
 const defaultCorpus = {
   egmaMath: 'math-item-bank',
@@ -18,7 +16,7 @@ const defaultCorpus = {
 };
 
 export const setSharedConfig = async (firekit, gameParams, userParams, displayElement) => {
-  const cleanParams = _omitBy(_omitBy({ ...gameParams, ...userParams }, _isNull), _isUndefined);
+  const cleanParams = omitBy(omitBy({ ...gameParams, ...userParams }, isNull), isUndefined);
 
   const {
     userMetadata = {},

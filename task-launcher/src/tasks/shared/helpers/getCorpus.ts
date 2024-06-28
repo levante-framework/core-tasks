@@ -9,7 +9,7 @@ import { stringToNumberArray } from './stringToNumArray';
 import { dashToCamelCase } from './dashToCamelCase';
 import { camelize } from '@bdelab/roar-utils';
 import { shuffleStimulusTrials } from './randomizeStimulusBlocks';
-import { taskStore } from './';
+import { taskStore } from '.';
 
 export let corpora;
 export const sdsPhaseCount = {}
