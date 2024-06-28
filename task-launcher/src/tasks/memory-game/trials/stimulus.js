@@ -60,7 +60,7 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false}) {
       // not for firekit
       isPracticeTrial: isPractice,
     },
-    on_load: () => doOnLoad(mode, isPractice),
+    on_load: () => doOnLoad(mode, isPractice, reverse),
     on_finish: (data) => {
       jsPsych.data.addDataToLastTrial({
         correct: _isEqual(data.response, data.sequence),
@@ -122,7 +122,7 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false}) {
 
 let timeoutIDs = []
 
-function doOnLoad(mode, isPractice) {
+function doOnLoad(mode, isPractice, reverse) {
   const container = document.getElementById('jspsych-corsi-stimulus');
   container.id = '';
   container.classList.add('jspsych-corsi-overide');
@@ -197,7 +197,8 @@ function doOnLoad(mode, isPractice) {
 
   const prompt = document.createElement('p');
   prompt.classList.add('corsi-block-overide-prompt');
-  prompt.textContent = mode === 'display' ? t.memoryGameDisplay : t.memoryGameInput;
+  const inputTextPrompt = reverse ? t.memoryGameBackwardPrompt : t.memoryGameInput
+  prompt.textContent = mode === 'display' ? t.memoryGameDisplay : inputTextPrompt;
   // Inserting element at the second child position rather than
   // changing the jspsych-content styles to avoid potential issues in the future
   contentWrapper.insertBefore(prompt, corsiBlocksHTML);
@@ -207,8 +208,10 @@ function doOnLoad(mode, isPractice) {
     let audioSource
 
     const jsPsychAudioCtx = jsPsych.pluginAPI.audioContext();
+
+    const inputAudioPrompt = reverse ? 'memoryGameBackwardPrompt' : 'memoryGameInput'
   
-    const cue = mode === 'display' ? 'memoryGameDisplay' : 'memoryGameInput';
+    const cue = mode === 'display' ? 'memoryGameDisplay' : inputAudioPrompt;
 
     // Returns a promise of the AudioBuffer of the preloaded file path.
     const audioBuffer = await jsPsych
