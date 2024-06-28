@@ -112,6 +112,7 @@ export const slider = {
   step: 'any',
   // response_ends_trial: true,
   on_load: () => {
+    console.log('mark://', taskStore().nextStimulus.trialType);
     const slider = document.getElementById('jspsych-html-slider-response-response');
     slider.classList.add('custom-slider');
 
@@ -161,7 +162,7 @@ export const slider = {
         const btnWrapper = document.createElement('div');
         const btn = document.createElement('button');
         btn.textContent = responseChoices[i];
-        btn.classList.add('math-btn');
+        btn.classList.add('secondary');
         btn.addEventListener('click', () => captureValue(btn));
         // To not duplicate event listeners
         if (i === 0) {
@@ -197,6 +198,11 @@ export const slider = {
         buttonContainer.appendChild(btnWrapper);
       }
     } else {
+      const continueBtn = document.getElementById('jspsych-html-slider-response-next');
+      if (continueBtn) {
+        continueBtn.classList.add('primary');
+      }
+
       const slider = document.getElementById('jspsych-html-slider-response-response');
 
       slider.addEventListener('input', () => (chosenAnswer = slider.value));

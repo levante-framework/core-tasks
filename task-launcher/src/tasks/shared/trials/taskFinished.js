@@ -20,6 +20,6 @@ export const taskFinished = {
   },
   button_choices: [`Continue`],
   keyboard_choices: 'ALL_KEYS',
-  button_html: '<button id="continue-btn">Exit</button>',
+  button_html: '<button class="primary">Exit</button>',
   // trial_duration: 1000,
 };
