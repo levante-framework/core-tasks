@@ -1,8 +1,12 @@
 // This function randomizes stimulus blocks by thier trial type
+type TrialType = {
+  trialType: string;
+  notes: string;
+}
 
-export function shuffleStimulusTrials(trialArray) {
+export function shuffleStimulusTrials(trialArray: Array<TrialType>) {
   // 1. Group stimulus trials by type
-  const stimulusTrialsByType = {};
+  const stimulusTrialsByType: Record<string, Array<TrialType>> = {};
   for (const trial of trialArray) {
     if (trial.trialType !== 'instructions' && trial.notes !== 'practice') {
       const trialType = trial.trialType; // Example property
@@ -24,15 +28,15 @@ export function shuffleStimulusTrials(trialArray) {
   for (const trial of trialArray) {
     if (trial.trialType !== 'instructions' && trial.notes !== 'practice') {
       const trialType = trial.trialType;
-      trialArray[index] = stimulusTrialsByType[trialType].shift();
+      trialArray[index] = stimulusTrialsByType[trialType].shift() as TrialType;
     }
-    index++;
+    index += 1;
   }
 
   return trialArray;
 }
 
-export function shuffleArray(array) {
+export function shuffleArray(array: Array<TrialType>) {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [array[i], array[j]] = [array[j], array[i]];

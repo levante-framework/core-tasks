@@ -1,6 +1,6 @@
-import { taskStore } from './';
+import { taskStore } from '.';
 
-function createBlocks(numOfBlocks, numOfTrials) {
+function createBlocks(numOfBlocks: number, numOfTrials: number) {
   // Minimum number of trials. Can change to whatever.
   if (numOfTrials < 3) numOfTrials = 4;
   const baseFraction = Math.floor(numOfTrials / numOfBlocks);
@@ -21,7 +21,7 @@ function createBlocks(numOfBlocks, numOfTrials) {
 }
 
 // get size of blocks
-export const getStimulusBlockCount = (numberOfTrials, stimulusBlocks) => {
+export const getStimulusBlockCount = (numberOfTrials: number, stimulusBlocks: number) => {
   const maxNumberOfTrials = taskStore().totalTrials;
 
   let countList;

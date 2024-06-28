@@ -1,21 +1,22 @@
-import Papa from 'papaparse';
-import 'regenerator-runtime/runtime';
+import * as Papa from 'papaparse';
+//@ts-ignore
 import { camelize } from '@bdelab/roar-utils';
-import { taskStore } from './';
+import 'regenerator-runtime/runtime';
+import { taskStore } from '.';
 
 let translations = {};
 
-function getRowData(row, language, nonLocalDialect) {
+function getRowData(row: Record<string, Array<string>>, language: string, nonLocalDialect: string) {
   const translation = row[language.toLowerCase()];
 
   // Only need this because we don't have base language translations for all languages.
   // Ex we have 'es-co' but not 'es'
-  const noBaseLang = Object.keys(row).find((key) => key.includes(nonLocalDialect));
+  const noBaseLang = Object.keys(row).find((key) => key.includes(nonLocalDialect)) ?? '';
   return translation || row[nonLocalDialect] || row[noBaseLang] || row['en'];
 }
 
-function parseTranslations(translationData, configLanguage) {
-  const nonLocalDialect = configLanguage.split('-')[0].toLowerCase();
+function parseTranslations(translationData: Array<Record<string, any>>, configLanguage: string) {
+  const nonLocalDialect = configLanguage.split('-')[0].toLowerCase() ?? '';
 
   translationData.forEach((row) => {
     translations[camelize(row.item_id)] = getRowData(row, configLanguage, nonLocalDialect);
@@ -25,14 +26,14 @@ function parseTranslations(translationData, configLanguage) {
   taskStore('translations', translations);
 }
 
-export const getTranslations = async (configLanguage) => {
-  function downloadCSV(url, i) {
+export const getTranslations = async (configLanguage: string) => {
+  function downloadCSV(url: string) {
     return new Promise((resolve, reject) => {
       Papa.parse(url, {
         download: true,
         header: true,
         skipEmptyLines: true,
-        complete: function (results) {
+        complete: function (results: { data: any }) {
           parseTranslations(results.data, configLanguage);
           resolve(results.data);
         },
@@ -43,8 +44,8 @@ export const getTranslations = async (configLanguage) => {
     });
   }
 
-  async function parseCSVs(urls) {
-    const promises = urls.map((url, i) => downloadCSV(url, i));
+  async function parseCSVs(urls: Array<string>) {
+    const promises = urls.map((url) => downloadCSV(url));
     return Promise.all(promises);
   }
 

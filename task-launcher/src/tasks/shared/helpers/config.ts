@@ -2,7 +2,6 @@
 import { omitBy, isNull, isUndefined } from 'lodash';
 import i18next from 'i18next';
 import { camelize } from '@bdelab/roar-utils';
-import store from 'store2';
 import { isRoarApp } from "./isRoarApp.js";
 
 const defaultCorpus = {

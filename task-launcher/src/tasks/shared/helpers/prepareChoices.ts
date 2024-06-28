@@ -1,8 +1,8 @@
-import _shuffle from 'lodash/shuffle';
-import { fractionToMathML } from './';
-import { taskStore } from './';
+import { shuffle } from 'lodash';
+import { fractionToMathML } from './fractionToMathML';
+import { taskStore } from './taskStore';
 
-export const prepareChoices = (target, distractors, randomizeOrder = true, trialType) => {
+export const prepareChoices = (target: string, distractors: Array<string>, randomizeOrder: boolean = true, trialType: string) => {
   let choices;
   if (!target || distractors.includes(target)) { // If target is not present, don't add to options
     choices = [...distractors];
@@ -12,7 +12,7 @@ export const prepareChoices = (target, distractors, randomizeOrder = true, trial
 
   // Randomize the order of the choices if required
   if (randomizeOrder) {
-    choices = _shuffle(choices);
+    choices = shuffle(choices);
   }
 
   if (trialType === 'Fraction') {

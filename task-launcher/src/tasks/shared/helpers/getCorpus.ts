@@ -2,7 +2,7 @@
 import 'regenerator-runtime/runtime';
 import '../../../i18n/i18n';
 import _shuffle from 'lodash/shuffle';
-import Papa from 'papaparse';
+import * as Papa from 'papaparse';
 import _compact from 'lodash/compact';
 import _toNumber from 'lodash/toNumber';
 import { stringToNumberArray } from './stringToNumArray';
