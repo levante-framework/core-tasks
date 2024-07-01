@@ -1,3 +1,4 @@
+// @ts-ignore
 import { getDevice } from '@bdelab/roar-utils';
 // Grab by device, check nested shared
 
@@ -64,12 +65,26 @@ const wlist = {
 //   }
 // }
 
+type CategorizedObjectsType = {
+  images: Record<string, string>;
+  audio: Record<string, string>;
+  video: Record<string, string>;
+};
+
+type ResponseDataType = {
+  items: Array<{
+    name: string;
+    contentType: string;
+  }>;
+  nextPageToken: string;
+};
+
 export async function getMediaAssets(
-  bucketName,
-  whitelist = {},
-  language,
-  nextPageToken = '',
-  categorizedObjects = { images: {}, audio: {}, video: {} },
+  bucketName: string,
+  whitelist: Record<string, string> = {},
+  language: string,
+  nextPageToken: string = '',
+  categorizedObjects: CategorizedObjectsType = { images: {}, audio: {}, video: {} },
 ) {
   const device = getDevice();
 
@@ -80,14 +95,14 @@ export async function getMediaAssets(
   }
 
   const response = await fetch(url);
-  const data = await response.json();
+  const data: ResponseDataType = await response.json();
 
   data.items.forEach((item) => {
     if (isLanguageAndDeviceValid(item.name, language, device) && isWhitelisted(item.name, whitelist)) {
       const contentType = item.contentType;
       const id = item.name;
       const path = `https://storage.googleapis.com/${bucketName}/${id}`;
-      const fileName = id.split('/').pop().split('.')[0];
+      const fileName = id?.split?.('/')?.pop()?.split('.')?.[0] ?? '';
       const camelCaseFileName = convertToCamelCase(fileName);
 
       if (contentType.startsWith('image/')) {
@@ -108,7 +123,7 @@ export async function getMediaAssets(
   }
 }
 
-function isLanguageAndDeviceValid(filePath, languageCode, device) {
+function isLanguageAndDeviceValid(filePath: string, languageCode: string, device: string) {
   const parts = filePath.split('/');
   if (parts[0] === 'shared') {
     return true; // Shared folder is always valid
@@ -122,7 +137,7 @@ function isLanguageAndDeviceValid(filePath, languageCode, device) {
 }
 
 // TODO: allow nested whitelisting (whitelisting within an already whitelisted folder)
-function isWhitelisted(filePath, whitelist) {
+function isWhitelisted(filePath: string, whitelist: Record<string, string>) {
   const parts = filePath.split('/');
   for (const [parent, children] of Object.entries(whitelist)) {
     const parentIndex = parts.indexOf(parent);
@@ -146,6 +161,6 @@ function isWhitelisted(filePath, whitelist) {
 //   return false;
 // }
 
-function convertToCamelCase(str) {
+function convertToCamelCase(str: string) {
   return str.replace(/[-_\.]+(.)?/g, (_, c) => (c ? c.toUpperCase() : '')).replace(/^(.)/, (c) => c.toLowerCase());
 }

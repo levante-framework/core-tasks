@@ -1,18 +1,21 @@
 import jsPsychPreload from '@jspsych/plugin-preload';
 
 // TODO: Handle shared files when using blocks.
-export function createPreloadTrials(categorizedObjects, blocks = []) {
+export function createPreloadTrials(
+  categorizedObjects: Record<string, [string, string]>,
+  blocks: Array<string> = [],
+) {
   // Initialize jsPsychPreload trial objects for each block
   const trials =
     blocks.length > 0
-      ? blocks.reduce((acc, block) => {
+      ? blocks.reduce((acc: Record<string, any>, block: string) => {
           acc[block] = createJsPsychPreloadObject();
           return acc;
         }, {})
       : { default: createJsPsychPreloadObject() };
 
   // Helper function to check if URL contains a block name as an exact folder name
-  const containsBlock = (url, block) => {
+  const containsBlock = (url: string, block: string) => {
     const urlParts = new URL(url).pathname.split('/');
     return urlParts.some((part) => part === block);
   };

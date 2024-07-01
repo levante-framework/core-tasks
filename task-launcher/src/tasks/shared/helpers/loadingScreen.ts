@@ -151,5 +151,7 @@ export const showLevanteLogoLoading = () => {
 
 export const hideLevanteLogoLoading = () => {
   const logo = document.getElementById(LEVANTE_LOGO_ID);
-  logo.remove();
+  if (logo) {
+    logo.remove();
+  }
 };

@@ -3,14 +3,10 @@ import 'regenerator-runtime/runtime';
 import { initTrialSaving, initTimeline, createPreloadTrials, taskStore } from '../shared/helpers';
 import { jsPsych, initializeCat } from '../taskSetup';
 // trials
-import { 
-  afcStimulus,
-  exitFullscreen, 
-  setupStimulus,
-  taskFinished,
-} from '../shared/trials';
+//@ts-ignore
+import { afcStimulus, exitFullscreen, setupStimulus, taskFinished } from '../shared/trials';
 
-export default function buildTOMTimeline(config, mediaAssets) {
+export default function buildTOMTimeline(config: Record<string, any>, mediaAssets: Record<string, any>) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
 
   initTrialSaving(config);

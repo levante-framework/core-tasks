@@ -8,10 +8,18 @@ import {
 } from './tasks/shared/helpers';
 import './styles/task.scss';
 import taskConfig from './tasks/taskConfig';
+import { RoarAppkit } from '@bdelab/roar-firekit';
 
-export let mediaAssets;
+export type GameParamsType = Record<string, any>;
+export type UserParamsType = Record<string, any>;
+
+export let mediaAssets: Record<string, any>;
 export class TaskLauncher {
-  constructor(firekit, gameParams, userParams, displayElement) {
+  gameParams: GameParamsType;
+  userParams: UserParamsType;
+  firekit: RoarAppkit;
+  displayElement: boolean;
+  constructor(firekit: RoarAppkit, gameParams: GameParamsType, userParams: UserParamsType, displayElement: boolean) {
     this.gameParams = gameParams;
     this.userParams = userParams;
     this.firekit = firekit;
@@ -24,7 +32,7 @@ export class TaskLauncher {
     const { taskName, language } = this.gameParams;
 
     const { setConfig, getCorpus, buildTaskTimeline, getTranslations } =
-      taskConfig[dashToCamelCase(taskName)];
+      taskConfig[dashToCamelCase(taskName) as keyof typeof taskConfig];
 
     // GCP bucket names use a format like egma-math
     // will avoid language folder if not provided
@@ -39,12 +47,12 @@ export class TaskLauncher {
         mediaAssets = await getMediaAssets(taskName, {}, language);
       }
     } catch (error) {
-      throw new Error('Error fetching media assets: ', error);
+      throw new Error('Error fetching media assets: ' + error);
     }
 
     const config = await setConfig(this.firekit, this.gameParams, this.userParams, this.displayElement);
 
-    setTaskStore(config)
+    setTaskStore(config);
 
     // TODO: make hearts and flowers corpus? make list of tasks that don't need corpora?
     if (taskName !== 'hearts-and-flowers' && taskName !== 'memory-game' && taskName !== 'intro') {
@@ -61,6 +69,6 @@ export class TaskLauncher {
     const { jsPsych, timeline } = await this.init();
     hideLevanteLogoLoading();
     jsPsych.run(timeline);
-    await isTaskFinished(() => this.firekit.run.completed === true);
+    await isTaskFinished(() => this.firekit?.run?.completed === true);
   }
 }

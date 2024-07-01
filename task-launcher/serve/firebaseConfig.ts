@@ -19,4 +19,4 @@ const productionFirebaseConfig = {
   appId: '1:46792247600:web:ea20e1fe94e0541dd5a0f5',
 };
 
-export const firebaseConfig = ENV === 'production' ? productionFirebaseConfig : devFirebaseConfig;
+export const firebaseConfig: Record<string, string> = process.env.ENV === 'production' ? productionFirebaseConfig : devFirebaseConfig;

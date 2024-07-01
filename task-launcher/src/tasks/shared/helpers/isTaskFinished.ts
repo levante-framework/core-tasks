@@ -1,7 +1,7 @@
 // Previously named waitFor
 
-export const isTaskFinished = (conditionFunction) => {
-  const poll = (resolve) => {
+export const isTaskFinished = (conditionFunction: Function) => {
+  const poll = (resolve: Function) => {
     if (conditionFunction()) {
       resolve();
     } else {

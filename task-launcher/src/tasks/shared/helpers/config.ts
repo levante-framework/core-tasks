@@ -1,11 +1,13 @@
 // Used in Math and Matrix-reasoning so far
-import _omitBy from 'lodash/omitBy';
-import _isNull from 'lodash/isNull';
-import _isUndefined from 'lodash/isUndefined';
-import i18next from 'i18next';
+//@ts-ignore
 import { camelize } from '@bdelab/roar-utils';
-import store from 'store2';
-import {isRoarApp} from "./isRoarApp.js";
+import { omitBy, isNull, isUndefined } from 'lodash';
+import i18next from 'i18next';
+import { isRoarApp } from "./isRoarApp";
+import { RoarAppkit } from '@bdelab/roar-firekit';
+
+export type GameParamsType = Record<string, any>;
+export type UserParamsType = Record<string, any>;
 
 const defaultCorpus = {
   egmaMath: 'math-item-bank',
@@ -17,8 +19,8 @@ const defaultCorpus = {
   vocab: 'vocab-item-bank',
 };
 
-export const setSharedConfig = async (firekit, gameParams, userParams, displayElement) => {
-  const cleanParams = _omitBy(_omitBy({ ...gameParams, ...userParams }, _isNull), _isUndefined);
+export const setSharedConfig = async (firekit: RoarAppkit, gameParams: GameParamsType, userParams: UserParamsType, displayElement: boolean) => {
+  const cleanParams = omitBy(omitBy({ ...gameParams, ...userParams }, isNull), isUndefined);
 
   const {
     userMetadata = {},
@@ -65,17 +67,17 @@ export const setSharedConfig = async (firekit, gameParams, userParams, displayEl
   };
 
   // default corpus if nothing is passed in
-  if (!config.corpus) config.corpus = defaultCorpus[camelize(taskName)];
+  if (!config.corpus) config.corpus = defaultCorpus[camelize(taskName) as keyof typeof defaultCorpus];
 
   const updatedGameParams = Object.fromEntries(
-    Object.entries(gameParams).map(([key, value]) => [key, config[key] ?? value]),
+    Object.entries(gameParams).map(([key, value]) => [key, config[key as keyof typeof config] ?? value]),
   );
 
   await config.firekit.updateTaskParams(updatedGameParams);
 
-  if (config.pid !== null) {
-    await config.firekit.updateUser({ assessmentPid: config.pid, ...userMetadata });
-  }
+  // if (config.pid !== null) {
+  //   await config.firekit.updateUser({ assessmentPid: config.pid, ...userMetadata });
+  // }
 
   return config;
 };

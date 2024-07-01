@@ -1,9 +1,10 @@
+//@ts-ignore
+import { camelize } from "@bdelab/roar-utils";
 import { jsPsych } from "../../taskSetup";
 import { mediaAssets } from "../../..";
-import { camelize } from "@bdelab/roar-utils";
 
 
-export function setupReplayAudio(audioSource, audioFile) {
+export function setupReplayAudio(audioSource: AudioBufferSourceNode, audioFile: string) {
     // Hardcoded since it uses the replayButtonDiv comopnent
     const replayBtn = document.getElementById('replay-btn-revisited');
 
@@ -14,7 +15,7 @@ export function setupReplayAudio(audioSource, audioFile) {
         async function replayAudio() {  
             if (isAudioPlaying) return
 
-            const jsPsychAudioCtx = jsPsych.pluginAPI.audioContext();
+            const jsPsychAudioCtx: AudioContext = jsPsych.pluginAPI.audioContext();
 
             isAudioPlaying = true;
 
@@ -22,7 +23,7 @@ export function setupReplayAudio(audioSource, audioFile) {
             const audioBuffer = await jsPsych
                 .pluginAPI
                 .getAudioBuffer(mediaAssets.audio[camelize(audioFile)] ||
-                                mediaAssets.audio.nullAudio,);
+                                mediaAssets.audio.nullAudio,) as AudioBuffer;
 
             audioSource = jsPsychAudioCtx.createBufferSource();
             audioSource.buffer = audioBuffer;
