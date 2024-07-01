@@ -2,8 +2,8 @@
   "name": "@levante-framework/core-tasks",
   "version": "1.0.0-beta.17",
   "description": "",
-  "main": "lib/index.f00d2f8e.js",
-  "module": "lib/index.f00d2f8e.js",
+  "main": "lib/index.55beb0e1.js",
+  "module": "lib/index.55beb0e1.js",
   "type": "module",
   "files": [
     "lib",
@@ -63,6 +63,7 @@
     "@rollup/plugin-json": "^6.0.0",
     "@rollup/plugin-node-resolve": "^15.1.0",
     "@rollup/plugin-terser": "^0.4.3",
+    "@rollup/plugin-typescript": "^11.1.6",
     "babel-loader": "^9.1.2",
     "css-loader": "^6.7.1",
     "csv-loader": "^3.0.5",
