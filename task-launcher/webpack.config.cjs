@@ -27,10 +27,19 @@ const commonConfig = {
   resolve: {
     fallback: {
       path: require.resolve('path-browserify'),
+      crypto: require.resolve('crypto-browserify'),
+      stream: false,
+      vm: false,
     },
+    extensions: ['.ts', '.js'],
   },
   module: {
     rules: [
+      {
+        test: /\.tsx?$/,
+        use: 'ts-loader',
+        exclude: /node_modules/,
+      },
       {
         test: /\.m?js/,
         resolve: {
@@ -94,7 +103,7 @@ const commonConfig = {
 
 const webConfig = merge(commonConfig, {
   entry: {
-    index: path.resolve(__dirname, 'serve', 'serve.js'),
+    index: path.resolve(__dirname, 'serve', 'serve.ts'),
   },
   output: {
     filename: '[name].[contenthash].bundle.js',

@@ -1,8 +1,13 @@
 // Used in Math and Matrix-reasoning so far
+//@ts-ignore
+import { camelize } from '@bdelab/roar-utils';
 import { omitBy, isNull, isUndefined } from 'lodash';
 import i18next from 'i18next';
-import { camelize } from '@bdelab/roar-utils';
-import { isRoarApp } from "./isRoarApp.js";
+import { isRoarApp } from "./isRoarApp";
+import { RoarAppkit } from '@bdelab/roar-firekit';
+
+export type GameParamsType = Record<string, any>;
+export type UserParamsType = Record<string, any>;
 
 const defaultCorpus = {
   egmaMath: 'math-item-bank',
@@ -14,7 +19,7 @@ const defaultCorpus = {
   vocab: 'vocab-item-bank',
 };
 
-export const setSharedConfig = async (firekit, gameParams, userParams, displayElement) => {
+export const setSharedConfig = async (firekit: RoarAppkit, gameParams: GameParamsType, userParams: UserParamsType, displayElement: boolean) => {
   const cleanParams = omitBy(omitBy({ ...gameParams, ...userParams }, isNull), isUndefined);
 
   const {
@@ -62,17 +67,17 @@ export const setSharedConfig = async (firekit, gameParams, userParams, displayEl
   };
 
   // default corpus if nothing is passed in
-  if (!config.corpus) config.corpus = defaultCorpus[camelize(taskName)];
+  if (!config.corpus) config.corpus = defaultCorpus[camelize(taskName) as keyof typeof defaultCorpus];
 
   const updatedGameParams = Object.fromEntries(
-    Object.entries(gameParams).map(([key, value]) => [key, config[key] ?? value]),
+    Object.entries(gameParams).map(([key, value]) => [key, config[key as keyof typeof config] ?? value]),
   );
 
   await config.firekit.updateTaskParams(updatedGameParams);
 
-  if (config.pid !== null) {
-    await config.firekit.updateUser({ assessmentPid: config.pid, ...userMetadata });
-  }
+  // if (config.pid !== null) {
+  //   await config.firekit.updateUser({ assessmentPid: config.pid, ...userMetadata });
+  // }
 
   return config;
 };

@@ -4,7 +4,7 @@ import { camelize } from '@bdelab/roar-utils';
 import 'regenerator-runtime/runtime';
 import { taskStore } from '.';
 
-let translations = {};
+let translations: Record<string, any> = {};
 
 function getRowData(row: Record<string, Array<string>>, language: string, nonLocalDialect: string) {
   const translation = row[language.toLowerCase()];

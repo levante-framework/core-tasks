@@ -32,7 +32,7 @@ export class TaskLauncher {
     const { taskName, language } = this.gameParams;
 
     const { setConfig, getCorpus, buildTaskTimeline, getTranslations } =
-      taskConfig[dashToCamelCase(taskName)];
+      taskConfig[dashToCamelCase(taskName) as keyof typeof taskConfig];
 
     // GCP bucket names use a format like egma-math
     // will avoid language folder if not provided
@@ -52,7 +52,7 @@ export class TaskLauncher {
 
     const config = await setConfig(this.firekit, this.gameParams, this.userParams, this.displayElement);
 
-    setTaskStore(config)
+    setTaskStore(config);
 
     // TODO: make hearts and flowers corpus? make list of tasks that don't need corpora?
     if (taskName !== 'hearts-and-flowers' && taskName !== 'memory-game' && taskName !== 'intro') {

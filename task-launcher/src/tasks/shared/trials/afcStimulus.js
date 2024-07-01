@@ -1,6 +1,5 @@
 // For all tasks except: H&F, Memory Game, Same Different Selection
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
-import store from 'store2';
 import { jsPsych, isTouchScreen } from '../../taskSetup';
 import {
   prepareChoices,

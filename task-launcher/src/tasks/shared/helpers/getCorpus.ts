@@ -1,37 +1,62 @@
 // Required to use top level await
 import 'regenerator-runtime/runtime';
+// @ts-ignore
+import { camelize } from '@bdelab/roar-utils';
 import '../../../i18n/i18n';
-import _shuffle from 'lodash/shuffle';
 import * as Papa from 'papaparse';
-import _compact from 'lodash/compact';
-import _toNumber from 'lodash/toNumber';
+import { toNumber } from 'lodash';
 import { stringToNumberArray } from './stringToNumArray';
 import { dashToCamelCase } from './dashToCamelCase';
-import { camelize } from '@bdelab/roar-utils';
-import { shuffleStimulusTrials } from './randomizeStimulusBlocks';
+import { shuffleStimulusTrials, TransformedRowType } from './randomizeStimulusBlocks';
 import { taskStore } from '.';
 
-export let corpora;
-export const sdsPhaseCount = {}
+interface RowDataType {
+  task: string;
+  trial_type: string;
+  item: string;
+  source: string;
+  block_index: number;
+  orig_item_num: number;
+  prompt: string;
+  image: string;
+  time_limit: number;
+  answer: number | string;
+  response_alternatives: string;
+  notes: string;
+  audio_file: string;
+  required_selections: string;
+  same_different: string;
+  affix: string;
+};
+
+type SdsPhaseCountType = {
+  phase1?: number;
+  phase2?: number;
+}
+
+export let corpora: {
+  stimulus: TransformedRowType[];
+};
+export const sdsPhaseCount: SdsPhaseCountType = {}
 
 let totalTrials = 0;
 
-let stimulusData = [];
+let stimulusData: Array<TransformedRowType> = [];
 
-function writeItem(row) {
+function writeItem(row: RowDataType) {
   if (row.task === 'math' && row.trial_type.includes('Number Line')) {
     const splitArr = row.item.split(',');
-    return splitArr.map((el) => _toNumber(el));
+    return splitArr.map((el) => toNumber(el));
   }
 
   return row.item;
 }
 
-function containsLettersOrSlash(str) {
+function containsLettersOrSlash(str: string) {
   return /[a-zA-Z\/]/.test(str);
 }
 
-const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
+const transformCSV = (csvInput: RowDataType[], numOfPracticeTrials: number, sequentialStimulus: boolean) => {
   let currTrialTypeBlock = '';
   let currPracticeAmount = 0;
 
@@ -40,11 +65,11 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
   let sdsPhase1Count = 0
   let sdsPhase2Count = 0
 
-  csvInput.forEach((row) => {
+  csvInput.forEach((row: RowDataType) => {
     // Leaving this here for quick testing of a certain type of trial
     // if (!row.trial_type.includes('Number Line')) return;
 
-    const newRow = {
+    const newRow: TransformedRowType = {
       source: row.source,
       block_index: row.block_index,
       task: row.task,
@@ -55,7 +80,7 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
       trialType: row.trial_type,
       image: row?.image?.includes(',') ? row.image.split(',') : row?.image,
       timeLimit: row.time_limit,
-      answer: _toNumber(row.answer) || row.answer,
+      answer: toNumber(row.answer) || row.answer,
       notes: row.notes,
       distractors: containsLettersOrSlash(row.response_alternatives)
         ? row.response_alternatives.split(',')
@@ -112,7 +137,7 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
   }
 };
 
-export const getCorpus = async (config) => {
+export const getCorpus = async (config: Record<string, any>) => {
   const { corpus, task, sequentialStimulus, sequentialPractice, numOfPracticeTrials } = config;
 
   const corpusLocation = {
@@ -125,13 +150,13 @@ export const getCorpus = async (config) => {
     vocab: `https://storage.googleapis.com/vocab-test/shared/corpora/${corpus}.csv`,
   };
 
-  function downloadCSV(url, i) {
+  function downloadCSV(url: string) {
     return new Promise((resolve, reject) => {
       Papa.parse(url, {
         download: true,
         header: true,
         skipEmptyLines: true,
-        complete: function (results) {
+        complete: function (results: { data: any }) {
           transformCSV(results.data, numOfPracticeTrials, sequentialStimulus);
           resolve(results.data);
         },
@@ -142,13 +167,14 @@ export const getCorpus = async (config) => {
     });
   }
 
-  async function parseCSVs(urls) {
-    const promises = urls.map((url, i) => downloadCSV(url, i));
+  async function parseCSVs(urls: string[]) {
+    const promises = urls.map((url) => downloadCSV(url));
     return Promise.all(promises);
   }
 
   async function fetchData() {
-    const urls = [corpusLocation[dashToCamelCase(task)]];
+    const camelCasedTask = dashToCamelCase(task) as keyof typeof corpusLocation;
+    const urls = [corpusLocation[camelCasedTask]];
 
     try {
       await parseCSVs(urls);
@@ -166,7 +192,7 @@ export const getCorpus = async (config) => {
   };
 
   corpora = {
-    practice: csvTransformed.practice,
+    // practice: csvTransformed.practice,
     stimulus: csvTransformed.stimulus,
   };
 

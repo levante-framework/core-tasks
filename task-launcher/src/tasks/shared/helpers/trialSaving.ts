@@ -19,6 +19,7 @@ type FinalDataType = {
 
 export const initTrialSaving = (config: Record<string, any>) => {
   if (config.displayElement) {
+    //@ts-ignore
     jsPsych.opts.display_element = config.display_element;
   }
 
@@ -31,7 +32,7 @@ export const initTrialSaving = (config: Record<string, any>) => {
       // eslint-disable-next-line prefer-rest-params
       code.apply(fn, arguments);
     };
-
+  //@ts-ignore
   jsPsych.opts.on_finish = extend(jsPsych.opts.on_finish, () => {
     // Add finishing metadata to run doc
     // const finishingMetadata = {}
@@ -50,6 +51,7 @@ export const initTrialSaving = (config: Record<string, any>) => {
     config.firekit.finishRun();
   });
 
+  //@ts-ignore
   jsPsych.opts.on_data_update = extend(jsPsych.opts.on_data_update, (data: FinalDataType) => {
     if (data.save_trial) {
       // save_trial is a flag that indicates whether the trial should

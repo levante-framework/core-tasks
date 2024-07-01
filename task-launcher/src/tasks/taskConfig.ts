@@ -1,14 +1,23 @@
+//@ts-ignore
 import mathTimeline from './math/timeline';
-import { getCorpus, setSharedConfig, getTranslations } from './shared/helpers';
+//@ts-ignore
 import matrixTimeline from './matrix-reasoning/timeline';
+//@ts-ignore
 import mentalRotationTimeline from './mental-rotation/timeline';
+//@ts-ignore
 import heartsAndFlowersTimeline from './hearts-and-flowers/timeline';
+//@ts-ignore
 import memoryGameTimeline from './memory-game/timeline';
+//@ts-ignore
 import sameDifferentSelectionTimeline from './same-different-selection/timeline';
+//@ts-ignore
 import vocabTimeline from './vocab/timeline';
+//@ts-ignore
 import tROGTimeline from './trog/timeline';
-import tomTimeline from './theory-of-mind/timeline';
+//@ts-ignore
 import introTimeline from './intro/timeline';
+import tomTimeline from './theory-of-mind/timeline';
+import { getCorpus, setSharedConfig, getTranslations } from './shared/helpers';
 
 // TODO: Abstract to import config from specifc task folder
 // Will allow for multiple devs to work on the repo without merge conflicts
