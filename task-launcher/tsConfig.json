@@ -2,7 +2,7 @@
   "compilerOptions": {
     "lib": ["es2019", "dom"],
     "module": "commonjs",
-    "outDir": "dist",
+    "outDir": "lib/ts",
     "strict": true,
     "target": "es2019",
     "esModuleInterop": true,
