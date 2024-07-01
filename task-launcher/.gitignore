@@ -10,4 +10,3 @@ test-results/
 lib/
 .env
 .idea/
-package-lock.json
