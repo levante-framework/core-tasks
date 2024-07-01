@@ -28,9 +28,15 @@ const commonConfig = {
     fallback: {
       path: require.resolve('path-browserify'),
     },
+    extensions: ['.ts', '.js'],
   },
   module: {
     rules: [
+      {
+        test: /\.tsx?$/,
+        use: 'ts-loader',
+        exclude: /node_modules/,
+      },
       {
         test: /\.m?js/,
         resolve: {

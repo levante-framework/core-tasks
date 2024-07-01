@@ -4,10 +4,12 @@ import json from '@rollup/plugin-json';
 import terser from '@rollup/plugin-terser';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import postcss from 'rollup-plugin-postcss';
+import typescript from '@rollup/plugin-typescript';
 
 export default {
   input: 'src/index.js',
   plugins: [
+    typescript({ module: "ESNext" }),
     postcss({
       extract: 'resources/core-tasks.css',
     }),
