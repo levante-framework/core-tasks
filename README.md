@@ -18,11 +18,14 @@ npm install
 npm run dev
 ```
 
+You can now locally run tasks e.g. TROG `http://localhost:8080/?task=trog`. 
+Task parameters are documented here (TODO linkme).
 
 Task details:
 
 1. [Matrix Reasoning](https://hs-levante-assessment-dev.web.app/?task=matrix-reasoning) [George]
 	- piloting 60 novel items from Rogier Kievit and Nicholas Judd
+	- also using 80 Mars-IB items (Chierchia et al. 2020)
 
 2. [Hearts & Flowers](https://hs-levante-assessment-dev.web.app/?task=hearts-and-flowers) [EF: Inhibition] [George]
 	- 3.5 is the youngest you can go
@@ -30,9 +33,11 @@ Task details:
 	- test trials: 8 hearts, 12 flowers, 12 mixed (1500ms), 12 mixed (1250ms)
 	- 6+6+6+8+12+12+12 = 62 trials * 2s/trial = 2min — can’t save a lot of time in the task! 30s instruction?
 
-3. [Corsi Block](https://hs-levante-assessment-dev.web.app/?task=memory-game) [EF: WM] [George]
+3. [Memory Game (i.e. Corsi Block)](https://hs-levante-assessment-dev.web.app/?task=memory-game) [EF: WM] [George]
 	- age-appropriate grid size could be set
-	- for ages < 5, only do the forward block (backward is too hard)
+	- standard forward block progresses from length 2 to length 7 sequences (3 sequences per length)
+ 	- backward block (given only if succeeded in forward block) similarly progresses from length 2 to 7
+	- Recommendation for ages < 5: only assign the forward block (backward is too difficult)
 
 4. [Same-Different-Selection](https://hs-levante-assessment-dev.web.app/?task=same-different-selection) [EF: Cognitive Flexibility]
 	- progressive task designed by AMES lab (Jelena Obradovic and Michael Sulik) combining types of trials from the FIST and Something's-the-Same tasks to cover the full age range
