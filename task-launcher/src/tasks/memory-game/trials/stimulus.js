@@ -5,7 +5,7 @@ import _isEqual from 'lodash/isEqual';
 import { finishExperiment } from '../../shared/trials';
 import { mediaAssets } from '../../..';
 import { getMemoryGameType } from '../helpers/getMemoryGameType';
-import { taskStore } from '../../shared/helpers';
+import { taskStore, replayButtonDiv, setupReplayAudio } from '../../shared/helpers';
 
 
 const x = 20;
@@ -197,12 +197,17 @@ function doOnLoad(mode, isPractice, reverse) {
 
   const prompt = document.createElement('p');
   prompt.classList.add('corsi-block-overide-prompt');
-  const inputTextPrompt = reverse ? t.memoryGameBackwardPrompt : t.memoryGameInput
+  const inputTextPrompt = reverse ? t.memoryGameBackwardPrompt : t.memoryGameInput; 
   prompt.textContent = mode === 'display' ? t.memoryGameDisplay : inputTextPrompt;
   // Inserting element at the second child position rather than
   // changing the jspsych-content styles to avoid potential issues in the future
   contentWrapper.insertBefore(prompt, corsiBlocksHTML);
 
+  // add replay button
+  const replayButton = document.createElement('div'); 
+  replayButton.innerHTML = replayButtonDiv; 
+  contentWrapper.insertBefore(replayButton, prompt); 
+  
   // play audio cue
   async function playAudioCue() {
     let audioSource
@@ -210,8 +215,10 @@ function doOnLoad(mode, isPractice, reverse) {
     const jsPsychAudioCtx = jsPsych.pluginAPI.audioContext();
 
     const inputAudioPrompt = reverse ? 'memoryGameBackwardPrompt' : 'memoryGameInput'
-  
     const cue = mode === 'display' ? 'memoryGameDisplay' : inputAudioPrompt;
+
+    // set up replay button audio
+    setupReplayAudio(audioSource, cue)
 
     // Returns a promise of the AudioBuffer of the preloaded file path.
     const audioBuffer = await jsPsych
