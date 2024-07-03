@@ -19,7 +19,7 @@ let selectedCoordinates = [];
 let numCorrect = 0;
 
 // This function produces both the display and input trials for the corsi blocks
-export function getCorsiBlocks({ mode, reverse = false, isPractice = false}) {
+export function getCorsiBlocks({ mode, reverse = false, isPractice = false, resetSeq = false}) {
   return {
     type: jsPsychCorsiBlocks,
     sequence: () => {
@@ -67,6 +67,10 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false}) {
         selectedCoordinates: selectedCoordinates,
         corpusTrialType: getMemoryGameType(mode, reverse),
       });
+
+      if (resetSeq) {
+        sequenceLength = 2;
+      }
 
       if (mode === 'input') {
         taskStore('isCorrect', data.correct)
