@@ -23,3 +23,4 @@ export * from './components'
 export * from './replayAudio';
 export * from './loadingScreen';
 export * from './setSkipCurrentBlock'
+export { PageAudioHandler } from './audioHandler';

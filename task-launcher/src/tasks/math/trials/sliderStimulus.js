@@ -112,7 +112,6 @@ export const slider = {
   step: 'any',
   // response_ends_trial: true,
   on_load: () => {
-    console.log('mark://', taskStore().nextStimulus.trialType);
     const slider = document.getElementById('jspsych-html-slider-response-response');
     slider.classList.add('custom-slider');
 
