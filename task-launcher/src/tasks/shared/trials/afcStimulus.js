@@ -7,7 +7,7 @@ import {
   isPractice,
   fractionToMathML,
   arrowKeyEmojis,
-  replayButtonDiv,
+  replayButtonSvg,
   setupReplayAudio,
   setSkipCurrentBlock,
   taskStore,
@@ -16,7 +16,7 @@ import { mediaAssets } from '../../..';
 import _toNumber from 'lodash/toNumber';
 import { camelize } from '@bdelab/roar-utils';
 import { finishExperiment } from './';
-
+const replayButtonHtmlId = 'replay-btn-revisited';
 // Previously chosen responses for current practice trial
 let practiceResponses = [];
 let currPracticeChoiceMix = [];
@@ -75,10 +75,55 @@ function getStimulus(trialType) {
   }
 }
 
+const getPromptTemplate = (prompt, mediaSrc, mediaAlt, stimText, equalSizeStim) => {
+  let template = `
+    <div class="lev-stimulus-container">
+      <button id="${replayButtonHtmlId}" class="replay">
+        ${replayButtonSvg}
+      </button>` ;
+
+  if (prompt) {
+    template += `
+      <div class="lev-row-container instruction">
+        <p>${prompt}</p>
+      </div>
+    `;
+  }
+  if (mediaSrc || stimText) {
+    let contentTemplate = '';
+    if (mediaSrc) {
+      contentTemplate += `
+        <img 
+          src=${mediaSrc}
+          alt=${mediaAlt}
+        />
+      `;
+    }
+
+    if (stimText) {
+      contentTemplate += `
+        <p>${stimText}</p>
+      `;
+    }
+    const containerClass = equalSizeStim
+      ? 'lev-stim-content'
+      : 'lev-stim-content-x-3';
+    template += `
+      <div class=${containerClass}>
+        ${contentTemplate}
+      </div>
+    `;
+  }
+  template += '</div>';
+  return template;
+};
+
 function getPrompt(task) {
   // showItem itemIsImage
   const stim = taskStore().nextStimulus;
   const t = taskStore().translations;
+  const stimTrialType = stim.trialType;
+  const stimTask = stim.task;
 
   let stimItem;
   if (stim.trialType === 'Fraction') {
@@ -87,64 +132,37 @@ function getPrompt(task) {
     stimItem = stim.item;
   }
 
-  //if(stim.taskType === 'instructions' || stim.trialType === 'Number Identification' || stim.trialType === 'Number Comparison') showItem = false
-  let showImageStim = false;
-  if (stim.task === 'Mental Rotation' || stim.task === 'Matrix Reasoning') showImageStim = true;
-
-  if (stim.trialType === 'instructions' || stim.task === 'instructions' || showImageStim) {
-    if(!stimItem) stimItem = ''; // was undefined in vocab instruction trials
-    return (
-      `<div id='stimulus-container'>` +
-      replayButtonDiv +
-      `<div id="prompt-container-text">
-                <p id="prompt">${t[camelize(stim.audioFile)]}</p>
-            </div>
-
-            ${
-              stim.task === 'math' || stimItem === ''
-                ? ''
-                : `<img 
-                id="stimulus-img" 
-                src=${mediaAssets.images[camelize(stimItem)] || mediaAssets.images['blank']}
-                alt=${stimItem || `Stimulus`}
-                />`
-            }
-        </div>`
-    );
+  if (
+    ['Number Identification', 'Number Comparison'].includes(stimTrialType)
+  ) {
+    return getPromptTemplate(null, null, null, null, false);
+  } else if (['vocab', 'trog'].includes(task)) {
+    return getPromptTemplate(t[camelize(stim.audioFile)], null, null, null, false);
+  } else if (['Mental Rotation'].includes(stimTask)) {
+    const mediaSrc = stimItem 
+      ? mediaAssets.images[camelize(stimItem)] || mediaAssets.images['blank']
+      : null;
+    const mediaAlt = stimItem || 'Stimulus';
+    return getPromptTemplate(t[camelize(stim.audioFile)], mediaSrc, mediaAlt, null, true);
+  } else if (
+    ['Matrix Reasoning', 'instructions'].includes(stimTask) ||
+    stim.trialType === 'instructions'
+  ) {
+    const mediaSrc = stimItem 
+      ? mediaAssets.images[camelize(stimItem)] || mediaAssets.images['blank']
+      : null;
+    const mediaAlt = stimItem || 'Stimulus';
+    return getPromptTemplate(t[camelize(stim.audioFile)], mediaSrc, mediaAlt, null, false);
+  } else if (task === 'theory-of-mind') {
+    const mediaSrc = stimItem 
+      ? mediaAssets.images[camelize(stimItem)] || mediaAssets.images['blank']
+      : null;
+    const mediaAlt = stimItem || 'Stimulus';
+    return getPromptTemplate(null, mediaSrc, mediaAlt, null, false);
+  } else if (task === 'egma-math') {
+    return getPromptTemplate(t[camelize(stim.audioFile)], null, null, stimItem, false);
   }
 
-  // just audio - no text prompt/stimulus
-  if (task === 'vocab' || task === 'trog' || stim.trialType === 'Number Identification' || stim.trialType === 'Number Comparison') {
-    return `<div id='stimulus-container'>` + replayButtonDiv + `</div>`;
-  }
-
-  if (task === 'theory-of-mind') {
-    return (
-      `
-        <div id='stimulus-container'>` +
-      replayButtonDiv +
-      `<img 
-              id="stimulus-img" 
-              src=${mediaAssets.images[camelize(stimItem)] || mediaAssets.images['blank']}
-              alt=${stimItem || `Stimulus`}
-            />
-        </div>`
-    );
-  }
-
-  if (stim.audioFile) {
-    return (
-      `<div id='stimulus-container'>` +
-      replayButtonDiv + // || stim.item
-      `<div id="prompt-container-text">
-                    <p id="prompt">${t[camelize(stim.audioFile)]}</p>
-                </div>
-                <br>
-                ${task === 'egma-math' ? `<p id="stimulus-html">${stimItem}</p>` : ``}
-                
-            </div>`
-    );
-  }
 }
 
 function generateImageChoices(choices) {
@@ -187,13 +205,13 @@ function getButtonHtml(task) {
   const stimulus = taskStore().nextStimulus;
   // TODO: add trial_type column to math item bank
   if (stimulus.trialType === 'instructions') {
-    return "<button id='continue-btn'>%choice%</button>";
+    return "<button class='primary'>%choice%</button>";
   }
   if (stimulus.trialType === 'Fraction') {
-    return "<button class='math-btn'>%choice%</button>";
+    return "<button class='secondary'>%choice%</button>";
   } else if (task === 'egma-math') {
     // practice-btn class does not add any styles, only used for querySelector
-    return `<button class='math-btn ${stimulus.notes === 'practice' ? 'practice-btn' : ''}'>%choice%</button>`;
+    return `<button class='secondary ${stimulus.notes === 'practice' ? 'practice-btn' : ''}'>%choice%</button>`;
   } else {
     return `<button class='${stimulus.notes === 'practice' ? 'practice-btn' : ''}'>%choice%</button>`;
   }
@@ -373,11 +391,8 @@ function doOnLoad(task) {
 
     const buttonContainer = document.getElementById('jspsych-audio-multi-response-btngroup');
 
-    if (buttonLayout !== 'default' && buttonContainer.children.length === 2) {
-      buttonContainer.classList.add('default-layout');
-    } else {
-      buttonContainer.classList.add(`${buttonLayout}-layout`);
-    }
+    buttonContainer.classList.add(`lev-response-row`);
+    buttonContainer.classList.add(`multi-4`);
 
     let responseChoices 
     if (stim.trialType === 'Fraction') {
@@ -387,14 +402,6 @@ function doOnLoad(task) {
     }
 
     Array.from(buttonContainer.children).forEach((el, i) => {
-      if (buttonContainer.children.length === 2) {
-        el.classList.add(`two-afc`);
-      }
-
-      // Add condition on triple for length (2)
-      if (buttonLayout === 'triple' || buttonLayout === 'diamond') {
-        el.classList.add(`button${i + 1}`);
-      }
 
       // Map arrow to response choice.
       // 2afc layout uses left and right arrow keys. The order of the arrrow
@@ -412,18 +419,12 @@ function doOnLoad(task) {
           keyboardResponseMap[arrowKeyEmojis[i][0]] = responseChoices[i];
         }
       }
-
-      if (task === 'matrix-reasoning' || task === 'theory-of-mind') {
-        el.children[0].classList.add('img-btn');
-      }
-
-      if (task === 'trog' || task === 'vocab') {
-        el.children[0].classList.add('trog-img-btn');
-      } else if (task === 'mental-rotation') {
-        el.children[0].classList.add('mental-rotation-img-btn');
-        let img = document.getElementById('stimulus-img');
-        img.style.width = '17vw';
-        img.style.height = '17vw';
+      if (task !== 'egma-math') {
+        if (task === 'mental-rotation') {
+          el.children[0].classList.add('image-large');
+        } else {
+          el.children[0].classList.add('image');
+        }
       }
 
       if (task === 'matrix-reasoning') {

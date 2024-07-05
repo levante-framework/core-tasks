@@ -71,13 +71,21 @@ export default function buildMathTimeline(config, mediaAssets) {
       for (let j = 0; j < stimulusBlockCount[i]; j++) {
         // add trials to the block (this is the core procedure for each stimulus)
         const stimulusBlock = {
-          timeline: [afcStimulusBlock, sliderBlock, ifRealTrialResponse],
+          timeline: [
+            afcStimulusBlock,
+            sliderBlock,
+            ifRealTrialResponse,
+          ],
           conditional_function: () => {
             if (taskStore().skipCurrentTrial) {
               taskStore('skipCurrentTrial', false);
               return false;
             }
             const stim = taskStore().nextStimulus;
+            // if(!stim.trialType?.includes('Number Line')) {
+            //   return false;
+            // }
+
             const skipBlockTrialType = store.page.get('skipCurrentBlock');
             if (stim.trialType === skipBlockTrialType) {
               return false;
