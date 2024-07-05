@@ -5,7 +5,7 @@ import _isEqual from 'lodash/isEqual';
 import { finishExperiment } from '../../shared/trials';
 import { mediaAssets } from '../../..';
 import { getMemoryGameType } from '../helpers/getMemoryGameType';
-import { taskStore } from '../../shared/helpers';
+import { taskStore, replayButtonDiv, setupReplayAudio } from '../../shared/helpers';
 
 
 const x = 20;
@@ -19,7 +19,7 @@ let selectedCoordinates = [];
 let numCorrect = 0;
 
 // This function produces both the display and input trials for the corsi blocks
-export function getCorsiBlocks({ mode, reverse = false, isPractice = false}) {
+export function getCorsiBlocks({ mode, reverse = false, isPractice = false, resetSeq = false}) {
   return {
     type: jsPsychCorsiBlocks,
     sequence: () => {
@@ -52,6 +52,7 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false}) {
     // Show feedback only for practice
     correct_color: () => '#8CAEDF',
     incorrect_color: () => isPractice ? '#f00' : 'rgba(215, 215, 215, 0.93)',
+    post_trial_gap: 1000,
     data: {
       // not camelCase because firekit
       save_trial: true,
@@ -59,13 +60,17 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false}) {
       // not for firekit
       isPracticeTrial: isPractice,
     },
-    on_load: () => doOnLoad(mode, isPractice),
+    on_load: () => doOnLoad(mode, isPractice, reverse),
     on_finish: (data) => {
       jsPsych.data.addDataToLastTrial({
         correct: _isEqual(data.response, data.sequence),
         selectedCoordinates: selectedCoordinates,
         corpusTrialType: getMemoryGameType(mode, reverse),
       });
+
+      if (resetSeq) {
+        sequenceLength = 2;
+      }
 
       if (mode === 'input') {
         taskStore('isCorrect', data.correct)
@@ -121,7 +126,7 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false}) {
 
 let timeoutIDs = []
 
-function doOnLoad(mode, isPractice) {
+function doOnLoad(mode, isPractice, reverse) {
   const container = document.getElementById('jspsych-corsi-stimulus');
   container.id = '';
   container.classList.add('jspsych-corsi-overide');
@@ -190,25 +195,34 @@ function doOnLoad(mode, isPractice) {
     }
   });
 
-  if (isPractice) {
-    const contentWrapper = document.getElementById('jspsych-content');
-    const corsiBlocksHTML = contentWrapper.children[1];
 
-    const prompt = document.createElement('p');
-    prompt.classList.add('corsi-block-overide-prompt');
-    prompt.textContent = mode === 'display' ? t.memoryGameDisplay : t.memoryGameInput;
-    // Inserting element at the second child position rather than
-    // changing the jspsych-content styles to avoid potential issues in the future
-    contentWrapper.insertBefore(prompt, corsiBlocksHTML);
-  }
+  const contentWrapper = document.getElementById('jspsych-content');
+  const corsiBlocksHTML = contentWrapper.children[1];
 
+  const prompt = document.createElement('p');
+  prompt.classList.add('corsi-block-overide-prompt');
+  const inputTextPrompt = reverse ? t.memoryGameBackwardPrompt : t.memoryGameInput; 
+  prompt.textContent = mode === 'display' ? t.memoryGameDisplay : inputTextPrompt;
+  // Inserting element at the second child position rather than
+  // changing the jspsych-content styles to avoid potential issues in the future
+  contentWrapper.insertBefore(prompt, corsiBlocksHTML);
+
+  // add replay button
+  const replayButton = document.createElement('div'); 
+  replayButton.innerHTML = replayButtonDiv; 
+  contentWrapper.insertBefore(replayButton, prompt); 
+  
   // play audio cue
   async function playAudioCue() {
     let audioSource
 
     const jsPsychAudioCtx = jsPsych.pluginAPI.audioContext();
-  
-    const cue = mode === 'display' ? 'displayAudioCue' : 'inputAudioCue';
+
+    const inputAudioPrompt = reverse ? 'memoryGameBackwardPrompt' : 'memoryGameInput'
+    const cue = mode === 'display' ? 'memoryGameDisplay' : inputAudioPrompt;
+
+    // set up replay button audio
+    setupReplayAudio(audioSource, cue)
 
     // Returns a promise of the AudioBuffer of the preloaded file path.
     const audioBuffer = await jsPsych

@@ -25,8 +25,16 @@ export default function buildMemoryTimeline(config, mediaAssets) {
       getCorsiBlocks({ mode: 'display' }),
       getCorsiBlocks({ mode: 'input' }),
     ],
-    repetitions: 21,
+    repetitions: 20,
   };
+
+  // last forward trial by itself in order to reset sequence length back to 2 for backward phase
+  const lastForwardTrial = {
+    timeline: [
+      getCorsiBlocks({mode: 'display'}),
+      getCorsiBlocks({mode: 'input', resetSeq: true})
+    ]
+  }
 
   const corsiBlocksReverse = {
     timeline: [
@@ -42,6 +50,7 @@ export default function buildMemoryTimeline(config, mediaAssets) {
     corsiBlocksPractice,
     readyToPlay,
     corsiBlocksStimulus,
+    lastForwardTrial,
     reverseOrderPrompt,
     corsiBlocksReverse,
   ];
