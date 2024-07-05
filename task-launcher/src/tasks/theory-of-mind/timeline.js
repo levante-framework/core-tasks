@@ -4,11 +4,15 @@ import { initTrialSaving, initTimeline, createPreloadTrials, taskStore } from '.
 import { jsPsych, initializeCat } from '../taskSetup';
 // trials
 import { 
-  afcStimulus,
+  // afcStimulus,
   exitFullscreen, 
   setupStimulus,
   taskFinished,
 } from '../shared/trials';
+
+import {
+  afcStimulusTemplate
+} from './stimulus';
 
 export default function buildTOMTimeline(config, mediaAssets) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
@@ -17,16 +21,16 @@ export default function buildTOMTimeline(config, mediaAssets) {
   const initialTimeline = initTimeline(config);
 
   // does not matter if trial has properties that don't belong to that type
-  const trialConfig = {
-    trialType: 'audio',
-    responseAllowed: true,
-    promptAboveButtons: true,
-    task: config.task,
-  };
+  // const trialConfig = {
+  //   trialType: 'audio',
+  //   responseAllowed: true,
+  //   promptAboveButtons: true,
+  //   task: config.task,
+  // };
 
   const stimulusBlock = {
     timeline: [
-      afcStimulus(trialConfig)
+      afcStimulusTemplate('audio', true, true, config.task)
     ],
     // true = execute normally, false = skip
     conditional_function: () => {

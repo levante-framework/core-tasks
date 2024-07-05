@@ -10,3 +10,7 @@ $button-default-font-size: 3vw;
 $button-default-font-weight: 500;
 $button-secondary-box-shadow: -8px -10px 0px 0px;
 $button-secondary-inner-shadow: 0px 0px 12px 0px;
+
+$image-button-dimension-large-screen: min(clamp(120px, 18vw, 250px), 18vh);
+$image-button-dimension-small-medium-screen: min(clamp(100px, 20vw, 200px), 20vh);
+$image-button-dimension-small-screen: min(25vw, 25vh);

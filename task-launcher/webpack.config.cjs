@@ -27,6 +27,9 @@ const commonConfig = {
   resolve: {
     fallback: {
       path: require.resolve('path-browserify'),
+      crypto: require.resolve('crypto-browserify'),
+      stream: false,
+      vm: false,
     },
     extensions: ['.ts', '.js'],
   },
