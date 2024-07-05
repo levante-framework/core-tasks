@@ -80,7 +80,7 @@ export const postPractice = {
     </div>`;
   },
   button_choices: [`Continue`],
-  keyboard_choices: 'ALL_KEYS',
+  keyboard_choices: 'NO_KEYS',
   button_html: () => {
     const t = taskStore().translations;
     return `<button class="primary">${t.continueButtonText}</button>`;
