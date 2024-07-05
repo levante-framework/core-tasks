@@ -18,11 +18,14 @@ npm install
 npm run dev
 ```
 
+You can now locally run tasks e.g. TROG `http://localhost:8080/?task=trog`. 
+Task parameters are documented here (TODO linkme).
 
 Task details:
 
 1. [Matrix Reasoning](https://hs-levante-assessment-dev.web.app/?task=matrix-reasoning) [George]
 	- piloting 60 novel items from Rogier Kievit and Nicholas Judd
+	- also using 80 Mars-IB items (Chierchia et al. 2020)
 
 2. [Hearts & Flowers](https://hs-levante-assessment-dev.web.app/?task=hearts-and-flowers) [EF: Inhibition] [George]
 	- 3.5 is the youngest you can go
@@ -30,9 +33,11 @@ Task details:
 	- test trials: 8 hearts, 12 flowers, 12 mixed (1500ms), 12 mixed (1250ms)
 	- 6+6+6+8+12+12+12 = 62 trials * 2s/trial = 2min — can’t save a lot of time in the task! 30s instruction?
 
-3. [Corsi Block](https://hs-levante-assessment-dev.web.app/?task=memory-game) [EF: WM] [George]
+3. [Memory Game (i.e. Corsi Block)](https://hs-levante-assessment-dev.web.app/?task=memory-game) [EF: WM] [George]
 	- age-appropriate grid size could be set
-	- for ages < 5, only do the forward block (backward is too hard)
+	- standard forward block progresses from length 2 to length 7 sequences (3 sequences per length)
+ 	- backward block (given only if succeeded in forward block) similarly progresses from length 2 to 7
+	- Recommendation for ages < 5: only assign the forward block (backward is too difficult)
 
 4. [Same-Different-Selection](https://hs-levante-assessment-dev.web.app/?task=same-different-selection) [EF: Cognitive Flexibility]
 	- progressive task designed by AMES lab (Jelena Obradovic and Michael Sulik) combining types of trials from the FIST and Something's-the-Same tasks to cover the full age range
@@ -62,7 +67,7 @@ Task details:
 	- total time: at least 5 minutes
 	- total of 94 items (non-word problems)
 
-8. Number Line Estimation Task [Math: Approximate Math] (ask Daniel Ansari?)
+8. Number Line Estimation Task [Math: Approximate Math] 
 	- how many number lines (age-based?) and problems? (0-10, 0-100, 0-1000?)
 	- e.g. one study used 28 stim: “The materials included a 15-cm line with one end marked with 0 and the other end marked with 100 (i.e., min = 0, max = 100) and 28 numbers: 3, 4, 6, 8, 12, 14, 17, 18, 20, 21, 24, 25, 29, 33, 39, 42, 48, 50, 52, 57, 61, 64, 72, 79, 81, 84, 90, and 96. The number 20 and 50 were used for practice.”
 	- propose to make fully adaptive, with age-based starting point
@@ -76,12 +81,12 @@ Task details:
 	- ToDo: animated familiarization trial showing how target item rotates and matches to a response option
 	- 11/30/2023: added Shepard & Metzler stimuli from Mike (created by Talia Konkle?), which are black outlines on a white background.
 
-10. Child Survey Questions [Amy & Bobby]
-	- trying to standardize a 5-point positive/negative valence scale (emoji-based?)
-	- questions are [here](https://docs.google.com/spreadsheets/d/1sOQv3qVwK-DQeAcySgNDCjR1TTl6_Ij-GDArM8nBeWk/edit?usp=sharing), but not yet finalized
-
-11. ROAR Vocab [Language: Vocab] [Bria]
+10. [ROAR Vocab](https://hs-levante-assessment-dev.web.app/?task=vocab) [Language: Vocab] [Bria]
 	- full version is 10 min; adaptive version should be 3 min
+
+11. Child Survey [Amy & Bobby]
+	- trying to standardize a 5-point positive/negative valence scale (emoji-based?)
+	- questions are [here](https://docs.google.com/spreadsheets/d/1sOQv3qVwK-DQeAcySgNDCjR1TTl6_Ij-GDArM8nBeWk/edit?usp=sharing)
 
 External tasks:
 	- MEFS (MN Executive Function Scale) [EF]
