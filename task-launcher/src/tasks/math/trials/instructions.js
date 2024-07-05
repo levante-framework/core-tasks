@@ -25,7 +25,7 @@ export const instructions1 = {
   keyboard_choices: 'ALL_KEYS',
   button_html: () => {
     const t = taskStore().translations;
-    return `<button id="continue-btn">${t.continueButtonText}</button>`;
+    return `<button class="primary">${t.continueButtonText}</button>`;
   },
   // trial_duration: 1000,
 };
@@ -54,7 +54,7 @@ export const instructions2 = {
   keyboard_choices: 'ALL_KEYS',
   button_html: () => {
     const t = taskStore().translations;
-    return `<button id="continue-btn">${t.continueButtonText}</button>`;
+    return `<button class="primary">${t.continueButtonText}</button>`;
   },
   // trial_duration: 1000,
 };
@@ -80,10 +80,10 @@ export const postPractice = {
     </div>`;
   },
   button_choices: [`Continue`],
-  keyboard_choices: 'ALL_KEYS',
+  keyboard_choices: 'NO_KEYS',
   button_html: () => {
     const t = taskStore().translations;
-    return `<button id="continue-btn">${t.continueButtonText}</button>`;
+    return `<button class="primary">${t.continueButtonText}</button>`;
   },
   // trial_duration: 1000,
 };

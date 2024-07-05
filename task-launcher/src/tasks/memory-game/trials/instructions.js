@@ -64,7 +64,7 @@ export const instructions = instructionData.map(data => {
         button_html: () => {
             const t = taskStore().translations;
             return [
-            `<button id='continue-btn'>
+            `<button class="primary">
                 ${t[data.buttonText]}
             </button>`,
             ]

@@ -1,6 +1,7 @@
 
 $breakpoints: (
   'small': (max-width: 500px),
+  'small-medium': (max-width: 650px),
   'medium': (max-width: 800px),
   'large': (max-width: 1000px),
   'very-large': (min-width: 1000px),
@@ -27,5 +28,13 @@ $breakpoints: (
   } @else {
     @error 'No value found for `#{$breakpoint}`. '
          + 'Please make sure it is defined in `$breakpoints` map.';
+  }
+}
+
+/// Responds to touch devices
+/// @access public
+@mixin if-touch() {
+  @media (hover: none) {
+    @content;
   }
 }
