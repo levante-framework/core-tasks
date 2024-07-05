@@ -122,7 +122,7 @@ function buildInstructionTrial(mascotImage, promptAudio, promptText, buttonText,
         ${bottomText ? `<div class="lev-row-container header"><p>${bottomText}</p></div>` : ''}
       </div>`,
     prompt_above_buttons: true,
-    keyboard_choices: isTouchScreen? InputKey.NoKeys : [InputKey.SpaceBar, InputKey.Enter],
+    keyboard_choices: InputKey.NoKeys,
     button_choices: ['Next'],
     button_html:[
       `<button class='primary'>
