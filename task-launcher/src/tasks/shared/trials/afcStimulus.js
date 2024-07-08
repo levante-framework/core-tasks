@@ -1,6 +1,5 @@
 // For all tasks except: H&F, Memory Game, Same Different Selection
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
-import store from 'store2';
 import { jsPsych, isTouchScreen } from '../../taskSetup';
 import {
   prepareChoices,
@@ -11,6 +10,7 @@ import {
   setupReplayAudio,
   setSkipCurrentBlock,
   taskStore,
+  PageAudioHandler,
 } from '../../shared/helpers';
 import { mediaAssets } from '../../..';
 import _toNumber from 'lodash/toNumber';
@@ -30,13 +30,7 @@ let startTime;
 const incorrectPracticeResponses = [];
 
 const playAudio = async (audioUri) => {
-  const jsPsychAudioCtx = jsPsych.pluginAPI.audioContext();
-  // Returns a promise of the AudioBuffer of the preloaded file path.
-  const audioBuffer = await jsPsych.pluginAPI.getAudioBuffer(audioUri);
-  const audioSource = jsPsychAudioCtx.createBufferSource();
-  audioSource.buffer = audioBuffer;
-  audioSource.connect(jsPsychAudioCtx.destination);
-  audioSource.start(0);
+  PageAudioHandler.playAudio(audioUri, false);
 };
 
 const showStaggeredBtnAndPlaySound = (btn) => {
@@ -271,15 +265,16 @@ async function keyboardBtnFeedback(e, practiceBtns, stim) {
       }
     });
 
-    const jsPsychAudioCtx = jsPsych.pluginAPI.audioContext();
+    // const jsPsychAudioCtx = jsPsych.pluginAPI.audioContext();
 
     // Returns a promise of the AudioBuffer of the preloaded file path.
-    const audioBuffer = await jsPsych.pluginAPI.getAudioBuffer(feedbackAudio);
+    PageAudioHandler.playAudio(feedbackAudio, false);
+    // const audioBuffer = await jsPsych.pluginAPI.getAudioBuffer(feedbackAudio);
 
-    audioSource = jsPsychAudioCtx.createBufferSource();
-    audioSource.buffer = audioBuffer;
-    audioSource.connect(jsPsychAudioCtx.destination);
-    audioSource.start(0);
+    // audioSource = jsPsychAudioCtx.createBufferSource();
+    // audioSource.buffer = audioBuffer;
+    // audioSource.connect(jsPsychAudioCtx.destination);
+    // audioSource.start(0);
   }
 }
 
@@ -474,7 +469,7 @@ function doOnLoad(task) {
 }
 
 function doOnFinish(data, task) {
-  if (audioSource) audioSource.stop();
+  PageAudioHandler.stopAndDisconnectNode();
 
   // note: nextStimulus is actually the current stimulus
   const stimulus = taskStore().nextStimulus;
