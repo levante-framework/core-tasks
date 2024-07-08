@@ -121,6 +121,9 @@ export const stimulus = {
     // Always need to write correct key because of firekit.
     // TODO: Discuss with ROAR team to remove this check
     const isCorrect = data.button_response === taskStore().correctResponseIdx
+    
+    // update task store
+    taskStore('isCorrect', isCorrect);
 
     if (!isCorrect) {
       numIncorrect.transact('numIncorrect', (n) => n + 1);
