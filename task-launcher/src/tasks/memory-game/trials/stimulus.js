@@ -209,7 +209,8 @@ function doOnLoad(mode, isPractice, reverse) {
 
   // add replay button
   const replayButton = document.createElement('div'); 
-  replayButton.innerHTML = replayButtonDiv; 
+  replayButton.innerHTML = replayButtonDiv;
+  replayButton.id = 'replay-btn-revisited'; 
   contentWrapper.insertBefore(replayButton, prompt); 
   
   // play audio cue
