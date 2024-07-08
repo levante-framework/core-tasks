@@ -9,6 +9,8 @@ import { numIncorrect } from './stimulus';
 let selectedCards = [];
 let previousSelections = [];
 
+const replayButtonHtmlId = 'replay-btn-revisited'; 
+
 export const afcMatch = {
   type: jsPsychAudioMultiResponse,
   data: () => {
@@ -29,7 +31,14 @@ export const afcMatch = {
     const t = taskStore().translations;
     return (
       `<div id='stimulus-container'>
+<<<<<<< HEAD
         <button id="replay-btn-revisited" class="replay">
+=======
+        <button
+            id="${replayButtonHtmlId}"
+            class="replay"
+        >
+>>>>>>> a30f5ba (update replay button and add feedback to 3rd phase)
             ${replayButtonSvg}
         </button>
         <div id='prompt-container-text'>
@@ -166,6 +175,9 @@ export const afcMatch = {
     }
 
     const isCorrect = compareSelections(selectedCards, previousSelections);
+
+    // update task store
+    taskStore('isCorrect', isCorrect); 
 
     if (!isCorrect) {
       numIncorrect.transact('numIncorrect', (n) => n + 1);

@@ -2,6 +2,7 @@ import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-respons
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response'
 import { mediaAssets } from '../../..';
 import { taskStore } from '../helpers';
+import { camelize } from '@bdelab/roar-utils';
 
 // isPractice parameter is for tasks that don't have a corpus (e.g. memory game)
 /*
@@ -13,6 +14,14 @@ export const feedback = (isPractice = false) => {
                 stimulus: () => {
                     const t = taskStore().translations;
                     const isCorrect = taskStore().isCorrect;
+                    let promptText
+
+                    if (taskStore().task === 'memory-game'){
+                        promptText = memoryGameInput; 
+                    } else {
+                        promptText = camelize(taskStore().nextStimulus.audioFile); 
+                    }
+
                     return (
                         `<div id='stimulus-container'>
                             <div id='prompt-container-text'>
@@ -24,7 +33,7 @@ export const feedback = (isPractice = false) => {
 
                             ${isCorrect ? '' :
                              `<div id='prompt-container-text'>
-                                <footer id='prompt'>${t.memoryGameForwardPrompt}</footer>
+                                <footer id='prompt'>${t[promptText]}</footer>
                               </div>`
                             }
                         </div>`
