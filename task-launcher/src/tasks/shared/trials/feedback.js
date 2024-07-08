@@ -26,7 +26,7 @@ export const feedback = (isPractice = false) => {
                     }
 
                     return (
-                        isCorrect ? mediaAssets.audio.feedbackCorrect : mediaAssets.audio[promptText]
+                        isCorrect ? mediaAssets.audio.feedbackGoodJob : mediaAssets.audio[promptText]
                     )
                 },
                 prompt: () => {
