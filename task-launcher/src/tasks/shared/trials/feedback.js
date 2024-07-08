@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response'
+=======
+import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
+>>>>>>> cec962e (add audio to feedback (need feedbackCorrect audio file in task bucket))
 import { mediaAssets } from '../../..';
 import { taskStore } from '../helpers';
 import { camelize } from '@bdelab/roar-utils';
@@ -10,14 +14,28 @@ export const feedback = (isPractice = false) => {
     return {
         timeline: [ 
             {
-                type: jsPsychHTMLMultiResponse,
+                type: jsPsychAudioMultiResponse,
                 stimulus: () => {
+                    const isCorrect = taskStore().isCorrect;
+                    let promptText
+
+                    if (taskStore().task === 'memory-game'){
+                        promptText = `memoryGameInput`; 
+                    } else {
+                        promptText = camelize(taskStore().nextStimulus.audioFile); 
+                    }
+
+                    return (
+                        isCorrect ? mediaAssets.audio.feedbackCorrect : mediaAssets.audio[promptText]
+                    )
+                },
+                prompt: () => {
                     const t = taskStore().translations;
                     const isCorrect = taskStore().isCorrect;
                     let promptText
 
                     if (taskStore().task === 'memory-game'){
-                        promptText = memoryGameInput; 
+                        promptText = `memoryGameInput`; 
                     } else {
                         promptText = camelize(taskStore().nextStimulus.audioFile); 
                     }
@@ -40,7 +58,8 @@ export const feedback = (isPractice = false) => {
                     )  
                 },
                 button_choices: [`Continue`],
-                keyboard_choices: 'ALL_KEYS',
+                keyboard_choices: 'NO_KEYS',
+                prompt_above_buttons: true,
                 button_html: () => {
                     const t = taskStore().translations;
                     return (`<button class="primary">${t.continueButtonText}</button>`)
