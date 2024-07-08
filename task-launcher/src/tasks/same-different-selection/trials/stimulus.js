@@ -9,6 +9,8 @@ import { jsPsych } from '../../taskSetup';
 // This value is only saved in memory. It will reset to 0 when the page is reloaded.
 export const numIncorrect = store.page.namespace('numIncorrect', 0);
 
+const replayButtonHtmlId = 'replay-btn-revisited'; 
+
 export const stimulus = {
   type: jsPsychAudioMultiResponse,
   data: () => {
@@ -30,8 +32,16 @@ export const stimulus = {
     const t = taskStore().translations;
     return (
       `<div id='stimulus-container'>
+<<<<<<< HEAD
         <button id="replay-btn-revisited" class="replay">
           ${replayButtonSvg}
+=======
+        <button
+            id="${replayButtonHtmlId}"
+            class="replay"
+        >
+            ${replayButtonSvg}
+>>>>>>> a30f5ba (update replay button and add feedback to 3rd phase)
         </button>
         <div id='prompt-container-text'>
           <p id='prompt'>${t[prompt]}</p>

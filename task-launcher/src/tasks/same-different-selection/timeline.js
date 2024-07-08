@@ -10,6 +10,7 @@ import { initializeCat } from '../taskSetup';
 import { stimulus } from './trials/stimulus';
 import { setupStimulus, exitFullscreen, taskFinished } from '../shared/trials';
 import { afcMatch } from './trials/afcMatch';
+import { feedback } from '../shared/trials'; 
 
 
 export default function buildSameDifferentTimeline(config, mediaAssets) {
@@ -23,13 +24,18 @@ export default function buildSameDifferentTimeline(config, mediaAssets) {
       stimulus
     ],
   };
+  
+  const feedbackBlock = {
+    timeline: [
+      feedback(true)
+    ],
+  };
 
   const afcBlock = {
     timeline: [
       afcMatch
     ],
   };
-
 
   const timeline = [
     preloadTrials, 
@@ -46,6 +52,10 @@ export default function buildSameDifferentTimeline(config, mediaAssets) {
   for (let i = 0; i < phase2; i++) {
     timeline.push(setupStimulus)
     timeline.push(afcBlock)
+
+    if (i < 2){
+      timeline.push(feedbackBlock)
+    }
   }
 
 
