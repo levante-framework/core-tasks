@@ -47,12 +47,18 @@ export default function buildSameDifferentTimeline(config, mediaAssets) {
   for (let i = 0; i < phase1; i++) {
     timeline.push(setupStimulus)
     timeline.push(stimulusBlock)
+
+    // feedback on the first trial of the 2nd phase - "something's the same"
+    if (i === 10){
+      timeline.push(feedbackBlock)
+    }
   }
 
   for (let i = 0; i < phase2; i++) {
     timeline.push(setupStimulus)
     timeline.push(afcBlock)
 
+    // feedback on the first trial of the 3rd phase
     if (i < 2){
       timeline.push(feedbackBlock)
     }
