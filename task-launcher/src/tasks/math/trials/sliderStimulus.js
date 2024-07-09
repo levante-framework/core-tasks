@@ -4,6 +4,7 @@ import _toNumber from 'lodash/toNumber';
 import { jsPsych, isTouchScreen } from '../../taskSetup';
 import { camelize } from '@bdelab/roar-utils';
 import { arrowKeyEmojis, isPractice, setSkipCurrentBlock, taskStore } from '../../shared/helpers';
+import { mediaAssets } from '../../..';
 
 let chosenAnswer,
   sliderStart,
@@ -208,6 +209,28 @@ export const slider = {
     }
 
     wrapper.appendChild(buttonContainer);
+
+    // play audio cue
+    async function playAudioCue() {
+      let audioSource
+
+      const jsPsychAudioCtx = jsPsych.pluginAPI.audioContext();
+
+      const cue = 'numberLinePrompt1'; 
+
+      // Returns a promise of the AudioBuffer of the preloaded file path.
+      const audioBuffer = await jsPsych
+          .pluginAPI
+          .getAudioBuffer(mediaAssets.audio[cue]);
+
+      audioSource = jsPsychAudioCtx.createBufferSource();
+      audioSource.buffer = audioBuffer;
+      audioSource.connect(jsPsychAudioCtx.destination);
+      audioSource.start(0);
+    }
+
+    playAudioCue();
+
   },
   on_finish: (data) => {
     // Need to remove event listener after trial completion or they will stack and cause an error.
