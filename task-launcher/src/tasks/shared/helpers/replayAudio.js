@@ -4,7 +4,7 @@ import { camelize } from "@bdelab/roar-utils";
 import { PageAudioHandler } from "./audioHandler";
 
 
-export async function setupReplayAudio(audioSource, audioFile) {
+export async function setupReplayAudio(audioFile) {
   // Hardcoded since it uses the replayButtonDiv comopnent
   const replayBtn = document.getElementById('replay-btn-revisited');
 
@@ -26,7 +26,7 @@ export async function setupReplayAudio(audioSource, audioFile) {
 
     async function replayAudio() {
       replayBtn.disabled = true;
-      PageAudioHandler.playAudio(audioUri, false, onAudioEnd);
+      PageAudioHandler.playAudio(audioUri, onAudioEnd);
     }
 
     replayBtn.addEventListener('click', replayAudio);
