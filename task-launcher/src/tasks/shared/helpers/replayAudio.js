@@ -8,6 +8,8 @@ export async function setupReplayAudio(audioFile) {
   // Hardcoded since it uses the replayButtonDiv comopnent
   const replayBtn = document.getElementById('replay-btn-revisited');
 
+  console.log('audio file:', audioFile)
+
   if (replayBtn) {
     const audioUri = mediaAssets.audio[camelize(audioFile)] ||
     mediaAssets.audio.nullAudio;
