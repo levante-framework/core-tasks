@@ -23,14 +23,13 @@ let currPracticeChoiceMix = [];
 let currPracticeAnswerIdx;
 let trialsOfCurrentType = 0;
 
-let audioSource;
 let keyboardResponseMap = {};
 // Only used for keyboard responses
 let startTime;
 const incorrectPracticeResponses = [];
 
 const playAudio = async (audioUri) => {
-  PageAudioHandler.playAudio(audioUri, false);
+  PageAudioHandler.playAudio(audioUri);
 };
 
 const showStaggeredBtnAndPlaySound = (btn) => {
@@ -265,16 +264,8 @@ async function keyboardBtnFeedback(e, practiceBtns, stim) {
       }
     });
 
-    // const jsPsychAudioCtx = jsPsych.pluginAPI.audioContext();
-
     // Returns a promise of the AudioBuffer of the preloaded file path.
-    PageAudioHandler.playAudio(feedbackAudio, false);
-    // const audioBuffer = await jsPsych.pluginAPI.getAudioBuffer(feedbackAudio);
-
-    // audioSource = jsPsychAudioCtx.createBufferSource();
-    // audioSource.buffer = audioBuffer;
-    // audioSource.connect(jsPsychAudioCtx.destination);
-    // audioSource.start(0);
+    PageAudioHandler.playAudio(feedbackAudio);
   }
 }
 
@@ -345,15 +336,7 @@ function doOnLoad(task) {
           }
         }
 
-        const jsPsychAudioCtx = jsPsych.pluginAPI.audioContext();
-
-        // Returns a promise of the AudioBuffer of the preloaded file path.
-        const audioBuffer = await jsPsych.pluginAPI.getAudioBuffer(feedbackAudio);
-
-        audioSource = jsPsychAudioCtx.createBufferSource();
-        audioSource.buffer = audioBuffer;
-        audioSource.connect(jsPsychAudioCtx.destination);
-        audioSource.start(0);
+        PageAudioHandler.playAudio(feedbackAudio);
       }),
     );
 
@@ -465,7 +448,7 @@ function doOnLoad(task) {
     }
   }
 
-  setupReplayAudio(audioSource, stim.audioFile);
+  setupReplayAudio(stim.audioFile);
 }
 
 function doOnFinish(data, task) {

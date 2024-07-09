@@ -18,16 +18,7 @@ export class PageAudioHandler {
     }
   }
 
-  static async playAudio(audioUri: string, overridePlay: boolean, onEnded?: Function) {
-    if (PageAudioHandler?.audioSource) {
-      if (!overridePlay) {
-        // currently an audioSource is playing
-        return;
-      } else {
-        PageAudioHandler.stopAndDisconnectNode();
-      }
-    }
-
+  static async playAudio(audioUri: string, onEnded?: Function) {
     PageAudioHandler.audioUri = audioUri;
     const jsPsychAudioCtx = jsPsych.pluginAPI.audioContext();
     // Returns a promise of the AudioBuffer of the preloaded file path.
@@ -37,7 +28,7 @@ export class PageAudioHandler {
     audioSource.buffer = audioBuffer;
     audioSource.connect(jsPsychAudioCtx.destination);
     audioSource.onended = () => {
-      PageAudioHandler.stopAndDisconnectNode();
+      // PageAudioHandler.stopAndDisconnectNode();
       if (onEnded) {
         onEnded();
       }
