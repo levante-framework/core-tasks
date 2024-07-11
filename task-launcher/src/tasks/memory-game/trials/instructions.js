@@ -28,7 +28,6 @@ const instructionData = [
         prompt: 'memoryGameInstruct5',
         image: 'catAvatar',
         buttonText: 'continueButtonText',
-        bottomText: 'memoryGameInstruct7',
     },
     {
         prompt: 'memoryGameBackwardPrompt',
