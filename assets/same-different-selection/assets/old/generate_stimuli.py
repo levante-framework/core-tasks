@@ -5,12 +5,10 @@ def draw_circle(draw, center, radius, color):
     x, y = center
     draw.ellipse([x - radius, y - radius, x + radius, y + radius], fill=color)
 
-
 def draw_square(draw, center, size, color):
     x, y = center
     half_size = size // 2
     draw.rectangle([x - half_size, y - half_size, x + half_size, y + half_size], fill=color)
-
 
 def draw_triangle(draw, center, size, color):
     x, y = center
@@ -20,7 +18,6 @@ def draw_triangle(draw, center, size, color):
     right_point = (x + size // 2, y + height // 2)
     draw.polygon([top_point, left_point, right_point], fill=color)
 
-
 def draw_shape(draw, shape, center, size, color):
     if shape == 'circle':
         draw_circle(draw, center, size // 2, color)
@@ -29,19 +26,18 @@ def draw_shape(draw, shape, center, size, color):
     elif shape == 'triangle':
         draw_triangle(draw, center, size, color)
 
-
-def save_shape(shape, size, color, cardinality, background_color):
+def save_shape(shape, size, color, cardinality):
     # Size mapping
     size_mapping = {35: 'sm', 70: 'med', 105: 'lg'}
     word_size = size_mapping[size]  # Convert size to word label
-    color_mapping = {'red': '#D81B60', 'green': '#009E73', 'blue': '#1E88E5'}  # color-blind friendly
-    hex_color = color_mapping[color] # darker green: '#004D40'
+    color_mapping = {'red': '#D81B60', 'green': '#004D40', 'blue': '#1E88E5'} # color-blind friendly
+    hex_color = color_mapping[color]
 
     canvas_size = 220
-    image = Image.new("RGB", (canvas_size, canvas_size), background_color)
+    image = Image.new("RGB", (canvas_size, canvas_size), "white")
     draw = ImageDraw.Draw(image)
 
-    if cardinality in [2, 3]:
+    if cardinality in [2, 3]: # size != 150 and
         # Adjust centers to ensure no overlap
         if cardinality == 2:
             centers = [(canvas_size // 2, canvas_size // 4), (canvas_size // 2, 3 * canvas_size // 4)]
@@ -55,7 +51,7 @@ def save_shape(shape, size, color, cardinality, background_color):
             ]
             for center in centers:
                 draw_shape(draw, shape, center, size, hex_color)
-        filename = f"{word_size}-{color}-{shape}-{cardinality}-{background_color}.webp"
+        filename = f"{word_size}-{color}-{shape}-{cardinality}.jpg"
     else:
         center = (canvas_size // 2, canvas_size // 2)
         if shape == 'circle':
@@ -64,19 +60,16 @@ def save_shape(shape, size, color, cardinality, background_color):
             draw_square(draw, center, size, hex_color)
         elif shape == 'triangle':
             draw_triangle(draw, center, size, hex_color)
-        filename = f"{word_size}-{color}-{shape}-{background_color}.webp"
-    image.save(filename, "WEBP")
-
+        filename = f"{word_size}-{color}-{shape}.jpg"
+    image.save(filename)
 
 shapes = ['circle', 'square', 'triangle']
 sizes = [35, 70, 105]
-colors = ['red', 'green', 'blue']
+colors = ['red', 'green', 'blue'] # not color-blind friendly
 cardinalities = [1, 2, 3]
-background_colors = ['white', 'black', 'gray']
 
 for shape in shapes:
     for size in sizes:
         for color in colors:
             for cardinality in cardinalities:
-                for background_color in background_colors:
-                    save_shape(shape, size, color, cardinality, background_color)
+                save_shape(shape, size, color, cardinality)
