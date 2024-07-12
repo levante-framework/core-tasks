@@ -1,39 +1,36 @@
 import { jsPsych } from "../../taskSetup";
 import { mediaAssets } from "../../..";
 import { camelize } from "@bdelab/roar-utils";
+import { PageAudioHandler } from "./audioHandler";
 
 
-export function setupReplayAudio(audioSource, audioFile) {
-    // Hardcoded since it uses the replayButtonDiv comopnent
-    const replayBtn = document.getElementById('replay-btn-revisited');
+export async function setupReplayAudio(audioFile) {
+  // Hardcoded since it uses the replayButtonDiv comopnent
+  const replayBtn = document.getElementById('replay-btn-revisited');
 
-    if (replayBtn) {
-      // TODO: this only stops the Replay button from being used if it was already used
-        let isAudioPlaying = false;  
-      
-        async function replayAudio() {  
-            if (isAudioPlaying) return
+  console.log('audio file:', audioFile)
 
-            const jsPsychAudioCtx = jsPsych.pluginAPI.audioContext();
+  if (replayBtn) {
+    const audioUri = mediaAssets.audio[camelize(audioFile)] ||
+    mediaAssets.audio.nullAudio;
+    const buffer = await jsPsych.pluginAPI.getAudioBuffer(audioUri);
+    replayBtn.disabled = true;
+    const enableDelayBuffer = 100; //in ms
+    const totalStimulusDurationMs = buffer.duration * 1000 //in ms
+    const totalDelay = totalStimulusDurationMs + enableDelayBuffer;
+    setTimeout(() => {
+      replayBtn.disabled = false;
+    }, totalDelay);
 
-            isAudioPlaying = true;
-
-            // Returns a promise of the AudioBuffer of the preloaded file path.
-            const audioBuffer = await jsPsych
-                .pluginAPI
-                .getAudioBuffer(mediaAssets.audio[camelize(audioFile)] ||
-                                mediaAssets.audio.nullAudio,);
-
-            audioSource = jsPsychAudioCtx.createBufferSource();
-            audioSource.buffer = audioBuffer;
-            audioSource.connect(jsPsychAudioCtx.destination);
-            audioSource.start(0);
-
-            audioSource.onended = () => {
-                isAudioPlaying = false;
-            };
-        }
-
-        replayBtn.addEventListener('click', replayAudio);
+    const onAudioEnd = () => {
+      replayBtn.disabled = false;
     }
+
+    async function replayAudio() {
+      replayBtn.disabled = true;
+      PageAudioHandler.playAudio(audioUri, onAudioEnd);
+    }
+
+    replayBtn.addEventListener('click', replayAudio);
+  }
 }
