@@ -98,9 +98,8 @@ export const stimulus = {
     return allButtons;
   },
   on_load: () => {
-    let audioSource
-    const audioFile = camelize(taskStore().nextStimulus.audioFile);
-    setupReplayAudio(audioSource, audioFile);
+    const audioFile = taskStore().nextStimulus.audioFile;
+    setupReplayAudio(audioFile);
   },
   on_finish: (data) => {
     const stim = taskStore().nextStimulus;

@@ -44,8 +44,8 @@ export const afcMatch = {
 
     const stim = taskStore().nextStimulus;
     
-    const audioFile = camelize(stim.audioFile);
-    setupReplayAudio(audioSource, audioFile);
+    const audioFile = stim.audioFile;
+    setupReplayAudio(audioFile);
 
     let images;
     if (stim.audioFile.includes('prompt1')) {

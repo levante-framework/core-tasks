@@ -43,7 +43,7 @@ export function getKeepUp() {
     mediaAssets.audio.heartsAndFlowersInstruct1,
     taskStore().translations.heartsAndFlowersInstruct1, // hearts-and-flowers-instruct1:	"This time the game will go faster. It won't tell you if you are right or wrong."
     taskStore().translations.continueButtonText,
-    taskStore().translations.heartsAndFlowersEncourage1,//Try to keep up!
+    //taskStore().translations.heartsAndFlowersEncourage1,//Try to keep up!
   );
 }
 
@@ -53,7 +53,7 @@ export function getKeepGoing() {
     mediaAssets.audio.heartsAndFlowersInstruct2,
     taskStore().translations.heartsAndFlowersInstruct2, //hearts-and-flowers-instruct2: "Try to answer as fast as you can without making mistakes."
     taskStore().translations.continueButtonText,
-    taskStore().translations.heartsAndFlowersEncourage2,// If you make a mistake, just keep going!
+    //taskStore().translations.heartsAndFlowersEncourage2,// If you make a mistake, just keep going!
   );
 }
 

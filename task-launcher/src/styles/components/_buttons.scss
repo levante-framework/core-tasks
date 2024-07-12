@@ -148,6 +148,17 @@ button {
       background-color: rgba($bg-button-primary-clicked, 0.6);
       border: 2px solid $border-button-primary-clicked;
     }
+
+    &:disabled {
+      background-color: rgba($bg-white-40, 0.6);
+      border: 2px solid $border-grey;
+      pointer-events: none;
+      svg {
+        path {
+          fill: $border-grey;
+        }
+      }
+    }
   }
 
   &.image {

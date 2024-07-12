@@ -28,7 +28,6 @@ const instructionData = [
         prompt: 'memoryGameInstruct5',
         image: 'catAvatar',
         buttonText: 'continueButtonText',
-        bottomText: 'memoryGameInstruct7',
     },
     {
         prompt: 'memoryGameBackwardPrompt',
@@ -78,8 +77,7 @@ export const instructions = instructionData.map(data => {
         },
         keyboard_choices: 'NO_KEYS',
         on_load: () => {
-            let audioSource
-            setupReplayAudio(audioSource, data.prompt)
+            setupReplayAudio(data.prompt)
         }
     }
 })
