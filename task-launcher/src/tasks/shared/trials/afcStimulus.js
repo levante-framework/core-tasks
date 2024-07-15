@@ -19,8 +19,6 @@ import { finishExperiment } from './';
 const replayButtonHtmlId = 'replay-btn-revisited';
 // Previously chosen responses for current practice trial
 let practiceResponses = [];
-let currPracticeChoiceMix = [];
-let currPracticeAnswerIdx;
 let trialsOfCurrentType = 0;
 
 let keyboardResponseMap = {};
@@ -178,11 +176,6 @@ function getButtonChoices(task) {
     stimulus.task === 'Mental Rotation'
       ? prepareChoices(answer, distractors, false, stimulus.trialType)
       : prepareChoices(answer, distractors, true, stimulus.trialType);
-
-  if (task === 'matrix-reasoning' && stimulus.notes === 'practice' && !currPracticeChoiceMix.length) {
-    currPracticeChoiceMix = trialInfo.choices;
-    currPracticeAnswerIdx = taskStore().correctResponseIdx; // Fixed: Use 'get' for consistency
-  }
 
   if (
     ['vocab', 'trog', 'matrix-reasoning', 'mental-rotation', 'theory-of-mind'].includes(task) &&
@@ -384,19 +377,9 @@ function doOnLoad(task) {
       // Map arrow to response choice.
       // 2afc layout uses left and right arrow keys. The order of the arrrow
       // key array allows for the correct mapping for other layouts.
-      if (buttonContainer.children.length === 2) {
-        if (stim.notes === 'practice' && task === 'matrix-reasoning') {
-          keyboardResponseMap[arrowKeyEmojis[i + 1][0]] = currPracticeChoiceMix[i];
-        } else {
-          keyboardResponseMap[arrowKeyEmojis[i + 1][0]] = responseChoices[i];
-        }
-      } else {
-        if (stim.notes === 'practice' && task === 'matrix-reasoning') {
-          keyboardResponseMap[arrowKeyEmojis[i][0]] = currPracticeChoiceMix[i];
-        } else {
-          keyboardResponseMap[arrowKeyEmojis[i][0]] = responseChoices[i];
-        }
-      }
+      const keyIndex = buttonContainer.children.length === 2 ? i + 1 : i;
+      keyboardResponseMap[arrowKeyEmojis[keyIndex][0]] = responseChoices[i];
+
       if (task !== 'egma-math') {
         if (task === 'mental-rotation') {
           el.children[0].classList.add('image-large');
@@ -465,13 +448,8 @@ function doOnFinish(data, task) {
       data.correct = keyboardResponseMap[data.keyboard_response] === target;
       responseValue = keyboardResponseMap[data.keyboard_response];
     } else {
-      if (stimulus.notes === 'practice' && task === 'matrix-reasoning') {
-        data.correct = data.button_response === currPracticeAnswerIdx;
-        responseValue = currPracticeChoiceMix[data.button_response];
-      } else {
-        data.correct = data.button_response === taskStore().correctResponseIdx;
-        responseValue = stimulus.trialType === 'Fraction' ? taskStore().nonFractionSelections[data.button_response] : taskStore().choices[data.button_response];
-      }
+      data.correct = data.button_response === taskStore().correctResponseIdx;
+      responseValue = stimulus.trialType === 'Fraction' ? taskStore().nonFractionSelections[data.button_response] : taskStore().choices[data.button_response];
     }
 
     // check response and record it
@@ -485,8 +463,6 @@ function doOnFinish(data, task) {
         taskStore('numIncorrect', 0); // reset incorrect trial count
       }
       practiceResponses = [];
-      currPracticeChoiceMix = [];
-      currPracticeAnswerIdx = null;
     } else {
       // Only increase incorrect trials if response is incorrect not a practice trial
       if (!isPractice(stimulus.notes)) {
