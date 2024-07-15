@@ -22,20 +22,20 @@ def draw_triangle(draw, center, size, color):
 
 
 def apply_texture(draw, mask, texture):
-    if texture == 'diagonal_lines':
-        add_diagonal_lines(draw, mask)
+    if texture == 'lines':
+        add_lines(draw, mask)
     elif texture == 'polka_dots':
         add_polka_dots(draw, mask)
 
 
-def add_diagonal_lines(draw, mask):
+def add_lines(draw, mask):
     for y in range(0, mask.height, 5):
-        draw.line((0, y, mask.width, y), fill='black', width=1)
+        draw.line((0, y, mask.width, y), fill='black', width=3)
 
 
 def add_polka_dots(draw, mask):
     dot_radius = 2
-    step = 10
+    step = 5
     for y in range(0, mask.height, step):
         for x in range(0, mask.width, step):
             if mask.getpixel((x, y)) == 255:
@@ -100,7 +100,7 @@ sizes = [35, 70, 105]
 colors = ['red', 'green', 'blue']
 cardinalities = [1, 2, 3]
 background_colors = ['white', 'black', 'gray']
-textures = ['none', 'diagonal_lines', 'polka_dots']
+textures = ['none', 'lines', 'polka_dots']
 
 for shape in shapes:
     for size in sizes:
