@@ -5,7 +5,7 @@ import _isEqual from 'lodash/isEqual';
 import { finishExperiment } from '../../shared/trials';
 import { mediaAssets } from '../../..';
 import { getMemoryGameType } from '../helpers/getMemoryGameType';
-import { taskStore, replayButtonDiv, setupReplayAudio, PageAudioHandler } from '../../shared/helpers';
+import { taskStore, setupReplayAudio, PageAudioHandler, replayButtonSvg } from '../../shared/helpers';
 
 
 const x = 20;
@@ -17,6 +17,27 @@ let sequenceLength = 2;
 let generatedSequence
 let selectedCoordinates = [];
 let numCorrect = 0;
+
+// play audio cue
+function setUpAudio(contentWrapper, prompt, reverse, mode) {
+  // add replay button
+  const replayButton = document.createElement('button'); 
+  replayButton.innerHTML = replayButtonSvg;
+  replayButton.id = 'replay-btn-revisited';
+  replayButton.classList.add('replay'); 
+  replayButton.disabled = true;
+  contentWrapper.insertBefore(replayButton, prompt);
+
+  const inputAudioPrompt = reverse ? 'memoryGameBackwardPrompt' : 'memoryGameInput'
+  const cue = mode === 'display' ? 'memoryGameDisplay' : inputAudioPrompt;
+
+  const audioFile = mediaAssets.audio[cue] || '';
+  // Returns a promise of the AudioBuffer of the preloaded file path.
+  PageAudioHandler.playAudio(audioFile, () => {
+    // set up replay button audio after the first audio has played
+    setupReplayAudio(cue);
+  });  
+}
 
 // This function produces both the display and input trials for the corsi blocks
 export function getCorsiBlocks({ mode, reverse = false, isPractice = false, resetSeq = false}) {
@@ -207,27 +228,5 @@ function doOnLoad(mode, isPractice, reverse) {
   // changing the jspsych-content styles to avoid potential issues in the future
   contentWrapper.insertBefore(prompt, corsiBlocksHTML);
 
-  // add replay button
-  const replayButton = document.createElement('div'); 
-  replayButton.innerHTML = replayButtonDiv;
-  replayButton.id = 'replay-btn-revisited'; 
-  contentWrapper.insertBefore(replayButton, prompt); 
-  
-  // play audio cue
-  async function playAudioCue() {
-
-    const inputAudioPrompt = reverse ? 'memoryGameBackwardPrompt' : 'memoryGameInput'
-    const cue = mode === 'display' ? 'memoryGameDisplay' : inputAudioPrompt;
-
-    const audioFile = mediaAssets.audio[cue] || '';
-
-    // set up replay button audio
-    setupReplayAudio(audioFile);
-
-    // Returns a promise of the AudioBuffer of the preloaded file path.
-    PageAudioHandler.playAudio(audioFile);
-
-  }
-
-  playAudioCue();
+  setUpAudio(contentWrapper, prompt, reverse, mode);
 }
