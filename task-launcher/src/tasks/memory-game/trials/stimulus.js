@@ -5,7 +5,7 @@ import _isEqual from 'lodash/isEqual';
 import { finishExperiment } from '../../shared/trials';
 import { mediaAssets } from '../../..';
 import { getMemoryGameType } from '../helpers/getMemoryGameType';
-import { taskStore, replayButtonDiv, setupReplayAudio } from '../../shared/helpers';
+import { taskStore, replayButtonDiv, setupReplayAudio, PageAudioHandler } from '../../shared/helpers';
 
 
 const x = 20;
@@ -215,25 +215,18 @@ function doOnLoad(mode, isPractice, reverse) {
   
   // play audio cue
   async function playAudioCue() {
-    let audioSource
-
-    const jsPsychAudioCtx = jsPsych.pluginAPI.audioContext();
 
     const inputAudioPrompt = reverse ? 'memoryGameBackwardPrompt' : 'memoryGameInput'
     const cue = mode === 'display' ? 'memoryGameDisplay' : inputAudioPrompt;
 
+    const audioFile = mediaAssets.audio[cue] || '';
+
     // set up replay button audio
-    setupReplayAudio(audioSource, cue)
+    setupReplayAudio(audioFile);
 
     // Returns a promise of the AudioBuffer of the preloaded file path.
-    const audioBuffer = await jsPsych
-        .pluginAPI
-        .getAudioBuffer(mediaAssets.audio[cue]);
+    PageAudioHandler.playAudio(audioFile);
 
-    audioSource = jsPsychAudioCtx.createBufferSource();
-    audioSource.buffer = audioBuffer;
-    audioSource.connect(jsPsychAudioCtx.destination);
-    audioSource.start(0);
   }
 
   playAudioCue();
