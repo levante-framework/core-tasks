@@ -65,7 +65,7 @@ export const instructions = instructionData.map(data => {
         },
         keyboard_choices: () => 'NO_KEYS',
         on_load: () => {
-            setupReplayAudio(data.prompt)
+            setupReplayAudio(mediaAssets.audio[data.prompt])
         }
     }
 })
