@@ -1,14 +1,15 @@
+//@ts-ignore
 import { jsPsych } from "../../taskSetup";
+//@ts-ignore
 import { mediaAssets } from "../../..";
+//@ts-ignore
 import { camelize } from "@bdelab/roar-utils";
 import { PageAudioHandler } from "./audioHandler";
 
 
-export async function setupReplayAudio(audioFile) {
+export async function setupReplayAudio(audioFile: string) {
   // Hardcoded since it uses the replayButtonDiv comopnent
-  const replayBtn = document.getElementById('replay-btn-revisited');
-
-  console.log('audio file:', audioFile)
+  const replayBtn = document.getElementById('replay-btn-revisited') as HTMLButtonElement;
 
   if (replayBtn) {
     const audioUri = mediaAssets.audio[camelize(audioFile)] ||

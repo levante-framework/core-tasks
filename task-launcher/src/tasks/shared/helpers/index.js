@@ -20,7 +20,7 @@ export * from './stringToBoolean';
 export * from './fractionToMathML';
 export * from './appTimer';
 export * from './components'
-export * from './replayAudio';
+export { setupReplayAudio } from './replayAudio';
 export * from './loadingScreen';
 export * from './setSkipCurrentBlock'
 export { PageAudioHandler } from './audioHandler';
