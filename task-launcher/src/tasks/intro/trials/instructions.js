@@ -54,8 +54,7 @@ export const instructions = instructionData.map(data => {
         },
         keyboard_choices: () => isTouchScreen ? 'NO_KEYS' : 'ALL_KEYS',
         on_load: () => {
-            let audioSource
-            setupReplayAudio(audioSource, data.prompt)
+            setupReplayAudio(mediaAssets.audio[data.prompt]);
         }
     }
 })
