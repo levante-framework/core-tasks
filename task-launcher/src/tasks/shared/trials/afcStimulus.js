@@ -203,11 +203,7 @@ function getButtonHtml(task) {
   }
 }
 
-function enableBtns(btnElements) {
-  btnElements.forEach((btn) => (btn.disabled = false));
-}
-
-function handlePracticeButtonPress(btn, stim, practiceBtns, isKeyBoardResponse, responsevalue) {
+function handlePracticeButtonPress(btn, stim, isKeyBoardResponse, responsevalue) {
   const choice = btn?.children?.length ? btn.children[0].alt : btn.textContent;
   const isCorrectChoice = choice.toString() === stim.answer?.toString();
   let feedbackAudio;
@@ -226,7 +222,6 @@ function handlePracticeButtonPress(btn, stim, practiceBtns, isKeyBoardResponse, 
   } else {
     btn.classList.add('practice-incorrect');
     feedbackAudio = mediaAssets.audio.feedbackTryAgain;
-    setTimeout(() => enableBtns(practiceBtns), 500);
     incorrectPracticeResponses.push(choice);
   }
   PageAudioHandler.playAudio(feedbackAudio);
@@ -246,7 +241,7 @@ async function keyboardBtnFeedback(e, practiceBtns, stim) {
       return btnOption.toString() === choice.toString();
     });
     if (btnClicked) {
-      handlePracticeButtonPress(btnClicked, stim, practiceBtns, true, e.key.toLowerCase());
+      handlePracticeButtonPress(btnClicked, stim, true, e.key.toLowerCase());
     }
   }
 }
@@ -282,7 +277,7 @@ function doOnLoad(task) {
 
     practiceBtns.forEach((btn, i) =>
       btn.addEventListener('click', async (e) => {
-        handlePracticeButtonPress(btn, stim, practiceBtns, false, i);
+        handlePracticeButtonPress(btn, stim, false, i);
       }),
     );
 
@@ -333,20 +328,6 @@ function doOnLoad(task) {
           el.children[0].classList.add('image-large');
         } else {
           el.children[0].classList.add('image');
-        }
-      }
-
-      if (task === 'matrix-reasoning') {
-        if (stim.notes === 'practice' && practiceResponses.length) {
-          // feedback response (red X for wrong, green check for correct)
-          // green check TBI
-          practiceResponses.forEach((response) => {
-            if (response === el.children[0].children[0].alt) {
-              el.classList.add('response-feedback-container');
-              el.children[0].classList.add('response-feedback');
-              el.children[0].disabled = true;
-            }
-          });
         }
       }
 
