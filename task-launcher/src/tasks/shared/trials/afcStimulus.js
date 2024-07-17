@@ -207,6 +207,31 @@ function enableBtns(btnElements) {
   btnElements.forEach((btn) => (btn.disabled = false));
 }
 
+function handlePracticeButtonPress(btn, stim, practiceBtns, isKeyBoardResponse, responsevalue) {
+  const choice = btn?.children?.length ? btn.children[0].alt : btn.textContent;
+  const isCorrectChoice = choice.toString() === stim.answer?.toString();
+  let feedbackAudio;
+  if (isCorrectChoice) {
+    btn.classList.add('practice-correct');
+    feedbackAudio = mediaAssets.audio.feedbackGoodJob;
+    setTimeout(
+      () => jsPsych.finishTrial({
+        response: choice,
+        incorrectPracticeResponses, 
+        button_response: !isKeyBoardResponse ? responsevalue : null,
+        keyboard_response: isKeyBoardResponse ? responsevalue : null,
+      }),
+      1000,
+    );
+  } else {
+    btn.classList.add('practice-incorrect');
+    feedbackAudio = mediaAssets.audio.feedbackTryAgain;
+    setTimeout(() => enableBtns(practiceBtns), 500);
+    incorrectPracticeResponses.push(choice);
+  }
+  PageAudioHandler.playAudio(feedbackAudio);
+}
+
 async function keyboardBtnFeedback(e, practiceBtns, stim) {
   let allowedKeys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
 
@@ -215,50 +240,14 @@ async function keyboardBtnFeedback(e, practiceBtns, stim) {
   }
 
   if (allowedKeys.includes(e.key)) {
-    let feedbackAudio;
     const choice = keyboardResponseMap[e.key.toLowerCase()];
-    // Find button with response text
-    practiceBtns.forEach((btn) => {
-      if (btn.children.length) {
-        const btnOption = btn.children[0].alt;
-        if (choice == btnOption) {
-          if (choice == stim.answer) {
-            btn.classList.add('practice-correct');
-            feedbackAudio = mediaAssets.audio.feedbackGoodJob;
-            setTimeout(
-              () => jsPsych.finishTrial({ response: choice, incorrectPracticeResponses: incorrectPracticeResponses, keyboard_response: e.key.toLowerCase(), button_response: null }),
-              1000,
-            );
-          } else {
-            btn.classList.add('practice-incorrect');
-            feedbackAudio = mediaAssets.audio.feedbackTryAgain;
-            setTimeout(() => enableBtns(practiceBtns), 500);
-            incorrectPracticeResponses.push(choice);
-          }
-        }
-      } else {
-        const btnOption = btn.textContent;
-
-        if (choice == btnOption) {
-          if (choice == stim.answer) {
-            btn.classList.add('practice-correct');
-            feedbackAudio = mediaAssets.audio.feedbackGoodJob;
-            setTimeout(
-              () => jsPsych.finishTrial({ response: choice, incorrectPracticeResponses: incorrectPracticeResponses, keyboard_response: e.key.toLowerCase(), button_response: null }),
-              1000,
-            );
-          } else {
-            btn.classList.add('practice-incorrect');
-            feedbackAudio = mediaAssets.audio.feedbackTryAgain;
-            setTimeout(() => enableBtns(practiceBtns), 500);
-            incorrectPracticeResponses.push(choice);
-          }
-        }
-      }
+    const btnClicked = Array.from(practiceBtns).find(btn => {
+      const btnOption = btn?.children?.length ? btn.children[0].alt : btn.textContent;
+      return btnOption.toString() === choice.toString();
     });
-
-    // Returns a promise of the AudioBuffer of the preloaded file path.
-    PageAudioHandler.playAudio(feedbackAudio);
+    if (btnClicked) {
+      handlePracticeButtonPress(btnClicked, stim, practiceBtns, true, e.key.toLowerCase());
+    }
   }
 }
 
@@ -290,56 +279,15 @@ function doOnLoad(task) {
 
   if (stim.notes === 'practice') {
     const practiceBtns = document.querySelectorAll('.practice-btn');
-    let feedbackAudio;
 
     practiceBtns.forEach((btn, i) =>
       btn.addEventListener('click', async (e) => {
-        // assume img btn
-        if (btn.children.length) {
-          const choice = btn.children[0].alt;
-          // Loose equality to handle number strings
-          if (choice == stim.answer) {
-            btn.classList.add('practice-correct');
-            feedbackAudio = mediaAssets.audio.feedbackGoodJob;
-            setTimeout(
-              () => jsPsych.finishTrial({ response: choice, incorrectPracticeResponses: incorrectPracticeResponses, button_response: i, keyboard_response: null  }),
-              1000,
-            );
-          } else {
-            btn.classList.add('practice-incorrect');
-            feedbackAudio = mediaAssets.audio.feedbackTryAgain;
-            setTimeout(() => enableBtns(practiceBtns), 500);
-            incorrectPracticeResponses.push(choice);
-          }
-        } else {
-          const choice = btn.textContent;
-
-          if (choice == stim.answer) {
-            btn.classList.add('practice-correct');
-            feedbackAudio = mediaAssets.audio.feedbackGoodJob;
-            setTimeout(
-              () => jsPsych.finishTrial({ response: choice, incorrectPracticeResponses: incorrectPracticeResponses, button_response: i, keyboard_response: null }),
-              1000,
-            );
-          } else {
-            btn.classList.add('practice-incorrect');
-            feedbackAudio = mediaAssets.audio.feedbackTryAgain;
-            setTimeout(() => enableBtns(practiceBtns), 500);
-            incorrectPracticeResponses.push(choice);
-          }
-        }
-
-        PageAudioHandler.playAudio(feedbackAudio);
+        handlePracticeButtonPress(btn, stim, practiceBtns, false, i);
       }),
     );
 
     if (!isTouchScreen) {
-      function keyboardBtnFeedbackHandler(e) {
-        keyboardBtnFeedback(e, practiceBtns, stim);
-      }
-
-      keyboardFeedbackHandler = keyboardBtnFeedbackHandler;
-
+      keyboardFeedbackHandler = (e) => keyboardBtnFeedback(e, practiceBtns, stim);
       document.addEventListener('keydown', keyboardFeedbackHandler);
     }
   }
