@@ -1,16 +1,13 @@
 from PIL import Image, ImageDraw
 
-
 def draw_circle(draw, center, radius, color):
     x, y = center
     draw.ellipse([x - radius, y - radius, x + radius, y + radius], fill=color)
-
 
 def draw_square(draw, center, size, color):
     x, y = center
     half_size = size // 2
     draw.rectangle([x - half_size, y - half_size, x + half_size, y + half_size], fill=color)
-
 
 def draw_triangle(draw, center, size, color):
     x, y = center
@@ -20,7 +17,6 @@ def draw_triangle(draw, center, size, color):
     right_point = (x + size // 2, y + height // 2)
     draw.polygon([top_point, left_point, right_point], fill=color)
 
-
 def draw_shape(draw, shape, center, size, color):
     if shape == 'circle':
         draw_circle(draw, center, size // 2, color)
@@ -28,7 +24,6 @@ def draw_shape(draw, shape, center, size, color):
         draw_square(draw, center, size, color)
     elif shape == 'triangle':
         draw_triangle(draw, center, size, color)
-
 
 def save_shape(shape, size, color, cardinality, background_color):
     # Size mapping
@@ -55,7 +50,7 @@ def save_shape(shape, size, color, cardinality, background_color):
             ]
             for center in centers:
                 draw_shape(draw, shape, center, size, hex_color)
-        filename = f"{word_size}-{color}-{shape}-{cardinality}-{background_color}.webp"
+        filename = f"{word_size}-{color}-{shape}-{cardinality}"
     else:
         center = (canvas_size // 2, canvas_size // 2)
         if shape == 'circle':
@@ -64,9 +59,13 @@ def save_shape(shape, size, color, cardinality, background_color):
             draw_square(draw, center, size, hex_color)
         elif shape == 'triangle':
             draw_triangle(draw, center, size, hex_color)
-        filename = f"{word_size}-{color}-{shape}-{background_color}.webp"
-    image.save(filename, "WEBP")
+        filename = f"{word_size}-{color}-{shape}"
 
+    if background_color != 'white':
+        filename += f"-{background_color}"
+    
+    filename += ".webp"
+    image.save(filename, "WEBP")
 
 shapes = ['circle', 'square', 'triangle']
 sizes = [35, 70, 105]
@@ -80,3 +79,4 @@ for shape in shapes:
             for cardinality in cardinalities:
                 for background_color in background_colors:
                     save_shape(shape, size, color, cardinality, background_color)
+                    
