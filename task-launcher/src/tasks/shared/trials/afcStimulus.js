@@ -24,11 +24,8 @@ let trialsOfCurrentType = 0;
 let keyboardResponseMap = {};
 // Only used for keyboard responses
 let startTime;
+let keyboardFeedbackHandler;
 const incorrectPracticeResponses = [];
-
-const playAudio = async (audioUri) => {
-  PageAudioHandler.playAudio(audioUri);
-};
 
 const showStaggeredBtnAndPlaySound = (btn) => {
   btn.style.display = 'flex';
@@ -38,7 +35,7 @@ const showStaggeredBtnAndPlaySound = (btn) => {
   const img = btn.getElementsByTagName('img')?.[0];
   if (img) {
     const altValue = img.alt;
-    playAudio(mediaAssets.audio[camelize(altValue)]);
+    PageAudioHandler.playAudio(mediaAssets.audio[camelize(altValue)]);
   }
 }
 
@@ -207,6 +204,32 @@ function enableBtns(btnElements) {
   btnElements.forEach((btn) => (btn.disabled = false));
 }
 
+function handlePracticeButtonPress(btn, stim, practiceBtns ,isKeyBoardResponse, responsevalue) {
+  const choice = btn?.children?.length ? btn.children[0].alt : btn.textContent;
+  const isCorrectChoice = choice?.toString() === stim.answer?.toString();
+  let feedbackAudio;
+  if (isCorrectChoice) {
+    btn.classList.add('practice-correct');
+    feedbackAudio = mediaAssets.audio.feedbackGoodJob;
+    setTimeout(
+      () => jsPsych.finishTrial({
+        response: choice,
+        incorrectPracticeResponses, 
+        button_response: !isKeyBoardResponse ? responsevalue : null,
+        keyboard_response: isKeyBoardResponse ? responsevalue : null,
+      }),
+      1000,
+    );
+  } else {
+    btn.classList.add('practice-incorrect');
+    feedbackAudio = mediaAssets.audio.feedbackTryAgain;
+    // jspysch disables the buttons for some reason, so re-enable them
+    setTimeout(() => enableBtns(practiceBtns), 500);
+    incorrectPracticeResponses.push(choice);
+  }
+  PageAudioHandler.playAudio(feedbackAudio);
+}
+
 async function keyboardBtnFeedback(e, practiceBtns, stim) {
   let allowedKeys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
 
@@ -215,54 +238,35 @@ async function keyboardBtnFeedback(e, practiceBtns, stim) {
   }
 
   if (allowedKeys.includes(e.key)) {
-    let feedbackAudio;
     const choice = keyboardResponseMap[e.key.toLowerCase()];
-    // Find button with response text
-    practiceBtns.forEach((btn) => {
-      if (btn.children.length) {
-        const btnOption = btn.children[0].alt;
-        if (choice == btnOption) {
-          if (choice == stim.answer) {
-            btn.classList.add('practice-correct');
-            feedbackAudio = mediaAssets.audio.feedbackGoodJob;
-            setTimeout(
-              () => jsPsych.finishTrial({ response: choice, incorrectPracticeResponses: incorrectPracticeResponses, keyboard_response: e.key.toLowerCase(), button_response: null }),
-              1000,
-            );
-          } else {
-            btn.classList.add('practice-incorrect');
-            feedbackAudio = mediaAssets.audio.feedbackTryAgain;
-            setTimeout(() => enableBtns(practiceBtns), 500);
-            incorrectPracticeResponses.push(choice);
-          }
-        }
-      } else {
-        const btnOption = btn.textContent;
-
-        if (choice == btnOption) {
-          if (choice == stim.answer) {
-            btn.classList.add('practice-correct');
-            feedbackAudio = mediaAssets.audio.feedbackGoodJob;
-            setTimeout(
-              () => jsPsych.finishTrial({ response: choice, incorrectPracticeResponses: incorrectPracticeResponses, keyboard_response: e.key.toLowerCase(), button_response: null }),
-              1000,
-            );
-          } else {
-            btn.classList.add('practice-incorrect');
-            feedbackAudio = mediaAssets.audio.feedbackTryAgain;
-            setTimeout(() => enableBtns(practiceBtns), 500);
-            incorrectPracticeResponses.push(choice);
-          }
-        }
-      }
+    const btnClicked = Array.from(practiceBtns).find(btn => {
+      const btnOption = btn?.children?.length ? btn.children[0].alt : btn.textContent;
+      return (btnOption || '').toString() === (choice || '')?.toString();
     });
-
-    // Returns a promise of the AudioBuffer of the preloaded file path.
-    PageAudioHandler.playAudio(feedbackAudio);
+    if (btnClicked) {
+      handlePracticeButtonPress(btnClicked, stim, practiceBtns, true, e.key.toLowerCase());
+    }
   }
 }
 
-let keyboardFeedbackHandler;
+function addKeyHelpers(el, keyIndex) {
+  const { keyHelpers } = taskStore();
+  if (keyHelpers && !isTouchScreen) {
+    // Margin on the actual button element
+    el.children[0].style.marginBottom = '.5rem';
+
+    const arrowKeyBorder = document.createElement('div');
+    arrowKeyBorder.classList.add('arrow-key-border');
+
+    const arrowKey = document.createElement('p');
+    arrowKey.innerHTML = arrowKeyEmojis[keyIndex][1];
+    arrowKey.style.textAlign = 'center';
+    arrowKey.style.margin = '0';
+    // arrowKey.classList.add('arrow-key')
+    arrowKeyBorder.appendChild(arrowKey);
+    el.appendChild(arrowKeyBorder);
+  }
+}
 
 function doOnLoad(task) {
   startTime = performance.now();
@@ -290,56 +294,15 @@ function doOnLoad(task) {
 
   if (stim.notes === 'practice') {
     const practiceBtns = document.querySelectorAll('.practice-btn');
-    let feedbackAudio;
 
     practiceBtns.forEach((btn, i) =>
       btn.addEventListener('click', async (e) => {
-        // assume img btn
-        if (btn.children.length) {
-          const choice = btn.children[0].alt;
-          // Loose equality to handle number strings
-          if (choice == stim.answer) {
-            btn.classList.add('practice-correct');
-            feedbackAudio = mediaAssets.audio.feedbackGoodJob;
-            setTimeout(
-              () => jsPsych.finishTrial({ response: choice, incorrectPracticeResponses: incorrectPracticeResponses, button_response: i, keyboard_response: null  }),
-              1000,
-            );
-          } else {
-            btn.classList.add('practice-incorrect');
-            feedbackAudio = mediaAssets.audio.feedbackTryAgain;
-            setTimeout(() => enableBtns(practiceBtns), 500);
-            incorrectPracticeResponses.push(choice);
-          }
-        } else {
-          const choice = btn.textContent;
-
-          if (choice == stim.answer) {
-            btn.classList.add('practice-correct');
-            feedbackAudio = mediaAssets.audio.feedbackGoodJob;
-            setTimeout(
-              () => jsPsych.finishTrial({ response: choice, incorrectPracticeResponses: incorrectPracticeResponses, button_response: i, keyboard_response: null }),
-              1000,
-            );
-          } else {
-            btn.classList.add('practice-incorrect');
-            feedbackAudio = mediaAssets.audio.feedbackTryAgain;
-            setTimeout(() => enableBtns(practiceBtns), 500);
-            incorrectPracticeResponses.push(choice);
-          }
-        }
-
-        PageAudioHandler.playAudio(feedbackAudio);
+        handlePracticeButtonPress(btn, stim, practiceBtns, false, i);
       }),
     );
 
     if (!isTouchScreen) {
-      function keyboardBtnFeedbackHandler(e) {
-        keyboardBtnFeedback(e, practiceBtns, stim);
-      }
-
-      keyboardFeedbackHandler = keyboardBtnFeedbackHandler;
-
+      keyboardFeedbackHandler = (e) => keyboardBtnFeedback(e, practiceBtns, stim);
       document.addEventListener('keydown', keyboardFeedbackHandler);
     }
   }
@@ -358,8 +321,6 @@ function doOnLoad(task) {
   }
 
   if (stim.trialType !== 'instructions') {
-    const { buttonLayout, keyHelpers } = taskStore();
-
     const buttonContainer = document.getElementById('jspsych-audio-multi-response-btngroup');
 
     buttonContainer.classList.add(`lev-response-row`);
@@ -388,39 +349,7 @@ function doOnLoad(task) {
         }
       }
 
-      if (task === 'matrix-reasoning') {
-        if (stim.notes === 'practice' && practiceResponses.length) {
-          // feedback response (red X for wrong, green check for correct)
-          // green check TBI
-          practiceResponses.forEach((response) => {
-            if (response === el.children[0].children[0].alt) {
-              el.classList.add('response-feedback-container');
-              el.children[0].classList.add('response-feedback');
-              el.children[0].disabled = true;
-            }
-          });
-        }
-      }
-
-      if (keyHelpers && !isTouchScreen) { // GK: add && !(buttonLayout === 'default') ? (exception: mental rotation)
-        // Margin on the actual button element
-        el.children[0].style.marginBottom = '.5rem';
-
-        const arrowKeyBorder = document.createElement('div');
-        arrowKeyBorder.classList.add('arrow-key-border');
-
-        const arrowKey = document.createElement('p');
-        if (buttonContainer.children.length === 2) {
-          arrowKey.innerHTML = arrowKeyEmojis[i + 1][1];
-        } else {
-          arrowKey.innerHTML = arrowKeyEmojis[i][1];
-        }
-        arrowKey.style.textAlign = 'center';
-        arrowKey.style.margin = '0';
-        // arrowKey.classList.add('arrow-key')
-        arrowKeyBorder.appendChild(arrowKey);
-        el.appendChild(arrowKeyBorder);
-      }
+      addKeyHelpers(el, keyIndex);
     });
 
     // update the trial number
