@@ -203,7 +203,11 @@ function getButtonHtml(task) {
   }
 }
 
-function handlePracticeButtonPress(btn, stim, isKeyBoardResponse, responsevalue) {
+function enableBtns(btnElements) {
+  btnElements.forEach((btn) => (btn.disabled = false));
+}
+
+function handlePracticeButtonPress(btn, stim, practiceBtns ,isKeyBoardResponse, responsevalue) {
   const choice = btn?.children?.length ? btn.children[0].alt : btn.textContent;
   const isCorrectChoice = choice.toString() === stim.answer?.toString();
   let feedbackAudio;
@@ -222,6 +226,8 @@ function handlePracticeButtonPress(btn, stim, isKeyBoardResponse, responsevalue)
   } else {
     btn.classList.add('practice-incorrect');
     feedbackAudio = mediaAssets.audio.feedbackTryAgain;
+    // jspysch disables the buttons for some reason, so re-enable them
+    setTimeout(() => enableBtns(practiceBtns), 500);
     incorrectPracticeResponses.push(choice);
   }
   PageAudioHandler.playAudio(feedbackAudio);
@@ -241,7 +247,7 @@ async function keyboardBtnFeedback(e, practiceBtns, stim) {
       return btnOption.toString() === choice.toString();
     });
     if (btnClicked) {
-      handlePracticeButtonPress(btnClicked, stim, true, e.key.toLowerCase());
+      handlePracticeButtonPress(btnClicked, stim, practiceBtns, true, e.key.toLowerCase());
     }
   }
 }
@@ -277,7 +283,7 @@ function doOnLoad(task) {
 
     practiceBtns.forEach((btn, i) =>
       btn.addEventListener('click', async (e) => {
-        handlePracticeButtonPress(btn, stim, false, i);
+        handlePracticeButtonPress(btn, stim, practiceBtns, false, i);
       }),
     );
 
