@@ -24,11 +24,8 @@ let trialsOfCurrentType = 0;
 let keyboardResponseMap = {};
 // Only used for keyboard responses
 let startTime;
+let keyboardFeedbackHandler;
 const incorrectPracticeResponses = [];
-
-const playAudio = async (audioUri) => {
-  PageAudioHandler.playAudio(audioUri);
-};
 
 const showStaggeredBtnAndPlaySound = (btn) => {
   btn.style.display = 'flex';
@@ -38,7 +35,7 @@ const showStaggeredBtnAndPlaySound = (btn) => {
   const img = btn.getElementsByTagName('img')?.[0];
   if (img) {
     const altValue = img.alt;
-    playAudio(mediaAssets.audio[camelize(altValue)]);
+    PageAudioHandler.playAudio(mediaAssets.audio[camelize(altValue)]);
   }
 }
 
@@ -209,7 +206,7 @@ function enableBtns(btnElements) {
 
 function handlePracticeButtonPress(btn, stim, practiceBtns ,isKeyBoardResponse, responsevalue) {
   const choice = btn?.children?.length ? btn.children[0].alt : btn.textContent;
-  const isCorrectChoice = choice.toString() === stim.answer?.toString();
+  const isCorrectChoice = choice?.toString() === stim.answer?.toString();
   let feedbackAudio;
   if (isCorrectChoice) {
     btn.classList.add('practice-correct');
@@ -244,7 +241,7 @@ async function keyboardBtnFeedback(e, practiceBtns, stim) {
     const choice = keyboardResponseMap[e.key.toLowerCase()];
     const btnClicked = Array.from(practiceBtns).find(btn => {
       const btnOption = btn?.children?.length ? btn.children[0].alt : btn.textContent;
-      return btnOption.toString() === choice.toString();
+      return (btnOption || '').toString() === (choice || '')?.toString();
     });
     if (btnClicked) {
       handlePracticeButtonPress(btnClicked, stim, practiceBtns, true, e.key.toLowerCase());
@@ -252,7 +249,24 @@ async function keyboardBtnFeedback(e, practiceBtns, stim) {
   }
 }
 
-let keyboardFeedbackHandler;
+function addKeyHelpers(el, keyIndex) {
+  const { keyHelpers } = taskStore();
+  if (keyHelpers && !isTouchScreen) {
+    // Margin on the actual button element
+    el.children[0].style.marginBottom = '.5rem';
+
+    const arrowKeyBorder = document.createElement('div');
+    arrowKeyBorder.classList.add('arrow-key-border');
+
+    const arrowKey = document.createElement('p');
+    arrowKey.innerHTML = arrowKeyEmojis[keyIndex][1];
+    arrowKey.style.textAlign = 'center';
+    arrowKey.style.margin = '0';
+    // arrowKey.classList.add('arrow-key')
+    arrowKeyBorder.appendChild(arrowKey);
+    el.appendChild(arrowKeyBorder);
+  }
+}
 
 function doOnLoad(task) {
   startTime = performance.now();
@@ -307,8 +321,6 @@ function doOnLoad(task) {
   }
 
   if (stim.trialType !== 'instructions') {
-    const { buttonLayout, keyHelpers } = taskStore();
-
     const buttonContainer = document.getElementById('jspsych-audio-multi-response-btngroup');
 
     buttonContainer.classList.add(`lev-response-row`);
@@ -337,25 +349,7 @@ function doOnLoad(task) {
         }
       }
 
-      if (keyHelpers && !isTouchScreen) { // GK: add && !(buttonLayout === 'default') ? (exception: mental rotation)
-        // Margin on the actual button element
-        el.children[0].style.marginBottom = '.5rem';
-
-        const arrowKeyBorder = document.createElement('div');
-        arrowKeyBorder.classList.add('arrow-key-border');
-
-        const arrowKey = document.createElement('p');
-        if (buttonContainer.children.length === 2) {
-          arrowKey.innerHTML = arrowKeyEmojis[i + 1][1];
-        } else {
-          arrowKey.innerHTML = arrowKeyEmojis[i][1];
-        }
-        arrowKey.style.textAlign = 'center';
-        arrowKey.style.margin = '0';
-        // arrowKey.classList.add('arrow-key')
-        arrowKeyBorder.appendChild(arrowKey);
-        el.appendChild(arrowKeyBorder);
-      }
+      addKeyHelpers(el, keyIndex);
     });
 
     // update the trial number
