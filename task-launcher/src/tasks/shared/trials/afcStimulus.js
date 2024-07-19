@@ -252,9 +252,6 @@ async function keyboardBtnFeedback(e, practiceBtns, stim) {
 function addKeyHelpers(el, keyIndex) {
   const { keyHelpers } = taskStore();
   if (keyHelpers && !isTouchScreen) {
-    // Margin on the actual button element
-    el.children[0].style.marginBottom = '.5rem';
-
     const arrowKeyBorder = document.createElement('div');
     arrowKeyBorder.classList.add('arrow-key-border');
 
@@ -262,7 +259,6 @@ function addKeyHelpers(el, keyIndex) {
     arrowKey.innerHTML = arrowKeyEmojis[keyIndex][1];
     arrowKey.style.textAlign = 'center';
     arrowKey.style.margin = '0';
-    // arrowKey.classList.add('arrow-key')
     arrowKeyBorder.appendChild(arrowKey);
     el.appendChild(arrowKeyBorder);
   }
