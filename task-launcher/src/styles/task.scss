@@ -421,20 +421,20 @@ $border-color: #0f3cac;
       //   border: 5px solid #32f718; /* Add a border to highlight the button */
       // }
 
-      .arrow-key-border {
-        border: 0px solid black; /* Thin and black border */
-        border-radius: 10px; /* Curved corners */
-        padding: 0.1rem !important;
-        max-width: 100% !important;
-        pointer-events: none;
+      // .arrow-key-border {
+      //   border: 0px solid black; /* Thin and black border */
+      //   border-radius: 10px; /* Curved corners */
+      //   padding: 0.1rem !important;
+      //   max-width: 100% !important;
+      //   pointer-events: none;
 
-        .arrow-key {
-          font-size: 1.5rem;
-          padding: 0;
-          margin: 0;
-          pointer-events: none;
-        }
-      }
+      //   .arrow-key {
+      //     font-size: 1.5rem;
+      //     padding: 0;
+      //     margin: 0;
+      //     pointer-events: none;
+      //   }
+      // }
 
       .space-key-border {
         border: 1px solid black; /* Thin and black border */
