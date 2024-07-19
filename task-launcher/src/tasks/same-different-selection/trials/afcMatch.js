@@ -1,7 +1,7 @@
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
 import { mediaAssets } from '../../..';
 import { jsPsych } from '../../taskSetup';
-import { prepareChoices, replayButtonDiv, setupReplayAudio, taskStore } from '../../shared/helpers';
+import { prepareChoices, replayButtonSvg, setupReplayAudio, taskStore } from '../../shared/helpers';
 import { camelize } from '@bdelab/roar-utils';
 import { finishExperiment } from '../../shared/trials';
 import { numIncorrect } from './stimulus';
@@ -29,7 +29,9 @@ export const afcMatch = {
     const t = taskStore().translations;
     return (
       `<div id='stimulus-container'>
-        ${replayButtonDiv}
+        <button id="replay-btn-revisited" class="replay">
+            ${replayButtonSvg}
+        </button>
         <div id='prompt-container-text'>
           <p id='prompt'>${t[prompt]}</p>
         </div>
