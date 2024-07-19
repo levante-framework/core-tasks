@@ -8,7 +8,7 @@ import { PageAudioHandler } from "./audioHandler";
 
 
 export async function setupReplayAudio(audioFile: string) {
-  // Hardcoded since it uses the replayButtonDiv comopnent
+  // The id is always hardcoded into replay button so get it by its id
   const replayBtn = document.getElementById('replay-btn-revisited') as HTMLButtonElement;
 
   if (replayBtn) {

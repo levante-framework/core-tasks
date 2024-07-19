@@ -1,7 +1,7 @@
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
 import { isTouchScreen } from '../../taskSetup';
 import { mediaAssets } from '../../..';
-import { replayButtonDiv, setupReplayAudio, taskStore } from '../../shared/helpers';
+import { replayButtonSvg, setupReplayAudio, taskStore } from '../../shared/helpers';
 
 const instructionData = [
     {
@@ -32,7 +32,9 @@ export const instructions = instructionData.map(data => {
         prompt: () => {
             const t = taskStore().translations;
             return `<div id='stimulus-container'>
-                        ${replayButtonDiv}
+                        <button id="replay-btn-revisited" class="replay">
+                            ${replayButtonSvg}
+                        </button>
                         <div id='prompt-container-text'>
                             <h1 id='prompt'>${t[data.prompt]}</h1>
                         </div>
