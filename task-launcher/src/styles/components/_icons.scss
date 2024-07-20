@@ -1,0 +1,9 @@
+.arrow-key-border {
+  max-width: 100% !important;
+  pointer-events: none;
+  padding-top: 1vw;
+  svg {
+    width: min(6vw, 6vh);
+    height: min(6vw, 6vh);
+  }
+}
