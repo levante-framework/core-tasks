@@ -169,8 +169,8 @@ button {
 
     img {
       border: none;
-      width: clamp(120px, 18vw, 250px);
-      height: clamp(120px, 18vw, 250px);
+      width: $response-size-default;
+      height: $response-size-default;
       padding: 0;
       margin: 0;
       border-radius: $lev-spacing-s;
@@ -180,8 +180,8 @@ button {
     @include respond-to('small-medium') {
       border-radius: $lev-spacing-s;
       img {
-        width: clamp(100px, 20vw, 200px);
-        height: clamp(100px, 20vw, 200px);
+        width: $response-size-sm;
+        height: $response-size-sm;
         border-radius: $lev-spacing-xs;
       }
     }
@@ -189,8 +189,8 @@ button {
     @include respond-to('small') {
       border-radius: $lev-spacing-s;
       img {
-        width: 25vw;
-        height: 25vw;
+        width: $response-size-s;
+        height: $response-size-s;
         border-radius: $lev-spacing-xs;
       }
     }

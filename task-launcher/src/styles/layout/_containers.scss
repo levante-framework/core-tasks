@@ -99,7 +99,7 @@
   width: 100%;
   max-width: 900px;
   justify-content: center;
-  margin-top: 32px;
+  margin-top: 64px;
   margin-bottom: 16px;
   align-items: center;
 
@@ -131,21 +131,21 @@
   @extend .lev-stim-content;
 
   img {
-    width: calc(3 * clamp(120px, 12vw, 150px));
-    height: calc(3 * clamp(120px, 12vw, 150px));
+    width: calc(3 * $response-size-default);
+    height: calc(3 * $response-size-default);
   }
 
   @include respond-to('small-medium') {
     img {
-      width: calc(3 * clamp(100px, 20vw, 150px));
-      height: calc(3 * clamp(100px, 20vw, 150px));
+      width: calc(3 * $response-size-sm);
+      height: calc(3 * $response-size-sm);
     }
   }
 
   @include respond-to('small') {
     img {
-      width: 3 * 25vw;
-      height: 3 * 25vw;
+      width: 3 * $response-size-s;
+      height: 3 * $response-size-s;
     }
   }
 
