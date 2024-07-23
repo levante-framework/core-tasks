@@ -169,12 +169,14 @@ function getHeartOrFlowerInstructionsSection(adminConfig, stimulusType) {
     instructionPracticePromptText1,
     instructionPracticePromptAudio1,
     instructionPracticeStimulusSide1,
+    'heartInstruct2',
   );
   const instructionPractice2 = buildInstructionPracticeTrial(
     stimulusType,
     instructionPracticePromptText2,
     instructionPracticePromptAudio2,
     instructionPracticeStimulusSide2,
+    'heartPracticeFeedback1',
   );
 
   // Now let's build our timeline. Notice how we are pairing each practice trials with a feedback trial
@@ -292,6 +294,7 @@ function getMixedInstructionsSection(adminConfig) {
     taskStore().translations.heartInstruct2, // heart-instruct2, "When you see a <b>heart</b>, press the button on the <b>same</b> side."
     mediaAssets.audio.heartInstruct2,
     StimulusSideType.Left,
+    'heartInstruct2',
   );
 
   const instructionPractice2 = buildInstructionPracticeTrial(
@@ -300,6 +303,7 @@ function getMixedInstructionsSection(adminConfig) {
     taskStore().translations.flowerInstruct2, // flower-instruct2, "When you see a flower, press the button on the opposite side."
     mediaAssets.audio.flowerInstruct2,
     StimulusSideType.Right,
+    'flowerInstruct2',
   );
 
   const subtimeline = [];
@@ -370,15 +374,6 @@ function getMixedTestSection(adminConfig) {
     ],
     timeline_variables: buildMixedTimelineVariables(adminConfig.testTrialCount),
     randomize_order: false,
-
-    //TODO: Not sure what to do with this. Double check we don't need it
-    // sample: {
-    //   type: 'without-replacement',
-    //   size: 1,
-    // },
-    // // With the sample parameter, the repetitions parameter is explicit.
-    // // Without the sample parameter, the repetitions parameter is multiplied by the amount of timeline variables.
-    // repetitions: 16,
   };
   return [heartsAndFlowersTimeline];
 }

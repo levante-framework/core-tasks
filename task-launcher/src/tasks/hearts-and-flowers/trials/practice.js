@@ -9,7 +9,7 @@ import {
   getStimulusLayout
 } from '../helpers/utils';
 import { replayButtonSvg, overrideAudioTrialForReplayableAudio } from '../helpers/audioTrials';
-import { taskStore } from '../../shared/helpers';
+import { setupReplayAudio, taskStore } from '../../shared/helpers';
 
 /**
  * Builds a practice trial for the Instruction sections.
@@ -18,7 +18,7 @@ import { taskStore } from '../../shared/helpers';
  * @param {*} promptAudioAsset
  * @param {*} stimulusSideType
  */
-export function buildInstructionPracticeTrial(stimulusType, promptText, promptAudioAsset, stimulusSideType) {
+export function buildInstructionPracticeTrial(stimulusType, promptText, promptAudioAsset, stimulusSideType, audioAssetKey) {
   if (!promptAudioAsset) {
     // throw new Error(`Missing prompt audio for instruction practice trial`);
     console.error(`buildInstructionPracticeTrial: Missing prompt audio`);
@@ -58,6 +58,8 @@ export function buildInstructionPracticeTrial(stimulusType, promptText, promptAu
       }
       buttons[validAnswer].style.animation = 'pulse 2s infinite';
 
+      setupReplayAudio(audioAssetKey);
+
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
     keyboard_choices: isTouchScreen? InputKey.NoKeys : [InputKey.ArrowLeft, InputKey.ArrowRight],
@@ -89,7 +91,7 @@ export function buildInstructionPracticeTrial(stimulusType, promptText, promptAu
     },
     // TODO handle stimulus presentation timeout and other parameters
   }
-  overrideAudioTrialForReplayableAudio(trial, jsPsych.pluginAPI, replayButtonHtmlId);
+  // overrideAudioTrialForReplayableAudio(trial, jsPsych.pluginAPI, replayButtonHtmlId);
   return trial;
 }
 
@@ -136,10 +138,10 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
     CorrectFlower:    taskStore().translations[flowerfeedbackPromptCorrectKey],
   }
   const feedbackAudio = {
-    IncorrectHeart:   mediaAssets.audio[heartFeedbackPromptIncorrectKey],
-    CorrectHeart:     mediaAssets.audio[heartfeedbackPromptCorrectKey],
-    IncorrectFlower:  mediaAssets.audio[flowerFeedbackPromptIncorrectKey],
-    CorrectFlower:    mediaAssets.audio[flowerfeedbackPromptCorrectKey],
+    IncorrectHeart:   heartFeedbackPromptIncorrectKey,
+    CorrectHeart:     heartfeedbackPromptCorrectKey,
+    IncorrectFlower:  flowerFeedbackPromptIncorrectKey,
+    CorrectFlower:    flowerfeedbackPromptCorrectKey,
   }
   Object.entries(feedbackTexts).forEach(([key, value]) => {
     if (!value) {
@@ -155,15 +157,19 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
   });
   const replayButtonHtmlId = 'replay-btn-revisited';
 
+  const heartsKey = taskStore().stimulus === StimulusType.Heart ? 'Heart' : 'Flower';
+  const correctKey = taskStore().isCorrect === false ? 'Incorrect' : 'Correct';
+  const audioAssetKey = feedbackAudio[`${correctKey}${heartsKey}`];
+
   const trial = {
     type: jsPsychAudioMultiResponse,
     stimulus: () => {
-      const stimulusType = taskStore().stimulus;
-      const incorrect = taskStore().isCorrect === false
-      const audioPrompt = stimulusType === StimulusType.Heart ?
-          incorrect? feedbackAudio.IncorrectHeart : feedbackAudio.CorrectHeart
-          : incorrect? feedbackAudio.IncorrectFlower : feedbackAudio.CorrectFlower;
-      return audioPrompt;
+      // const stimulusType = taskStore().stimulus;
+      // const incorrect = taskStore().isCorrect === false
+      // const audioPrompt = stimulusType === StimulusType.Heart ?
+      //     incorrect? feedbackAudio.IncorrectHeart : feedbackAudio.CorrectHeart
+      //     : incorrect? feedbackAudio.IncorrectFlower : feedbackAudio.CorrectFlower;
+      return mediaAssets.audio[audioAssetKey];
     },
     prompt: () => {
       const stimulusType = taskStore().stimulus;
@@ -209,6 +215,7 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
           button.disabled = true;
         }
       });
+      setupReplayAudio(audioAssetKey);
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
     keyboard_choices: () => {
@@ -268,6 +275,6 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
       }
     },
   };
-  overrideAudioTrialForReplayableAudio(trial, jsPsych.pluginAPI, replayButtonHtmlId);
+  // overrideAudioTrialForReplayableAudio(trial, jsPsych.pluginAPI, replayButtonHtmlId);
   return trial;
 };
