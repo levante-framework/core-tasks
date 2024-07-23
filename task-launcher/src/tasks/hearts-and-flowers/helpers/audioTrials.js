@@ -1,4 +1,5 @@
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
+import { setupReplayAudio } from '../../shared/helpers';
 
 export const replayButtonSvg =
   `<svg xmlns="http://www.w3.org/2000/svg" width="44" height="38" viewBox="0 0 44 38" fill="none">
@@ -13,7 +14,7 @@ export const replayButtonSvg =
  * @param jsPsychPluginApi the jsPsych pluginApi from which to retrieve the audio context and audio buffer
  * @param replayButtonHtmlId the html id of the replay button
  */
-export function overrideAudioTrialForReplayableAudio(trial, jsPsychPluginApi, replayButtonHtmlId) {
+export function overrideAudioTrialForReplayableAudio(trial, jsPsychPluginApi, replayButtonHtmlId, promptAudioKey) {
   if (trial.type !== jsPsychAudioMultiResponse) {
     throw new Error(`Expected jsPsychAudioTrial to be of type jsPsychAudioMultiResponse but got ${trial.type}`);
   }
@@ -58,21 +59,23 @@ export function overrideAudioTrialForReplayableAudio(trial, jsPsychPluginApi, re
     },
   };
   trial.on_load = (_) => {
-    if (trial.audioReplayOverrides.originalOnLoad) {
-      trial.audioReplayOverrides.originalOnLoad(_);
-    }
+    // if (trial.audioReplayOverrides.originalOnLoad) {
+    //   trial.audioReplayOverrides.originalOnLoad(_);
+    // }
 
-    const replayBtn = document.getElementById(replayButtonHtmlId);
-    replayBtn.addEventListener('click', trial.audioReplayOverrides.replayAudioAsyncFunction);
+    setupReplayAudio(promptAudioKey);
+
+    // const replayBtn = document.getElementById(replayButtonHtmlId);
+    // replayBtn.addEventListener('click', trial.audioReplayOverrides.replayAudioAsyncFunction);
   };
   trial.on_finish = (_) => {
-    if (trial.audioReplayOverrides.originalOnFinish) {
-      trial.audioReplayOverrides.originalOnFinish(_);
-    }
+    // if (trial.audioReplayOverrides.originalOnFinish) {
+    //   trial.audioReplayOverrides.originalOnFinish(_);
+    // }
 
-    if (trial.audioReplayOverrides.audioReplaySource) {
-      trial.audioReplayOverrides.audioReplaySource.stop();
-    }
+    // if (trial.audioReplayOverrides.audioReplaySource) {
+    //   trial.audioReplayOverrides.audioReplaySource.stop();
+    // }
     //TODO: check that memory is not steadily increasing throughout experiment, which
     // would indicate that audio buffer or other objects are not being released properly
   };
