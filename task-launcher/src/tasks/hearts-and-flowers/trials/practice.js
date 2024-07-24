@@ -8,8 +8,8 @@ import {
   getCorrectInputSide,
   getStimulusLayout
 } from '../helpers/utils';
-import { replayButtonSvg, overrideAudioTrialForReplayableAudio } from '../helpers/audioTrials';
-import { setupReplayAudio, taskStore } from '../../shared/helpers';
+// import { replayButtonSvg, overrideAudioTrialForReplayableAudio } from '../helpers/audioTrials';
+import { replayButtonSvg, setupReplayAudio, taskStore } from '../../shared/helpers';
 
 /**
  * Builds a practice trial for the Instruction sections.
@@ -159,16 +159,19 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
 
   const heartsKey = taskStore().stimulus === StimulusType.Heart ? 'Heart' : 'Flower';
   const correctKey = taskStore().isCorrect === false ? 'Incorrect' : 'Correct';
+  console.log('mark://', 'keys', {heartsKey, correctKey})
   const audioAssetKey = feedbackAudio[`${correctKey}${heartsKey}`];
 
   const trial = {
     type: jsPsychAudioMultiResponse,
     stimulus: () => {
-      // const stimulusType = taskStore().stimulus;
-      // const incorrect = taskStore().isCorrect === false
-      // const audioPrompt = stimulusType === StimulusType.Heart ?
-      //     incorrect? feedbackAudio.IncorrectHeart : feedbackAudio.CorrectHeart
-      //     : incorrect? feedbackAudio.IncorrectFlower : feedbackAudio.CorrectFlower;
+      const stimulusType = taskStore().stimulus;
+      const incorrect = taskStore().isCorrect === false
+      const audioPrompt = stimulusType === StimulusType.Heart ?
+          incorrect? feedbackAudio.IncorrectHeart : feedbackAudio.CorrectHeart
+          : incorrect? feedbackAudio.IncorrectFlower : feedbackAudio.CorrectFlower;
+
+      console.log('mark://', 'prompt', {audioPrompt});
       return mediaAssets.audio[audioAssetKey];
     },
     prompt: () => {

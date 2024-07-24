@@ -1,9 +1,7 @@
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
 import { mediaAssets } from '../../..';
-import { jsPsych, isTouchScreen} from '../../taskSetup';
 import { InputKey } from '../helpers/utils';
-import { replayButtonSvg, overrideAudioTrialForReplayableAudio } from '../helpers/audioTrials';
-import { setupReplayAudio, taskStore } from '../../shared/helpers'; 
+import { setupReplayAudio, taskStore, replayButtonSvg } from '../../shared/helpers'; 
 
 // These are the instruction "trials" they are full screen with no stimulus
 
