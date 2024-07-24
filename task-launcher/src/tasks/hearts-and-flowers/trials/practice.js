@@ -251,7 +251,7 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
       }
     },
     trial_ends_after_audio: () => {
-      // when showing correct feedback, the trial should end with the end of the audio
+      // always end practice trial after audio regardless of response
       return true;
     },
     on_finish: (data) => {
