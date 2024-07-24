@@ -24,29 +24,11 @@ import {
 } from './trials/instructions';
 import { StimulusType, StimulusSideType, AssessmentStageType } from './helpers/utils';
 
-// export let cat;
-// export let cat2;
-
 export default function buildHeartsAndFlowersTimeline(config, mediaAssets) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
 
   initTrialSaving(config);
   const initialTimeline = initTimeline(config);
-
-  //   cat = new Cat({
-  //     method: 'MLE',
-  //     minTheta: -6,
-  //     maxTheta: 6,
-  //     itemSelect: taskStore().itemSelect,
-  //   });
-
-  //   // Include new items in thetaEstimate
-  //   cat2 = new Cat({
-  //     method: 'MLE',
-  //     minTheta: -6,
-  //     maxTheta: 6,
-  //     itemSelect: taskStore().itemSelect,
-  //   });
 
   // TODO: parse from user input
   const timelineAdminConfig = {
@@ -72,9 +54,6 @@ export default function buildHeartsAndFlowersTimeline(config, mediaAssets) {
       interStimulusInterval: 500,
     },
     mixed2: {
-      // 2nd block of mixed trials does not repeat instructions nor practice sections
-      // practiceTrialCount: 6,
-      // correctPracticeTrial: 2,
       testTrialCount: 16,
       stimulusPresentationTime: 1500,
       interStimulusInterval: 500,
