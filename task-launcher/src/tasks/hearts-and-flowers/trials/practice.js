@@ -8,13 +8,10 @@ import {
   getCorrectInputSide,
   getStimulusLayout
 } from '../helpers/utils';
-<<<<<<< HEAD
 // import { replayButtonSvg, overrideAudioTrialForReplayableAudio } from '../helpers/audioTrials';
 import { replayButtonSvg, setupReplayAudio, taskStore } from '../../shared/helpers';
-=======
 import { overrideAudioTrialForReplayableAudio } from '../helpers/audioTrials';
 import { taskStore } from '../../shared/helpers';
->>>>>>> main
 
 /**
  * Builds a practice trial for the Instruction sections.
