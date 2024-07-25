@@ -183,11 +183,11 @@ function getHeartOrFlowerInstructionsSection(adminConfig, stimulusType) {
   // Instruction practice trials do not advance until user gets it right
   subtimeline.push({
     timeline: [instructionPractice1, instructionPracticeFeedback],
-    loop_function: (data) => taskStore().correct === false,
+    loop_function: () => taskStore().isCorrect === false,
   });
   subtimeline.push({
     timeline: [instructionPractice2, instructionPracticeFeedback],
-    loop_function: (data) => taskStore().correct === false,
+    loop_function: () => taskStore().isCorrect === false,
   });
 
   return subtimeline;
@@ -307,11 +307,11 @@ function getMixedInstructionsSection(adminConfig) {
   // Instruction practice trials do not advance until user gets it right
   subtimeline.push({
     timeline: [instructionPractice1, instructionPracticeFeedback],
-    loop_function: (data) => taskStore().correct === false,
+    loop_function: (data) => taskStore().isCorrect === false,
   });
   subtimeline.push({
     timeline: [instructionPractice2, instructionPracticeFeedback],
-    loop_function: (data) => taskStore().correct === false,
+    loop_function: (data) => taskStore().isCorrect === false,
   });
 
   return subtimeline;
