@@ -127,11 +127,9 @@ function buildInstructionTrial(mascotImage, promptAudioKey, promptText, buttonTe
         ${buttonText.trim()}
       </button>`,],
     on_load: () => {
-      console.log('mark://', 'audioKey Onload', promptAudioKey);
       setupReplayAudio(promptAudioKey);
     }
 
   };
-  // overrideAudioTrialForReplayableAudio(trial, jsPsych.pluginAPI, replayButtonHtmlId, promptAudioKey);
   return trial;
 }
