@@ -8,8 +8,13 @@ import {
   getCorrectInputSide,
   getStimulusLayout
 } from '../helpers/utils';
+<<<<<<< HEAD
 // import { replayButtonSvg, overrideAudioTrialForReplayableAudio } from '../helpers/audioTrials';
 import { replayButtonSvg, setupReplayAudio, taskStore } from '../../shared/helpers';
+=======
+import { overrideAudioTrialForReplayableAudio } from '../helpers/audioTrials';
+import { taskStore } from '../../shared/helpers';
+>>>>>>> main
 
 /**
  * Builds a practice trial for the Instruction sections.
@@ -155,7 +160,6 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
       console.error(`buildPracticeFeedback: Missing feedback audio for ${key}`);
     }
   });
-  const replayButtonHtmlId = 'replay-btn-revisited';
 
   const heartsKey = taskStore().stimulus === StimulusType.Heart ? 'Heart' : 'Flower';
   const correctKey = taskStore().isCorrect === false ? 'Incorrect' : 'Correct';
@@ -183,9 +187,6 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
         const correctPrompt = StimulusType.Heart ? feedbackTexts.CorrectHeart : feedbackTexts.CorrectFlower;
         //TODO: consider removing the replay button from the correct feedback once we separate the correct and incorrect feedback
         return `
-          <button class="replay" id='${replayButtonHtmlId}'>
-            ${replayButtonSvg}
-          </button>
           <div class='haf-cr-container'>
             <img src='${mediaAssets.images.smilingFace}' />
             <p class='lev-text h4 primary'>${correctPrompt}</p>
@@ -201,7 +202,7 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
         imageSrc,
         taskStore().stimulusSide === StimulusSideType.Left,
         promptText,
-        replayButtonHtmlId,
+        false,
       )
     },
     prompt_above_buttons: true,
@@ -265,12 +266,8 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
       }
     },
     trial_ends_after_audio: () => {
-      // when showing correct feedback, the trial should end with the end of the audio
-      return taskStore().isCorrect === true ? true : false;
-    },
-    response_ends_trial: () => {
-      // when showing incorrect feedback, the trial should only end with response
-      return taskStore().isCorrect === false ? true : false;
+      // always end practice trial after audio regardless of response
+      return true;
     },
     on_finish: (data) => {
       if (onFinishTimelineCallback) {
@@ -278,6 +275,5 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
       }
     },
   };
-  // overrideAudioTrialForReplayableAudio(trial, jsPsych.pluginAPI, replayButtonHtmlId);
   return trial;
 };
