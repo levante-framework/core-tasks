@@ -3,12 +3,31 @@ import _shuffle from 'lodash/shuffle';
 import _toNumber from 'lodash/toNumber';
 import { jsPsych, isTouchScreen } from '../../taskSetup';
 import { camelize } from '@bdelab/roar-utils';
-import { arrowKeyEmojis, isPractice, setSkipCurrentBlock, taskStore } from '../../shared/helpers';
+import { arrowKeyEmojis, isPractice, setSkipCurrentBlock, taskStore, replayButtonSvg, setupReplayAudio, PageAudioHandler } from '../../shared/helpers';
 import { mediaAssets } from '../../..';
 
 let chosenAnswer,
   sliderStart,
   keyboardResponseMap = {};
+
+  function setUpAudio(contentWrapper, prompt, responseType) {
+    // add replay button
+    const replayButton = document.createElement('button'); 
+    replayButton.innerHTML = replayButtonSvg;
+    replayButton.id = 'replay-btn-revisited';
+    replayButton.classList.add('replay'); 
+    replayButton.disabled = true;
+    contentWrapper.insertBefore(replayButton, prompt);
+  
+    const cue = responseType === 'button' ? 'numberLinePrompt1' : 'numberLineSliderPrompt1';
+  
+    const audioFile = mediaAssets.audio[cue] || '';
+    // Returns a promise of the AudioBuffer of the preloaded file path.
+    PageAudioHandler.playAudio(audioFile, () => {
+      // set up replay button audio after the first audio has played
+      setupReplayAudio(cue);
+    });  
+  }
 
 function captureValue(btnElement, event) {
   let containerEl = document.getElementById('slider-btn-container') || null;
@@ -211,6 +230,14 @@ export const slider = {
     wrapper.appendChild(buttonContainer);
 
     // play audio cue
+    const contentWrapper = document.getElementById('jspsych-content'); 
+    const prompt = document.getElementById('jspsych-html-slider-response-wrapper'); 
+    const stimulus = taskStore().nextStimulus; 
+    const responseType = stimulus.trialType.includes('4afc') ? 'button' : 'slider';
+
+    setUpAudio(contentWrapper, prompt, responseType)
+
+    /*
     async function playAudioCue() {
       let audioSource
 
@@ -232,7 +259,7 @@ export const slider = {
     }
 
     playAudioCue();
-
+    */
   },
   on_finish: (data) => {
     // Need to remove event listener after trial completion or they will stack and cause an error.
