@@ -1,6 +1,6 @@
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
 import { mediaAssets } from '../../..';
-import { jsPsych, isTouchScreen } from '../../taskSetup';
+import { isTouchScreen } from '../../taskSetup';
 import {
   StimulusType,
   StimulusSideType,
@@ -8,8 +8,7 @@ import {
   getCorrectInputSide,
   getStimulusLayout
 } from '../helpers/utils';
-import { overrideAudioTrialForReplayableAudio } from '../helpers/audioTrials';
-import { taskStore } from '../../shared/helpers';
+import { setupReplayAudio, taskStore } from '../../shared/helpers';
 
 /**
  * Builds a practice trial for the Instruction sections.
@@ -18,7 +17,7 @@ import { taskStore } from '../../shared/helpers';
  * @param {*} promptAudioAsset
  * @param {*} stimulusSideType
  */
-export function buildInstructionPracticeTrial(stimulusType, promptText, promptAudioAsset, stimulusSideType) {
+export function buildInstructionPracticeTrial(stimulusType, promptText, promptAudioAsset, stimulusSideType, audioAssetKey) {
   if (!promptAudioAsset) {
     // throw new Error(`Missing prompt audio for instruction practice trial`);
     console.error(`buildInstructionPracticeTrial: Missing prompt audio`);
@@ -58,6 +57,8 @@ export function buildInstructionPracticeTrial(stimulusType, promptText, promptAu
       }
       buttons[validAnswer].style.animation = 'pulse 2s infinite';
 
+      setupReplayAudio(audioAssetKey);
+
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
     keyboard_choices: isTouchScreen? InputKey.NoKeys : [InputKey.ArrowLeft, InputKey.ArrowRight],
@@ -89,7 +90,6 @@ export function buildInstructionPracticeTrial(stimulusType, promptText, promptAu
     },
     // TODO handle stimulus presentation timeout and other parameters
   }
-  overrideAudioTrialForReplayableAudio(trial, jsPsych.pluginAPI, replayButtonHtmlId);
   return trial;
 }
 
@@ -113,16 +113,6 @@ export function buildMixedPracticeFeedback(heartFeedbackPromptIncorrectKey, hear
   return buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPromptCorrectKey, flowerFeedbackPromptIncorrectKey, flowerfeedbackPromptCorrectKey, onFinishTimelineCallback)
 }
 
-//TODO: rely on previous trial data instead of singleton store to pass stimulus type, side and correct answer.
-/*
- * Relying on singleton for storing state is likely a bad pattern: it introduces risk of reading an outdated state
- * in the event the previous trial forgets to update it. And it will make debugging and unit testing difficult.
- * I recommend managing state as objects that are passed around and flow along the control flow of your app.
- * Ideally you make these state objects immutable and updating them means creating a new copy. This allows you to enforce
- * mutation of your state in more strict and predictable manner.
- * You may also want state objects to be as lean as possible (don't store binaries, or large objects, or functions in them)
- * ideally they should be serializable to JSON to make debugging and unit testing easier.
- */
 /**
  * Builds a feedback trial for instructions practice trials and practice trials.
  */
@@ -136,10 +126,10 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
     CorrectFlower:    taskStore().translations[flowerfeedbackPromptCorrectKey],
   }
   const feedbackAudio = {
-    IncorrectHeart:   mediaAssets.audio[heartFeedbackPromptIncorrectKey],
-    CorrectHeart:     mediaAssets.audio[heartfeedbackPromptCorrectKey],
-    IncorrectFlower:  mediaAssets.audio[flowerFeedbackPromptIncorrectKey],
-    CorrectFlower:    mediaAssets.audio[flowerfeedbackPromptCorrectKey],
+    IncorrectHeart:   heartFeedbackPromptIncorrectKey,
+    CorrectHeart:     heartfeedbackPromptCorrectKey,
+    IncorrectFlower:  flowerFeedbackPromptIncorrectKey,
+    CorrectFlower:    flowerfeedbackPromptCorrectKey,
   }
   Object.entries(feedbackTexts).forEach(([key, value]) => {
     if (!value) {
@@ -154,15 +144,17 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
     }
   });
 
+  function getAssetKey() {
+    const heartsKey = taskStore().stimulus === StimulusType.Heart ? 'Heart' : 'Flower';
+    const correctKey = taskStore().isCorrect === false ? 'Incorrect' : 'Correct';
+    return feedbackAudio[`${correctKey}${heartsKey}`];
+  }
+
   const trial = {
     type: jsPsychAudioMultiResponse,
     stimulus: () => {
-      const stimulusType = taskStore().stimulus;
-      const incorrect = taskStore().isCorrect === false
-      const audioPrompt = stimulusType === StimulusType.Heart ?
-          incorrect? feedbackAudio.IncorrectHeart : feedbackAudio.CorrectHeart
-          : incorrect? feedbackAudio.IncorrectFlower : feedbackAudio.CorrectFlower;
-      return audioPrompt;
+      const audioAssetKey = getAssetKey();
+      return mediaAssets.audio[audioAssetKey];
     },
     prompt: () => {
       const stimulusType = taskStore().stimulus;
@@ -171,7 +163,6 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
       // moving them to separate trials and using conditional trials
       if (!incorrect) {
         const correctPrompt = StimulusType.Heart ? feedbackTexts.CorrectHeart : feedbackTexts.CorrectFlower;
-        //TODO: consider removing the replay button from the correct feedback once we separate the correct and incorrect feedback
         return `
           <div class='haf-cr-container'>
             <img src='${mediaAssets.images.smilingFace}' />
@@ -205,6 +196,8 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
           button.disabled = true;
         }
       });
+      const audioAssetKey = getAssetKey();
+      setupReplayAudio(audioAssetKey);
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
     keyboard_choices: () => {

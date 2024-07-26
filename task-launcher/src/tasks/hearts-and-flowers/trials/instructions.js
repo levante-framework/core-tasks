@@ -1,16 +1,14 @@
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
 import { mediaAssets } from '../../..';
-import { jsPsych, isTouchScreen} from '../../taskSetup';
 import { InputKey } from '../helpers/utils';
-import { replayButtonSvg, overrideAudioTrialForReplayableAudio } from '../helpers/audioTrials';
-import { taskStore } from '../../shared/helpers'; 
+import { setupReplayAudio, taskStore, replayButtonSvg } from '../../shared/helpers'; 
 
 // These are the instruction "trials" they are full screen with no stimulus
 
 export function getHeartInstructions() {
   return buildInstructionTrial(
     mediaAssets.images.animalWhole,
-    mediaAssets.audio.heartInstruct1,
+    'heartInstruct1',
     taskStore().translations.heartInstruct1, // heart-instruct1, "This is the heart game. Here's how you play it."
     taskStore().translations.continueButtonText,
     //bottomText left undefined
@@ -20,7 +18,7 @@ export function getHeartInstructions() {
 export function getFlowerInstructions() {
   return buildInstructionTrial(
     mediaAssets.images.animalWhole,
-    mediaAssets.audio.flowerInstruct1,
+    'flowerInstruct1',
     taskStore().translations.flowerInstruct1, // flower-instruct1, "This is the flower game. Here's how you play."
     taskStore().translations.continueButtonText,
     //bottomText left undefined
@@ -30,7 +28,7 @@ export function getFlowerInstructions() {
 export function getTimeToPractice() {
   return buildInstructionTrial(
     mediaAssets.images.animalWhole,
-    mediaAssets.audio.heartsAndFlowersPracticeTime,
+    'heartsAndFlowersPracticeTime',
     taskStore().translations.heartsAndFlowersPracticeTime, // hearts-and-flowers-practice-time: "Time to practice!"
     taskStore().translations.continueButtonText,
     //bottomText left undefined
@@ -40,7 +38,7 @@ export function getTimeToPractice() {
 export function getKeepUp() {
   return buildInstructionTrial(
     mediaAssets.images.keepup,
-    mediaAssets.audio.heartsAndFlowersInstruct1,
+    'heartsAndFlowersInstruct1',
     taskStore().translations.heartsAndFlowersInstruct1, // hearts-and-flowers-instruct1:	"This time the game will go faster. It won't tell you if you are right or wrong."
     taskStore().translations.continueButtonText,
     //taskStore().translations.heartsAndFlowersEncourage1,//Try to keep up!
@@ -50,7 +48,7 @@ export function getKeepUp() {
 export function getKeepGoing() {
   return buildInstructionTrial(
     mediaAssets.images.rocket,
-    mediaAssets.audio.heartsAndFlowersInstruct2,
+    'heartsAndFlowersInstruct2',
     taskStore().translations.heartsAndFlowersInstruct2, //hearts-and-flowers-instruct2: "Try to answer as fast as you can without making mistakes."
     taskStore().translations.continueButtonText,
     //taskStore().translations.heartsAndFlowersEncourage2,// If you make a mistake, just keep going!
@@ -60,7 +58,7 @@ export function getKeepGoing() {
 export function getTimeToPlay() {
   return buildInstructionTrial(
     mediaAssets.images.animalWhole,
-    mediaAssets.audio.heartsAndFlowersPlayTime,
+    'heartsAndFlowersPlayTime',
     taskStore().translations.heartsAndFlowersPlayTime, // hearts-and-flowers-play-time: "Time to play!"
     taskStore().translations.continueButtonText,
     //bottomText left undefined
@@ -70,7 +68,7 @@ export function getTimeToPlay() {
 export function getMixedInstructions() {
   return buildInstructionTrial(
     mediaAssets.images.animalWhole,
-    mediaAssets.audio.heartsAndFlowersInstruct3,
+    'heartsAndFlowersInstruct3',
     taskStore().translations.heartsAndFlowersInstruct3, // hearts-and-flowers-instruct3: "Now, we're going to play a game with hearts and flowers."
     taskStore().translations.continueButtonText,
     //bottomText left undefined
@@ -80,19 +78,19 @@ export function getMixedInstructions() {
 export function getEndGame() {
   return buildInstructionTrial(
     mediaAssets.images.animalWhole,
-    mediaAssets.audio.heartsAndFlowersEnd,
+    'heartsAndFlowersEnd',
     taskStore().translations.heartsAndFlowersEnd, // hearts-and-flowers-end: "Great job! You've completed the game."
     taskStore().translations.continueButtonText,
     //bottomText left undefined
   );
 }
 
-function buildInstructionTrial(mascotImage, promptAudio, promptText, buttonText, bottomText=undefined) {
+function buildInstructionTrial(mascotImage, promptAudioKey, promptText, buttonText, bottomText=undefined) {
   if (!mascotImage) {
     // throw new Error(`Missing mascot image for instruction trial`);
     console.error(`buildInstructionTrial: Missing mascot image`);
   }
-  if (!promptAudio) {
+  if (!promptAudioKey) {
     // throw new Error(`Missing prompt audio for instruction trial`);
     console.error(`buildInstructionTrial: Missing prompt audio`);
   }
@@ -103,7 +101,7 @@ function buildInstructionTrial(mascotImage, promptAudio, promptText, buttonText,
   const replayButtonHtmlId = 'replay-btn-revisited';
   const trial = {
     type: jsPsychAudioMultiResponse,
-    stimulus: promptAudio,
+    stimulus: mediaAssets.audio[promptAudioKey],
     prompt:
       `<div class="haf-stimulus-holder">
         <div class="lev-row-container header">
@@ -128,7 +126,10 @@ function buildInstructionTrial(mascotImage, promptAudio, promptText, buttonText,
       `<button class='primary'>
         ${buttonText.trim()}
       </button>`,],
+    on_load: () => {
+      setupReplayAudio(promptAudioKey);
+    }
+
   };
-  overrideAudioTrialForReplayableAudio(trial, jsPsych.pluginAPI, replayButtonHtmlId);
   return trial;
 }
