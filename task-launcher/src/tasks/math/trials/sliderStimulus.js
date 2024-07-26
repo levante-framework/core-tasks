@@ -216,7 +216,9 @@ export const slider = {
 
       const jsPsychAudioCtx = jsPsych.pluginAPI.audioContext();
 
-      const cue = 'numberLinePrompt1'; 
+      const stimulus = taskStore().nextStimulus;
+
+      const cue = (stimulus.trialType === 'Number Line 4afc') ? 'numberLinePrompt1' : 'numberLineSliderPrompt1'; 
 
       // Returns a promise of the AudioBuffer of the preloaded file path.
       const audioBuffer = await jsPsych
