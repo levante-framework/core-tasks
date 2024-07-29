@@ -46,7 +46,7 @@ function getStimulus(trialType) {
   if (!mediaAssets.audio[camelize(stim.audioFile)]) return mediaAssets.audio.nullAudio;
   // all tasks should have the replay button play whatever is in stim.audioFile (might be just prompt/instructions)
 
-  if (stim.task === 'Mental Rotation' && stim.notes !== 'practice' && stim.trialType !== 'instructions') {
+  if ((stim.task === 'Mental Rotation' || stim.task === 'Matrix Reasoning') && stim.notes !== 'practice' && stim.trialType !== 'instructions') {
     return mediaAssets.audio.nullAudio;
   }
 
