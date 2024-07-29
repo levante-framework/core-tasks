@@ -9,6 +9,7 @@ import {
   exitFullscreen, 
   setupStimulus,
   taskFinished,
+  getAudioResponse
 } from '../shared/trials';
 
 export default function buildMatrixTimeline(config, mediaAssets) {
@@ -22,6 +23,18 @@ export default function buildMatrixTimeline(config, mediaAssets) {
     responseAllowed: true,
     promptAboveButtons: true,
     task: config.task,
+  };
+
+  const ifRealTrialResponse = {
+    timeline: [getAudioResponse(mediaAssets)],
+
+    conditional_function: () => {
+      const stim = taskStore().nextStimulus;
+      if (stim.notes === 'practice' || stim.trialType === 'instructions') {
+        return false;
+      }
+      return true;
+    },
   };
 
   const stimulusBlock = {
@@ -45,6 +58,7 @@ export default function buildMatrixTimeline(config, mediaAssets) {
   for (let i = 0; i < numOfTrials; i++) {
     timeline.push(setupStimulus);
     timeline.push(stimulusBlock);
+    timeline.push(ifRealTrialResponse); 
   }
 
   initializeCat();
