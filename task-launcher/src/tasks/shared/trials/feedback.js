@@ -18,6 +18,19 @@ export const feedback = (isPractice = false) => {
                 prompt: () => {
                     const t = taskStore().translations;
                     const isCorrect = taskStore().isCorrect;
+                    let promptOnIncorrect; // prompt displayed at bottom if incorrect, differs by task
+
+                    switch(taskStore().task) {
+                        case 'same-different-selection': 
+                            promptOnIncorrect = 'Choose a shape that is the same.';
+                            break; 
+                        case 'memory-game': 
+                            promptOnIncorrect = t.memoryGameForwardPrompt;
+                            break; 
+                        default: 
+                            promptOnIncorrect = '';
+                    }
+
                     return (
                         `<div id='stimulus-container'>
                             <div id='prompt-container-text'>
@@ -29,7 +42,7 @@ export const feedback = (isPractice = false) => {
 
                             ${isCorrect ? '' :
                              `<div id='prompt-container-text'>
-                                <footer id='prompt'>${t.memoryGameForwardPrompt}</footer>
+                                <footer id='prompt'>${promptOnIncorrect}</footer>
                               </div>`
                             }
                         </div>`
