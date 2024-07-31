@@ -1,9 +1,4 @@
-<<<<<<< HEAD
-import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response'
-=======
-import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
->>>>>>> cec962e (add audio to feedback (need feedbackCorrect audio file in task bucket))
 import { mediaAssets } from '../../..';
 import { taskStore } from '../helpers';
 import { camelize } from '@bdelab/roar-utils';
@@ -80,7 +75,7 @@ export const feedback = (isPractice = false) => {
                 stimulus: () => {
                     const isCorrect = taskStore().isCorrect;
                     return (
-                        isCorrect ? mediaAssets.audio.feedbackCorrect : mediaAssets.audio.memoryGameForwardPrompt
+                        isCorrect ? mediaAssets.audio.feedbackCorrect : mediaAssets.audio.feedbackTryAgain
                     )
                 },
                 prompt: () => {
