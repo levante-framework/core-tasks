@@ -32,16 +32,11 @@ export const stimulus = {
     const t = taskStore().translations;
     return (
       `<div id='stimulus-container'>
-<<<<<<< HEAD
-        <button id="replay-btn-revisited" class="replay">
-          ${replayButtonSvg}
-=======
         <button
             id="${replayButtonHtmlId}"
             class="replay"
         >
             ${replayButtonSvg}
->>>>>>> a30f5ba (update replay button and add feedback to 3rd phase)
         </button>
         <div id='prompt-container-text'>
           <p id='prompt'>${t[prompt]}</p>
