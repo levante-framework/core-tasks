@@ -22,10 +22,12 @@ let chosenAnswer,
     const cue = responseType === 'button' ? 'numberLinePrompt1' : 'numberLineSliderPrompt1';
   
     const audioFile = mediaAssets.audio[cue] || '';
-    // Returns a promise of the AudioBuffer of the preloaded file path.
+    
     PageAudioHandler.playAudio(audioFile, () => {
       // set up replay button audio after the first audio has played
-      setupReplayAudio(cue);
+      if (cue) {
+        setupReplayAudio(cue);
+      }
     });  
   }
 
@@ -237,29 +239,6 @@ export const slider = {
 
     setUpAudio(contentWrapper, prompt, responseType)
 
-    /*
-    async function playAudioCue() {
-      let audioSource
-
-      const jsPsychAudioCtx = jsPsych.pluginAPI.audioContext();
-
-      const stimulus = taskStore().nextStimulus;
-
-      const cue = (stimulus.trialType === 'Number Line 4afc') ? 'numberLinePrompt1' : 'numberLineSliderPrompt1'; 
-
-      // Returns a promise of the AudioBuffer of the preloaded file path.
-      const audioBuffer = await jsPsych
-          .pluginAPI
-          .getAudioBuffer(mediaAssets.audio[cue]);
-
-      audioSource = jsPsychAudioCtx.createBufferSource();
-      audioSource.buffer = audioBuffer;
-      audioSource.connect(jsPsychAudioCtx.destination);
-      audioSource.start(0);
-    }
-
-    playAudioCue();
-    */
   },
   on_finish: (data) => {
     // Need to remove event listener after trial completion or they will stack and cause an error.
