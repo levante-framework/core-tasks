@@ -28,7 +28,7 @@ let keyboardFeedbackHandler;
 const incorrectPracticeResponses = [];
 
 const showStaggeredBtnAndPlaySound = (btn) => {
-  btn.style.display = 'flex';
+  btn.style.visibility = 'visible';
   btn.style.flexDirection = 'column';
   btn.style.alignItems = 'center';
   btn.style.maxWidth = 'none';
@@ -39,8 +39,7 @@ const showStaggeredBtnAndPlaySound = (btn) => {
   }
 }
 
-function getStimulus(trialType) {
-  // ToDo: trialType (audio/html) no longer varies -- remove
+function getStimulus() {
   const stim = taskStore().nextStimulus;
   if (!stim.audioFile) return mediaAssets.audio.nullAudio;
   if (!mediaAssets.audio[camelize(stim.audioFile)]) return mediaAssets.audio.nullAudio;
@@ -270,15 +269,15 @@ function doOnLoad(task) {
   const stim = taskStore().nextStimulus;
   if (task === 'theory-of-mind' && stim.trialType === 'audio_question') {
     const parentResponseDiv = document.getElementById('jspsych-audio-multi-response-btngroup');
-    parentResponseDiv.style.display = 'none';
+    parentResponseDiv.style.visibility = 'hidden';
     let i = 0;
     const intialDelay = 4000;
     for (const jsResponseEl of parentResponseDiv.children) {
-      jsResponseEl.style.display = 'none';
+      jsResponseEl.style.visibility = 'hidden';
       setTimeout(() => showStaggeredBtnAndPlaySound(jsResponseEl), intialDelay + 2000 * i);
       i += 1;
     }
-    parentResponseDiv.style.display = 'flex';
+    parentResponseDiv.style.visibility = 'visible';
     parentResponseDiv.style.flexDirection = 'row';
   }
   const currentTrialIndex = jsPsych.getProgress().current_trial_global;
