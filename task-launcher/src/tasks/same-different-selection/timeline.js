@@ -19,14 +19,14 @@ export default function buildSameDifferentTimeline(config, mediaAssets) {
   initTrialSaving(config);
   const initialTimeline = initTimeline(config);
 
-  const ifRealTrialResponse = {
+  const buttonNoise = {
     timeline: [getAudioResponse(mediaAssets)],
 
     conditional_function: () => {
       const subTask = taskStore().nextStimulus.notes;
       const trialType = taskStore().nextStimulus.trialType;
 
-      if (subTask === 'practice' || trialType === 'something-same-1') {
+      if (trialType === 'something-same-1' || trialType === 'test-dimensions') {
         return false;
       }
       return true;
@@ -61,7 +61,7 @@ export default function buildSameDifferentTimeline(config, mediaAssets) {
   for (let i = 0; i < phase1; i++) {
     timeline.push(setupStimulus)
     timeline.push(stimulusBlock)
-    timeline.push(ifRealTrialResponse) // adds button noise
+    timeline.push(buttonNoise) // adds button noise for appropriate trials
 
     // feedback on the first trial of the 2nd phase - "something's the same"
     if (i === 10){
@@ -72,7 +72,7 @@ export default function buildSameDifferentTimeline(config, mediaAssets) {
   for (let i = 0; i < phase2; i++) {
     timeline.push(setupStimulus)
     timeline.push(afcBlock)
-    timeline.push(ifRealTrialResponse) // adds button noise
+    timeline.push(buttonNoise) // adds button noise for appropriate trials
 
     // feedback on the first trial of the 3rd phase
     if (i < 2){
