@@ -1,7 +1,7 @@
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
 import store from 'store2';
 import { mediaAssets } from '../../..';
-import { PageStateHandler, prepareChoices, replayButtonSvg, setupReplayAudio, taskStore } from '../../shared/helpers';
+import { PageStateHandler, prepareChoices, replayButtonSvg, setupReplayAudio, taskStore, PageAudioHandler } from '../../shared/helpers';
 import { finishExperiment } from '../../shared/trials';
 import { camelize } from '@bdelab/roar-utils';
 import { jsPsych } from '../../taskSetup';
@@ -10,6 +10,39 @@ import { jsPsych } from '../../taskSetup';
 export const numIncorrect = store.page.namespace('numIncorrect', 0);
 
 const replayButtonHtmlId = 'replay-btn-revisited'; 
+let incorrectPracticeResponses = []; 
+
+function enableBtns(btnElements) {
+  btnElements.forEach((btn) => (btn.removeAttribute('disabled')));
+}
+
+function handleButtonFeedback(btn, cards, isKeyBoardResponse, responsevalue) {
+  const choice = btn.parentElement.id; 
+  const answer = taskStore().correctResponseIdx.toString(); 
+
+  const isCorrectChoice = choice.includes(answer); 
+  let feedbackAudio;
+  if (isCorrectChoice) {
+    btn.classList.add('practice-correct');
+    feedbackAudio = mediaAssets.audio.feedbackGoodJob;
+    setTimeout(
+      () => jsPsych.finishTrial({
+        response: choice,
+        incorrectPracticeResponses, 
+        button_response: !isKeyBoardResponse ? responsevalue : null,
+        keyboard_response: isKeyBoardResponse ? responsevalue : null,
+      }),
+      1000,
+    );
+  } else {
+    btn.classList.add('practice-incorrect');
+    feedbackAudio = mediaAssets.audio.feedbackTryAgain;
+    // renable buttons
+    setTimeout(() => enableBtns(cards), 500);
+    incorrectPracticeResponses.push(choice);
+  }
+  PageAudioHandler.playAudio(feedbackAudio);
+}
 
 export const stimulus = {
   type: jsPsychAudioMultiResponse,
@@ -104,10 +137,22 @@ export const stimulus = {
 
     return allButtons;
   },
+  response_ends_trial: () => !(taskStore().nextStimulus.trialType == 'test-dimensions'),
   on_load: () => {
     const audioFile = taskStore().nextStimulus.audioFile;
     const pageStateHandler = new PageStateHandler(audioFile);
     setupReplayAudio(pageStateHandler);
+
+    const trialType = taskStore().nextStimulus.trialType; 
+    const cards = document.querySelectorAll('.base-image-container');  
+     
+    if (trialType == 'test-dimensions'){ // cards should give feedback during test dimensions block
+      cards.forEach((card, i) =>
+        card.addEventListener('click', async (e) => {
+          handleButtonFeedback(card, cards, false, i);
+        })
+      )
+    }
   },
   on_finish: (data) => {
     const stim = taskStore().nextStimulus;
@@ -115,7 +160,14 @@ export const stimulus = {
 
     // Always need to write correct key because of firekit.
     // TODO: Discuss with ROAR team to remove this check
-    const isCorrect = data.button_response === taskStore().correctResponseIdx
+    let isCorrect; 
+    if (stim.trialType == 'test-dimensions'){ // if no incorrect answers were clicked, that trial is correct
+      isCorrect = incorrectPracticeResponses.length == 0; 
+    } else if (stim.trialType != 'something-same-1'){ // isCorrect should be undefined for something-same-1 trials
+      isCorrect = data.button_response === taskStore().correctResponseIdx
+    } 
+
+    incorrectPracticeResponses = []; 
     
     // update task store
     taskStore('isCorrect', isCorrect);
@@ -141,5 +193,5 @@ export const stimulus = {
       corpusTrialType: stim.trialType,
       response: choices[data.button_response],
     });
-  },
+  }
 };
