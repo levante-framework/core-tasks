@@ -28,11 +28,10 @@ let keyboardFeedbackHandler;
 const incorrectPracticeResponses = [];
 
 const showStaggeredBtnAndPlaySound = (btn) => {
-  btn.style.pointerEvents = 'none';
-  btn.style.visibility = 'visible';
-  btn.style.flexDirection = 'column';
-  btn.style.alignItems = 'center';
-  btn.style.maxWidth = 'none';
+  btn.classList.remove(
+    'lev-staggered-grayscale',
+    'lev-staggered-opacity',
+  );
   const img = btn.getElementsByTagName('img')?.[0];
   if (img) {
     const altValue = img.alt;
@@ -46,23 +45,25 @@ const handleStaggeredButtons = (layoutConfig, stim) => {
     && (layoutConfig?.staggered?.trialTypes || []).includes(stim.trialType)
   ) {
       const parentResponseDiv = document.getElementById('jspsych-audio-multi-response-btngroup');
-      parentResponseDiv.style.visibility = 'hidden';
       let i = 0;
       const intialDelay = 4000;
       for (const jsResponseEl of parentResponseDiv.children) {
-        jsResponseEl.style.visibility = 'hidden';
+        jsResponseEl.classList.add(
+          'lev-staggered-responses',
+          'lev-staggered-disabled',
+          'lev-staggered-grayscale',
+          'lev-staggered-opacity',
+        );
         // disable the buttons so that they are not active during the animation
         setTimeout(() => showStaggeredBtnAndPlaySound(jsResponseEl), intialDelay + 2000 * i);
         i += 1;
       }
-      parentResponseDiv.style.visibility = 'visible';
-      parentResponseDiv.style.flexDirection = 'row';
       // Enable the buttons after all the transition is done;
       setTimeout(() => {
         for (const jsResponseEl of parentResponseDiv.children) {
-          jsResponseEl.style.pointerEvents = 'auto';
+          jsResponseEl.classList.remove('lev-staggered-disabled')
         }
-      }, intialDelay + 2000 * i);
+      }, intialDelay + 2000 * (i - 1));
   }
 };
 
