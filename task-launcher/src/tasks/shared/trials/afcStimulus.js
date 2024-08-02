@@ -11,6 +11,7 @@ import {
   setSkipCurrentBlock,
   taskStore,
   PageAudioHandler,
+  PageStateHandler,
 } from '../../shared/helpers';
 import { mediaAssets } from '../../..';
 import _toNumber from 'lodash/toNumber';
@@ -27,7 +28,7 @@ let startTime;
 let keyboardFeedbackHandler;
 const incorrectPracticeResponses = [];
 
-const showStaggeredBtnAndPlaySound = (btn) => {
+const showStaggeredBtnAndPlaySound = (btn, index, parentResponseDiv, pageState) => {
   btn.classList.remove(
     'lev-staggered-grayscale',
     'lev-staggered-opacity',
@@ -35,35 +36,87 @@ const showStaggeredBtnAndPlaySound = (btn) => {
   const img = btn.getElementsByTagName('img')?.[0];
   if (img) {
     const altValue = img.alt;
-    PageAudioHandler.playAudio(mediaAssets.audio[camelize(altValue)]);
+    PageAudioHandler.playAudio(mediaAssets.audio[camelize(altValue)], () => {
+      if (index + 1 === parentResponseDiv?.children?.length) { // Last Element
+        for (const jsResponseEl of parentResponseDiv.children) {
+          jsResponseEl.classList.remove('lev-staggered-disabled');
+        }
+        pageState.enableReplayBtn();
+      }
+    });
   }
 }
 
-const handleStaggeredButtons = (layoutConfig, stim) => {
+const showStaggeredBtnAndPlaySound2 = (
+  index,
+  btnList,
+  pageState,
+) => {
+  const btn = btnList[index];
+  btn.classList.remove(
+    'lev-staggered-grayscale',
+    'lev-staggered-opacity',
+  );
+  const img = btn.getElementsByTagName('img')?.[0];
+  if (img) {
+    const altValue = img.alt;
+    PageAudioHandler.playAudio(mediaAssets.audio[camelize(altValue)], () => {
+      if (index + 1 === btnList?.length) { // Last Element
+        for (const jsResponseEl of btnList) {
+          jsResponseEl.classList.remove('lev-staggered-disabled');
+        }
+        pageState.enableReplayBtn();
+      } else { //recurse
+        showStaggeredBtnAndPlaySound2(index + 1, btnList, pageState);
+      }
+    });
+  }
+};
+
+const handleStaggeredButtons = async (layoutConfig, stim, pageState) => {
   if (
     !!layoutConfig?.staggered?.enabled
     && (layoutConfig?.staggered?.trialTypes || []).includes(stim.trialType)
   ) {
       const parentResponseDiv = document.getElementById('jspsych-audio-multi-response-btngroup');
       let i = 0;
-      const intialDelay = 4000;
+      const stimulusDuration = await pageState.getStimulusDurationMs();
+      const intialDelay = stimulusDuration + 300;
+
+      // Disable the replay button till this animation is finished
+      setTimeout(() => {
+        pageState.disableReplayBtn();
+      }, stimulusDuration + 110);
+
       for (const jsResponseEl of parentResponseDiv.children) {
+        // disable the buttons so that they are not active during the animation
         jsResponseEl.classList.add(
           'lev-staggered-responses',
           'lev-staggered-disabled',
           'lev-staggered-grayscale',
           'lev-staggered-opacity',
         );
-        // disable the buttons so that they are not active during the animation
-        setTimeout(() => showStaggeredBtnAndPlaySound(jsResponseEl), intialDelay + 2000 * i);
-        i += 1;
+        // setTimeout(
+        //   function(index) {
+        //     showStaggeredBtnAndPlaySound(
+        //       jsResponseEl,
+        //       index,
+        //       parentResponseDiv,
+        //       pageState,
+        //     );
+        //   }.bind(this, i),
+        //   intialDelay + 2000 * i
+        // );
+        // i += 1;
       }
-      // Enable the buttons after all the transition is done;
       setTimeout(() => {
-        for (const jsResponseEl of parentResponseDiv.children) {
-          jsResponseEl.classList.remove('lev-staggered-disabled')
-        }
-      }, intialDelay + 2000 * (i - 1));
+        showStaggeredBtnAndPlaySound2(
+          0,
+          Array.from(parentResponseDiv?.children),
+          pageState,
+        );
+      }, intialDelay);
+      
   }
 };
 
@@ -295,8 +348,9 @@ function doOnLoad(task, layoutConfig) {
   startTime = performance.now();
 
   const stim = taskStore().nextStimulus;
+  const pageStateHandler = new PageStateHandler(stim.audioFile);
   // Handle the staggered buttons
-  handleStaggeredButtons(layoutConfig, stim);
+  handleStaggeredButtons(layoutConfig, stim, pageStateHandler);
   const currentTrialIndex = jsPsych.getProgress().current_trial_global;
   let twoTrialsAgoIndex = currentTrialIndex - 2;
   if (stim.task === 'math') {
@@ -372,7 +426,7 @@ function doOnLoad(task, layoutConfig) {
     }
   }
 
-  setupReplayAudio(stim.audioFile);
+  setupReplayAudio(stim.audioFile, pageStateHandler);
 }
 
 function doOnFinish(data, task) {
