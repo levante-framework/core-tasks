@@ -1,5 +1,5 @@
 from PIL import Image, ImageDraw
-import math
+from math import cos, sin
 
 def draw_circle(draw, center, radius, color):
     x, y = center
@@ -24,13 +24,13 @@ def draw_star(draw, center, size, color):
     points = []
     for i in range(5):
         angle = i * (2 * 3.14159 / 5) - 3.14159 / 2
-        outer_x = x + half_size * math.cos(angle)
-        outer_y = y + half_size * math.sin(angle)
+        outer_x = x + half_size * cos(angle)
+        outer_y = y + half_size * sin(angle)
         points.append((outer_x, outer_y))
         
         inner_angle = angle + 3.14159 / 5
-        inner_x = x + half_size * 0.5 * math.cos(inner_angle)
-        inner_y = y + half_size * 0.5 * math.sin(inner_angle)
+        inner_x = x + half_size * 0.5 * cos(inner_angle)
+        inner_y = y + half_size * 0.5 * sin(inner_angle)
         points.append((inner_x, inner_y))
     
     draw.polygon(points, fill=color)
@@ -45,15 +45,28 @@ def draw_shape(draw, shape, center, size, color):
     elif shape == 'star':
         draw_star(draw, center, size, color)
 
+def create_striped_background(canvas_size):
+    image = Image.new("RGB", (canvas_size, canvas_size))
+    draw = ImageDraw.Draw(image)
+    for i in range(0, canvas_size, 14):
+        draw.rectangle([i, 0, i + 7, canvas_size], fill="black")
+        draw.rectangle([i + 7, 0, i + 14, canvas_size], fill="white")
+    return image
+
 def save_shape(shape, size, color, cardinality, background_color):
     # Size mapping
-    size_mapping = {35: 'sm', 70: 'med', 105: 'lg'}
+    size_mapping = {30: 'sm', 60: 'med', 100: 'lg'}
     word_size = size_mapping[size]  # Convert size to word label
     color_mapping = {'red': '#D81B60', 'green': '#009E73', 'blue': '#1E88E5', 'yellow': '#FFC107'}  # color-blind friendly
     hex_color = color_mapping[color] # darker green: '#004D40'
 
-    canvas_size = 220
-    image = Image.new("RGB", (canvas_size, canvas_size), background_color)
+    canvas_size = 230
+
+    if background_color == 'striped':
+        image = create_striped_background(canvas_size)
+    else:
+        image = Image.new("RGB", (canvas_size, canvas_size), background_color)
+    
     draw = ImageDraw.Draw(image)
 
     if cardinality in [2, 3, 4]:
@@ -79,14 +92,7 @@ def save_shape(shape, size, color, cardinality, background_color):
         filename = f"{word_size}-{color}-{shape}-{cardinality}"
     else:
         center = (canvas_size // 2, canvas_size // 2)
-        if shape == 'circle':
-            draw_circle(draw, center, size // 2, hex_color)
-        elif shape == 'square':
-            draw_square(draw, center, size, hex_color)
-        elif shape == 'triangle':
-            draw_triangle(draw, center, size, hex_color)
-        elif shape == 'star':
-            draw_star(draw, center, size, hex_color)
+        draw_shape(draw, shape, center, size, hex_color)
         filename = f"{word_size}-{color}-{shape}"
 
     if background_color != 'white':
@@ -96,10 +102,11 @@ def save_shape(shape, size, color, cardinality, background_color):
     image.save(filename, "WEBP")
 
 shapes = ['circle', 'square', 'triangle', 'star']
-sizes = [35, 70, 105]
+sizes = [30, 60, 100] # 'sm', 'med', 'lg' # was [35, 70, 105]; making a larger difference between med and lg
 colors = ['red', 'green', 'blue', 'yellow']
-cardinalities = [1, 2, 3, 4]
-background_colors = ['white', 'black', 'gray']
+cardinalities = [1, 2, 3, 4] # 'default' is 1
+background_colors = ['white', 'black', 'gray', 'striped'] # 'default' is 'white'
+# default example: 'sm-red-square' is a file with 1 small red square on a white background
 
 for shape in shapes:
     for size in sizes:
