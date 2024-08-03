@@ -22,6 +22,12 @@ export default function buildTOMTimeline(config, mediaAssets) {
     responseAllowed: true,
     promptAboveButtons: true,
     task: config.task,
+    layoutConfig: {
+      staggered: {
+        enabled: true,
+        trialTypes: ['audio_question', 'emotion_reasoning_question'],
+      }
+    }
   };
 
   const stimulusBlock = {

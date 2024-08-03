@@ -24,3 +24,4 @@ export { setupReplayAudio } from './replayAudio';
 export * from './loadingScreen';
 export * from './setSkipCurrentBlock'
 export { PageAudioHandler } from './audioHandler';
+export { PageStateHandler } from './PageStateHandler';
