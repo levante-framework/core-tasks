@@ -5,33 +5,29 @@ import { mediaAssets } from "../../..";
 //@ts-ignore
 import { camelize } from "@bdelab/roar-utils";
 import { PageAudioHandler } from "./audioHandler";
+import { PageStateHandler } from "./PageStateHandler";
 
 
-export async function setupReplayAudio(audioFile: string) {
-  // The id is always hardcoded into replay button so get it by its id
-  const replayBtn = document.getElementById('replay-btn-revisited') as HTMLButtonElement;
+export async function setupReplayAudio(audioFile: string, pageStateHandler: PageStateHandler) {
 
-  if (replayBtn) {
-    const audioUri = mediaAssets.audio[camelize(audioFile)] ||
-    mediaAssets.audio.nullAudio;
-    const buffer = await jsPsych.pluginAPI.getAudioBuffer(audioUri);
-    replayBtn.disabled = true;
+  if (pageStateHandler.replayBtn) {
+    pageStateHandler.disableReplayBtn();
     const enableDelayBuffer = 100; //in ms
-    const totalStimulusDurationMs = buffer.duration * 1000 //in ms
+    const totalStimulusDurationMs = await pageStateHandler.getStimulusDurationMs(); //in ms
     const totalDelay = totalStimulusDurationMs + enableDelayBuffer;
     setTimeout(() => {
-      replayBtn.disabled = false;
+      pageStateHandler.enableReplayBtn();
     }, totalDelay);
 
     const onAudioEnd = () => {
-      replayBtn.disabled = false;
+      pageStateHandler.enableReplayBtn();
     }
 
     async function replayAudio() {
-      replayBtn.disabled = true;
-      PageAudioHandler.playAudio(audioUri, onAudioEnd);
+      pageStateHandler.disableReplayBtn();
+      PageAudioHandler.playAudio(pageStateHandler.audioUri, onAudioEnd);
     }
 
-    replayBtn.addEventListener('click', replayAudio);
+    pageStateHandler.replayBtn.addEventListener('click', replayAudio);
   }
 }
