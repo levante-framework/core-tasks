@@ -43,18 +43,16 @@ export default function buildSameDifferentTimeline(config, mediaAssets) {
     timeline: [
       feedback(true)
     ],
-
+  
     conditional_function: () => {
-      const trialType = taskStore().nextStimulus.trialType 
-      
-      if ((trialType == "something-same-2" || trialType == '2-match') && !feedbackGiven){
+      if (!feedbackGiven){
         feedbackGiven = true; 
         return true
       }
       return false
     }
   };
-
+  
   const afcBlock = {
     timeline: [
       afcMatch
@@ -71,16 +69,13 @@ export default function buildSameDifferentTimeline(config, mediaAssets) {
   for (let i = 0; i < phase1; i++) {
     timeline.push(setupStimulus)
     timeline.push(stimulusBlock)
-    timeline.push(buttonNoise) // adds button noise for appropriate trials
-    timeline.push(feedbackBlock) // adds feedback for first trial of 2nd phase (something's the same)
+    // timeline.push(buttonNoise) // adds button noise for appropriate trials
   }
-
-  feedbackGiven = false; 
 
   for (let i = 0; i < phase2; i++) {
     timeline.push(setupStimulus)
     timeline.push(afcBlock)
-    timeline.push(buttonNoise) // adds button noise for appropriate trials
+    // timeline.push(buttonNoise) // adds button noise for appropriate trials
     timeline.push(feedbackBlock)
   }
 
