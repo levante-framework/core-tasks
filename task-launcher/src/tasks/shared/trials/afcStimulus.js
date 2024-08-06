@@ -28,26 +28,7 @@ let startTime;
 let keyboardFeedbackHandler;
 const incorrectPracticeResponses = [];
 
-const showStaggeredBtnAndPlaySound = (btn, index, parentResponseDiv, pageState) => {
-  btn.classList.remove(
-    'lev-staggered-grayscale',
-    'lev-staggered-opacity',
-  );
-  const img = btn.getElementsByTagName('img')?.[0];
-  if (img) {
-    const altValue = img.alt;
-    PageAudioHandler.playAudio(mediaAssets.audio[camelize(altValue)], () => {
-      if (index + 1 === parentResponseDiv?.children?.length) { // Last Element
-        for (const jsResponseEl of parentResponseDiv.children) {
-          jsResponseEl.classList.remove('lev-staggered-disabled');
-        }
-        pageState.enableReplayBtn();
-      }
-    });
-  }
-}
-
-const showStaggeredBtnAndPlaySound2 = (
+const showStaggeredBtnAndPlaySound = (
   index,
   btnList,
   pageState,
@@ -58,19 +39,22 @@ const showStaggeredBtnAndPlaySound2 = (
     'lev-staggered-opacity',
   );
   const img = btn.getElementsByTagName('img')?.[0];
-  if (img) {
-    const altValue = img.alt;
-    PageAudioHandler.playAudio(mediaAssets.audio[camelize(altValue)], () => {
-      if (index + 1 === btnList?.length) { // Last Element
-        for (const jsResponseEl of btnList) {
-          jsResponseEl.classList.remove('lev-staggered-disabled');
-        }
-        pageState.enableReplayBtn();
-      } else { //recurse
-        showStaggeredBtnAndPlaySound2(index + 1, btnList, pageState);
-      }
-    });
+  let audioAsset = mediaAssets.audio[camelize(img?.alt ?? '')];
+  if (!audioAsset) {
+    console.error('Audio Asset not available for:', img?.alt);
+    audioAsset = mediaAssets.audio.nullAudio;
   }
+
+  PageAudioHandler.playAudio(audioAsset, () => {
+    if (index + 1 === btnList?.length) { // Last Element
+      for (const jsResponseEl of btnList) {
+        jsResponseEl.classList.remove('lev-staggered-disabled');
+      }
+      pageState.enableReplayBtn();
+    } else { //recurse
+      showStaggeredBtnAndPlaySound(index + 1, btnList, pageState);
+    }
+  });
 };
 
 const handleStaggeredButtons = async (layoutConfig, stim, pageState) => {
@@ -96,21 +80,9 @@ const handleStaggeredButtons = async (layoutConfig, stim, pageState) => {
           'lev-staggered-grayscale',
           'lev-staggered-opacity',
         );
-        // setTimeout(
-        //   function(index) {
-        //     showStaggeredBtnAndPlaySound(
-        //       jsResponseEl,
-        //       index,
-        //       parentResponseDiv,
-        //       pageState,
-        //     );
-        //   }.bind(this, i),
-        //   intialDelay + 2000 * i
-        // );
-        // i += 1;
       }
       setTimeout(() => {
-        showStaggeredBtnAndPlaySound2(
+        showStaggeredBtnAndPlaySound(
           0,
           Array.from(parentResponseDiv?.children),
           pageState,
