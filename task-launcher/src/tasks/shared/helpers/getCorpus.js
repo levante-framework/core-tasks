@@ -76,7 +76,7 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
 
     if (row.task === 'same-different-selection') {
       newRow.requiredSelections = parseInt(row.required_selections)
-      newRow.sameDifferent = row.same_different,
+      newRow.assessmentStage = row.assessment_stage,
       newRow.affix = row.affix
       newRow.blockIndex = parseInt(row.block_index)
       // all instructions are part of phase 1
