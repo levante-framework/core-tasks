@@ -11,6 +11,7 @@ import {
   setSkipCurrentBlock,
   taskStore,
   PageAudioHandler,
+  PageStateHandler,
 } from '../../shared/helpers';
 import { mediaAssets } from '../../..';
 import _toNumber from 'lodash/toNumber';
@@ -27,26 +28,77 @@ let startTime;
 let keyboardFeedbackHandler;
 const incorrectPracticeResponses = [];
 
-const showStaggeredBtnAndPlaySound = (btn) => {
-  btn.style.display = 'flex';
-  btn.style.flexDirection = 'column';
-  btn.style.alignItems = 'center';
-  btn.style.maxWidth = 'none';
+const showStaggeredBtnAndPlaySound = (
+  index,
+  btnList,
+  pageState,
+) => {
+  const btn = btnList[index];
+  btn.classList.remove(
+    'lev-staggered-grayscale',
+    'lev-staggered-opacity',
+  );
   const img = btn.getElementsByTagName('img')?.[0];
-  if (img) {
-    const altValue = img.alt;
-    PageAudioHandler.playAudio(mediaAssets.audio[camelize(altValue)]);
+  let audioAsset = mediaAssets.audio[camelize(img?.alt ?? '')];
+  if (!audioAsset) {
+    console.error('Audio Asset not available for:', img?.alt);
+    audioAsset = mediaAssets.audio.nullAudio;
   }
-}
 
-function getStimulus(trialType) {
-  // ToDo: trialType (audio/html) no longer varies -- remove
+  PageAudioHandler.playAudio(audioAsset, () => {
+    if (index + 1 === btnList?.length) { // Last Element
+      for (const jsResponseEl of btnList) {
+        jsResponseEl.classList.remove('lev-staggered-disabled');
+      }
+      pageState.enableReplayBtn();
+    } else { //recurse
+      showStaggeredBtnAndPlaySound(index + 1, btnList, pageState);
+    }
+  });
+};
+
+const handleStaggeredButtons = async (layoutConfig, stim, pageState) => {
+  if (
+    !!layoutConfig?.staggered?.enabled
+    && (layoutConfig?.staggered?.trialTypes || []).includes(stim.trialType)
+  ) {
+      const parentResponseDiv = document.getElementById('jspsych-audio-multi-response-btngroup');
+      let i = 0;
+      const stimulusDuration = await pageState.getStimulusDurationMs();
+      const intialDelay = stimulusDuration + 300;
+
+      // Disable the replay button till this animation is finished
+      setTimeout(() => {
+        pageState.disableReplayBtn();
+      }, stimulusDuration + 110);
+
+      for (const jsResponseEl of parentResponseDiv.children) {
+        // disable the buttons so that they are not active during the animation
+        jsResponseEl.classList.add(
+          'lev-staggered-responses',
+          'lev-staggered-disabled',
+          'lev-staggered-grayscale',
+          'lev-staggered-opacity',
+        );
+      }
+      setTimeout(() => {
+        showStaggeredBtnAndPlaySound(
+          0,
+          Array.from(parentResponseDiv?.children),
+          pageState,
+        );
+      }, intialDelay);
+      
+  }
+};
+
+function getStimulus() {
   const stim = taskStore().nextStimulus;
   if (!stim.audioFile) return mediaAssets.audio.nullAudio;
   if (!mediaAssets.audio[camelize(stim.audioFile)]) return mediaAssets.audio.nullAudio;
   // all tasks should have the replay button play whatever is in stim.audioFile (might be just prompt/instructions)
 
-  if (stim.task === 'Mental Rotation' && stim.notes !== 'practice' && stim.trialType !== 'instructions') {
+  if ((stim.task === 'Mental Rotation' || stim.task === 'Matrix Reasoning') && stim.notes !== 'practice' && stim.trialType !== 'instructions') {
     return mediaAssets.audio.nullAudio;
   }
 
@@ -264,23 +316,13 @@ function addKeyHelpers(el, keyIndex) {
   }
 }
 
-function doOnLoad(task) {
+function doOnLoad(task, layoutConfig) {
   startTime = performance.now();
 
   const stim = taskStore().nextStimulus;
-  if (task === 'theory-of-mind' && stim.trialType === 'audio_question') {
-    const parentResponseDiv = document.getElementById('jspsych-audio-multi-response-btngroup');
-    parentResponseDiv.style.display = 'none';
-    let i = 0;
-    const intialDelay = 4000;
-    for (const jsResponseEl of parentResponseDiv.children) {
-      jsResponseEl.style.display = 'none';
-      setTimeout(() => showStaggeredBtnAndPlaySound(jsResponseEl), intialDelay + 2000 * i);
-      i += 1;
-    }
-    parentResponseDiv.style.display = 'flex';
-    parentResponseDiv.style.flexDirection = 'row';
-  }
+  const pageStateHandler = new PageStateHandler(stim.audioFile);
+  // Handle the staggered buttons
+  handleStaggeredButtons(layoutConfig, stim, pageStateHandler);
   const currentTrialIndex = jsPsych.getProgress().current_trial_global;
   let twoTrialsAgoIndex = currentTrialIndex - 2;
   if (stim.task === 'math') {
@@ -356,7 +398,7 @@ function doOnLoad(task) {
     }
   }
 
-  setupReplayAudio(stim.audioFile);
+  setupReplayAudio(stim.audioFile, pageStateHandler);
 }
 
 function doOnFinish(data, task) {
@@ -453,7 +495,7 @@ function doOnFinish(data, task) {
 }
 
 // { trialType, responseAllowed, promptAboveButtons, task }
-export const afcStimulusTemplate = ({ trialType, responseAllowed, promptAboveButtons, task } = {}) => {
+export const afcStimulusTemplate = ({ trialType, responseAllowed, promptAboveButtons, task, layoutConfig } = {}) => {
   // TODO: pull out task-specific parameters (e.g., getPrompt(.., showPrompt=false) for Number Identification, TROG, ..)
   return {
     type: jsPsychAudioMultiResponse,
@@ -479,13 +521,13 @@ export const afcStimulusTemplate = ({ trialType, responseAllowed, promptAboveBut
     },
     button_choices: () => getButtonChoices(task, trialType),
     button_html: () => getButtonHtml(task, trialType),
-    on_load: () => doOnLoad(task, trialType),
+    on_load: () => doOnLoad(task, layoutConfig),
     on_finish: (data) => doOnFinish(data, task, trialType),
     response_ends_trial: () => (taskStore().nextStimulus.notes === 'practice' ? false : true),
   };
 };
 
-export const afcStimulus = ({ trialType, responseAllowed, promptAboveButtons, task } = {}) => {
+export const afcStimulus = ({ trialType, responseAllowed, promptAboveButtons, task, layoutConfig } = {}) => {
   return {
     timeline: [
       afcStimulusTemplate({
@@ -493,6 +535,7 @@ export const afcStimulus = ({ trialType, responseAllowed, promptAboveButtons, ta
         responseAllowed: responseAllowed,
         promptAboveButtons: promptAboveButtons,
         task: task,
+        layoutConfig,
       }),
     ]
     }
