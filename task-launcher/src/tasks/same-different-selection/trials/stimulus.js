@@ -116,7 +116,7 @@ export const stimulus = {
     const stim = taskStore().nextStimulus;
     if (stim.trialType == 'something-same-1' || stim.trialType == 'instructions') {
       return ['OK'];
-    } else if (stim.trialType == 'something-same-2' || stim.trialType == 'test-dimensions' || stim.trialType == 'something-same-practice2') {
+    } else if (stim.trialType == 'something-same-2' || stim.trialType == 'test-dimensions') {
       const { choices } = prepareChoices(stim.answer, stim.distractors);
       return choices;
     }
@@ -138,16 +138,17 @@ export const stimulus = {
     return allButtons;
   },
   response_ends_trial: () => !(
-    taskStore().nextStimulus.trialType == 'test-dimensions' || taskStore().nextStimulus.trialType == 'something-same-practice2'
+    taskStore().nextStimulus.trialType == 'test-dimensions' || taskStore().nextStimulus.assessmentStage == 'practice_response'
   ),
   on_load: () => {
     const audioFile = taskStore().nextStimulus.audioFile;
     setupReplayAudio(audioFile);
 
     const trialType = taskStore().nextStimulus.trialType; 
+    const assessmentStage = taskStore().nextStimulus.assessmentStage;
     const cards = document.querySelectorAll('.base-image-container');  
-     
-    if (trialType == 'test-dimensions' || trialType == 'something-same-practice2'){ // cards should give feedback during test dimensions block
+    
+    if (trialType == 'test-dimensions' || assessmentStage == 'practice_response'){ // cards should give feedback during test dimensions block
       cards.forEach((card, i) =>
         card.addEventListener('click', async (e) => {
           handleButtonFeedback(card, cards, false, i);
@@ -163,7 +164,7 @@ export const stimulus = {
     // TODO: Discuss with ROAR team to remove this check
     if (stim.trialType != 'instructions'){
       let isCorrect; 
-      if (stim.trialType == 'test-dimensions' || stim.trialType == 'something-same-practice2'){ // if no incorrect answers were clicked, that trial is correct
+      if (stim.trialType == 'test-dimensions' || stim.assessmentStage == 'practice_response'){ // if no incorrect answers were clicked, that trial is correct
         isCorrect = incorrectPracticeResponses.length == 0; 
       } else if (stim.trialType != 'something-same-1' && stim.trialType != 'instructions'){ // isCorrect should be undefined for something-same-1 trials
         isCorrect = data.button_response === taskStore().correctResponseIdx
