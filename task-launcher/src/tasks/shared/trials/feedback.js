@@ -22,7 +22,7 @@ export const feedback = (isPractice = false) => {
 
                     switch(taskStore().task) {
                         case 'same-different-selection': 
-                            promptOnIncorrect = 'Choose a shape that is the same.';
+                            promptOnIncorrect = t.sds2matchPrompt1;
                             break; 
                         case 'memory-game': 
                             promptOnIncorrect = t.memoryGameForwardPrompt;

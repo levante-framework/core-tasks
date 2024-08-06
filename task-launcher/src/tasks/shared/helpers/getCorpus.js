@@ -36,9 +36,13 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
   let currPracticeAmount = 0;
 
   // Phase 1 is test-dimensions and something-same
-  // Phase 2 is match and unique
+  // Phase 2 is match and unique - subphases are either matching or test-dimensions 
   let sdsPhase1Count = 0
-  let sdsPhase2Count = 0
+  let sdsPhase2aCount = 0
+  let sdsPhase2bCount = 0
+  let sdsPhase2cCount = 0
+  let sdsPhase2dCount = 0
+  let sdsPhase2eCount = 0
 
   csvInput.forEach((row) => {
     // Leaving this here for quick testing of a certain type of trial
@@ -74,17 +78,32 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
       newRow.requiredSelections = parseInt(row.required_selections)
       newRow.sameDifferent = row.same_different,
       newRow.affix = row.affix
-
-      if (newRow.trialType.includes('something-same') || 
-          newRow.trialType.includes('test-dimensions')
+      newRow.blockIndex = parseInt(row.block_index)
+      // all instructions are part of phase 1
+      if (((newRow.trialType.includes('something-same') || 
+          newRow.trialType.includes('test-dimensions')) &&
+          newRow.blockIndex < 3) ||
+          newRow.trialType.includes('instructions')
       ) {
         sdsPhase1Count += 1
+      } else if (newRow.trialType.includes('2-match')) {
+        sdsPhase2aCount += 1
+      } else if (newRow.trialType.includes('test-dimensions') && newRow.blockIndex == 4) {
+        sdsPhase2bCount += 1
+      } else if (newRow.trialType.includes('3-match')) {
+        sdsPhase2cCount += 1
+      } else if (newRow.trialType.includes('test-dimensions') && newRow.blockIndex == 5) {
+        sdsPhase2dCount += 1
       } else {
-        sdsPhase2Count += 1
+        sdsPhase2eCount += 1
       }
 
       sdsPhaseCount.phase1 = sdsPhase1Count
-      sdsPhaseCount.phase2 = sdsPhase2Count
+      sdsPhaseCount.phase2a = sdsPhase2aCount
+      sdsPhaseCount.phase2b = sdsPhase2bCount
+      sdsPhaseCount.phase2c = sdsPhase2cCount
+      sdsPhaseCount.phase2d = sdsPhase2dCount
+      sdsPhaseCount.phase2e = sdsPhase2eCount
     }
 
     let currentTrialType = newRow.trialType;
