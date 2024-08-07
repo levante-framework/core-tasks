@@ -5,7 +5,7 @@ import _isEqual from 'lodash/isEqual';
 import { finishExperiment } from '../../shared/trials';
 import { mediaAssets } from '../../..';
 import { getMemoryGameType } from '../helpers/getMemoryGameType';
-import { taskStore, setupReplayAudio, PageAudioHandler, replayButtonSvg } from '../../shared/helpers';
+import { taskStore, setupReplayAudio, PageAudioHandler, replayButtonSvg, PageStateHandler } from '../../shared/helpers';
 
 
 const x = 20;
@@ -32,10 +32,11 @@ function setUpAudio(contentWrapper, prompt, reverse, mode) {
   const cue = mode === 'display' ? 'memoryGameDisplay' : inputAudioPrompt;
 
   const audioFile = mediaAssets.audio[cue] || '';
-  // Returns a promise of the AudioBuffer of the preloaded file path.
+
   PageAudioHandler.playAudio(audioFile, () => {
     // set up replay button audio after the first audio has played
-    setupReplayAudio(cue);
+    const pageStateHandler = new PageStateHandler(cue);
+    setupReplayAudio(pageStateHandler);
   });  
 }
 
