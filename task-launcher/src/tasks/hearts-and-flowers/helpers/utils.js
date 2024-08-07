@@ -25,12 +25,21 @@ export const InputKey = Object.freeze({
 
 
 export const AssessmentStageType = Object.freeze({
-    HeartsPractice: 'hearts practice',
-    FlowersPractice: 'flowers practice',
-    HeartsStimulus: 'hearts stimulus',
-    FlowersStimulus: 'flowers stimulus',
-    HeartsAndFlowersPractice: 'hearts and flowers practice',
-    HeartsAndFlowersStimulus: 'hearts and flowers stimulus',
+    HeartsPractice: 'practice_response',
+    FlowersPractice: 'practice_response',
+    HeartsStimulus: 'test_response',
+    FlowersStimulus: 'test_response',
+    HeartsAndFlowersPractice: 'practice_response',
+    HeartsAndFlowersStimulus: 'test_response',
+});
+
+export const CorpusTrialType = Object.freeze({
+  HeartsPractice: 'hearts',
+  FlowersPractice: 'flowers',
+  HeartsStimulus: 'hearts',
+  FlowersStimulus: 'flowers',
+  HeartsAndFlowersPractice: 'hearts and flowers',
+  HeartsAndFlowersStimulus: 'hearts and flowers',
 });
 
 

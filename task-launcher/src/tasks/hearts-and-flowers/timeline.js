@@ -22,7 +22,7 @@ import {
   getMixedInstructions,
   getEndGame,
 } from './trials/instructions';
-import { StimulusType, StimulusSideType, AssessmentStageType } from './helpers/utils';
+import { StimulusType, StimulusSideType, AssessmentStageType, CorpusTrialType } from './helpers/utils';
 
 export default function buildHeartsAndFlowersTimeline(config, mediaAssets) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
@@ -179,9 +179,11 @@ function getHeartOrFlowerPracticeSection(adminConfig, stimulusType) {
   let jsPsychAssessmentStage, feedbackKeyIncorrect;
   if (stimulusType === StimulusType.Heart) {
     jsPsychAssessmentStage = AssessmentStageType.HeartsPractice;
+    jsPsychCorpusTrialType = CorpusTrialType.HeartsPractice;
     feedbackKeyIncorrect = 'heartPracticeFeedback2'; // heart-practice-feedback2, "Remember! When you see a HEART... on the SAME side."
   } else if (stimulusType === StimulusType.Flower) {
     jsPsychAssessmentStage = AssessmentStageType.FlowersPractice;
+    jsPsychCorpusTrialType = CorpusTrialType.FlowersPractice;
     feedbackKeyIncorrect = 'flowerPracticeFeedback2'; // flower-practice-feedback2, "When you see a FLOWER, press the button on the OPPOSITE side."
   } else {
     const errorMessage = `Invalid type: ${stimulusType} for getHeartOrFlowerPracticeSection`;
@@ -244,8 +246,10 @@ function getHeartOrFlowerTestSection(adminConfig, stimulusType) {
   let jsPsychAssessmentStage;
   if (stimulusType === StimulusType.Heart) {
     jsPsychAssessmentStage = AssessmentStageType.HeartsStimulus;
+    jsPsychCorpusTrialType = CorpusTrialType.HeartsStimulus;
   } else if (stimulusType === StimulusType.Flower) {
     jsPsychAssessmentStage = AssessmentStageType.FlowersStimulus;
+    jsPsychCorpusTrialType = CorpusTrialType.FlowersStimulus;
   } else {
     const errorMessage = `Invalid type: ${stimulusType} for getHeartOrFlowerTestSection`;
     console.error(errorMessage);
@@ -323,7 +327,8 @@ function getMixedPracticeSection(adminConfig) {
       fixation(adminConfig.interStimulusInterval),
       stimulus(
         true,
-        AssessmentStageType.HeartsAndFlowersPractice,
+        AssessmentStageType.HeartsAndFlowersPractice, 
+        CorpusTrialType.HeartsAndFlowersPractice,
         adminConfig.stimulusPresentationTime,
         onStimulusTrialFinishTimelineCallback
       ),
@@ -349,7 +354,10 @@ function getMixedTestSection(adminConfig) {
   const heartsAndFlowersTimeline = {
     timeline: [
       fixation(adminConfig.interStimulusInterval),
-      stimulus(false, AssessmentStageType.HeartsAndFlowersStimulus, adminConfig.stimulusPresentationTime),
+      stimulus(false, 
+        AssessmentStageType.HeartsAndFlowersStimulus, 
+        CorpusTrialType.HeartsAndFlowersStimulus, 
+        adminConfig.stimulusPresentationTime),
     ],
     timeline_variables: buildMixedTimelineVariables(adminConfig.testTrialCount),
     randomize_order: false,
