@@ -3,7 +3,7 @@ import _shuffle from 'lodash/shuffle';
 import _toNumber from 'lodash/toNumber';
 import { jsPsych, isTouchScreen } from '../../taskSetup';
 import { camelize } from '@bdelab/roar-utils';
-import { arrowKeyEmojis, isPractice, setSkipCurrentBlock, taskStore, replayButtonSvg, setupReplayAudio, PageAudioHandler } from '../../shared/helpers';
+import { arrowKeyEmojis, isPractice, setSkipCurrentBlock, taskStore, replayButtonSvg, setupReplayAudio, PageAudioHandler, PageStateHandler } from '../../shared/helpers';
 import { mediaAssets } from '../../..';
 
 let chosenAnswer,
@@ -26,7 +26,8 @@ let chosenAnswer,
     PageAudioHandler.playAudio(audioFile, () => {
       // set up replay button audio after the first audio has played
       if (cue) {
-        setupReplayAudio(cue);
+        const pageStateHandler = new PageStateHandler(cue);
+        setupReplayAudio(pageStateHandler);
       }
     });  
   }
