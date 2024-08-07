@@ -398,7 +398,7 @@ function doOnLoad(task, layoutConfig) {
     }
   }
 
-  setupReplayAudio(stim.audioFile, pageStateHandler);
+  setupReplayAudio(pageStateHandler);
 }
 
 function doOnFinish(data, task) {
