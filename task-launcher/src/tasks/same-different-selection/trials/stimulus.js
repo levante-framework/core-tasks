@@ -13,11 +13,12 @@ export const stimulus = {
   type: jsPsychAudioMultiResponse,
   data: () => {
     const stim = taskStore().nextStimulus;
+    let isPracticeTrial = stim.assessment_stage == 'practice_response';
     return {
       save_trial: stim.trialType !== 'instructions',
-      assessment_stage: stim.task,
+      assessment_stage: stim.assessment_stage,
         // not for firekit
-      isPracticeTrial: stim.notes === 'practice',
+      isPracticeTrial: isPracticeTrial,
     };
   },
   stimulus: () => {

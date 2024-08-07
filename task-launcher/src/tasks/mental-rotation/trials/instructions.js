@@ -25,7 +25,7 @@ export const instructions1 = {
     </div>`;
   },
   button_choices: [`Continue`],
-  keyboard_choices: 'ALL_KEYS',
+  keyboard_choices: 'NO_KEYS',
   button_html: () => {
     const t = taskStore().translations;
     return `<button class="primary">${t.continueButtonText}</button>`;
@@ -55,7 +55,7 @@ export const videoInstructionsFit = {
     const t = taskStore().translations;
     return `<button class="primary">${t.continueButtonText}</button>`;
   },
-  keyboard_choices: 'ALL_KEYS',
+  keyboard_choices: 'NO_KEYS',
   trial_ends_after_audio: false,
   response_allowed_while_playing: false,
   on_load: () => {
@@ -85,7 +85,7 @@ export const videoInstructionsMisfit = {
     const t = taskStore().translations;
     return `<button class="primary">${t.continueButtonText}</button>`;
   },
-  keyboard_choices: 'ALL_KEYS',
+  keyboard_choices: 'NO_KEYS',
   trial_ends_after_audio: false,
   response_allowed_while_playing: false,
   on_load: () => {
@@ -112,7 +112,7 @@ export const imageInstructions = {
     const t = taskStore().translations;
     return `<button class="primary">${t.continueButtonText}</button>`;
   },
-  keyboard_choices: 'ALL_KEYS',
+  keyboard_choices: 'NO_KEYS',
   trial_ends_after_audio: false,
   response_allowed_while_playing: false,
   on_load: () => {

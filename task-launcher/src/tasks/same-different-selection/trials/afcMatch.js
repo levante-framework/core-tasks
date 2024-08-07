@@ -13,11 +13,12 @@ export const afcMatch = {
   type: jsPsychAudioMultiResponse,
   data: () => {
     const stim = taskStore().nextStimulus;
+    let isPracticeTrial = stim.notes === 'practice'; // | stim.assessment_stage == 'practice_response' <- transition to defining in each corpus
     return {
       save_trial: stim.trialType !== 'instructions',
-      assessment_stage: stim.task,
+      assessment_stage: isPracticeTrial ? 'practice_response' : 'test_response',
         // not for firekit
-      isPracticeTrial: stim.notes === 'practice',
+      isPracticeTrial: isPracticeTrial,
     };
   },
   stimulus: () => {

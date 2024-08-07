@@ -501,14 +501,14 @@ export const afcStimulusTemplate = ({ trialType, responseAllowed, promptAboveBut
     type: jsPsychAudioMultiResponse,
     response_allowed_while_playing: responseAllowed,
     data: () => {
+      const stim = taskStore().nextStimulus;
+      let isPracticeTrial = stim.notes === 'practice'; // | stim.assessment_stage == 'practice_response' <- transition to defining in each corpus
       return {
         // not camelCase because firekit
         save_trial: true,
-        // In order for ROAR to write computed scores to the run doc in the correct format,
-        // assessment_stage must be explicitly "test_response" or "practice_response"
-        assessment_stage: taskStore().isRoarApp ? 'test_response' : taskStore().nextStimulus.task,
+        assessment_stage: isPracticeTrial ? 'practice_response' : 'test_response',
         // not for firekit
-        isPracticeTrial: taskStore().nextStimulus.notes === 'practice',
+        isPracticeTrial: isPracticeTrial,
       };
     },
     stimulus: () => getStimulus(trialType),
