@@ -1,7 +1,7 @@
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
 import { mediaAssets } from '../../..';
 import { jsPsych } from '../../taskSetup';
-import { prepareChoices, replayButtonSvg, setupReplayAudio, taskStore } from '../../shared/helpers';
+import { prepareChoices, replayButtonSvg, setupReplayAudio, taskStore, PageStateHandler } from '../../shared/helpers';
 import { camelize } from '@bdelab/roar-utils';
 import { finishExperiment } from '../../shared/trials';
 import { numIncorrect } from './stimulus';
@@ -47,7 +47,8 @@ export const afcMatch = {
     const stim = taskStore().nextStimulus;
     
     const audioFile = stim.audioFile;
-    setupReplayAudio(audioFile);
+    const pageStateHandler = new PageStateHandler(audioFile);
+    setupReplayAudio(pageStateHandler);
 
     let images;
     if (stim.audioFile.includes('prompt1')) {

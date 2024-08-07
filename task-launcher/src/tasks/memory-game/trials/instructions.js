@@ -1,7 +1,7 @@
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
 import { isTouchScreen } from '../../taskSetup';
 import { mediaAssets } from '../../..';
-import { replayButtonSvg, setupReplayAudio, taskStore } from '../../shared/helpers';
+import { PageStateHandler, replayButtonSvg, setupReplayAudio, taskStore } from '../../shared/helpers';
 
 const instructionData = [
     {
@@ -77,7 +77,8 @@ export const instructions = instructionData.map(data => {
         },
         keyboard_choices: 'NO_KEYS',
         on_load: () => {
-            setupReplayAudio(data.prompt)
+            const pageStateHandler = new PageStateHandler(data.prompt);
+            setupReplayAudio(pageStateHandler);
         }
     }
 })
