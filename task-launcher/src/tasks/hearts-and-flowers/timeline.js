@@ -176,7 +176,7 @@ function getHeartOrFlowerInstructionsSection(adminConfig, stimulusType) {
 
 function getHeartOrFlowerPracticeSection(adminConfig, stimulusType) {
 
-  let jsPsychAssessmentStage, feedbackKeyIncorrect;
+  let jsPsychAssessmentStage, jsPsychCorpusTrialType, feedbackKeyIncorrect;
   if (stimulusType === StimulusType.Heart) {
     jsPsychAssessmentStage = AssessmentStageType.HeartsPractice;
     jsPsychCorpusTrialType = CorpusTrialType.HeartsPractice;
@@ -243,7 +243,7 @@ function getHeartOrFlowerPracticeSection(adminConfig, stimulusType) {
 }
 
 function getHeartOrFlowerTestSection(adminConfig, stimulusType) {
-  let jsPsychAssessmentStage;
+  let jsPsychAssessmentStage, jsPsychCorpusTrialType;
   if (stimulusType === StimulusType.Heart) {
     jsPsychAssessmentStage = AssessmentStageType.HeartsStimulus;
     jsPsychCorpusTrialType = CorpusTrialType.HeartsStimulus;
