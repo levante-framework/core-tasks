@@ -25,11 +25,12 @@ export default function buildSameDifferentTimeline(config, mediaAssets) {
 
     conditional_function: () => {
       const trialType = taskStore().nextStimulus.trialType;
+      const assessmentStage = taskStore().nextStimulus.assessmentStage; 
 
-      if (trialType === 'something-same-1' || trialType === 'test-dimensions') {
-        return false;
+      if ((trialType === 'something-same-2' || trialType.includes('match')) && (assessmentStage != 'practice_response')) {
+        return true;
       }
-      return true;
+      return false;
     },
   };
 
@@ -69,14 +70,14 @@ export default function buildSameDifferentTimeline(config, mediaAssets) {
   for (let i = 0; i < phase1; i++) {
     timeline.push(setupStimulus)
     timeline.push(stimulusBlock)
-    // timeline.push(buttonNoise) // adds button noise for appropriate trials
+    timeline.push(buttonNoise) // adds button noise for appropriate trials
   }
 
   // 1st matching phase (with feedback)
   for (let i = 0; i < phase2a; i++) {
     timeline.push(setupStimulus)
     timeline.push(afcBlock)
-    // timeline.push(buttonNoise) // adds button noise for appropriate trials
+    timeline.push(buttonNoise) // adds button noise for appropriate trials
     timeline.push(feedbackBlock)
   }
 
@@ -84,28 +85,26 @@ export default function buildSameDifferentTimeline(config, mediaAssets) {
   for (let i = 0; i < phase2b; i++) { 
     timeline.push(setupStimulus)
     timeline.push(stimulusBlock)
-    // timeline.push(buttonNoise) // adds button noise for appropriate trials
   }
 
   // matching phase 
   for (let i = 0; i < phase2c; i++) {
     timeline.push(setupStimulus)
     timeline.push(afcBlock)
-    // timeline.push(buttonNoise) // adds button noise for appropriate trials
+    timeline.push(buttonNoise) // adds button noise for appropriate trials
   }
 
    // test-dimensions phase
    for (let i = 0; i < phase2d; i++) { 
     timeline.push(setupStimulus)
     timeline.push(stimulusBlock)
-    // timeline.push(buttonNoise) // adds button noise for appropriate trials
   }
 
   // matching phase 
   for (let i = 0; i < phase2e; i++) {
     timeline.push(setupStimulus)
     timeline.push(afcBlock)
-    // timeline.push(buttonNoise) // adds button noise for appropriate trials
+    timeline.push(buttonNoise) // adds button noise for appropriate trials
   }
 
 

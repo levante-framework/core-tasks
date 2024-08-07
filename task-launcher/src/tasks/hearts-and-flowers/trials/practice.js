@@ -8,7 +8,7 @@ import {
   getCorrectInputSide,
   getStimulusLayout
 } from '../helpers/utils';
-import { setupReplayAudio, taskStore } from '../../shared/helpers';
+import { PageStateHandler, setupReplayAudio, taskStore } from '../../shared/helpers';
 
 /**
  * Builds a practice trial for the Instruction sections.
@@ -56,8 +56,8 @@ export function buildInstructionPracticeTrial(stimulusType, promptText, promptAu
         console.error(`There are ${buttons.length} instead of 2 wrappers in the practice trials`);
       }
       buttons[validAnswer].style.animation = 'pulse 2s infinite';
-
-      setupReplayAudio(audioAssetKey);
+      const pageStateHandler = new PageStateHandler(audioAssetKey);
+      setupReplayAudio(pageStateHandler);
 
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
@@ -197,7 +197,8 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
         }
       });
       const audioAssetKey = getAssetKey();
-      setupReplayAudio(audioAssetKey);
+      const pageStateHandler = new PageStateHandler(audioAssetKey);
+      setupReplayAudio(pageStateHandler);
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
     keyboard_choices: () => {
