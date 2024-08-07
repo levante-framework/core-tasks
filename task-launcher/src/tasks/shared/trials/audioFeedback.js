@@ -18,6 +18,7 @@ export function getAudioResponse(mediaAssets) {
     },
     choices: 'NO_KEYS',
     trial_ends_after_audio: true,
+    post_trial_gap: 500,
     prompt: '',
   };
 }
