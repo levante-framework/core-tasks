@@ -1,8 +1,8 @@
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
 import store from 'store2';
 import { mediaAssets } from '../../..';
-import { prepareChoices, replayButtonSvg, setupReplayAudio, taskStore, PageAudioHandler } from '../../shared/helpers';
-import { finishExperiment} from '../../shared/trials';
+import { PageStateHandler, prepareChoices, replayButtonSvg, setupReplayAudio, taskStore, PageAudioHandler } from '../../shared/helpers';
+import { finishExperiment } from '../../shared/trials';
 import { camelize } from '@bdelab/roar-utils';
 import { jsPsych } from '../../taskSetup';
 
@@ -142,7 +142,8 @@ export const stimulus = {
   ),
   on_load: () => {
     const audioFile = taskStore().nextStimulus.audioFile;
-    setupReplayAudio(audioFile);
+    const pageStateHandler = new PageStateHandler(audioFile);
+    setupReplayAudio(pageStateHandler);
 
     const trialType = taskStore().nextStimulus.trialType; 
     const assessmentStage = taskStore().nextStimulus.assessmentStage;
