@@ -1,13 +1,48 @@
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
 import store from 'store2';
 import { mediaAssets } from '../../..';
-import { PageStateHandler, prepareChoices, replayButtonSvg, setupReplayAudio, taskStore } from '../../shared/helpers';
+import { PageStateHandler, prepareChoices, replayButtonSvg, setupReplayAudio, taskStore, PageAudioHandler } from '../../shared/helpers';
 import { finishExperiment } from '../../shared/trials';
 import { camelize } from '@bdelab/roar-utils';
 import { jsPsych } from '../../taskSetup';
 
 // This value is only saved in memory. It will reset to 0 when the page is reloaded.
 export const numIncorrect = store.page.namespace('numIncorrect', 0);
+
+const replayButtonHtmlId = 'replay-btn-revisited'; 
+let incorrectPracticeResponses = []; 
+
+function enableBtns(btnElements) {
+  btnElements.forEach((btn) => (btn.removeAttribute('disabled')));
+}
+
+function handleButtonFeedback(btn, cards, isKeyBoardResponse, responsevalue) {
+  const choice = btn.parentElement.id; 
+  const answer = taskStore().correctResponseIdx.toString(); 
+
+  const isCorrectChoice = choice.includes(answer); 
+  let feedbackAudio;
+  if (isCorrectChoice) {
+    btn.classList.add('practice-correct');
+    feedbackAudio = mediaAssets.audio.feedbackGoodJob;
+    setTimeout(
+      () => jsPsych.finishTrial({
+        response: choice,
+        incorrectPracticeResponses, 
+        button_response: !isKeyBoardResponse ? responsevalue : null,
+        keyboard_response: isKeyBoardResponse ? responsevalue : null,
+      }),
+      1000,
+    );
+  } else {
+    btn.classList.add('practice-incorrect');
+    feedbackAudio = mediaAssets.audio.feedbackTryAgain;
+    // renable buttons
+    setTimeout(() => enableBtns(cards), 500);
+    incorrectPracticeResponses.push(choice);
+  }
+  PageAudioHandler.playAudio(feedbackAudio);
+}
 
 export const stimulus = {
   type: jsPsychAudioMultiResponse,
@@ -30,8 +65,11 @@ export const stimulus = {
     const t = taskStore().translations;
     return (
       `<div id='stimulus-container'>
-        <button id="replay-btn-revisited" class="replay">
-          ${replayButtonSvg}
+        <button
+            id="${replayButtonHtmlId}"
+            class="replay"
+        >
+            ${replayButtonSvg}
         </button>
         <div id='prompt-container-text'>
           <p id='prompt'>${t[prompt]}</p>
@@ -76,7 +114,7 @@ export const stimulus = {
   prompt_above_buttons: true,
   button_choices: () => {
     const stim = taskStore().nextStimulus;
-    if (stim.trialType == 'something-same-1') {
+    if (stim.trialType == 'something-same-1' || stim.trialType == 'instructions') {
       return ['OK'];
     } else if (stim.trialType == 'something-same-2' || stim.trialType == 'test-dimensions') {
       const { choices } = prepareChoices(stim.answer, stim.distractors);
@@ -87,7 +125,7 @@ export const stimulus = {
   },
   button_html: () => {
     const stim = taskStore().nextStimulus;
-    if (stim.trialType == 'something-same-1') {
+    if (stim.trialType == 'something-same-1' || stim.trialType == 'instructions') {
       return "<button id='sds-continue-btn'>OK</button>";
     }
 
@@ -99,10 +137,25 @@ export const stimulus = {
 
     return allButtons;
   },
+  response_ends_trial: () => !(
+    taskStore().nextStimulus.trialType == 'test-dimensions' || taskStore().nextStimulus.assessmentStage == 'practice_response'
+  ),
   on_load: () => {
     const audioFile = taskStore().nextStimulus.audioFile;
     const pageStateHandler = new PageStateHandler(audioFile);
     setupReplayAudio(pageStateHandler);
+
+    const trialType = taskStore().nextStimulus.trialType; 
+    const assessmentStage = taskStore().nextStimulus.assessmentStage;
+    const cards = document.querySelectorAll('.base-image-container');  
+    
+    if (trialType == 'test-dimensions' || assessmentStage == 'practice_response'){ // cards should give feedback during test dimensions block
+      cards.forEach((card, i) =>
+        card.addEventListener('click', async (e) => {
+          handleButtonFeedback(card, cards, false, i);
+        })
+      )
+    }
   },
   on_finish: (data) => {
     const stim = taskStore().nextStimulus;
@@ -110,28 +163,40 @@ export const stimulus = {
 
     // Always need to write correct key because of firekit.
     // TODO: Discuss with ROAR team to remove this check
-    const isCorrect = data.button_response === taskStore().correctResponseIdx
+    if (stim.trialType != 'instructions'){
+      let isCorrect; 
+      if (stim.trialType == 'test-dimensions' || stim.assessmentStage == 'practice_response'){ // if no incorrect answers were clicked, that trial is correct
+        isCorrect = incorrectPracticeResponses.length == 0; 
+      } else if (stim.trialType != 'something-same-1' && stim.trialType != 'instructions'){ // isCorrect should be undefined for something-same-1 trials
+        isCorrect = data.button_response === taskStore().correctResponseIdx
+      } 
 
-    if (!isCorrect) {
-      numIncorrect.transact('numIncorrect', (n) => n + 1);
-    } else {
-      numIncorrect('numIncorrect', 0);
-    }
+      incorrectPracticeResponses = []; 
+    
+      // update task store
+      taskStore('isCorrect', isCorrect);
 
-    const maxIncorrect = taskStore().maxIncorrect;
+      if (isCorrect === false) {
+        numIncorrect.transact('numIncorrect', (n) => n + 1);
+      } else {
+        numIncorrect('numIncorrect', 0);
+      }
 
-    if ((numIncorrect('numIncorrect') == maxIncorrect)) {
-      finishExperiment();
-    }
+      const maxIncorrect = taskStore().maxIncorrect;
 
-    jsPsych.data.addDataToLastTrial({
-      // specific to this trial
-      item: stim.item,
-      answer: stim.answer,
-      correct: isCorrect,
-      distractors: stim.distractors,
-      corpusTrialType: stim.trialType,
-      response: choices[data.button_response],
-    });
-  },
+      if ((numIncorrect('numIncorrect') == maxIncorrect)) {
+        finishExperiment();
+      }
+
+      jsPsych.data.addDataToLastTrial({
+        // specific to this trial
+        item: stim.item,
+        answer: stim.answer,
+        correct: isCorrect,
+        distractors: stim.distractors,
+        corpusTrialType: stim.trialType,
+        response: choices[data.button_response],
+      });
+  }
+}
 };
