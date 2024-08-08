@@ -329,8 +329,8 @@ function doOnLoad(task, layoutConfig) {
     twoTrialsAgoIndex = currentTrialIndex - 3; // math has a fixation or something
   }
   const twoTrialsAgoStimulus = jsPsych.data.get().filter({ trial_index: twoTrialsAgoIndex }).values();
-
-  if (stim.notes === 'practice') {
+ 
+  if (stim.assessment_stage === 'practice_response') {
     const practiceBtns = document.querySelectorAll('.practice-btn');
 
     practiceBtns.forEach((btn, i) =>
