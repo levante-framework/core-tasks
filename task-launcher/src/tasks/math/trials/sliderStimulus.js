@@ -3,7 +3,7 @@ import _shuffle from 'lodash/shuffle';
 import _toNumber from 'lodash/toNumber';
 import { jsPsych, isTouchScreen } from '../../taskSetup';
 import { camelize } from '@bdelab/roar-utils';
-import { arrowKeyEmojis, isPractice, setSkipCurrentBlock, taskStore, replayButtonSvg, setupReplayAudio, PageAudioHandler, PageStateHandler } from '../../shared/helpers';
+import { arrowKeyEmojis, setSkipCurrentBlock, taskStore, replayButtonSvg, setupReplayAudio, PageAudioHandler, PageStateHandler } from '../../shared/helpers';
 import { mediaAssets } from '../../..';
 
 let chosenAnswer,
@@ -86,8 +86,8 @@ export const slider = {
   data: () => {
     return {
       save_trial: true,
-      assessment_stage: taskStore().nextStimulus.notes === 'practice' ? 'practice_response' : 'test_response',
-      isPracticeTrial: taskStore().nextStimulus.notes === 'practice',
+      assessment_stage: taskStore().nextStimulus.assessmentStage,
+      isPracticeTrial: taskStore().nextStimulus.assessmentStage === 'practice_response'
     };
   },
   stimulus: () => {
@@ -249,7 +249,7 @@ export const slider = {
     const stimulus = taskStore().nextStimulus;
     if (stimulus.trialType === 'Number Line 4afc') {
       data.correct = chosenAnswer === taskStore().target;
-      if (!isPractice(stimulus.notes)) {
+      if (!(stimulus.assessmentStage === 'practice_response')) {
         if (data.correct) {
           taskStore('numIncorrect', 0);
         } else {

@@ -15,7 +15,7 @@ export const afcMatch = {
   type: jsPsychAudioMultiResponse,
   data: () => {
     const stim = taskStore().nextStimulus;
-    let isPracticeTrial = stim.notes === 'practice'; // | stim.assessment_stage == 'practice_response' <- transition to defining in each corpus
+    let isPracticeTrial = stim.assessmentStage === 'practice_response' 
     return {
       save_trial: stim.trialType !== 'instructions',
       assessment_stage: isPracticeTrial ? 'practice_response' : 'test_response',
