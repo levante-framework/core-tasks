@@ -30,7 +30,7 @@ export default function buildMatrixTimeline(config, mediaAssets) {
 
     conditional_function: () => {
       const stim = taskStore().nextStimulus;
-      if (stim.notes === 'practice' || stim.trialType === 'instructions') {
+      if (stim.assessmentStage === 'practice_response' || stim.trialType === 'instructions') {
         return false;
       }
       return true;

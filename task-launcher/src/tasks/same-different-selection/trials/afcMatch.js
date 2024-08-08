@@ -15,11 +15,12 @@ export const afcMatch = {
   type: jsPsychAudioMultiResponse,
   data: () => {
     const stim = taskStore().nextStimulus;
+    let isPracticeTrial = stim.assessmentStage === 'practice_response';
     return {
       save_trial: stim.trialType !== 'instructions',
-      assessment_stage: stim.task,
+      assessment_stage: stim.assessmentStage,
         // not for firekit
-      isPracticeTrial: stim.notes === 'practice',
+      isPracticeTrial: isPracticeTrial,
     };
   },
   stimulus: () => {
@@ -127,29 +128,40 @@ export const afcMatch = {
     // First check amongst the selections if they all share one trait
     // Second check if any previous selections used those EXACT same selections
     // At least one selection must be different from previous selections
-
-
-    function compareSelections(selections, previousSelections) {  
-      const parsedSelections = selections.map(sel => sel.split("-"));
+    // (also, ignore any specified dimension -- some blocks now don't vary particular dimensions)
+    function compareSelections(selections, previousSelections, ignoreDims) {
+      const dimensionIndices = {
+          size: 0,
+          color: 1,
+          shape: 2,
+          number: 3,
+          bgcolor: 4,
+      };
   
-      // Check if all selections share at least one common trait
-      function sharedTrait(selections) {
-          const sizesAt = selections.map(sel => sel[0]);
-          const colorsAt = selections.map(sel => sel[1]);
-          const shapesAt = selections.map(sel => sel[2]);
-          const numsAt = selections.map(sel => sel[3]);
+      // Check if all selections share at least one common trait (ignoring specified dimensions)
+      function sharedTrait(selections, ignoreDims) {
+          const sets = {};
   
-          const sizeSet = new Set(sizesAt);
-          const colorSet = new Set(colorsAt);
-          const shapeSet = new Set(shapesAt);
-          
-          let numSet = new Set();
-
-          if (numsAt[0]) {
-            numSet.add(numsAt);
+          // Initialize sets for each non-ignored dimension
+          for (const [dim, index] of Object.entries(dimensionIndices)) {
+              if (!ignoreDims.includes(dim)) {
+                  sets[dim] = new Set();
+              }
           }
   
-          return sizeSet.size === 1 || colorSet.size === 1 || shapeSet.size === 1 || numSet.size === 1;
+          // Populate sets with values from selections
+          for (const sel of selections) {
+              const attributes = sel.split("-");
+              for (const [dim, set] of Object.entries(sets)) {
+                  const index = dimensionIndices[dim];
+                  if (attributes[index] !== undefined) {
+                      set.add(attributes[index]);
+                  }
+              }
+          }
+  
+          // Check if any non-ignored dimension has all the same values
+          return Object.values(sets).some(set => set.size === 1);
       }
   
       // Check if any selection is different from all previous selections
@@ -158,19 +170,27 @@ export const afcMatch = {
           if (!previousSelections || previousSelections.length === 0) {
               return true;
           }
-
+  
           const allPrevious = new Set(previousSelections);
           return selections.some(sel => !allPrevious.has(sel));
       }
   
       // Perform checks
-      const traitShared = sharedTrait(parsedSelections);
+      const traitShared = sharedTrait(selections, ignoreDims);
       const containsNew = hasNewSelection(selections, previousSelections);
   
       return traitShared && containsNew;
-    }
+  }
 
-    const isCorrect = compareSelections(selectedCards, previousSelections);
+    let ignoreDims = [];
+    if(stim.trialType === 'something-same-2') {
+      ignoreDims = ["number","bgcolor"];
+    } else if(stim.trialType === '2-match') {
+      ignoreDims = ["number","bgcolor"]; 
+    } else if(stim.trialType === '3-match' || stim.trialType === '4-match') {
+      ignoreDims = ["size"];
+    } 
+    const isCorrect = compareSelections(selectedCards, previousSelections, ignoreDims);
 
     // update task store
     taskStore('isCorrect', isCorrect); 

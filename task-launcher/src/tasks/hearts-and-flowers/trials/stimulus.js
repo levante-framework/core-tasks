@@ -18,14 +18,15 @@ import { taskStore } from '../../shared/helpers';
   of the stimulus image and modify the DOM nodes that jsPsych creates in on_load?
   */
 
-export function stimulus(isPractice, stage, stimulusDuration, onTrialFinishTimelineCallback = undefined ) {
+export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrialFinishTimelineCallback = undefined ) {
   return {
     type: jsPsychHTMLMultiResponse,
     data: () => {
       return {
         // not camelCase because firekit
         save_trial: true,
-        assessment_stage: stage,
+        assessment_stage: stage, 
+        corpus_trial_type: trialType,
         // not for firekit
         isPracticeTrial: isPractice,
       };
