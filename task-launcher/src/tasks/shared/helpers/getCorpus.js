@@ -61,6 +61,7 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
       timeLimit: row.time_limit,
       answer: _toNumber(row.answer) || row.answer,
       notes: row.notes,
+      assessmentStage: row.assessment_stage,
       distractors: containsLettersOrSlash(row.response_alternatives)
         ? row.response_alternatives.split(',')
         : stringToNumberArray(row.response_alternatives),
@@ -112,7 +113,7 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
       currPracticeAmount = 0;
     }
 
-    if (newRow.notes === 'practice') {
+    if (newRow.assessmentStage === 'practice_response') {
       if (currPracticeAmount < numOfPracticeTrials) {
         // Only push in the specified amount of practice trials
         currPracticeAmount += 1;
