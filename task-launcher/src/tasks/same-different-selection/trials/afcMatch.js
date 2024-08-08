@@ -15,10 +15,10 @@ export const afcMatch = {
   type: jsPsychAudioMultiResponse,
   data: () => {
     const stim = taskStore().nextStimulus;
-    let isPracticeTrial = stim.assessmentStage === 'practice_response' 
+    let isPracticeTrial = stim.assessment_stage === 'practice_response';
     return {
       save_trial: stim.trialType !== 'instructions',
-      assessment_stage: isPracticeTrial ? 'practice_response' : 'test_response',
+      assessment_stage: stim.assessment_stage,
         // not for firekit
       isPracticeTrial: isPracticeTrial,
     };

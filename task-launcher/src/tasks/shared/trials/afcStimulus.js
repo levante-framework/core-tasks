@@ -502,11 +502,11 @@ export const afcStimulusTemplate = ({ trialType, responseAllowed, promptAboveBut
     response_allowed_while_playing: responseAllowed,
     data: () => {
       const stim = taskStore().nextStimulus;
-      let isPracticeTrial = stim.notes === 'practice'; // | stim.assessment_stage == 'practice_response' <- transition to defining in each corpus
+      let isPracticeTrial = stim.assessment_stage === 'practice_response'; 
       return {
         // not camelCase because firekit
         save_trial: true,
-        assessment_stage: isPracticeTrial ? 'practice_response' : 'test_response',
+        assessment_stage: stim.assessment_stage,
         // not for firekit
         isPracticeTrial: isPracticeTrial,
       };
