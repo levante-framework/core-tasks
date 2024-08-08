@@ -60,7 +60,9 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
       image: row?.image?.includes(',') ? row.image.split(',') : row?.image,
       timeLimit: row.time_limit,
       answer: _toNumber(row.answer) || row.answer,
-      notes: row.notes,
+      assessmentStage: row.assessmentStage,
+      chanceLevel: row.chanceLevel,
+      itemId: row.itemId,
       distractors: containsLettersOrSlash(row.response_alternatives)
         ? row.response_alternatives.split(',')
         : stringToNumberArray(row.response_alternatives),
@@ -76,8 +78,6 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
 
     if (row.task === 'same-different-selection') {
       newRow.requiredSelections = parseInt(row.required_selections)
-      newRow.assessmentStage = row.assessment_stage,
-      newRow.affix = row.affix
       newRow.blockIndex = parseInt(row.block_index)
       // all instructions are part of phase 1
       if (((newRow.trialType.includes('something-same') || 

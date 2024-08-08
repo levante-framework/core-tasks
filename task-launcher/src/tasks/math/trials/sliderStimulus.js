@@ -86,8 +86,8 @@ export const slider = {
   data: () => {
     return {
       save_trial: true,
-      assessment_stage: taskStore().nextStimulus.notes === 'practice' ? 'practice_response' : 'test_response',
-      isPracticeTrial: taskStore().nextStimulus.notes === 'practice',
+      assessment_stage: taskStore().nextStimulus.assessment_stage,
+      isPracticeTrial: taskStore().nextStimulus.assessment_stage === 'practice_response',
     };
   },
   stimulus: () => {
