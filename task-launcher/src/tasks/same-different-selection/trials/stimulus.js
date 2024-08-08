@@ -48,10 +48,10 @@ export const stimulus = {
   type: jsPsychAudioMultiResponse,
   data: () => {
     const stim = taskStore().nextStimulus;
-    let isPracticeTrial = stim.assessment_stage == 'practice_response';
+    let isPracticeTrial = stim.assessmentStage == 'practice_response';
     return {
       save_trial: stim.trialType !== 'instructions',
-      assessment_stage: stim.assessment_stage,
+      assessment_stage: stim.assessmentStage,
         // not for firekit
       isPracticeTrial: isPracticeTrial,
     };

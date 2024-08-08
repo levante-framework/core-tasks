@@ -98,7 +98,7 @@ function getStimulus() {
   if (!mediaAssets.audio[camelize(stim.audioFile)]) return mediaAssets.audio.nullAudio;
   // all tasks should have the replay button play whatever is in stim.audioFile (might be just prompt/instructions)
 
-  if ((stim.task === 'Mental Rotation' || stim.task === 'Matrix Reasoning') && stim.notes !== 'practice' && stim.trialType !== 'instructions') {
+  if ((stim.task === 'Mental Rotation' || stim.task === 'Matrix Reasoning') && stim.assessmentStage !== 'practice_response' && stim.trialType !== 'instructions') {
     return mediaAssets.audio.nullAudio;
   }
 
@@ -246,9 +246,9 @@ function getButtonHtml(task) {
     return "<button class='secondary'>%choice%</button>";
   } else if (task === 'egma-math') {
     // practice-btn class does not add any styles, only used for querySelector
-    return `<button class='secondary ${stimulus.notes === 'practice' ? 'practice-btn' : ''}'>%choice%</button>`;
+    return `<button class='secondary ${stimulus.assessmentStage === 'practice_response' ? 'practice-btn' : ''}'>%choice%</button>`;
   } else {
-    return `<button class='${stimulus.notes === 'practice' ? 'practice-btn' : ''}'>%choice%</button>`;
+    return `<button class='${stimulus.assessmentStage === 'practice_response' ? 'practice-btn' : ''}'>%choice%</button>`;
   }
 }
 
@@ -329,8 +329,8 @@ function doOnLoad(task, layoutConfig) {
     twoTrialsAgoIndex = currentTrialIndex - 3; // math has a fixation or something
   }
   const twoTrialsAgoStimulus = jsPsych.data.get().filter({ trial_index: twoTrialsAgoIndex }).values();
- 
-  if (stim.assessment_stage === 'practice_response') {
+  
+  if (stim.assessmentStage === 'practice_response') {
     const practiceBtns = document.querySelectorAll('.practice-btn');
 
     practiceBtns.forEach((btn, i) =>
@@ -353,7 +353,7 @@ function doOnLoad(task, layoutConfig) {
       trialsOfCurrentType = 0;
     }
   } else {
-    if (stim.notes != 'practice' && stim.trialType != 'instructions') {
+    if (stim.assessmentStage != 'practice_response' && stim.trialType != 'instructions') {
       trialsOfCurrentType += 1;
     }
   }
@@ -458,7 +458,7 @@ function doOnFinish(data, task) {
 
     // Adding this seperately or otherwise it will overide
     // the response value added from practice trials
-    if (stimulus.notes !== 'practice') {
+    if (stimulus.assessmentStage !== 'practice_response') {
       jsPsych.data.addDataToLastTrial({
         response: responseValue,
       });
@@ -475,7 +475,7 @@ function doOnFinish(data, task) {
     }
 
     // remove listner or it will stack since were adding it on the document itself
-    if (stimulus.notes === 'practice') {
+    if (stimulus.assessmentStage === 'practice_response') {
       document.removeEventListener('keydown', keyboardFeedbackHandler);
     }
   } else {
@@ -502,11 +502,11 @@ export const afcStimulusTemplate = ({ trialType, responseAllowed, promptAboveBut
     response_allowed_while_playing: responseAllowed,
     data: () => {
       const stim = taskStore().nextStimulus;
-      let isPracticeTrial = stim.assessment_stage === 'practice_response'; 
+      let isPracticeTrial = stim.assessmentStage === 'practice_response'; 
       return {
         // not camelCase because firekit
         save_trial: true,
-        assessment_stage: stim.assessment_stage,
+        assessment_stage: stim.assessmentStage,
         // not for firekit
         isPracticeTrial: isPracticeTrial,
       };
@@ -523,7 +523,7 @@ export const afcStimulusTemplate = ({ trialType, responseAllowed, promptAboveBut
     button_html: () => getButtonHtml(task, trialType),
     on_load: () => doOnLoad(task, layoutConfig),
     on_finish: (data) => doOnFinish(data, task, trialType),
-    response_ends_trial: () => (taskStore().nextStimulus.notes === 'practice' ? false : true),
+    response_ends_trial: () => (taskStore().nextStimulus.assessmentStage === 'practice_response' ? false : true),
   };
 };
 
