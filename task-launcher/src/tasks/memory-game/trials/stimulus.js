@@ -78,7 +78,7 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false, rese
     data: {
       // not camelCase because firekit
       save_trial: true,
-      assessment_stage: 'memory-game',
+      assessment_stage: isPractice ? 'practice_response' : 'test_response',
       // not for firekit
       isPracticeTrial: isPractice,
     },

@@ -60,14 +60,15 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
       image: row?.image?.includes(',') ? row.image.split(',') : row?.image,
       timeLimit: row.time_limit,
       answer: _toNumber(row.answer) || row.answer,
-      notes: row.notes,
+      assessmentStage: row.assessment_stage,
+      chanceLevel: row.chance_level,
+      itemId: row.item_id,
       distractors: containsLettersOrSlash(row.response_alternatives)
         ? row.response_alternatives.split(',')
         : stringToNumberArray(row.response_alternatives),
       // difficulty: row.difficulty,
       audioFile: row.audio_file,
     };
-
     if (row.task === 'Mental Rotation') {
       newRow.item = camelize(newRow.item);
       newRow.answer = camelize(newRow.answer);
@@ -76,8 +77,6 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
 
     if (row.task === 'same-different-selection') {
       newRow.requiredSelections = parseInt(row.required_selections)
-      newRow.assessmentStage = row.assessment_stage,
-      newRow.affix = row.affix
       newRow.blockIndex = parseInt(row.block_index)
       // all instructions are part of phase 1
       if (((newRow.trialType.includes('something-same') || 
@@ -112,7 +111,7 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
       currPracticeAmount = 0;
     }
 
-    if (newRow.notes === 'practice') {
+    if (newRow.assessmentStage === 'practice_response') {
       if (currPracticeAmount < numOfPracticeTrials) {
         // Only push in the specified amount of practice trials
         currPracticeAmount += 1;

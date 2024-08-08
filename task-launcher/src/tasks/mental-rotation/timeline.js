@@ -20,8 +20,8 @@ export default function buildMentalRotationTimeline(config, mediaAssets) {
     timeline: [getAudioResponse(mediaAssets)],
 
     conditional_function: () => {
-      const subTask = taskStore().nextStimulus.notes;
-      if (subTask === 'practice') {
+      const stim = taskStore().nextStimulus;
+      if (stim.assessmentStage === 'practice_response') {
         return false;
       }
       return true;
