@@ -60,16 +60,15 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
       image: row?.image?.includes(',') ? row.image.split(',') : row?.image,
       timeLimit: row.time_limit,
       answer: _toNumber(row.answer) || row.answer,
-      assessmentStage: row.assessmentStage,
-      chanceLevel: row.chanceLevel,
-      itemId: row.itemId,
+      assessmentStage: row.assessment_stage,
+      chanceLevel: row.chance_level,
+      itemId: row.item_id,
       distractors: containsLettersOrSlash(row.response_alternatives)
         ? row.response_alternatives.split(',')
         : stringToNumberArray(row.response_alternatives),
       // difficulty: row.difficulty,
       audioFile: row.audio_file,
     };
-
     if (row.task === 'Mental Rotation') {
       newRow.item = camelize(newRow.item);
       newRow.answer = camelize(newRow.answer);
