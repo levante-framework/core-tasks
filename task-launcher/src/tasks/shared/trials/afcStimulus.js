@@ -158,7 +158,7 @@ const getPromptTemplate = (prompt, mediaSrc, mediaAlt, stimText, equalSizeStim) 
   return template;
 };
 
-function getPrompt(task, showPrompt) {
+function getPrompt(task, layoutConfig) {
   // showItem itemIsImage
   const stim = taskStore().nextStimulus;
   const t = taskStore().translations;
@@ -174,7 +174,7 @@ function getPrompt(task, showPrompt) {
 
   if (
     ['Number Identification', 'Number Comparison'].includes(stimTrialType) || 
-    (!showPrompt && stimTrialType != 'instructions') // vocab & TROG tasks should not show prompts
+    (!(layoutConfig?.showPrompt) && stimTrialType != 'instructions') // vocab & TROG tasks should not show prompts
   ) {
     return getPromptTemplate(null, null, null, null, false);
   } else if (['vocab', 'trog'].includes(task)) {
@@ -513,7 +513,7 @@ export const afcStimulusTemplate = ({ trialType, responseAllowed, promptAboveBut
       };
     },
     stimulus: () => getStimulus(trialType),
-    prompt: () => getPrompt(task, showPrompt, trialType),
+    prompt: () => getPrompt(task, layoutConfig, trialType),
     prompt_above_buttons: promptAboveButtons,
     keyboard_choices: () => {
       return taskStore().nextStimulus.distractors?.length === 1
@@ -528,7 +528,7 @@ export const afcStimulusTemplate = ({ trialType, responseAllowed, promptAboveBut
   };
 };
 
-export const afcStimulus = ({ trialType, responseAllowed, promptAboveButtons, task, layoutConfig, showPrompt = true } = {}) => {
+export const afcStimulus = ({ trialType, responseAllowed, promptAboveButtons, task, layoutConfig} = {}) => {
   return {
     timeline: [
       afcStimulusTemplate({
@@ -536,8 +536,7 @@ export const afcStimulus = ({ trialType, responseAllowed, promptAboveButtons, ta
         responseAllowed: responseAllowed,
         promptAboveButtons: promptAboveButtons,
         task: task,
-        layoutConfig,
-        showPrompt
+        layoutConfig
       }),
     ]
     }

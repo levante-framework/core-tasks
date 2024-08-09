@@ -46,6 +46,9 @@ export default function buildMathTimeline(config, mediaAssets) {
         responseAllowed: true,
         promptAboveButtons: true,
         task: config.task,
+        layoutConfig: {
+          showPrompt: true
+        }
       }),
     ],
     conditional_function: () => {
