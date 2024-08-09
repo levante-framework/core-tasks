@@ -22,6 +22,7 @@ export default function buildVocabTimeline(config, mediaAssets) {
     responseAllowed: true,
     promptAboveButtons: true,
     task: config.task,
+    showPrompt: false
   };
 
   const stimulusBlock = {
