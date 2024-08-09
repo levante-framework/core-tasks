@@ -103,7 +103,7 @@ function getStimulus() {
   if ((stim.task === 'Mental Rotation') && stim.assessmentStage !== 'practice_response' && stim.trialType !== 'instructions') {
     return mediaAssets.audio.nullAudio;
   }
-  console.log(matrixReasoningTrials);
+  
   if (matrixReasoningTrials > 3){
     return mediaAssets.audio.nullAudio; 
   }
