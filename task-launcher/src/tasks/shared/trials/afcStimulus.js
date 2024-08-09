@@ -528,7 +528,7 @@ export const afcStimulusTemplate = ({ trialType, responseAllowed, promptAboveBut
   };
 };
 
-export const afcStimulus = ({ trialType, responseAllowed, promptAboveButtons, task, layoutConfig, showPrompt } = {}) => {
+export const afcStimulus = ({ trialType, responseAllowed, promptAboveButtons, task, layoutConfig, showPrompt = true } = {}) => {
   return {
     timeline: [
       afcStimulusTemplate({
