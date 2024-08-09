@@ -127,7 +127,7 @@ export const stimulus = {
   button_html: () => {
     const stim = taskStore().nextStimulus;
     if (stim.trialType == 'something-same-1' || stim.trialType == 'instructions') {
-      return "<button id='sds-continue-btn'>OK</button>";
+      return "<button id='sds-continue-btn' class='primary'>OK</button>";
     }
 
     const choices = taskStore().choices;
