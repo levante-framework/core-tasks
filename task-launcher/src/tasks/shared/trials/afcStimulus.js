@@ -173,7 +173,8 @@ function getPrompt(task) {
   }
 
   if (
-    ['Number Identification', 'Number Comparison'].includes(stimTrialType)
+    ['Number Identification', 'Number Comparison'].includes(stimTrialType) || 
+    (task === 'vocab' && stimTrialType != 'instructions') // vocab task should not show prompts
   ) {
     return getPromptTemplate(null, null, null, null, false);
   } else if (['vocab', 'trog'].includes(task)) {
