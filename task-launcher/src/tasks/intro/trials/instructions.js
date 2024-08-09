@@ -1,7 +1,7 @@
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
 import { isTouchScreen } from '../../taskSetup';
 import { mediaAssets } from '../../..';
-import { PageStateHandler, replayButtonSvg, setupReplayAudio, taskStore } from '../../shared/helpers';
+import { PageAudioHandler, PageStateHandler, replayButtonSvg, setupReplayAudio, taskStore } from '../../shared/helpers';
 
 const instructionData = [
     {
@@ -49,7 +49,7 @@ export const instructions = instructionData.map(data => {
         button_html: () => {
             const t = taskStore().translations;
             return [
-            `<button id='continue-btn'>
+            `<button id='continue-btn' class="primary">
                 ${t[data.buttonText]}
             </button>`,
             ]
@@ -58,6 +58,9 @@ export const instructions = instructionData.map(data => {
         on_load: () => {
             const pageStateHandler = new PageStateHandler(data.prompt);
             setupReplayAudio(pageStateHandler);
+        },
+        on_finish: () => {
+            PageAudioHandler.stopAndDisconnectNode();
         }
     }
 })
