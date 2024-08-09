@@ -33,6 +33,9 @@ export default function buildMentalRotationTimeline(config, mediaAssets) {
     responseAllowed: true,
     promptAboveButtons: true,
     task: config.task,
+    layoutConfig: {
+      showPrompt: true
+    }
   };
 
   const stimulusBlock = {
