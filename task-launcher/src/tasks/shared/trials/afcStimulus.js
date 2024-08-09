@@ -21,6 +21,8 @@ const replayButtonHtmlId = 'replay-btn-revisited';
 // Previously chosen responses for current practice trial
 let practiceResponses = [];
 let trialsOfCurrentType = 0;
+// number of trials so far with trial type 'Matrix Reasoning'
+let matrixReasoningTrials = 0; 
 
 let keyboardResponseMap = {};
 // Only used for keyboard responses
@@ -98,8 +100,12 @@ function getStimulus() {
   if (!mediaAssets.audio[camelize(stim.audioFile)]) return mediaAssets.audio.nullAudio;
   // all tasks should have the replay button play whatever is in stim.audioFile (might be just prompt/instructions)
 
-  if ((stim.task === 'Mental Rotation' || stim.task === 'Matrix Reasoning') && stim.assessmentStage !== 'practice_response' && stim.trialType !== 'instructions') {
+  if ((stim.task === 'Mental Rotation') && stim.assessmentStage !== 'practice_response' && stim.trialType !== 'instructions') {
     return mediaAssets.audio.nullAudio;
+  }
+  console.log(matrixReasoningTrials);
+  if (matrixReasoningTrials > 3){
+    return mediaAssets.audio.nullAudio; 
   }
 
   if (
@@ -330,6 +336,10 @@ function doOnLoad(task, layoutConfig) {
   }
   const twoTrialsAgoStimulus = jsPsych.data.get().filter({ trial_index: twoTrialsAgoIndex }).values();
   
+  if (stim.trialType === 'Matrix Reasoning'){
+    matrixReasoningTrials += 1;
+  }
+
   if (stim.assessmentStage === 'practice_response') {
     const practiceBtns = document.querySelectorAll('.practice-btn');
 
