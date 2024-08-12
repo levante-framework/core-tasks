@@ -37,9 +37,9 @@ export default function buildMatrixTimeline(config, mediaAssets) {
     },
   };
 
-  const stimulusBlock = {
+  const stimulusBlock = (config) => ({
     timeline: [
-      afcStimulus(trialConfig) 
+      afcStimulus(config) 
     ],
     // true = execute normally, false = skip
     conditional_function: () => {
@@ -50,7 +50,7 @@ export default function buildMatrixTimeline(config, mediaAssets) {
         return true;
       }
     },
-  };
+  });
 
   const timeline = [preloadTrials, initialTimeline, ...instructions];
 
@@ -69,7 +69,7 @@ export default function buildMatrixTimeline(config, mediaAssets) {
       },
     };
     timeline.push(setupStimulus);
-    timeline.push(stimulusBlock);
+    timeline.push(stimulusBlock(finalTrialConfig));
     timeline.push(ifRealTrialResponse); 
   }
 
