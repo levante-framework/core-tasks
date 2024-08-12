@@ -92,13 +92,16 @@ const handleStaggeredButtons = async (layoutConfig, stim, pageState) => {
   }
 };
 
-function getStimulus() {
+function getStimulus(layoutConfig) {
+  if (!!layoutConfig?.noAudio){
+    return mediaAssets.audio.nullAudio;
+  }
   const stim = taskStore().nextStimulus;
-  if (!stim.audioFile) return mediaAssets.audio.nullAudio;
-  if (!mediaAssets.audio[camelize(stim.audioFile)]) return mediaAssets.audio.nullAudio;
-  // all tasks should have the replay button play whatever is in stim.audioFile (might be just prompt/instructions)
+  if (!mediaAssets.audio[camelize(stim.audioFile ?? '')]) {
+    return mediaAssets.audio.nullAudio;
+  }
 
-  if ((stim.task === 'Mental Rotation' || stim.task === 'Matrix Reasoning') && stim.assessmentStage !== 'practice_response' && stim.trialType !== 'instructions') {
+  if ((stim.task === 'Mental Rotation') && stim.assessmentStage !== 'practice_response' && stim.trialType !== 'instructions') {
     return mediaAssets.audio.nullAudio;
   }
 
@@ -330,7 +333,7 @@ function doOnLoad(task, layoutConfig) {
     twoTrialsAgoIndex = currentTrialIndex - 3; // math has a fixation or something
   }
   const twoTrialsAgoStimulus = jsPsych.data.get().filter({ trial_index: twoTrialsAgoIndex }).values();
-  
+
   if (stim.assessmentStage === 'practice_response') {
     const practiceBtns = document.querySelectorAll('.practice-btn');
 
@@ -512,7 +515,7 @@ export const afcStimulusTemplate = ({ trialType, responseAllowed, promptAboveBut
         isPracticeTrial: isPracticeTrial,
       };
     },
-    stimulus: () => getStimulus(trialType),
+    stimulus: () => getStimulus(layoutConfig),
     prompt: () => getPrompt(task, layoutConfig, trialType),
     prompt_above_buttons: promptAboveButtons,
     keyboard_choices: () => {
