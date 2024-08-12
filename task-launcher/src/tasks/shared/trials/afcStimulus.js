@@ -161,7 +161,7 @@ const getPromptTemplate = (prompt, mediaSrc, mediaAlt, stimText, equalSizeStim) 
   return template;
 };
 
-function getPrompt(task) {
+function getPrompt(task, layoutConfig) {
   // showItem itemIsImage
   const stim = taskStore().nextStimulus;
   const t = taskStore().translations;
@@ -176,7 +176,8 @@ function getPrompt(task) {
   }
 
   if (
-    ['Number Identification', 'Number Comparison'].includes(stimTrialType)
+    ['Number Identification', 'Number Comparison'].includes(stimTrialType) || 
+    (!(layoutConfig?.showPrompt) && stimTrialType != 'instructions') // vocab & TROG tasks should not show prompts
   ) {
     return getPromptTemplate(null, null, null, null, false);
   } else if (['vocab', 'trog'].includes(task)) {
@@ -498,7 +499,7 @@ function doOnFinish(data, task) {
 }
 
 // { trialType, responseAllowed, promptAboveButtons, task }
-export const afcStimulusTemplate = ({ trialType, responseAllowed, promptAboveButtons, task, layoutConfig } = {}) => {
+export const afcStimulusTemplate = ({ trialType, responseAllowed, promptAboveButtons, task, layoutConfig, showPrompt } = {}) => {
   // TODO: pull out task-specific parameters (e.g., getPrompt(.., showPrompt=false) for Number Identification, TROG, ..)
   return {
     type: jsPsychAudioMultiResponse,
@@ -515,7 +516,7 @@ export const afcStimulusTemplate = ({ trialType, responseAllowed, promptAboveBut
       };
     },
     stimulus: () => getStimulus(layoutConfig),
-    prompt: () => getPrompt(task, trialType),
+    prompt: () => getPrompt(task, layoutConfig, trialType),
     prompt_above_buttons: promptAboveButtons,
     keyboard_choices: () => {
       return taskStore().nextStimulus.distractors?.length === 1
@@ -530,7 +531,7 @@ export const afcStimulusTemplate = ({ trialType, responseAllowed, promptAboveBut
   };
 };
 
-export const afcStimulus = ({ trialType, responseAllowed, promptAboveButtons, task, layoutConfig } = {}) => {
+export const afcStimulus = ({ trialType, responseAllowed, promptAboveButtons, task, layoutConfig} = {}) => {
   return {
     timeline: [
       afcStimulusTemplate({
@@ -538,7 +539,7 @@ export const afcStimulus = ({ trialType, responseAllowed, promptAboveButtons, ta
         responseAllowed: responseAllowed,
         promptAboveButtons: promptAboveButtons,
         task: task,
-        layoutConfig,
+        layoutConfig
       }),
     ]
     }
