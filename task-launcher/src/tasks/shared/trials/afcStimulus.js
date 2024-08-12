@@ -94,18 +94,17 @@ const handleStaggeredButtons = async (layoutConfig, stim, pageState) => {
   }
 };
 
-function getStimulus() {
+function getStimulus(layoutConfig) {
+  if (!!layoutConfig?.noAudio){
+    return mediaAssets.audio.nullAudio;
+  }
   const stim = taskStore().nextStimulus;
-  if (!stim.audioFile) return mediaAssets.audio.nullAudio;
-  if (!mediaAssets.audio[camelize(stim.audioFile)]) return mediaAssets.audio.nullAudio;
-  // all tasks should have the replay button play whatever is in stim.audioFile (might be just prompt/instructions)
+  if (!mediaAssets.audio[camelize(stim.audioFile ?? '')]) {
+    return mediaAssets.audio.nullAudio;
+  }
 
   if ((stim.task === 'Mental Rotation') && stim.assessmentStage !== 'practice_response' && stim.trialType !== 'instructions') {
     return mediaAssets.audio.nullAudio;
-  }
-  
-  if (matrixReasoningTrials > 3){
-    return mediaAssets.audio.nullAudio; 
   }
 
   if (
