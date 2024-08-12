@@ -21,8 +21,6 @@ const replayButtonHtmlId = 'replay-btn-revisited';
 // Previously chosen responses for current practice trial
 let practiceResponses = [];
 let trialsOfCurrentType = 0;
-// number of trials so far with trial type 'Matrix Reasoning'
-let matrixReasoningTrials = 0; 
 
 let keyboardResponseMap = {};
 // Only used for keyboard responses
@@ -334,10 +332,6 @@ function doOnLoad(task, layoutConfig) {
     twoTrialsAgoIndex = currentTrialIndex - 3; // math has a fixation or something
   }
   const twoTrialsAgoStimulus = jsPsych.data.get().filter({ trial_index: twoTrialsAgoIndex }).values();
-  
-  if (stim.trialType === 'Matrix Reasoning'){
-    matrixReasoningTrials += 1;
-  }
 
   if (stim.assessmentStage === 'practice_response') {
     const practiceBtns = document.querySelectorAll('.practice-btn');
@@ -520,7 +514,7 @@ export const afcStimulusTemplate = ({ trialType, responseAllowed, promptAboveBut
         isPracticeTrial: isPracticeTrial,
       };
     },
-    stimulus: () => getStimulus(trialType),
+    stimulus: () => getStimulus(layoutConfig),
     prompt: () => getPrompt(task, trialType),
     prompt_above_buttons: promptAboveButtons,
     keyboard_choices: () => {
