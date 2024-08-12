@@ -22,10 +22,7 @@ export default function buildMatrixTimeline(config, mediaAssets) {
     trialType: 'audio',
     responseAllowed: true,
     promptAboveButtons: true,
-    task: config.task,
-    layoutConfig: {
-      showPrompt: true
-    }
+    task: config.task
   };
 
   const ifRealTrialResponse = {
@@ -58,7 +55,19 @@ export default function buildMatrixTimeline(config, mediaAssets) {
   const timeline = [preloadTrials, initialTimeline, ...instructions];
 
   const numOfTrials = taskStore().totalTrials;
-  for (let i = 0; i < numOfTrials; i++) {
+  for (let i = 0; i < numOfTrials; i += 1) {
+    const finalTrialConfig = {
+      ...trialConfig,
+      // only the first 3 trials have audio
+      layoutConfig: {
+        noAudio: i > 2,
+        staggered: {
+          enabled: false,
+          trialTypes: [],
+        },
+        showPrompt: true
+      },
+    };
     timeline.push(setupStimulus);
     timeline.push(stimulusBlock);
     timeline.push(ifRealTrialResponse); 

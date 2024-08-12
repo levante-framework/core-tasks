@@ -496,7 +496,7 @@ function doOnFinish(data, task) {
 }
 
 // { trialType, responseAllowed, promptAboveButtons, task }
-export const afcStimulusTemplate = ({ trialType, responseAllowed, promptAboveButtons, task, layoutConfig, showPrompt } = {}) => {
+export const afcStimulusTemplate = ({ trialType, responseAllowed, promptAboveButtons, task, layoutConfig } = {}) => {
   // TODO: pull out task-specific parameters (e.g., getPrompt(.., showPrompt=false) for Number Identification, TROG, ..)
   return {
     type: jsPsychAudioMultiResponse,
