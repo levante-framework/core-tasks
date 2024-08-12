@@ -40,9 +40,9 @@ export default function buildMatrixTimeline(config, mediaAssets) {
     },
   };
 
-  const stimulusBlock = (config) => ({
+  const stimulusBlock = {
     timeline: [
-      afcStimulus(config),
+      afcStimulus(trialConfig) 
     ],
     // true = execute normally, false = skip
     conditional_function: () => {
@@ -53,25 +53,14 @@ export default function buildMatrixTimeline(config, mediaAssets) {
         return true;
       }
     },
-  });
+  };
 
   const timeline = [preloadTrials, initialTimeline, ...instructions];
 
   const numOfTrials = taskStore().totalTrials;
-  for (let i = 0; i < numOfTrials; i += 1) {
-    const finalTrialConfig = {
-      ...trialConfig,
-      // only the first 3 trials have audio
-      layoutConfig: {
-        noAudio: i > 2,
-        staggered: {
-          enabled: false,
-          trialTypes: [],
-        },
-      },
-    };
+  for (let i = 0; i < numOfTrials; i++) {
     timeline.push(setupStimulus);
-    timeline.push(stimulusBlock(finalTrialConfig));
+    timeline.push(stimulusBlock);
     timeline.push(ifRealTrialResponse); 
   }
 
