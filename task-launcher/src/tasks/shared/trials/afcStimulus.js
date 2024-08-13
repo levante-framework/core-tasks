@@ -243,7 +243,7 @@ function getButtonHtml(task) {
   if (stimulus.trialType === 'instructions') {
     return "<button class='primary'>%choice%</button>";
   } else if (task === 'vocab'|| task === 'trog'){
-    return "<button class='image-large'>%choice%</button>"
+    return "<button class='image-medium'>%choice%</button>"
   }
   if (stimulus.trialType === 'Fraction') {
     return "<button class='secondary'>%choice%</button>";

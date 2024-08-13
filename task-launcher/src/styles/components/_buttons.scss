@@ -228,4 +228,30 @@ button {
       border-color: $border-button-primary-clicked;
     }
   }
+
+  &.image-medium {
+    @extend .button-base; 
+    padding: 0; 
+    box-sizing: border-box; 
+    border-color: $bg-button-primary;
+
+    img {
+      border: none;
+      width: $response-size-large;
+      height: $response-size-large;
+      padding: 0;
+      margin: 0;
+      border-radius: $lev-spacing-s;
+      float: left;
+    }
+
+    &:hover {
+      border-color: $bg-accent_secondary;
+    }
+
+    &:active {
+      border-color: $border-button-primary-clicked;
+    }
+
+  }
 }
