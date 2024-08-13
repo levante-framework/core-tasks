@@ -15,7 +15,7 @@ export default function buildMemoryTimeline(config, mediaAssets) {
     timeline: [
       getCorsiBlocks({ mode: 'display', isPractice: true }),
       getCorsiBlocks({ mode: 'input', isPractice: true }),
-      feedback(true),
+      feedback(true, 'feedbackCorrect', 'memoryGameForwardTryAgain'),
     ],
     repetitions: 3,
   };

@@ -4,15 +4,19 @@ import { taskStore } from '../helpers';
 import { camelize } from '@bdelab/roar-utils';
 
 // isPractice parameter is for tasks that don't have a corpus (e.g. memory game)
-export const feedback = (isPractice = false) => {
+export const feedback = (isPractice = false, correctFeedbackAudioKey, inCorrectFeedbackAudioKey) => {
     return {
         timeline: [
             {
                 type: jsPsychAudioMultiResponse,
                 stimulus: () => {
                     const isCorrect = taskStore().isCorrect;
+                    const stimulusPath = isCorrect 
+                        ? mediaAssets.audio[correctFeedbackAudioKey]
+                        : mediaAssets.audio[inCorrectFeedbackAudioKey];
+                    
                     return (
-                        isCorrect ? mediaAssets.audio.feedbackCorrect : mediaAssets.audio.feedbackTryAgain
+                        stimulusPath || mediaAssets.audio.nullAudio
                     )
                 },
                 prompt: () => {

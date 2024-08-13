@@ -42,7 +42,7 @@ export default function buildSameDifferentTimeline(config, mediaAssets) {
   
   const feedbackBlock = {
     timeline: [
-      feedback(true)
+      feedback(true, 'feedbackCorrect', 'feedbackTryAgain')
     ],
   
     conditional_function: () => {
