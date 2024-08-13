@@ -242,6 +242,8 @@ function getButtonHtml(task) {
   // TODO: add trial_type column to math item bank
   if (stimulus.trialType === 'instructions') {
     return "<button class='primary'>%choice%</button>";
+  } else if (task === 'vocab'|| task === 'trog'){
+    return "<button class='image-large'>%choice%</button>"
   }
   if (stimulus.trialType === 'Fraction') {
     return "<button class='secondary'>%choice%</button>";
