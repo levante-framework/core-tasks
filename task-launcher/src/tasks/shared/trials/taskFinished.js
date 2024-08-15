@@ -1,5 +1,6 @@
 import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
-import { taskStore } from '../helpers';
+import { taskStore, PageAudioHandler } from '../helpers';
+import { mediaAssets } from '../../..';
 
 export const taskFinished = {
   type: jsPsychHTMLMultiResponse,
@@ -13,13 +14,17 @@ export const taskFinished = {
     const t = taskStore().translations;
     return `
         <div class='instructions-container'>
+          <div class='lev-row-container instruction'>
             <h1 class='instructions-title'>${t.taskFinished}</h1>
-    
+          </div>'
             <footer>${t.generalFooter}</footer>
         </div>`;
   },
   button_choices: [`Continue`],
   keyboard_choices: 'ALL_KEYS',
-  button_html: '<button class="primary">Exit</button>',
+  button_html: '<button class="primary" style=margin-top:10%>Exit</button>',
+  on_load: () => PageAudioHandler.playAudio(mediaAssets.audio.taskFinished)
   // trial_duration: 1000,
 };
+
+
