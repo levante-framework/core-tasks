@@ -16,7 +16,7 @@ export const taskFinished = {
         <div class='instructions-container'>
           <div class='lev-row-container instruction'>
             <h1 class='instructions-title'>${t.taskFinished}</h1>
-          </div>'
+          </div>
             <footer>${t.generalFooter}</footer>
         </div>`;
   },
