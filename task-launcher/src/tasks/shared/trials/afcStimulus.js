@@ -245,7 +245,7 @@ function getButtonHtml(task) {
   // TODO: add trial_type column to math item bank
   if (stimulus.trialType === 'instructions') {
     return "<button class='primary'>%choice%</button>";
-  }
+  } 
   if (stimulus.trialType === 'Fraction') {
     return "<button class='secondary'>%choice%</button>";
   } else if (task === 'egma-math') {
@@ -386,6 +386,8 @@ function doOnLoad(task, layoutConfig) {
       if (task !== 'egma-math') {
         if (task === 'mental-rotation') {
           el.children[0].classList.add('image-large');
+        } else if (task === 'vocab' || task === 'trog') {
+          el.children[0].classList.add('image-medium'); 
         } else {
           el.children[0].classList.add('image');
         }
