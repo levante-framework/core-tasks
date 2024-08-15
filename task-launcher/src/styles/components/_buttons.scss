@@ -228,4 +228,39 @@ button {
       border-color: $border-button-primary-clicked;
     }
   }
+
+  &.image-medium {
+    @extend .button-base; 
+    padding: 0; 
+    box-sizing: border-box; 
+    border-color: $bg-button-primary;
+
+    img {
+      border: none;
+      width: $response-size-m;
+      height: $response-size-m;
+      padding: 0;
+      margin: 0;
+      border-radius: $lev-spacing-s;
+      float: left;
+    }
+
+    @include respond-to('small') {
+      border-radius: $lev-spacing-s;
+      img {
+        width: $response-size-s;
+        height: $response-size-s;
+        border-radius: $lev-spacing-xs;
+      }
+    }
+
+    &:hover {
+      border-color: $bg-accent_secondary;
+    }
+
+    &:active {
+      border-color: $border-button-primary-clicked;
+    }
+
+  }
 }
