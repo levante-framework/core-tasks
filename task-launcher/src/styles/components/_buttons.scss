@@ -245,6 +245,15 @@ button {
       float: left;
     }
 
+    @include respond-to('small') {
+      border-radius: $lev-spacing-s;
+      img {
+        width: $response-size-s;
+        height: $response-size-s;
+        border-radius: $lev-spacing-xs;
+      }
+    }
+
     &:hover {
       border-color: $bg-accent_secondary;
     }
