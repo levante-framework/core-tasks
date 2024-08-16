@@ -25,7 +25,13 @@ export default function buildTOMTimeline(config, mediaAssets) {
     layoutConfig: {
       staggered: {
         enabled: true,
-        trialTypes: ['audio_question', 'emotion_reasoning_question'],
+        trialTypes: [
+          'false_belief_question',
+          'reality_check_question',
+          'emotion_reasoning_question',
+          'reference_question',
+          'audio_question'
+        ],
       }, 
       showPrompt: true
     }
