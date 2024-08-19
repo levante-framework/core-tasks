@@ -30,7 +30,8 @@ export default function buildTOMTimeline(config, mediaAssets) {
           'reality_check_question',
           'emotion_reasoning_question',
           'reference_question',
-          'audio_question'
+          'attribution_question',
+          'action_question',
         ],
       }, 
       showPrompt: true
