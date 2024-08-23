@@ -10,6 +10,14 @@ import {
   taskFinished,
 } from '../shared/trials';
 
+// checks if the user should continue the task
+function checkContinue(){
+  const maxIncorrect = taskStore().maxIncorrect; 
+  const numIncorrect = taskStore().numIncorrect;
+
+  return numIncorrect < maxIncorrect; 
+}
+
 export default function buildTOMTimeline(config, mediaAssets) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
 
@@ -31,13 +39,21 @@ export default function buildTOMTimeline(config, mediaAssets) {
     }
   };
 
+  const setup = {
+    timeline: [setupStimulus], 
+
+    conditional_function: () => {
+      return checkContinue(); 
+    }
+  }
+
   const stimulusBlock = {
     timeline: [
       afcStimulus(trialConfig)
     ],
     // true = execute normally, false = skip
     conditional_function: () => {
-      if (taskStore().skipCurrentTrial) {
+      if (taskStore().skipCurrentTrial || !checkContinue()) {
         taskStore('skipCurrentTrial', false);
         return false;
       } else {
@@ -50,7 +66,7 @@ export default function buildTOMTimeline(config, mediaAssets) {
 
   const numOfTrials = taskStore().totalTrials;
   for (let i = 0; i < numOfTrials; i++) {
-    timeline.push(setupStimulus);
+    timeline.push(setup);
     timeline.push(stimulusBlock);
   }
 

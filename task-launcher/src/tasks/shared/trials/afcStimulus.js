@@ -493,8 +493,6 @@ function doOnFinish(data, task) {
 
   if (task === 'egma-math') {
     setSkipCurrentBlock(stimulus.trialType);
-  } else if ((taskStore().numIncorrect >= taskStore().maxIncorrect)) {
-    finishExperiment();
   }
 }
 
