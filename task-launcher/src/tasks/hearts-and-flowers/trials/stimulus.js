@@ -96,12 +96,6 @@ export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrial
         }
       }
 
-      const maxIncorrect = taskStore().maxIncorrect;
-
-      if (taskStore().numIncorrect == maxIncorrect) {
-        finishExperiment();
-      }
-
       //TODO: move these to timeline-level callback/variables
       taskStore('isCorrect', data.correct);
       taskStore('stimulus', stimulusType);
