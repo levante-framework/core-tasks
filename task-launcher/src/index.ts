@@ -5,13 +5,19 @@ import {
   showLevanteLogoLoading, 
   hideLevanteLogoLoading, 
   setTaskStore
+  // @ts-ignore
 } from './tasks/shared/helpers';
 import './styles/task.scss';
 import taskConfig from './tasks/taskConfig';
+import { RoarAppkit } from '@bdelab/roar-firekit';
 
-export let mediaAssets;
+export let mediaAssets: MediaAssetsType;
 export class TaskLauncher {
-  constructor(firekit, gameParams, userParams, displayElement) {
+  gameParams: GameParamsType;
+  userParams: UserParamsType;
+  firekit: RoarAppkit;
+  displayElement: boolean;
+  constructor(firekit: RoarAppkit, gameParams: GameParamsType, userParams: UserParamsType, displayElement: boolean) {
     this.gameParams = gameParams;
     this.userParams = userParams;
     this.firekit = firekit;
@@ -24,7 +30,7 @@ export class TaskLauncher {
     const { taskName, language } = this.gameParams;
 
     const { setConfig, getCorpus, buildTaskTimeline, getTranslations } =
-      taskConfig[dashToCamelCase(taskName)];
+      taskConfig[dashToCamelCase(taskName) as keyof typeof taskConfig];
 
     // GCP bucket names use a format like egma-math
     // will avoid language folder if not provided
@@ -39,7 +45,7 @@ export class TaskLauncher {
         mediaAssets = await getMediaAssets(taskName, {}, language);
       }
     } catch (error) {
-      throw new Error('Error fetching media assets: ', error);
+      throw new Error('Error fetching media assets: ' + error);
     }
 
     const config = await setConfig(this.firekit, this.gameParams, this.userParams, this.displayElement);
@@ -61,6 +67,6 @@ export class TaskLauncher {
     const { jsPsych, timeline } = await this.init();
     hideLevanteLogoLoading();
     jsPsych.run(timeline);
-    await isTaskFinished(() => this.firekit.run.completed === true);
+    await isTaskFinished(() => this.firekit?.run?.completed === true);
   }
 }

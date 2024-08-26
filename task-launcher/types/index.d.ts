@@ -10,10 +10,10 @@ declare global {
       trialTypes: string[], // filter for trial types, TODO: Remove this and move the logic to the task
     },
     classOverrides: {
-      buttonContainerClass: string; // This is where we can declare grid etc
-      buttonClass: string; // primary, secondary, image-large, image etc 
-      promptClass: string;
-      stimulusContainerClass: string;
+      buttonContainerClassList: string[]; // This is where we can declare grid etc
+      buttonClassList: string[]; // primary, secondary, image-large, image etc 
+      promptClassList: string[];
+      stimulusContainerClassList: string[];
     },
     prompt: {
       enabled: boolean;
@@ -26,4 +26,31 @@ declare global {
     isInstructionTrial: boolean;
     randomizeChoiceOrder: boolean;
   }
+
+  type StimulusType = {
+    source: string;
+    block_index?: string;
+    task: string; // TODO: define all task types here
+    item: string;
+    trialType: string;
+    image: string;
+    answer: string;
+    assessmentStage: string;
+    chanceLevel: string;
+    itemId: string;
+    distractors: string[];
+    audioFile: string;
+    requiredSelections: number;
+    blockIndex?: number;
+    prompt: string;
+  };
+
+  type MediaAssetsType = {
+    images: Record<string, string>;
+    audio: Record<string, string>;
+    video: Record<string, string>;
+  };
+
+  type GameParamsType = Record<string, string>;
+  type UserParamsType = Record<string, string>;
 }
