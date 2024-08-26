@@ -60,3 +60,12 @@
     }
   }
 }
+
+.lev-response-row-inline {
+  &.grid-2x2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* two columns of equal width */
+    grid-template-rows: 1fr 1fr; /* two rows of equal height */
+    gap: 1vw;
+  }
+}
