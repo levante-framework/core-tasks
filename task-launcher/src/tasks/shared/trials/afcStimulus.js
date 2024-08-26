@@ -320,11 +320,14 @@ function addKeyHelpers(el, keyIndex) {
   }
 }
 
-function doOnLoad(task, layoutConfig) {
+function doOnLoad(task, layoutConfig, layoutConfigMap) {
   startTime = performance.now();
 
   const stim = taskStore().nextStimulus;
+  const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
   const pageStateHandler = new PageStateHandler(stim.audioFile);
+  const isPracticeTrial = stim.assessmentStage === 'practice_response';
+  const isInstructionTrial = stim.trialType === 'instructions';
   // Handle the staggered buttons
   handleStaggeredButtons(layoutConfig, stim, pageStateHandler);
   const currentTrialIndex = jsPsych.getProgress().current_trial_global;
@@ -334,7 +337,7 @@ function doOnLoad(task, layoutConfig) {
   }
   const twoTrialsAgoStimulus = jsPsych.data.get().filter({ trial_index: twoTrialsAgoIndex }).values();
   
-  if (stim.assessmentStage === 'practice_response') {
+  if (isPracticeTrial) {
     const practiceBtns = document.querySelectorAll('.practice-btn');
 
     practiceBtns.forEach((btn, i) =>
@@ -357,7 +360,7 @@ function doOnLoad(task, layoutConfig) {
       trialsOfCurrentType = 0;
     }
   } else {
-    if (stim.assessmentStage != 'practice_response' && stim.trialType != 'instructions') {
+    if (!isPracticeTrial && !isInstructionTrial) {
       trialsOfCurrentType += 1;
     }
   }
@@ -365,8 +368,13 @@ function doOnLoad(task, layoutConfig) {
   if (stim.trialType !== 'instructions') {
     const buttonContainer = document.getElementById('jspsych-audio-multi-response-btngroup');
 
-    buttonContainer.classList.add(`lev-response-row`);
-    buttonContainer.classList.add(`multi-4`);
+    if (itemLayoutConfig) {
+      buttonContainer.classList.add(...itemLayoutConfig.classOverrides.buttonContainerClassList);
+    } else {
+      // TODO REMOVE AFTER LAYOUTCONFIG IMPLEMENTATION
+      buttonContainer.classList.add(`lev-response-row`);
+      buttonContainer.classList.add(`multi-4`);
+    }
 
     let responseChoices 
     if (stim.trialType === 'Fraction') {
@@ -383,13 +391,18 @@ function doOnLoad(task, layoutConfig) {
       const keyIndex = buttonContainer.children.length === 2 ? i + 1 : i;
       keyboardResponseMap[arrowKeyEmojis[keyIndex][0]] = responseChoices[i];
 
-      if (task !== 'egma-math') {
-        if (task === 'mental-rotation') {
-          el.children[0].classList.add('image-large');
-        } else if (task === 'vocab' || task === 'trog') {
-          el.children[0].classList.add('image-medium'); 
-        } else {
-          el.children[0].classList.add('image');
+      if (itemLayoutConfig) {
+        el.children[0].classList.add(...itemLayoutConfig.classOverrides.buttonClassList);
+      } else {
+        // TODO REMOVE AFTER LAYOUTCONFIG IMPLEMENTATION
+        if (task !== 'egma-math') {
+          if (task === 'mental-rotation') {
+            el.children[0].classList.add('image-large');
+          } else if (task === 'vocab' || task === 'trog') {
+            el.children[0].classList.add('image-medium'); 
+          } else {
+            el.children[0].classList.add('image');
+          }
         }
       }
 
@@ -399,7 +412,7 @@ function doOnLoad(task, layoutConfig) {
     // update the trial number
     taskStore.transact('trialNumSubtask', (oldVal) => oldVal + 1);
     // update total real trials
-    if (!isPractice(stim.notes)) {
+    if (isPracticeTrial) {
       taskStore.transact('trialNumTotal', (oldVal) => oldVal + 1);
     }
   }
@@ -501,7 +514,7 @@ function doOnFinish(data, task) {
 }
 
 // { trialType, responseAllowed, promptAboveButtons, task }
-export const afcStimulusTemplate = ({ trialType, responseAllowed, promptAboveButtons, task, layoutConfig } = {}) => {
+export const afcStimulusTemplate = ({ trialType, responseAllowed, promptAboveButtons, task, layoutConfig, layoutConfigMap } = {}) => {
   // TODO: pull out task-specific parameters (e.g., getPrompt(.., showPrompt=false) for Number Identification, TROG, ..)
   return {
     type: jsPsychAudioMultiResponse,
@@ -527,7 +540,7 @@ export const afcStimulusTemplate = ({ trialType, responseAllowed, promptAboveBut
     },
     button_choices: () => getButtonChoices(task, trialType),
     button_html: () => getButtonHtml(task, trialType),
-    on_load: () => doOnLoad(task, layoutConfig),
+    on_load: () => doOnLoad(task, layoutConfig, layoutConfigMap),
     on_finish: (data) => doOnFinish(data, task, trialType),
     response_ends_trial: () => (taskStore().nextStimulus.assessmentStage === 'practice_response' ? false : true),
   };

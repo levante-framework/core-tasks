@@ -3,11 +3,35 @@ import _omitBy from 'lodash/omitBy';
 import _isNull from 'lodash/isNull';
 import _isUndefined from 'lodash/isUndefined';
 import i18next from 'i18next';
-import { camelize } from '@bdelab/roar-utils';
-import store from 'store2';
 import { isRoarApp } from './isRoarApp';
+import { camelize } from './camelize';
+import { RoarAppkit } from '@bdelab/roar-firekit';
 
-const defaultCorpus = {
+export const DEFAULT_LAYOUT_CONFIG: LayoutConfigType = {
+  noAudio: false,
+  staggered: {
+    enabled: false,
+    trialTypes: [],
+  },
+  classOverrides: {
+    buttonContainerClassList: ['lev-response-row', 'multi-4'],
+    buttonClassList: ['image'], 
+    promptClassList: ['lev-row-container', 'instruction'],
+    stimulusContainerClassList: ['lev-stim-content-x-3'],
+  },
+  prompt: {
+    enabled: true,
+    aboveStimulus: true,
+  },
+  showStimText: false,
+  equalSizeStim: false,
+  disableButtonsWhenAudioPlaying: false,
+  isPracticeTrial: false,
+  isInstructionTrial: false,
+  randomizeChoiceOrder: false,
+};
+
+const defaultCorpus: Record<string, string> = {
   egmaMath: 'math-item-bank',
   matrixReasoning: 'matrix-reasoning-item-bank',
   mentalRotation: 'mental-rotation-item-bank',
@@ -17,7 +41,7 @@ const defaultCorpus = {
   vocab: 'vocab-item-bank',
 };
 
-export const setSharedConfig = async (firekit, gameParams, userParams, displayElement) => {
+export const setSharedConfig = async (firekit: RoarAppkit, gameParams: GameParamsType, userParams: UserParamsType, displayElement: HTMLElement) => {
   const cleanParams = _omitBy(_omitBy({ ...gameParams, ...userParams }, _isNull), _isUndefined);
 
   const {
@@ -65,17 +89,15 @@ export const setSharedConfig = async (firekit, gameParams, userParams, displayEl
   };
 
   // default corpus if nothing is passed in
-  if (!config.corpus) config.corpus = defaultCorpus[camelize(taskName)];
+  if (!config.corpus) {
+    config.corpus = defaultCorpus[camelize(taskName)]
+  };
 
   const updatedGameParams = Object.fromEntries(
-    Object.entries(gameParams).map(([key, value]) => [key, config[key] ?? value]),
+    Object.entries(gameParams).map(([key, value]) => [key, config[key as keyof typeof config] ?? value]),
   );
 
   await config.firekit.updateTaskParams(updatedGameParams);
-
-  if (config.pid !== null) {
-    await config.firekit.updateUser({ assessmentPid: config.pid, ...userMetadata });
-  }
 
   return config;
 };
