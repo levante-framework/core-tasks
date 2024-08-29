@@ -29,6 +29,7 @@ export const DEFAULT_LAYOUT_CONFIG: LayoutConfigType = {
   isPracticeTrial: false,
   isInstructionTrial: false,
   randomizeChoiceOrder: false,
+  isStaggered: false,
 };
 
 const defaultCorpus: Record<string, string> = {

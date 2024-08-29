@@ -57,11 +57,8 @@ const showStaggeredBtnAndPlaySound = (
   });
 };
 
-const handleStaggeredButtons = async (layoutConfig, stim, pageState) => {
-  if (
-    !!layoutConfig?.staggered?.enabled
-    && (layoutConfig?.staggered?.trialTypes || []).includes(stim.trialType)
-  ) {
+const handleStaggeredButtons = async (layoutConfig, pageState) => {
+  if (layoutConfig?.isStaggered) {
       const parentResponseDiv = document.getElementById('jspsych-audio-multi-response-btngroup');
       let i = 0;
       const stimulusDuration = await pageState.getStimulusDurationMs();
@@ -329,7 +326,7 @@ function doOnLoad(task, layoutConfig, layoutConfigMap) {
   const isPracticeTrial = stim.assessmentStage === 'practice_response';
   const isInstructionTrial = stim.trialType === 'instructions';
   // Handle the staggered buttons
-  handleStaggeredButtons(layoutConfig, stim, pageStateHandler);
+  handleStaggeredButtons(itemLayoutConfig, pageStateHandler);
   const currentTrialIndex = jsPsych.getProgress().current_trial_global;
   let twoTrialsAgoIndex = currentTrialIndex - 2;
   if (stim.task === 'math') {
