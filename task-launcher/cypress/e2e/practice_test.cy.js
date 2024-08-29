@@ -21,6 +21,7 @@ describe('test vocab', () => {
         cy.get('.image').eq(0).click();
         playGame();  
       } else {
+        cy.contains('Thank you!').should('exist');
         return; 
       }
     });
@@ -33,17 +34,5 @@ describe('test vocab', () => {
     cy.contains('OK').click();
     clickThroughInstructions(); 
     playGame(); 
-
-    
-
-    
-    
-    //console.log(cy.get('.jspsych-content').find('.primary', {timeout: 60000}).length > 0);
-
-  
-
-    //while (cy.get('.jspsych-content').find('.lev-response-row').length > 0){
-    //  cy.get('.image')[0].click() 
-    //}
   })
 })
