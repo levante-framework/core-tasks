@@ -25,6 +25,7 @@ declare global {
     isPracticeTrial: boolean;
     isInstructionTrial: boolean;
     randomizeChoiceOrder: boolean;
+    isStaggered: boolean;
   }
 
   type StimulusType = {
