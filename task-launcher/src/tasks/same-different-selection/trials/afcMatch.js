@@ -201,6 +201,13 @@ export const afcMatch = {
       numIncorrect('numIncorrect', 0);
     }
 
+    const maxIncorrect = taskStore().maxIncorrect;
+
+    if ((numIncorrect('numIncorrect') === maxIncorrect)) {
+      finishExperiment();
+    }
+    
+    
     jsPsych.data.addDataToLastTrial({
       correct: isCorrect,
     });

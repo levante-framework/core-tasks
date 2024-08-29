@@ -24,35 +24,6 @@ import {
 } from './trials/instructions';
 import { StimulusType, StimulusSideType, AssessmentStageType, CorpusTrialType } from './helpers/utils';
 
-// checks if the user should continue the task
-function checkContinue(){
-  const maxIncorrect = taskStore().maxIncorrect; 
-  const numIncorrect = taskStore().numIncorrect;
-
-  return numIncorrect < maxIncorrect; 
-}
-
-// trials be skippable (so that user will always end with task completion message at end of timeline)
-function getSkippableStimulus(isPractice, stage, trialType, stimulusDuration, onTrialFinishTimelineCallback){
-  const stimulusTrial = {
-    timeline: [stimulus(isPractice, stage, trialType, stimulusDuration, onTrialFinishTimelineCallback)], 
-
-    conditional_function: () => {return checkContinue();}
-  }
-
-  return stimulusTrial; 
-}
-
-function getSkippableFixation(interStimulusInterval){
-  const fixationTrial = {
-    timeline: [fixation(interStimulusInterval)], 
-
-    conditional_function: () => {return checkContinue();}
-  }
-
-  return fixationTrial; 
-}
-
 export default function buildHeartsAndFlowersTimeline(config, mediaAssets) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
 
@@ -189,20 +160,15 @@ function getHeartOrFlowerInstructionsSection(adminConfig, stimulusType) {
 
   // Now let's build our timeline. Notice how we are pairing each practice trials with a feedback trial
   const subtimeline = [];
-  subtimeline.push({
-    timeline: [introTrial], 
-    conditional_function: () => {return checkContinue();}
-  });
+  subtimeline.push(introTrial);
   // Instruction practice trials do not advance until user gets it right
   subtimeline.push({
     timeline: [instructionPractice1, instructionPracticeFeedback],
     loop_function: () => taskStore().isCorrect === false,
-    conditional_function: () => {return checkContinue();}
   });
   subtimeline.push({
     timeline: [instructionPractice2, instructionPracticeFeedback],
     loop_function: () => taskStore().isCorrect === false,
-    conditional_function: () => {return checkContinue();}
   });
 
   return subtimeline;
@@ -232,10 +198,6 @@ function getHeartOrFlowerPracticeSection(adminConfig, stimulusType) {
       getKeepGoing(),
       getTimeToPlay(),
     ],
-
-    conditional_function: () => {
-      return checkContinue(); 
-    }
   };
 
   // Let's prepare 2 callbacks to pass to our stimuli and feedback trials in order to manage the practice block shortcut
@@ -251,26 +213,14 @@ function getHeartOrFlowerPracticeSection(adminConfig, stimulusType) {
   };
 
   // feedback-good-job, "Good job!" //TODO: double-check ok to use feedback-good-job instead of "Great! That's right!" which is absent from item bank anyway
-  const practiceFeedback = {
-    timeline: [
-      buildStimulusInvariantPracticeFeedback(feedbackKeyIncorrect, 'feedbackGoodJob', onFeedbackTrialFinishTimelineCallback)
-    ], 
-    conditional_function: () => {
-      return checkContinue(); 
-    }
-  }
-  const subtimeline = [];
-  subtimeline.push({
-    timeline: [getTimeToPractice()], 
+  const practiceFeedback = buildStimulusInvariantPracticeFeedback(feedbackKeyIncorrect, 'feedbackGoodJob', onFeedbackTrialFinishTimelineCallback);
 
-    conditional_function: () => {
-      return checkContinue(); 
-    }
-});
+  const subtimeline = [];
+  subtimeline.push(getTimeToPractice());
   subtimeline.push({
     timeline: [
-      getSkippableFixation(adminConfig.interStimulusInterval),
-      getSkippableStimulus(
+      fixation(adminConfig.interStimulusInterval),
+      stimulus(
         true,
         jsPsychAssessmentStage,
         adminConfig.stimulusPresentationTime,
@@ -309,8 +259,8 @@ function getHeartOrFlowerTestSection(adminConfig, stimulusType) {
   const subtimeline = []
   subtimeline.push({
     timeline: [
-      getSkippableFixation(adminConfig.interStimulusInterval),
-      getSkippableStimulus(false, jsPsychAssessmentStage, adminConfig.stimulusPresentationTime),
+      fixation(adminConfig.interStimulusInterval),
+      stimulus(false, jsPsychAssessmentStage, adminConfig.stimulusPresentationTime),
     ],
     timeline_variables: buildHeartsOrFlowersTimelineVariables(adminConfig.testTrialCount, stimulusType),
     randomize_order: false,
@@ -340,23 +290,15 @@ function getMixedInstructionsSection(adminConfig) {
   );
 
   const subtimeline = [];
-  subtimeline.push({
-    timeline: [getMixedInstructions()], 
-    
-    conditional_function: () => {
-      return checkContinue(); 
-    }
-  });
+  subtimeline.push(getMixedInstructions());
   // Instruction practice trials do not advance until user gets it right
   subtimeline.push({
     timeline: [instructionPractice1, instructionPracticeFeedback],
     loop_function: (data) => taskStore().isCorrect === false,
-    conditional_function: () => {return checkContinue();}
   });
   subtimeline.push({
     timeline: [instructionPractice2, instructionPracticeFeedback],
     loop_function: (data) => taskStore().isCorrect === false,
-    conditional_function: () => {return checkContinue();}
   });
 
   return subtimeline;
@@ -379,19 +321,11 @@ function getMixedPracticeSection(adminConfig) {
   // feedback-good-job, "Good job!" //TODO: double-check ok to use feedback-good-job instead of "Great! That's right!" which is absent from item bank anyway
   // heart-practice-feedback2, "Remember! When you see a HEART... on the SAME side."
   // flower-practice-feedback2, "When you see a FLOWER, press the button on the OPPOSITE side."
-  const practiceFeedback = {
-    timeline: [
-      buildMixedPracticeFeedback('heartPracticeFeedback2', 'feedbackGoodJob', 'flowerPracticeFeedback2', 'feedbackGoodJob', onFeedbackTrialFinishTimelineCallback), 
-    ], 
-
-    conditional_function: () => {
-      return checkContinue(); 
-    }
-  }
+  const practiceFeedback = buildMixedPracticeFeedback('heartPracticeFeedback2', 'feedbackGoodJob', 'flowerPracticeFeedback2', 'feedbackGoodJob', onFeedbackTrialFinishTimelineCallback);
   const heartsAndFlowersPracticeTimeline = {
     timeline: [
-      getSkippableFixation(adminConfig.interStimulusInterval),
-      getSkippableStimulus(
+      fixation(adminConfig.interStimulusInterval),
+      stimulus(
         true,
         AssessmentStageType.HeartsAndFlowersPractice, 
         CorpusTrialType.HeartsAndFlowersPractice,
@@ -411,28 +345,16 @@ function getMixedPracticeSection(adminConfig) {
       getKeepGoing(),
       getTimeToPlay(),
     ],
-
-    conditional_function: () => {
-      return checkContinue(); 
-    }
   };
 
-  const timeToPractice = {
-    timeline: [getTimeToPractice()], 
-
-    conditional_function: () => {
-      return checkContinue(); 
-    }
-  }
-
-  return [timeToPractice, heartsAndFlowersPracticeTimeline, heartsAndFlowersPostPracticeBlock];
+  return [getTimeToPractice(), heartsAndFlowersPracticeTimeline, heartsAndFlowersPostPracticeBlock];
 }
 
 function getMixedTestSection(adminConfig) {
   const heartsAndFlowersTimeline = {
     timeline: [
-      getSkippableFixation(adminConfig.interStimulusInterval),
-      getSkippableStimulus(false, 
+      fixation(adminConfig.interStimulusInterval),
+      stimulus(false, 
         AssessmentStageType.HeartsAndFlowersStimulus, 
         CorpusTrialType.HeartsAndFlowersStimulus, 
         adminConfig.stimulusPresentationTime),
