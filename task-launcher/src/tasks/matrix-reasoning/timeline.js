@@ -12,14 +12,6 @@ import {
   getAudioResponse
 } from '../shared/trials';
 
-// checks if the user should continue the task
-function checkContinue(){
-  const maxIncorrect = taskStore().maxIncorrect; 
-  const numIncorrect = taskStore().numIncorrect;
-
-  return numIncorrect < maxIncorrect; 
-}
-
 export default function buildMatrixTimeline(config, mediaAssets) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
 
@@ -38,20 +30,12 @@ export default function buildMatrixTimeline(config, mediaAssets) {
 
     conditional_function: () => {
       const stim = taskStore().nextStimulus;
-      if (stim.assessmentStage === 'practice_response' || stim.trialType === 'instructions' || !checkContinue()) {
+      if (stim.assessmentStage === 'practice_response' || stim.trialType === 'instructions') {
         return false;
       }
       return true;
     },
   };
-
-  const setup = {
-    timeline: [setupStimulus], 
-
-    conditional_function: () => {
-      return checkContinue(); 
-    }
-  }
 
   const stimulusBlock = (config) => ({
     timeline: [
@@ -59,7 +43,7 @@ export default function buildMatrixTimeline(config, mediaAssets) {
     ],
     // true = execute normally, false = skip
     conditional_function: () => {
-      if (taskStore().skipCurrentTrial || !checkContinue()) {
+      if (taskStore().skipCurrentTrial) {
         taskStore('skipCurrentTrial', false);
         return false;
       } else {
@@ -84,7 +68,7 @@ export default function buildMatrixTimeline(config, mediaAssets) {
         showPrompt: true
       },
     };
-    timeline.push(setup);
+    timeline.push(setupStimulus);
     timeline.push(stimulusBlock(finalTrialConfig));
     timeline.push(ifRealTrialResponse); 
   }

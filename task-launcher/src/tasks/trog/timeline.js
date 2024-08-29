@@ -10,14 +10,6 @@ import {
   taskFinished,
 } from '../shared/trials';
 
-// checks if the user should continue the task
-function checkContinue(){
-  const maxIncorrect = taskStore().maxIncorrect; 
-  const numIncorrect = taskStore().numIncorrect;
-
-  return numIncorrect < maxIncorrect; 
-}
-
 export default function buildTROGTimeline(config, mediaAssets) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
 
@@ -35,21 +27,13 @@ export default function buildTROGTimeline(config, mediaAssets) {
     }
   };
 
-  const setup = {
-    timeline: [setupStimulus], 
-
-    conditional_function: () => {
-      return checkContinue(); 
-    }
-  }
-
   const stimulusBlock = {
     timeline: [
       afcStimulus(trialConfig)
     ],
     // true = execute normally, false = skip
     conditional_function: () => {
-      if (taskStore().skipCurrentTrial || !checkContinue()) {
+      if (taskStore().skipCurrentTrial) {
         taskStore('skipCurrentTrial', false);
         return false;
       }
@@ -61,7 +45,7 @@ export default function buildTROGTimeline(config, mediaAssets) {
 
   const numOfTrials = taskStore().totalTrials;
   for (let i = 0; i < numOfTrials; i++) {
-    timeline.push(setup);
+    timeline.push(setupStimulus);
     timeline.push(stimulusBlock);
   }
 

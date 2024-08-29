@@ -1,5 +1,5 @@
 import 'regenerator-runtime/runtime';
-import { initTrialSaving, initTimeline} from '../shared/helpers';
+import { initTrialSaving, initTimeline } from '../shared/helpers';
 // setup
 import { jsPsych } from '../taskSetup';
 import { initializeCat } from '../taskSetup';
@@ -9,14 +9,6 @@ import { createPreloadTrials, taskStore } from '../shared/helpers';
 import { afcStimulus, taskFinished } from '../shared/trials';
 import { imageInstructions, nowYouTry, videoInstructionsFit, videoInstructionsMisfit } from './trials/instructions';
 import { exitFullscreen, setupStimulus, getAudioResponse } from '../shared/trials';
-
-// checks if the user should continue the task
-function checkContinue(){
-  const maxIncorrect = taskStore().maxIncorrect; 
-  const numIncorrect = taskStore().numIncorrect;
-
-  return numIncorrect < maxIncorrect; 
-}
 
 export default function buildMentalRotationTimeline(config, mediaAssets) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
@@ -46,14 +38,6 @@ export default function buildMentalRotationTimeline(config, mediaAssets) {
     }
   };
 
-  const setup = {
-    timeline: [setupStimulus], 
-
-    conditional_function: () => {
-      return checkContinue(); 
-    }
-  }
-
   const stimulusBlock = {
     timeline: [
       afcStimulus(trialConfig), 
@@ -61,7 +45,7 @@ export default function buildMentalRotationTimeline(config, mediaAssets) {
     ],
     // true = execute normally, false = skip
     conditional_function: () => {
-      if (taskStore().skipCurrentTrial || !checkContinue()) {
+      if (taskStore().skipCurrentTrial) {
         taskStore('skipCurrentTrial', false);
         return false;
       } else {
@@ -82,7 +66,7 @@ export default function buildMentalRotationTimeline(config, mediaAssets) {
 
   const numOfTrials = taskStore().totalTrials;
   for (let i = 0; i < numOfTrials; i++) {
-    timeline.push(setup);
+    timeline.push(setupStimulus);
     timeline.push(stimulusBlock);
   }
 

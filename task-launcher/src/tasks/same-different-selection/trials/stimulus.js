@@ -183,6 +183,12 @@ export const stimulus = {
         numIncorrect('numIncorrect', 0);
       }
 
+      const maxIncorrect = taskStore().maxIncorrect;
+
+      if ((numIncorrect('numIncorrect') == maxIncorrect)) {
+        finishExperiment();
+      }
+
       jsPsych.data.addDataToLastTrial({
         // specific to this trial
         item: stim.item,
