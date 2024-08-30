@@ -17,7 +17,7 @@ export function finishExperiment() {
             window.removeEventListener('keydown', removeDOMElements);
         }
     }
-    window.addEventListener('click', removeDOMElements);S
+    window.addEventListener('click', removeDOMElements);
     window.addEventListener('keydown', removeDOMElements);
 
     jsPsych.endExperiment(
