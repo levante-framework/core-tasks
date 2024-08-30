@@ -13,9 +13,9 @@ export const taskFinished = {
   stimulus: () => {
     const t = taskStore().translations;
     return `
-        <div class='instructions-container'>
+        <div class='lev-stimulus-container'>
           <div class='lev-row-container instruction'>
-            <h1 class='instructions-title'>${t.taskFinished}</h1>
+            <h1>${t.taskFinished}</h1>
           </div>
             <footer>${t.generalFooter}</footer>
         </div>`;
