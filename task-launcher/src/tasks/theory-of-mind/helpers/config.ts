@@ -1,12 +1,17 @@
 import { camelize } from "../../shared/helpers/camelize";
+//@ts-ignore
+import { prepareChoices } from "../../shared/helpers/prepareChoices";
 import { DEFAULT_LAYOUT_CONFIG } from "../../shared/helpers/config";
 
 export const getLayoutConfig = (stimulus: StimulusType): LayoutConfigType => {
+  const { answer, distractors, trialType } = stimulus;
   const defaultConfig: LayoutConfigType = JSON.parse(JSON.stringify(DEFAULT_LAYOUT_CONFIG));
   defaultConfig.isPracticeTrial = stimulus.assessmentStage === 'practice_response';
   defaultConfig.isInstructionTrial = stimulus.trialType === 'instructions';
   if (!defaultConfig.isInstructionTrial) {
     defaultConfig.isStaggered = true;
+    defaultConfig.isImageButtonResponse = true;
+    defaultConfig.buttonChoices = prepareChoices(answer, distractors, true, trialType).choices;
   } else {
     defaultConfig.classOverrides.buttonClassList = ['primary'];
   }

@@ -30,6 +30,9 @@ export const DEFAULT_LAYOUT_CONFIG: LayoutConfigType = {
   isInstructionTrial: false,
   randomizeChoiceOrder: false,
   isStaggered: false,
+  isImageButtonResponse: false,
+  showStimImage: true,
+  buttonChoices: ['OK'],
 };
 
 const defaultCorpus: Record<string, string> = {
