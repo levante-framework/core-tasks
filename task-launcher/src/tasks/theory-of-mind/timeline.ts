@@ -35,20 +35,6 @@ export default function buildTOMTimeline(config: Record<string, any>, mediaAsset
     promptAboveButtons: true,
     task: config.task,
     layoutConfigMap,
-    layoutConfig: {
-      // staggered: {
-      //   enabled: true,
-      //   trialTypes: [
-      //     'false_belief_question',
-      //     'reality_check_question',
-      //     'emotion_reasoning_question',
-      //     'reference_question',
-      //     'attribution_question',
-      //     'action_question',
-      //   ],
-      // }, 
-      showPrompt: true
-    }
   };
 
   const stimulusBlock = {
