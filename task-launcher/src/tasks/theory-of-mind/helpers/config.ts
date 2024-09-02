@@ -38,6 +38,11 @@ export const validateCorpus = (corpus: StimulusType[], mediaAssets: MediaAssetsT
       messages.push('Missing prompt for: ' + c.itemId);
     }
 
+    // check the image asset for the stimulus
+    if (!mediaAssets.images[camelize(c.item)]) {
+      messages.push('Missing stimulus image for: ' + c.itemId);
+    }
+
     if (c.trialType !== 'instructions') {
       // validate all the image buttons
       if (!c.answer) {
