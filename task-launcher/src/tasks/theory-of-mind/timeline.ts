@@ -15,7 +15,8 @@ export default function buildTOMTimeline(config: Record<string, any>, mediaAsset
   initTrialSaving(config);
   const initialTimeline = initTimeline(config);
 
-  const timeline = [preloadTrials, initialTimeline];  const corpus: StimulusType[] = taskStore().corpora.stimulus;
+  const timeline = [preloadTrials, initialTimeline];
+  const corpus: StimulusType[] = taskStore().corpora.stimulus;
   const messages = validateCorpus(corpus, mediaAssets);
 
   if (messages.length) {
