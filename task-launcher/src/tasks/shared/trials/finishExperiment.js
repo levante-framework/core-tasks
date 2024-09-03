@@ -11,10 +11,12 @@ export function finishExperiment() {
             if (buttonId === 'exit-button') {
                 document.body.innerHTML = '';
                 window.removeEventListener('click', removeDOMElements);
+                window.removeEventListener('keydown', removeDOMElements);
             }
         } else if (event.type === 'keydown'){
             document.body.innerHTML = '';
             window.removeEventListener('keydown', removeDOMElements);
+            window.removeEventListener('click', removeDOMElements);
         }
     }
     window.addEventListener('click', removeDOMElements);
