@@ -57,11 +57,8 @@ const showStaggeredBtnAndPlaySound = (
   });
 };
 
-const handleStaggeredButtons = async (layoutConfig, stim, pageState) => {
-  if (
-    !!layoutConfig?.staggered?.enabled
-    && (layoutConfig?.staggered?.trialTypes || []).includes(stim.trialType)
-  ) {
+const handleStaggeredButtons = async (layoutConfig, pageState) => {
+  if (layoutConfig?.isStaggered) {
       const parentResponseDiv = document.getElementById('jspsych-audio-multi-response-btngroup');
       let i = 0;
       const stimulusDuration = await pageState.getStimulusDurationMs();
@@ -92,11 +89,18 @@ const handleStaggeredButtons = async (layoutConfig, stim, pageState) => {
   }
 };
 
-function getStimulus(layoutConfig) {
+function getStimulus(layoutConfig, layoutConfigMap) {
+  const stim = taskStore().nextStimulus;
+  const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
+  if (itemLayoutConfig) {
+    const audioPath = itemLayoutConfig?.noAudio ? 'nullAudio' : camelize(stim.audioFile);
+    return mediaAssets.audio[audioPath];
+  }
+
+  // TODO: Remove everything below once layoutconfig is rolled out
   if (!!layoutConfig?.noAudio){
     return mediaAssets.audio.nullAudio;
   }
-  const stim = taskStore().nextStimulus;
   if (!stim.audioFile) return mediaAssets.audio.nullAudio;
   if (!mediaAssets.audio[camelize(stim.audioFile)]) return mediaAssets.audio.nullAudio;
   // all tasks should have the replay button play whatever is in stim.audioFile (might be just prompt/instructions)
@@ -118,12 +122,15 @@ function getStimulus(layoutConfig) {
   }
 }
 
-const getPromptTemplate = (prompt, mediaSrc, mediaAlt, stimText, equalSizeStim) => {
-  let template = `
-    <div class="lev-stimulus-container">
+const getPromptTemplate = (prompt, mediaSrc, mediaAlt, stimText, equalSizeStim, noAudio) => {
+  let template = '<div class="lev-stimulus-container">';
+  if (!noAudio) {
+    template += `
       <button id="${replayButtonHtmlId}" class="replay">
         ${replayButtonSvg}
-      </button>` ;
+      </button>
+    `;
+  }
 
   if (prompt) {
     template += `
@@ -161,12 +168,13 @@ const getPromptTemplate = (prompt, mediaSrc, mediaAlt, stimText, equalSizeStim) 
   return template;
 };
 
-function getPrompt(task, layoutConfig) {
+function getPrompt(task, layoutConfig, layoutConfigMap) {
   // showItem itemIsImage
   const stim = taskStore().nextStimulus;
   const t = taskStore().translations;
   const stimTrialType = stim.trialType;
   const stimTask = stim.task;
+  const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
 
   let stimItem;
   if (stim.trialType === 'Fraction') {
@@ -174,6 +182,34 @@ function getPrompt(task, layoutConfig) {
   } else {
     stimItem = stim.item;
   }
+  if (itemLayoutConfig) {
+    const {
+      noAudio,
+      prompt: {
+        enabled: promptEnabled,
+      },
+      showStimText,
+      equalSizeStim,
+      showStimImage,
+    } = itemLayoutConfig;
+    const mediaAsset = stimItem 
+      ? mediaAssets.images[camelize(stimItem)] || mediaAssets.images['blank']
+      : null;
+    const prompt = promptEnabled ? t[camelize(stim.audioFile)] : null;
+    const mediaSrc = showStimImage ? mediaAsset : null;
+    const mediaAlt = stimItem || 'Stimulus';
+    const stimText = showStimText ? stimItem : null;
+    return getPromptTemplate(
+      prompt,
+      mediaSrc,
+      mediaAlt,
+      stimText,
+      equalSizeStim,
+      noAudio,
+    );
+  }
+
+  // TODO: Delete everything down below once the layoutConfig is fully rolled out
 
   if (
     ['Number Identification', 'Number Comparison'].includes(stimTrialType) || 
@@ -218,8 +254,19 @@ function generateImageChoices(choices) {
   });
 }
 
-function getButtonChoices(task) {
+function getButtonChoices(task, layoutConfigMap) {
   const stimulus = taskStore().nextStimulus;
+  const itemLayoutConfig = layoutConfigMap?.[stimulus.itemId];
+  if (itemLayoutConfig) {
+    const {
+      isImageButtonResponse,
+      buttonChoices
+    } = itemLayoutConfig;
+    if (isImageButtonResponse) {
+      return generateImageChoices(buttonChoices);
+    }
+    return itemLayoutConfig.buttonChoices;
+  } 
   if (stimulus.trialType === 'instructions') {
     return ['OK'];
   }
@@ -240,8 +287,20 @@ function getButtonChoices(task) {
   return trialInfo.choices; // Default return if no special conditions met
 }
 
-function getButtonHtml(task) {
+function getButtonHtml(task, layoutConfigMap) {
   const stimulus = taskStore().nextStimulus;
+  const isPracticeTrial = stimulus.assessmentStage === 'practice_response';
+  const itemLayoutConfig = layoutConfigMap?.[stimulus.itemId];
+  if (itemLayoutConfig) {
+    const classList = [...itemLayoutConfig.classOverrides.buttonClassList];
+    // TODO: Remove once we have a way to handle practive btns
+    if (isPracticeTrial) {
+      classList.push('practice-btn');
+    }
+    return `
+      <button class='${classList.join(' ')}'>%choice%</button>
+    `;
+  }
   // TODO: add trial_type column to math item bank
   if (stimulus.trialType === 'instructions') {
     return "<button class='primary'>%choice%</button>";
@@ -329,7 +388,7 @@ function doOnLoad(task, layoutConfig, layoutConfigMap) {
   const isPracticeTrial = stim.assessmentStage === 'practice_response';
   const isInstructionTrial = stim.trialType === 'instructions';
   // Handle the staggered buttons
-  handleStaggeredButtons(layoutConfig, stim, pageStateHandler);
+  handleStaggeredButtons(itemLayoutConfig, pageStateHandler);
   const currentTrialIndex = jsPsych.getProgress().current_trial_global;
   let twoTrialsAgoIndex = currentTrialIndex - 2;
   if (stim.task === 'math') {
@@ -391,10 +450,10 @@ function doOnLoad(task, layoutConfig, layoutConfigMap) {
       const keyIndex = buttonContainer.children.length === 2 ? i + 1 : i;
       keyboardResponseMap[arrowKeyEmojis[keyIndex][0]] = responseChoices[i];
 
+      // TODO REMOVE AFTER LAYOUTCONFIG IMPLEMENTATION
       if (itemLayoutConfig) {
-        el.children[0].classList.add(...itemLayoutConfig.classOverrides.buttonClassList);
+        // do nothing handled in getButtonHtml
       } else {
-        // TODO REMOVE AFTER LAYOUTCONFIG IMPLEMENTATION
         if (task !== 'egma-math') {
           if (task === 'mental-rotation') {
             el.children[0].classList.add('image-large');
@@ -530,16 +589,16 @@ export const afcStimulusTemplate = ({ trialType, responseAllowed, promptAboveBut
         isPracticeTrial: isPracticeTrial,
       };
     },
-    stimulus: () => getStimulus(layoutConfig, trialType),
-    prompt: () => getPrompt(task, layoutConfig, trialType),
+    stimulus: () => getStimulus(layoutConfig, layoutConfigMap),
+    prompt: () => getPrompt(task, layoutConfig, layoutConfigMap),
     prompt_above_buttons: promptAboveButtons,
     keyboard_choices: () => {
       return taskStore().nextStimulus.distractors?.length === 1
         ? ['ArrowLeft', 'ArrowRight']
         : ['ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight'];
     },
-    button_choices: () => getButtonChoices(task, trialType),
-    button_html: () => getButtonHtml(task, trialType),
+    button_choices: () => getButtonChoices(task, layoutConfigMap),
+    button_html: () => getButtonHtml(task, layoutConfigMap),
     on_load: () => doOnLoad(task, layoutConfig, layoutConfigMap),
     on_finish: (data) => doOnFinish(data, task, trialType),
     response_ends_trial: () => (taskStore().nextStimulus.assessmentStage === 'practice_response' ? false : true),

@@ -4,21 +4,14 @@ import { prepareChoices } from "../../shared/helpers/prepareChoices";
 import { DEFAULT_LAYOUT_CONFIG } from "../../shared/helpers/config";
 
 export const getLayoutConfig = (stimulus: StimulusType): LayoutConfigType => {
-  const defaultConfig: LayoutConfigType = JSON.parse(JSON.stringify(DEFAULT_LAYOUT_CONFIG));
   const { answer, distractors, trialType } = stimulus;
+  const defaultConfig: LayoutConfigType = JSON.parse(JSON.stringify(DEFAULT_LAYOUT_CONFIG));
   defaultConfig.isPracticeTrial = stimulus.assessmentStage === 'practice_response';
   defaultConfig.isInstructionTrial = stimulus.trialType === 'instructions';
-  defaultConfig.showStimImage = false;
-  defaultConfig.showStimText = false;
   if (!defaultConfig.isInstructionTrial) {
-    defaultConfig.prompt = {
-      enabled: false,
-      aboveStimulus: false,
-    };
+    defaultConfig.isStaggered = true;
     defaultConfig.isImageButtonResponse = true;
     defaultConfig.buttonChoices = prepareChoices(answer, distractors, true, trialType).choices;
-    defaultConfig.classOverrides.buttonClassList = ['image-medium'];
-    defaultConfig.classOverrides.buttonContainerClassList = ['lev-response-row-inline', 'grid-2x2'];    
   } else {
     defaultConfig.classOverrides.buttonClassList = ['primary'];
   }
@@ -45,6 +38,11 @@ export const validateCorpus = (corpus: StimulusType[], mediaAssets: MediaAssetsT
       messages.push('Missing prompt for: ' + c.itemId);
     }
 
+    // check the image asset for the stimulus
+    if (!mediaAssets.images[camelize(c.item)]) {
+      messages.push('Missing stimulus image for: ' + c.itemId);
+    }
+
     if (c.trialType !== 'instructions') {
       // validate all the image buttons
       if (!c.answer) {
@@ -61,6 +59,10 @@ export const validateCorpus = (corpus: StimulusType[], mediaAssets: MediaAssetsT
         }
         if (!mediaAssets.images[imageAsset]) {
           messages.push(`Missing imageAsset: ${imageAsset} for: ${c.itemId}`);
+        }
+        // staggered buttons
+        if (!mediaAssets.audio[imageAsset]) {
+          messages.push(`Missing audio for staggered button: ${imageAsset}, item: ${c.itemId}`);
         }
       }
     }

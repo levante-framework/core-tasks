@@ -25,6 +25,10 @@ declare global {
     isPracticeTrial: boolean;
     isInstructionTrial: boolean;
     randomizeChoiceOrder: boolean;
+    isStaggered: boolean;
+    isImageButtonResponse: boolean;
+    showStimImage: boolean;
+    buttonChoices: string[];
   }
 
   type StimulusType = {

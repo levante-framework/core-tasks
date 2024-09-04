@@ -1,6 +1,6 @@
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
-import { isTouchScreen } from '../../taskSetup';
 import { mediaAssets } from '../../..';
+// @ts-ignore
 import { PageStateHandler, replayButtonSvg, setupReplayAudio, taskStore } from '../../shared/helpers';
 
 const instructionData = [
@@ -29,28 +29,11 @@ export const instructions = instructionData.map(data => {
                             <p>${t[data.prompt]}</p>
                         </div>
 
-                        ${data.video ? 
-                            `<video
-                                id='instruction-video'
-                                autoplay
-                                loop
-                            >
-                                <source
-                                    src=${mediaAssets.video[data.video]}
-                                    type='video/mp4'
-                                />
-                            </video>` :
-                            `<img
-                                src=${mediaAssets.images[data.image]}
-                                alt='Instruction graphic'
-                            />`
-                        }
-                        
-                        ${data.bottomText ? 
-                            `<footer id='footer'>
-                                ${t[data.bottomText]}
-                            </footer>`
-                            : ''}
+                 
+                        <img
+                            src=${mediaAssets.images[data.image]}
+                            alt='Instruction graphic'
+                        />
                     </div>`;
         },
         prompt_above_buttons: true,
