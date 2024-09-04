@@ -1,16 +1,16 @@
 import 'regenerator-runtime/runtime';
 // setup
-//@ts-ignore
-import { initTrialSaving, initTimeline, createPreloadTrials, taskStore } from '../shared/helpers';
-import { instructions } from './trials/instructions';
-//@ts-ignore
+// @ts-ignore
 import { jsPsych, initializeCat } from '../taskSetup';
+// @ts-ignore
+import { createPreloadTrials, taskStore, initTrialSaving, initTimeline } from '../shared/helpers';
 // trials
-//@ts-ignore
-import { afcStimulusTemplate, exitFullscreen, setupStimulus, taskFinished, getAudioResponse } from '../shared/trials';
+// @ts-ignore
+import { afcStimulus, afcStimulusTemplate, taskFinished, exitFullscreen, setupStimulus, getAudioResponse } from '../shared/trials';
+import { imageInstructions, videoInstructionsFit, videoInstructionsMisfit } from './trials/instructions';
 import { getLayoutConfig, validateCorpus } from './helpers/config';
 
-export default function buildMatrixTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
+export default function buildMentalRotationTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
 
   initTrialSaving(config);
@@ -21,14 +21,20 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
 
     conditional_function: () => {
       const stim = taskStore().nextStimulus;
-      if (stim.assessmentStage === 'practice_response' || stim.trialType === 'instructions') {
+      if (stim.assessmentStage === 'practice_response') {
         return false;
       }
       return true;
     },
   };
 
-  const timeline = [preloadTrials, initialTimeline, ...instructions];
+  const timeline = [
+    preloadTrials,
+    initialTimeline,
+    imageInstructions,
+    videoInstructionsMisfit,
+    videoInstructionsFit,
+  ];
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
   const messages = validateCorpus(corpus, mediaAssets);
 
@@ -49,12 +55,16 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
     responseAllowed: true,
     promptAboveButtons: true,
     task: config.task,
+    layoutConfig: {
+      showPrompt: true
+    },
     layoutConfigMap,
   };
 
-  const stimulusBlock = (config: Record<string, any>) => ({
+  const stimulusBlock = {
     timeline: [
-      afcStimulusTemplate(config) 
+      afcStimulusTemplate(trialConfig), 
+      ifRealTrialResponse
     ],
     // true = execute normally, false = skip
     conditional_function: () => {
@@ -65,13 +75,12 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
         return true;
       }
     },
-  });
+  };
 
   const numOfTrials = taskStore().totalTrials;
-  for (let i = 0; i < numOfTrials; i += 1) {
+  for (let i = 0; i < numOfTrials; i++) {
     timeline.push(setupStimulus);
-    timeline.push(stimulusBlock(trialConfig));
-    timeline.push(ifRealTrialResponse); 
+    timeline.push(stimulusBlock);
   }
 
   initializeCat();

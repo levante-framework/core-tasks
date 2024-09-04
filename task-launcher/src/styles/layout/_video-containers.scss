@@ -1,0 +1,35 @@
+@use '../abstracts/' as *;
+
+video {
+  &.instruction-video {
+    height: 60vh;
+    width: 40vw;
+
+    @include respond-to('small-medium') {
+      height: 50vh;
+      width: 30vw;
+    }
+
+    @include respond-to('medium') {
+      height: 55vh;
+      width: 35vw;
+    }
+  }
+}
+
+img {
+  &.instruction-video {
+    height: 60vh;
+    width: 40vw;
+
+    @include respond-to('small-medium') {
+      height: 50vh;
+      width: 30vw;
+    }
+
+    @include respond-to('medium') {
+      height: 55vh;
+      width: 35vw;
+    }
+  }
+}
