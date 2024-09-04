@@ -122,7 +122,7 @@ function getStimulus(layoutConfig, layoutConfigMap) {
   }
 }
 
-const getPromptTemplate = (prompt, mediaSrc, mediaAlt, stimText, equalSizeStim, noAudio) => {
+const getPromptTemplate = (prompt, mediaSrc, mediaAlt, stimText, equalSizeStim, noAudio, stimulusContainerClassList) => {
   let template = '<div class="lev-stimulus-container">';
   if (!noAudio) {
     template += `
@@ -155,9 +155,13 @@ const getPromptTemplate = (prompt, mediaSrc, mediaAlt, stimText, equalSizeStim, 
         <p>${stimText}</p>
       `;
     }
-    const containerClass = equalSizeStim
+    // TODO: Remove after LayoutConfig implementation
+    let containerClass = equalSizeStim
       ? 'lev-stim-content'
       : 'lev-stim-content-x-3';
+    if (stimulusContainerClassList) {
+      containerClass = stimulusContainerClassList.join(' ');
+    }
     template += `
       <div class=${containerClass}>
         ${contentTemplate}
@@ -188,6 +192,9 @@ function getPrompt(task, layoutConfig, layoutConfigMap) {
       prompt: {
         enabled: promptEnabled,
       },
+      classOverrides: {
+        stimulusContainerClassList
+      },
       showStimText,
       equalSizeStim,
       showStimImage,
@@ -206,6 +213,7 @@ function getPrompt(task, layoutConfig, layoutConfigMap) {
       stimText,
       equalSizeStim,
       noAudio,
+      stimulusContainerClassList,
     );
   }
 
