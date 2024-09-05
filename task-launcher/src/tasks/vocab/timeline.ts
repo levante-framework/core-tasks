@@ -1,20 +1,31 @@
 import 'regenerator-runtime/runtime';
 // setup
+// @ts-ignore
 import { initTrialSaving, initTimeline, createPreloadTrials, taskStore } from '../shared/helpers';
+// @ts-ignore
 import { jsPsych, initializeCat } from '../taskSetup';
 // trials
-import { 
-  afcStimulus, 
-  exitFullscreen, 
-  setupStimulus,
-  taskFinished,
-} from '../shared/trials';
+// @ts-ignore
+import { afcStimulusTemplate, exitFullscreen, setupStimulus, taskFinished } from '../shared/trials';
+import { getLayoutConfig, validateCorpus } from './helpers/config';
 
-export default function buildVocabTimeline(config, mediaAssets) {
+export default function buildVocabTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
 
   initTrialSaving(config);
   const initialTimeline = initTimeline(config);
+  const corpus: StimulusType[] = taskStore().corpora.stimulus;
+  const messages = validateCorpus(corpus, mediaAssets);
+
+  if (messages.length) {
+    console.error('The following errors were found');
+    console.table(messages);
+    throw new Error('Something went wrong. Please look in the console for error details');
+  }
+  const layoutConfigMap: Record<string, LayoutConfigType> = {};
+  for (const c of corpus) {
+    layoutConfigMap[c.itemId] = getLayoutConfig(c);
+  }
 
   // does not matter if trial has properties that don't belong to that type
   const trialConfig = {
@@ -24,12 +35,13 @@ export default function buildVocabTimeline(config, mediaAssets) {
     task: config.task,
     layoutConfig: {
       showPrompt: false
-    }
+    },
+    layoutConfigMap,
   };
 
   const stimulusBlock = {
     timeline: [
-      afcStimulus(trialConfig)
+      afcStimulusTemplate(trialConfig)
     ],
     // true = execute normally, false = skip
     conditional_function: () => {
