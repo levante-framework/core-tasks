@@ -8,7 +8,7 @@ import { jsPsych, initializeCat } from '../taskSetup';
 // trials
 //@ts-ignore
 import { afcStimulusTemplate, exitFullscreen, setupStimulus, taskFinished, getAudioResponse } from '../shared/trials';
-import { getLayoutConfig, validateCorpus } from './helpers/config';
+import { getLayoutConfig } from './helpers/config';
 
 export default function buildMatrixTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
@@ -30,18 +30,24 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
 
   const timeline = [preloadTrials, initialTimeline, ...instructions];
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
-  const messages = validateCorpus(corpus, mediaAssets);
+  const translations: Record<string, string> = taskStore().translations;
+  const validationErrorMap: Record<string, string> = {}; 
 
-  if (messages.length) {
-    console.error('The following errors were found');
-    console.table(messages);
-    throw new Error('Something went wrong. Please look in the console for error details');
-  }
   const layoutConfigMap: Record<string, LayoutConfigType> = {};
   let i = 0;
   for (const c of corpus) {
-    layoutConfigMap[c.itemId] = getLayoutConfig(c, i);
+    const { itemConfig, errorMessages } = getLayoutConfig(c, translations, mediaAssets, i);
+    layoutConfigMap[c.itemId] = itemConfig;
+    if (errorMessages.length) {
+      validationErrorMap[c.itemId] = errorMessages.join('; ');
+    }
     i += 1;
+  }
+
+  if (Object.keys(validationErrorMap).length) {
+    console.error('The following errors were found');
+    console.table(validationErrorMap);
+    throw new Error('Something went wrong. Please look in the console for error details');
   }
 
   const trialConfig = {
