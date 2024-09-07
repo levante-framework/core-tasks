@@ -1,6 +1,8 @@
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
+// @ts-ignore
 import { isTouchScreen } from '../../taskSetup';
 import { mediaAssets } from '../../..';
+// @ts-ignore
 import { PageAudioHandler, PageStateHandler, replayButtonSvg, setupReplayAudio, taskStore } from '../../shared/helpers';
 
 const instructionData = [
@@ -31,25 +33,29 @@ export const instructions = instructionData.map(data => {
         stimulus: () => mediaAssets.audio[data.prompt],
         prompt: () => {
             const t = taskStore().translations;
-            return `<div id='stimulus-container'>
-                        <button id="replay-btn-revisited" class="replay">
-                            ${replayButtonSvg}
-                        </button>
-                        <div id='prompt-container-text'>
-                            <h1 id='prompt'>${t[data.prompt]}</h1>
-                        </div>
-
-                        <img id='instruction-graphic' src=${mediaAssets.images[data.image]} alt='Instruction graphic'/>
-                        
-                        ${data.bottomText ? `<footer id='footer'>${t[data.bottomText]}</footer>` : ''}
-                    </div>`;
+            return `
+                <div class="lev-stimulus-container">
+                    <button id="replay-btn-revisited" class="replay">
+                        ${replayButtonSvg}
+                    </button>
+                    <div class="lev-row-container instruction">
+                        <p>${t[data.prompt]}</p>
+                    </div>
+                    <div class="lev-stim-content-x-3">
+                        <img
+                            src=${mediaAssets.images[data.image]}
+                            alt='Instruction graphic'
+                        />
+                    </div>
+                </div>
+            `;
         },
         prompt_above_buttons: true,
         button_choices: ['Next'],
         button_html: () => {
             const t = taskStore().translations;
             return [
-            `<button id='continue-btn' class="primary">
+            `<button class="primary">
                 ${t[data.buttonText]}
             </button>`,
             ]
