@@ -42,6 +42,13 @@ button {
       border-color: $border-button-primary-clicked;
       box-shadow:$button-default-box-shadow rgba($border-button-primary-clicked, 0.5) inset;
     }
+
+    &:disabled {
+      background: $btn-disabled-bg;
+      border-color: $btn-disabled-inset;
+      box-shadow:$button-default-box-shadow $btn-disabled-inset inset;
+      cursor: no-drop;
+    }
   }
 
   &.secondary {

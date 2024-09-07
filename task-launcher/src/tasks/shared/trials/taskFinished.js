@@ -23,7 +23,11 @@ export const taskFinished = {
   button_choices: [`Continue`],
   keyboard_choices: 'ALL_KEYS',
   button_html: '<button class="primary" style=margin-top:10%>Exit</button>',
-  on_load: () => PageAudioHandler.playAudio(mediaAssets.audio.taskFinished)
+  on_load: () => {
+    if (mediaAssets.audio.taskFinished) {
+      PageAudioHandler.playAudio(mediaAssets.audio.taskFinished)
+    }
+  }
   // trial_duration: 1000,
 };
 
