@@ -1,20 +1,17 @@
 import 'regenerator-runtime/runtime';
 import store from 'store2';
 // setup
+//@ts-ignore
 import { getStimulusBlockCount, initTrialSaving, initTimeline, createPreloadTrials, taskStore } from '../shared/helpers';
+//@ts-ignore
 import { jsPsych, initializeCat } from '../taskSetup';
 // trials
 import { slider } from './trials/sliderStimulus';
-import {
-  afcStimulus, 
-  exitFullscreen, 
-  getAudioResponse, 
-  setupStimulus,
-  taskFinished,
-} from '../shared/trials';
+//@ts-ignore
+import { afcStimulus, exitFullscreen, getAudioResponse, setupStimulus, taskFinished } from '../shared/trials';
 
 
-export default function buildMathTimeline(config, mediaAssets) {
+export default function buildMathTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
 
   initTrialSaving(config);
@@ -63,9 +60,9 @@ export default function buildMathTimeline(config, mediaAssets) {
     },
   };
 
-  const pushSubTaskToTimeline = (fixationAndSetupBlock, stimulusBlockCount) => {
+  const pushSubTaskToTimeline = (fixationAndSetupBlock: any, stimulusBlockCount: number[]) => {
     for (let i = 0; i < stimulusBlockCount.length; i++) {
-      const subTaskTimeline = [];
+      const subTaskTimeline: any[] = [];
       // This is one block of subtask trials. ex. number-identification
       const subTaskBlock = {
         timeline: subTaskTimeline,
@@ -85,10 +82,6 @@ export default function buildMathTimeline(config, mediaAssets) {
               return false;
             }
             const stim = taskStore().nextStimulus;
-            // if(!stim.trialType?.includes('Number Line')) {
-            //   return false;
-            // }
-
             const skipBlockTrialType = store.page.get('skipCurrentBlock');
             if (stim.trialType === skipBlockTrialType) {
               return false;
