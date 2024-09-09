@@ -27,11 +27,11 @@ describe('test vocab', () => {
     });
   }
 
-  it('visits trog and plays game', () => {
+  it('visits vocab and plays game', () => {
     cy.visit(local_url)
     // wait for OK button to be visible
     cy.contains('OK', {timeout: 60000}).should('be.visible'); 
-    cy.contains('OK').click();
+    cy.contains('OK').realClick(); // real click mimics user gesture so that fullscreen can start
     clickThroughInstructions(); 
     playGame(); 
   })
