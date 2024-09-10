@@ -20,10 +20,3 @@ import './commands'
 // require('./commands')
 
 import "cypress-real-events";
-
-// prevent permissions check failed exception from failing test
-Cypress.on('uncaught:exception', (err, runnable) => {
-    if (err.message.includes('Permissions check failed')){
-        return false
-    }
-})
