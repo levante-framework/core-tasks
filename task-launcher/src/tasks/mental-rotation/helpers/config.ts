@@ -9,10 +9,17 @@ export const getLayoutConfig = (stimulus: StimulusType, trialNumber: number): La
   defaultConfig.isPracticeTrial = stimulus.assessmentStage === 'practice_response';
   defaultConfig.isInstructionTrial = stimulus.trialType === 'instructions';
   if (!defaultConfig.isInstructionTrial) {
+    const prepChoices = prepareChoices(answer, distractors, false, trialType);
     defaultConfig.isImageButtonResponse = true;
-    defaultConfig.buttonChoices = prepareChoices(answer, distractors, true, trialType).choices;
+    defaultConfig.buttonChoices = prepChoices.choices;
     defaultConfig.classOverrides.stimulusContainerClassList = ['lev-stim-content'];
     defaultConfig.classOverrides.buttonClassList = ['image-large'];
+    defaultConfig.response = {
+      target: prepChoices.target,
+      displayValues: prepChoices.choices,
+      values: prepChoices.originalChoices,
+      targetIndex: prepChoices.correctResponseIdx,
+    };
   } else {
     defaultConfig.classOverrides.buttonClassList = ['primary'];
   }

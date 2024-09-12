@@ -17,14 +17,21 @@ export const getLayoutConfig = (stimulus: StimulusType, translations: Record<str
   defaultConfig.showStimImage = false;
   defaultConfig.showStimText = false;
   if (!defaultConfig.isInstructionTrial) {
+    const prepChoices = prepareChoices(answer, distractors, true, trialType);
     defaultConfig.prompt = {
       enabled: false,
       aboveStimulus: false,
     };
     defaultConfig.isImageButtonResponse = true;
-    defaultConfig.buttonChoices = prepareChoices(answer, distractors, true, trialType).choices;
+    defaultConfig.buttonChoices = prepChoices.choices;
     defaultConfig.classOverrides.buttonClassList = ['image-medium'];
-    defaultConfig.classOverrides.buttonContainerClassList = ['lev-response-row-inline', 'grid-2x2'];    
+    defaultConfig.classOverrides.buttonContainerClassList = ['lev-response-row-inline', 'grid-2x2'];
+    defaultConfig.response = {
+      target: prepChoices.target,
+      displayValues: prepChoices.choices,
+      values: prepChoices.originalChoices,
+      targetIndex: prepChoices.correctResponseIdx,
+    };
   } else {
     defaultConfig.classOverrides.buttonClassList = ['primary'];
   }

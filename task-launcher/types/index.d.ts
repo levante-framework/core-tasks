@@ -29,6 +29,16 @@ declare global {
     isImageButtonResponse: boolean;
     showStimImage: boolean;
     buttonChoices: string[];
+    response?: {
+      values: string[];
+      displayValues: string[];
+      target: string[];
+      targetIndex: number;
+    };
+    stimText?: {
+      value?: string;
+      displayValue?: string; 
+    };
   }
 
   type StimulusType = {
