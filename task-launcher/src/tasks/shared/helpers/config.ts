@@ -23,7 +23,6 @@ export const DEFAULT_LAYOUT_CONFIG: LayoutConfigType = {
     enabled: true,
     aboveStimulus: true,
   },
-  showStimText: false,
   equalSizeStim: false,
   disableButtonsWhenAudioPlaying: false,
   isPracticeTrial: false,

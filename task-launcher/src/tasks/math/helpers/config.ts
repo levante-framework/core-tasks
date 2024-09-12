@@ -1,4 +1,6 @@
 //@ts-ignore
+import { fractionToMathML } from '../../shared/helpers';
+//@ts-ignore
 import { prepareChoices } from "../../shared/helpers/prepareChoices";
 import { DEFAULT_LAYOUT_CONFIG } from "../../shared/helpers/config";
 import { validateLayoutConfig } from "../../shared/helpers/validateLayoutConfig";
@@ -20,11 +22,25 @@ export const getLayoutConfig = (
   defaultConfig.isInstructionTrial = stimulus.trialType === 'instructions';
   defaultConfig.showStimImage = false;
   if (!defaultConfig.isInstructionTrial) {
+    const prepChoices = prepareChoices(answer, distractors, true, trialType); 
     defaultConfig.prompt.enabled = false;
-    defaultConfig.showStimText = false;
     defaultConfig.isImageButtonResponse = false;
     defaultConfig.classOverrides.buttonClassList = ['secondary'];
-    defaultConfig.buttonChoices = prepareChoices(answer, distractors, true, trialType).choices;
+    defaultConfig.buttonChoices = prepChoices.choices;
+    defaultConfig.response = {
+      target: prepChoices.target,
+      displayValues: prepChoices.choices,
+      values: prepChoices.originalChoices,
+      targetIndex: prepChoices.correctResponseIdx,
+    };
+    if (!['Number Identification', 'Number Comparison'].includes(stimulus.trialType)) {
+      defaultConfig.stimText = {
+        value: stimulus.item,
+        displayValue: stimulus.trialType === 'Fraction'
+          ? fractionToMathML(stimulus.item)
+          : stimulus.item,
+      };
+    }
   } else {
     defaultConfig.classOverrides.buttonClassList = ['primary'];
   }
