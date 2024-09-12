@@ -14,7 +14,7 @@ export const prepareChoices = (target, distractors, randomizeOrder = true, trial
   if (randomizeOrder) {
     choices = _shuffle(choices);
   }
-
+  const originalChoices = [...choices];
   if (trialType === 'Fraction') {
     taskStore('nonFractionSelections', choices);
     choices = choices.map((choice) => fractionToMathML(choice));
@@ -27,7 +27,9 @@ export const prepareChoices = (target, distractors, randomizeOrder = true, trial
   taskStore('choices', choices);
 
   return {
-    target: target,
-    choices: choices,
+    target,
+    choices,
+    originalChoices,
+    correctResponseIdx,
   };
 };

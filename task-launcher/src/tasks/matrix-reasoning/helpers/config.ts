@@ -20,8 +20,15 @@ export const getLayoutConfig = (
   defaultConfig.isPracticeTrial = stimulus.assessmentStage === 'practice_response';
   defaultConfig.isInstructionTrial = stimulus.trialType === 'instructions';
   if (!defaultConfig.isInstructionTrial) {
+    const prepChoices = prepareChoices(answer, distractors, true, trialType);
     defaultConfig.isImageButtonResponse = true;
-    defaultConfig.buttonChoices = prepareChoices(answer, distractors, true, trialType).choices;
+    defaultConfig.buttonChoices = prepChoices.choices;
+    defaultConfig.response = {
+      target: prepChoices.target,
+      displayValues: prepChoices.choices,
+      values: prepChoices.originalChoices,
+      targetIndex: prepChoices.correctResponseIdx,
+    };
   } else {
     defaultConfig.classOverrides.buttonClassList = ['primary'];
   }
