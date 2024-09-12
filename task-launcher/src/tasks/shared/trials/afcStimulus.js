@@ -28,6 +28,12 @@ let startTime;
 let keyboardFeedbackHandler;
 const incorrectPracticeResponses = [];
 
+const getKeyboardChoices = (stim) => {
+  return stim.distractors?.length === 1
+    ? ['ArrowLeft', 'ArrowRight']
+    : ['ArrowUp', 'ArrowLeft', 'ArrowRight', 'ArrowDown'];
+};
+
 const showStaggeredBtnAndPlaySound = (
   index,
   btnList,
@@ -354,11 +360,7 @@ function handlePracticeButtonPress(btn, stim, practiceBtns ,isKeyBoardResponse, 
 }
 
 async function keyboardBtnFeedback(e, practiceBtns, stim) {
-  let allowedKeys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
-
-  if (stim.distractors.length === 1) {
-    allowedKeys = ['ArrowLeft', 'ArrowRight'];
-  }
+  const allowedKeys = getKeyboardChoices(stim);
 
   if (allowedKeys.includes(e.key)) {
     const choice = keyboardResponseMap[e.key.toLowerCase()];
@@ -443,12 +445,22 @@ function doOnLoad(task, layoutConfig, layoutConfigMap) {
       buttonContainer.classList.add(`multi-4`);
     }
 
-    let responseChoices 
-    if (stim.trialType === 'Fraction') {
-      responseChoices = taskStore().nonFractionSelections;
+    let responseChoices;
+    if (itemLayoutConfig) {
+      const { response } = itemLayoutConfig;
+      if (!response) {
+        throw new Error('Choices not defined in the config');
+      }
+      responseChoices = [...response.values];
     } else {
-      responseChoices = taskStore().choices;
+      // TODO: Remove after egma math is ported over
+      if (stim.trialType === 'Fraction') {
+        responseChoices = taskStore().nonFractionSelections;
+      } else {
+        responseChoices = taskStore().choices;
+      }
     }
+
 
     Array.from(buttonContainer.children).forEach((el, i) => {
 
@@ -466,7 +478,7 @@ function doOnLoad(task, layoutConfig, layoutConfigMap) {
           if (task === 'mental-rotation') {
             el.children[0].classList.add('image-large');
           } else if (task === 'vocab' || task === 'trog') {
-            el.children[0].classList.add('image-medium'); 
+            el.children[0].classList.add('image-medium');
           } else {
             el.children[0].classList.add('image');
           }
@@ -487,23 +499,40 @@ function doOnLoad(task, layoutConfig, layoutConfigMap) {
   setupReplayAudio(pageStateHandler);
 }
 
-function doOnFinish(data, task) {
+function doOnFinish(data, task, layoutConfigMap) {
   PageAudioHandler.stopAndDisconnectNode();
 
   // note: nextStimulus is actually the current stimulus
   const stimulus = taskStore().nextStimulus;
+  const itemLayoutConfig = layoutConfigMap?.[stimulus.itemId];
   // target is the actual value as a string
   const target = taskStore().target;
   let responseValue = null
 
   if (stimulus.trialType !== 'instructions') {
-    if (data.keyboard_response) {
-      data.correct = keyboardResponseMap[data.keyboard_response] === target;
-      responseValue = keyboardResponseMap[data.keyboard_response];
+    if (itemLayoutConfig) {
+      const { response } = itemLayoutConfig;
+      if (!response) {
+        throw new Error('Choices not defined in the config');
+      }
+      const keyboardChoices = getKeyboardChoices(stimulus);
+      const responseIndex = data.keyboard_response
+        ? keyboardChoices.findIndex(f => f.toLowerCase() === data.keyboard_response.toLowerCase())
+        : data.button_response;
+      responseValue = response.values[responseIndex];
+      data.correct = responseValue === response.target;
+      console.log('mark://Final Values', { responseValue, response, correct: data.correct });
     } else {
-      data.correct = data.button_response === taskStore().correctResponseIdx;
-      responseValue = stimulus.trialType === 'Fraction' ? taskStore().nonFractionSelections[data.button_response] : taskStore().choices[data.button_response];
+      // TODO: Remove this whole block once math has been ported over
+      if (data.keyboard_response) {
+        data.correct = keyboardResponseMap[data.keyboard_response] === target;
+        responseValue = keyboardResponseMap[data.keyboard_response];
+      } else {
+        data.correct = data.button_response === taskStore().correctResponseIdx;
+        responseValue = stimulus.trialType === 'Fraction' ? taskStore().nonFractionSelections[data.button_response] : taskStore().choices[data.button_response];
+      }
     }
+
 
     // check response and record it
     const responseType = data.button_response ? 'mouse' : 'keyboard';
@@ -601,14 +630,12 @@ export const afcStimulusTemplate = ({ trialType, responseAllowed, promptAboveBut
     prompt: () => getPrompt(task, layoutConfig, layoutConfigMap),
     prompt_above_buttons: promptAboveButtons,
     keyboard_choices: () => {
-      return taskStore().nextStimulus.distractors?.length === 1
-        ? ['ArrowLeft', 'ArrowRight']
-        : ['ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight'];
+      return getKeyboardChoices(taskStore().nextStimulus);
     },
     button_choices: () => getButtonChoices(task, layoutConfigMap),
     button_html: () => getButtonHtml(task, layoutConfigMap),
     on_load: () => doOnLoad(task, layoutConfig, layoutConfigMap),
-    on_finish: (data) => doOnFinish(data, task, trialType),
+    on_finish: (data) => doOnFinish(data, task, layoutConfigMap),
     response_ends_trial: () => (taskStore().nextStimulus.assessmentStage === 'practice_response' ? false : true),
   };
 };
