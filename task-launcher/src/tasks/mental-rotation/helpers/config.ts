@@ -9,7 +9,7 @@ export const getLayoutConfig = (stimulus: StimulusType, trialNumber: number): La
   defaultConfig.isPracticeTrial = stimulus.assessmentStage === 'practice_response';
   defaultConfig.isInstructionTrial = stimulus.trialType === 'instructions';
   if (!defaultConfig.isInstructionTrial) {
-    const prepChoices = prepareChoices(answer, distractors, true, trialType);
+    const prepChoices = prepareChoices(answer, distractors, false, trialType);
     defaultConfig.isImageButtonResponse = true;
     defaultConfig.buttonChoices = prepChoices.choices;
     defaultConfig.classOverrides.stimulusContainerClassList = ['lev-stim-content'];
