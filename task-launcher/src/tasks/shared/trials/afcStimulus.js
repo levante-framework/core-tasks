@@ -526,7 +526,6 @@ function doOnFinish(data, task, layoutConfigMap) {
         : data.button_response;
       responseValue = response.values[responseIndex];
       data.correct = responseValue === response.target;
-      console.log('mark://Final Values', { responseValue, response, correct: data.correct, keyboard_response: data.keyboard_response, responseIndex, keyboardChoices  });
     } else {
       // TODO: Remove this whole block once math has been ported over
       if (data.keyboard_response) {
