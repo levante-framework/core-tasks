@@ -2,7 +2,7 @@ import 'regenerator-runtime/runtime';
 import store from 'store2';
 // setup
 //@ts-ignore
-import { getStimulusBlockCount, initTrialSaving, initTimeline, createPreloadTrials, taskStore } from '../shared/helpers';
+import { initTrialSaving, initTimeline, createPreloadTrials, taskStore } from '../shared/helpers';
 //@ts-ignore
 import { jsPsych, initializeCat } from '../taskSetup';
 // trials
@@ -32,8 +32,6 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
   const timeline = [
     preloadTrials,
     initialTimeline,
-    //instructions1, // for adult pilot, not kids
-    //instructions2,
   ];
 
   const afcStimulusBlock = {
@@ -60,49 +58,35 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
     },
   };
 
-  const pushSubTaskToTimeline = (fixationAndSetupBlock: any, stimulusBlockCount: number[]) => {
-    for (let i = 0; i < stimulusBlockCount.length; i++) {
-      const subTaskTimeline: any[] = [];
-      // This is one block of subtask trials. ex. number-identification
-      const subTaskBlock = {
-        timeline: subTaskTimeline,
-      };
-
-      for (let j = 0; j < stimulusBlockCount[i]; j++) {
-        // add trials to the block (this is the core procedure for each stimulus)
-        const stimulusBlock = {
-          timeline: [
-            afcStimulusBlock,
-            sliderBlock,
-            ifRealTrialResponse,
-          ],
-          conditional_function: () => {
-            if (taskStore().skipCurrentTrial) {
-              taskStore('skipCurrentTrial', false);
-              return false;
-            }
-            const stim = taskStore().nextStimulus;
-            const skipBlockTrialType = store.page.get('skipCurrentBlock');
-            if (stim.trialType === skipBlockTrialType) {
-              return false;
-            } else {
-              return true;
-            }
-          },
-        };
-
-        // Pushing in setup seperate so we can conditionally skip the stimulus block
-        subTaskTimeline.push(fixationAndSetupBlock);
-        subTaskTimeline.push(stimulusBlock);
+  const stimulusBlock = {
+    timeline: [
+      afcStimulusBlock,
+      sliderBlock,
+      ifRealTrialResponse,
+    ],
+    conditional_function: () => {
+      if (taskStore().skipCurrentTrial) {
+        taskStore('skipCurrentTrial', false);
+        return false;
       }
-
-      timeline.push(subTaskBlock);
-    }
+      const stim = taskStore().nextStimulus;
+      const skipBlockTrialType = store.page.get('skipCurrentBlock');
+      if (stim.trialType === skipBlockTrialType) {
+        return false;
+      } else {
+        return true;
+      }
+    },
   };
+
+  const numOfTrials = taskStore().totalTrials;
+  for (let i = 0; i < numOfTrials; i++) {
+    timeline.push(setupStimulus);
+    timeline.push(stimulusBlock);
+  }
 
   initializeCat();
 
-  pushSubTaskToTimeline(setupStimulus, getStimulusBlockCount(config.numberOfTrials, config.stimulusBlocks)); // Stimulus Trials
   timeline.push(taskFinished);
   timeline.push(exitFullscreen);
 
