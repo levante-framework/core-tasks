@@ -19,7 +19,6 @@ declare global {
       enabled: boolean;
       aboveStimulus: boolean;
     }
-    showStimText: boolean;
     equalSizeStim: boolean; // TODO Remove since classes declaration can handle this
     disableButtonsWhenAudioPlaying: boolean;
     isPracticeTrial: boolean;
