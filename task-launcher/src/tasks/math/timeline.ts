@@ -8,7 +8,8 @@ import { jsPsych, initializeCat } from '../taskSetup';
 // trials
 import { slider } from './trials/sliderStimulus';
 //@ts-ignore
-import { afcStimulus, exitFullscreen, getAudioResponse, setupStimulus, taskFinished } from '../shared/trials';
+import { afcStimulusTemplate, afcStimulus, exitFullscreen, getAudioResponse, setupStimulus, taskFinished } from '../shared/trials';
+import { getLayoutConfig } from './helpers/config';
 
 
 export default function buildMathTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
@@ -34,17 +35,47 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
     initialTimeline,
   ];
 
+  const corpus: StimulusType[] = taskStore().corpora.stimulus;
+  const translations: Record<string, string> = taskStore().translations;
+  const validationErrorMap: Record<string, string> = {};
+
+  const layoutConfigMap: Record<string, LayoutConfigType> = {};
+  let i = 0;
+  for (const c of corpus) {
+    const { itemConfig, errorMessages } = getLayoutConfig(c, translations, mediaAssets, i);
+    layoutConfigMap[c.itemId] = itemConfig;
+    if (errorMessages.length) {
+      validationErrorMap[c.itemId] = errorMessages.join('; ');
+    }
+    i += 1;
+  }
+
+  if (Object.keys(validationErrorMap).length) {
+    console.error('The following errors were found');
+    console.table(validationErrorMap);
+    throw new Error('Something went wrong. Please look in the console for error details');
+  }
+
+  const trialConfig = {
+    trialType: 'audio',
+    responseAllowed: true,
+    promptAboveButtons: true,
+    task: config.task,
+    layoutConfigMap,
+  };
+
   const afcStimulusBlock = {
     timeline: [
-      afcStimulus({ 
-        trialType: 'audio', // or 'html'
-        responseAllowed: true,
-        promptAboveButtons: true,
-        task: config.task,
-        layoutConfig: {
-          showPrompt: true
-        }
-      }),
+      afcStimulusTemplate(trialConfig),
+      // afcStimulus({ 
+      //   trialType: 'audio', // or 'html'
+      //   responseAllowed: true,
+      //   promptAboveButtons: true,
+      //   task: config.task,
+      //   layoutConfig: {
+      //     showPrompt: true
+      //   }
+      // }),
     ],
     conditional_function: () => {
       return !taskStore().nextStimulus.trialType?.includes('Number Line');

@@ -16,11 +16,14 @@ export const getLayoutConfig = (
 ): GetConfigReturnType => {
   const { answer, distractors, trialType } = stimulus;
   const defaultConfig: LayoutConfigType = JSON.parse(JSON.stringify(DEFAULT_LAYOUT_CONFIG));
-  defaultConfig.noAudio = trialNumber > 2;
   defaultConfig.isPracticeTrial = stimulus.assessmentStage === 'practice_response';
   defaultConfig.isInstructionTrial = stimulus.trialType === 'instructions';
+  defaultConfig.showStimImage = false;
   if (!defaultConfig.isInstructionTrial) {
-    defaultConfig.isImageButtonResponse = true;
+    defaultConfig.prompt.enabled = false;
+    defaultConfig.showStimText = false;
+    defaultConfig.isImageButtonResponse = false;
+    defaultConfig.classOverrides.buttonClassList = ['secondary'];
     defaultConfig.buttonChoices = prepareChoices(answer, distractors, true, trialType).choices;
   } else {
     defaultConfig.classOverrides.buttonClassList = ['primary'];
