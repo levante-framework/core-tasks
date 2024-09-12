@@ -515,13 +515,18 @@ function doOnFinish(data, task, layoutConfigMap) {
       if (!response) {
         throw new Error('Choices not defined in the config');
       }
-      const keyboardChoices = getKeyboardChoices(stimulus);
+      // TODO: hack for now, but will update when math is moved over
+      const distractors = JSON.parse(JSON.stringify(itemLayoutConfig.response.values));
+      distractors.pop();
+      const keyboardChoices = getKeyboardChoices({
+        distractors: distractors,
+      });
       const responseIndex = data.keyboard_response
         ? keyboardChoices.findIndex(f => f.toLowerCase() === data.keyboard_response.toLowerCase())
         : data.button_response;
       responseValue = response.values[responseIndex];
       data.correct = responseValue === response.target;
-      console.log('mark://Final Values', { responseValue, response, correct: data.correct });
+      console.log('mark://Final Values', { responseValue, response, correct: data.correct, keyboard_response: data.keyboard_response, responseIndex, keyboardChoices  });
     } else {
       // TODO: Remove this whole block once math has been ported over
       if (data.keyboard_response) {
