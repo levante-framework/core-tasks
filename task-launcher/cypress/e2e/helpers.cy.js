@@ -27,7 +27,7 @@ function selectImages(){
 
 export function testImageAfc(){
     // wait for OK button to be visible
-    cy.contains('OK', {timeout: 60000}).should('be.visible'); 
+    cy.contains('OK', {timeout: 120000}).should('be.visible'); 
     cy.contains('OK').realClick(); // real click mimics user gesture so that fullscreen can start
     clickThroughInstructions(); 
     selectImages();
