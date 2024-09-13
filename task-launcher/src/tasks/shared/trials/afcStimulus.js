@@ -201,17 +201,17 @@ function getPrompt(task, layoutConfig, layoutConfigMap) {
       classOverrides: {
         stimulusContainerClassList
       },
-      showStimText,
       equalSizeStim,
       showStimImage,
+      stimText: stimulusTextConfig,
     } = itemLayoutConfig;
-    const mediaAsset = stimItem 
-      ? mediaAssets.images[camelize(stimItem)] || mediaAssets.images['blank']
+    const mediaAsset = stimulusTextConfig?.value
+      ? mediaAssets.images[camelize(stimulusTextConfig.value)] || mediaAssets.images['blank']
       : null;
     const prompt = promptEnabled ? t[camelize(stim.audioFile)] : null;
     const mediaSrc = showStimImage ? mediaAsset : null;
-    const mediaAlt = stimItem || 'Stimulus';
-    const stimText = showStimText ? stimItem : null;
+    const mediaAlt = stimulusTextConfig?.value || 'Stimulus';
+    const stimText = stimulusTextConfig ? stimulusTextConfig.displayValue : null;
     return getPromptTemplate(
       prompt,
       mediaSrc,
@@ -526,6 +526,7 @@ function doOnFinish(data, task, layoutConfigMap) {
         : data.button_response;
       responseValue = response.values[responseIndex];
       data.correct = responseValue === response.target;
+      console.log('mark://', 'Response values', { correct: data.correct, responseValue, response });
     } else {
       // TODO: Remove this whole block once math has been ported over
       if (data.keyboard_response) {
