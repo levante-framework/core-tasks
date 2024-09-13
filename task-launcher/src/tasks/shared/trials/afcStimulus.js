@@ -128,15 +128,14 @@ function getStimulus(layoutConfig, layoutConfigMap) {
   }
 }
 
-const getPromptTemplate = (prompt, mediaSrc, mediaAlt, stimText, equalSizeStim, noAudio, stimulusContainerClassList) => {
+const getPromptTemplate = (prompt, mediaSrc, mediaAlt, stimText, equalSizeStim, stimulusContainerClassList) => {
   let template = '<div class="lev-stimulus-container">';
-  if (!noAudio) {
-    template += `
-      <button id="${replayButtonHtmlId}" class="replay">
-        ${replayButtonSvg}
-      </button>
-    `;
-  }
+
+  template += `
+    <button id="${replayButtonHtmlId}" class="replay">
+      ${replayButtonSvg}
+    </button>
+  `;
 
   if (prompt) {
     template += `
@@ -218,7 +217,6 @@ function getPrompt(task, layoutConfig, layoutConfigMap) {
       mediaAlt,
       stimText,
       equalSizeStim,
-      noAudio,
       stimulusContainerClassList,
     );
   }
@@ -496,7 +494,9 @@ function doOnLoad(task, layoutConfig, layoutConfigMap) {
     }
   }
 
-  setupReplayAudio(pageStateHandler);
+  const noAudio = layoutConfigMap?.[stim.itemId].noAudio;
+
+  setupReplayAudio(pageStateHandler, noAudio);
 }
 
 function doOnFinish(data, task, layoutConfigMap) {
