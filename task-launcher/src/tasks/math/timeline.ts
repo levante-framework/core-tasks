@@ -8,7 +8,7 @@ import { jsPsych, initializeCat } from '../taskSetup';
 // trials
 import { slider } from './trials/sliderStimulus';
 //@ts-ignore
-import { afcStimulusTemplate, afcStimulus, exitFullscreen, getAudioResponse, setupStimulus, taskFinished } from '../shared/trials';
+import { afcStimulusTemplate, exitFullscreen, getAudioResponse, setupStimulus, taskFinished } from '../shared/trials';
 import { getLayoutConfig } from './helpers/config';
 
 
@@ -67,15 +67,6 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
   const afcStimulusBlock = {
     timeline: [
       afcStimulusTemplate(trialConfig),
-      // afcStimulus({ 
-      //   trialType: 'audio', // or 'html'
-      //   responseAllowed: true,
-      //   promptAboveButtons: true,
-      //   task: config.task,
-      //   layoutConfig: {
-      //     showPrompt: true
-      //   }
-      // }),
     ],
     conditional_function: () => {
       return !taskStore().nextStimulus.trialType?.includes('Number Line');
