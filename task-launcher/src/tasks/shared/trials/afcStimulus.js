@@ -205,12 +205,12 @@ function getPrompt(task, layoutConfig, layoutConfigMap) {
       showStimImage,
       stimText: stimulusTextConfig,
     } = itemLayoutConfig;
-    const mediaAsset = stimItem 
-      ? mediaAssets.images[camelize(stimItem)] || mediaAssets.images['blank']
+    const mediaAsset = stimulusTextConfig?.value
+      ? mediaAssets.images[camelize(stimulusTextConfig.value)] || mediaAssets.images['blank']
       : null;
     const prompt = promptEnabled ? t[camelize(stim.audioFile)] : null;
     const mediaSrc = showStimImage ? mediaAsset : null;
-    const mediaAlt = stimItem || 'Stimulus';
+    const mediaAlt = stimulusTextConfig?.value || 'Stimulus';
     const stimText = stimulusTextConfig ? stimulusTextConfig.displayValue : null;
     return getPromptTemplate(
       prompt,

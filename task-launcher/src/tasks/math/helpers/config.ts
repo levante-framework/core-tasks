@@ -21,6 +21,10 @@ export const getLayoutConfig = (
   defaultConfig.isPracticeTrial = stimulus.assessmentStage === 'practice_response';
   defaultConfig.isInstructionTrial = stimulus.trialType === 'instructions';
   defaultConfig.showStimImage = false;
+  defaultConfig.stimText = {
+    value: stimulus.item,
+    displayValue: undefined,
+  };
   if (!defaultConfig.isInstructionTrial) {
     const prepChoices = prepareChoices(answer, distractors, true, trialType); 
     defaultConfig.prompt.enabled = false;
