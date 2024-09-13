@@ -8,6 +8,10 @@ export const getLayoutConfig = (stimulus: StimulusType): LayoutConfigType => {
   const defaultConfig: LayoutConfigType = JSON.parse(JSON.stringify(DEFAULT_LAYOUT_CONFIG));
   defaultConfig.isPracticeTrial = stimulus.assessmentStage === 'practice_response';
   defaultConfig.isInstructionTrial = stimulus.trialType === 'instructions';
+  defaultConfig.stimText = {
+    value: stimulus.item,
+    displayValue: undefined,
+  };
   if (!defaultConfig.isInstructionTrial) {
     const prepChoices = prepareChoices(answer, distractors, true, trialType);
     defaultConfig.isStaggered = true;
