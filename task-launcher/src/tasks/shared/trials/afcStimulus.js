@@ -22,16 +22,27 @@ const replayButtonHtmlId = 'replay-btn-revisited';
 let practiceResponses = [];
 let trialsOfCurrentType = 0;
 
-let keyboardResponseMap = {};
+// let keyboardResponseMap = {};
 // Only used for keyboard responses
 let startTime;
 let keyboardFeedbackHandler;
 const incorrectPracticeResponses = [];
 
-const getKeyboardChoices = (stim) => {
-  return stim.distractors?.length === 1
-    ? ['ArrowLeft', 'ArrowRight']
-    : ['ArrowUp', 'ArrowLeft', 'ArrowRight', 'ArrowDown'];
+const getKeyboardChoices = (itemLayoutConfig) => {
+  const buttonLength = itemLayoutConfig.response.values.length;
+  if (buttonLength === 1) { // instruction trial
+    return ['Enter'];
+  }
+  if (buttonLength === 2) {
+    return ['ArrowLeft', 'ArrowRight'];
+  }
+  if (buttonLength === 3) {
+    return ['ArrowUp', 'ArrowLeft', 'ArrowRight'];
+  }
+  if (buttonLength === 4) {
+    return ['ArrowUp', 'ArrowLeft', 'ArrowRight', 'ArrowDown'];
+  }
+  throw new Error('More than 4 buttons are not supported yet');
 };
 
 const showStaggeredBtnAndPlaySound = (
@@ -103,29 +114,29 @@ function getStimulus(layoutConfig, layoutConfigMap) {
     return mediaAssets.audio[audioPath];
   }
 
-  // TODO: Remove everything below once layoutconfig is rolled out
-  if (!!layoutConfig?.noAudio){
-    return mediaAssets.audio.nullAudio;
-  }
-  if (!stim.audioFile) return mediaAssets.audio.nullAudio;
-  if (!mediaAssets.audio[camelize(stim.audioFile)]) return mediaAssets.audio.nullAudio;
-  // all tasks should have the replay button play whatever is in stim.audioFile (might be just prompt/instructions)
+  // // TODO: Remove everything below once layoutconfig is rolled out
+  // if (!!layoutConfig?.noAudio){
+  //   return mediaAssets.audio.nullAudio;
+  // }
+  // if (!stim.audioFile) return mediaAssets.audio.nullAudio;
+  // if (!mediaAssets.audio[camelize(stim.audioFile)]) return mediaAssets.audio.nullAudio;
+  // // all tasks should have the replay button play whatever is in stim.audioFile (might be just prompt/instructions)
 
-  if ((stim.task === 'Mental Rotation') && stim.assessmentStage !== 'practice_response' && stim.trialType !== 'instructions') {
-    return mediaAssets.audio.nullAudio;
-  }
+  // if ((stim.task === 'Mental Rotation') && stim.assessmentStage !== 'practice_response' && stim.trialType !== 'instructions') {
+  //   return mediaAssets.audio.nullAudio;
+  // }
 
-  if (
-    stim.audioFile != '' ||
-    stim.trialType === 'Number Identification' ||
-    stim.task === 'TROG' ||
-    stim.task === 'vocab' ||
-    trialsOfCurrentType < 3
-  ) {
-    return mediaAssets.audio[camelize(stim.audioFile)];
-  } else {
-    return mediaAssets.audio.nullAudio;
-  }
+  // if (
+  //   stim.audioFile != '' ||
+  //   stim.trialType === 'Number Identification' ||
+  //   stim.task === 'TROG' ||
+  //   stim.task === 'vocab' ||
+  //   trialsOfCurrentType < 3
+  // ) {
+  //   return mediaAssets.audio[camelize(stim.audioFile)];
+  // } else {
+  //   return mediaAssets.audio.nullAudio;
+  // }
 }
 
 const getPromptTemplate = (prompt, mediaSrc, mediaAlt, stimText, equalSizeStim, noAudio, stimulusContainerClassList) => {
@@ -182,16 +193,16 @@ function getPrompt(task, layoutConfig, layoutConfigMap) {
   // showItem itemIsImage
   const stim = taskStore().nextStimulus;
   const t = taskStore().translations;
-  const stimTrialType = stim.trialType;
-  const stimTask = stim.task;
+  // const stimTrialType = stim.trialType;
+  // const stimTask = stim.task;
   const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
 
-  let stimItem;
-  if (stim.trialType === 'Fraction') {
-    stimItem = fractionToMathML(stim.item);
-  } else {
-    stimItem = stim.item;
-  }
+  // let stimItem;
+  // if (stim.trialType === 'Fraction') {
+  //   stimItem = fractionToMathML(stim.item);
+  // } else {
+  //   stimItem = stim.item;
+  // }
   if (itemLayoutConfig) {
     const {
       noAudio,
@@ -225,37 +236,37 @@ function getPrompt(task, layoutConfig, layoutConfigMap) {
 
   // TODO: Delete everything down below once the layoutConfig is fully rolled out
 
-  if (
-    ['Number Identification', 'Number Comparison'].includes(stimTrialType) || 
-    (!(layoutConfig?.showPrompt) && stimTrialType != 'instructions') // vocab & TROG tasks should not show prompts
-  ) {
-    return getPromptTemplate(null, null, null, null, false);
-  } else if (['vocab', 'trog'].includes(task)) {
-    return getPromptTemplate(t[camelize(stim.audioFile)], null, null, null, false);
-  } else if (['Mental Rotation'].includes(stimTask)) {
-    const mediaSrc = stimItem 
-      ? mediaAssets.images[camelize(stimItem)] || mediaAssets.images['blank']
-      : null;
-    const mediaAlt = stimItem || 'Stimulus';
-    return getPromptTemplate(t[camelize(stim.audioFile)], mediaSrc, mediaAlt, null, true);
-  } else if (
-    ['Matrix Reasoning', 'instructions'].includes(stimTask) ||
-    stim.trialType === 'instructions'
-  ) {
-    const mediaSrc = stimItem 
-      ? mediaAssets.images[camelize(stimItem)] || mediaAssets.images['blank']
-      : null;
-    const mediaAlt = stimItem || 'Stimulus';
-    return getPromptTemplate(t[camelize(stim.audioFile)], mediaSrc, mediaAlt, null, false);
-  } else if (task === 'theory-of-mind') {
-    const mediaSrc = stimItem 
-      ? mediaAssets.images[camelize(stimItem)] || mediaAssets.images['blank']
-      : null;
-    const mediaAlt = stimItem || 'Stimulus';
-    return getPromptTemplate(null, mediaSrc, mediaAlt, null, false);
-  } else if (task === 'egma-math') {
-    return getPromptTemplate(t[camelize(stim.audioFile)], null, null, stimItem, false);
-  }
+  // if (
+  //   ['Number Identification', 'Number Comparison'].includes(stimTrialType) || 
+  //   (!(layoutConfig?.showPrompt) && stimTrialType != 'instructions') // vocab & TROG tasks should not show prompts
+  // ) {
+  //   return getPromptTemplate(null, null, null, null, false);
+  // } else if (['vocab', 'trog'].includes(task)) {
+  //   return getPromptTemplate(t[camelize(stim.audioFile)], null, null, null, false);
+  // } else if (['Mental Rotation'].includes(stimTask)) {
+  //   const mediaSrc = stimItem 
+  //     ? mediaAssets.images[camelize(stimItem)] || mediaAssets.images['blank']
+  //     : null;
+  //   const mediaAlt = stimItem || 'Stimulus';
+  //   return getPromptTemplate(t[camelize(stim.audioFile)], mediaSrc, mediaAlt, null, true);
+  // } else if (
+  //   ['Matrix Reasoning', 'instructions'].includes(stimTask) ||
+  //   stim.trialType === 'instructions'
+  // ) {
+  //   const mediaSrc = stimItem 
+  //     ? mediaAssets.images[camelize(stimItem)] || mediaAssets.images['blank']
+  //     : null;
+  //   const mediaAlt = stimItem || 'Stimulus';
+  //   return getPromptTemplate(t[camelize(stim.audioFile)], mediaSrc, mediaAlt, null, false);
+  // } else if (task === 'theory-of-mind') {
+  //   const mediaSrc = stimItem 
+  //     ? mediaAssets.images[camelize(stimItem)] || mediaAssets.images['blank']
+  //     : null;
+  //   const mediaAlt = stimItem || 'Stimulus';
+  //   return getPromptTemplate(null, mediaSrc, mediaAlt, null, false);
+  // } else if (task === 'egma-math') {
+  //   return getPromptTemplate(t[camelize(stim.audioFile)], null, null, stimItem, false);
+  // }
 
 }
 
@@ -274,31 +285,33 @@ function getButtonChoices(task, layoutConfigMap) {
   if (itemLayoutConfig) {
     const {
       isImageButtonResponse,
-      buttonChoices
+      response: {
+        values: buttonChoices,
+      },
     } = itemLayoutConfig;
     if (isImageButtonResponse) {
       return generateImageChoices(buttonChoices);
     }
-    return itemLayoutConfig.buttonChoices;
+    return buttonChoices;
   } 
-  if (stimulus.trialType === 'instructions') {
-    return ['OK'];
-  }
+  // if (stimulus.trialType === 'instructions') {
+  //   return ['OK'];
+  // }
 
-  const { answer, distractors } = stimulus;
-  let trialInfo =
-    stimulus.task === 'Mental Rotation'
-      ? prepareChoices(answer, distractors, false, stimulus.trialType)
-      : prepareChoices(answer, distractors, true, stimulus.trialType);
+  // const { answer, distractors } = stimulus;
+  // let trialInfo =
+  //   stimulus.task === 'Mental Rotation'
+  //     ? prepareChoices(answer, distractors, false, stimulus.trialType)
+  //     : prepareChoices(answer, distractors, true, stimulus.trialType);
 
-  if (
-    ['vocab', 'trog', 'matrix-reasoning', 'mental-rotation', 'theory-of-mind'].includes(task) &&
-    stimulus.trialType !== 'instructions'
-  ) {
-    return generateImageChoices(trialInfo.choices);
-  }
+  // if (
+  //   ['vocab', 'trog', 'matrix-reasoning', 'mental-rotation', 'theory-of-mind'].includes(task) &&
+  //   stimulus.trialType !== 'instructions'
+  // ) {
+  //   return generateImageChoices(trialInfo.choices);
+  // }
 
-  return trialInfo.choices; // Default return if no special conditions met
+  // return trialInfo.choices; // Default return if no special conditions met
 }
 
 function getButtonHtml(task, layoutConfigMap) {
@@ -315,18 +328,18 @@ function getButtonHtml(task, layoutConfigMap) {
       <button class='${classList.join(' ')}'>%choice%</button>
     `;
   }
-  // TODO: add trial_type column to math item bank
-  if (stimulus.trialType === 'instructions') {
-    return "<button class='primary'>%choice%</button>";
-  } 
-  if (stimulus.trialType === 'Fraction') {
-    return "<button class='secondary'>%choice%</button>";
-  } else if (task === 'egma-math') {
-    // practice-btn class does not add any styles, only used for querySelector
-    return `<button class='secondary ${stimulus.assessmentStage === 'practice_response' ? 'practice-btn' : ''}'>%choice%</button>`;
-  } else {
-    return `<button class='${stimulus.assessmentStage === 'practice_response' ? 'practice-btn' : ''}'>%choice%</button>`;
-  }
+  // // TODO: add trial_type column to math item bank
+  // if (stimulus.trialType === 'instructions') {
+  //   return "<button class='primary'>%choice%</button>";
+  // } 
+  // if (stimulus.trialType === 'Fraction') {
+  //   return "<button class='secondary'>%choice%</button>";
+  // } else if (task === 'egma-math') {
+  //   // practice-btn class does not add any styles, only used for querySelector
+  //   return `<button class='secondary ${stimulus.assessmentStage === 'practice_response' ? 'practice-btn' : ''}'>%choice%</button>`;
+  // } else {
+  //   return `<button class='${stimulus.assessmentStage === 'practice_response' ? 'practice-btn' : ''}'>%choice%</button>`;
+  // }
 }
 
 function enableBtns(btnElements) {
@@ -359,11 +372,13 @@ function handlePracticeButtonPress(btn, stim, practiceBtns ,isKeyBoardResponse, 
   PageAudioHandler.playAudio(feedbackAudio);
 }
 
-async function keyboardBtnFeedback(e, practiceBtns, stim) {
-  const allowedKeys = getKeyboardChoices(stim);
+async function keyboardBtnFeedback(e, practiceBtns, stim, itemConfig) {
+  const allowedKeys = getKeyboardChoices(itemConfig);
+  const choices = itemConfig.response.values;
+  const index = allowedKeys.findIndex(f => f.toLowerCase() === e.key.toLowerCase())
 
   if (allowedKeys.includes(e.key)) {
-    const choice = keyboardResponseMap[e.key.toLowerCase()];
+    const choice = choices[index];
     const btnClicked = Array.from(practiceBtns).find(btn => {
       const btnOption = btn?.children?.length ? btn.children[0].alt : btn.textContent;
       return (btnOption || '').toString() === (choice || '')?.toString();
@@ -416,7 +431,7 @@ function doOnLoad(task, layoutConfig, layoutConfigMap) {
     );
 
     if (!isTouchScreen) {
-      keyboardFeedbackHandler = (e) => keyboardBtnFeedback(e, practiceBtns, stim);
+      keyboardFeedbackHandler = (e) => keyboardBtnFeedback(e, practiceBtns, stim, itemLayoutConfig);
       document.addEventListener('keydown', keyboardFeedbackHandler);
     }
   }
@@ -439,11 +454,12 @@ function doOnLoad(task, layoutConfig, layoutConfigMap) {
 
     if (itemLayoutConfig) {
       buttonContainer.classList.add(...itemLayoutConfig.classOverrides.buttonContainerClassList);
-    } else {
-      // TODO REMOVE AFTER LAYOUTCONFIG IMPLEMENTATION
-      buttonContainer.classList.add(`lev-response-row`);
-      buttonContainer.classList.add(`multi-4`);
-    }
+    } 
+    // else {
+    //   // TODO REMOVE AFTER LAYOUTCONFIG IMPLEMENTATION
+    //   buttonContainer.classList.add(`lev-response-row`);
+    //   buttonContainer.classList.add(`multi-4`);
+    // }
 
     let responseChoices;
     if (itemLayoutConfig) {
@@ -468,22 +484,22 @@ function doOnLoad(task, layoutConfig, layoutConfigMap) {
       // 2afc layout uses left and right arrow keys. The order of the arrrow
       // key array allows for the correct mapping for other layouts.
       const keyIndex = buttonContainer.children.length === 2 ? i + 1 : i;
-      keyboardResponseMap[arrowKeyEmojis[keyIndex][0]] = responseChoices[i];
+      // keyboardResponseMap[arrowKeyEmojis[keyIndex][0]] = responseChoices[i];
 
       // TODO REMOVE AFTER LAYOUTCONFIG IMPLEMENTATION
-      if (itemLayoutConfig) {
-        // do nothing handled in getButtonHtml
-      } else {
-        if (task !== 'egma-math') {
-          if (task === 'mental-rotation') {
-            el.children[0].classList.add('image-large');
-          } else if (task === 'vocab' || task === 'trog') {
-            el.children[0].classList.add('image-medium');
-          } else {
-            el.children[0].classList.add('image');
-          }
-        }
-      }
+      // if (itemLayoutConfig) {
+      //   // do nothing handled in getButtonHtml
+      // } else {
+      //   if (task !== 'egma-math') {
+      //     if (task === 'mental-rotation') {
+      //       el.children[0].classList.add('image-large');
+      //     } else if (task === 'vocab' || task === 'trog') {
+      //       el.children[0].classList.add('image-medium');
+      //     } else {
+      //       el.children[0].classList.add('image');
+      //     }
+      //   }
+      // }
 
       addKeyHelpers(el, keyIndex);
     });
@@ -515,28 +531,27 @@ function doOnFinish(data, task, layoutConfigMap) {
       if (!response) {
         throw new Error('Choices not defined in the config');
       }
-      // TODO: hack for now, but will update when math is moved over
-      const distractors = JSON.parse(JSON.stringify(itemLayoutConfig.response.values));
-      distractors.pop();
-      const keyboardChoices = getKeyboardChoices({
-        distractors: distractors,
-      });
+      // // TODO: hack for now, but will update when math is moved over
+      // const distractors = JSON.parse(JSON.stringify(itemLayoutConfig.response.values));
+      // distractors.pop();
+      const keyboardChoices = getKeyboardChoices(itemLayoutConfig);
       const responseIndex = data.keyboard_response
         ? keyboardChoices.findIndex(f => f.toLowerCase() === data.keyboard_response.toLowerCase())
         : data.button_response;
       responseValue = response.values[responseIndex];
       data.correct = responseValue === response.target;
       console.log('mark://', 'Response values', { correct: data.correct, responseValue, response });
-    } else {
-      // TODO: Remove this whole block once math has been ported over
-      if (data.keyboard_response) {
-        data.correct = keyboardResponseMap[data.keyboard_response] === target;
-        responseValue = keyboardResponseMap[data.keyboard_response];
-      } else {
-        data.correct = data.button_response === taskStore().correctResponseIdx;
-        responseValue = stimulus.trialType === 'Fraction' ? taskStore().nonFractionSelections[data.button_response] : taskStore().choices[data.button_response];
-      }
-    }
+    } 
+    // else {
+    //   // TODO: Remove this whole block once math has been ported over
+    //   if (data.keyboard_response) {
+    //     data.correct = keyboardResponseMap[data.keyboard_response] === target;
+    //     responseValue = keyboardResponseMap[data.keyboard_response];
+    //   } else {
+    //     data.correct = data.button_response === taskStore().correctResponseIdx;
+    //     responseValue = stimulus.trialType === 'Fraction' ? taskStore().nonFractionSelections[data.button_response] : taskStore().choices[data.button_response];
+    //   }
+    // }
 
 
     // check response and record it
@@ -635,7 +650,9 @@ export const afcStimulusTemplate = ({ trialType, responseAllowed, promptAboveBut
     prompt: () => getPrompt(task, layoutConfig, layoutConfigMap),
     prompt_above_buttons: promptAboveButtons,
     keyboard_choices: () => {
-      return getKeyboardChoices(taskStore().nextStimulus);
+      const stim = taskStore().nextStimulus;
+      const itemLayoutConfig = layoutConfigMap[stim.itemId];
+      return getKeyboardChoices(itemLayoutConfig);
     },
     button_choices: () => getButtonChoices(task, layoutConfigMap),
     button_html: () => getButtonHtml(task, layoutConfigMap),
@@ -645,16 +662,16 @@ export const afcStimulusTemplate = ({ trialType, responseAllowed, promptAboveBut
   };
 };
 
-export const afcStimulus = ({ trialType, responseAllowed, promptAboveButtons, task, layoutConfig} = {}) => {
-  return {
-    timeline: [
-      afcStimulusTemplate({
-        trialType: trialType,
-        responseAllowed: responseAllowed,
-        promptAboveButtons: promptAboveButtons,
-        task: task,
-        layoutConfig
-      }),
-    ]
-    }
-};
+// export const afcStimulus = ({ trialType, responseAllowed, promptAboveButtons, task, layoutConfig} = {}) => {
+//   return {
+//     timeline: [
+//       afcStimulusTemplate({
+//         trialType: trialType,
+//         responseAllowed: responseAllowed,
+//         promptAboveButtons: promptAboveButtons,
+//         task: task,
+//         layoutConfig
+//       }),
+//     ]
+//     }
+// };

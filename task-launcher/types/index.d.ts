@@ -31,7 +31,7 @@ declare global {
     response?: {
       values: string[];
       displayValues: string[];
-      target: string[];
+      target: string;
       targetIndex: number;
     };
     stimText?: {
