@@ -32,6 +32,12 @@ export const DEFAULT_LAYOUT_CONFIG: LayoutConfigType = {
   isImageButtonResponse: false,
   showStimImage: true,
   buttonChoices: ['OK'],
+  response: {
+    target: '',
+    displayValues: ['OK'],
+    values: ['OK'],
+    targetIndex: 0,
+  },
 };
 
 const defaultCorpus: Record<string, string> = {
