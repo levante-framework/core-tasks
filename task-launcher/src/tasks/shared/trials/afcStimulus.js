@@ -2,9 +2,6 @@
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
 import { jsPsych, isTouchScreen } from '../../taskSetup';
 import {
-  prepareChoices,
-  isPractice,
-  fractionToMathML,
   arrowKeyEmojis,
   replayButtonSvg,
   setupReplayAudio,
@@ -21,9 +18,6 @@ const replayButtonHtmlId = 'replay-btn-revisited';
 // Previously chosen responses for current practice trial
 let practiceResponses = [];
 let trialsOfCurrentType = 0;
-
-// let keyboardResponseMap = {};
-// Only used for keyboard responses
 let startTime;
 let keyboardFeedbackHandler;
 const incorrectPracticeResponses = [];
@@ -106,37 +100,13 @@ const handleStaggeredButtons = async (layoutConfig, pageState) => {
   }
 };
 
-function getStimulus(layoutConfig, layoutConfigMap) {
+function getStimulus(layoutConfigMap) {
   const stim = taskStore().nextStimulus;
   const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
   if (itemLayoutConfig) {
     const audioPath = itemLayoutConfig?.noAudio ? 'nullAudio' : camelize(stim.audioFile);
     return mediaAssets.audio[audioPath];
   }
-
-  // // TODO: Remove everything below once layoutconfig is rolled out
-  // if (!!layoutConfig?.noAudio){
-  //   return mediaAssets.audio.nullAudio;
-  // }
-  // if (!stim.audioFile) return mediaAssets.audio.nullAudio;
-  // if (!mediaAssets.audio[camelize(stim.audioFile)]) return mediaAssets.audio.nullAudio;
-  // // all tasks should have the replay button play whatever is in stim.audioFile (might be just prompt/instructions)
-
-  // if ((stim.task === 'Mental Rotation') && stim.assessmentStage !== 'practice_response' && stim.trialType !== 'instructions') {
-  //   return mediaAssets.audio.nullAudio;
-  // }
-
-  // if (
-  //   stim.audioFile != '' ||
-  //   stim.trialType === 'Number Identification' ||
-  //   stim.task === 'TROG' ||
-  //   stim.task === 'vocab' ||
-  //   trialsOfCurrentType < 3
-  // ) {
-  //   return mediaAssets.audio[camelize(stim.audioFile)];
-  // } else {
-  //   return mediaAssets.audio.nullAudio;
-  // }
 }
 
 const getPromptTemplate = (prompt, mediaSrc, mediaAlt, stimText, equalSizeStim, noAudio, stimulusContainerClassList) => {
@@ -189,20 +159,12 @@ const getPromptTemplate = (prompt, mediaSrc, mediaAlt, stimText, equalSizeStim, 
   return template;
 };
 
-function getPrompt(task, layoutConfig, layoutConfigMap) {
+function getPrompt(layoutConfigMap) {
   // showItem itemIsImage
   const stim = taskStore().nextStimulus;
   const t = taskStore().translations;
-  // const stimTrialType = stim.trialType;
-  // const stimTask = stim.task;
   const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
 
-  // let stimItem;
-  // if (stim.trialType === 'Fraction') {
-  //   stimItem = fractionToMathML(stim.item);
-  // } else {
-  //   stimItem = stim.item;
-  // }
   if (itemLayoutConfig) {
     const {
       noAudio,
@@ -233,41 +195,6 @@ function getPrompt(task, layoutConfig, layoutConfigMap) {
       stimulusContainerClassList,
     );
   }
-
-  // TODO: Delete everything down below once the layoutConfig is fully rolled out
-
-  // if (
-  //   ['Number Identification', 'Number Comparison'].includes(stimTrialType) || 
-  //   (!(layoutConfig?.showPrompt) && stimTrialType != 'instructions') // vocab & TROG tasks should not show prompts
-  // ) {
-  //   return getPromptTemplate(null, null, null, null, false);
-  // } else if (['vocab', 'trog'].includes(task)) {
-  //   return getPromptTemplate(t[camelize(stim.audioFile)], null, null, null, false);
-  // } else if (['Mental Rotation'].includes(stimTask)) {
-  //   const mediaSrc = stimItem 
-  //     ? mediaAssets.images[camelize(stimItem)] || mediaAssets.images['blank']
-  //     : null;
-  //   const mediaAlt = stimItem || 'Stimulus';
-  //   return getPromptTemplate(t[camelize(stim.audioFile)], mediaSrc, mediaAlt, null, true);
-  // } else if (
-  //   ['Matrix Reasoning', 'instructions'].includes(stimTask) ||
-  //   stim.trialType === 'instructions'
-  // ) {
-  //   const mediaSrc = stimItem 
-  //     ? mediaAssets.images[camelize(stimItem)] || mediaAssets.images['blank']
-  //     : null;
-  //   const mediaAlt = stimItem || 'Stimulus';
-  //   return getPromptTemplate(t[camelize(stim.audioFile)], mediaSrc, mediaAlt, null, false);
-  // } else if (task === 'theory-of-mind') {
-  //   const mediaSrc = stimItem 
-  //     ? mediaAssets.images[camelize(stimItem)] || mediaAssets.images['blank']
-  //     : null;
-  //   const mediaAlt = stimItem || 'Stimulus';
-  //   return getPromptTemplate(null, mediaSrc, mediaAlt, null, false);
-  // } else if (task === 'egma-math') {
-  //   return getPromptTemplate(t[camelize(stim.audioFile)], null, null, stimItem, false);
-  // }
-
 }
 
 function generateImageChoices(choices) {
@@ -279,7 +206,7 @@ function generateImageChoices(choices) {
   });
 }
 
-function getButtonChoices(task, layoutConfigMap) {
+function getButtonChoices(layoutConfigMap) {
   const stimulus = taskStore().nextStimulus;
   const itemLayoutConfig = layoutConfigMap?.[stimulus.itemId];
   if (itemLayoutConfig) {
@@ -293,28 +220,10 @@ function getButtonChoices(task, layoutConfigMap) {
       return generateImageChoices(buttonChoices);
     }
     return buttonChoices;
-  } 
-  // if (stimulus.trialType === 'instructions') {
-  //   return ['OK'];
-  // }
-
-  // const { answer, distractors } = stimulus;
-  // let trialInfo =
-  //   stimulus.task === 'Mental Rotation'
-  //     ? prepareChoices(answer, distractors, false, stimulus.trialType)
-  //     : prepareChoices(answer, distractors, true, stimulus.trialType);
-
-  // if (
-  //   ['vocab', 'trog', 'matrix-reasoning', 'mental-rotation', 'theory-of-mind'].includes(task) &&
-  //   stimulus.trialType !== 'instructions'
-  // ) {
-  //   return generateImageChoices(trialInfo.choices);
-  // }
-
-  // return trialInfo.choices; // Default return if no special conditions met
+  }
 }
 
-function getButtonHtml(task, layoutConfigMap) {
+function getButtonHtml(layoutConfigMap) {
   const stimulus = taskStore().nextStimulus;
   const isPracticeTrial = stimulus.assessmentStage === 'practice_response';
   const itemLayoutConfig = layoutConfigMap?.[stimulus.itemId];
@@ -328,18 +237,6 @@ function getButtonHtml(task, layoutConfigMap) {
       <button class='${classList.join(' ')}'>%choice%</button>
     `;
   }
-  // // TODO: add trial_type column to math item bank
-  // if (stimulus.trialType === 'instructions') {
-  //   return "<button class='primary'>%choice%</button>";
-  // } 
-  // if (stimulus.trialType === 'Fraction') {
-  //   return "<button class='secondary'>%choice%</button>";
-  // } else if (task === 'egma-math') {
-  //   // practice-btn class does not add any styles, only used for querySelector
-  //   return `<button class='secondary ${stimulus.assessmentStage === 'practice_response' ? 'practice-btn' : ''}'>%choice%</button>`;
-  // } else {
-  //   return `<button class='${stimulus.assessmentStage === 'practice_response' ? 'practice-btn' : ''}'>%choice%</button>`;
-  // }
 }
 
 function enableBtns(btnElements) {
@@ -404,7 +301,7 @@ function addKeyHelpers(el, keyIndex) {
   }
 }
 
-function doOnLoad(task, layoutConfig, layoutConfigMap) {
+function doOnLoad(layoutConfigMap) {
   startTime = performance.now();
 
   const stim = taskStore().nextStimulus;
@@ -454,53 +351,10 @@ function doOnLoad(task, layoutConfig, layoutConfigMap) {
 
     if (itemLayoutConfig) {
       buttonContainer.classList.add(...itemLayoutConfig.classOverrides.buttonContainerClassList);
-    } 
-    // else {
-    //   // TODO REMOVE AFTER LAYOUTCONFIG IMPLEMENTATION
-    //   buttonContainer.classList.add(`lev-response-row`);
-    //   buttonContainer.classList.add(`multi-4`);
-    // }
-
-    let responseChoices;
-    if (itemLayoutConfig) {
-      const { response } = itemLayoutConfig;
-      if (!response) {
-        throw new Error('Choices not defined in the config');
-      }
-      responseChoices = [...response.values];
-    } else {
-      // TODO: Remove after egma math is ported over
-      if (stim.trialType === 'Fraction') {
-        responseChoices = taskStore().nonFractionSelections;
-      } else {
-        responseChoices = taskStore().choices;
-      }
     }
 
-
     Array.from(buttonContainer.children).forEach((el, i) => {
-
-      // Map arrow to response choice.
-      // 2afc layout uses left and right arrow keys. The order of the arrrow
-      // key array allows for the correct mapping for other layouts.
       const keyIndex = buttonContainer.children.length === 2 ? i + 1 : i;
-      // keyboardResponseMap[arrowKeyEmojis[keyIndex][0]] = responseChoices[i];
-
-      // TODO REMOVE AFTER LAYOUTCONFIG IMPLEMENTATION
-      // if (itemLayoutConfig) {
-      //   // do nothing handled in getButtonHtml
-      // } else {
-      //   if (task !== 'egma-math') {
-      //     if (task === 'mental-rotation') {
-      //       el.children[0].classList.add('image-large');
-      //     } else if (task === 'vocab' || task === 'trog') {
-      //       el.children[0].classList.add('image-medium');
-      //     } else {
-      //       el.children[0].classList.add('image');
-      //     }
-      //   }
-      // }
-
       addKeyHelpers(el, keyIndex);
     });
 
@@ -531,9 +385,6 @@ function doOnFinish(data, task, layoutConfigMap) {
       if (!response) {
         throw new Error('Choices not defined in the config');
       }
-      // // TODO: hack for now, but will update when math is moved over
-      // const distractors = JSON.parse(JSON.stringify(itemLayoutConfig.response.values));
-      // distractors.pop();
       const keyboardChoices = getKeyboardChoices(itemLayoutConfig);
       const responseIndex = data.keyboard_response
         ? keyboardChoices.findIndex(f => f.toLowerCase() === data.keyboard_response.toLowerCase())
@@ -541,18 +392,7 @@ function doOnFinish(data, task, layoutConfigMap) {
       responseValue = response.values[responseIndex];
       data.correct = responseValue === response.target;
       console.log('mark://', 'Response values', { correct: data.correct, responseValue, response });
-    } 
-    // else {
-    //   // TODO: Remove this whole block once math has been ported over
-    //   if (data.keyboard_response) {
-    //     data.correct = keyboardResponseMap[data.keyboard_response] === target;
-    //     responseValue = keyboardResponseMap[data.keyboard_response];
-    //   } else {
-    //     data.correct = data.button_response === taskStore().correctResponseIdx;
-    //     responseValue = stimulus.trialType === 'Fraction' ? taskStore().nonFractionSelections[data.button_response] : taskStore().choices[data.button_response];
-    //   }
-    // }
-
+    }
 
     // check response and record it
     const responseType = data.button_response ? 'mouse' : 'keyboard';
@@ -629,9 +469,7 @@ function doOnFinish(data, task, layoutConfigMap) {
   }
 }
 
-// { trialType, responseAllowed, promptAboveButtons, task }
-export const afcStimulusTemplate = ({ trialType, responseAllowed, promptAboveButtons, task, layoutConfig, layoutConfigMap } = {}) => {
-  // TODO: pull out task-specific parameters (e.g., getPrompt(.., showPrompt=false) for Number Identification, TROG, ..)
+export const afcStimulusTemplate = ({ responseAllowed, promptAboveButtons, task, layoutConfigMap } = {}) => {
   return {
     type: jsPsychAudioMultiResponse,
     response_allowed_while_playing: responseAllowed,
@@ -646,32 +484,18 @@ export const afcStimulusTemplate = ({ trialType, responseAllowed, promptAboveBut
         isPracticeTrial: isPracticeTrial,
       };
     },
-    stimulus: () => getStimulus(layoutConfig, layoutConfigMap),
-    prompt: () => getPrompt(task, layoutConfig, layoutConfigMap),
+    stimulus: () => getStimulus(layoutConfigMap),
+    prompt: () => getPrompt(layoutConfigMap),
     prompt_above_buttons: promptAboveButtons,
     keyboard_choices: () => {
       const stim = taskStore().nextStimulus;
       const itemLayoutConfig = layoutConfigMap[stim.itemId];
       return getKeyboardChoices(itemLayoutConfig);
     },
-    button_choices: () => getButtonChoices(task, layoutConfigMap),
-    button_html: () => getButtonHtml(task, layoutConfigMap),
-    on_load: () => doOnLoad(task, layoutConfig, layoutConfigMap),
+    button_choices: () => getButtonChoices(layoutConfigMap),
+    button_html: () => getButtonHtml(layoutConfigMap),
+    on_load: () => doOnLoad(layoutConfigMap),
     on_finish: (data) => doOnFinish(data, task, layoutConfigMap),
     response_ends_trial: () => (taskStore().nextStimulus.assessmentStage === 'practice_response' ? false : true),
   };
 };
-
-// export const afcStimulus = ({ trialType, responseAllowed, promptAboveButtons, task, layoutConfig} = {}) => {
-//   return {
-//     timeline: [
-//       afcStimulusTemplate({
-//         trialType: trialType,
-//         responseAllowed: responseAllowed,
-//         promptAboveButtons: promptAboveButtons,
-//         task: task,
-//         layoutConfig
-//       }),
-//     ]
-//     }
-// };
