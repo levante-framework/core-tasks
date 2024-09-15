@@ -227,15 +227,17 @@ export const slider = {
     const stimulus = taskStore().nextStimulus;
     if (stimulus.trialType === 'Number Line 4afc') {
       data.correct = chosenAnswer === taskStore().target;
-      if (!(stimulus.assessmentStage === 'practice_response')) {
-        if (data.correct) {
-          taskStore('numIncorrect', 0);
-        } else {
-          taskStore.transact('numIncorrect', (oldVal: number) => oldVal + 1);
-        }
-      }
     } else {
       data.correct = (Math.abs(chosenAnswer - stimulus.answer) / stimulus.item[1]) < sliderScoringThreshold;
+    }
+
+    if (!(stimulus.assessmentStage === 'practice_response')) {
+      if (data.correct) {
+        taskStore('numIncorrect', 0);
+        taskStore.transact('totalCorrect', (oldVal: number) => oldVal + 1);
+      } else {
+        taskStore.transact('numIncorrect', (oldVal: number) => oldVal + 1);
+      }
     }
 
     const response = chosenAnswer;

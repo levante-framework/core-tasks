@@ -559,7 +559,7 @@ function doOnFinish(data, task, layoutConfigMap) {
 
     // update running score and answer lists
     if (data.correct) {
-      if (!isPractice(stimulus.notes)) {
+      if (stimulus.assessmentStage !== 'practice_response') {
         // practice trials don't count toward total
         taskStore.transact('totalCorrect', (oldVal) => oldVal + 1);
         taskStore('numIncorrect', 0); // reset incorrect trial count
@@ -567,7 +567,7 @@ function doOnFinish(data, task, layoutConfigMap) {
       practiceResponses = [];
     } else {
       // Only increase incorrect trials if response is incorrect not a practice trial
-      if (!isPractice(stimulus.notes)) {
+      if (stimulus.assessmentStage !== 'practice_response') {
         taskStore.transact('numIncorrect', (oldVal) => oldVal + 1);
       }
 
