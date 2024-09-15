@@ -28,7 +28,7 @@ declare global {
     isImageButtonResponse: boolean;
     showStimImage: boolean;
     buttonChoices: string[];
-    response?: {
+    response: {
       values: string[];
       displayValues: string[];
       target: string;
