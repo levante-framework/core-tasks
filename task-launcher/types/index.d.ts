@@ -27,7 +27,6 @@ declare global {
     isStaggered: boolean;
     isImageButtonResponse: boolean;
     showStimImage: boolean;
-    buttonChoices: string[];
     response: {
       values: string[];
       displayValues: string[];

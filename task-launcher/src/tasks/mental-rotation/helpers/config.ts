@@ -15,7 +15,6 @@ export const getLayoutConfig = (stimulus: StimulusType, trialNumber: number): La
   if (!defaultConfig.isInstructionTrial) {
     const prepChoices = prepareChoices(answer, distractors, false, trialType);
     defaultConfig.isImageButtonResponse = true;
-    defaultConfig.buttonChoices = prepChoices.choices;
     defaultConfig.classOverrides.stimulusContainerClassList = ['lev-stim-content'];
     defaultConfig.classOverrides.buttonClassList = ['image-large'];
     defaultConfig.response = {

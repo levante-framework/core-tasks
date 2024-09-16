@@ -22,7 +22,6 @@ export const getLayoutConfig = (stimulus: StimulusType, translations: Record<str
       aboveStimulus: false,
     };
     defaultConfig.isImageButtonResponse = true;
-    defaultConfig.buttonChoices = prepChoices.choices;
     defaultConfig.classOverrides.buttonClassList = ['image-medium'];
     defaultConfig.classOverrides.buttonContainerClassList = ['lev-response-row-inline', 'grid-2x2'];
     defaultConfig.response = {
