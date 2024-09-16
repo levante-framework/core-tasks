@@ -37,6 +37,9 @@ export const DEFAULT_LAYOUT_CONFIG: LayoutConfigType = {
     values: ['OK'],
     targetIndex: 0,
   },
+  inCorrectTrialConfig: {
+    onIncorrectTrial: 'end',
+  },
 };
 
 const defaultCorpus: Record<string, string> = {

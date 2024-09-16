@@ -37,6 +37,10 @@ declare global {
       value?: string;
       displayValue?: string; 
     };
+    inCorrectTrialConfig: {
+      onIncorrectTrial: 'skip' | 'end';
+      // Other config can be placed here
+    };
   }
 
   type StimulusType = {
