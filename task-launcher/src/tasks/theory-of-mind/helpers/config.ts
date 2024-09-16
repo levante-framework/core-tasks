@@ -16,7 +16,6 @@ export const getLayoutConfig = (stimulus: StimulusType): LayoutConfigType => {
     const prepChoices = prepareChoices(answer, distractors, true, trialType);
     defaultConfig.isStaggered = true;
     defaultConfig.isImageButtonResponse = true;
-    defaultConfig.buttonChoices = prepChoices.choices;
     defaultConfig.response = {
       target: prepChoices.target,
       displayValues: prepChoices.choices,

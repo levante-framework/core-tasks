@@ -30,7 +30,6 @@ export const getLayoutConfig = (
     defaultConfig.prompt.enabled = false;
     defaultConfig.isImageButtonResponse = false;
     defaultConfig.classOverrides.buttonClassList = ['secondary'];
-    defaultConfig.buttonChoices = prepChoices.choices;
     defaultConfig.response = {
       target: prepChoices.target,
       displayValues: prepChoices.choices,
