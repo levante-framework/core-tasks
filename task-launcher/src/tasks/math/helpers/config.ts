@@ -25,6 +25,7 @@ export const getLayoutConfig = (
     value: stimulus.item,
     displayValue: undefined,
   };
+  defaultConfig.inCorrectTrialConfig.onIncorrectTrial = 'skip';
   if (!defaultConfig.isInstructionTrial) {
     const prepChoices = prepareChoices(answer, distractors, true, trialType); 
     defaultConfig.prompt.enabled = false;
