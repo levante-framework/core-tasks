@@ -26,7 +26,6 @@ export const getLayoutConfig = (
   if (!defaultConfig.isInstructionTrial) {
     const prepChoices = prepareChoices(answer, distractors, true, trialType);
     defaultConfig.isImageButtonResponse = true;
-    defaultConfig.buttonChoices = prepChoices.choices;
     defaultConfig.response = {
       target: prepChoices.target,
       displayValues: prepChoices.choices,
