@@ -27,16 +27,19 @@ declare global {
     isStaggered: boolean;
     isImageButtonResponse: boolean;
     showStimImage: boolean;
-    buttonChoices: string[];
-    response?: {
+    response: {
       values: string[];
       displayValues: string[];
-      target: string[];
+      target: string;
       targetIndex: number;
     };
     stimText?: {
       value?: string;
       displayValue?: string; 
+    };
+    inCorrectTrialConfig: {
+      onIncorrectTrial: 'skip' | 'end';
+      // Other config can be placed here
     };
   }
 

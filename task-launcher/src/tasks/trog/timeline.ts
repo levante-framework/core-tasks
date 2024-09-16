@@ -6,27 +6,32 @@ import { initTrialSaving, initTimeline, createPreloadTrials, taskStore } from '.
 import { jsPsych, initializeCat } from '../taskSetup';
 // trials
 //@ts-ignore
-import {  afcStimulus, afcStimulusTemplate, exitFullscreen, setupStimulus, taskFinished } from '../shared/trials';
-import { getLayoutConfig, validateCorpus } from './helpers/config';
+import { afcStimulusTemplate, exitFullscreen, setupStimulus, taskFinished } from '../shared/trials';
+import { getLayoutConfig } from './helpers/config';
 
 export default function buildTROGTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
 
   initTrialSaving(config);
   const initialTimeline = initTimeline(config);
-
   const timeline = [preloadTrials, initialTimeline];
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
-  const messages = validateCorpus(corpus, mediaAssets);
+  const translations: Record<string, string> = taskStore().translations;
+  const validationErrorMap: Record<string, string> = {}; 
 
-  if (messages.length) {
-    console.error('The following errors were found');
-    console.table(messages);
-    throw new Error('Something went wrong. Please look in the console for error details');
-  }
   const layoutConfigMap: Record<string, LayoutConfigType> = {};
   for (const c of corpus) {
-    layoutConfigMap[c.itemId] = getLayoutConfig(c);
+    const { itemConfig, errorMessages } = getLayoutConfig(c, translations, mediaAssets);
+    layoutConfigMap[c.itemId] = itemConfig;
+    if (errorMessages.length) {
+      validationErrorMap[c.itemId] = errorMessages.join('; ');
+    }
+  }
+
+  if (Object.keys(validationErrorMap).length) {
+    console.error('The following errors were found');
+    console.table(validationErrorMap);
+    throw new Error('Something went wrong. Please look in the console for error details');
   }
 
   // does not matter if trial has properties that don't belong to that type

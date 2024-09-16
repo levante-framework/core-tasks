@@ -26,7 +26,7 @@ export const validateLayoutConfig = (
 
   if (layoutConfig.isImageButtonResponse) {
     // check if all images are present
-    layoutConfig.buttonChoices.forEach(c => {
+    layoutConfig.response.values.forEach(c => {
       const imageAsset = camelize(c);
       if (!imageAsset) {
         messages.push(`Missing image button string: ${imageAsset}`);
