@@ -2,9 +2,9 @@ import { PageAudioHandler } from "./audioHandler";
 import { PageStateHandler } from "./PageStateHandler";
 
 
-export async function setupReplayAudio(pageStateHandler: PageStateHandler, noAudio: boolean = false) {
+export async function setupReplayAudio(pageStateHandler: PageStateHandler) {
   if (pageStateHandler.replayBtn) {
-    if (!noAudio){
+    if (pageStateHandler.playStimulusOnLoad){
       pageStateHandler.disableReplayBtn();
       const enableDelayBuffer = 100; //in ms
       const totalStimulusDurationMs = await pageStateHandler.getStimulusDurationMs(); //in ms
