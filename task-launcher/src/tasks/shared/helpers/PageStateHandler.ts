@@ -14,13 +14,15 @@ export class PageStateHandler {
   audioUri: string;
   audioBuffer?: AudioBuffer;
   replayBtn: HTMLButtonElement;
+  playStimulusOnLoad: boolean;
 
-  constructor(audioFile: string) {
+  constructor(audioFile: string, playStimulusOnLoad: boolean) {
     this.audioFile = audioFile;
     this.audioUri = mediaAssets.audio[camelize(this.audioFile)] ||
     mediaAssets.audio.nullAudio;
     this.getbuffer();
     this.replayBtn = document.getElementById('replay-btn-revisited') as HTMLButtonElement;
+    this.playStimulusOnLoad = playStimulusOnLoad !== undefined ? playStimulusOnLoad : true;
   }
 
   async getbuffer() {
