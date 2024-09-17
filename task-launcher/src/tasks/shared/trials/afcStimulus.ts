@@ -119,7 +119,6 @@ const getPromptTemplate = (
   mediaAlt: string,
   stimText: string | null | undefined,
   equalSizeStim: boolean,
-  noAudio: boolean,
   stimulusContainerClassList: string[],
 ) => {
   let template = '<div class="lev-stimulus-container">';
@@ -178,7 +177,6 @@ function getPrompt(layoutConfigMap: Record<string, LayoutConfigType>) {
 
   if (itemLayoutConfig) {
     const {
-      noAudio,
       prompt: {
         enabled: promptEnabled,
       },
@@ -202,7 +200,6 @@ function getPrompt(layoutConfigMap: Record<string, LayoutConfigType>) {
       mediaAlt,
       stimText,
       equalSizeStim,
-      noAudio,
       stimulusContainerClassList,
     );
   }
@@ -323,7 +320,7 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>) {
 
   const stim = taskStore().nextStimulus;
   const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
-  const noAudio = layoutConfigMap?.[stim.itemId].noAudio;
+  const noAudio = itemLayoutConfig?.noAudio;
   const pageStateHandler = new PageStateHandler(stim.audioFile, !noAudio);
   const isPracticeTrial = stim.assessmentStage === 'practice_response';
   const isInstructionTrial = stim.trialType === 'instructions';
