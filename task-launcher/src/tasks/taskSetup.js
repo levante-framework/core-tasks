@@ -24,3 +24,5 @@ export const jsPsych = initJsPsych({
     //window.location.href = "https://app.prolific.co/submissions/complete?cc=4C0E9E0F";
   },
 });
+
+window.initJsPsych = jsPsych;
