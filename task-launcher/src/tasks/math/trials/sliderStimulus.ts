@@ -1,43 +1,37 @@
 import HTMLSliderResponse from '@jspsych/plugin-html-slider-response';
 import _shuffle from 'lodash/shuffle';
 import _toNumber from 'lodash/toNumber';
+//@ts-ignore
 import { jsPsych, isTouchScreen } from '../../taskSetup';
+//@ts-ignore
 import { camelize } from '@bdelab/roar-utils';
+//@ts-ignore
 import { arrowKeyEmojis, setSkipCurrentBlock, taskStore, replayButtonSvg, setupReplayAudio, PageAudioHandler, PageStateHandler } from '../../shared/helpers';
 import { mediaAssets } from '../../..';
 
-let chosenAnswer,
-  sliderStart,
-  keyboardResponseMap = {};
+let chosenAnswer: number;
+let sliderStart: number;
+let keyboardResponseMap: Record<string, any> = {};
 
-  function setUpAudio(contentWrapper, prompt, responseType) {
-    // add replay button
-    const replayButton = document.createElement('button'); 
-    replayButton.innerHTML = replayButtonSvg;
-    replayButton.id = 'replay-btn-revisited';
-    replayButton.classList.add('replay'); 
-    replayButton.disabled = true;
-    contentWrapper.insertBefore(replayButton, prompt);
+function setUpAudio(responseType: string) {
+  const cue = responseType === 'button' ? 'numberLinePrompt1' : 'numberLineSliderPrompt1';
+  const audioFile = mediaAssets.audio[cue] || '';
   
-    const cue = responseType === 'button' ? 'numberLinePrompt1' : 'numberLineSliderPrompt1';
-  
-    const audioFile = mediaAssets.audio[cue] || '';
-    
-    PageAudioHandler.playAudio(audioFile, () => {
-      // set up replay button audio after the first audio has played
-      if (cue) {
-        const pageStateHandler = new PageStateHandler(cue);
-        setupReplayAudio(pageStateHandler);
-      }
-    });  
-  }
+  PageAudioHandler.playAudio(audioFile, () => {
+    // set up replay button audio after the first audio has played
+    if (cue) {
+      const pageStateHandler = new PageStateHandler(cue);
+      setupReplayAudio(pageStateHandler);
+    }
+  });  
+}
 
-function captureValue(btnElement, event) {
+function captureValue(btnElement: HTMLButtonElement | null, event: Event & {key?: string}) {
   let containerEl = document.getElementById('slider-btn-container') || null;
 
   if (!containerEl) {
     const layout = taskStore().buttonLayout;
-    containerEl = document.getElementsByClassName(`${layout}-layout`)[0];
+    containerEl = document.getElementsByClassName(`${layout}-layout`)[0] as HTMLButtonElement;
   }
 
   Array.from(containerEl.children).forEach((el) => {
@@ -47,36 +41,26 @@ function captureValue(btnElement, event) {
   if (event?.key) {
     chosenAnswer = _toNumber(keyboardResponseMap[event.key.toLowerCase()]);
   } else {
-    chosenAnswer = _toNumber(btnElement.textContent);
+    chosenAnswer = _toNumber(btnElement?.textContent);
   }
 
   jsPsych.finishTrial();
 }
 
 // Defining the function here since we need a reference to it to remove the event listener later
-function captureBtnValue(event) {
+function captureBtnValue(event: Event & {key?: string}) {
   if (event.key === 'ArrowUp' || event.key === 'ArrowDown' || event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
     captureValue(null, event);
   } else return;
 }
 
-// function getRandomValue(max, avoid) {
-//   let result;
-
-//   do {
-//     result = Math.floor(Math.random() * (max + 1));
-//   } while (result === avoid);
-
-//   return result;
-// }
-
-function getRandomValue(max, avoid, tolerance = 0.1) {
+function getRandomValue(max: number, avoid: number, tolerance: number = 0.1) {
   const scaled_avoid = avoid / max;
-  let result;
+  let result = Math.random();
 
-  do {
+  while (Math.abs(result - scaled_avoid) < tolerance) {
     result = Math.random();
-  } while (Math.abs(result - scaled_avoid) < tolerance);
+  };
 
   return result * max;
 }
@@ -94,21 +78,20 @@ export const slider = {
     const stim = taskStore().nextStimulus;
     let t = taskStore().translations;
 
-    const prompt = stim.prompt;
-    if (prompt.includes('Move the slider')) {
-      return `
-        <div id='stimulus-container'>
-          <div id="prompt-container-text">
-            <p id="prompt">${t[camelize(stim.audioFile)]} <br /> ${stim.answer}</p>
-          </div>
-        </div>`;
-    } else {
-      return `<div id='stimulus-container'>
-                <div id="prompt-container-text">
-                    <p id=prompt>${t[camelize(stim.audioFile)]}</p>
-                </div>
-              </div>`;
-    }
+    const isSlider = stim.trialType === 'Number Line Slider';
+    return (`
+      <div class="lev-stimulus-container">
+        <button id="replay-btn-revisited" class="replay">
+          ${replayButtonSvg}
+        </button>
+        <div class="lev-row-container instruction">
+          <p>
+            ${t[camelize(stim.audioFile)]}
+            ${isSlider ? '<br /> ' + stim.answer : ''}
+          </p>
+        </div>
+      </div>
+    `);
   },
   labels: () => taskStore().nextStimulus.item,
   // button_label: 'OK',
@@ -135,10 +118,8 @@ export const slider = {
   step: 'any',
   // response_ends_trial: true,
   on_load: () => {
-    const slider = document.getElementById('jspsych-html-slider-response-response');
-    slider.classList.add('custom-slider');
-
-    const sliderLabels = document.getElementsByTagName('span');
+    const slider = document.getElementById('jspsych-html-slider-response-response') as HTMLButtonElement;
+    const sliderLabels = document.getElementsByTagName('span') as HTMLCollectionOf<HTMLSpanElement>;
     Array.from(sliderLabels).forEach((el, i) => {
       //if (i == 1 || i == 2) {
       el.style.fontSize = '1.5rem';
@@ -147,7 +128,7 @@ export const slider = {
     const { buttonLayout, keyHelpers } = taskStore();
     const distractors = taskStore().nextStimulus;
 
-    const wrapper = document.getElementById('jspsych-html-slider-response-wrapper');
+    const wrapper = document.getElementById('jspsych-html-slider-response-wrapper') as HTMLDivElement;
     const buttonContainer = document.createElement('div');
 
     if (buttonLayout === 'default') {
@@ -166,7 +147,7 @@ export const slider = {
       wrapper.style.margin = '0 0 2rem 0';
 
       // disable continue button and make invisible
-      const continueBtn = document.getElementById('jspsych-html-slider-response-next');
+      const continueBtn = document.getElementById('jspsych-html-slider-response-next') as HTMLButtonElement;
       continueBtn.disabled = true;
       continueBtn.style.visibility = 'hidden';
 
@@ -185,7 +166,7 @@ export const slider = {
         const btn = document.createElement('button');
         btn.textContent = responseChoices[i];
         btn.classList.add('secondary');
-        btn.addEventListener('click', () => captureValue(btn));
+        btn.addEventListener('click', (e) => captureValue(btn, e));
         // To not duplicate event listeners
         if (i === 0) {
           document.addEventListener('keydown', captureBtnValue);
@@ -225,23 +206,20 @@ export const slider = {
         continueBtn.classList.add('primary');
       }
 
-      const slider = document.getElementById('jspsych-html-slider-response-response');
+      const slider = document.getElementById('jspsych-html-slider-response-response') as HTMLButtonElement;
 
-      slider.addEventListener('input', () => (chosenAnswer = slider.value));
+      slider.addEventListener('input', () => (chosenAnswer = Number(slider.value)));
     }
 
     wrapper.appendChild(buttonContainer);
 
-    // play audio cue
-    const contentWrapper = document.getElementById('jspsych-content'); 
-    const prompt = document.getElementById('jspsych-html-slider-response-wrapper'); 
     const stimulus = taskStore().nextStimulus; 
     const responseType = stimulus.trialType.includes('4afc') ? 'button' : 'slider';
 
-    setUpAudio(contentWrapper, prompt, responseType)
+    setUpAudio(responseType)
 
   },
-  on_finish: (data) => {
+  on_finish: (data: any) => {
     // Need to remove event listener after trial completion or they will stack and cause an error.
     document.removeEventListener('keydown', captureBtnValue);
 
@@ -249,15 +227,17 @@ export const slider = {
     const stimulus = taskStore().nextStimulus;
     if (stimulus.trialType === 'Number Line 4afc') {
       data.correct = chosenAnswer === taskStore().target;
-      if (!(stimulus.assessmentStage === 'practice_response')) {
-        if (data.correct) {
-          taskStore('numIncorrect', 0);
-        } else {
-          taskStore.transact('numIncorrect', (oldVal) => oldVal + 1);
-        }
-      }
     } else {
       data.correct = (Math.abs(chosenAnswer - stimulus.answer) / stimulus.item[1]) < sliderScoringThreshold;
+    }
+
+    if (!(stimulus.assessmentStage === 'practice_response')) {
+      if (data.correct) {
+        taskStore('numIncorrect', 0);
+        taskStore.transact('totalCorrect', (oldVal: number) => oldVal + 1);
+      } else {
+        taskStore.transact('numIncorrect', (oldVal: number) => oldVal + 1);
+      }
     }
 
     const response = chosenAnswer;

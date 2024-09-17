@@ -223,6 +223,7 @@ function getHeartOrFlowerPracticeSection(adminConfig, stimulusType) {
       stimulus(
         true,
         jsPsychAssessmentStage,
+        jsPsychCorpusTrialType,
         adminConfig.stimulusPresentationTime,
         onStimulusTrialFinishTimelineCallback
       ),
@@ -260,7 +261,7 @@ function getHeartOrFlowerTestSection(adminConfig, stimulusType) {
   subtimeline.push({
     timeline: [
       fixation(adminConfig.interStimulusInterval),
-      stimulus(false, jsPsychAssessmentStage, adminConfig.stimulusPresentationTime),
+      stimulus(false, jsPsychAssessmentStage, jsPsychCorpusTrialType, adminConfig.stimulusPresentationTime),
     ],
     timeline_variables: buildHeartsOrFlowersTimelineVariables(adminConfig.testTrialCount, stimulusType),
     randomize_order: false,

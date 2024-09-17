@@ -6,9 +6,9 @@ import { jsPsych, initializeCat } from '../taskSetup';
 import { createPreloadTrials, taskStore, initTrialSaving, initTimeline } from '../shared/helpers';
 // trials
 // @ts-ignore
-import { afcStimulus, afcStimulusTemplate, taskFinished, exitFullscreen, setupStimulus, getAudioResponse } from '../shared/trials';
+import { afcStimulusTemplate, taskFinished, exitFullscreen, setupStimulus, getAudioResponse } from '../shared/trials';
 import { imageInstructions, videoInstructionsFit, videoInstructionsMisfit } from './trials/instructions';
-import { getLayoutConfig, validateCorpus } from './helpers/config';
+import { getLayoutConfig } from './helpers/config';
 
 export default function buildMentalRotationTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
@@ -36,18 +36,22 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
     videoInstructionsFit,
   ];
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
-  const messages = validateCorpus(corpus, mediaAssets);
+  const translations: Record<string, string> = taskStore().translations;
+  const validationErrorMap: Record<string, string> = {}; 
 
-  if (messages.length) {
-    console.error('The following errors were found');
-    console.table(messages);
-    throw new Error('Something went wrong. Please look in the console for error details');
-  }
   const layoutConfigMap: Record<string, LayoutConfigType> = {};
-  let i = 0;
   for (const c of corpus) {
-    layoutConfigMap[c.itemId] = getLayoutConfig(c, i);
-    i += 1;
+    const { itemConfig, errorMessages } = getLayoutConfig(c, translations, mediaAssets);
+    layoutConfigMap[c.itemId] = itemConfig;
+    if (errorMessages.length) {
+      validationErrorMap[c.itemId] = errorMessages.join('; ');
+    }
+  }
+
+  if (Object.keys(validationErrorMap).length) {
+    console.error('The following errors were found');
+    console.table(validationErrorMap);
+    throw new Error('Something went wrong. Please look in the console for error details');
   }
 
   const trialConfig = {

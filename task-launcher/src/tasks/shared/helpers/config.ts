@@ -23,7 +23,6 @@ export const DEFAULT_LAYOUT_CONFIG: LayoutConfigType = {
     enabled: true,
     aboveStimulus: true,
   },
-  showStimText: false,
   equalSizeStim: false,
   disableButtonsWhenAudioPlaying: false,
   isPracticeTrial: false,
@@ -32,7 +31,15 @@ export const DEFAULT_LAYOUT_CONFIG: LayoutConfigType = {
   isStaggered: false,
   isImageButtonResponse: false,
   showStimImage: true,
-  buttonChoices: ['OK'],
+  response: {
+    target: '',
+    displayValues: ['OK'],
+    values: ['OK'],
+    targetIndex: 0,
+  },
+  inCorrectTrialConfig: {
+    onIncorrectTrial: 'end',
+  },
 };
 
 const defaultCorpus: Record<string, string> = {
