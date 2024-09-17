@@ -202,6 +202,7 @@ function getPrompt(layoutConfigMap: Record<string, LayoutConfigType>) {
       mediaAlt,
       stimText,
       equalSizeStim,
+      noAudio,
       stimulusContainerClassList,
     );
   }
@@ -322,7 +323,8 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>) {
 
   const stim = taskStore().nextStimulus;
   const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
-  const pageStateHandler = new PageStateHandler(stim.audioFile);
+  const noAudio = layoutConfigMap?.[stim.itemId].noAudio;
+  const pageStateHandler = new PageStateHandler(stim.audioFile, !noAudio);
   const isPracticeTrial = stim.assessmentStage === 'practice_response';
   const isInstructionTrial = stim.trialType === 'instructions';
   // Handle the staggered buttons
@@ -382,9 +384,7 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>) {
     }
   }
 
-  const noAudio = layoutConfigMap?.[stim.itemId].noAudio;
-
-  setupReplayAudio(pageStateHandler, noAudio);
+  setupReplayAudio(pageStateHandler);
 }
 
 function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, LayoutConfigType>) {
