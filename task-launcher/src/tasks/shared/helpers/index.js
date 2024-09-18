@@ -12,7 +12,6 @@ export * from './getMediaAssets';
 export * from './createPreloadTrials';
 export * from './dashToCamelCase';
 export * from './getStimulus';
-export * from './getStimulusCount';
 export * from './isPractice';
 export * from './isTaskFinished';
 export * from './prepareChoices';
