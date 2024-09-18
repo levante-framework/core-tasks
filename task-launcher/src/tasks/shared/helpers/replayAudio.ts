@@ -4,13 +4,15 @@ import { PageStateHandler } from "./PageStateHandler";
 
 export async function setupReplayAudio(pageStateHandler: PageStateHandler) {
   if (pageStateHandler.replayBtn) {
-    pageStateHandler.disableReplayBtn();
-    const enableDelayBuffer = 100; //in ms
-    const totalStimulusDurationMs = await pageStateHandler.getStimulusDurationMs(); //in ms
-    const totalDelay = totalStimulusDurationMs + enableDelayBuffer;
-    setTimeout(() => {
-      pageStateHandler.enableReplayBtn();
-    }, totalDelay);
+    if (pageStateHandler.playStimulusOnLoad){
+      pageStateHandler.disableReplayBtn();
+      const enableDelayBuffer = 100; //in ms
+      const totalStimulusDurationMs = await pageStateHandler.getStimulusDurationMs(); //in ms
+      const totalDelay = totalStimulusDurationMs + enableDelayBuffer;
+      setTimeout(() => {
+        pageStateHandler.enableReplayBtn();
+      }, totalDelay);
+    }
 
     const onAudioEnd = () => {
       pageStateHandler.enableReplayBtn();

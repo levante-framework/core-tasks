@@ -7,7 +7,7 @@ import postcss from 'rollup-plugin-postcss';
 import typescript from '@rollup/plugin-typescript';
 
 export default {
-  input: 'src/index.js',
+  input: 'src/index.ts',
   plugins: [
     typescript({ module: "ESNext" }),
     postcss({

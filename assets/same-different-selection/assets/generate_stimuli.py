@@ -57,7 +57,7 @@ def save_shape(shape, size, color, cardinality, background_color):
     # Size mapping
     size_mapping = {30: 'sm', 60: 'med', 100: 'lg'}
     word_size = size_mapping[size]  # Convert size to word label
-    color_mapping = {'red': '#D81B60', 'green': '#009E73', 'blue': '#1E88E5', 'yellow': '#FFC107'}  # color-blind friendly
+    color_mapping = {'red': '#ff0f0f', 'green': '#1ec81e', 'blue': '#1e88e5', 'yellow': '#f5f514'}  # color-blind friendly, same as SPARK lab
     hex_color = color_mapping[color] # darker green: '#004D40'
 
     canvas_size = 230
