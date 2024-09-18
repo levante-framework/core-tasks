@@ -107,7 +107,7 @@ function getStimulus(layoutConfigMap: Record<string, LayoutConfigType>) {
   const stim = taskStore().nextStimulus;
   const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
   if (itemLayoutConfig) {
-    const audioPath = itemLayoutConfig?.noAudio ? 'nullAudio' : camelize(stim.audioFile);
+    const audioPath = itemLayoutConfig?.playAudioOnLoad ? camelize(stim.audioFile) : 'nullAudio';
     return mediaAssets.audio[audioPath];
   }
 }
@@ -320,8 +320,8 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>) {
 
   const stim = taskStore().nextStimulus;
   const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
-  const noAudio = itemLayoutConfig?.noAudio;
-  const pageStateHandler = new PageStateHandler(stim.audioFile, !noAudio);
+  const playAudioOnLoad = itemLayoutConfig?.playAudioOnLoad;
+  const pageStateHandler = new PageStateHandler(stim.audioFile, playAudioOnLoad);
   const isPracticeTrial = stim.assessmentStage === 'practice_response';
   const isInstructionTrial = stim.trialType === 'instructions';
   // Handle the staggered buttons

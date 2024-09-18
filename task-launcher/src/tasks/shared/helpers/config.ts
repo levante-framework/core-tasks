@@ -8,7 +8,7 @@ import { camelize } from './camelize';
 import { RoarAppkit } from '@bdelab/roar-firekit';
 
 export const DEFAULT_LAYOUT_CONFIG: LayoutConfigType = {
-  noAudio: false,
+  playAudioOnLoad: true,
   staggered: {
     enabled: false,
     trialTypes: [],
