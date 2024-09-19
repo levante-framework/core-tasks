@@ -213,9 +213,9 @@ function generateImageChoices(choices: string[], target: string) {
   return choices.map((choice) => {
     const imageUrl = mediaAssets.images[camelize(choice)] || practiceUrl;
 
-    // if the task is running in a cypress test, the correct answer should be indicated in the window
+    // if the task is running in a cypress test, the correct answer should be indicated with alt text
     if (window.Cypress){
-      const isCorrect = choice === target ? 'PICK-ME!' : 'WRONG';
+      const isCorrect = choice === target ? 'correct' : '';
       return `<img src=${imageUrl} alt=${isCorrect} />`;
     } else {
       return `<img src=${imageUrl} alt=${choice} />`;
@@ -419,7 +419,6 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
       responseValue = response.values[responseIndex];
       data.correct = responseValue === response.target;
       //console.log('mark://', 'Response values', { correct: data.correct, responseValue, response });
-      console.log(data.correct)
     }
 
     // check response and record it
