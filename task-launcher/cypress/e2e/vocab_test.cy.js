@@ -5,6 +5,6 @@ const vocab_url = 'http://localhost:8080/?task=vocab'
 describe('test vocab', () => {
   it('visits vocab and plays game', () => {
     cy.visit(vocab_url);
-    testImageAfc(true);
+    testImageAfc(true, '.image-medium', 4);
   })
 })
