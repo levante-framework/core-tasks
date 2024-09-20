@@ -17,6 +17,8 @@ import { mediaAssets } from '../../..';
 import _toNumber from 'lodash/toNumber';
 // @ts-ignore
 import { finishExperiment } from '.';
+import Cypress from 'cypress'; 
+
 const replayButtonHtmlId = 'replay-btn-revisited';
 // Previously chosen responses for current practice trial
 let practiceResponses = [];
@@ -205,18 +207,29 @@ function getPrompt(layoutConfigMap: Record<string, LayoutConfigType>) {
   }
 }
 
-function generateImageChoices(choices: string[]) {
+function generateImageChoices(choices: string[], target: string) {
+  const stimulus = taskStore().nextStimulus; 
   const practiceUrl =
     'https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc';
   return choices.map((choice) => {
     const imageUrl = mediaAssets.images[camelize(choice)] || practiceUrl;
-    return `<img src=${imageUrl} alt=${choice} />`;
+
+    // if the task is running in a cypress test, the correct answer should be indicated with alt text
+    if (window.Cypress && stimulus.assessmentStage !== 'practice_response'){
+      const isCorrect = choice === target ? 'correct' : '';
+      return `<img src=${imageUrl} alt=${isCorrect} />`;
+    } else {
+      return `<img src=${imageUrl} alt=${choice} />`;
+    }
+    
   });
 }
 
 function getButtonChoices(layoutConfigMap: Record<string, LayoutConfigType>) {
   const stimulus = taskStore().nextStimulus;
   const itemLayoutConfig = layoutConfigMap?.[stimulus.itemId];
+  const { response } = itemLayoutConfig; 
+  const target = response.target; 
   if (itemLayoutConfig) {
     const {
       isImageButtonResponse,
@@ -225,7 +238,7 @@ function getButtonChoices(layoutConfigMap: Record<string, LayoutConfigType>) {
       },
     } = itemLayoutConfig;
     if (isImageButtonResponse) {
-      return generateImageChoices(buttonChoices);
+      return generateImageChoices(buttonChoices, target);
     }
     return buttonChoices;
   }
@@ -406,7 +419,7 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
         : data.button_response;
       responseValue = response.values[responseIndex];
       data.correct = responseValue === response.target;
-      console.log('mark://', 'Response values', { correct: data.correct, responseValue, response });
+      //console.log('mark://', 'Response values', { correct: data.correct, responseValue, response });
     }
 
     // check response and record it
