@@ -4,7 +4,7 @@ declare global {
   // Per trial layout config that can be preprocessed when creating timeline
   // and validated for assets
   type LayoutConfigType = {
-    noAudio: boolean; // stimulus will not play audio (null Audio)
+    playAudioOnLoad: boolean; // stimulus will play audio (nullAudio if false)
     staggered: {
       enabled: boolean,
       trialTypes: string[], // filter for trial types, TODO: Remove this and move the logic to the task

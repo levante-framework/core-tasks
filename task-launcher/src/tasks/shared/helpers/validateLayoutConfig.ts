@@ -7,7 +7,7 @@ export const validateLayoutConfig = (
   stimulus: StimulusType,
 ) => {
   const messages = [];
-  if (!layoutConfig.noAudio) {
+  if (layoutConfig.playAudioOnLoad) {
     // we expect audio file to be present
     if (!stimulus.audioFile) {
       messages.push('Missing audioFile string');

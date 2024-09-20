@@ -16,7 +16,7 @@ export const getLayoutConfig = (
 ): GetConfigReturnType => {
   const { answer, distractors, trialType } = stimulus;
   const defaultConfig: LayoutConfigType = JSON.parse(JSON.stringify(DEFAULT_LAYOUT_CONFIG));
-  defaultConfig.noAudio = trialNumber > 2;
+  defaultConfig.playAudioOnLoad = trialNumber < 3;
   defaultConfig.isPracticeTrial = stimulus.assessmentStage === 'practice_response';
   defaultConfig.isInstructionTrial = stimulus.trialType === 'instructions';
   defaultConfig.stimText = {
