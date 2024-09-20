@@ -84,18 +84,17 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false, rese
     },
     on_load: () => doOnLoad(mode, isPractice, reverse),
     on_finish: (data) => {
-      jsPsych.data.addDataToLastTrial({
-        correct: _isEqual(data.response, data.sequence),
-        selectedCoordinates: selectedCoordinates,
-        corpusTrialType: getMemoryGameType(mode, reverse),
-      });
-
       if (resetSeq) {
         sequenceLength = 2;
       }
 
       if (mode === 'input') {
-        taskStore('isCorrect', data.correct)
+        jsPsych.data.addDataToLastTrial({
+          correct: _isEqual(data.response, data.sequence),
+          selectedCoordinates: selectedCoordinates,
+          corpusTrialType: getMemoryGameType(mode, reverse),
+        });
+        taskStore('isCorrect', data.correct);
 
         if (data.correct && !isPractice) {
           taskStore('numIncorrect', 0)
