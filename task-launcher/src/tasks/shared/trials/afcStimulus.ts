@@ -208,13 +208,14 @@ function getPrompt(layoutConfigMap: Record<string, LayoutConfigType>) {
 }
 
 function generateImageChoices(choices: string[], target: string) {
+  const stimulus = taskStore().nextStimulus; 
   const practiceUrl =
     'https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc';
   return choices.map((choice) => {
     const imageUrl = mediaAssets.images[camelize(choice)] || practiceUrl;
 
     // if the task is running in a cypress test, the correct answer should be indicated with alt text
-    if (window.Cypress){
+    if (window.Cypress && stimulus.assessmentStage !== 'practice_response'){
       const isCorrect = choice === target ? 'correct' : '';
       return `<img src=${imageUrl} alt=${isCorrect} />`;
     } else {
