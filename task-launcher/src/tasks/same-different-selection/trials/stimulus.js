@@ -123,23 +123,21 @@ export const stimulus = {
   prompt_above_buttons: true,
   button_choices: () => {
     const stim = taskStore().nextStimulus;
-    if (stim.trialType === 'something-same-1' || stim.trialType === 'instructions') {
+    if (stim.assessmentStage === 'instructions') {
       return ['OK'];
-    } else if (stim.trialType === 'something-same-2' || stim.trialType === 'test-dimensions') {
+    } else {
       const { choices } = prepareChoices(stim.answer, stim.distractors);
       return choices;
     }
-
-    return choices;
   },
   button_html: () => {
     const stim = taskStore().nextStimulus;
-    if (stim.trialType === 'something-same-1' || stim.trialType === 'instructions') {
+    if (stim.assessmentStage === 'instructions') {
       return "<button class='primary'>OK</button>";
     }
 
     const choices = taskStore().choices;
-    const allButtons = choices.map((choice, ind) => {
+    const allButtons = choices.map((choice) => {
       const img = mediaAssets.images[camelize(choice)];
       return`<button class='image-medium'> <img src=${img} alt='shape' /> </button>`;
     });
