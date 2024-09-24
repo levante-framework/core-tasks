@@ -17,6 +17,7 @@ function enableBtns(btnElements) {
 }
 
 function handleButtonFeedback(btn, cards, isKeyBoardResponse, responsevalue) {
+  console.log('mark://', 'btn', btn);
   const choice = btn.parentElement.id; 
   const answer = taskStore().correctResponseIdx.toString(); 
 
@@ -48,7 +49,7 @@ export const stimulus = {
   type: jsPsychAudioMultiResponse,
   data: () => {
     const stim = taskStore().nextStimulus;
-    let isPracticeTrial = stim.assessmentStage == 'practice_response';
+    let isPracticeTrial = stim.assessmentStage === 'practice_response';
     return {
       save_trial: stim.trialType !== 'instructions',
       assessment_stage: stim.assessmentStage,
@@ -64,16 +65,17 @@ export const stimulus = {
     const stim = taskStore().nextStimulus;
     const prompt = camelize(stim.audioFile);
     const t = taskStore().translations;
+    console.log('mark://', 'Array Stims', stim);
     return (
-      `<div id='stimulus-container'>
+      `<div class="lev-stimulus-container">
         <button
             id="${replayButtonHtmlId}"
             class="replay"
         >
             ${replayButtonSvg}
         </button>
-        <div id='prompt-container-text'>
-          <p id='prompt'>${t[prompt]}</p>
+        <div class="lev-row-container instruction">
+          <p>${t[prompt]}</p>
         </div>
 
         ${stim.image && !Array.isArray(stim.image) ? 
@@ -88,7 +90,7 @@ export const stimulus = {
         
         ${stim.image && Array.isArray(stim.image) ?
           `<div class='sds-prompt-pyramid-container'>
-            ${stim.trialType == 'something-same-1'? 
+            ${stim.trialType === 'something-same-1'? 
               `<img 
                 src=${mediaAssets.images[camelize(stim.image[0])]} 
                 alt=${stim.image[0]}
@@ -109,15 +111,15 @@ export const stimulus = {
           </div>` :
           ''
         }
-      <div >`
+      </div>`
     )
   },
   prompt_above_buttons: true,
   button_choices: () => {
     const stim = taskStore().nextStimulus;
-    if (stim.trialType == 'something-same-1' || stim.trialType == 'instructions') {
+    if (stim.trialType === 'something-same-1' || stim.trialType === 'instructions') {
       return ['OK'];
-    } else if (stim.trialType == 'something-same-2' || stim.trialType == 'test-dimensions') {
+    } else if (stim.trialType === 'something-same-2' || stim.trialType === 'test-dimensions') {
       const { choices } = prepareChoices(stim.answer, stim.distractors);
       return choices;
     }
@@ -126,34 +128,38 @@ export const stimulus = {
   },
   button_html: () => {
     const stim = taskStore().nextStimulus;
-    if (stim.trialType == 'something-same-1' || stim.trialType == 'instructions') {
-      return "<button id='sds-continue-btn' class='primary'>OK</button>";
+    if (stim.trialType === 'something-same-1' || stim.trialType === 'instructions') {
+      return "<button class='primary'>OK</button>";
     }
 
     const choices = taskStore().choices;
     const allButtons = choices.map((choice, ind) => {
       const img = mediaAssets.images[camelize(choice)];
-      return`<button class='base-image-container'> <img src=${img} alt='shape' /> </button>`;
+      return`<button class='image-medium'> <img src=${img} alt='shape' /> </button>`;
     });
 
     return allButtons;
   },
   response_ends_trial: () => !(
-    taskStore().nextStimulus.trialType == 'test-dimensions' || taskStore().nextStimulus.assessmentStage == 'practice_response'
+    taskStore().nextStimulus.trialType === 'test-dimensions' || taskStore().nextStimulus.assessmentStage === 'practice_response'
   ),
   on_load: () => {
     const audioFile = taskStore().nextStimulus.audioFile;
     const pageStateHandler = new PageStateHandler(audioFile);
     setupReplayAudio(pageStateHandler);
-
+    const buttonContainer = document.getElementById('jspsych-audio-multi-response-btngroup');
+    buttonContainer.classList.add('lev-response-row');
+    buttonContainer.classList.add('multi-4');
     const trialType = taskStore().nextStimulus.trialType; 
     const assessmentStage = taskStore().nextStimulus.assessmentStage;
-    const cards = document.querySelectorAll('.base-image-container');  
+    // const cards = document.querySelectorAll('.base-image-container');  
     
-    if (trialType == 'test-dimensions' || assessmentStage == 'practice_response'){ // cards should give feedback during test dimensions block
-      cards.forEach((card, i) =>
+    if (trialType === 'test-dimensions' || assessmentStage === 'practice_response'){ // cards should give feedback during test dimensions block
+      const practiceBtns = Array.from(buttonContainer.children).map(btnDiv => btnDiv.firstChild);
+      practiceBtns.forEach((card, i) =>
         card.addEventListener('click', async (e) => {
-          handleButtonFeedback(card, cards, false, i);
+
+          handleButtonFeedback(card, practiceBtns, false, i);
         })
       )
     }
@@ -161,13 +167,14 @@ export const stimulus = {
   on_finish: (data) => {
     const stim = taskStore().nextStimulus;
     const choices = taskStore().choices;
+    console.log('mark://onFinish', { choices, response: data.button_response });
 
     // Always need to write correct key because of firekit.
     // TODO: Discuss with ROAR team to remove this check
     if (stim.trialType != 'instructions'){
       let isCorrect; 
-      if (stim.trialType == 'test-dimensions' || stim.assessmentStage == 'practice_response'){ // if no incorrect answers were clicked, that trial is correct
-        isCorrect = incorrectPracticeResponses.length == 0; 
+      if (stim.trialType === 'test-dimensions' || stim.assessmentStage === 'practice_response'){ // if no incorrect answers were clicked, that trial is correct
+        isCorrect = incorrectPracticeResponses.length === 0; 
       } else if (stim.trialType != 'something-same-1' && stim.trialType != 'instructions'){ // isCorrect should be undefined for something-same-1 trials
         isCorrect = data.button_response === taskStore().correctResponseIdx
       } 
@@ -185,7 +192,7 @@ export const stimulus = {
 
       const maxIncorrect = taskStore().maxIncorrect;
 
-      if ((numIncorrect('numIncorrect') == maxIncorrect)) {
+      if ((numIncorrect('numIncorrect') === maxIncorrect)) {
         finishExperiment();
       }
 
@@ -198,6 +205,6 @@ export const stimulus = {
         corpusTrialType: stim.trialType,
         response: choices[data.button_response],
       });
-  }
+    }
 }
 };
