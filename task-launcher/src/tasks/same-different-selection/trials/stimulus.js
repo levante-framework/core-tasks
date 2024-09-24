@@ -51,7 +51,7 @@ export const stimulus = {
     const stim = taskStore().nextStimulus;
     let isPracticeTrial = stim.assessmentStage === 'practice_response';
     return {
-      save_trial: stim.trialType !== 'instructions',
+      save_trial: stim.assessmentStage !== 'instructions',
       assessment_stage: stim.assessmentStage,
         // not for firekit
       isPracticeTrial: isPracticeTrial,
@@ -79,7 +79,7 @@ export const stimulus = {
         </div>
 
         ${stim.image && !Array.isArray(stim.image) ? 
-          `<div class='sds-prompt-image-container'>
+          `<button class='image-medium' disabled>
             <img 
               src=${mediaAssets.images[camelize(stim.image)]} 
               alt=${stim.image}
@@ -89,23 +89,29 @@ export const stimulus = {
         }
         
         ${stim.image && Array.isArray(stim.image) ?
-          `<div class='sds-prompt-pyramid-container'>
-            ${stim.trialType === 'something-same-1'? 
-              `<img 
-                src=${mediaAssets.images[camelize(stim.image[0])]} 
-                alt=${stim.image[0]}
-                class='top-image'
-              />`:
+          `<div class='lev-stim-content' style="flex-direction: column;">
+            ${stim.trialType === 'something-same-1'?
+              `
+              <div>
+                <button class='image-medium no-pointer-events'>
+                  <img 
+                    src=${mediaAssets.images[camelize(stim.image[0])]} 
+                    alt=${stim.image[0]}
+                    class='top-image'
+                  />
+                </button>
+              </div>
+              `:
               ''
             }
-            <div class='sds-prompt-pyramid-base'>
+            <div class='lev-response-row multi-4'>
               ${stim.image.map(shape => {
-                return `<div class='base-image-container' style='cursor: default;'>
+                return `<button class='image-medium no-pointer-events' style='margin: 0 4px'>
                           <img 
                             src=${mediaAssets.images[camelize(shape)]} 
                             alt=${shape} 
                           />
-                      </div>`}
+                      </button>`}
               ).join('')}
             </div>
           </div>` :
@@ -167,15 +173,16 @@ export const stimulus = {
   on_finish: (data) => {
     const stim = taskStore().nextStimulus;
     const choices = taskStore().choices;
-    console.log('mark://onFinish', { choices, response: data.button_response });
+    console.log('mark://onFinish', { choices, response: data.button_response, stim });
 
     // Always need to write correct key because of firekit.
     // TODO: Discuss with ROAR team to remove this check
-    if (stim.trialType != 'instructions'){
+    if (stim.assessmentStage !== 'instructions'){
+      console.log('mark://writing trial', { stim });
       let isCorrect; 
       if (stim.trialType === 'test-dimensions' || stim.assessmentStage === 'practice_response'){ // if no incorrect answers were clicked, that trial is correct
         isCorrect = incorrectPracticeResponses.length === 0; 
-      } else if (stim.trialType != 'something-same-1' && stim.trialType != 'instructions'){ // isCorrect should be undefined for something-same-1 trials
+      } else {
         isCorrect = data.button_response === taskStore().correctResponseIdx
       } 
 
