@@ -269,6 +269,10 @@ button {
       border-color: $border-button-primary-clicked;
     }
 
+    &.selected {
+      border-color: $border-button-primary-clicked;
+    }
+
   }
   &.no-pointer-events {
     pointer-events: none;

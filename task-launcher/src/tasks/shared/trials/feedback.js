@@ -22,6 +22,9 @@ export const feedback = (isPractice = false, correctFeedbackAudioKey, inCorrectF
                 prompt: () => {
                     const t = taskStore().translations;
                     const isCorrect = taskStore().isCorrect;
+                    const imageUrl = isCorrect
+                        ? mediaAssets.images['smilingFace@2x']
+                        : mediaAssets.images['sadFace@2x'];
                     let promptOnIncorrect; // prompt displayed at bottom if incorrect, differs by task
 
                     switch(taskStore().task) {
@@ -36,17 +39,17 @@ export const feedback = (isPractice = false, correctFeedbackAudioKey, inCorrectF
                     }
 
                     return (
-                        `<div id='stimulus-container'>
-                            <div id='prompt-container-text'>
-                                <p id='prompt'>${isCorrect ? t.feedbackCorrect : t.heartsAndFlowersTryAgain}</p>
+                        `<div class="lev-stimulus-container">
+                            <div class="lev-row-container instruction">
+                                <p>${isCorrect ? t.feedbackCorrect : t.heartsAndFlowersTryAgain}</p>
+                            </div>
+                            <div class="lev-stim-content">
+                                <img src=${imageUrl} alt='Instruction graphic'/>
                             </div>
                     
-                            <img id='instruction-graphic' src=${isCorrect ? mediaAssets.images['smilingFace@2x'] : 
-                                    mediaAssets.images['sadFace@2x']} alt='Instruction graphic'/>
-
                             ${isCorrect ? '' :
-                             `<div id='prompt-container-text'>
-                                <footer id='prompt'>${promptOnIncorrect}</footer>
+                             `<div class="lev-row-container instruction"'>
+                                <p>${promptOnIncorrect}</p>
                               </div>`
                             }
                         </div>`
@@ -57,7 +60,7 @@ export const feedback = (isPractice = false, correctFeedbackAudioKey, inCorrectF
                 prompt_above_buttons: true, 
                 button_html: () => {
                     const t = taskStore().translations;
-                    return (`<button id="continue-btn">${t.continueButtonText}</button>`)
+                    return (`<button class="primary">${t.continueButtonText}</button>`)
                 }
             } 
         ],
