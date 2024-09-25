@@ -10,14 +10,20 @@ import { jsPsych } from '../../taskSetup';
 export const numIncorrect = store.page.namespace('numIncorrect', 0);
 
 const replayButtonHtmlId = 'replay-btn-revisited'; 
-let incorrectPracticeResponses = []; 
+let incorrectPracticeResponses = [];
+
+const generateImageChoices = (choices) => {
+  return choices.map((choice) => {
+    const imageUrl = mediaAssets.images[camelize(choice)] || practiceUrl;
+    return `<img src=${imageUrl} alt=${choice} />`;
+  });
+}
 
 function enableBtns(btnElements) {
   btnElements.forEach((btn) => (btn.removeAttribute('disabled')));
 }
 
 function handleButtonFeedback(btn, cards, isKeyBoardResponse, responsevalue) {
-  console.log('mark://', 'btn', btn);
   const choice = btn.parentElement.id; 
   const answer = taskStore().correctResponseIdx.toString(); 
 
@@ -65,7 +71,6 @@ export const stimulus = {
     const stim = taskStore().nextStimulus;
     const prompt = camelize(stim.audioFile);
     const t = taskStore().translations;
-    console.log('mark://', 'Array Stims', stim);
     return (
       `<div class="lev-stimulus-container">
         <button
@@ -127,22 +132,15 @@ export const stimulus = {
       return ['OK'];
     } else {
       const { choices } = prepareChoices(stim.answer, stim.distractors);
-      return choices;
+      return generateImageChoices(choices);
     }
   },
   button_html: () => {
     const stim = taskStore().nextStimulus;
-    if (stim.assessmentStage === 'instructions') {
-      return "<button class='primary'>OK</button>";
-    }
-
-    const choices = taskStore().choices;
-    const allButtons = choices.map((choice) => {
-      const img = mediaAssets.images[camelize(choice)];
-      return`<button class='image-medium'> <img src=${img} alt='shape' /> </button>`;
-    });
-
-    return allButtons;
+    const buttonClass = stim.assessmentStage === 'instructions'
+      ?'primary'
+      : 'image-medium';
+    return `<button class="${buttonClass}">%choice%</button>`;
   },
   response_ends_trial: () => !(
     taskStore().nextStimulus.trialType === 'test-dimensions' || taskStore().nextStimulus.assessmentStage === 'practice_response'
@@ -156,7 +154,6 @@ export const stimulus = {
     buttonContainer.classList.add('multi-4');
     const trialType = taskStore().nextStimulus.trialType; 
     const assessmentStage = taskStore().nextStimulus.assessmentStage;
-    // const cards = document.querySelectorAll('.base-image-container');  
     
     if (trialType === 'test-dimensions' || assessmentStage === 'practice_response'){ // cards should give feedback during test dimensions block
       const practiceBtns = Array.from(buttonContainer.children).map(btnDiv => btnDiv.firstChild);
@@ -171,12 +168,11 @@ export const stimulus = {
   on_finish: (data) => {
     const stim = taskStore().nextStimulus;
     const choices = taskStore().choices;
-    console.log('mark://onFinish', { choices, response: data.button_response, stim });
+    console.log('mark://onFinish', { choices, data, stim });
 
     // Always need to write correct key because of firekit.
     // TODO: Discuss with ROAR team to remove this check
     if (stim.assessmentStage !== 'instructions'){
-      console.log('mark://writing trial', { stim });
       let isCorrect; 
       if (stim.trialType === 'test-dimensions' || stim.assessmentStage === 'practice_response'){ // if no incorrect answers were clicked, that trial is correct
         isCorrect = incorrectPracticeResponses.length === 0; 
