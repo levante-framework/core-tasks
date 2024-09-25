@@ -67,11 +67,13 @@ export default function buildSameDifferentTimeline(config, mediaAssets) {
 
   const { phase1, phase2a, phase2b, phase2c, phase2d, phase2e } = sdsPhaseCount
 
-  for (let i = 0; i < phase1; i++) {
-    timeline.push(setupStimulus)
-    timeline.push(stimulusBlock)
-    timeline.push(buttonNoise) // adds button noise for appropriate trials
-  }
+  console.log('mark://', 'sdsPhaseCount', sdsPhaseCount);
+
+  // for (let i = 0; i < phase1; i++) {
+  //   timeline.push(setupStimulus)
+  //   timeline.push(stimulusBlock)
+  //   timeline.push(buttonNoise) // adds button noise for appropriate trials
+  // }
 
   // 1st matching phase (with feedback)
   for (let i = 0; i < phase2a; i++) {

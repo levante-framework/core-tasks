@@ -9,7 +9,18 @@ import { numIncorrect } from './stimulus';
 let selectedCards = [];
 let previousSelections = [];
 
-const replayButtonHtmlId = 'replay-btn-revisited'; 
+const replayButtonHtmlId = 'replay-btn-revisited';
+
+const generateImageChoices = (choices) => {
+  return choices.map((choice) => {
+    const imageUrl = mediaAssets.images[camelize(choice)] || practiceUrl;
+    return `<img src=${imageUrl} alt=${choice} />`;
+  });
+};
+
+function enableBtns(btnElements) {
+  btnElements.forEach((btn) => (btn.removeAttribute('disabled')));
+}
 
 export const afcMatch = {
   type: jsPsychAudioMultiResponse,
@@ -31,80 +42,121 @@ export const afcMatch = {
     const prompt = camelize(taskStore().nextStimulus.audioFile);
     const t = taskStore().translations;
     return (
-      `<div id='stimulus-container'>
+      `<div class="lev-stimulus-container">
         <button
             id="${replayButtonHtmlId}"
             class="replay"
         >
             ${replayButtonSvg}
         </button>
-        <div id='prompt-container-text'>
-          <p id='prompt'>${t[prompt]}</p>
+        <div class="lev-row-container instruction">
+          <p>${t[prompt]}</p>
         </div>
       </div>`
     );
+  },
+  prompt_above_buttons: true,
+  button_choices: () => {
+    const stim = taskStore().nextStimulus;
+    if (stim.assessmentStage === 'instructions') {
+      return ['OK'];
+    } else {
+      const { choices } = prepareChoices(stim.answer, stim.distractors);
+      return generateImageChoices(choices);
+    }
+  },
+  button_html: () => {
+    const stim = taskStore().nextStimulus;
+    const buttonClass = stim.assessmentStage === 'instructions'
+      ?'primary'
+      : 'image-medium';
+    return `<button class="${buttonClass}">%choice%</button>`;
   },
   on_load: () => {
     // create img elements and arrange in grid as cards
     // on click they will be selected
     // can select multiple cards and deselect them
-    let audioSource
-
     const stim = taskStore().nextStimulus;
+    console.log('mark://', 'AfcMatch Onload', {stim});
     
     const audioFile = stim.audioFile;
     const pageStateHandler = new PageStateHandler(audioFile);
     setupReplayAudio(pageStateHandler);
-
-    let images;
-    if (stim.audioFile.includes('prompt1')) {
-      images = prepareChoices(stim.answer, stim.distractors).choices;
-    } else {
-      images = taskStore().choices;
-    }
-    const numberOfCards = images.length;
-
-    const jsPsychContent = document.getElementById('jspsych-content');
-
-    // create card container
-    const cardContainer = document.createElement('div');
-    cardContainer.id = 'card-container';
-
-
-    // create cards
-    for (let i = 0; i < numberOfCards; i++) {
-      const card = document.createElement('div');
-      card.className = 'card';
-      // card.id = `card-${i}`;
-
-      const img = document.createElement('img');
-      img.src = mediaAssets.images[camelize(images[i])];
-      img.alt = images[i];
-
-      card.dataset.id = images[i] || i;
-
-      card.addEventListener('click', () => {
+    const buttonContainer = document.getElementById('jspsych-audio-multi-response-btngroup');
+    buttonContainer.classList.add('lev-response-row');
+    buttonContainer.classList.add('multi-4');
+    const responseBtns = Array.from(buttonContainer.children).map(btnDiv => btnDiv.firstChild);
+    responseBtns.forEach((card, i) =>
+      card.addEventListener('click', async (e) => {
+        console.log('mark://', 'clicked card', {card, responseBtns, choices: taskStore().choices, answer: card.firstChild?.alt});
+        const answer = card.firstChild?.alt;
+        // handleButtonFeedback(card, practiceBtns, false, i);
         if (card.classList.contains('selected')) {
           card.classList.remove('selected');
-          selectedCards.splice(selectedCards.indexOf(card.dataset.id), 1);
+          selectedCards.splice(selectedCards.indexOf(answer), 1);
         } else {
           card.classList.add('selected');
-          selectedCards.push(card.dataset.id);
-
+          selectedCards.push(answer);
           // afcMatch trial types look like n-match / n-unique
           const requiredSelections = stim.requiredSelections;
 
-          if (selectedCards.length == requiredSelections) {
+          if (selectedCards.length === requiredSelections) {
             jsPsych.finishTrial();
           }
         }
-      });
+        setTimeout(() => enableBtns(responseBtns), 500);
+      })
+    );
 
-      card.appendChild(img);
-      cardContainer.appendChild(card);
-    }
+    // let images;
+    // if (stim.audioFile.includes('prompt1')) {
+    //   images = prepareChoices(stim.answer, stim.distractors).choices;
+    // } else {
+    //   images = taskStore().choices;
+    // }
+    // const numberOfCards = images.length;
 
-    jsPsychContent.appendChild(cardContainer);
+    // const jsPsychContent = document.getElementById('jspsych-content');
+
+    // // create card container
+    // const cardContainer = document.createElement('div');
+    // cardContainer.id = 'card-container';
+
+
+    // // create cards
+    // for (let i = 0; i < numberOfCards; i++) {
+    //   const card = document.createElement('div');
+    //   card.className = 'card';
+    //   // card.id = `card-${i}`;
+
+    //   const img = document.createElement('img');
+    //   img.src = mediaAssets.images[camelize(images[i])];
+    //   img.alt = images[i];
+
+    //   card.dataset.id = images[i] || i;
+
+    //   card.addEventListener('click', () => {
+    //     if (card.classList.contains('selected')) {
+    //       card.classList.remove('selected');
+    //       selectedCards.splice(selectedCards.indexOf(card.dataset.id), 1);
+    //     } else {
+    //       card.classList.add('selected');
+    //       selectedCards.push(card.dataset.id);
+
+    //       // afcMatch trial types look like n-match / n-unique
+    //       const requiredSelections = stim.requiredSelections;
+
+    //       if (selectedCards.length == requiredSelections) {
+    //         jsPsych.finishTrial();
+    //       }
+    //     }
+    //   });
+
+    //   card.appendChild(img);
+    //   cardContainer.appendChild(card);
+    // }
+
+    // jsPsychContent.appendChild(cardContainer);
 
   },
   response_ends_trial: false,
