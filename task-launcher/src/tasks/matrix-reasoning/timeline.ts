@@ -73,8 +73,18 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
     },
   });
 
+  const repeatInstructions = {
+    timeline: instructions, 
+    conditional_function: () => {
+      return taskStore().numIncorrect >= 2; 
+    }
+  }; 
+
   const numOfTrials = taskStore().totalTrials;
   for (let i = 0; i < numOfTrials; i += 1) {
+    if(i === 4){
+      timeline.push(repeatInstructions); 
+    }
     timeline.push(setupStimulus);
     timeline.push(stimulusBlock(trialConfig));
     timeline.push(ifRealTrialResponse); 

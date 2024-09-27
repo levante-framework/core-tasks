@@ -65,6 +65,17 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
     layoutConfigMap,
   };
 
+  const repeatInstructions = {
+    timeline: [
+      imageInstructions,
+      videoInstructionsMisfit,
+      videoInstructionsFit,
+    ], 
+    conditional_function: () => {
+      return taskStore().numIncorrect >= 2
+    }
+  }
+
   const stimulusBlock = {
     timeline: [
       afcStimulusTemplate(trialConfig), 
@@ -83,6 +94,9 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
 
   const numOfTrials = taskStore().totalTrials;
   for (let i = 0; i < numOfTrials; i++) {
+    if(i === 4){
+      timeline.push(repeatInstructions)
+    }
     timeline.push(setupStimulus);
     timeline.push(stimulusBlock);
   }
