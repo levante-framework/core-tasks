@@ -214,10 +214,10 @@ function generateImageChoices(choices: string[], target: string) {
   return choices.map((choice) => {
     const imageUrl = mediaAssets.images[camelize(choice)] || practiceUrl;
 
-    // if the task is running in a cypress test, the correct answer should be indicated with alt text
+    // if the task is running in a cypress test, the correct answer should be indicated with 'correct' class
     if (window.Cypress && stimulus.assessmentStage !== 'practice_response'){
-      const isCorrect = choice === target ? 'correct' : '';
-      return `<img src=${imageUrl} alt=${isCorrect} />`;
+      const isCorrect = choice === target;
+      return isCorrect ? `<img src=${imageUrl} alt=${choice} class='correct'/>` : `<img src=${imageUrl} alt=${choice} />`;
     } else {
       return `<img src=${imageUrl} alt=${choice} />`;
     }
