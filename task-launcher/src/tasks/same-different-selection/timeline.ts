@@ -1,19 +1,25 @@
 import 'regenerator-runtime/runtime';
+//@ts-ignore
 import { initTrialSaving, initTimeline, taskStore } from '../shared/helpers';
 
 // setup
+//@ts-ignore
 import { jsPsych } from '../taskSetup';
+//@ts-ignore
 import { createPreloadTrials, sdsPhaseCount } from '../shared/helpers';
+//@ts-ignore
 import { initializeCat } from '../taskSetup';
 
 // trials
-import { stimulus } from './trials/stimulus';
+//@ts-ignore
 import { setupStimulus, exitFullscreen, taskFinished } from '../shared/trials';
 import { afcMatch } from './trials/afcMatch';
+import { stimulus } from './trials/stimulus';
+//@ts-ignore
 import { feedback, getAudioResponse } from '../shared/trials'; 
 
 
-export default function buildSameDifferentTimeline(config, mediaAssets) {
+export default function buildSameDifferentTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
   let feedbackGiven = false;
 
@@ -67,13 +73,11 @@ export default function buildSameDifferentTimeline(config, mediaAssets) {
 
   const { phase1, phase2a, phase2b, phase2c, phase2d, phase2e } = sdsPhaseCount
 
-  console.log('mark://', 'sdsPhaseCount', sdsPhaseCount);
-
-  // for (let i = 0; i < phase1; i++) {
-  //   timeline.push(setupStimulus)
-  //   timeline.push(stimulusBlock)
-  //   timeline.push(buttonNoise) // adds button noise for appropriate trials
-  // }
+  for (let i = 0; i < phase1; i++) {
+    timeline.push(setupStimulus)
+    timeline.push(stimulusBlock)
+    timeline.push(buttonNoise) // adds button noise for appropriate trials
+  }
 
   // 1st matching phase (with feedback)
   for (let i = 0; i < phase2a; i++) {
@@ -96,8 +100,8 @@ export default function buildSameDifferentTimeline(config, mediaAssets) {
     timeline.push(buttonNoise) // adds button noise for appropriate trials
   }
 
-   // test-dimensions phase
-   for (let i = 0; i < phase2d; i++) { 
+  // test-dimensions phase
+  for (let i = 0; i < phase2d; i++) { 
     timeline.push(setupStimulus)
     timeline.push(stimulusBlock)
   }
