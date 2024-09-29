@@ -1,30 +1,28 @@
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
-import store from 'store2';
 import { mediaAssets } from '../../..';
-import { PageStateHandler, prepareChoices, replayButtonSvg, setupReplayAudio, taskStore, PageAudioHandler } from '../../shared/helpers';
+//@ts-ignore
+import { PageStateHandler, prepareChoices, replayButtonSvg, setupReplayAudio, taskStore, PageAudioHandler, camelize } from '../../shared/helpers';
+//@ts-ignore
 import { finishExperiment } from '../../shared/trials';
-import { camelize } from '@bdelab/roar-utils';
+//@ts-ignore
 import { jsPsych } from '../../taskSetup';
 
-// This value is only saved in memory. It will reset to 0 when the page is reloaded.
-export const numIncorrect = store.page.namespace('numIncorrect', 0);
-
 const replayButtonHtmlId = 'replay-btn-revisited'; 
-let incorrectPracticeResponses = [];
+let incorrectPracticeResponses: string[] = [];
 
-const generateImageChoices = (choices) => {
+const generateImageChoices = (choices: string[]) => {
   return choices.map((choice) => {
-    const imageUrl = mediaAssets.images[camelize(choice)] || practiceUrl;
+    const imageUrl = mediaAssets.images[camelize(choice)];
     return `<img src=${imageUrl} alt=${choice} />`;
   });
 }
 
-function enableBtns(btnElements) {
+function enableBtns(btnElements: HTMLButtonElement[]) {
   btnElements.forEach((btn) => (btn.removeAttribute('disabled')));
 }
 
-function handleButtonFeedback(btn, cards, isKeyBoardResponse, responsevalue) {
-  const choice = btn.parentElement.id; 
+function handleButtonFeedback(btn: HTMLButtonElement, cards: HTMLButtonElement[], isKeyBoardResponse: boolean, responsevalue: number) {
+  const choice = btn?.parentElement?.id || ''; 
   const answer = taskStore().correctResponseIdx.toString(); 
 
   const isCorrectChoice = choice.includes(answer); 
@@ -110,7 +108,7 @@ export const stimulus = {
               ''
             }
             <div class='lev-response-row multi-4'>
-              ${stim.image.map(shape => {
+              ${(stim.image as string[]).map(shape => {
                 return `<button class='image-medium no-pointer-events' style='margin: 0 4px'>
                           <img 
                             src=${mediaAssets.images[camelize(shape)]} 
@@ -149,14 +147,16 @@ export const stimulus = {
     const audioFile = taskStore().nextStimulus.audioFile;
     const pageStateHandler = new PageStateHandler(audioFile);
     setupReplayAudio(pageStateHandler);
-    const buttonContainer = document.getElementById('jspsych-audio-multi-response-btngroup');
+    const buttonContainer = document.getElementById('jspsych-audio-multi-response-btngroup') as HTMLDivElement;
     buttonContainer.classList.add('lev-response-row');
     buttonContainer.classList.add('multi-4');
     const trialType = taskStore().nextStimulus.trialType; 
     const assessmentStage = taskStore().nextStimulus.assessmentStage;
     
     if (trialType === 'test-dimensions' || assessmentStage === 'practice_response'){ // cards should give feedback during test dimensions block
-      const practiceBtns = Array.from(buttonContainer.children).map(btnDiv => btnDiv.firstChild);
+      const practiceBtns = Array.from(buttonContainer.children)
+        .map(btnDiv => btnDiv.firstChild)
+        .filter(btn => !!btn) as HTMLButtonElement[];
       practiceBtns.forEach((card, i) =>
         card.addEventListener('click', async (e) => {
 
@@ -165,7 +165,7 @@ export const stimulus = {
       )
     }
   },
-  on_finish: (data) => {
+  on_finish: (data: any) => {
     const stim = taskStore().nextStimulus;
     const choices = taskStore().choices;
     console.log('mark://onFinish', { choices, data, stim });
@@ -186,15 +186,9 @@ export const stimulus = {
       taskStore('isCorrect', isCorrect);
 
       if (isCorrect === false) {
-        numIncorrect.transact('numIncorrect', (n) => n + 1);
+        taskStore.transact('numIncorrect', (oldVal: number) => oldVal + 1);
       } else {
-        numIncorrect('numIncorrect', 0);
-      }
-
-      const maxIncorrect = taskStore().maxIncorrect;
-
-      if ((numIncorrect('numIncorrect') === maxIncorrect)) {
-        finishExperiment();
+        taskStore('numIncorrect', 0);
       }
 
       jsPsych.data.addDataToLastTrial({
@@ -206,6 +200,10 @@ export const stimulus = {
         corpusTrialType: stim.trialType,
         response: choices[data.button_response],
       });
+
+      if ((taskStore().numIncorrect >= taskStore().maxIncorrect)) {
+        finishExperiment();
+      }
     }
 }
 };
