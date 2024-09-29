@@ -1,7 +1,6 @@
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response'
 import { mediaAssets } from '../../..';
 import { taskStore } from '../helpers';
-import { camelize } from '@bdelab/roar-utils';
 
 // isPractice parameter is for tasks that don't have a corpus (e.g. memory game)
 export const feedback = (isPractice = false, correctFeedbackAudioKey, inCorrectFeedbackAudioKey) => {
