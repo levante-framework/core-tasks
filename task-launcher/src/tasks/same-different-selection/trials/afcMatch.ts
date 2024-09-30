@@ -118,6 +118,7 @@ export const afcMatch = {
   response_ends_trial: false,
   on_finish: () => {
     const stim = taskStore().nextStimulus;
+    console.log('mark:// [Debug]: Stim data afcMatch.js', { stim });
     // save data
     jsPsych.data.addDataToLastTrial({
       corpusTrialType: stim.trialType,
@@ -212,6 +213,15 @@ export const afcMatch = {
     jsPsych.data.addDataToLastTrial({
       correct: isCorrect,
     });
+    console.log('mark:// [Debug]: jsPsych data to backend afcMatch.js', {
+        // specific to this trial
+        corpusTrialType: stim.trialType,
+        answer: stim.answer || null,
+        response: selectedCards,
+        distractors: stim.distractors,
+        item: stim.item,
+        correct: isCorrect,
+      });
     previousSelections.push(...selectedCards);
     selectedCards = [];
 

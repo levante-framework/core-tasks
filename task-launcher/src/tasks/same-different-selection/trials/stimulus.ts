@@ -168,11 +168,11 @@ export const stimulus = {
   on_finish: (data: any) => {
     const stim = taskStore().nextStimulus;
     const choices = taskStore().choices;
-    console.log('mark://onFinish', { choices, data, stim });
+    console.log('mark:// [Debug]: Stim data Stimulus.js', { choices, data, stim });
 
     // Always need to write correct key because of firekit.
     // TODO: Discuss with ROAR team to remove this check
-    if (stim.assessmentStage !== 'instructions'){
+    if (stim.assessmentStage !== 'instructions') {
       let isCorrect; 
       if (stim.trialType === 'test-dimensions' || stim.assessmentStage === 'practice_response'){ // if no incorrect answers were clicked, that trial is correct
         isCorrect = incorrectPracticeResponses.length === 0; 
@@ -180,7 +180,7 @@ export const stimulus = {
         isCorrect = data.button_response === taskStore().correctResponseIdx
       } 
 
-      incorrectPracticeResponses = []; 
+      incorrectPracticeResponses = [];
     
       // update task store
       taskStore('isCorrect', isCorrect);
@@ -192,6 +192,16 @@ export const stimulus = {
       }
 
       jsPsych.data.addDataToLastTrial({
+        // specific to this trial
+        item: stim.item,
+        answer: stim.answer,
+        correct: isCorrect,
+        distractors: stim.distractors,
+        corpusTrialType: stim.trialType,
+        response: choices[data.button_response],
+      });
+
+      console.log('mark:// [Debug]: jsPsych data to backend Stimulus.js', {
         // specific to this trial
         item: stim.item,
         answer: stim.answer,
