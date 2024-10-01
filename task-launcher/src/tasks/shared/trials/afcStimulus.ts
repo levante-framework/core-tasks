@@ -343,6 +343,17 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>) {
   let twoTrialsAgoIndex = currentTrialIndex - 2;
   if (stim.task === 'math') {
     twoTrialsAgoIndex = currentTrialIndex - 3; // math has a fixation or something
+
+    // flag correct answers with alt text for math if running a Cypress test
+    if (window.Cypress && !isPracticeTrial && !isInstructionTrial) {
+      const choices: NodeListOf<HTMLButtonElement> = document.querySelectorAll('.secondary');
+
+      for (var i = 0; i < choices.length; i++) {
+        if (choices[i].textContent == itemLayoutConfig.response.target){
+          choices[i].setAttribute("aria-label", "correct");
+        }
+      }
+    }
   }
   const twoTrialsAgoStimulus = jsPsych.data.get().filter({ trial_index: twoTrialsAgoIndex }).values();
   

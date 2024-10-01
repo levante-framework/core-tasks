@@ -34,19 +34,24 @@ function handlePracticeButtons(){
 }
 
 // clicks first image option until game is over
-function selectImages(correct, imgClass){
+function selectAnswers(correctFlag){
   clickThroughInstructions(); 
   handlePracticeButtons(); 
+
   // wait for fixation cross to go away 
   cy.get('.lev-stimulus-container', {timeout: 10000}).should('exist'); 
+
   cy.get('.jspsych-content').then((content) => {
     if (content.find('.jspsych-audio-multi-response-button').length > 1){ 
-      if (correct){  
+
+      if (correctFlag === 'alt') { 
+        cy.get('[aria-label="correct"]').click({timeout: 30000}); // add timeout to handle staggered buttons
+      } else { // use correct class by default 
         cy.get('.correct').click({timeout: 30000}); // add timeout to handle staggered buttons
-      } else {
-        cy.get(imgClass).eq(0).click({timeout: 30000});
       }
-      selectImages(correct, imgClass);  
+
+      selectAnswers(correctFlag);  
+
     } else {
       cy.contains('Thank you!').should('exist');
       return; 
@@ -54,10 +59,10 @@ function selectImages(correct, imgClass){
   });
 }
 
-export function testImageAfc(correct, imgClass){
+export function testAfc(correctFlag){
     // wait for OK button to be visible
     cy.contains('OK', {timeout: 300000}).should('be.visible'); 
     cy.contains('OK').realClick(); // real click mimics user gesture so that fullscreen can start
-    selectImages(correct, imgClass);
+    selectAnswers(correctFlag);
     cy.contains('Exit').click(); 
 }
