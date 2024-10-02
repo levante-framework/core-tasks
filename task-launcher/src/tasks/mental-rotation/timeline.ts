@@ -6,9 +6,10 @@ import { jsPsych, initializeCat } from '../taskSetup';
 import { createPreloadTrials, taskStore, initTrialSaving, initTimeline } from '../shared/helpers';
 // trials
 // @ts-ignore
-import { afcStimulusTemplate, taskFinished, exitFullscreen, setupStimulus, getAudioResponse, repeatInstructionsMessage } from '../shared/trials';
+import { afcStimulusTemplate, taskFinished, exitFullscreen, setupStimulus, getAudioResponse } from '../shared/trials';
 import { imageInstructions, videoInstructionsFit, videoInstructionsMisfit } from './trials/instructions';
 import { getLayoutConfig } from './helpers/config';
+import { repeatInstructionsMessage } from '../shared/trials/repeatInstructions';
 
 export default function buildMentalRotationTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
