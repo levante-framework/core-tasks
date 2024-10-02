@@ -6,8 +6,6 @@ import { taskStore, replayButtonSvg, PageStateHandler, setupReplayAudio } from '
 const replayButtonHtmlId = 'replay-btn-revisited';
 
 export const repeatInstructionsMessage = {
-  timeline: [
-    {
     type: jsPsychAudioMultiResponse,
     data: () => {
       return {
@@ -42,6 +40,4 @@ export const repeatInstructionsMessage = {
       const pageStateHandler = new PageStateHandler('generalRepeatInstructions');
       setupReplayAudio(pageStateHandler);
   }
-  }
-]
 };

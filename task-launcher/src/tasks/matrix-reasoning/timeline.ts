@@ -7,8 +7,9 @@ import { instructions } from './trials/instructions';
 import { jsPsych, initializeCat } from '../taskSetup';
 // trials
 //@ts-ignore
-import { afcStimulusTemplate, exitFullscreen, setupStimulus, taskFinished, getAudioResponse, repeatInstructionsMessage } from '../shared/trials';
+import { afcStimulusTemplate, exitFullscreen, setupStimulus, taskFinished, getAudioResponse } from '../shared/trials';
 import { getLayoutConfig } from './helpers/config';
+import { repeatInstructionsMessage } from '../shared/trials/repeatInstructions';
 
 export default function buildMatrixTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
