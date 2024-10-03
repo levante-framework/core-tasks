@@ -9,6 +9,7 @@ import { jsPsych, initializeCat } from '../taskSetup';
 //@ts-ignore
 import { afcStimulusTemplate, exitFullscreen, setupStimulus, taskFinished, getAudioResponse } from '../shared/trials';
 import { getLayoutConfig } from './helpers/config';
+import { repeatInstructionsMessage } from '../shared/trials/repeatInstructions';
 
 export default function buildMatrixTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
@@ -73,8 +74,28 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
     },
   });
 
+  const repeatInstructions = {
+    timeline: [
+      repeatInstructionsMessage,
+    ],
+    conditional_function: () => {
+      return taskStore().numIncorrect >= 2; 
+    }
+  }; 
+
+  const instructionsRepeated = {
+    timeline: instructions,
+    conditional_function: () => {
+      return taskStore().numIncorrect >= 2; 
+    }
+  }
+
   const numOfTrials = taskStore().totalTrials;
   for (let i = 0; i < numOfTrials; i += 1) {
+    if(i === 4){
+      timeline.push(repeatInstructions); 
+      timeline.push(instructionsRepeated);
+    }
     timeline.push(setupStimulus);
     timeline.push(stimulusBlock(trialConfig));
     timeline.push(ifRealTrialResponse); 
