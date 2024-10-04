@@ -1,7 +1,9 @@
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
 import { mediaAssets } from '../../..';
 // @ts-ignore
-import { taskStore } from '../../shared/helpers';
+import { taskStore, replayButtonSvg, PageStateHandler, setupReplayAudio } from '../../shared/helpers';
+
+const replayButtonHtmlId = 'replay-btn-revisited';
 
 // Switch to HTMLMultiResponse when we have video with audio
 export const videoInstructionsFit = {
@@ -16,6 +18,9 @@ export const videoInstructionsFit = {
   prompt: () => {
     return `
       <div class="lev-stimulus-container">
+        <button id="${replayButtonHtmlId}" class="replay">
+          ${replayButtonSvg}
+        </button>
         <video class="instruction-video" autoplay>
           <source src=${mediaAssets.video.mentalRotationExampleFit} type="video/mp4"/>
           Your browser does not support the video tag.
@@ -36,6 +41,10 @@ export const videoInstructionsFit = {
     // const wrapper = document.getElementById('jspsych-audio-multi-response-prompt');
     // wrapper.style.display = 'flex';
     // wrapper.style.justifyContent = 'center';
+    
+    const pageStateHandler = new PageStateHandler('mental-rotation-training-instruct3');
+    setupReplayAudio(pageStateHandler);
+  
   },
 };
 
@@ -50,6 +59,9 @@ export const videoInstructionsMisfit = {
   prompt: () => {
     return `
       <div class="lev-stimulus-container">
+        <button id="${replayButtonHtmlId}" class="replay">
+          ${replayButtonSvg}
+        </button>
         <video class="instruction-video" autoplay>
           <source src=${mediaAssets.video.mentalRotationExampleMisfit} type="video/mp4"/>
           Your browser does not support the video tag.
@@ -66,6 +78,10 @@ export const videoInstructionsMisfit = {
   keyboard_choices: 'NO_KEYS',
   trial_ends_after_audio: false,
   response_allowed_while_playing: false,
+  on_load: () => {
+    const pageStateHandler = new PageStateHandler('mental-rotation-training-instruct2');
+    setupReplayAudio(pageStateHandler);
+}
 };
 
 export const imageInstructions = {
@@ -79,6 +95,9 @@ export const imageInstructions = {
   prompt: () => {
     return `
       <div class="lev-stimulus-container">
+        <button id="${replayButtonHtmlId}" class="replay">
+          ${replayButtonSvg}
+        </button>
         <img src=${mediaAssets.images.mentalRotationExample} class="instruction-video" />
       </div>
     `;
@@ -92,4 +111,8 @@ export const imageInstructions = {
   keyboard_choices: 'NO_KEYS',
   trial_ends_after_audio: false,
   response_allowed_while_playing: false,
+  on_load: () => {
+    const pageStateHandler = new PageStateHandler('mental-rotation-instruct1');
+    setupReplayAudio(pageStateHandler);
+}
 };
