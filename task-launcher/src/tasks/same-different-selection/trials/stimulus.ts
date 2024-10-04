@@ -95,7 +95,7 @@ export const stimulus = {
           `<div class='lev-stim-content' style="flex-direction: column;">
             ${stim.trialType === 'something-same-1'?
               `
-              <div>
+              <div style="visibility: hidden;">
                 <button class='image-medium no-pointer-events'>
                   <img 
                     src=${mediaAssets.images[camelize(stim.image[0])]} 
