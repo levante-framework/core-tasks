@@ -9,7 +9,7 @@ function clickThroughInstructions(){
       cy.get('.jspsych-content').then((content) => {
         const okButton = content.find('.primary');
         if (okButton.length > 0) {
-          cy.contains('OK').click(); 
+          cy.contains('OK').click({timeout: 60000}); 
           clickThroughInstructions();
         } else {
           return; 
@@ -49,8 +49,9 @@ function selectAnswers(correctFlag, buttonClass){
   cy.get('.lev-stimulus-container', {timeout: 60000}).should('exist'); 
 
   cy.get('.jspsych-content').then((content) => {
-    if (content.find(buttonClass).length > 1){ 
-
+    const responseButtons = content.find(buttonClass); 
+    
+    if (responseButtons.length > 1){ 
       if (correctFlag === 'alt') { 
         cy.get('[aria-label="correct"]').click({timeout: 30000}); // add timeout to handle staggered buttons
       } else { // use correct class by default 
