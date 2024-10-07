@@ -4,7 +4,7 @@ const matrix_reasoning_url = 'http://localhost:8080/?task=matrix-reasoning'
 
 describe('test matrix reasoning', () => {
   it('visits matrix reasoning and plays game', () => {
-    cy.visit(matrix_reasoning_url);
+    cy.visit(matrix_reasoning_url, '.image');
     testAfc();
   })
 })
