@@ -4,7 +4,7 @@ const trog_url = 'http://localhost:8080/?task=trog'
 
 describe('test trog', () => {
   it('visits trog and plays game', () => {
-    cy.visit(trog_url, '.image-medium');
-    testAfc();
+    cy.visit(trog_url);
+    testAfc('class', '.image-medium');
   })
 })
