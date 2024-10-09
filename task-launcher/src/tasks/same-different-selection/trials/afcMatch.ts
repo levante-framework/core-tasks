@@ -11,6 +11,7 @@ let selectedCards: string[] = [];
 let previousSelections: string[] = [];
 
 const replayButtonHtmlId = 'replay-btn-revisited';
+const SELECT_CLASS_NAME = 'info-shadow';
 
 const generateImageChoices = (choices: string[]) => {
   return choices.map((choice) => {
@@ -94,15 +95,14 @@ export const afcMatch = {
     responseBtns.forEach((card, i) =>
       card.addEventListener('click', async (e) => {
         const answer = (card?.firstChild as HTMLImageElement)?.alt;
-        console.log('mark://', 'clicked card', {card, responseBtns, choices: taskStore().choices, answer});
         if (!card) {
           return;
         }
-        if (card.classList.contains('selected')) {
-          card.classList.remove('selected');
+        if (card.classList.contains(SELECT_CLASS_NAME)) {
+          card.classList.remove(SELECT_CLASS_NAME);
           selectedCards.splice(selectedCards.indexOf(answer), 1);
         } else {
-          card.classList.add('selected');
+          card.classList.add(SELECT_CLASS_NAME);
           selectedCards.push(answer);
           // afcMatch trial types look like n-match / n-unique
           const requiredSelections = stim.requiredSelections;
@@ -118,7 +118,6 @@ export const afcMatch = {
   response_ends_trial: false,
   on_finish: () => {
     const stim = taskStore().nextStimulus;
-    console.log('mark:// [Debug]: Stim data afcMatch.js', { stim });
     // save data
     jsPsych.data.addDataToLastTrial({
       corpusTrialType: stim.trialType,
@@ -213,15 +212,6 @@ export const afcMatch = {
     jsPsych.data.addDataToLastTrial({
       correct: isCorrect,
     });
-    console.log('mark:// [Debug]: jsPsych data to backend afcMatch.js', {
-        // specific to this trial
-        corpusTrialType: stim.trialType,
-        answer: stim.answer || null,
-        response: selectedCards,
-        distractors: stim.distractors,
-        item: stim.item,
-        correct: isCorrect,
-      });
     previousSelections.push(...selectedCards);
     selectedCards = [];
 

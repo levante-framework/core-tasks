@@ -168,7 +168,6 @@ export const stimulus = {
   on_finish: (data: any) => {
     const stim = taskStore().nextStimulus;
     const choices = taskStore().choices;
-    console.log('mark:// [Debug]: Stim data Stimulus.js', { choices, data, stim });
 
     // Always need to write correct key because of firekit.
     // TODO: Discuss with ROAR team to remove this check
@@ -192,16 +191,6 @@ export const stimulus = {
       }
 
       jsPsych.data.addDataToLastTrial({
-        // specific to this trial
-        item: stim.item,
-        answer: stim.answer,
-        correct: isCorrect,
-        distractors: stim.distractors,
-        corpusTrialType: stim.trialType,
-        response: choices[data.button_response],
-      });
-
-      console.log('mark:// [Debug]: jsPsych data to backend Stimulus.js', {
         // specific to this trial
         item: stim.item,
         answer: stim.answer,

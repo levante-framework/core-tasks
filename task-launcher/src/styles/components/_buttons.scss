@@ -278,4 +278,24 @@ button {
     pointer-events: none;
     cursor: default;
   }
+
+  &.success-shadow {
+    box-shadow: 0 0 20px 5px rgb(85, 251, 56);
+    border-radius: 2rem;
+  }
+
+  &.error-shadow {
+    box-shadow: 0 0 30px 8px rgb(255, 43, 1);
+    border-radius: 2rem;
+  }
+
+  &.warning-shadow {
+    box-shadow: 0 0 20px 5px $border-yellow_dark;
+    border-radius: 2rem;
+  }
+
+  &.info-shadow {
+    box-shadow: 0 0 20px 5px $border-accent;
+    border-radius: 2rem;
+  }
 }

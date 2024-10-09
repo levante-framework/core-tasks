@@ -419,7 +419,6 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
         : data.button_response;
       responseValue = response.values[responseIndex];
       data.correct = responseValue === response.target;
-      //console.log('mark://', 'Response values', { correct: data.correct, responseValue, response });
     }
 
     // check response and record it
