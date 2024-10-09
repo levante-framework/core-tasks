@@ -179,10 +179,8 @@ export const getCorpus = async (config) => {
 
   await fetchData();
 
-  const sliceOnIndex = 12;
-
   const csvTransformed = {
-    stimulus: stimulusData.slice(sliceOnIndex), // previously shuffled by shuffleStimulusTrials
+    stimulus: stimulusData, // previously shuffled by shuffleStimulusTrials
   };
 
   corpora = {
