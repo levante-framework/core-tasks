@@ -1,23 +1,28 @@
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
-import store from 'store2';
 import { mediaAssets } from '../../..';
-import { PageStateHandler, prepareChoices, replayButtonSvg, setupReplayAudio, taskStore, PageAudioHandler } from '../../shared/helpers';
+//@ts-ignore
+import { PageStateHandler, prepareChoices, replayButtonSvg, setupReplayAudio, taskStore, PageAudioHandler, camelize } from '../../shared/helpers';
+//@ts-ignore
 import { finishExperiment } from '../../shared/trials';
-import { camelize } from '@bdelab/roar-utils';
+//@ts-ignore
 import { jsPsych } from '../../taskSetup';
 
-// This value is only saved in memory. It will reset to 0 when the page is reloaded.
-export const numIncorrect = store.page.namespace('numIncorrect', 0);
-
 const replayButtonHtmlId = 'replay-btn-revisited'; 
-let incorrectPracticeResponses = []; 
+let incorrectPracticeResponses: string[] = [];
 
-function enableBtns(btnElements) {
+const generateImageChoices = (choices: string[]) => {
+  return choices.map((choice) => {
+    const imageUrl = mediaAssets.images[camelize(choice)];
+    return `<img src=${imageUrl} alt=${choice} />`;
+  });
+}
+
+function enableBtns(btnElements: HTMLButtonElement[]) {
   btnElements.forEach((btn) => (btn.removeAttribute('disabled')));
 }
 
-function handleButtonFeedback(btn, cards, isKeyBoardResponse, responsevalue) {
-  const choice = btn.parentElement.id; 
+function handleButtonFeedback(btn: HTMLButtonElement, cards: HTMLButtonElement[], isKeyBoardResponse: boolean, responsevalue: number) {
+  const choice = btn?.parentElement?.id || ''; 
   const answer = taskStore().correctResponseIdx.toString(); 
 
   const isCorrectChoice = choice.includes(answer); 
@@ -48,9 +53,9 @@ export const stimulus = {
   type: jsPsychAudioMultiResponse,
   data: () => {
     const stim = taskStore().nextStimulus;
-    let isPracticeTrial = stim.assessmentStage == 'practice_response';
+    let isPracticeTrial = stim.assessmentStage === 'practice_response';
     return {
-      save_trial: stim.trialType !== 'instructions',
+      save_trial: stim.assessmentStage !== 'instructions',
       assessment_stage: stim.assessmentStage,
         // not for firekit
       isPracticeTrial: isPracticeTrial,
@@ -65,19 +70,19 @@ export const stimulus = {
     const prompt = camelize(stim.audioFile);
     const t = taskStore().translations;
     return (
-      `<div id='stimulus-container'>
+      `<div class="lev-stimulus-container">
         <button
             id="${replayButtonHtmlId}"
             class="replay"
         >
             ${replayButtonSvg}
         </button>
-        <div id='prompt-container-text'>
-          <p id='prompt'>${t[prompt]}</p>
+        <div class="lev-row-container instruction">
+          <p>${t[prompt]}</p>
         </div>
 
         ${stim.image && !Array.isArray(stim.image) ? 
-          `<div class='sds-prompt-image-container'>
+          `<button class='image-medium' disabled>
             <img 
               src=${mediaAssets.images[camelize(stim.image)]} 
               alt=${stim.image}
@@ -87,106 +92,102 @@ export const stimulus = {
         }
         
         ${stim.image && Array.isArray(stim.image) ?
-          `<div class='sds-prompt-pyramid-container'>
-            ${stim.trialType == 'something-same-1'? 
-              `<img 
-                src=${mediaAssets.images[camelize(stim.image[0])]} 
-                alt=${stim.image[0]}
-                class='top-image'
-              />`:
+          `<div class='lev-stim-content' style="flex-direction: column;">
+            ${stim.trialType === 'something-same-1'?
+              `
+              <div style="visibility: hidden;">
+                <button class='image-medium no-pointer-events'>
+                  <img 
+                    src=${mediaAssets.images[camelize(stim.image[0])]} 
+                    alt=${stim.image[0]}
+                    class='top-image'
+                  />
+                </button>
+              </div>
+              `:
               ''
             }
-            <div class='sds-prompt-pyramid-base'>
-              ${stim.image.map(shape => {
-                return `<div class='base-image-container' style='cursor: default;'>
+            <div class='lev-response-row multi-4'>
+              ${(stim.image as string[]).map(shape => {
+                return `<button class='image-medium no-pointer-events' style='margin: 0 4px'>
                           <img 
                             src=${mediaAssets.images[camelize(shape)]} 
                             alt=${shape} 
                           />
-                      </div>`}
+                      </button>`}
               ).join('')}
             </div>
           </div>` :
           ''
         }
-      <div >`
+      </div>`
     )
   },
   prompt_above_buttons: true,
   button_choices: () => {
     const stim = taskStore().nextStimulus;
-    if (stim.trialType == 'something-same-1' || stim.trialType == 'instructions') {
+    if (stim.assessmentStage === 'instructions') {
       return ['OK'];
-    } else if (stim.trialType == 'something-same-2' || stim.trialType == 'test-dimensions') {
-      const { choices } = prepareChoices(stim.answer, stim.distractors);
-      return choices;
+    } else {
+      const { choices } = prepareChoices(stim.answer, stim.distractors, false);
+      return generateImageChoices(choices);
     }
-
-    return choices;
   },
   button_html: () => {
     const stim = taskStore().nextStimulus;
-    if (stim.trialType == 'something-same-1' || stim.trialType == 'instructions') {
-      return "<button id='sds-continue-btn' class='primary'>OK</button>";
-    }
-
-    const choices = taskStore().choices;
-    const allButtons = choices.map((choice, ind) => {
-      const img = mediaAssets.images[camelize(choice)];
-      return`<button class='base-image-container'> <img src=${img} alt='shape' /> </button>`;
-    });
-
-    return allButtons;
+    const buttonClass = stim.assessmentStage === 'instructions'
+      ?'primary'
+      : 'image-medium';
+    return `<button class="${buttonClass}">%choice%</button>`;
   },
   response_ends_trial: () => !(
-    taskStore().nextStimulus.trialType == 'test-dimensions' || taskStore().nextStimulus.assessmentStage == 'practice_response'
+    taskStore().nextStimulus.trialType === 'test-dimensions' || taskStore().nextStimulus.assessmentStage === 'practice_response'
   ),
   on_load: () => {
     const audioFile = taskStore().nextStimulus.audioFile;
     const pageStateHandler = new PageStateHandler(audioFile);
     setupReplayAudio(pageStateHandler);
-
+    const buttonContainer = document.getElementById('jspsych-audio-multi-response-btngroup') as HTMLDivElement;
+    buttonContainer.classList.add('lev-response-row');
+    buttonContainer.classList.add('multi-4');
     const trialType = taskStore().nextStimulus.trialType; 
     const assessmentStage = taskStore().nextStimulus.assessmentStage;
-    const cards = document.querySelectorAll('.base-image-container');  
     
-    if (trialType == 'test-dimensions' || assessmentStage == 'practice_response'){ // cards should give feedback during test dimensions block
-      cards.forEach((card, i) =>
+    if (trialType === 'test-dimensions' || assessmentStage === 'practice_response'){ // cards should give feedback during test dimensions block
+      const practiceBtns = Array.from(buttonContainer.children)
+        .map(btnDiv => btnDiv.firstChild)
+        .filter(btn => !!btn) as HTMLButtonElement[];
+      practiceBtns.forEach((card, i) =>
         card.addEventListener('click', async (e) => {
-          handleButtonFeedback(card, cards, false, i);
+
+          handleButtonFeedback(card, practiceBtns, false, i);
         })
       )
     }
   },
-  on_finish: (data) => {
+  on_finish: (data: any) => {
     const stim = taskStore().nextStimulus;
     const choices = taskStore().choices;
 
     // Always need to write correct key because of firekit.
     // TODO: Discuss with ROAR team to remove this check
-    if (stim.trialType != 'instructions'){
+    if (stim.assessmentStage !== 'instructions') {
       let isCorrect; 
-      if (stim.trialType == 'test-dimensions' || stim.assessmentStage == 'practice_response'){ // if no incorrect answers were clicked, that trial is correct
-        isCorrect = incorrectPracticeResponses.length == 0; 
-      } else if (stim.trialType != 'something-same-1' && stim.trialType != 'instructions'){ // isCorrect should be undefined for something-same-1 trials
+      if (stim.trialType === 'test-dimensions' || stim.assessmentStage === 'practice_response'){ // if no incorrect answers were clicked, that trial is correct
+        isCorrect = incorrectPracticeResponses.length === 0; 
+      } else {
         isCorrect = data.button_response === taskStore().correctResponseIdx
       } 
 
-      incorrectPracticeResponses = []; 
+      incorrectPracticeResponses = [];
     
       // update task store
       taskStore('isCorrect', isCorrect);
 
       if (isCorrect === false) {
-        numIncorrect.transact('numIncorrect', (n) => n + 1);
+        taskStore.transact('numIncorrect', (oldVal: number) => oldVal + 1);
       } else {
-        numIncorrect('numIncorrect', 0);
-      }
-
-      const maxIncorrect = taskStore().maxIncorrect;
-
-      if ((numIncorrect('numIncorrect') == maxIncorrect)) {
-        finishExperiment();
+        taskStore('numIncorrect', 0);
       }
 
       jsPsych.data.addDataToLastTrial({
@@ -198,6 +199,10 @@ export const stimulus = {
         corpusTrialType: stim.trialType,
         response: choices[data.button_response],
       });
-  }
+
+      if ((taskStore().numIncorrect >= taskStore().maxIncorrect)) {
+        finishExperiment();
+      }
+    }
 }
 };
