@@ -70,7 +70,7 @@ export default function buildVocabTimeline(config: Record<string, any>, mediaAss
   initializeCat();
 
   // final screens
-  timeline.push(taskFinished);
+  timeline.push(taskFinished(false));
   timeline.push(exitFullscreen);
 
   return { jsPsych, timeline };

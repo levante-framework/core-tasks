@@ -109,7 +109,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
 
   initializeCat();
 
-  timeline.push(taskFinished);
+  timeline.push(taskFinished(false));
   timeline.push(exitFullscreen);
 
   return { jsPsych, timeline };

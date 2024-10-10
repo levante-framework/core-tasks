@@ -67,7 +67,7 @@ export default function buildTOMTimeline(config: Record<string, any>, mediaAsset
 
   initializeCat();
 
-  timeline.push(taskFinished);
+  timeline.push(taskFinished(false));
   timeline.push(exitFullscreen);
 
   return { jsPsych, timeline };

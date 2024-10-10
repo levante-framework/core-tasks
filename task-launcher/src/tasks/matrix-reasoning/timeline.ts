@@ -103,7 +103,7 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
 
   initializeCat();
 
-  timeline.push(taskFinished);
+  timeline.push(taskFinished(false));
   timeline.push(exitFullscreen);
 
   return { jsPsych, timeline };
