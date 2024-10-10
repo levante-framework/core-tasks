@@ -105,7 +105,7 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
 
   initializeCat();
 
-  timeline.push(taskFinished);
+  timeline.push(taskFinished(false));
   timeline.push(exitFullscreen);
 
   return { jsPsych, timeline };
