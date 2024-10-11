@@ -17,7 +17,7 @@ export default function buildIntroTimeline(config: Record<string, any>, mediaAss
 
   const timeline = [preloadTrials, initialTimeline, ...instructions];
 
-  timeline.push(taskFinished(true));
+  timeline.push(taskFinished('introFinished'));
   timeline.push(exitFullscreen);
 
   return { jsPsych, timeline };

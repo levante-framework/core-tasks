@@ -68,7 +68,7 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
   initializeCat();
 
   // final screens
-  timeline.push(taskFinished(false));
+  timeline.push(taskFinished());
   timeline.push(exitFullscreen);
 
   return { jsPsych, timeline };
