@@ -403,9 +403,8 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
   // note: nextStimulus is actually the current stimulus
   const stimulus = taskStore().nextStimulus;
   const itemLayoutConfig = layoutConfigMap?.[stimulus.itemId];
-  // target is the actual value as a string
-  const target = taskStore().target;
   let responseValue = null
+  let target = null; 
 
   if (stimulus.trialType !== 'instructions') {
     if (itemLayoutConfig) {
@@ -418,7 +417,8 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
         ? keyboardChoices.findIndex(f => f.toLowerCase() === data.keyboard_response.toLowerCase())
         : data.button_response;
       responseValue = response.values[responseIndex];
-      data.correct = responseValue === response.target;
+      target = response.target; 
+      data.correct = responseValue === target;
     }
 
     // check response and record it
