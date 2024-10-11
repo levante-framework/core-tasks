@@ -2,7 +2,7 @@ import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-respons
 import { taskStore, PageAudioHandler } from '../helpers';
 import { mediaAssets } from '../../..';
 
-export const taskFinished = (intro = false) => {
+export const taskFinished = (endMessage = 'taskFinished') => {
   return {
     type: jsPsychHTMLMultiResponse,
     data: () => {
@@ -13,7 +13,6 @@ export const taskFinished = (intro = false) => {
     },
     stimulus: () => {
       const t = taskStore().translations;
-      const endMessage = intro ? 'introFinished' : 'taskFinished'; 
 
       return `
           <div class='lev-stimulus-container'>
@@ -27,8 +26,6 @@ export const taskFinished = (intro = false) => {
     keyboard_choices: 'ALL_KEYS',
     button_html: '<button class="primary" style=margin-top:10%>Exit</button>',
     on_load: () => {
-      const endMessage = intro ? 'introFinished' : 'taskFinished';
-
       if (mediaAssets.audio[endMessage]) {
         PageAudioHandler.playAudio(mediaAssets.audio[endMessage])
       }
