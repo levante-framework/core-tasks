@@ -1,5 +1,12 @@
 const hearts_and_flowers_url = 'http://localhost:8080/?task=hearts-and-flowers'; 
 
+// keep track of game phase (true means it has started)
+var heart_phase = false;
+var flower_phase = false; 
+var mixed_practice = false;
+var final_instructions = false; // instructions before final mixed test phase
+var mixed_test = false; 
+
 describe('test hearts and flowers', () => {
     it('visits hearts and flowers and plays game', () => {
       cy.visit(hearts_and_flowers_url);
@@ -20,6 +27,9 @@ function hafLoop() {
     cy.get('.jspsych-content').then((content) => {
         if (content.children().length) {
             hafLoop();
+        } else {
+            // make sure that the game has progressed through major phases before passing
+            assert.isTrue(heart_phase && flower_phase && mixed_test); 
         }
     })
 }
@@ -32,6 +42,9 @@ function handleInstructions() {
 
         if (okButton.length) {
             cy.contains('OK').click();
+
+            final_instructions = mixed_practice; 
+
             handleInstructions(); 
         }
     }); 
@@ -72,8 +85,14 @@ function getCorrectButtonIdx(src, pos) {
     const shape = src.split("/").pop(); 
 
     if (shape === "heart.png") { 
+        heart_phase = true;
+        mixed_practice = flower_phase; 
+        mixed_test = final_instructions; 
+
         return pos; 
     } else if (shape === "flower.png") {
+        flower_phase = true; 
+
         if (pos === 1) {
             return 0;
         } else if (pos === 0) {
