@@ -9,6 +9,7 @@ import { finishExperiment } from '../../shared/trials';
 
 let selectedCards: string[] = [];
 let previousSelections: string[] = [];
+let startTime: number; 
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 const SELECT_CLASS_NAME = 'info-shadow';
@@ -80,6 +81,8 @@ export const afcMatch = {
     // can select multiple cards and deselect them
     const stim = taskStore().nextStimulus;
     
+    startTime = performance.now();
+
     const audioFile = stim.audioFile;
     const pageStateHandler = new PageStateHandler(audioFile);
     setupReplayAudio(pageStateHandler);
@@ -118,6 +121,10 @@ export const afcMatch = {
   response_ends_trial: false,
   on_finish: () => {
     const stim = taskStore().nextStimulus;
+
+    const endTime = performance.now();
+    const calculatedRt = endTime - startTime; 
+
     // save data
     jsPsych.data.addDataToLastTrial({
       corpusTrialType: stim.trialType,
@@ -125,6 +132,7 @@ export const afcMatch = {
       response: selectedCards,
       distractors: stim.distractors,
       item: stim.item,
+      rt: Math.round(calculatedRt)
     });
 
     if (stim.audioFile.split('-')[2] === 'prompt1') {
