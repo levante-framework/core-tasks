@@ -203,7 +203,7 @@ export const stimulus = {
         response: choices[data.button_response],
       });
 
-      if (stim.trialType === "test-dimensions" || stim.assessmentStage === 'practice_response') {
+      if (stim.trialType === 'test-dimensions' || stim.assessmentStage === 'practice_response') {
         const calculatedRt = Math.round(endTime - startTime);
 
         jsPsych.data.addDataToLastTrial({
