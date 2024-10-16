@@ -9,6 +9,7 @@ import { jsPsych } from '../../taskSetup';
 
 const replayButtonHtmlId = 'replay-btn-revisited'; 
 let incorrectPracticeResponses: string[] = [];
+let startTime: number; 
 
 const generateImageChoices = (choices: string[]) => {
   return choices.map((choice) => {
@@ -144,6 +145,7 @@ export const stimulus = {
     taskStore().nextStimulus.trialType === 'test-dimensions' || taskStore().nextStimulus.assessmentStage === 'practice_response'
   ),
   on_load: () => {
+    startTime = performance.now();
     const audioFile = taskStore().nextStimulus.audioFile;
     const pageStateHandler = new PageStateHandler(audioFile);
     setupReplayAudio(pageStateHandler);
@@ -168,6 +170,7 @@ export const stimulus = {
   on_finish: (data: any) => {
     const stim = taskStore().nextStimulus;
     const choices = taskStore().choices;
+    const endTime = performance.now();
 
     // Always need to write correct key because of firekit.
     // TODO: Discuss with ROAR team to remove this check
@@ -199,6 +202,16 @@ export const stimulus = {
         corpusTrialType: stim.trialType,
         response: choices[data.button_response],
       });
+
+      if (stim.trialType === 'test-dimensions' || stim.assessmentStage === 'practice_response') {
+        const calculatedRt = Math.round(endTime - startTime);
+
+        jsPsych.data.addDataToLastTrial({
+          rt: calculatedRt
+        })
+      }
+
+      console.log(jsPsych.data.getLastTrialData().select('rt').values[0]);
 
       if ((taskStore().numIncorrect >= taskStore().maxIncorrect)) {
         finishExperiment();
