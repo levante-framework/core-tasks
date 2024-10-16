@@ -20,6 +20,7 @@ export const getLayoutConfig = (
     value: stimulus.item,
     displayValue: undefined,
   };
+  defaultConfig.classOverrides.promptClassList = ['lev-row-container', 'instruction-small'];
   if (!defaultConfig.isInstructionTrial) {
     const prepChoices = prepareChoices(answer, distractors, true, trialType);
     defaultConfig.isStaggered = true;
