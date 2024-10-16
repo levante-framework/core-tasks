@@ -468,7 +468,7 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
 
     // adding manually since trial does not log it properly
     // for keyboard responses
-    if (responseType === 'keyboard' || data.response_source === 'keyboard') {
+    if (responseType === 'keyboard' || data.response_source === 'keyboard' || stimulus.assessmentStage === 'practice_response') {
       const endTime = performance.now();
       const calculatedRt = Math.round(endTime - startTime);
       jsPsych.data.addDataToLastTrial({
