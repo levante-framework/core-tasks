@@ -116,7 +116,7 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
 
   initializeCat();
 
-  timeline.push(taskFinished);
+  timeline.push(taskFinished());
   timeline.push(exitFullscreen);
 
   return { jsPsych, timeline };
