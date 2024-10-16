@@ -12,6 +12,7 @@ import { mediaAssets } from '../../..';
 let chosenAnswer: number;
 let sliderStart: number;
 let keyboardResponseMap: Record<string, any> = {};
+let startTime: number; 
 
 function setUpAudio(responseType: string) {
   const cue = responseType === 'button' ? 'numberLinePrompt1' : 'numberLineSliderPrompt1';
@@ -118,6 +119,8 @@ export const slider = {
   step: 'any',
   // response_ends_trial: true,
   on_load: () => {
+    startTime = performance.now();
+
     const slider = document.getElementById('jspsych-html-slider-response-response') as HTMLButtonElement;
     const sliderLabels = document.getElementsByTagName('span') as HTMLCollectionOf<HTMLSpanElement>;
     Array.from(sliderLabels).forEach((el, i) => {
@@ -222,6 +225,7 @@ export const slider = {
   on_finish: (data: any) => {
     // Need to remove event listener after trial completion or they will stack and cause an error.
     document.removeEventListener('keydown', captureBtnValue);
+    const endTime = performance.now();
 
     const sliderScoringThreshold = 0.05 // proportion of maximum slider value that response must fall within to be scored correct
     const stimulus = taskStore().nextStimulus;
@@ -254,6 +258,14 @@ export const slider = {
       // slider_start: stimulus.item[1] === 1 ? sliderStart / 100 : sliderStart,
       slider_start: sliderStart,
     });
+
+    if (responseType === 'button') {
+      const calculatedRt = Math.round(endTime - startTime);
+
+      jsPsych.data.addDataToLastTrial({
+        rt: calculatedRt
+      });
+    }
   
     setSkipCurrentBlock(stimulus.trialType);
   },
