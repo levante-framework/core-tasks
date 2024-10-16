@@ -38,13 +38,14 @@ export const instructions = instructionData.map(data => {
                     <button id="replay-btn-revisited" class="replay">
                         ${replayButtonSvg}
                     </button>
-                    <div class="lev-row-container instruction">
+                    <div class="lev-row-container instruction-small">
                         <p>${t[data.prompt]}</p>
                     </div>
                     <div class="lev-stim-content-x-3">
                         <img
                             src=${mediaAssets.images[data.image]}
                             alt='Instruction graphic'
+                            style="height:330px;width:330px"
                         />
                     </div>
                 </div>
