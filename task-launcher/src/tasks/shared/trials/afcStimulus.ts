@@ -214,10 +214,10 @@ function generateImageChoices(choices: string[], target: string) {
   return choices.map((choice) => {
     const imageUrl = mediaAssets.images[camelize(choice)] || practiceUrl;
 
-    // if the task is running in a cypress test, the correct answer should be indicated with alt text
+    // if the task is running in a cypress test, the correct answer should be indicated with 'correct' class
     if (window.Cypress && stimulus.assessmentStage !== 'practice_response'){
-      const isCorrect = choice === target ? 'correct' : '';
-      return `<img src=${imageUrl} alt=${isCorrect} />`;
+      const isCorrect = choice === target;
+      return isCorrect ? `<img src=${imageUrl} alt=${choice} class='correct'/>` : `<img src=${imageUrl} alt=${choice} />`;
     } else {
       return `<img src=${imageUrl} alt=${choice} />`;
     }
@@ -343,6 +343,17 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>) {
   let twoTrialsAgoIndex = currentTrialIndex - 2;
   if (stim.task === 'math') {
     twoTrialsAgoIndex = currentTrialIndex - 3; // math has a fixation or something
+
+    // flag correct answers with alt text for math if running a Cypress test
+    if (window.Cypress && !isPracticeTrial && !isInstructionTrial) {
+      const choices: NodeListOf<HTMLButtonElement> = document.querySelectorAll('.secondary');
+
+      for (var i = 0; i < choices.length; i++) {
+        if (choices[i].textContent == itemLayoutConfig.response.target){
+          choices[i].setAttribute("aria-label", "correct");
+        }
+      }
+    }
   }
   const twoTrialsAgoStimulus = jsPsych.data.get().filter({ trial_index: twoTrialsAgoIndex }).values();
   
