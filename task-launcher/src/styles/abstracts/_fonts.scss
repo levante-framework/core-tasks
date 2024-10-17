@@ -4,9 +4,9 @@ $font-size-l: 64px;
 $font-size-m: 48px;
 $font-size-s: 40px;
 $font-size-xs: 32px;
-$font-size-xs-em: 1.5em; 
 $font-size-xxs: 24px;
 $font-size-xxxs: 16px;
+$font-size-xs-em: clamp($font-size-xxxs, 1.4em, $font-size-xs); 
 
 $font-weight-dark: 700;
 $font-weight-bold: 600;

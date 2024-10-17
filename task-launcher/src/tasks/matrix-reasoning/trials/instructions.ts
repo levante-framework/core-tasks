@@ -25,7 +25,7 @@ export const instructions = instructionData.map(data => {
                         >
                             ${replayButtonSvg}
                         </button>
-                        <div class="lev-row-container instruction">
+                        <div class="lev-row-container instruction-small">
                             <p>${t[data.prompt]}</p>
                         </div>
 
