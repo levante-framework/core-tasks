@@ -387,13 +387,20 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>) {
 
   if (stim.trialType !== 'instructions') {
     const buttonContainer = document.getElementById('jspsych-audio-multi-response-btngroup') as HTMLDivElement;
+    const responseButtons = buttonContainer.children as HTMLCollectionOf<HTMLButtonElement>;
+    const totalResponseButtons = responseButtons.length;
+    const { buttonLayout } = taskStore();
 
     if (itemLayoutConfig) {
-      buttonContainer.classList.add(...itemLayoutConfig.classOverrides.buttonContainerClassList);
+      if (buttonLayout === 'diamond') { // have to do it in the runtime
+        buttonContainer.classList.add('lev-response-row-diamond-layout');
+      } else {
+        buttonContainer.classList.add(...itemLayoutConfig.classOverrides.buttonContainerClassList);
+      }
     }
 
-    Array.from(buttonContainer.children as HTMLCollectionOf<HTMLButtonElement>).forEach((el, i) => {
-      const keyIndex = buttonContainer.children.length === 2 ? i + 1 : i;
+    Array.from(responseButtons).forEach((el, i) => {
+      const keyIndex = totalResponseButtons === 2 ? i + 1 : i;
       addKeyHelpers(el, keyIndex);
     });
 
