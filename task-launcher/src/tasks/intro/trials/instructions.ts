@@ -45,7 +45,6 @@ export const instructions = instructionData.map(data => {
                         <img
                             src=${mediaAssets.images[data.image]}
                             alt='Instruction graphic'
-                            style="height:330px;width:330px"
                         />
                     </div>
                 </div>
