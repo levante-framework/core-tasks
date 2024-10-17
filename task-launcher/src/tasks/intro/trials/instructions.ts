@@ -27,6 +27,17 @@ const instructionData = [
     },
 ]
 
+// additional keyboard instructions for those not using a tablet
+if (!isTouchScreen) {
+    instructionData.push(
+        {
+            prompt: 'generalKeyboardInstructions',
+            image: 'avatarOwl',
+            buttonText: 'continueButtonText',
+        }
+    )
+}
+
 export const instructions = instructionData.map(data => {
     return {
         type: jsPsychAudioMultiResponse,
