@@ -1,5 +1,5 @@
 // clicks 'OK' button until instructions are complete
-function clickThroughInstructions(){
+export function clickThroughInstructions(){
   // if footer is present, the task has ended
   cy.get('.lev-stimulus-container').then((content) => {
     if (content.find('footer').length === 1){
