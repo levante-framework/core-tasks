@@ -6,6 +6,7 @@ import { jsPsych } from '../../taskSetup';
 import { prepareChoices, replayButtonSvg, setupReplayAudio, taskStore, PageStateHandler, camelize } from '../../shared/helpers';
 // @ts-ignore
 import { finishExperiment } from '../../shared/trials';
+import { saveReplayPresses } from '../../shared/helpers/replayAudio';
 
 let selectedCards: string[] = [];
 let previousSelections: string[] = [];
@@ -135,6 +136,8 @@ export const afcMatch = {
       rt: Math.round(calculatedRt)
     });
 
+    saveReplayPresses();
+  
     if (stim.audioFile.split('-')[2] === 'prompt1') {
       // Prompt 1 is the start and prompt 2 trials are when the selections
       // Must be different from previous selections
