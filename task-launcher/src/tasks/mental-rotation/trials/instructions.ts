@@ -2,6 +2,7 @@ import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-respo
 import { mediaAssets } from '../../..';
 // @ts-ignore
 import { taskStore, replayButtonSvg, PageStateHandler, setupReplayAudio } from '../../shared/helpers';
+import { saveReplayPresses } from '../../shared/helpers/replayAudio';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 
@@ -44,8 +45,10 @@ export const videoInstructionsFit = {
     
     const pageStateHandler = new PageStateHandler('mental-rotation-training-instruct3');
     setupReplayAudio(pageStateHandler);
-  
   },
+  on_finish: () => {
+    saveReplayPresses();
+  }
 };
 
 export const videoInstructionsMisfit = {
@@ -81,6 +84,9 @@ export const videoInstructionsMisfit = {
   on_load: () => {
     const pageStateHandler = new PageStateHandler('mental-rotation-training-instruct2');
     setupReplayAudio(pageStateHandler);
+},
+on_finish: () => {
+  saveReplayPresses();
 }
 };
 
@@ -114,5 +120,8 @@ export const imageInstructions = {
   on_load: () => {
     const pageStateHandler = new PageStateHandler('mental-rotation-instruct1');
     setupReplayAudio(pageStateHandler);
+},
+on_finish: () => {
+  saveReplayPresses();
 }
 };

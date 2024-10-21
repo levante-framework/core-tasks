@@ -6,6 +6,7 @@ import { finishExperiment } from '../../shared/trials';
 import { mediaAssets } from '../../..';
 import { getMemoryGameType } from '../helpers/getMemoryGameType';
 import { taskStore, setupReplayAudio, PageAudioHandler, replayButtonSvg, PageStateHandler } from '../../shared/helpers';
+import { saveReplayPresses } from '../../shared/helpers/replayAudio';
 
 
 const x = 20;
@@ -84,6 +85,8 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false, rese
     },
     on_load: () => doOnLoad(mode, isPractice, reverse),
     on_finish: (data) => {
+      saveReplayPresses();
+
       if (resetSeq) {
         sequenceLength = 2;
       }

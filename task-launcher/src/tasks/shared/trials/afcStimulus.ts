@@ -12,6 +12,7 @@ import {
   PageStateHandler,
   //@ts-ignore
 } from '../helpers';
+import { saveReplayPresses } from '../helpers/replayAudio';
 import { camelize } from '../helpers/camelize';
 import { mediaAssets } from '../../..';
 import _toNumber from 'lodash/toNumber';
@@ -499,6 +500,8 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
       correct: false,
     });
   }
+
+  saveReplayPresses();
 
   if (itemLayoutConfig.inCorrectTrialConfig.onIncorrectTrial === 'skip') {
     setSkipCurrentBlock(stimulus.trialType);

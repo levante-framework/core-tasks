@@ -6,6 +6,7 @@ import { PageStateHandler, prepareChoices, replayButtonSvg, setupReplayAudio, ta
 import { finishExperiment } from '../../shared/trials';
 //@ts-ignore
 import { jsPsych } from '../../taskSetup';
+import { saveReplayPresses } from '../../shared/helpers/replayAudio';
 
 const replayButtonHtmlId = 'replay-btn-revisited'; 
 let incorrectPracticeResponses: string[] = [];
@@ -171,6 +172,8 @@ export const stimulus = {
     const stim = taskStore().nextStimulus;
     const choices = taskStore().choices;
     const endTime = performance.now();
+
+    saveReplayPresses();
 
     // Always need to write correct key because of firekit.
     // TODO: Discuss with ROAR team to remove this check

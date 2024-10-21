@@ -3,7 +3,6 @@ import { mediaAssets } from '../../..';
 import { InputKey } from '../helpers/utils';
 import { setupReplayAudio, taskStore, replayButtonSvg, PageStateHandler } from '../../shared/helpers'; 
 import { saveReplayPresses } from '../../shared/helpers/replayAudio';
-import { jsPsych } from '../../taskSetup';
 
 // These are the instruction "trials" they are full screen with no stimulus
 
@@ -134,7 +133,6 @@ function buildInstructionTrial(mascotImage, promptAudioKey, promptText, buttonTe
     }, 
     on_finish: () => {
       saveReplayPresses(); 
-      console.log(jsPsych.data.getLastTrialData().select('audioButtonPresses').values[0]);
     }
 
   };

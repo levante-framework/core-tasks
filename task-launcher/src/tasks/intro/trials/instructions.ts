@@ -4,6 +4,7 @@ import { isTouchScreen } from '../../taskSetup';
 import { mediaAssets } from '../../..';
 // @ts-ignore
 import { PageAudioHandler, PageStateHandler, replayButtonSvg, setupReplayAudio, taskStore } from '../../shared/helpers';
+import { saveReplayPresses } from '../../shared/helpers/replayAudio';
 
 const instructionData = [
     {
@@ -67,6 +68,7 @@ export const instructions = instructionData.map(data => {
             setupReplayAudio(pageStateHandler);
         },
         on_finish: () => {
+            saveReplayPresses();
             PageAudioHandler.stopAndDisconnectNode();
         }
     }
