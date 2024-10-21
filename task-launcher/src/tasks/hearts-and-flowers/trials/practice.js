@@ -1,6 +1,6 @@
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
 import { mediaAssets } from '../../..';
-import { isTouchScreen } from '../../taskSetup';
+import { isTouchScreen, jsPsych } from '../../taskSetup';
 import {
   StimulusType,
   StimulusSideType,
@@ -9,6 +9,7 @@ import {
   getStimulusLayout
 } from '../helpers/utils';
 import { PageStateHandler, setupReplayAudio, taskStore } from '../../shared/helpers';
+import { saveReplayPresses } from '../../shared/helpers/replayAudio';
 
 /**
  * Builds a practice trial for the Instruction sections.
@@ -87,6 +88,9 @@ export function buildInstructionPracticeTrial(stimulusType, promptText, promptAu
       } else {
         taskStore('isCorrect', false);
       }
+
+      saveReplayPresses();
+      console.log(jsPsych.data.getLastTrialData().select('audioButtonPresses').values[0]);
     },
     // TODO handle stimulus presentation timeout and other parameters
   }
