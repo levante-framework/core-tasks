@@ -130,7 +130,8 @@ export const stimulus = {
     if (stim.assessmentStage === 'instructions') {
       return ['OK'];
     } else {
-      const { choices } = prepareChoices(stim.answer, stim.distractors, false);
+      // Randomize choices if there is an answer
+      const { choices } = prepareChoices(stim.answer, stim.distractors, !!stim.answer);
       return generateImageChoices(choices);
     }
   },
