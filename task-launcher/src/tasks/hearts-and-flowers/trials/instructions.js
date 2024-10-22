@@ -2,7 +2,6 @@ import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-respo
 import { mediaAssets } from '../../..';
 import { InputKey } from '../helpers/utils';
 import { setupReplayAudio, taskStore, replayButtonSvg, PageStateHandler } from '../../shared/helpers'; 
-import { saveReplayPresses } from '../../shared/helpers/replayAudio';
 
 // These are the instruction "trials" they are full screen with no stimulus
 
@@ -132,7 +131,7 @@ function buildInstructionTrial(mascotImage, promptAudioKey, promptText, buttonTe
       setupReplayAudio(pageStateHandler);
     }, 
     on_finish: () => {
-      saveReplayPresses(); 
+      PageAudioHandler.saveReplayPresses(); 
     }
 
   };

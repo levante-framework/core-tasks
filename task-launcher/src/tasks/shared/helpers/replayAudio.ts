@@ -1,18 +1,8 @@
 import { PageAudioHandler } from "./audioHandler";
 import { PageStateHandler } from "./PageStateHandler";
-// @ts-ignore
-import { jsPsych } from '../../taskSetup';
-
-var replayPresses = 0;
-
-export function saveReplayPresses(){
-  jsPsych.data.addDataToLastTrial({
-    audioButtonPresses: replayPresses
-  }); 
-}
 
 export async function setupReplayAudio(pageStateHandler: PageStateHandler) {
-  replayPresses = 0; // reset to zero at beginning of trial
+  PageAudioHandler.replayPresses = 0; // reset to zero at beginning of trial
 
   if (pageStateHandler.replayBtn) {
     if (pageStateHandler.playStimulusOnLoad){
@@ -30,7 +20,7 @@ export async function setupReplayAudio(pageStateHandler: PageStateHandler) {
     }
 
     async function replayAudio() {
-      replayPresses ++;
+      PageAudioHandler.replayPresses ++;
       pageStateHandler.disableReplayBtn();
       PageAudioHandler.playAudio(pageStateHandler.audioUri, onAudioEnd); 
     }

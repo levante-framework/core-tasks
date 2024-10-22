@@ -9,7 +9,6 @@ import {
   getStimulusLayout
 } from '../helpers/utils';
 import { PageStateHandler, setupReplayAudio, taskStore } from '../../shared/helpers';
-import { saveReplayPresses } from '../../shared/helpers/replayAudio';
 
 /**
  * Builds a practice trial for the Instruction sections.
@@ -89,7 +88,7 @@ export function buildInstructionPracticeTrial(stimulusType, promptText, promptAu
         taskStore('isCorrect', false);
       }
 
-      saveReplayPresses();
+      PageAudioHandler.saveReplayPresses();
     },
     // TODO handle stimulus presentation timeout and other parameters
   }
