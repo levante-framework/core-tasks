@@ -8,6 +8,7 @@ import { prepareChoices, replayButtonSvg, setupReplayAudio, taskStore, PageState
 import { finishExperiment } from '../../shared/trials';
 
 let selectedCards: string[] = [];
+let selectedCardIdxs: number[] = [];
 let previousSelections: string[] = [];
 let startTime: number; 
 
@@ -104,9 +105,11 @@ export const afcMatch = {
         if (card.classList.contains(SELECT_CLASS_NAME)) {
           card.classList.remove(SELECT_CLASS_NAME);
           selectedCards.splice(selectedCards.indexOf(answer), 1);
+          selectedCardIdxs.splice(selectedCardIdxs.indexOf(i), 1);
         } else {
           card.classList.add(SELECT_CLASS_NAME);
           selectedCards.push(answer);
+          selectedCardIdxs.push(i);
           // afcMatch trial types look like n-match / n-unique
           const requiredSelections = stim.requiredSelections;
 
@@ -132,7 +135,8 @@ export const afcMatch = {
       response: selectedCards,
       distractors: stim.distractors,
       item: stim.item,
-      rt: Math.round(calculatedRt)
+      rt: Math.round(calculatedRt), 
+      responseLocation: selectedCardIdxs,
     });
 
     if (stim.audioFile.split('-')[2] === 'prompt1') {
@@ -222,6 +226,7 @@ export const afcMatch = {
     });
     previousSelections.push(...selectedCards);
     selectedCards = [];
+    selectedCardIdxs = [];
 
     if ((taskStore().numIncorrect >= taskStore().maxIncorrect)) {
       finishExperiment();

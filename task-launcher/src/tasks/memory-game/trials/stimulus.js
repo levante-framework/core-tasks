@@ -93,6 +93,7 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false, rese
           correct: _isEqual(data.response, data.sequence),
           selectedCoordinates: selectedCoordinates,
           corpusTrialType: getMemoryGameType(mode, reverse),
+          responseLocation: data.response,
         });
         taskStore('isCorrect', data.correct);
 
