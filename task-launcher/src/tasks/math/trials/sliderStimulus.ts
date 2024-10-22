@@ -11,6 +11,7 @@ import { mediaAssets } from '../../..';
 import Cypress from 'cypress';
 
 let chosenAnswer: number;
+let responseIdx: number; 
 let sliderStart: number;
 let keyboardResponseMap: Record<string, any> = {};
 let startTime: number; 
@@ -28,7 +29,7 @@ function setUpAudio(responseType: string) {
   });  
 }
 
-function captureValue(btnElement: HTMLButtonElement | null, event: Event & {key?: string}) {
+function captureValue(btnElement: HTMLButtonElement | null, event: Event & {key?: string}, i: number) {
   let containerEl = document.getElementById('slider-btn-container') || null;
 
   if (!containerEl) {
@@ -46,14 +47,30 @@ function captureValue(btnElement: HTMLButtonElement | null, event: Event & {key?
     chosenAnswer = _toNumber(btnElement?.textContent);
   }
 
+  responseIdx = i; 
+
   jsPsych.finishTrial();
 }
 
 // Defining the function here since we need a reference to it to remove the event listener later
 function captureBtnValue(event: Event & {key?: string}) {
-  if (event.key === 'ArrowUp' || event.key === 'ArrowDown' || event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
-    captureValue(null, event);
-  } else return;
+  // record responseIdx in addition to value
+  switch (event.key) {
+    case 'ArrowUp':
+      captureValue(null, event, 0); 
+      break;
+    case 'ArrowLeft':
+      captureValue(null, event, 1);
+      break;
+    case 'ArrowRight':
+      captureValue(null, event, 2); 
+      break;
+    case 'ArrowDown':
+      captureValue(null, event, 3);
+      break;
+    default:
+      return 
+  }
 }
 
 function getRandomValue(max: number, avoid: number, tolerance: number = 0.1) {
@@ -177,7 +194,7 @@ export const slider = {
         }
 
         btn.classList.add('secondary');
-        btn.addEventListener('click', (e) => captureValue(btn, e));
+        btn.addEventListener('click', (e) => captureValue(btn, e, i));
         // To not duplicate event listeners
         if (i === 0) {
           document.addEventListener('keydown', captureBtnValue);
@@ -271,7 +288,8 @@ export const slider = {
       const calculatedRt = Math.round(endTime - startTime);
 
       jsPsych.data.addDataToLastTrial({
-        rt: calculatedRt
+        rt: calculatedRt, 
+        responseLocation: responseIdx, 
       });
     }
   
