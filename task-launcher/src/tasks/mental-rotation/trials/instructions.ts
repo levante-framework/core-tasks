@@ -1,8 +1,7 @@
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
 import { mediaAssets } from '../../..';
 // @ts-ignore
-import { taskStore, replayButtonSvg, PageStateHandler, setupReplayAudio } from '../../shared/helpers';
-import { saveReplayPresses } from '../../shared/helpers/replayAudio';
+import { taskStore, replayButtonSvg, PageStateHandler, PageAudioHandler, setupReplayAudio } from '../../shared/helpers';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 
@@ -47,7 +46,7 @@ export const videoInstructionsFit = {
     setupReplayAudio(pageStateHandler);
   },
   on_finish: () => {
-    saveReplayPresses();
+    PageAudioHandler.saveReplayPresses();
   }
 };
 
@@ -86,7 +85,7 @@ export const videoInstructionsMisfit = {
     setupReplayAudio(pageStateHandler);
 },
 on_finish: () => {
-  saveReplayPresses();
+  PageAudioHandler.saveReplayPresses();
 }
 };
 
@@ -122,6 +121,6 @@ export const imageInstructions = {
     setupReplayAudio(pageStateHandler);
 },
 on_finish: () => {
-  saveReplayPresses();
+  PageAudioHandler.saveReplayPresses();
 }
 };

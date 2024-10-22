@@ -9,6 +9,13 @@ export class PageAudioHandler {
   static audioContext: BaseAudioContext;
   static audioUri: string;
   static audioSource?: AudioBufferSourceNode;
+  static replayPresses: number;
+
+  static saveReplayPresses(){
+    jsPsych.data.addDataToLastTrial({
+      audioButtonPresses: PageAudioHandler.replayPresses
+    }); 
+  }
 
   static stopAndDisconnectNode() {
     if (PageAudioHandler.audioSource) {

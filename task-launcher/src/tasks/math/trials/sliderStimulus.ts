@@ -9,7 +9,6 @@ import { camelize } from '@bdelab/roar-utils';
 import { arrowKeyEmojis, setSkipCurrentBlock, taskStore, replayButtonSvg, setupReplayAudio, PageAudioHandler, PageStateHandler } from '../../shared/helpers';
 import { mediaAssets } from '../../..';
 import Cypress from 'cypress';
-import { saveReplayPresses } from '../../shared/helpers/replayAudio';
 
 let chosenAnswer: number;
 let sliderStart: number;
@@ -268,7 +267,7 @@ export const slider = {
       slider_start: sliderStart,
     });
 
-    saveReplayPresses();
+    PageAudioHandler.saveReplayPresses();
 
     if (responseType === 'button') {
       const calculatedRt = Math.round(endTime - startTime);
