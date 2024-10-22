@@ -8,7 +8,7 @@ import {
   getCorrectInputSide,
   getStimulusLayout
 } from '../helpers/utils';
-import { PageStateHandler, setupReplayAudio, taskStore } from '../../shared/helpers';
+import { PageStateHandler, setupReplayAudio, taskStore, PageAudioHandler } from '../../shared/helpers';
 
 /**
  * Builds a practice trial for the Instruction sections.
