@@ -111,6 +111,7 @@ export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrial
         item: stimulusType,
         answer: validAnswer === 0? ResponseSideType.Left : ResponseSideType.Right,
         response: response === 0? ResponseSideType.Left : ResponseSideType.Right,
+        responseLocation: response, 
       });
 
       if (onTrialFinishTimelineCallback) {

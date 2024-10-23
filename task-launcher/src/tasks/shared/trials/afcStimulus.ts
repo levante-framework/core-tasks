@@ -416,6 +416,7 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
   const itemLayoutConfig = layoutConfigMap?.[stimulus.itemId];
   let responseValue = null
   let target = null; 
+  let responseIndex = null; 
 
   if (stimulus.trialType !== 'instructions') {
     if (itemLayoutConfig) {
@@ -424,7 +425,7 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
         throw new Error('Choices not defined in the config');
       }
       const keyboardChoices = getKeyboardChoices(itemLayoutConfig);
-      const responseIndex = data.keyboard_response
+      responseIndex = data.keyboard_response
         ? keyboardChoices.findIndex(f => f.toLowerCase() === data.keyboard_response.toLowerCase())
         : data.button_response;
       responseValue = response.values[responseIndex];
@@ -459,6 +460,7 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
       distractors: stimulus.distractors,
       corpusTrialType: stimulus.trialType,
       responseType,
+      responseLocation: responseIndex, 
     });
 
     // corpusId and itemId fields are used by ROAR but not ROAD
