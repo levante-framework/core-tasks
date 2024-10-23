@@ -55,22 +55,8 @@ function captureValue(btnElement: HTMLButtonElement | null, event: Event & {key?
 // Defining the function here since we need a reference to it to remove the event listener later
 function captureBtnValue(event: Event & {key?: string}) {
   // record responseIdx in addition to value
-  switch (event.key) {
-    case 'ArrowUp':
-      captureValue(null, event, 0); 
-      break;
-    case 'ArrowLeft':
-      captureValue(null, event, 1);
-      break;
-    case 'ArrowRight':
-      captureValue(null, event, 2); 
-      break;
-    case 'ArrowDown':
-      captureValue(null, event, 3);
-      break;
-    default:
-      return 
-  }
+  const responseIndex = event.key ? ['ArrowUp', 'ArrowLeft', 'ArrowRight', 'ArrowDown'].indexOf(event.key) : -1; 
+  responseIndex > -1 && captureValue(null, event, responseIndex);
 }
 
 function getRandomValue(max: number, avoid: number, tolerance: number = 0.1) {
