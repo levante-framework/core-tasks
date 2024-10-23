@@ -202,6 +202,7 @@ export const stimulus = {
         distractors: stim.distractors,
         corpusTrialType: stim.trialType,
         response: choices[data.button_response],
+        responseLocation: data.button_response, 
       });
 
       if (stim.trialType === 'test-dimensions' || stim.assessmentStage === 'practice_response') {
@@ -211,8 +212,6 @@ export const stimulus = {
           rt: calculatedRt
         })
       }
-
-      console.log(jsPsych.data.getLastTrialData().select('rt').values[0]);
 
       if ((taskStore().numIncorrect >= taskStore().maxIncorrect)) {
         finishExperiment();
