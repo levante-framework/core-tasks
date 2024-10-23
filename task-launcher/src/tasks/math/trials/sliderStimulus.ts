@@ -265,9 +265,8 @@ export const slider = {
       corpusTrialType: stimulus.trialType,
       // slider_start: stimulus.item[1] === 1 ? sliderStart / 100 : sliderStart,
       slider_start: sliderStart,
+      audioButtonPresses: PageAudioHandler.replayPresses
     });
-
-    PageAudioHandler.saveReplayPresses();
 
     if (responseType === 'button') {
       const calculatedRt = Math.round(endTime - startTime);

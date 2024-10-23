@@ -500,7 +500,9 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
     });
   }
 
-  PageAudioHandler.saveReplayPresses();
+  jsPsych.data.addDataToLastTrial({
+    audioButtonPresses: PageAudioHandler.replayPresses
+  });
 
   if (itemLayoutConfig.inCorrectTrialConfig.onIncorrectTrial === 'skip') {
     setSkipCurrentBlock(stimulus.trialType);
