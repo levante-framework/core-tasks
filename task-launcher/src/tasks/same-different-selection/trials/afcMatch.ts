@@ -3,7 +3,7 @@ import { mediaAssets } from '../../..';
 // @ts-ignore
 import { jsPsych } from '../../taskSetup';
 // @ts-ignore
-import { prepareChoices, replayButtonSvg, setupReplayAudio, taskStore, PageStateHandler, camelize } from '../../shared/helpers';
+import { prepareChoices, replayButtonSvg, setupReplayAudio, taskStore, PageStateHandler, PageAudioHandler, camelize } from '../../shared/helpers';
 // @ts-ignore
 import { finishExperiment } from '../../shared/trials';
 
@@ -136,10 +136,11 @@ export const afcMatch = {
       response: selectedCards,
       distractors: stim.distractors,
       item: stim.item,
-      rt: Math.round(calculatedRt), 
+      rt: Math.round(calculatedRt),
+      audioButtonPresses: PageAudioHandler.replayPresses,
       responseLocation: selectedCardIdxs,
     });
-
+  
     if (stim.audioFile.split('-')[2] === 'prompt1') {
       // Prompt 1 is the start and prompt 2 trials are when the selections
       // Must be different from previous selections

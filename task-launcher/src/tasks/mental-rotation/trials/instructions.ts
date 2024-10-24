@@ -1,7 +1,9 @@
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
 import { mediaAssets } from '../../..';
 // @ts-ignore
-import { taskStore, replayButtonSvg, PageStateHandler, setupReplayAudio } from '../../shared/helpers';
+import { taskStore, replayButtonSvg, PageStateHandler, PageAudioHandler, setupReplayAudio } from '../../shared/helpers';
+// @ts-ignore
+import { jsPsych } from '../../taskSetup';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 
@@ -44,8 +46,12 @@ export const videoInstructionsFit = {
     
     const pageStateHandler = new PageStateHandler('mental-rotation-training-instruct3');
     setupReplayAudio(pageStateHandler);
-  
   },
+  on_finish: () => {
+    jsPsych.data.addDataToLastTrial({
+      audioButtonPresses: PageAudioHandler.replayPresses
+    });
+  }
 };
 
 export const videoInstructionsMisfit = {
@@ -81,6 +87,11 @@ export const videoInstructionsMisfit = {
   on_load: () => {
     const pageStateHandler = new PageStateHandler('mental-rotation-training-instruct2');
     setupReplayAudio(pageStateHandler);
+},
+on_finish: () => {
+  jsPsych.data.addDataToLastTrial({
+    audioButtonPresses: PageAudioHandler.replayPresses
+  });
 }
 };
 
@@ -114,5 +125,10 @@ export const imageInstructions = {
   on_load: () => {
     const pageStateHandler = new PageStateHandler('mental-rotation-instruct1');
     setupReplayAudio(pageStateHandler);
+},
+on_finish: () => {
+  jsPsych.data.addDataToLastTrial({
+    audioButtonPresses: PageAudioHandler.replayPresses
+  });
 }
 };
