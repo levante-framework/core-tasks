@@ -122,6 +122,7 @@ const getPromptTemplate = (
   stimText: string | null | undefined,
   equalSizeStim: boolean,
   stimulusContainerClassList: string[],
+  promptClassList: string[]
 ) => {
   let template = '<div class="lev-stimulus-container">';
 
@@ -132,8 +133,13 @@ const getPromptTemplate = (
   `;
 
   if (prompt) {
+    let containerClass = "lev-row-container instruction"; 
+    if (promptClassList) {
+      containerClass = promptClassList.join(' ');
+    } 
+
     template += `
-      <div class="lev-row-container instruction">
+      <div class="${containerClass}">
         <p>${prompt}</p>
       </div>
     `;
@@ -183,7 +189,8 @@ function getPrompt(layoutConfigMap: Record<string, LayoutConfigType>) {
         enabled: promptEnabled,
       },
       classOverrides: {
-        stimulusContainerClassList
+        stimulusContainerClassList,
+        promptClassList
       },
       equalSizeStim,
       showStimImage,
@@ -203,6 +210,7 @@ function getPrompt(layoutConfigMap: Record<string, LayoutConfigType>) {
       stimText,
       equalSizeStim,
       stimulusContainerClassList,
+      promptClassList
     );
   }
 }
