@@ -1,13 +1,17 @@
+//@ts-ignore
 import { initTimeline, initTrialSaving } from '../shared/helpers';
 // setup
+//@ts-ignore
 import { jsPsych } from '../taskSetup';
+//@ts-ignore
 import { initializeCat } from '../taskSetup';
 // trials
-import { instructions, readyToPlay, reverseOrderPrompt } from './trials/instructions';
+//@ts-ignore
 import { exitFullscreen, feedback } from '../shared/trials';
 import { getCorsiBlocks } from './trials/stimulus';
+import { instructions, readyToPlay, reverseOrderPrompt } from './trials/instructions';
 
-export default function buildMemoryTimeline(config, mediaAssets) {
+export default function buildMemoryTimeline(config: Record<string, any>) {
   initTrialSaving(config);
   const initialTimeline = initTimeline(config);
 
