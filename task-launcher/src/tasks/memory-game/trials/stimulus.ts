@@ -1,25 +1,34 @@
 import jsPsychCorsiBlocks from '@jspsych-contrib/plugin-corsi-blocks';
 import { createGrid, generateRandomSequence } from '../helpers/grid';
+//@ts-ignore
 import { jsPsych } from '../../taskSetup';
 import _isEqual from 'lodash/isEqual';
+//@ts-ignore
 import { finishExperiment } from '../../shared/trials';
 import { mediaAssets } from '../../..';
 import { getMemoryGameType } from '../helpers/getMemoryGameType';
+//@ts-ignore
 import { taskStore, setupReplayAudio, PageAudioHandler, replayButtonSvg, PageStateHandler } from '../../shared/helpers';
 
+type CorsiBlocksArgs = {
+  mode: 'display' | 'input';
+  reverse?: boolean;
+  isPractice?: boolean;
+  resetSeq?: boolean;
+};
 
 const x = 20;
 const y = 20;
 const blockSpacing = 0.5;
-let grid
+let grid: {x: number; y: number;}[];
 // CHANGE BACK TO 2
 let sequenceLength = 2;
-let generatedSequence
-let selectedCoordinates = [];
+let generatedSequence: number[] | null;
+let selectedCoordinates: [number, number][] = [];
 let numCorrect = 0;
 
 // play audio cue
-function setUpAudio(contentWrapper, prompt, reverse, mode) {
+function setUpAudio(contentWrapper: HTMLDivElement, prompt: HTMLParagraphElement, reverse: boolean, mode: 'display' | 'input') {
   // add replay button
   const replayButton = document.createElement('button'); 
   replayButton.innerHTML = replayButtonSvg;
@@ -41,14 +50,14 @@ function setUpAudio(contentWrapper, prompt, reverse, mode) {
 }
 
 // This function produces both the display and input trials for the corsi blocks
-export function getCorsiBlocks({ mode, reverse = false, isPractice = false, resetSeq = false}) {
+export function getCorsiBlocks({ mode, reverse = false, isPractice = false, resetSeq = false}: CorsiBlocksArgs) {
   return {
     type: jsPsychCorsiBlocks,
     sequence: () => {
       // On very first trial, generate initial sequence
       if (!generatedSequence) {
-        const numOfBlocks = taskStore().numOfBlocks;
-        generatedSequence = generateRandomSequence({numOfBlocks, sequenceLength})
+        const numOfBlocks: number = Number(taskStore().numOfBlocks);
+        generatedSequence = generateRandomSequence({numOfBlocks, sequenceLength, previousSequence: null});
       }
 
       if (mode === 'input' && reverse) {
@@ -73,7 +82,7 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false, rese
     highlight_color: '#275BDD',
     // Show feedback only for practice
     correct_color: () => '#8CAEDF',
-    incorrect_color: () => isPractice ? '#f00' : 'rgba(215, 215, 215, 0.93)',
+    incorrect_color: () => isPractice ? '#f00' : '#8CAEDF',
     post_trial_gap: 1000,
     data: {
       // not camelCase because firekit
@@ -83,7 +92,7 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false, rese
       isPracticeTrial: isPractice,
     },
     on_load: () => doOnLoad(mode, isPractice, reverse),
-    on_finish: (data) => {
+    on_finish: (data: any) => {
       jsPsych.data.addDataToLastTrial({
         audioButtonPresses: PageAudioHandler.replayPresses
       });
@@ -112,7 +121,7 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false, rese
         }
 
         if (!data.correct && !isPractice) {
-          taskStore.transact('numIncorrect', (value) => value + 1)
+          taskStore.transact('numIncorrect', (value: number) => value + 1)
           numCorrect = 0;
         }
 
@@ -150,10 +159,10 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false, rese
   };
 }
 
-let timeoutIDs = []
+let timeoutIDs: NodeJS.Timeout[] = []
 
-function doOnLoad(mode, isPractice, reverse) {
-  const container = document.getElementById('jspsych-corsi-stimulus');
+function doOnLoad(mode: 'display' | 'input', isPractice: boolean, reverse: boolean) {
+  const container = document.getElementById('jspsych-corsi-stimulus') as HTMLDivElement;
   container.id = '';
   container.classList.add('jspsych-corsi-overide');
 
@@ -178,7 +187,7 @@ function doOnLoad(mode, isPractice, reverse) {
     }
   }
 
-  const blocks = document.getElementsByClassName('jspsych-corsi-block');
+  const blocks = document.getElementsByClassName('lev-corsi-override') as HTMLCollectionOf<HTMLDivElement>;
 
   Array.from(blocks).forEach((element, i) => {
     // Cannot just remove the id because the trial code uses that under the hood
@@ -190,7 +199,7 @@ function doOnLoad(mode, isPractice, reverse) {
     element.style.width = `unset`;
     element.style.height = `unset`;
 
-    element.classList.add('jspsych-corsi-block-overide');
+    element.classList.add('lev-corsi-block-override');
 
     if (mode === 'input') {
       element.addEventListener('click', (event) => {
@@ -205,12 +214,12 @@ function doOnLoad(mode, isPractice, reverse) {
 
           // start a timer for toast notification
           const toastTimer = setTimeout(() => {
-            const toast = document.getElementById('toast');
+            const toast = document.getElementById('toast') as HTMLDivElement;
             toast.classList.add('show');
           }, 10000);
 
           const hideToast = setTimeout(() => {
-            const toast = document.getElementById('toast');
+            const toast = document.getElementById('toast') as HTMLDivElement;
             toast.classList.remove('show');
           }, 13000);
 
@@ -222,11 +231,11 @@ function doOnLoad(mode, isPractice, reverse) {
   });
 
 
-  const contentWrapper = document.getElementById('jspsych-content');
-  const corsiBlocksHTML = contentWrapper.children[1];
+  const contentWrapper = document.getElementById('jspsych-content') as HTMLDivElement;
+  const corsiBlocksHTML = contentWrapper.children[1] as HTMLDivElement;
 
   const prompt = document.createElement('p');
-  prompt.classList.add('corsi-block-overide-prompt');
+  prompt.classList.add('lev-corsi-block-override-prompt');
   const inputTextPrompt = reverse ? t.memoryGameBackwardPrompt : t.memoryGameInput; 
   prompt.textContent = mode === 'display' ? t.memoryGameDisplay : inputTextPrompt;
   // Inserting element at the second child position rather than
