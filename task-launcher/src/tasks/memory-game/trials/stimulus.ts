@@ -159,12 +159,12 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false, rese
   };
 }
 
-let timeoutIDs: NodeJS.Timeout[] = []
+let timeoutIDs: Array<NodeJS.Timeout | number> = []
 
 function doOnLoad(mode: 'display' | 'input', isPractice: boolean, reverse: boolean) {
   const container = document.getElementById('jspsych-corsi-stimulus') as HTMLDivElement;
   container.id = '';
-  container.classList.add('jspsych-corsi-overide');
+  container.classList.add('lev-corsi-override');
 
   const gridSize = taskStore().gridSize;
 
@@ -187,7 +187,7 @@ function doOnLoad(mode: 'display' | 'input', isPractice: boolean, reverse: boole
     }
   }
 
-  const blocks = document.getElementsByClassName('lev-corsi-override') as HTMLCollectionOf<HTMLDivElement>;
+  const blocks = document.getElementsByClassName('jspsych-corsi-block') as HTMLCollectionOf<HTMLDivElement>;
 
   Array.from(blocks).forEach((element, i) => {
     // Cannot just remove the id because the trial code uses that under the hood
@@ -233,14 +233,15 @@ function doOnLoad(mode: 'display' | 'input', isPractice: boolean, reverse: boole
 
   const contentWrapper = document.getElementById('jspsych-content') as HTMLDivElement;
   const corsiBlocksHTML = contentWrapper.children[1] as HTMLDivElement;
-
+  const promptContainer = document.createElement('div');
+  promptContainer.classList.add('lev-row-container', 'instruction');
   const prompt = document.createElement('p');
-  prompt.classList.add('lev-corsi-block-override-prompt');
   const inputTextPrompt = reverse ? t.memoryGameBackwardPrompt : t.memoryGameInput; 
   prompt.textContent = mode === 'display' ? t.memoryGameDisplay : inputTextPrompt;
+  promptContainer.appendChild(prompt);
   // Inserting element at the second child position rather than
   // changing the jspsych-content styles to avoid potential issues in the future
-  contentWrapper.insertBefore(prompt, corsiBlocksHTML);
+  contentWrapper.insertBefore(promptContainer, corsiBlocksHTML);
 
-  setUpAudio(contentWrapper, prompt, reverse, mode);
+  setUpAudio(contentWrapper, promptContainer, reverse, mode);
 }

@@ -1,3 +1,5 @@
+@use '../abstracts/' as *;
+
 .lev-corsi-override {
   display: grid;
   gap: 15px; /* adjust as needed for spacing between blocks */
@@ -19,16 +21,5 @@
     height: 100%;
     border-radius: 2rem;
     border: 6px solid rgba(162, 162, 162, 0.93);
-  }
-}
-
-.lev-corsi-block-override-prompt {
-  font-size: 2.5rem;
-
-  @include respond-to('small-medium') {
-    font-size: 1.5rem;
-  }
-  @include respond-to('very-large') {
-    font-size: 2rem;
   }
 }
