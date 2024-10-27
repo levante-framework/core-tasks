@@ -56,15 +56,17 @@ export const instructions = instructionData.map(data => {
                         <div class="lev-row-container instruction">
                             <p>${t[data.prompt]}</p>
                         </div>
-                        ${data.video ? 
-                            `<video class='instruction-video' autoplay loop>
-                                <source src=${mediaAssets.video[data.video]} type='video/mp4'>
-                            </video>` :
-                            `<img
-                                src=${mediaAssets.images[data.image as string]}
-                                alt='Instruction graphic'
-                            />`
-                        }                       
+                        <div class="lev-stim-content-x-3">
+                            ${data.video ? 
+                                `<video class='instruction-video' autoplay loop>
+                                    <source src=${mediaAssets.video[data.video]} type='video/mp4'>
+                                </video>` :
+                                `<img
+                                    src=${mediaAssets.images[data.image as string]}
+                                    alt='Instruction graphic'
+                                />`
+                            }
+                        </div>                    
                     </div>`;
         },
         prompt_above_buttons: true,
