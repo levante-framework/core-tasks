@@ -1,7 +1,9 @@
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
 import { mediaAssets } from '../../..';
 // @ts-ignore
-import { PageStateHandler, replayButtonSvg, setupReplayAudio, taskStore } from '../../shared/helpers';
+import { PageStateHandler, PageAudioHandler, replayButtonSvg, setupReplayAudio, taskStore } from '../../shared/helpers';
+// @ts-ignore
+import { jsPsych } from '../../taskSetup';
 
 const instructionData = [
     {
@@ -50,6 +52,11 @@ export const instructions = instructionData.map(data => {
         on_load: () => {
             const pageStateHandler = new PageStateHandler(data.prompt);
             setupReplayAudio(pageStateHandler);
+        }, 
+        on_finish: () => {
+            jsPsych.data.addDataToLastTrial({
+                audioButtonPresses: PageAudioHandler.replayPresses
+              }); 
         }
     }
 })

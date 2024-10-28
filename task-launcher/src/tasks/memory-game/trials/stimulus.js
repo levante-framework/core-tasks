@@ -84,6 +84,10 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false, rese
     },
     on_load: () => doOnLoad(mode, isPractice, reverse),
     on_finish: (data) => {
+      jsPsych.data.addDataToLastTrial({
+        audioButtonPresses: PageAudioHandler.replayPresses
+      });
+
       if (resetSeq) {
         sequenceLength = 2;
       }

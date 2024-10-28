@@ -8,7 +8,9 @@ import {
   getCorrectInputSide,
   getStimulusLayout
 } from '../helpers/utils';
-import { PageStateHandler, setupReplayAudio, taskStore } from '../../shared/helpers';
+import { PageStateHandler, setupReplayAudio, taskStore, PageAudioHandler } from '../../shared/helpers';
+import { jsPsych } from '../../taskSetup';
+
 
 /**
  * Builds a practice trial for the Instruction sections.
@@ -87,6 +89,10 @@ export function buildInstructionPracticeTrial(stimulusType, promptText, promptAu
       } else {
         taskStore('isCorrect', false);
       }
+
+      jsPsych.data.addDataToLastTrial({
+        audioButtonPresses: PageAudioHandler.replayPresses
+      });
     },
     // TODO handle stimulus presentation timeout and other parameters
   }

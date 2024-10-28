@@ -173,6 +173,10 @@ export const stimulus = {
     const choices = taskStore().choices;
     const endTime = performance.now();
 
+    jsPsych.data.addDataToLastTrial({
+      audioButtonPresses: PageAudioHandler.replayPresses
+    });
+
     // Always need to write correct key because of firekit.
     // TODO: Discuss with ROAR team to remove this check
     if (stim.assessmentStage !== 'instructions') {
