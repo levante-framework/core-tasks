@@ -9,6 +9,7 @@ export class PageAudioHandler {
   static audioContext: BaseAudioContext;
   static audioUri: string;
   static audioSource?: AudioBufferSourceNode;
+  static replayPresses: number;
 
   static stopAndDisconnectNode() {
     if (PageAudioHandler.audioSource) {

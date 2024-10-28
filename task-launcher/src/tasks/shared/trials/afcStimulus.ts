@@ -502,6 +502,10 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
     });
   }
 
+  jsPsych.data.addDataToLastTrial({
+    audioButtonPresses: PageAudioHandler.replayPresses
+  });
+
   if (itemLayoutConfig.inCorrectTrialConfig.onIncorrectTrial === 'skip') {
     setSkipCurrentBlock(stimulus.trialType);
   } else if ((taskStore().numIncorrect >= taskStore().maxIncorrect)) {
