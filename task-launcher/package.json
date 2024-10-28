@@ -21,7 +21,9 @@
     "dev": "npx webpack serve --mode development --env dbmode=development",
     "deploy": "npm run build && firebase deploy --only hosting",
     "lint": "npx eslint --ext .ts,.tsx,.js,.jsx",
-    "format": "npx prettier . --write"
+    "format": "npx prettier . --write",
+    "patchPackages": "node patchPackages.js",
+    "postinstall": "npm run patchPackages"
   },
   "repository": {
     "type": "git",
