@@ -1,6 +1,6 @@
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
 //@ts-ignore
-import { isTouchScreen, jsPsych } from '../../taskSetup';
+import { jsPsych } from '../../taskSetup';
 import { mediaAssets } from '../../..';
 //@ts-ignore
 import { PageStateHandler, PageAudioHandler, replayButtonSvg, setupReplayAudio, taskStore } from '../../shared/helpers';
