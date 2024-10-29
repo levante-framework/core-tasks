@@ -1,4 +1,18 @@
-export function createGrid({x, y, numOfBlocks, blockSize, gridSize, blockSpacing}) {
+type CreateGridArgs = {
+  x: number;
+  y: number;
+  numOfBlocks: number;
+  blockSize: number;
+  gridSize: number;
+  blockSpacing: number;
+};
+
+type RandomSequenceArgs = {
+  numOfBlocks: number; 
+  sequenceLength: number;
+  previousSequence: number[] | null;
+};
+export function createGrid({x, y, numOfBlocks, blockSize, gridSize, blockSpacing}: CreateGridArgs) {
   const blocks = [];
   const numRows = gridSize;
   const numCols = numOfBlocks / gridSize;
@@ -18,8 +32,8 @@ export function generateRandomSequence({
   numOfBlocks, 
   sequenceLength,
   previousSequence = null
-}) {
-  const sequence = [];
+}: RandomSequenceArgs) {
+  const sequence: number[] = [];
 
   for (let i = 0; i < sequenceLength; i++) {
     const randomNumber = Math.floor(Math.random() * numOfBlocks);
