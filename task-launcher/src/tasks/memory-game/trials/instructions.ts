@@ -1,7 +1,9 @@
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
-import { isTouchScreen, jsPsych } from '../../taskSetup';
+//@ts-ignore
+import { jsPsych } from '../../taskSetup';
 import { mediaAssets } from '../../..';
-import { PageStateHandler, replayButtonSvg, setupReplayAudio, taskStore } from '../../shared/helpers';
+//@ts-ignore
+import { PageStateHandler, PageAudioHandler, replayButtonSvg, setupReplayAudio, taskStore } from '../../shared/helpers';
 
 const instructionData = [
     {
@@ -44,25 +46,27 @@ export const instructions = instructionData.map(data => {
         stimulus: () => mediaAssets.audio[data.prompt],
         prompt: () => {
             const t = taskStore().translations;
-            return `<div id='stimulus-container'>
+            return `<div class="lev-stimulus-container">
                         <button
                             id="${replayButtonHtmlId}"
                             class="replay"
                         >
                             ${replayButtonSvg}
                         </button>
-                        <div id='prompt-container-text'>
-                            <h1 id='prompt'>${t[data.prompt]}</h1>
+                        <div class="lev-row-container instruction">
+                            <p>${t[data.prompt]}</p>
                         </div>
-
-                        ${data.video ? 
-                            `<video id='instruction-video' autoplay loop>
-                                <source src=${mediaAssets.video[data.video]} type='video/mp4'>
-                            </video>` :
-                            `<img id='instruction-graphic' src=${mediaAssets.images[data.image]} alt='Instruction graphic'/>`
-                        }
-                        
-                        ${data.bottomText ? `<footer id='footer'>${t[data.bottomText]}</footer>` : ''}
+                        <div class="lev-stim-content-x-3">
+                            ${data.video ? 
+                                `<video class='instruction-video' autoplay loop>
+                                    <source src=${mediaAssets.video[data.video]} type='video/mp4'>
+                                </video>` :
+                                `<img
+                                    src=${mediaAssets.images[data.image as string]}
+                                    alt='Instruction graphic'
+                                />`
+                            }
+                        </div>                    
                     </div>`;
         },
         prompt_above_buttons: true,
@@ -70,7 +74,7 @@ export const instructions = instructionData.map(data => {
         button_html: () => {
             const t = taskStore().translations;
             return [
-            `<button class="primary" style=margin-top:10%>
+            `<button class="primary">
                 ${t[data.buttonText]}
             </button>`,
             ]
