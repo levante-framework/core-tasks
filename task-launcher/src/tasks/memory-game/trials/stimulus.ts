@@ -90,6 +90,7 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false, rese
       assessment_stage: isPractice ? 'practice_response' : 'test_response',
       // not for firekit
       isPracticeTrial: isPractice,
+      trialMode: mode
     },
     on_load: () => doOnLoad(mode, isPractice, reverse),
     on_finish: (data: any) => {

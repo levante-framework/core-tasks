@@ -133,7 +133,8 @@ function buildInstructionTrial(mascotImage, promptAudioKey, promptText, buttonTe
     }, 
     on_finish: () => {
       jsPsych.data.addDataToLastTrial({
-        audioButtonPresses: PageAudioHandler.replayPresses
+        audioButtonPresses: PageAudioHandler.replayPresses, 
+        assessment_stage: taskStore().nextStimulus.assessmentStage
       });
     }
   };

@@ -112,6 +112,7 @@ export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrial
         answer: validAnswer === 0? ResponseSideType.Left : ResponseSideType.Right,
         response: response === 0? ResponseSideType.Left : ResponseSideType.Right,
         responseLocation: response, 
+        assessment_stage: taskStore().nextStimulus.assessmentStage
       });
 
       if (onTrialFinishTimelineCallback) {
