@@ -22,7 +22,6 @@ export const jsPsych = initJsPsych({
     // navigate to prolific page
     // swap url
     //window.location.href = "https://app.prolific.co/submissions/complete?cc=4C0E9E0F";
-    console.log(jsPsych.data.getLastTrialData.trials); 
   },
 });
 
