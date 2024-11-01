@@ -92,7 +92,7 @@ export function buildInstructionPracticeTrial(stimulusType, promptText, promptAu
 
       jsPsych.data.addDataToLastTrial({
         audioButtonPresses: PageAudioHandler.replayPresses, 
-        assessment_stage: taskStore().nextStimulus.assessmentStage
+        assessment_stage: 'practice_response'
       });
     },
     // TODO handle stimulus presentation timeout and other parameters

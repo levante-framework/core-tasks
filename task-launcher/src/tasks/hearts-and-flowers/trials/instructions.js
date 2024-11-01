@@ -134,7 +134,7 @@ function buildInstructionTrial(mascotImage, promptAudioKey, promptText, buttonTe
     on_finish: () => {
       jsPsych.data.addDataToLastTrial({
         audioButtonPresses: PageAudioHandler.replayPresses, 
-        assessment_stage: taskStore().nextStimulus.assessmentStage
+        assessment_stage: 'instructions'
       });
     }
   };
