@@ -75,7 +75,7 @@ const showStaggeredBtnAndPlaySound = (
 
 const handleStaggeredButtons = async (layoutConfig: LayoutConfigType, pageState: PageStateHandler) => {
   if (layoutConfig?.isStaggered) {
-      const parentResponseDiv = document.getElementById('jspsych-audio-multi-response-btngroup') as HTMLDivElement;
+      const parentResponseDiv = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
       let i = 0;
       const stimulusDuration = await pageState.getStimulusDurationMs();
       const intialDelay = stimulusDuration + 300;
@@ -533,7 +533,7 @@ export const afcStimulusTemplate = (
 ) => {
   return {
     type: jsPsychHtmlMultiResponse,
-    //response_allowed_while_playing: responseAllowed,
+    response_allowed_while_playing: responseAllowed,
     data: () => {
       const stim = taskStore().nextStimulus;
       let isPracticeTrial = stim.assessmentStage === 'practice_response'; 
@@ -546,7 +546,6 @@ export const afcStimulusTemplate = (
       };
     },
     stimulus: () => getPrompt(layoutConfigMap),
-    //prompt: () => getPrompt(layoutConfigMap),
     prompt_above_buttons: promptAboveButtons,
     keyboard_choices: () => {
       const stim = taskStore().nextStimulus;
