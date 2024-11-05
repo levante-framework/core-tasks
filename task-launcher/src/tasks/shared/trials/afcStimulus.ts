@@ -1,5 +1,5 @@
 // For all tasks except: H&F, Memory Game, Same Different Selection
-import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
+import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 // @ts-ignore
 import { jsPsych, isTouchScreen } from '../../taskSetup';
 import {
@@ -329,6 +329,9 @@ function addKeyHelpers(el: HTMLElement, keyIndex: number) {
 }
 
 function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>) {
+  // play trial audio
+  PageAudioHandler.playAudio(getStimulus(layoutConfigMap)); 
+
   startTime = performance.now();
 
   const stim = taskStore().nextStimulus;
@@ -386,7 +389,7 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>) {
   }
 
   if (stim.trialType !== 'instructions') {
-    const buttonContainer = document.getElementById('jspsych-audio-multi-response-btngroup') as HTMLDivElement;
+    const buttonContainer = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
     const responseButtons = buttonContainer.children as HTMLCollectionOf<HTMLButtonElement>;
     const totalResponseButtons = responseButtons.length;
     const { buttonLayout } = taskStore();
@@ -529,8 +532,8 @@ export const afcStimulusTemplate = (
   }
 ) => {
   return {
-    type: jsPsychAudioMultiResponse,
-    response_allowed_while_playing: responseAllowed,
+    type: jsPsychHtmlMultiResponse,
+    //response_allowed_while_playing: responseAllowed,
     data: () => {
       const stim = taskStore().nextStimulus;
       let isPracticeTrial = stim.assessmentStage === 'practice_response'; 
@@ -542,8 +545,8 @@ export const afcStimulusTemplate = (
         isPracticeTrial: isPracticeTrial,
       };
     },
-    stimulus: () => getStimulus(layoutConfigMap),
-    prompt: () => getPrompt(layoutConfigMap),
+    stimulus: () => getPrompt(layoutConfigMap),
+    //prompt: () => getPrompt(layoutConfigMap),
     prompt_above_buttons: promptAboveButtons,
     keyboard_choices: () => {
       const stim = taskStore().nextStimulus;
