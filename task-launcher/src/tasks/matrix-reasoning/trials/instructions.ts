@@ -55,7 +55,8 @@ export const instructions = instructionData.map(data => {
         }, 
         on_finish: () => {
             jsPsych.data.addDataToLastTrial({
-                audioButtonPresses: PageAudioHandler.replayPresses
+                audioButtonPresses: PageAudioHandler.replayPresses, 
+                assessment_stage: 'instructions'
               }); 
         }
     }
