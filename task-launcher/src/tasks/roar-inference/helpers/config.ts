@@ -24,7 +24,11 @@ export const getLayoutConfig = (
   defaultConfig.prompt.useStimText = true;
   defaultConfig.stimText = {
     value: stimulus.item,
-    displayValue: undefined,
+    displayValue: `
+    <div class="lev-row-container roar-instruction-question">
+      ${stimulus.item}
+    </div>
+    `,
   };
   if (!defaultConfig.isInstructionTrial) {
     const prepChoices = prepareChoices(answer, distractors, true, trialType); 

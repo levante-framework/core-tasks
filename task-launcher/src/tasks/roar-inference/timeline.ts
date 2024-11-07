@@ -7,7 +7,9 @@ import { instructions } from './trials/instructions';
 import { jsPsych, initializeCat } from '../taskSetup';
 // trials
 //@ts-ignore
-import { afcStimulusTemplate, exitFullscreen, setupStimulus, taskFinished, getAudioResponse } from '../shared/trials';
+import { exitFullscreen, setupStimulus, taskFinished, getAudioResponse } from '../shared/trials';
+//@ts-ignore
+import {AfcStimulusInput, afcStimulusInference } from './trials/afcInference';
 import { getLayoutConfig } from './helpers/config';
 import { repeatInstructionsMessage } from '../shared/trials/repeatInstructions';
 
@@ -31,10 +33,10 @@ export default function buildRoarInferenceTimeline(config: Record<string, any>, 
 
   const timeline = [preloadTrials, initialTimeline, ...instructions];
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
+  console.log('corpus', corpus);
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {}; 
   const layoutConfigMap: Record<string, LayoutConfigType> = {};
-  const numItems = taskStore().numItems;
 
   let i = 0;
   for (const c of corpus) {
@@ -47,70 +49,18 @@ export default function buildRoarInferenceTimeline(config: Record<string, any>, 
     }
     i += 1;
   }
-  // const numStories = taskStore().numStories;
-  // const groupedStories = corpus.reduce<Record<string, StimulusType[]>>((acc, item) => {
-  //   if (!acc[item.storyId]) acc[item.storyId] = [];
-  //   acc[item.storyId].push(item);
-  //   return acc;
-  // }, {});
-  
-  // console.log('groupedStories:', groupedStories);
-  
-  // if (numStories) {
-  //   // Get an array of story IDs and shuffle them
-  //   const shuffledStoryIds = Object.keys(groupedStories).sort(() => 0.5 - Math.random());
-  //   const selectedStoryIds = shuffledStoryIds.slice(0, numStories); // Select up to numStories
-  
-  //   for (const storyId of selectedStoryIds) {
-  //     const storyItems = groupedStories[storyId];
-  
-  //     for (const c of storyItems) {
-  //       const { itemConfig, errorMessages } = getLayoutConfig(c, translations, mediaAssets, i);
-  //       layoutConfigMap[c.itemId] = { ...itemConfig, story: c.story, storyId: c.storyId };
-  //       console.log('layoutConfigMap:', layoutConfigMap[c.itemId]);
-  
-  //       if (errorMessages.length) {
-  //         validationErrorMap[c.itemId] = errorMessages.join('; ');
-  //       }
-  //       i += 1;
-  //     }
-  //   }
-  // } else {
-  //   for (const storyItems of Object.values(groupedStories)) {
-  //     for (const c of storyItems) {
-  //       const { itemConfig, errorMessages } = getLayoutConfig(c, translations, mediaAssets, i);
-  //       layoutConfigMap[c.itemId] = { ...itemConfig, story: c.story, storyId: c.storyId  };
-  //       console.log('layoutConfigMap:', layoutConfigMap[c.itemId]);
-  
-  //       if (errorMessages.length) {
-  //         validationErrorMap[c.itemId] = errorMessages.join('; ');
-  //       }
-  //       i += 1;
-  //     }
-  //   }
-  // }
 
-  const trialConfig = {
-    trialType: 'audio',
+  const trialConfig:AfcStimulusInput = {
     responseAllowed: true,
     promptAboveButtons: true,
     task: config.task,
     layoutConfigMap,
   };
 
-  const stimulusBlock = (config: Record<string, any>) => ({
+  const stimulusBlock = (config: AfcStimulusInput) => ({
     timeline: [
-      afcStimulusTemplate(config) 
+      afcStimulusInference(config) 
     ],
-    // true = execute normally, false = skip
-    conditional_function: () => {
-      if (taskStore().skipCurrentTrial) {
-        taskStore('skipCurrentTrial', false);
-        return false;
-      } else {
-        return true;
-      }
-    },
   });
 
   const repeatInstructions = {
@@ -129,7 +79,10 @@ export default function buildRoarInferenceTimeline(config: Record<string, any>, 
     }
   }
 
-  const numOfTrials = taskStore().totalTrials;
+  const numStories = taskStore().numStories;
+
+  const numOfTrials = numStories ?? taskStore().totalTrials;
+
   for (let i = 0; i < numOfTrials; i += 1) {
     if(i === 4){
       timeline.push(repeatInstructions); 
@@ -137,7 +90,6 @@ export default function buildRoarInferenceTimeline(config: Record<string, any>, 
     }
     timeline.push(setupStimulus);
     timeline.push(stimulusBlock(trialConfig));
-    timeline.push(ifRealTrialResponse); 
   }
 
   initializeCat();
