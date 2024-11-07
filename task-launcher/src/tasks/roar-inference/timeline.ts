@@ -33,7 +33,6 @@ export default function buildRoarInferenceTimeline(config: Record<string, any>, 
 
   const timeline = [preloadTrials, initialTimeline, ...instructions];
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
-  console.log('corpus', corpus);
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {}; 
   const layoutConfigMap: Record<string, LayoutConfigType> = {};
