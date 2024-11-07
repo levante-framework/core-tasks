@@ -17,6 +17,7 @@ export const getLayoutConfig = (stimulus: StimulusType, translations: Record<str
   if (!defaultConfig.isInstructionTrial) {
     const prepChoices = prepareChoices(answer, distractors, true, trialType);
     defaultConfig.prompt = {
+      ...defaultConfig.prompt,
       enabled: false,
       aboveStimulus: false,
     };

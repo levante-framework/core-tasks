@@ -117,13 +117,12 @@ function getStimulus(layoutConfigMap: Record<string, LayoutConfigType>) {
 
 const getPromptTemplate = (
   prompt: string,
+  promptClassList: string[],
   mediaSrc: string | null,
   mediaAlt: string,
   stimText: string | null | undefined,
   equalSizeStim: boolean,
   stimulusContainerClassList: string[],
-  useStimText?: boolean,
-  story?: string | null,
 ) => {
   let template = '<div class="lev-stimulus-container">';
 
@@ -133,23 +132,23 @@ const getPromptTemplate = (
     </button>
   `;
 
-  if (prompt && !useStimText) {
+  if (prompt) {
     template += `
-      <div class="lev-row-container instruction">
+      <div class=${promptClassList.join(' ')}>
         <p>${prompt}</p>
       </div>
     `;
   }
-  if(prompt && useStimText) {
-    template += `
-      <div class="lev-row-container instruction-no-border">
-        <p>${story}</p>
-      </div>
-      <div class="lev-row-container roar-instruction-question">
-        <p>${prompt}</p>
-      </div>
-    `;
-  }
+  // if(prompt && useStimText) {
+  //   template += `
+  //     <div class="lev-row-container instruction-no-border">
+  //       <p>${story}</p>
+  //     </div>
+  //     <div class="lev-row-container roar-instruction-question">
+  //       <p>${prompt}</p>
+  //     </div>
+  //   `;
+  // }
   if (mediaSrc || stimText) {
     let contentTemplate = '';
     if (mediaSrc) {
@@ -193,6 +192,7 @@ function getPrompt(layoutConfigMap: Record<string, LayoutConfigType>) {
     const {
       prompt: {
         enabled: promptEnabled,
+        classList: promptClassList,
         useStimText: useStimText,
       },
       classOverrides: {
@@ -206,22 +206,18 @@ function getPrompt(layoutConfigMap: Record<string, LayoutConfigType>) {
     const mediaAsset = stimulusTextConfig?.value
       ? mediaAssets.images[camelize(stimulusTextConfig.value)] || mediaAssets.images['blank']
       : null;
-    let prompt = promptEnabled ? t[camelize(stim.audioFile)] : null ;
-    if (promptEnabled && useStimText) {
-      prompt = stimulusTextConfig?.value;
-    }
+    const prompt = promptEnabled ? t[camelize(stim.audioFile)] : null ;
     const mediaSrc = showStimImage ? mediaAsset : null;
     const mediaAlt = stimulusTextConfig?.value || 'Stimulus';
     const stimText = stimulusTextConfig ? stimulusTextConfig.displayValue : null;
     return getPromptTemplate(
       prompt,
+      promptClassList,
       mediaSrc,
       mediaAlt,
       stimText,
       equalSizeStim,
       stimulusContainerClassList,
-      useStimText,
-      story,
     );
   }
 }

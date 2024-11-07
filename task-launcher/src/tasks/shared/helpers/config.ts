@@ -22,6 +22,7 @@ export const DEFAULT_LAYOUT_CONFIG: LayoutConfigType = {
   prompt: {
     enabled: true,
     aboveStimulus: true,
+    classList: ['lev-row-container', 'instruction'],
   },
   equalSizeStim: false,
   disableButtonsWhenAudioPlaying: false,

@@ -34,7 +34,11 @@ export default function buildRoarInferenceTimeline(config: Record<string, any>, 
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {}; 
   const layoutConfigMap: Record<string, LayoutConfigType> = {};
-  const numItems = taskStore().numItems;
+  const numStories = taskStore().numStories;
+
+  // const shuffledCorpus = shuffleStories(corpus, numStories, 'storyId');
+  // console.log('mark://', {shuffledCorpus, numStories});
+  console.log('mark://', 'shuffled corpus', {corpus});
 
   let i = 0;
   for (const c of corpus) {
@@ -100,7 +104,7 @@ export default function buildRoarInferenceTimeline(config: Record<string, any>, 
 
   const stimulusBlock = (config: Record<string, any>) => ({
     timeline: [
-      afcStimulusTemplate(config) 
+      afcStimulusTemplate(config),
     ],
     // true = execute normally, false = skip
     conditional_function: () => {

@@ -18,6 +18,7 @@ declare global {
     prompt: {
       enabled: boolean;
       aboveStimulus: boolean;
+      classList: string[];
       useStimText?: boolean;
     }
     equalSizeStim: boolean; // TODO Remove since classes declaration can handle this

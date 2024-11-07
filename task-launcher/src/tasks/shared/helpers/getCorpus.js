@@ -9,6 +9,7 @@ import { stringToNumberArray } from './stringToNumArray';
 import { dashToCamelCase } from './dashToCamelCase';
 import { camelize } from '@bdelab/roar-utils';
 import { shuffleStimulusTrials } from './randomizeStimulusBlocks';
+import { shuffleStories } from './shuffleRoarInferenceStories';
 import { taskStore } from './';
 
 export let corpora;
@@ -31,7 +32,7 @@ function containsLettersOrSlash(str) {
   return /[a-zA-Z\/]/.test(str);
 }
 
-const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
+const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus, task) => {
   let currTrialTypeBlock = '';
   let currPracticeAmount = 0;
 
@@ -144,9 +145,18 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
       totalTrials += 1;
     }
   });
+  console.log('mark://', 'data before shuffling', {stimulusData});
+
+  if (task === 'roar-inference') {
+    const numStories = taskStore().numStories || 5;
+    const notStoryTypes = ['introduction', 'practice'];
+    stimulusData = shuffleStories(stimulusData, numStories, 'storyId', notStoryTypes, 2);
+    return;
+  }
 
   if (!sequentialStimulus) {
     stimulusData = shuffleStimulusTrials(stimulusData);
+    return;
   }
 };
 
@@ -171,7 +181,7 @@ export const getCorpus = async (config) => {
         header: true,
         skipEmptyLines: true,
         complete: function (results) {
-          transformCSV(results.data, numOfPracticeTrials, sequentialStimulus);
+          transformCSV(results.data, numOfPracticeTrials, sequentialStimulus, task);
           resolve(results.data);
         },
         error: function (error) {
