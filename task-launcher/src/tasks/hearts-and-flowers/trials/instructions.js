@@ -1,4 +1,4 @@
-import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
+import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
 import { InputKey } from '../helpers/utils';
 import { setupReplayAudio, taskStore, replayButtonSvg, PageStateHandler, PageAudioHandler } from '../../shared/helpers'; 
@@ -101,9 +101,8 @@ function buildInstructionTrial(mascotImage, promptAudioKey, promptText, buttonTe
   }
   const replayButtonHtmlId = 'replay-btn-revisited';
   const trial = {
-    type: jsPsychAudioMultiResponse,
-    stimulus: mediaAssets.audio[promptAudioKey],
-    prompt:
+    type: jsPsychHtmlMultiResponse,
+    stimulus:
       `<div class="haf-stimulus-holder">
         <div class="lev-row-container header">
           <p>${promptText}</p>
@@ -128,10 +127,14 @@ function buildInstructionTrial(mascotImage, promptAudioKey, promptText, buttonTe
         ${buttonText.trim()}
       </button>`,],
     on_load: () => {
+      PageAudioHandler.playAudio(mediaAssets.audio[promptAudioKey]);
+
       const pageStateHandler = new PageStateHandler(promptAudioKey);
       setupReplayAudio(pageStateHandler);
     }, 
     on_finish: () => {
+      PageAudioHandler.stopAndDisconnectNode();
+      
       jsPsych.data.addDataToLastTrial({
         audioButtonPresses: PageAudioHandler.replayPresses
       });
