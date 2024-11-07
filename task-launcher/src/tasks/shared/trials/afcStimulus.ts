@@ -145,7 +145,7 @@ const getPromptTemplate = (
       <div class="lev-row-container instruction-no-border">
         <p>${story}</p>
       </div>
-      <div class="lev-row-container instruction-question">
+      <div class="lev-row-container roar-instruction-question">
         <p>${prompt}</p>
       </div>
     `;
