@@ -21,13 +21,10 @@ export const getLayoutConfig = (
   defaultConfig.classOverrides.buttonContainerClassList = ['lev-response-row', 'multi-stack'];
   defaultConfig.isInstructionTrial = stimulus.trialType === 'instructions';
   defaultConfig.prompt.enabled = true;
+  defaultConfig.prompt.useStimText = true;
   defaultConfig.stimText = {
     value: stimulus.item,
-    displayValue: `
-    <div class="lev-row-container roar-instruction-question">
-      ${stimulus.item}
-    </div>
-    `,
+    displayValue: undefined,
   };
   if (!defaultConfig.isInstructionTrial) {
     const prepChoices = prepareChoices(answer, distractors, true, trialType); 
