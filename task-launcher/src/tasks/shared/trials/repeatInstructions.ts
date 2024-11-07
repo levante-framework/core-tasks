@@ -12,7 +12,7 @@ export const repeatInstructionsMessage = {
         assessment_stage: 'instructions',
       };
     },
-    stimulus: () => mediaAssets.audio.generalRepeatInstructions,
+    stimulus: () => mediaAssets.audio.generalRepeatInstructions ?? mediaAssets.audio.nullAudio,
     prompt: () => {
       const t = taskStore().translations;
       return `<div class="lev-stimulus-container">
