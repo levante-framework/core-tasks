@@ -18,7 +18,6 @@ declare global {
     prompt: {
       enabled: boolean;
       aboveStimulus: boolean;
-      useStimText?: boolean;
     }
     equalSizeStim: boolean; // TODO Remove since classes declaration can handle this
     disableButtonsWhenAudioPlaying: boolean;

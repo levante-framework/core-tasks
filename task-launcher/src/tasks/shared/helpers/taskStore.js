@@ -77,7 +77,7 @@ export const setTaskStore = (config) => {
     stimulusSide: 'left',
     stimulusPosition: 0,
     isCorrect: false,
-    numStories: config.numStories,
+    inferenceNumStories: config.inferenceNumStories,
   });
 };
 

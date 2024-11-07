@@ -76,7 +76,7 @@ export const setSharedConfig = async (firekit: RoarAppkit, gameParams: GameParam
     age,
     maxTime, // maximum app duration in minutes
     storeItemId,
-    numStories,
+    inferenceNumStories,
   } = cleanParams;
 
   const config = {
@@ -101,7 +101,7 @@ export const setSharedConfig = async (firekit: RoarAppkit, gameParams: GameParam
     maxTime: maxTime || 100,
     storeItemId: storeItemId,
     isRoarApp: isRoarApp(firekit),
-    numStories: numStories ?? null,
+    inferenceNumStories: inferenceNumStories ?? null,
   };
 
   // default corpus if nothing is passed in
