@@ -58,8 +58,17 @@ function getStimulus(layoutConfigMap: Record<string, LayoutConfigType>) {
 const getPromptTemplate = (
   prompt: string,
   story?: string | null,
+  useStimText?: boolean,
 ) => {
-  let template = '<div class="lev-stimulus-container">';
+  let template = '';
+  if (prompt && !useStimText) {
+    template += `
+      <div class="lev-row-container instruction">
+        <p>${prompt}</p>
+      </div>
+    `;
+  }
+  if(prompt && useStimText) {
     template += `
       <div class="lev-row-container instruction-no-border">
         <p>${story}</p>
@@ -68,6 +77,7 @@ const getPromptTemplate = (
         <p>${prompt}</p>
       </div>
     `;
+  }
   template += '</div>';
   return template;
 };
@@ -76,20 +86,26 @@ function getPrompt(layoutConfigMap: Record<string, LayoutConfigType>) {
   // showItem itemIsImage
   const stim = taskStore().nextStimulus;
   const t = taskStore().translations;
+  
   let itemLayoutConfig = layoutConfigMap?.[stim.itemId];
 
   if (itemLayoutConfig) {
     const {
       prompt: {
         enabled: promptEnabled,
+        useStimText: useStimText,
       },
       story,
       stimText: stimulusTextConfig,
     } = itemLayoutConfig;
     let prompt = promptEnabled ? t[camelize(stim.audioFile)] : null ;
+    if (promptEnabled && useStimText) {
+      prompt = stimulusTextConfig?.value;
+    }
     return getPromptTemplate(
       prompt,
       story,
+      useStimText,
     );
   }
 }
