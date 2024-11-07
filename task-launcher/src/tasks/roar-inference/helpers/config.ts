@@ -29,7 +29,7 @@ export const getLayoutConfig = (
   if (!defaultConfig.isInstructionTrial) {
     const prepChoices = prepareChoices(answer, distractors, true, trialType); 
     defaultConfig.isImageButtonResponse = false;
-    defaultConfig.classOverrides.buttonClassList = ['inference-btn'];
+    defaultConfig.classOverrides.buttonClassList = ['roar-inference-btn'];
     defaultConfig.response = {
       target: prepChoices.target,
       displayValues: prepChoices.choices,
