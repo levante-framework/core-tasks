@@ -6,11 +6,11 @@ export function getAudioResponse(mediaAssets) {
     type: jsPsychAudioKeyboardResponse,
     stimulus: () => {
       if (taskStore().audioFeedback === 'binary' && taskStore().isCorrect) {
-        return mediaAssets.audio.coin;
+        return mediaAssets.audio.coin ?? mediaAssets.audio.nullAudio;
       }
 
       if (taskStore().audioFeedback === 'binary' && !taskStore().isCorrect) {
-        return mediaAssets.audio.fail;
+        return mediaAssets.audio.fail ?? mediaAssets.audio.nullAudio;
       }
 
       // neutral case

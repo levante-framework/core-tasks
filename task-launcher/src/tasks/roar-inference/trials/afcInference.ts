@@ -49,10 +49,8 @@ const handleStaggeredButtons = async (layoutConfig: LayoutConfigType, pageState:
 function getStimulus(layoutConfigMap: Record<string, LayoutConfigType>) {
   const stim = taskStore().nextStimulus;
   const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
-  if (itemLayoutConfig) {
-    const audioPath = itemLayoutConfig?.playAudioOnLoad ? camelize(stim.audioFile) : 'nullAudio';
-    return mediaAssets.audio[audioPath];
-  }
+  return mediaAssets.audio.nullAudio;
+
 }
 
 const getPromptTemplate = (
@@ -156,7 +154,7 @@ function handlePracticeButtonPress(
   let feedbackAudio;
   if (isCorrectChoice) {
     btn.classList.add('practice-correct');
-    feedbackAudio = mediaAssets.audio.feedbackGoodJob ?? mediaAssets.audio.nullAudio;;
+    feedbackAudio = mediaAssets.audio.nullAudio;;
     setTimeout(
       () => jsPsych.finishTrial({
         response: choice,
@@ -168,7 +166,7 @@ function handlePracticeButtonPress(
     );
   } else {
     btn.classList.add('practice-incorrect');
-    feedbackAudio = mediaAssets.audio.feedbackTryAgain ?? mediaAssets.audio.nullAudio;;
+    feedbackAudio = mediaAssets.audio.nullAudio;;
     // jspysch disables the buttons for some reason, so re-enable them
     setTimeout(() => enableBtns(practiceBtns), 500);
     incorrectPracticeResponses.push(choice);

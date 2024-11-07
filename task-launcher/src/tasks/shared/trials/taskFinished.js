@@ -27,7 +27,7 @@ export const taskFinished = (endMessage = 'taskFinished') => {
     button_html: '<button class="primary" style=margin-top:10%>Exit</button>',
     on_load: () => {
       if (mediaAssets.audio[endMessage]) {
-        PageAudioHandler.playAudio(mediaAssets.audio[endMessage])
+        PageAudioHandler.playAudio(mediaAssets.audio[endMessage] ?? mediaAssets.audio.nullAudio)
       }
     }
     // trial_duration: 1000,

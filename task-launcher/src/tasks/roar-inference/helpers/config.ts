@@ -26,6 +26,7 @@ export const getLayoutConfig = (
     value: stimulus.item,
     displayValue: undefined,
   };
+  defaultConfig.disableButtonsWhenAudioPlaying = true;
   if (!defaultConfig.isInstructionTrial) {
     const prepChoices = prepareChoices(answer, distractors, true, trialType); 
     defaultConfig.isImageButtonResponse = false;
