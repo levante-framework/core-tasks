@@ -51,6 +51,30 @@ button {
     }
   }
 
+  &.roar-inference-btn {
+    display: flex;
+    width: 40vh;
+    height: 9vh;
+    padding: 8px;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid black;
+    background: white;
+    border-radius: 32px;
+    // text
+    color: black;
+    font-family: 'Noto Sans';
+    font-size: 1.5rem;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+    cursor: pointer;
+  }
+  &.roar-inference-btn:hover {
+    background-color: gainsboro;
+  }
+
   &.secondary {
     @extend .button-base;
     background: $border-accent;
