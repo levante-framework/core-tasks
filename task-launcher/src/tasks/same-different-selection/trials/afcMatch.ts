@@ -1,4 +1,4 @@
-import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
+import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
 // @ts-ignore
 import { jsPsych } from '../../taskSetup';
@@ -27,7 +27,7 @@ function enableBtns(btnElements: HTMLButtonElement[]) {
 }
 
 export const afcMatch = {
-  type: jsPsychAudioMultiResponse,
+  type: jsPsychHtmlMultiResponse,
   data: () => {
     const stim = taskStore().nextStimulus;
     let isPracticeTrial = stim.assessmentStage === 'practice_response';
@@ -39,10 +39,6 @@ export const afcMatch = {
     };
   },
   stimulus: () => {
-    const stimulusAudio = camelize(taskStore().nextStimulus.audioFile);
-    return mediaAssets.audio[stimulusAudio];
-  },
-  prompt: () => {
     const prompt = camelize(taskStore().nextStimulus.audioFile);
     const t = taskStore().translations;
     return (
@@ -83,12 +79,15 @@ export const afcMatch = {
     // can select multiple cards and deselect them
     const stim = taskStore().nextStimulus;
     
+    const stimulusAudio = camelize(stim.audioFile);
+    PageAudioHandler.playAudio(mediaAssets.audio[stimulusAudio]);
+    
     startTime = performance.now();
 
     const audioFile = stim.audioFile;
     const pageStateHandler = new PageStateHandler(audioFile);
     setupReplayAudio(pageStateHandler);
-    const buttonContainer = document.getElementById('jspsych-audio-multi-response-btngroup') as HTMLDivElement;
+    const buttonContainer = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
     const responseBtns = Array.from(buttonContainer.children)
       .map(btnDiv => btnDiv.firstChild as HTMLButtonElement)
       .filter(btn => !!btn);
@@ -125,6 +124,8 @@ export const afcMatch = {
   response_ends_trial: false,
   on_finish: () => {
     const stim = taskStore().nextStimulus;
+
+    PageAudioHandler.stopAndDisconnectNode();
 
     const endTime = performance.now();
     const calculatedRt = endTime - startTime; 

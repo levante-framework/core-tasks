@@ -1,4 +1,4 @@
-import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
+import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
 //@ts-ignore
 import { PageStateHandler, prepareChoices, replayButtonSvg, setupReplayAudio, taskStore, PageAudioHandler, camelize } from '../../shared/helpers';
@@ -51,7 +51,7 @@ function handleButtonFeedback(btn: HTMLButtonElement, cards: HTMLButtonElement[]
 }
 
 export const stimulus = {
-  type: jsPsychAudioMultiResponse,
+  type: jsPsychHtmlMultiResponse,
   data: () => {
     const stim = taskStore().nextStimulus;
     let isPracticeTrial = stim.assessmentStage === 'practice_response';
@@ -63,10 +63,6 @@ export const stimulus = {
     };
   },
   stimulus: () => {
-    const stimulusAudio = taskStore().nextStimulus.audioFile;
-    return mediaAssets.audio[camelize(stimulusAudio)];
-  },
-  prompt: () => {
     const stim = taskStore().nextStimulus;
     const prompt = camelize(stim.audioFile);
     const t = taskStore().translations;
@@ -148,9 +144,11 @@ export const stimulus = {
   on_load: () => {
     startTime = performance.now();
     const audioFile = taskStore().nextStimulus.audioFile;
+    PageAudioHandler.playAudio(mediaAssets.audio[camelize(audioFile)]);
+
     const pageStateHandler = new PageStateHandler(audioFile);
     setupReplayAudio(pageStateHandler);
-    const buttonContainer = document.getElementById('jspsych-audio-multi-response-btngroup') as HTMLDivElement;
+    const buttonContainer = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
     buttonContainer.classList.add('lev-response-row');
     buttonContainer.classList.add('multi-4');
     const trialType = taskStore().nextStimulus.trialType; 
@@ -172,6 +170,8 @@ export const stimulus = {
     const stim = taskStore().nextStimulus;
     const choices = taskStore().choices;
     const endTime = performance.now();
+
+    PageAudioHandler.stopAndDisconnectNode();
 
     jsPsych.data.addDataToLastTrial({
       audioButtonPresses: PageAudioHandler.replayPresses

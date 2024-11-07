@@ -1,4 +1,4 @@
-import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
+import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
 // @ts-ignore
 import { taskStore, replayButtonSvg, PageStateHandler, PageAudioHandler, setupReplayAudio } from '../../shared/helpers';
@@ -9,15 +9,14 @@ const replayButtonHtmlId = 'replay-btn-revisited';
 
 // Switch to HTMLMultiResponse when we have video with audio
 export const videoInstructionsFit = {
-  type: jsPsychAudioMultiResponse,
+  type: jsPsychHtmlMultiResponse,
   data: () => {
     return {
       // save_trial: true,
       assessment_stage: 'instructions',
     };
   },
-  stimulus: () => mediaAssets.audio.mentalRotationTrainingInstruct3,
-  prompt: () => {
+  stimulus: () => {
     return `
       <div class="lev-stimulus-container">
         <button id="${replayButtonHtmlId}" class="replay">
@@ -37,17 +36,18 @@ export const videoInstructionsFit = {
     return `<button class="primary">${t.continueButtonText}</button>`;
   },
   keyboard_choices: 'NO_KEYS',
-  trial_ends_after_audio: false,
-  response_allowed_while_playing: false,
   on_load: () => {
     // const wrapper = document.getElementById('jspsych-audio-multi-response-prompt');
     // wrapper.style.display = 'flex';
     // wrapper.style.justifyContent = 'center';
+    PageAudioHandler.playAudio(mediaAssets.audio.mentalRotationTrainingInstruct3);
     
     const pageStateHandler = new PageStateHandler('mental-rotation-training-instruct3');
     setupReplayAudio(pageStateHandler);
   },
   on_finish: () => {
+    PageAudioHandler.stopAndDisconnectNode();
+
     jsPsych.data.addDataToLastTrial({
       audioButtonPresses: PageAudioHandler.replayPresses
     });
@@ -55,14 +55,13 @@ export const videoInstructionsFit = {
 };
 
 export const videoInstructionsMisfit = {
-  type: jsPsychAudioMultiResponse,
+  type: jsPsychHtmlMultiResponse,
   data: () => {
     return {
       assessment_stage: 'instructions',
     };
   },
-  stimulus: () => mediaAssets.audio.mentalRotationTrainingInstruct2,
-  prompt: () => {
+  stimulus: () => {
     return `
       <div class="lev-stimulus-container">
         <button id="${replayButtonHtmlId}" class="replay">
@@ -82,13 +81,15 @@ export const videoInstructionsMisfit = {
     return `<button class="primary">${t.continueButtonText}</button>`;
   },
   keyboard_choices: 'NO_KEYS',
-  trial_ends_after_audio: false,
-  response_allowed_while_playing: false,
   on_load: () => {
+    PageAudioHandler.playAudio(mediaAssets.audio.mentalRotationTrainingInstruct2); 
+    
     const pageStateHandler = new PageStateHandler('mental-rotation-training-instruct2');
     setupReplayAudio(pageStateHandler);
 },
 on_finish: () => {
+  PageAudioHandler.stopAndDisconnectNode();
+
   jsPsych.data.addDataToLastTrial({
     audioButtonPresses: PageAudioHandler.replayPresses
   });
@@ -96,14 +97,13 @@ on_finish: () => {
 };
 
 export const imageInstructions = {
-  type: jsPsychAudioMultiResponse,
+  type: jsPsychHtmlMultiResponse,
   data: () => {
     return {
       assessment_stage: 'instructions',
     };
   },
-  stimulus: () => mediaAssets.audio.mentalRotationInstruct1,
-  prompt: () => {
+  stimulus: () => {
     return `
       <div class="lev-stimulus-container">
         <button id="${replayButtonHtmlId}" class="replay">
@@ -120,13 +120,15 @@ export const imageInstructions = {
     return `<button class="primary">${t.continueButtonText}</button>`;
   },
   keyboard_choices: 'NO_KEYS',
-  trial_ends_after_audio: false,
-  response_allowed_while_playing: false,
   on_load: () => {
+    PageAudioHandler.playAudio(mediaAssets.audio.mentalRotationInstruct1); 
+
     const pageStateHandler = new PageStateHandler('mental-rotation-instruct1');
     setupReplayAudio(pageStateHandler);
 },
 on_finish: () => {
+  PageAudioHandler.stopAndDisconnectNode();
+
   jsPsych.data.addDataToLastTrial({
     audioButtonPresses: PageAudioHandler.replayPresses
   });
