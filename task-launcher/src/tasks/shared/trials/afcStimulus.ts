@@ -192,7 +192,7 @@ function getPrompt(layoutConfigMap: Record<string, LayoutConfigType>) {
     const mediaAsset = stimulusTextConfig?.value
       ? mediaAssets.images[camelize(stimulusTextConfig.value)] || mediaAssets.images['blank']
       : null;
-    let prompt = promptEnabled ? t[camelize(stim.audioFile)] : null ;
+    const prompt = promptEnabled ? t[camelize(stim.audioFile)] : null ;
     const mediaSrc = showStimImage ? mediaAsset : null;
     const mediaAlt = stimulusTextConfig?.value || 'Stimulus';
     const stimText = stimulusTextConfig ? stimulusTextConfig.displayValue : null;
