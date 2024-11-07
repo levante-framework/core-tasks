@@ -31,6 +31,8 @@ export const DEFAULT_LAYOUT_CONFIG: LayoutConfigType = {
   isStaggered: false,
   isImageButtonResponse: false,
   showStimImage: true,
+  story: '',
+  storyId:'',
   response: {
     target: '',
     displayValues: ['OK'],
@@ -50,6 +52,7 @@ const defaultCorpus: Record<string, string> = {
   trog: 'trog-item-bank',
   theoryOfMind: 'theory-of-mind-item-bank',
   vocab: 'vocab-item-bank',
+  roarInference: 'type_inference-demo-2024-11-11v3'
 };
 
 export const setSharedConfig = async (firekit: RoarAppkit, gameParams: GameParamsType, userParams: UserParamsType, displayElement: HTMLElement) => {
@@ -73,6 +76,7 @@ export const setSharedConfig = async (firekit: RoarAppkit, gameParams: GameParam
     age,
     maxTime, // maximum app duration in minutes
     storeItemId,
+    numStories,
   } = cleanParams;
 
   const config = {
@@ -96,7 +100,8 @@ export const setSharedConfig = async (firekit: RoarAppkit, gameParams: GameParam
     language: language ?? i18next.language,
     maxTime: maxTime || 100,
     storeItemId: storeItemId,
-    isRoarApp: isRoarApp(firekit)
+    isRoarApp: isRoarApp(firekit),
+    numStories: numStories ?? null,
   };
 
   // default corpus if nothing is passed in

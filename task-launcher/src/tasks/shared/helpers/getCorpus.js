@@ -63,11 +63,31 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
       assessmentStage: row.assessment_stage,
       chanceLevel: row.chance_level,
       itemId: row.item_id,
-      distractors: containsLettersOrSlash(row.response_alternatives)
-        ? row.response_alternatives.split(',')
-        : stringToNumberArray(row.response_alternatives),
+      distractors: (() => {
+        if (row.task === 'roar-inference') {
+          return row.response_alternatives.split(',').map((alt) => alt.replace(/"/g, ''));
+        } else {
+          return containsLettersOrSlash(row.response_alternatives)
+            ? row.response_alternatives.split(',')
+            : stringToNumberArray(row.response_alternatives);
+        }
+      })(),
       // difficulty: row.difficulty,
       audioFile: row.audio_file,
+      story: (() => {
+        if (row.task === 'roar-inference') {
+          return row.story;
+        } else {
+          return '';
+        }
+      })(),
+      storyId: (() => {
+        if (row.task === 'roar-inference') {
+          return row.story_id;
+        } else {
+          return '';
+        }
+      })(),
     };
     if (row.task === 'Mental Rotation') {
       newRow.item = camelize(newRow.item);
@@ -141,6 +161,7 @@ export const getCorpus = async (config) => {
     trog: `https://storage.googleapis.com/${task}/shared/corpora/${corpus}.csv`,
     theoryOfMind: `https://storage.googleapis.com/${task}/shared/corpora/${corpus}.csv`,
     vocab: `https://storage.googleapis.com/vocab-test/shared/corpora/${corpus}.csv`,
+    roarInference: `https://storage.googleapis.com/roar-inference/en/corpora/${corpus}.csv`,
   };
 
   function downloadCSV(url, i) {

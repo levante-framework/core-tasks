@@ -59,6 +59,15 @@
       row-gap: 10px;
     }
   }
+
+  &.multi-3{
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: center !important;
+      align-items: center !important;
+      gap: 1rem !important;
+  }
+
 }
 
 .lev-response-row-inline {

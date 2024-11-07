@@ -30,6 +30,6 @@ export function finishExperiment() {
             <footer>${t.generalFooter}</footer>
             <button id="exit-button" class="primary" style=margin-top:5%>Exit</button>
         </div>`,
-        PageAudioHandler.playAudio(mediaAssets.audio.taskFinished)
+        PageAudioHandler.playAudio(mediaAssets.audio.taskFinished ?? mediaAssets.audio.nullAudio)
     ); 
 }
