@@ -122,8 +122,6 @@ const getPromptTemplate = (
   stimText: string | null | undefined,
   equalSizeStim: boolean,
   stimulusContainerClassList: string[],
-  useStimText?: boolean,
-  story?: string | null,
 ) => {
   let template = '<div class="lev-stimulus-container">';
 
@@ -133,19 +131,9 @@ const getPromptTemplate = (
     </button>
   `;
 
-  if (prompt && !useStimText) {
+  if (prompt) {
     template += `
       <div class="lev-row-container instruction">
-        <p>${prompt}</p>
-      </div>
-    `;
-  }
-  if(prompt && useStimText) {
-    template += `
-      <div class="lev-row-container instruction-no-border">
-        <p>${story}</p>
-      </div>
-      <div class="lev-row-container roar-instruction-question">
         <p>${prompt}</p>
       </div>
     `;
@@ -187,18 +175,16 @@ function getPrompt(layoutConfigMap: Record<string, LayoutConfigType>) {
   // showItem itemIsImage
   const stim = taskStore().nextStimulus;
   const t = taskStore().translations;
-  let itemLayoutConfig = layoutConfigMap?.[stim.itemId];
+  const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
 
   if (itemLayoutConfig) {
     const {
       prompt: {
         enabled: promptEnabled,
-        useStimText: useStimText,
       },
       classOverrides: {
         stimulusContainerClassList
       },
-      story,
       equalSizeStim,
       showStimImage,
       stimText: stimulusTextConfig,
@@ -207,9 +193,6 @@ function getPrompt(layoutConfigMap: Record<string, LayoutConfigType>) {
       ? mediaAssets.images[camelize(stimulusTextConfig.value)] || mediaAssets.images['blank']
       : null;
     let prompt = promptEnabled ? t[camelize(stim.audioFile)] : null ;
-    if (promptEnabled && useStimText) {
-      prompt = stimulusTextConfig?.value;
-    }
     const mediaSrc = showStimImage ? mediaAsset : null;
     const mediaAlt = stimulusTextConfig?.value || 'Stimulus';
     const stimText = stimulusTextConfig ? stimulusTextConfig.displayValue : null;
@@ -220,8 +203,6 @@ function getPrompt(layoutConfigMap: Record<string, LayoutConfigType>) {
       stimText,
       equalSizeStim,
       stimulusContainerClassList,
-      useStimText,
-      story,
     );
   }
 }
@@ -295,7 +276,7 @@ function handlePracticeButtonPress(
   let feedbackAudio;
   if (isCorrectChoice) {
     btn.classList.add('practice-correct');
-    feedbackAudio = mediaAssets.audio.feedbackGoodJob ?? mediaAssets.audio.nullAudio;;
+    feedbackAudio = mediaAssets.audio.feedbackGoodJob;
     setTimeout(
       () => jsPsych.finishTrial({
         response: choice,
@@ -307,7 +288,7 @@ function handlePracticeButtonPress(
     );
   } else {
     btn.classList.add('practice-incorrect');
-    feedbackAudio = mediaAssets.audio.feedbackTryAgain ?? mediaAssets.audio.nullAudio;;
+    feedbackAudio = mediaAssets.audio.feedbackTryAgain;
     // jspysch disables the buttons for some reason, so re-enable them
     setTimeout(() => enableBtns(practiceBtns), 500);
     incorrectPracticeResponses.push(choice);

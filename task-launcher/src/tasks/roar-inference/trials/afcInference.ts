@@ -82,15 +82,11 @@ function getPrompt(layoutConfigMap: Record<string, LayoutConfigType>) {
     const {
       prompt: {
         enabled: promptEnabled,
-        useStimText: useStimText,
       },
       story,
       stimText: stimulusTextConfig,
     } = itemLayoutConfig;
     let prompt = promptEnabled ? t[camelize(stim.audioFile)] : null ;
-    if (promptEnabled && useStimText) {
-      prompt = stimulusTextConfig?.value;
-    }
     return getPromptTemplate(
       prompt,
       story,

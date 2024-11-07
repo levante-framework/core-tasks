@@ -1,6 +1,6 @@
 import _shuffle from 'lodash/shuffle';
 
-export function shuffleStories(corpus: StimulusType[], numStories: number | null, storyKey: string, typesToAvoid: string[], numItemsPerStory: number) {
+export function shuffleStories(corpus: StimulusType[], inferenceNumStories: number | null, storyKey: string, typesToAvoid: string[], numItemsPerStory: number) {
   const shuffledStoryCorpus = [];
   const storyMap: Record<string, boolean> = {};
   corpus.forEach(c => {
@@ -12,10 +12,9 @@ export function shuffleStories(corpus: StimulusType[], numStories: number | null
   });
   const stories = Object.keys(storyMap);
   const shuffledStories = _shuffle(stories);
-  for (let i = 0; i < (numStories ?? 15); i += 1) {
+  for (let i = 0; i < (inferenceNumStories ?? 15); i += 1) {
     const story = shuffledStories[i];
     const filteredByStory = corpus.filter(c => c[storyKey as keyof typeof c] === story);
-    // console.log('mark://', 'stories', {story, filteredByStory});
 
     // Get the line items of each selected story
     const shuffleFilteredStory = _shuffle(filteredByStory);

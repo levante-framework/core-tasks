@@ -18,10 +18,9 @@ export const getLayoutConfig = (
   const defaultConfig: LayoutConfigType = JSON.parse(JSON.stringify(DEFAULT_LAYOUT_CONFIG));
   defaultConfig.playAudioOnLoad = trialNumber < 3;
   defaultConfig.isPracticeTrial = stimulus.assessmentStage === 'practice_response';
-  defaultConfig.classOverrides.buttonContainerClassList = ['lev-response-row', 'multi-3'];
+  defaultConfig.classOverrides.buttonContainerClassList = ['lev-response-row', 'multi-stack'];
   defaultConfig.isInstructionTrial = stimulus.trialType === 'instructions';
   defaultConfig.prompt.enabled = true;
-  defaultConfig.prompt.useStimText = true;
   defaultConfig.stimText = {
     value: stimulus.item,
     displayValue: `

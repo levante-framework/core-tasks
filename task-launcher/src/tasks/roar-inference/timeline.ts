@@ -79,9 +79,9 @@ export default function buildRoarInferenceTimeline(config: Record<string, any>, 
     }
   }
 
-  const numStories = taskStore().numStories;
+  const inferenceNumStories = taskStore().inferenceNumStories;
 
-  const numOfTrials = numStories ?? taskStore().totalTrials;
+  const numOfTrials = inferenceNumStories ?? taskStore().totalTrials;
 
   for (let i = 0; i < numOfTrials; i += 1) {
     if(i === 4){
