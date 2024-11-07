@@ -92,6 +92,31 @@
     }
   }
 
+  &.instruction-no-border{
+    display: flex;
+    border: none;
+    border-radius: 0;
+    background-color: transparent;
+    color: black;
+    font-size: xx-large;
+    padding-bottom: 0;
+
+    p{
+      margin-bottom: 0;
+    }
+  }
+
+  &.instruction-question{
+    display: flex;
+    border: none;
+    border-radius: 0;
+    background-color: transparent;
+    color: black;
+    font-size: xx-large;
+    padding: 12px;
+    font-weight: bold;
+  }
+
   &.instruction-small {
     display: flex;
     padding: $lev-spacing-s;

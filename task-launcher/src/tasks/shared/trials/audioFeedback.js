@@ -14,7 +14,7 @@ export function getAudioResponse(mediaAssets) {
       }
 
       // neutral case
-      return mediaAssets.audio.select;
+      return mediaAssets.audio.select ?? mediaAssets.audio.nullAudio;
     },
     choices: 'NO_KEYS',
     trial_ends_after_audio: true,
