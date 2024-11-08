@@ -3,10 +3,8 @@ import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-respons
 import { jsPsych, isTouchScreen } from '../../taskSetup';
 import {
   arrowKeyEmojis,
-  setupReplayAudio,
   setSkipCurrentBlock,
   taskStore,
-  PageAudioHandler,
   PageStateHandler,
   //@ts-ignore
 } from '../../shared/helpers';
@@ -15,6 +13,7 @@ import _toNumber from 'lodash/toNumber';
 // @ts-ignore
 import { finishExperiment } from '../../shared/trials';
 import type { LayoutConfigTypeInference } from '../types/inferenceTypes';
+import { mediaAssets } from '../../..';
 
 // Previously chosen responses for current practice trial
 let practiceResponses = [];
@@ -24,7 +23,7 @@ const incorrectPracticeResponses: Array<string | null> = [];
 
 const handleStaggeredButtons = async (layoutConfig: LayoutConfigTypeInference, pageState: PageStateHandler) => {
   if (layoutConfig?.isStaggered) {
-      const parentResponseDiv = document.getElementById('jspsych-audio-multi-response-btngroup') as HTMLDivElement;
+      const parentResponseDiv = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
       const stimulusDuration = await pageState.getStimulusDurationMs();
 
       // Disable the replay button till this animation is finished
@@ -88,9 +87,9 @@ function getPrompt(layoutConfigMap: Record<string, LayoutConfigTypeInference>) {
       story,
       stimText: stimulusTextConfig,
     } = itemLayoutConfig;
-    let prompt = promptEnabled ? t[camelize(stim.audioFile)] : null ;
+    let prompt = '';
     if (promptEnabled && useStimText) {
-      prompt = stimulusTextConfig?.value;
+      prompt = stimulusTextConfig?.value ?? '';
     }
     return getPromptTemplate(
       prompt,
@@ -181,7 +180,7 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigTypeInference>) {
   const stim = taskStore().nextStimulus;
   const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
   const playAudioOnLoad = itemLayoutConfig?.playAudioOnLoad;
-  const pageStateHandler = new PageStateHandler(stim.audioFile, playAudioOnLoad);
+  const pageStateHandler = new PageStateHandler(stim.audioFile, playAudioOnLoad); // this falls to nullAudio
   const isPracticeTrial = stim.assessmentStage === 'practice_response';
   const isInstructionTrial = stim.trialType === 'instructions';
   // Handle the staggered buttons
@@ -233,13 +232,9 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigTypeInference>) {
       taskStore.transact('trialNumTotal', (oldVal: number) => oldVal + 1);
     }
   }
-
-  setupReplayAudio(pageStateHandler);
 }
 
 function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, LayoutConfigTypeInference>) {
-  PageAudioHandler.stopAndDisconnectNode();
-
   // note: nextStimulus is actually the current stimulus
   const stimulus = taskStore().nextStimulus;
   const itemLayoutConfig = layoutConfigMap?.[stimulus.itemId];
@@ -318,10 +313,6 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
       correct: false,
     });
   }
-
-  jsPsych.data.addDataToLastTrial({
-    audioButtonPresses: PageAudioHandler.replayPresses
-  });
 
   if (itemLayoutConfig.inCorrectTrialConfig.onIncorrectTrial === 'skip') {
     setSkipCurrentBlock(stimulus.trialType);
