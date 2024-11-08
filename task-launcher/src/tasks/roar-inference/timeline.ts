@@ -7,7 +7,7 @@ import { instructions } from './trials/instructions';
 import { jsPsych, initializeCat } from '../taskSetup';
 // trials
 //@ts-ignore
-import { exitFullscreen, setupStimulus, taskFinished, getAudioResponse } from '../shared/trials';
+import { exitFullscreen, setupStimulus, taskFinished } from '../shared/trials';
 //@ts-ignore
 import {AfcStimulusInput, afcStimulusInference } from './trials/afcInference';
 import { getLayoutConfig } from './helpers/config';
@@ -24,18 +24,6 @@ export default function buildRoarInferenceTimeline(config: Record<string, any>, 
 
   initTrialSaving(config);
   const initialTimeline = initTimeline(config);
-
-  const ifRealTrialResponse = {
-    timeline: [getAudioResponse(mediaAssets)],
-
-    conditional_function: () => {
-      const stim = taskStore().nextStimulus;
-      if (stim.assessmentStage === 'practice_response' || stim.trialType === 'instructions') {
-        return false;
-      }
-      return true;
-    },
-  };
 
   const timeline = [preloadTrials, initialTimeline, ...instructions];
   const corpus: InferenceStimulusType[] = taskStore().corpora.stimulus;
