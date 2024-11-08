@@ -19,6 +19,8 @@ import tomTimeline from './theory-of-mind/timeline';
 // @ts-ignore
 import introTimeline from './intro/timeline';
 import tROGTimeline from './trog/timeline';
+// @ts-ignore
+import inferenceTimeline from './roar-inference/timeline';
 
 // TODO: Abstract to import config from specifc task folder
 // Will allow for multiple devs to work on the repo without merge conflicts
@@ -97,5 +99,17 @@ export default {
     getTranslations: getTranslations,
     buildTaskTimeline: introTimeline,
     variants: {},
+  },
+  roarInference: {
+    setConfig: setSharedConfig,
+    getCorpus: getCorpus,
+    getTranslations: getTranslations,
+    buildTaskTimeline: inferenceTimeline,
+    variants: {
+      // example
+      inferenceKids: {
+        // does not need to have all properties, only what is different from base task
+      },
+    },
   },
 };
