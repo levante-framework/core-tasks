@@ -9,6 +9,7 @@ import { stringToNumberArray } from './stringToNumArray';
 import { dashToCamelCase } from './dashToCamelCase';
 import { camelize } from '@bdelab/roar-utils';
 import { shuffleStimulusTrials } from './randomizeStimulusBlocks';
+import {shuffleStories} from '../../roar-inference/helpers/shuffleRoarInferenceStories'
 import { taskStore } from './';
 
 export let corpora;
@@ -31,7 +32,7 @@ function containsLettersOrSlash(str) {
   return /[a-zA-Z\/]/.test(str);
 }
 
-const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
+const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus, task) => {
   let currTrialTypeBlock = '';
   let currPracticeAmount = 0;
 
@@ -63,11 +64,31 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
       assessmentStage: row.assessment_stage,
       chanceLevel: row.chance_level,
       itemId: row.item_id,
-      distractors: containsLettersOrSlash(row.response_alternatives)
-        ? row.response_alternatives.split(',')
-        : stringToNumberArray(row.response_alternatives),
+      distractors: (() => {
+        if (row.task === 'roar-inference') {
+          return row.response_alternatives.split(',').map((alt) => alt.replace(/"/g, ''));
+        } else {
+          return containsLettersOrSlash(row.response_alternatives)
+            ? row.response_alternatives.split(',')
+            : stringToNumberArray(row.response_alternatives);
+        }
+      })(),
       // difficulty: row.difficulty,
       audioFile: row.audio_file,
+      story: (() => {
+        if (row.task === 'roar-inference') {
+          return row.story;
+        } else {
+          return '';
+        }
+      })(),
+      storyId: (() => {
+        if (row.task === 'roar-inference') {
+          return row.story_id;
+        } else {
+          return '';
+        }
+      })(),
     };
     if (row.task === 'Mental Rotation') {
       newRow.item = camelize(newRow.item);
@@ -125,6 +146,13 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
     }
   });
 
+  if (task === 'roar-inference') {
+    const inferenceNumStories = taskStore().inferenceNumStories;
+    const notStoryTypes = ['introduction', 'practice'];
+    stimulusData = shuffleStories(stimulusData, inferenceNumStories, 'storyId', notStoryTypes, 1);
+    return;
+  }
+
   if (!sequentialStimulus) {
     stimulusData = shuffleStimulusTrials(stimulusData);
   }
@@ -141,6 +169,7 @@ export const getCorpus = async (config) => {
     trog: `https://storage.googleapis.com/${task}/shared/corpora/${corpus}.csv`,
     theoryOfMind: `https://storage.googleapis.com/${task}/shared/corpora/${corpus}.csv`,
     vocab: `https://storage.googleapis.com/vocab-test/shared/corpora/${corpus}.csv`,
+    roarInference: `https://storage.googleapis.com/roar-inference/en/corpora/${corpus}.csv`,
   };
 
   function downloadCSV(url, i) {
@@ -150,7 +179,7 @@ export const getCorpus = async (config) => {
         header: true,
         skipEmptyLines: true,
         complete: function (results) {
-          transformCSV(results.data, numOfPracticeTrials, sequentialStimulus);
+          transformCSV(results.data, numOfPracticeTrials, sequentialStimulus, task);
           resolve(results.data);
         },
         error: function (error) {
