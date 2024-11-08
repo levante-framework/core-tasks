@@ -17,7 +17,7 @@ export const getLayoutConfig = (
 ): GetConfigReturnType => {
   const { answer, distractors, trialType } = stimulus;
   const defaultConfig: LayoutConfigTypeInference = JSON.parse(JSON.stringify(DEFAULT_LAYOUT_CONFIG));
-  defaultConfig.playAudioOnLoad = trialNumber < 3;
+  defaultConfig.playAudioOnLoad = false;
   defaultConfig.isPracticeTrial = stimulus.assessmentStage === 'practice_response';
   defaultConfig.classOverrides.buttonContainerClassList = ['lev-response-row', 'multi-stack'];
   defaultConfig.isInstructionTrial = stimulus.trialType === 'instructions';
