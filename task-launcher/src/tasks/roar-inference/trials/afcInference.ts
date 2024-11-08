@@ -208,7 +208,7 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigTypeInference>) {
 
 
   if (stim.trialType !== 'instructions') {
-    const buttonContainer = document.getElementById('jspsych-audio-multi-response-btngroup') as HTMLDivElement;
+    const buttonContainer = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
     const responseButtons = buttonContainer.children as HTMLCollectionOf<HTMLButtonElement>;
     const totalResponseButtons = responseButtons.length;
     const { buttonLayout } = taskStore();
