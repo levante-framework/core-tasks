@@ -31,8 +31,6 @@ export const DEFAULT_LAYOUT_CONFIG: LayoutConfigType = {
   isStaggered: false,
   isImageButtonResponse: false,
   showStimImage: true,
-  story: '',
-  storyId:'',
   response: {
     target: '',
     displayValues: ['OK'],
