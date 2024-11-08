@@ -6,15 +6,15 @@ export function getAudioResponse(mediaAssets) {
     type: jsPsychAudioKeyboardResponse,
     stimulus: () => {
       if (taskStore().audioFeedback === 'binary' && taskStore().isCorrect) {
-        return mediaAssets.audio.coin ?? mediaAssets.audio.nullAudio;
+        return mediaAssets.audio.coin;
       }
 
       if (taskStore().audioFeedback === 'binary' && !taskStore().isCorrect) {
-        return mediaAssets.audio.fail ?? mediaAssets.audio.nullAudio;
+        return mediaAssets.audio.fail;
       }
 
       // neutral case
-      return mediaAssets.audio.select ?? mediaAssets.audio.nullAudio;
+      return mediaAssets.audio.select;
     },
     choices: 'NO_KEYS',
     trial_ends_after_audio: true,
