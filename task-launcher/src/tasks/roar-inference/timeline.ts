@@ -12,6 +12,12 @@ import { exitFullscreen, setupStimulus, taskFinished, getAudioResponse } from '.
 import {AfcStimulusInput, afcStimulusInference } from './trials/afcInference';
 import { getLayoutConfig } from './helpers/config';
 import { repeatInstructionsMessage } from '../shared/trials/repeatInstructions';
+import type { LayoutConfigTypeInference } from './types/inferenceTypes';
+
+type InferenceStimulusType = StimulusType & {
+  storyId: string;
+  story: string;
+};
 
 export default function buildRoarInferenceTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
@@ -32,10 +38,10 @@ export default function buildRoarInferenceTimeline(config: Record<string, any>, 
   };
 
   const timeline = [preloadTrials, initialTimeline, ...instructions];
-  const corpus: StimulusType[] = taskStore().corpora.stimulus;
+  const corpus: InferenceStimulusType[] = taskStore().corpora.stimulus;
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {}; 
-  const layoutConfigMap: Record<string, LayoutConfigType> = {};
+  const layoutConfigMap: Record<string, LayoutConfigTypeInference> = {};
 
   let i = 0;
   for (const c of corpus) {
@@ -83,13 +89,13 @@ export default function buildRoarInferenceTimeline(config: Record<string, any>, 
   const numOfTrials = inferenceNumStories ?? taskStore().totalTrials;
 
   for (let i = 0; i < numOfTrials; i += 1) {
-    if(i === 4){
+    if(i === 4) {
       timeline.push(repeatInstructions); 
       timeline.push(instructionsRepeated);
     }
     timeline.push(setupStimulus);
     timeline.push(stimulusBlock(trialConfig));
-    timeline.push(ifRealTrialResponse);
+    // timeline.push(ifRealTrialResponse);
   }
 
   initializeCat();

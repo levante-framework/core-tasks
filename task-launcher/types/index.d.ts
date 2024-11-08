@@ -18,7 +18,6 @@ declare global {
     prompt: {
       enabled: boolean;
       aboveStimulus: boolean;
-      useStimText?: boolean;
     }
     equalSizeStim: boolean; // TODO Remove since classes declaration can handle this
     disableButtonsWhenAudioPlaying: boolean;
@@ -28,8 +27,6 @@ declare global {
     isStaggered: boolean;
     isImageButtonResponse: boolean;
     showStimImage: boolean;
-    story: string;
-    storyId: string;
     response: {
       values: string[];
       displayValues: string[];
@@ -62,8 +59,6 @@ declare global {
     requiredSelections: number;
     blockIndex?: number;
     prompt: string;
-    story: string;
-    storyId: string;
   };
 
   type MediaAssetsType = {

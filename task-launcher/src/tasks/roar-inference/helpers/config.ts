@@ -2,9 +2,10 @@
 import { prepareChoices } from "../../shared/helpers/prepareChoices";
 import { DEFAULT_LAYOUT_CONFIG } from "../../shared/helpers/config";
 import { validateLayoutConfig } from "../../shared/helpers/validateLayoutConfig";
+import type { LayoutConfigTypeInference } from '../types/inferenceTypes';
 
 type GetConfigReturnType = {
-  itemConfig: LayoutConfigType;
+  itemConfig: LayoutConfigTypeInference;
   errorMessages: string[];
 }
 
@@ -15,8 +16,8 @@ export const getLayoutConfig = (
   trialNumber: number
 ): GetConfigReturnType => {
   const { answer, distractors, trialType } = stimulus;
-  const defaultConfig: LayoutConfigType = JSON.parse(JSON.stringify(DEFAULT_LAYOUT_CONFIG));
-  defaultConfig.playAudioOnLoad = trialNumber < 3;
+  const defaultConfig: LayoutConfigTypeInference = JSON.parse(JSON.stringify(DEFAULT_LAYOUT_CONFIG));
+  defaultConfig.playAudioOnLoad = false;
   defaultConfig.isPracticeTrial = stimulus.assessmentStage === 'practice_response';
   defaultConfig.classOverrides.buttonContainerClassList = ['lev-response-row', 'multi-stack'];
   defaultConfig.isInstructionTrial = stimulus.trialType === 'instructions';

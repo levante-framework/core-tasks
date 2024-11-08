@@ -1,5 +1,4 @@
-// For all tasks except: H&F, Memory Game, Same Different Selection
-import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
+import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 // @ts-ignore
 import { jsPsych, isTouchScreen } from '../../taskSetup';
 import {
@@ -12,10 +11,10 @@ import {
   //@ts-ignore
 } from '../../shared/helpers';
 import { camelize } from '../../shared/helpers/camelize';
-import { mediaAssets } from '../../..';
 import _toNumber from 'lodash/toNumber';
 // @ts-ignore
 import { finishExperiment } from '../../shared/trials';
+import type { LayoutConfigTypeInference } from '../types/inferenceTypes';
 
 // Previously chosen responses for current practice trial
 let practiceResponses = [];
@@ -23,7 +22,7 @@ let trialsOfCurrentType = 0;
 let keyboardFeedbackHandler: (ev: KeyboardEvent) => void;
 const incorrectPracticeResponses: Array<string | null> = [];
 
-const handleStaggeredButtons = async (layoutConfig: LayoutConfigType, pageState: PageStateHandler) => {
+const handleStaggeredButtons = async (layoutConfig: LayoutConfigTypeInference, pageState: PageStateHandler) => {
   if (layoutConfig?.isStaggered) {
       const parentResponseDiv = document.getElementById('jspsych-audio-multi-response-btngroup') as HTMLDivElement;
       const stimulusDuration = await pageState.getStimulusDurationMs();
@@ -45,13 +44,6 @@ const handleStaggeredButtons = async (layoutConfig: LayoutConfigType, pageState:
       
   }
 };
-
-function getStimulus(layoutConfigMap: Record<string, LayoutConfigType>) {
-  const stim = taskStore().nextStimulus;
-  const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
-  return mediaAssets.audio.nullAudio;
-
-}
 
 const getPromptTemplate = (
   prompt: string,
@@ -80,7 +72,7 @@ const getPromptTemplate = (
   return template;
 };
 
-function getPrompt(layoutConfigMap: Record<string, LayoutConfigType>) {
+function getPrompt(layoutConfigMap: Record<string, LayoutConfigTypeInference>) {
   // showItem itemIsImage
   const stim = taskStore().nextStimulus;
   const t = taskStore().translations;
@@ -109,7 +101,7 @@ function getPrompt(layoutConfigMap: Record<string, LayoutConfigType>) {
 }
 
 
-function getButtonChoices(layoutConfigMap: Record<string, LayoutConfigType>) {
+function getButtonChoices(layoutConfigMap: Record<string, LayoutConfigTypeInference>) {
   const stimulus = taskStore().nextStimulus;
   const itemLayoutConfig = layoutConfigMap?.[stimulus.itemId];
   if (itemLayoutConfig) {
@@ -122,7 +114,7 @@ function getButtonChoices(layoutConfigMap: Record<string, LayoutConfigType>) {
   }
 }
 
-function getButtonHtml(layoutConfigMap: Record<string, LayoutConfigType>) {
+function getButtonHtml(layoutConfigMap: Record<string, LayoutConfigTypeInference>) {
   const stimulus = taskStore().nextStimulus;
   const isPracticeTrial = stimulus.assessmentStage === 'practice_response';
   const itemLayoutConfig = layoutConfigMap?.[stimulus.itemId];
@@ -151,10 +143,8 @@ function handlePracticeButtonPress(
 ) {
   const choice = btn?.children?.length ? (btn.children[0] as HTMLImageElement).alt : btn.textContent;
   const isCorrectChoice = choice?.toString() === stim.answer?.toString();
-  let feedbackAudio;
   if (isCorrectChoice) {
     btn.classList.add('practice-correct');
-    feedbackAudio = mediaAssets.audio.nullAudio;;
     setTimeout(
       () => jsPsych.finishTrial({
         response: choice,
@@ -166,12 +156,10 @@ function handlePracticeButtonPress(
     );
   } else {
     btn.classList.add('practice-incorrect');
-    feedbackAudio = mediaAssets.audio.nullAudio;;
     // jspysch disables the buttons for some reason, so re-enable them
     setTimeout(() => enableBtns(practiceBtns), 500);
     incorrectPracticeResponses.push(choice);
   }
-  PageAudioHandler.playAudio(feedbackAudio);
 }
 
 function addKeyHelpers(el: HTMLElement, keyIndex: number) {
@@ -189,7 +177,7 @@ function addKeyHelpers(el: HTMLElement, keyIndex: number) {
   }
 }
 
-function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>) {
+function doOnLoad(layoutConfigMap: Record<string, LayoutConfigTypeInference>) {
   const stim = taskStore().nextStimulus;
   const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
   const playAudioOnLoad = itemLayoutConfig?.playAudioOnLoad;
@@ -220,7 +208,7 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>) {
 
 
   if (stim.trialType !== 'instructions') {
-    const buttonContainer = document.getElementById('jspsych-audio-multi-response-btngroup') as HTMLDivElement;
+    const buttonContainer = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
     const responseButtons = buttonContainer.children as HTMLCollectionOf<HTMLButtonElement>;
     const totalResponseButtons = responseButtons.length;
     const { buttonLayout } = taskStore();
@@ -249,7 +237,7 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>) {
   setupReplayAudio(pageStateHandler);
 }
 
-function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, LayoutConfigType>) {
+function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, LayoutConfigTypeInference>) {
   PageAudioHandler.stopAndDisconnectNode();
 
   // note: nextStimulus is actually the current stimulus
@@ -346,14 +334,14 @@ export interface AfcStimulusInput {
   responseAllowed: boolean;
   promptAboveButtons: boolean;
   task: string;
-  layoutConfigMap: Record<string, LayoutConfigType>;
+  layoutConfigMap: Record<string, LayoutConfigTypeInference>;
 }
 
 export const afcStimulusInference = (
   { responseAllowed, promptAboveButtons, task, layoutConfigMap }: AfcStimulusInput,
 ) => {
   return {
-    type: jsPsychAudioMultiResponse,
+    type: jsPsychHtmlMultiResponse,
     response_allowed_while_playing: responseAllowed,
     data: () => {
       const stim = taskStore().nextStimulus;
@@ -366,8 +354,7 @@ export const afcStimulusInference = (
         isPracticeTrial: isPracticeTrial,
       };
     },
-    stimulus: () => getStimulus(layoutConfigMap),
-    prompt: () => getPrompt(layoutConfigMap),
+    stimulus: () => getPrompt(layoutConfigMap),
     prompt_above_buttons: promptAboveButtons,
     button_choices: () => getButtonChoices(layoutConfigMap),
     button_html: () => getButtonHtml(layoutConfigMap),

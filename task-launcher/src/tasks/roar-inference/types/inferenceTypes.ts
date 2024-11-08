@@ -1,4 +1,4 @@
-type LayoutConfigTypeInference = {
+export type LayoutConfigTypeInference = {
     playAudioOnLoad: boolean; // stimulus will play audio (nullAudio if false)
     staggered: {
       enabled: boolean,
