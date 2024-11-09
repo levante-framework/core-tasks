@@ -174,14 +174,14 @@ function doOnLoad(mode: 'display' | 'input', isPractice: boolean, reverse: boole
   const t = taskStore().translations;
 
   if (!isPractice) {
-    const toast = document.getElementById('toast');
+    const toast = document.getElementById('lev-toast-default');
 
     // Avoid creating multiple toasts since we are adding it to the body
     // and it will not be removed from the DOM unlike jsPsych trials
     if (mode === 'input' && !toast) {
       const toast = document.createElement('div');
-      toast.id = 'toast';
-      toast.classList.add('toast');
+      toast.id = 'lev-toast-default';
+      toast.classList.add('lev-toast-default');
       toast.textContent = t.generalEncourage;
       document.body.appendChild(toast);
     }
@@ -214,12 +214,13 @@ function doOnLoad(mode: 'display' | 'input', isPractice: boolean, reverse: boole
 
           // start a timer for toast notification
           const toastTimer = setTimeout(() => {
-            const toast = document.getElementById('toast') as HTMLDivElement;
+            const toast = document.getElementById('lev-toast-default') as HTMLDivElement;
+            console.log('mark://', 'showing toast');
             toast.classList.add('show');
-          }, 10000);
+          }, 10);
 
           const hideToast = setTimeout(() => {
-            const toast = document.getElementById('toast') as HTMLDivElement;
+            const toast = document.getElementById('lev-toast-default') as HTMLDivElement;
             toast.classList.remove('show');
           }, 13000);
 
