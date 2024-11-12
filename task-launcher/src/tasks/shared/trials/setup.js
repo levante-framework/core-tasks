@@ -23,9 +23,10 @@ const setupTrials = setupData.map((trial, i) => {
     stimulus: `<div id='fixation-container'>
                 <p>+</p>
               </div>`,
+    //prompt: () => getPrompt(layoutConfigMap),
     prompt: '',
     choices: 'NO_KEYS',
-    trial_duration: 350,
+    trial_duration: 1,
 
     data: {
       task: 'fixation',

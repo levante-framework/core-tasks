@@ -47,6 +47,7 @@ const handleStaggeredButtons = async (layoutConfig: LayoutConfigType, pageState:
 };
 
 function getStimulus(layoutConfigMap: Record<string, LayoutConfigType>) {
+  console.log("getStimulus2");
   const stim = taskStore().nextStimulus;
   const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
   return mediaAssets.audio.nullAudio;
@@ -81,6 +82,7 @@ const getPromptTemplate = (
 };
 
 function getPrompt(layoutConfigMap: Record<string, LayoutConfigType>) {
+  console.log("getPrompt2");
   // showItem itemIsImage
   const stim = taskStore().nextStimulus;
   const t = taskStore().translations;
@@ -250,6 +252,7 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>) {
 }
 
 function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, LayoutConfigType>) {
+  console.log("doOnFinish2");
   PageAudioHandler.stopAndDisconnectNode();
 
   // note: nextStimulus is actually the current stimulus

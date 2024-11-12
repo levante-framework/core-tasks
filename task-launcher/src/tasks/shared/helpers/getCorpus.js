@@ -149,7 +149,7 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus, task) =
   if (task === 'roar-inference') {
     const inferenceNumStories = taskStore().inferenceNumStories;
     const notStoryTypes = ['introduction', 'practice'];
-    stimulusData = shuffleStories(stimulusData, inferenceNumStories, 'storyId', notStoryTypes, 1);
+    stimulusData = shuffleStories(stimulusData, inferenceNumStories, 'storyId', notStoryTypes, 2);
     return;
   }
 
