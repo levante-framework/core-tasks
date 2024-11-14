@@ -331,6 +331,10 @@ function addKeyHelpers(el: HTMLElement, keyIndex: number) {
 function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>) {
   // play trial audio
   PageAudioHandler.playAudio(getStimulus(layoutConfigMap)); 
+  if (PageAudioHandler.audioSource?.gainNode) {
+    PageAudioHandler.gainNode.gain.value = 1; 
+  }
+  
 
   startTime = performance.now();
 
