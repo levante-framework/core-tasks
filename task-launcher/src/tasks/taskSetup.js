@@ -11,9 +11,9 @@ export let cat;
 export const initializeCat = () => {
   cat = new Cat({
     method: 'MLE',
-    // minTheta: -6,
-    // maxTheta: 6,
-    itemSelect: taskStore().itemSelect,
+    minTheta: -6,
+    maxTheta: 6,
+    itemSelect: taskStore().itemSelect
   });
 };
 

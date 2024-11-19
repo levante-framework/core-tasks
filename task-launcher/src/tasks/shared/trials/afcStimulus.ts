@@ -1,7 +1,7 @@
 // For all tasks except: H&F, Memory Game, Same Different Selection
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
 // @ts-ignore
-import { jsPsych, isTouchScreen } from '../../taskSetup';
+import { jsPsych, isTouchScreen, cat } from '../../taskSetup';
 import {
   arrowKeyEmojis,
   replayButtonSvg,
@@ -439,6 +439,23 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
       target = response.target; 
       data.correct = responseValue === target;
     }
+
+    // update theta for CAT
+    console.log("theta: " + cat.theta); 
+    const zeta = {
+      a: 1, 
+      b: stimulus.difficulty, 
+      c: stimulus.chanceLevel, 
+      d: 1
+    }; 
+    //console.log("zeta:" + "\n" + zeta.a + "\n" + zeta.b + "\n" + zeta.c+ "\n" + zeta.d);
+    
+    if (!(Number.isNaN(zeta.b)) && (stimulus.assessmentStage !== 'practice_response')) {
+      const answer = data.correct ? 1 : 0;
+      //console.log("answer: " + answer);
+      cat.updateAbilityEstimate(zeta, answer)
+    }
+
 
     // check response and record it
     const responseType = data.button_response ? 'mouse' : 'keyboard';

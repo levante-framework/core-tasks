@@ -61,13 +61,14 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
       timeLimit: row.time_limit,
       answer: _toNumber(row.answer) || row.answer,
       assessmentStage: row.assessment_stage,
-      chanceLevel: row.chance_level,
+      chanceLevel: _toNumber(row.chance_level),
       itemId: row.item_id,
       distractors: containsLettersOrSlash(row.response_alternatives)
         ? row.response_alternatives.split(',')
         : stringToNumberArray(row.response_alternatives),
       // difficulty: row.difficulty,
       audioFile: row.audio_file,
+      difficulty: _toNumber(row.d || row.difficulty)
     };
     if (row.task === 'Mental Rotation') {
       newRow.item = camelize(newRow.item);
