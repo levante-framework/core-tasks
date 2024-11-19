@@ -550,7 +550,7 @@ export const afcStimulusTemplate = (
     type: jsPsychAudioMultiResponse,
     response_allowed_while_playing: responseAllowed,
     data: () => {
-      const stim = trial || taskStore.nextStimulus();
+      const stim = trial || taskStore().nextStimulus;
       let isPracticeTrial = stim.assessmentStage === 'practice_response'; 
       return {
         // not camelCase because firekit
@@ -564,7 +564,7 @@ export const afcStimulusTemplate = (
     prompt: () => getPrompt(layoutConfigMap, trial),
     prompt_above_buttons: promptAboveButtons,
     keyboard_choices: () => {
-      const stim = trial || taskStore.nextStimulus(); 
+      const stim = trial || taskStore().nextStimulus; 
 
       const itemLayoutConfig = layoutConfigMap[stim.itemId];
       return getKeyboardChoices(itemLayoutConfig);
@@ -574,7 +574,7 @@ export const afcStimulusTemplate = (
     on_load: () => doOnLoad(layoutConfigMap, trial),
     on_finish: (data: any) => doOnFinish(data, task, layoutConfigMap, trial),
     response_ends_trial: () => {
-      const stim = trial || taskStore.nextStimulus();
+      const stim = trial || taskStore().nextStimulus;
 
       return stim.assessmentStage !== 'practice_response';
     },
