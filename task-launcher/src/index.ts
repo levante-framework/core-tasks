@@ -7,7 +7,7 @@ import {
   setTaskStore
   // @ts-ignore
 } from './tasks/shared/helpers';
-import './styles/task.scss';
+import './styles/index.scss';
 import taskConfig from './tasks/taskConfig';
 import { RoarAppkit } from '@bdelab/roar-firekit';
 
