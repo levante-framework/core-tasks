@@ -6,7 +6,7 @@ import { initTrialSaving, initTimeline, createPreloadTrials, taskStore } from '.
 import { jsPsych, initializeCat } from '../taskSetup';
 // trials
 //@ts-ignore
-import { afcStimulusTemplate, exitFullscreen, setupStimulus, taskFinished } from '../shared/trials';
+import { afcStimulusTemplate, exitFullscreen, fixationOnly, setupStimulus, taskFinished } from '../shared/trials';
 import { getLayoutConfig } from './helpers/config';
 
 export default function buildTROGTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
@@ -46,6 +46,23 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
     layoutConfigMap,
   };
 
+  // get all instruction + practice trials
+  const instructionPracticeTrials: StimulusType[] = corpus.filter((trial) => {
+    return trial.assessmentStage === 'instructions' || trial.assessmentStage === 'practice_response';
+  });
+
+  instructionPracticeTrials.forEach((trial) => {
+    timeline.push(fixationOnly); 
+    timeline.push(afcStimulusTemplate(trialConfig, trial)); 
+  });
+
+  // remove instruction + practice trials from corpus so that they don't run during CAT block
+  const newCorpora = {
+    practice: taskStore().corpora.practice,
+    stimulus: corpus.filter(trial => !instructionPracticeTrials.includes(trial))
+  }
+  taskStore('corpora', newCorpora);
+
   const stimulusBlock = {
     timeline: [
       afcStimulusTemplate(trialConfig)
@@ -59,7 +76,8 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
       return true;
     },
   };
-  const numOfTrials = taskStore().totalTrials;
+
+  const numOfTrials = taskStore().totalTrials - instructionPracticeTrials.length;
   for (let i = 0; i < numOfTrials; i++) {
     timeline.push(setupStimulus);
     timeline.push(stimulusBlock);
