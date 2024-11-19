@@ -105,8 +105,8 @@ const handleStaggeredButtons = async (layoutConfig: LayoutConfigType, pageState:
   }
 };
 
-function getStimulus(layoutConfigMap: Record<string, LayoutConfigType>) {
-  const stim = taskStore().nextStimulus;
+function getStimulus(layoutConfigMap: Record<string, LayoutConfigType>, trial?: StimulusType) {
+  const stim = trial || taskStore().nextStimulus;
   const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
   if (itemLayoutConfig) {
     const audioPath = itemLayoutConfig?.playAudioOnLoad ? camelize(stim.audioFile) : 'nullAudio';
@@ -171,9 +171,9 @@ const getPromptTemplate = (
   return template;
 };
 
-function getPrompt(layoutConfigMap: Record<string, LayoutConfigType>) {
+function getPrompt(layoutConfigMap: Record<string, LayoutConfigType>, trial?: StimulusType) {
   // showItem itemIsImage
-  const stim = taskStore().nextStimulus;
+  const stim = trial || taskStore().nextStimulus;
   const t = taskStore().translations;
   const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
 
@@ -225,8 +225,8 @@ function generateImageChoices(choices: string[], target: string) {
   });
 }
 
-function getButtonChoices(layoutConfigMap: Record<string, LayoutConfigType>) {
-  const stimulus = taskStore().nextStimulus;
+function getButtonChoices(layoutConfigMap: Record<string, LayoutConfigType>, trial?: StimulusType) {
+  const stimulus = trial || taskStore().nextStimulus;
   const itemLayoutConfig = layoutConfigMap?.[stimulus.itemId];
   const { response } = itemLayoutConfig; 
   const target = response.target; 
@@ -244,8 +244,8 @@ function getButtonChoices(layoutConfigMap: Record<string, LayoutConfigType>) {
   }
 }
 
-function getButtonHtml(layoutConfigMap: Record<string, LayoutConfigType>) {
-  const stimulus = taskStore().nextStimulus;
+function getButtonHtml(layoutConfigMap: Record<string, LayoutConfigType>, trial?: StimulusType) {
+  const stimulus = trial || taskStore().nextStimulus;
   const isPracticeTrial = stimulus.assessmentStage === 'practice_response';
   const itemLayoutConfig = layoutConfigMap?.[stimulus.itemId];
   if (itemLayoutConfig) {
@@ -328,10 +328,10 @@ function addKeyHelpers(el: HTMLElement, keyIndex: number) {
   }
 }
 
-function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>) {
+function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: StimulusType) {
   startTime = performance.now();
 
-  const stim = taskStore().nextStimulus;
+  const stim = trial || taskStore().nextStimulus;
   const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
   const playAudioOnLoad = itemLayoutConfig?.playAudioOnLoad;
   const pageStateHandler = new PageStateHandler(stim.audioFile, playAudioOnLoad);
@@ -415,11 +415,11 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>) {
   setupReplayAudio(pageStateHandler);
 }
 
-function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, LayoutConfigType>) {
+function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, LayoutConfigType>, trial?: StimulusType) {
   PageAudioHandler.stopAndDisconnectNode();
 
   // note: nextStimulus is actually the current stimulus
-  const stimulus = taskStore().nextStimulus;
+  const stimulus = trial || taskStore().nextStimulus;
   const itemLayoutConfig = layoutConfigMap?.[stimulus.itemId];
   let responseValue = null
   let target = null; 
@@ -441,7 +441,7 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
     }
 
     // update theta for CAT
-    console.log("theta: " + cat.theta); 
+    //console.log("theta: " + cat.theta); 
     const zeta = {
       a: 1, 
       b: stimulus.difficulty, 
@@ -543,13 +543,14 @@ export const afcStimulusTemplate = (
     promptAboveButtons: boolean,
     task: string,
     layoutConfigMap: Record<string, LayoutConfigType>,
-  }
+  }, 
+  trial?: StimulusType
 ) => {
   return {
     type: jsPsychAudioMultiResponse,
     response_allowed_while_playing: responseAllowed,
     data: () => {
-      const stim = taskStore().nextStimulus;
+      const stim = trial || taskStore.nextStimulus();
       let isPracticeTrial = stim.assessmentStage === 'practice_response'; 
       return {
         // not camelCase because firekit
@@ -559,18 +560,23 @@ export const afcStimulusTemplate = (
         isPracticeTrial: isPracticeTrial,
       };
     },
-    stimulus: () => getStimulus(layoutConfigMap),
-    prompt: () => getPrompt(layoutConfigMap),
+    stimulus: () => getStimulus(layoutConfigMap, trial),
+    prompt: () => getPrompt(layoutConfigMap, trial),
     prompt_above_buttons: promptAboveButtons,
     keyboard_choices: () => {
-      const stim = taskStore().nextStimulus;
+      const stim = trial || taskStore.nextStimulus(); 
+
       const itemLayoutConfig = layoutConfigMap[stim.itemId];
       return getKeyboardChoices(itemLayoutConfig);
     },
-    button_choices: () => getButtonChoices(layoutConfigMap),
-    button_html: () => getButtonHtml(layoutConfigMap),
-    on_load: () => doOnLoad(layoutConfigMap),
-    on_finish: (data: any) => doOnFinish(data, task, layoutConfigMap),
-    response_ends_trial: () => (taskStore().nextStimulus.assessmentStage === 'practice_response' ? false : true),
+    button_choices: () => getButtonChoices(layoutConfigMap, trial),
+    button_html: () => getButtonHtml(layoutConfigMap, trial),
+    on_load: () => doOnLoad(layoutConfigMap, trial),
+    on_finish: (data: any) => doOnFinish(data, task, layoutConfigMap, trial),
+    response_ends_trial: () => {
+      const stim = trial || taskStore.nextStimulus();
+
+      return stim.assessmentStage !== 'practice_response';
+    },
   };
 };
