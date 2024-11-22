@@ -8,6 +8,7 @@ import { jsPsych, initializeCat } from '../taskSetup';
 //@ts-ignore
 import { afcStimulusTemplate, exitFullscreen, fixationOnly, setupStimulus, taskFinished } from '../shared/trials';
 import { getLayoutConfig } from './helpers/config';
+import { prepareCorpus } from '../shared/helpers/prepareCat';
 
 export default function buildTROGTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
@@ -46,22 +47,13 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
     layoutConfigMap,
   };
 
-  // get all instruction + practice trials
-  const instructionPracticeTrials: StimulusType[] = corpus.filter((trial) => {
-    return trial.assessmentStage === 'instructions' || trial.assessmentStage === 'practice_response';
-  });
+  // seperate out corpus to get cat/non-cat blocks
+  const corpora = prepareCorpus(corpus);
 
-  instructionPracticeTrials.forEach((trial) => {
+  corpora.instructionPractice.forEach((trial: StimulusType) => {
     timeline.push(fixationOnly); 
     timeline.push(afcStimulusTemplate(trialConfig, trial)); 
   });
-
-  // remove instruction + practice trials from corpus so that they don't run during CAT block
-  const newCorpora = {
-    practice: taskStore().corpora.practice,
-    stimulus: corpus.filter(trial => !instructionPracticeTrials.includes(trial))
-  }
-  taskStore('corpora', newCorpora);
 
   const stimulusBlock = {
     timeline: [
@@ -77,11 +69,17 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
     },
   };
 
-  const numOfTrials = taskStore().totalTrials - instructionPracticeTrials.length;
-  for (let i = 0; i < numOfTrials; i++) {
+  const numOfCatTrials = corpora.cat.length;
+  for (let i = 0; i < numOfCatTrials; i++) {
     timeline.push(setupStimulus);
     timeline.push(stimulusBlock);
   }
+
+  const unnormedBlock = {
+    timeline: corpora.unnormed.map((trial) => afcStimulusTemplate(trialConfig, trial))
+  }
+
+  timeline.push(unnormedBlock);
 
   initializeCat();
 
