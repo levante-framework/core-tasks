@@ -10,7 +10,7 @@ import { afcStimulusTemplate, taskFinished, exitFullscreen, setupStimulus, fixat
 import { imageInstructions, videoInstructionsFit, videoInstructionsMisfit } from './trials/instructions';
 import { getLayoutConfig } from './helpers/config';
 import { repeatInstructionsMessage } from '../shared/trials/repeatInstructions';
-import { prepareCorpus } from '../shared/helpers/prepareCat';
+import { prepareCorpus, selectNItems } from '../shared/helpers/prepareCat';
 
 export default function buildMentalRotationTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
@@ -82,11 +82,13 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
     }
   }; 
   
+  // push in instruction block
   corpora.instructionPractice.forEach((trial: StimulusType) => {
     timeline.push(fixationOnly); 
     timeline.push(afcStimulusTemplate(trialConfig, trial)); 
   });
 
+  // runs with adaptive algorithm if cat enabled
   const stimulusBlock = {
     timeline: [
       afcStimulusTemplate(trialConfig), 
@@ -111,10 +113,11 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
     timeline.push(setupStimulus);
     timeline.push(stimulusBlock);
   }
-
+  
+  const unnormedTrials: StimulusType[] = selectNItems(corpora.unnormed, 5); 
+  
   const unnormedBlock = {
-    timeline: corpora.unnormed.map((trial) => afcStimulusTemplate(trialConfig, trial)), 
-    randomize_order: true
+    timeline: unnormedTrials.map((trial) => afcStimulusTemplate(trialConfig, trial))
   }
   
   timeline.push(unnormedBlock);

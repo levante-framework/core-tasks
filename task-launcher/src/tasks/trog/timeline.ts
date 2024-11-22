@@ -8,7 +8,7 @@ import { jsPsych, initializeCat } from '../taskSetup';
 //@ts-ignore
 import { afcStimulusTemplate, exitFullscreen, fixationOnly, setupStimulus, taskFinished } from '../shared/trials';
 import { getLayoutConfig } from './helpers/config';
-import { prepareCorpus } from '../shared/helpers/prepareCat';
+import { prepareCorpus, selectNItems } from '../shared/helpers/prepareCat';
 
 export default function buildTROGTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
@@ -75,10 +75,12 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
     timeline.push(stimulusBlock);
   }
 
-  const unnormedBlock = {
-    timeline: corpora.unnormed.map((trial) => afcStimulusTemplate(trialConfig, trial))
-  }
+  // select up to 5 random items from unnormed portion of corpus 
+  const unnormedTrials: StimulusType[] = selectNItems(corpora.unnormed, 5); 
 
+  const unnormedBlock = {
+    timeline: unnormedTrials.map((trial) => afcStimulusTemplate(trialConfig, trial))
+  }
   timeline.push(unnormedBlock);
 
   initializeCat();
