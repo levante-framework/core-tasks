@@ -78,6 +78,7 @@ export const setTaskStore = (config) => {
     stimulusPosition: 0,
     isCorrect: false,
     inferenceNumStories: config.inferenceNumStories,
+    numItemsPerStory: config.numItemsPerStory,
   });
 };
 
