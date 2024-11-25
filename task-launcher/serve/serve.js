@@ -45,6 +45,7 @@ const age = urlParams.get('age') === null ? null : parseInt(urlParams.get('age')
 const maxTime = urlParams.get('maxTime') === null ? null : parseInt(urlParams.get('maxTime'), 10); // time limit for real trials
 const language = urlParams.get('lng');
 const pid = urlParams.get('pid');
+const inferenceNumStories = urlParams.get('inferenceNumStories') === null? null : parseInt(urlParams.get('inferenceNumStories'), 10);
 
 // Boolean parameters
 const keyHelpers = stringToBoolean(urlParams.get('keyHelpers')); // GK: shouldn't this default to false
@@ -85,7 +86,8 @@ async function startWebApp() {
       age,
       maxTime,
       storeItemId,
-      cat
+      cat,
+      inferenceNumStories,
     };
 
       const taskInfo = {
