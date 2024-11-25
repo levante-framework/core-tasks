@@ -1,8 +1,6 @@
 import { jsPsych } from '../../taskSetup';
 import cloneDeep from 'lodash/cloneDeep';
 import { computedScoreCallback } from '../../trog/helpers/scores';
-import { maxTimeReached } from './';
-import { taskStore } from './';
 
 export const initTrialSaving = (config) => {
   if (config.displayElement) {

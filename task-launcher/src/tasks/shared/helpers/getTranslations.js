@@ -1,7 +1,7 @@
 import Papa from 'papaparse';
 import 'regenerator-runtime/runtime';
 import { camelize } from '@bdelab/roar-utils';
-import { taskStore } from './';
+import { taskStore } from '../../../taskStore';
 
 let translations = {};
 
