@@ -19,8 +19,7 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {}; 
-  const { runCat } = taskStore(); 
-  let corpora; 
+  const { runCat } = taskStore();  
 
   const layoutConfigMap: Record<string, LayoutConfigType> = {};
   for (const c of corpus) {
@@ -69,7 +68,7 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
 
   if (runCat) {
     // seperate out corpus to get cat/non-cat blocks
-    corpora = prepareCorpus(corpus);
+    const corpora = prepareCorpus(corpus);
 
     // instruction block (non-cat)
     corpora.instructionPractice.forEach((trial: StimulusType) => {
