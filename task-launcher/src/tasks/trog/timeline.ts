@@ -3,7 +3,7 @@ import 'regenerator-runtime/runtime';
 //@ts-ignore
 import { initTrialSaving, initTimeline, createPreloadTrials, taskStore } from '../shared/helpers';
 //@ts-ignore
-import { jsPsych, initializeCat } from '../taskSetup';
+import { jsPsych, initializeCat, cat } from '../taskSetup';
 // trials
 //@ts-ignore
 import { afcStimulusTemplate, exitFullscreen, fixationOnly, setupStimulus, taskFinished } from '../shared/trials';
@@ -51,6 +51,7 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
 
   const stimulusBlock = {
     timeline: [
+      setupStimulus, 
       afcStimulusTemplate(trialConfig)
     ],
     // true = execute normally, false = skip
@@ -58,6 +59,9 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
       if (taskStore().skipCurrentTrial) {
         taskStore('skipCurrentTrial', false);
         return false;
+      }
+      if (runCat && cat._seMeasurement < 0.3) {
+        return false; 
       }
       return true;
     },
@@ -76,7 +80,6 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
     // cat block
     const numOfCatTrials = corpora.cat.length;
     for (let i = 0; i < numOfCatTrials; i++) {
-      timeline.push(setupStimulus);
       timeline.push(stimulusBlock);
     }
   
@@ -91,7 +94,6 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
   } else {
     const numOfTrials = taskStore().totalTrials;
     for (let i = 0; i < numOfTrials; i++) {
-      timeline.push(setupStimulus);
       timeline.push(stimulusBlock);
     }
   }

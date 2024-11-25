@@ -532,7 +532,7 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
 
   if (itemLayoutConfig.inCorrectTrialConfig.onIncorrectTrial === 'skip') {
     setSkipCurrentBlock(stimulus.trialType);
-  } else if ((taskStore().numIncorrect >= taskStore().maxIncorrect)) {
+  } else if ((taskStore().numIncorrect >= taskStore().maxIncorrect && !runCat)) {
     finishExperiment();
   }
 }

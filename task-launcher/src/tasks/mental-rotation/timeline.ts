@@ -71,6 +71,7 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
   // runs with adaptive algorithm if cat enabled
   const stimulusBlock = {
     timeline: [
+      setupStimulus,
       afcStimulusTemplate(trialConfig), 
       ifRealTrialResponse
     ],
@@ -79,9 +80,11 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
       if (taskStore().skipCurrentTrial) {
         taskStore('skipCurrentTrial', false);
         return false;
-      } else {
-        return true;
+      } 
+      if (runCat && cat._seMeasurement < 0.3) {
+        return false; 
       }
+      return true;
     },
   };
 
@@ -112,7 +115,6 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
       if (i === 2) {
         timeline.push(repeatInstructions)
       }
-      timeline.push(setupStimulus);
       timeline.push(stimulusBlock);
     }
 
@@ -129,7 +131,6 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
       if (i === 4) {
         timeline.push(repeatInstructions)
       }
-      timeline.push(setupStimulus);
       timeline.push(stimulusBlock);
     }
   }
