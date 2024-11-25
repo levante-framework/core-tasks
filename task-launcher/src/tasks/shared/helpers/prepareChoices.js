@@ -1,6 +1,6 @@
 import _shuffle from 'lodash/shuffle';
 import { fractionToMathML } from './';
-import { taskStore } from './';
+import { taskStore } from '../../../taskStore';
 
 export const prepareChoices = (target, distractors, randomizeOrder = true, trialType) => {
   let choices;

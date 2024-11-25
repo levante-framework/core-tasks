@@ -1,11 +1,12 @@
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
 import { mediaAssets } from '../../..';
 //@ts-ignore
-import { PageStateHandler, prepareChoices, replayButtonSvg, setupReplayAudio, taskStore, PageAudioHandler, camelize } from '../../shared/helpers';
+import { PageStateHandler, prepareChoices, replayButtonSvg, setupReplayAudio, PageAudioHandler, camelize } from '../../shared/helpers';
 //@ts-ignore
 import { finishExperiment } from '../../shared/trials';
 //@ts-ignore
 import { jsPsych } from '../../taskSetup';
+import { taskStore } from '../../../taskStore';
 
 const replayButtonHtmlId = 'replay-btn-revisited'; 
 let incorrectPracticeResponses: string[] = [];

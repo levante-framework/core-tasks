@@ -8,7 +8,8 @@ import { finishExperiment } from '../../shared/trials';
 import { mediaAssets } from '../../..';
 import { getMemoryGameType } from '../helpers/getMemoryGameType';
 //@ts-ignore
-import { taskStore, setupReplayAudio, PageAudioHandler, replayButtonSvg, PageStateHandler } from '../../shared/helpers';
+import { setupReplayAudio, PageAudioHandler, replayButtonSvg, PageStateHandler } from '../../shared/helpers';
+import { taskStore } from '../../../taskStore';
 
 type CorsiBlocksArgs = {
   mode: 'display' | 'input';

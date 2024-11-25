@@ -1,5 +1,5 @@
 import store from 'store2';
-import { taskStore } from './';
+import { taskStore } from '../../../taskStore';
 
 export const setSkipCurrentBlock = (skipTrialType) => {
   if (!!store.page.get('failedPrimaryTrials') && taskStore().numIncorrect >= 1) {

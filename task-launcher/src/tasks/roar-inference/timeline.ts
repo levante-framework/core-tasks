@@ -1,7 +1,7 @@
 import 'regenerator-runtime/runtime';
 // setup
 //@ts-ignore
-import { initTrialSaving, initTimeline, createPreloadTrials, taskStore } from '../shared/helpers';
+import { initTrialSaving, initTimeline, createPreloadTrials } from '../shared/helpers';
 import { instructions } from './trials/instructions';
 //@ts-ignore
 import { jsPsych, initializeCat } from '../taskSetup';
@@ -13,6 +13,7 @@ import {AfcStimulusInput, afcStimulusInference } from './trials/afcInference';
 import { getLayoutConfig } from './helpers/config';
 import { repeatInstructionsMessage } from '../shared/trials/repeatInstructions';
 import type { LayoutConfigTypeInference } from './types/inferenceTypes';
+import { taskStore } from '../../taskStore';
 
 
 export default function buildRoarInferenceTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {

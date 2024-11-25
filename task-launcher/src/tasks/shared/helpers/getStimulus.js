@@ -3,7 +3,7 @@ import { cat, jsPsych } from '../../taskSetup';
 import _isEqual from 'lodash/isEqual';
 import { mediaAssets } from '../../..';
 import { camelize } from '@bdelab/roar-utils';
-import { taskStore } from './';
+import { taskStore } from '../../../taskStore';
 
 // This function reads the corpus, calls the adaptive algorithm to select
 // the next item, stores it in a session variable, and removes it from the corpus

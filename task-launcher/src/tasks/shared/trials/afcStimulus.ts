@@ -7,7 +7,6 @@ import {
   replayButtonSvg,
   setupReplayAudio,
   setSkipCurrentBlock,
-  taskStore,
   PageAudioHandler,
   PageStateHandler,
   //@ts-ignore
@@ -17,7 +16,7 @@ import { mediaAssets } from '../../..';
 import _toNumber from 'lodash/toNumber';
 // @ts-ignore
 import { finishExperiment } from '.';
-import Cypress from 'cypress'; 
+import { taskStore } from '../../../taskStore'; 
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 // Previously chosen responses for current practice trial
