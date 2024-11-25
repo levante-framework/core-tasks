@@ -103,6 +103,7 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     stimulusPosition: 0,
     isCorrect: false,
     inferenceNumStories: config.inferenceNumStories,
+    numItemsPerStory: config.numItemsPerStory,
   });
 };
 
