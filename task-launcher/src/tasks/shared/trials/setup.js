@@ -20,13 +20,10 @@ const setupData = [
 const setupTrials = setupData.map((trial, i) => {
   return {
     type: jsPsychHTMLMultiResponse,
-    stimulus: `<div id='fixation-container'>
-                <p>+</p>
-              </div>`,
+    stimulus: trial.stimulus || `<div id='fixation-container'><p>+</p></div>`, // Default if not provided
     prompt: '',
     choices: 'NO_KEYS',
     trial_duration: 350,
-
     data: {
       task: 'fixation',
     },

@@ -62,7 +62,7 @@ export const setTaskStore = (config) => {
     // -----
     audioFeedback: config.audioFeedback,
     skipInstructions: config.skipInstructions,
-    corpusId: config.corpusId,
+    corpusId: config.corpus,
     buttonLayout: config.buttonLayout,
     task: config.task,
     maxIncorrect: config.maxIncorrect,

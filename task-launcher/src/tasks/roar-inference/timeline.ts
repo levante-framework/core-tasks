@@ -81,7 +81,10 @@ export default function buildRoarInferenceTimeline(config: Record<string, any>, 
       timeline.push(repeatInstructions); 
       timeline.push(instructionsRepeated);
     }
-    timeline.push(setupStimulus);
+    timeline.push({
+      ...setupStimulus,
+      stimulus: ``, // Custom stimulus
+    });
     timeline.push(stimulusBlock(trialConfig));
     // timeline.push(ifRealTrialResponse);
   }
