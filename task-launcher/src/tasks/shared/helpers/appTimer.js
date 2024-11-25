@@ -1,5 +1,5 @@
 import { finishExperiment } from '../trials';
-import { taskStore } from './';
+import { taskStore } from '../../../taskStore';
 // This feature allows the task configurator to set a time limit for the app,
 // configured via url and store variable maxTime.
 // Preload time is not included in the time limit

@@ -1,6 +1,6 @@
 import 'regenerator-runtime/runtime';
 //@ts-ignore
-import { initTrialSaving, initTimeline, taskStore } from '../shared/helpers';
+import { initTrialSaving, initTimeline } from '../shared/helpers';
 
 // setup
 //@ts-ignore
@@ -16,7 +16,8 @@ import { setupStimulus, exitFullscreen, taskFinished } from '../shared/trials';
 import { afcMatch } from './trials/afcMatch';
 import { stimulus } from './trials/stimulus';
 //@ts-ignore
-import { feedback, getAudioResponse } from '../shared/trials'; 
+import { feedback, getAudioResponse } from '../shared/trials';
+import { taskStore } from '../../taskStore';
 
 
 export default function buildSameDifferentTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
