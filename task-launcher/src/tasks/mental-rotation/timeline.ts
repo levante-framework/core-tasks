@@ -1,7 +1,7 @@
 import 'regenerator-runtime/runtime';
 // setup
 // @ts-ignore
-import { jsPsych, initializeCat } from '../taskSetup';
+import { jsPsych, initializeCat, cat } from '../taskSetup';
 // @ts-ignore
 import { createPreloadTrials, taskStore, initTrialSaving, initTimeline } from '../shared/helpers';
 // trials
@@ -14,6 +14,7 @@ import { prepareCorpus, selectNItems } from '../shared/helpers/prepareCat';
 
 export default function buildMentalRotationTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
+  const { runCat } = taskStore();
 
   initTrialSaving(config);
   const initialTimeline = initTimeline(config);
@@ -67,27 +68,6 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
     layoutConfigMap,
   };
 
-  // seperate out corpus to get cat/non-cat blocks
-  const corpora = prepareCorpus(corpus); 
-
-  const repeatInstructions = {
-    timeline: [
-      repeatInstructionsMessage,
-      imageInstructions,
-      videoInstructionsMisfit,
-      videoInstructionsFit,
-    ], 
-    conditional_function: () => {
-      return taskStore().numIncorrect >= 2
-    }
-  }; 
-  
-  // push in instruction block
-  corpora.instructionPractice.forEach((trial: StimulusType) => {
-    timeline.push(fixationOnly); 
-    timeline.push(afcStimulusTemplate(trialConfig, trial)); 
-  });
-
   // runs with adaptive algorithm if cat enabled
   const stimulusBlock = {
     timeline: [
@@ -105,22 +85,54 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
     },
   };
 
-  const numOfCatTrials = corpora.cat.length;
-  for (let i = 0; i < numOfCatTrials; i++) {
-    if(i === 2){
-      timeline.push(repeatInstructions)
+  const repeatInstructions = {
+    timeline: [
+      repeatInstructionsMessage,
+      imageInstructions,
+      videoInstructionsMisfit,
+      videoInstructionsFit,
+    ], 
+    conditional_function: () => {
+      return taskStore().numIncorrect >= 2
     }
-    timeline.push(setupStimulus);
-    timeline.push(stimulusBlock);
+  }; 
+
+  if (runCat) {
+    // seperate out corpus to get cat/non-cat blocks
+    const corpora = prepareCorpus(corpus); 
+
+    // push in instruction block
+    corpora.instructionPractice.forEach((trial: StimulusType) => {
+      timeline.push(fixationOnly); 
+      timeline.push(afcStimulusTemplate(trialConfig, trial)); 
+    });
+
+    const numOfCatTrials = corpora.cat.length;
+    for (let i = 0; i < numOfCatTrials; i++) {
+      if (i === 2) {
+        timeline.push(repeatInstructions)
+      }
+      timeline.push(setupStimulus);
+      timeline.push(stimulusBlock);
+    }
+
+    const unnormedTrials: StimulusType[] = selectNItems(corpora.unnormed, 5); 
+  
+    const unnormedBlock = {
+      timeline: unnormedTrials.map((trial) => afcStimulusTemplate(trialConfig, trial))
+    }
+  
+    timeline.push(unnormedBlock);
+  } else {
+    const numOfTrials = taskStore().totalTrials; 
+    for (let i = 0; i < numOfTrials; i++) {
+      if (i === 4) {
+        timeline.push(repeatInstructions)
+      }
+      timeline.push(setupStimulus);
+      timeline.push(stimulusBlock);
+    }
   }
-  
-  const unnormedTrials: StimulusType[] = selectNItems(corpora.unnormed, 5); 
-  
-  const unnormedBlock = {
-    timeline: unnormedTrials.map((trial) => afcStimulusTemplate(trialConfig, trial))
-  }
-  
-  timeline.push(unnormedBlock);
 
   initializeCat();
 

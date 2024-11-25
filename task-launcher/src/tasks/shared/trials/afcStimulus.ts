@@ -421,6 +421,7 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
   // note: nextStimulus is actually the current stimulus
   const stimulus = trial || taskStore().nextStimulus;
   const itemLayoutConfig = layoutConfigMap?.[stimulus.itemId];
+  const { runCat } = taskStore();
   let responseValue = null
   let target = null; 
   let responseIndex = null; 
@@ -440,20 +441,19 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
       data.correct = responseValue === target;
     }
 
+    if (runCat) {
     // update theta for CAT
-    //console.log("theta: " + cat.theta); 
-    const zeta = {
-      a: 1, 
-      b: stimulus.difficulty, 
-      c: stimulus.chanceLevel, 
-      d: 1
-    }; 
-    //console.log("zeta:" + "\n" + zeta.a + "\n" + zeta.b + "\n" + zeta.c+ "\n" + zeta.d);
+      const zeta = {
+        a: 1, // item discrimination (default value of 1)
+        b: stimulus.difficulty, // item difficulty (from corpus)
+        c: stimulus.chanceLevel, // probability of correct answer from guessing
+        d: 1 // max probability of correct response (default 1)
+      }; 
     
-    if (!(Number.isNaN(zeta.b)) && (stimulus.assessmentStage !== 'practice_response')) {
-      const answer = data.correct ? 1 : 0;
-      //console.log("answer: " + answer);
-      cat.updateAbilityEstimate(zeta, answer)
+      if (!(Number.isNaN(zeta.b)) && (stimulus.assessmentStage !== 'practice_response')) {
+        const answer = data.correct ? 1 : 0;
+        cat.updateAbilityEstimate(zeta, answer)
+      }
     }
 
 
