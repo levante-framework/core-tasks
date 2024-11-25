@@ -66,9 +66,9 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus) => {
       distractors: containsLettersOrSlash(row.response_alternatives)
         ? row.response_alternatives.split(',')
         : stringToNumberArray(row.response_alternatives),
-      // difficulty: row.difficulty,
       audioFile: row.audio_file,
-      difficulty: _toNumber(row.d || row.difficulty)
+      // difficulty must be undefined to avoid running cat
+      difficulty: taskStore().runCat ? _toNumber(row.d || row.difficulty) : undefined 
     };
     if (row.task === 'Mental Rotation') {
       newRow.item = camelize(newRow.item);
