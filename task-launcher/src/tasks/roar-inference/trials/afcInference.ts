@@ -4,7 +4,6 @@ import { jsPsych, isTouchScreen } from '../../taskSetup';
 import {
   arrowKeyEmojis,
   setSkipCurrentBlock,
-  taskStore,
   PageStateHandler,
   //@ts-ignore
 } from '../../shared/helpers';
@@ -13,7 +12,7 @@ import _toNumber from 'lodash/toNumber';
 // @ts-ignore
 import { finishExperiment } from '../../shared/trials';
 import type { LayoutConfigTypeInference } from '../types/inferenceTypes';
-import { mediaAssets } from '../../..';
+import { taskStore } from '../../../taskStore';
 
 // Previously chosen responses for current practice trial
 let practiceResponses = [];

@@ -10,7 +10,7 @@ import { dashToCamelCase } from './dashToCamelCase';
 import { camelize } from '@bdelab/roar-utils';
 import { shuffleStimulusTrials } from './randomizeStimulusBlocks';
 import {shuffleStories} from '../../roar-inference/helpers/shuffleRoarInferenceStories'
-import { taskStore } from './';
+import { taskStore } from '../../../taskStore';
 
 export let corpora;
 export const sdsPhaseCount = {}

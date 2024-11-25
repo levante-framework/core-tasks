@@ -70,4 +70,8 @@ declare global {
 
   type GameParamsType = Record<string, string>;
   type UserParamsType = Record<string, string>;
+
+  interface Window {
+    Cypress: any; // FIXME: Add explict type
+  }
 }

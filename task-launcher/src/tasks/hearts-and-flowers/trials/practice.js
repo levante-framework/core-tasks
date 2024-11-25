@@ -8,8 +8,9 @@ import {
   getCorrectInputSide,
   getStimulusLayout
 } from '../helpers/utils';
-import { PageStateHandler, setupReplayAudio, taskStore, PageAudioHandler } from '../../shared/helpers';
+import { PageStateHandler, setupReplayAudio, PageAudioHandler } from '../../shared/helpers';
 import { jsPsych } from '../../taskSetup';
+import { taskStore } from '../../../taskStore';
 
 
 /**
