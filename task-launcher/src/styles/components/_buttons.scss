@@ -104,8 +104,7 @@ button {
     &:hover {
       background: $bg-button-primary-hover;
       border-color: $border-button-primary-hover;
-      box-shadow: $button-secondary-box-shadow $border-button-primary-hover inset,
-        $button-secondary-inner-shadow $bg-button-secondary inset;
+      box-shadow: $bg-button-secondary inset;
     }
 
     &:active {
