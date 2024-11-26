@@ -143,7 +143,7 @@ function handlePracticeButtonPress(
   const choice = btn?.children?.length ? (btn.children[0] as HTMLImageElement).alt : btn.textContent;
   const isCorrectChoice = choice?.toString() === stim.answer?.toString();
   if (isCorrectChoice) {
-    btn.classList.add('practice-correct');
+    btn.classList.add('success-shadow');
     setTimeout(
       () => jsPsych.finishTrial({
         response: choice,
@@ -154,7 +154,7 @@ function handlePracticeButtonPress(
       1000,
     );
   } else {
-    btn.classList.add('practice-incorrect');
+    btn.classList.add('error-shadow');
     // jspysch disables the buttons for some reason, so re-enable them
     setTimeout(() => enableBtns(practiceBtns), 500);
     incorrectPracticeResponses.push(choice);

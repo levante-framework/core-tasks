@@ -29,7 +29,7 @@ function handleButtonFeedback(btn: HTMLButtonElement, cards: HTMLButtonElement[]
   const isCorrectChoice = choice.includes(answer); 
   let feedbackAudio;
   if (isCorrectChoice) {
-    btn.classList.add('practice-correct');
+    btn.classList.add('success-shadow');
     feedbackAudio = mediaAssets.audio.feedbackGoodJob;
     setTimeout(
       () => jsPsych.finishTrial({
@@ -41,7 +41,7 @@ function handleButtonFeedback(btn: HTMLButtonElement, cards: HTMLButtonElement[]
       1000,
     );
   } else {
-    btn.classList.add('practice-incorrect');
+    btn.classList.add('error-shadow');
     feedbackAudio = mediaAssets.audio.feedbackTryAgain;
     // renable buttons
     setTimeout(() => enableBtns(cards), 500);
