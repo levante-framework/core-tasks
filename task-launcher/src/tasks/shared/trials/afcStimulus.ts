@@ -283,7 +283,7 @@ function handlePracticeButtonPress(
   const isCorrectChoice = choice?.toString() === stim.answer?.toString();
   let feedbackAudio;
   if (isCorrectChoice) {
-    btn.classList.add('practice-correct');
+    btn.classList.add('success-shadow');
     feedbackAudio = mediaAssets.audio.feedbackGoodJob;
     setTimeout(
       () => jsPsych.finishTrial({
@@ -295,7 +295,7 @@ function handlePracticeButtonPress(
       1000,
     );
   } else {
-    btn.classList.add('practice-incorrect');
+    btn.classList.add('error-shadow');
     feedbackAudio = mediaAssets.audio.feedbackTryAgain;
     // jspysch disables the buttons for some reason, so re-enable them
     setTimeout(() => enableBtns(practiceBtns), 500);
