@@ -48,7 +48,7 @@ const pid = urlParams.get('pid');
 const inferenceNumStories = urlParams.get('inferenceNumStories') === null? null : parseInt(urlParams.get('inferenceNumStories'), 10);
 
 // Boolean parameters
-const keyHelpers = stringToBoolean(urlParams.get('keyHelpers')); // GK: shouldn't this default to false
+const keyHelpers = stringToBoolean(urlParams.get('keyHelpers'));
 const skipInstructions = stringToBoolean(urlParams.get('skip'), true);
 const sequentialPractice = stringToBoolean(urlParams.get('sequentialPractice'), true);
 const sequentialStimulus = stringToBoolean(urlParams.get('sequentialStimulus'), true);
