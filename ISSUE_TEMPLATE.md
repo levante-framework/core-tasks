@@ -8,22 +8,20 @@
 * [ ] Audio
 * [ ] Dashboard
 * [ ] Core Tasks
-  * [ ] Math
-  * [ ] Hearts and Flowers
-  * [ ] Trog
-  * [ ] Vocab
-  * [ ] Memory game
-  * [ ] Matrix reasoning
-  * [ ] Same different selection
-  * [ ] Theory of mind
-
+* [ ] Math
+* [ ] Hearts and Flowers
+* [ ] Trog
+* [ ] Vocab
+* [ ] Memory game
+* [ ] Matrix reasoning
+* [ ] Same different selection
+* [ ] Theory of mind
 
 ### Device and Resolution
 * [ ] Desktop
 * [ ] Tablet
 * [ ] Mobile
 * [ ] Other [Please specify below]
-
 <!-- Please add the device resolution if possible-->
 
 ### Browser
