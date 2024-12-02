@@ -71,6 +71,7 @@ export const setTaskStore = (config) => {
     isRoarApp: config.isRoarApp,
     numOfBlocks: config.userMetadata.age > 12 ? 9 : 4,
     blockSize: config.userMetadata.age > 12 ? 30 : 50,
+    stimulusBlocks: config.stimulusBlocks,
     gridSize: config.userMetadata.age > 12 ? 3 : 2,
     maxTimeReached: false,
     stimulus: 'heart',
@@ -78,7 +79,6 @@ export const setTaskStore = (config) => {
     stimulusPosition: 0,
     isCorrect: false,
     inferenceNumStories: config.inferenceNumStories,
-    numItemsPerStory: config.numItemsPerStory,
   });
 };
 

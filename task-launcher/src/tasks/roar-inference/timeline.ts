@@ -14,10 +14,6 @@ import { getLayoutConfig } from './helpers/config';
 import { repeatInstructionsMessage } from '../shared/trials/repeatInstructions';
 import type { LayoutConfigTypeInference } from './types/inferenceTypes';
 
-type InferenceStimulusType = StimulusType & {
-  storyId: string;
-  story: string;
-};
 
 export default function buildRoarInferenceTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
@@ -26,7 +22,7 @@ export default function buildRoarInferenceTimeline(config: Record<string, any>, 
   const initialTimeline = initTimeline(config);
 
   const timeline = [preloadTrials, initialTimeline, ...instructions];
-  const corpus: InferenceStimulusType[] = taskStore().corpora.stimulus;
+  const corpus: StimulusType[] = taskStore().corpora.stimulus;
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {}; 
   const layoutConfigMap: Record<string, LayoutConfigTypeInference> = {};
@@ -35,8 +31,8 @@ export default function buildRoarInferenceTimeline(config: Record<string, any>, 
   for (const c of corpus) {
     const { itemConfig, errorMessages } = getLayoutConfig(c, translations, mediaAssets, i);
     layoutConfigMap[c.itemId] = itemConfig;
-    layoutConfigMap[c.itemId].story = c.story;
-    layoutConfigMap[c.itemId].storyId = c.storyId;
+    layoutConfigMap[c.itemId].story = c.item;
+    layoutConfigMap[c.itemId].storyId = c.itemId;
     if (errorMessages.length) {
       validationErrorMap[c.itemId] = errorMessages.join('; ');
     }
