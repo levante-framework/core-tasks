@@ -75,7 +75,6 @@ export const setSharedConfig = async (firekit: RoarAppkit, gameParams: GameParam
     maxTime, // maximum app duration in minutes
     storeItemId,
     inferenceNumStories,
-    numItemsPerStory,
   } = cleanParams;
 
   const config = {
@@ -92,7 +91,7 @@ export const setSharedConfig = async (firekit: RoarAppkit, gameParams: GameParam
     buttonLayout: buttonLayout || 'default',
     numberOfTrials: numberOfTrials ?? 300,
     task: taskName ?? 'egma-math',
-    stimulusBlocks: stimulusBlocks ?? 3,
+    stimulusBlocks: stimulusBlocks ?? (taskName === 'roar-inference' ? 1 : 3),
     numOfPracticeTrials: numOfPracticeTrials ?? 2,
     maxIncorrect: maxIncorrect ?? 3,
     keyHelpers: keyHelpers ?? true,
@@ -101,7 +100,6 @@ export const setSharedConfig = async (firekit: RoarAppkit, gameParams: GameParam
     storeItemId: storeItemId,
     isRoarApp: isRoarApp(firekit),
     inferenceNumStories: inferenceNumStories ?? null,
-    numItemsPerStory: numItemsPerStory ?? 1,
   };
 
   // default corpus if nothing is passed in
