@@ -288,8 +288,8 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
     // corpusId and itemId fields are used by ROAR but not ROAD
     if (taskStore().storeItemId) {
       jsPsych.data.addDataToLastTrial({
-        corpusId: taskStore().corpusId,
-        itemId: stimulus.itemId,
+        corpus: taskStore().corpus,
+        itemId: stimulus.source + '-' + stimulus.origItemNum,
       });
     }
 
