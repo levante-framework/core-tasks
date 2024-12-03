@@ -91,7 +91,7 @@ export const setSharedConfig = async (firekit: RoarAppkit, gameParams: GameParam
     buttonLayout: buttonLayout || 'default',
     numberOfTrials: numberOfTrials ?? 300,
     task: taskName ?? 'egma-math',
-    stimulusBlocks: stimulusBlocks ?? (taskName === 'roar-inference' ? 1 : 3),
+    stimulusBlocks: stimulusBlocks ?? 3,
     numOfPracticeTrials: numOfPracticeTrials ?? 2,
     maxIncorrect: maxIncorrect ?? 3,
     keyHelpers: keyHelpers ?? true,
