@@ -19,8 +19,13 @@ export function shuffleStories(corpus: StimulusType[], inferenceNumStories: numb
     // Get the line items of each selected story
     const shuffleFilteredStory = _shuffle(filteredByStory);
     // Take the first two items of the shuffled story
-    for (let i = 0; i < numItemsPerStory; i += 1) {
-      shuffledStoryCorpus.push(shuffleFilteredStory[i]);
+    for (let j = 0; j < numItemsPerStory; j += 1) {
+      if (shuffleFilteredStory[j]) {
+        shuffledStoryCorpus.push({
+          ...shuffleFilteredStory[j],
+          itemId: `${shuffleFilteredStory[j].itemId}_${j + 1}`, // Append index to itemId
+        });
+      }
     }
   }
 
