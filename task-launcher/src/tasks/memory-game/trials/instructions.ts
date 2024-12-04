@@ -80,6 +80,7 @@ export const instructions = instructionData.map(data => {
             ]
         },
         keyboard_choices: 'NO_KEYS',
+        post_trial_gap: 500,
         on_load: () => {
             const pageStateHandler = new PageStateHandler(data.prompt);
             setupReplayAudio(pageStateHandler);
