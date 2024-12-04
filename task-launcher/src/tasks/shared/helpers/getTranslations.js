@@ -51,7 +51,7 @@ export const getTranslations = async (configLanguage) => {
   async function fetchData() {
     const urls = [
       // This will eventually be split into separate files
-      `https://storage.googleapis.com/road-dashboard/item-bank-translations-2024-11-07.csv`,
+      `https://storage.googleapis.com/road-dashboard/item-bank-translations.csv`,
     ];
 
     try {
