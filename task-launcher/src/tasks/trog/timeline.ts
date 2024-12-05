@@ -20,6 +20,7 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {}; 
   const { runCat } = taskStore();  
+  const { semThreshold } = taskStore();
 
   const layoutConfigMap: Record<string, LayoutConfigType> = {};
   for (const c of corpus) {
@@ -59,7 +60,7 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
         taskStore('skipCurrentTrial', false);
         return false;
       }
-      if (runCat && cat._seMeasurement < 0.3) {
+      if (runCat && cat._seMeasurement < semThreshold) {
         return false; 
       }
       return true;

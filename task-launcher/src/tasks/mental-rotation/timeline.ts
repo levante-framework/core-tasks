@@ -15,6 +15,7 @@ import { prepareCorpus, selectNItems } from '../shared/helpers/prepareCat';
 export default function buildMentalRotationTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
   const { runCat } = taskStore();
+  const { semThreshold } = taskStore();
 
   initTrialSaving(config);
   const initialTimeline = initTimeline(config);
@@ -81,7 +82,7 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
         taskStore('skipCurrentTrial', false);
         return false;
       } 
-      if (runCat && cat._seMeasurement < 0.3) {
+      if (runCat && cat._seMeasurement < semThreshold) {
         return false; 
       }
       return true;
