@@ -10,7 +10,6 @@ export class PageAudioHandler {
   static audioUri: string;
   static audioSource?: AudioBufferSourceNode;
   static replayPresses: number;
-  static gainNode: GainNode; 
 
   static stopAndDisconnectNode() {
     if (PageAudioHandler.audioSource) {
@@ -26,22 +25,9 @@ export class PageAudioHandler {
     // Returns a promise of the AudioBuffer of the preloaded file path.
     const audioBuffer = await jsPsych.pluginAPI.getAudioBuffer(audioUri);
     const audioSource: AudioBufferSourceNode = jsPsychAudioCtx.createBufferSource();
-    const userAgentString: any = window.navigator.userAgent; 
-    
-    // Detect Safari for autoplay blocking 
-    let safari = (userAgentString.indexOf("Safari") > -1) && (userAgentString.indexOf("Chrome") === -1); 
-    if (safari) {
-      const gainNode = jsPsychAudioCtx.createGain();
-      gainNode.gain.value = 1;
-      PageAudioHandler.gainNode = gainNode; 
-      audioSource.connect(gainNode);
-      gainNode.connect(jsPsychAudioCtx.destination);  
-    } else {
-      audioSource.connect(jsPsychAudioCtx.destination);
-    }
-
     PageAudioHandler.audioSource = audioSource;
     audioSource.buffer = audioBuffer;
+    audioSource.connect(jsPsychAudioCtx.destination);
     audioSource.onended = () => {
       // PageAudioHandler.stopAndDisconnectNode();
       if (onEnded) {
