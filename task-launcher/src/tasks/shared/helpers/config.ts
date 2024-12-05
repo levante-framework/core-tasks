@@ -2,6 +2,7 @@
 import _omitBy from 'lodash/omitBy';
 import _isNull from 'lodash/isNull';
 import _isUndefined from 'lodash/isUndefined';
+import _toNumber from 'lodash/toNumber';
 import i18next from 'i18next';
 import { isRoarApp } from './isRoarApp';
 import { camelize } from './camelize';
@@ -74,7 +75,9 @@ export const setSharedConfig = async (firekit: RoarAppkit, gameParams: GameParam
     age,
     maxTime, // maximum app duration in minutes
     storeItemId,
+    cat,
     inferenceNumStories,
+    semThreshold
   } = cleanParams;
 
   const config = {
@@ -99,7 +102,9 @@ export const setSharedConfig = async (firekit: RoarAppkit, gameParams: GameParam
     maxTime: maxTime || 100,
     storeItemId: storeItemId,
     isRoarApp: isRoarApp(firekit),
+    cat: cat ?? false,
     inferenceNumStories: inferenceNumStories ?? null,
+    semThreshold: semThreshold
   };
 
   // default corpus if nothing is passed in
