@@ -1,18 +1,21 @@
 import 'regenerator-runtime/runtime';
 // setup
 // @ts-ignore
-import { jsPsych, initializeCat } from '../taskSetup';
+import { jsPsych, initializeCat, cat } from '../taskSetup';
 // @ts-ignore
 import { createPreloadTrials, taskStore, initTrialSaving, initTimeline } from '../shared/helpers';
 // trials
 // @ts-ignore
-import { afcStimulusTemplate, taskFinished, exitFullscreen, setupStimulus, getAudioResponse } from '../shared/trials';
+import { afcStimulusTemplate, taskFinished, exitFullscreen, setupStimulus, fixationOnly, getAudioResponse } from '../shared/trials';
 import { imageInstructions, videoInstructionsFit, videoInstructionsMisfit } from './trials/instructions';
 import { getLayoutConfig } from './helpers/config';
 import { repeatInstructionsMessage } from '../shared/trials/repeatInstructions';
+import { prepareCorpus, selectNItems } from '../shared/helpers/prepareCat';
 
 export default function buildMentalRotationTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
+  const { runCat } = taskStore();
+  const { semThreshold } = taskStore();
 
   initTrialSaving(config);
   const initialTimeline = initTimeline(config);
@@ -66,6 +69,26 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
     layoutConfigMap,
   };
 
+  // runs with adaptive algorithm if cat enabled
+  const stimulusBlock = {
+    timeline: [
+      setupStimulus,
+      afcStimulusTemplate(trialConfig), 
+      ifRealTrialResponse
+    ],
+    // true = execute normally, false = skip
+    conditional_function: () => {
+      if (taskStore().skipCurrentTrial) {
+        taskStore('skipCurrentTrial', false);
+        return false;
+      } 
+      if (runCat && cat._seMeasurement < semThreshold) {
+        return false; 
+      }
+      return true;
+    },
+  };
+
   const repeatInstructions = {
     timeline: [
       repeatInstructionsMessage,
@@ -76,31 +99,41 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
     conditional_function: () => {
       return taskStore().numIncorrect >= 2
     }
-  }
+  }; 
 
-  const stimulusBlock = {
-    timeline: [
-      afcStimulusTemplate(trialConfig), 
-      ifRealTrialResponse
-    ],
-    // true = execute normally, false = skip
-    conditional_function: () => {
-      if (taskStore().skipCurrentTrial) {
-        taskStore('skipCurrentTrial', false);
-        return false;
-      } else {
-        return true;
+  if (runCat) {
+    // seperate out corpus to get cat/non-cat blocks
+    const corpora = prepareCorpus(corpus); 
+
+    // push in instruction block
+    corpora.instructionPractice.forEach((trial: StimulusType) => {
+      timeline.push(fixationOnly); 
+      timeline.push(afcStimulusTemplate(trialConfig, trial)); 
+    });
+
+    const numOfCatTrials = corpora.cat.length;
+    for (let i = 0; i < numOfCatTrials; i++) {
+      if (i === 2) {
+        timeline.push(repeatInstructions)
       }
-    },
-  };
-
-  const numOfTrials = taskStore().totalTrials;
-  for (let i = 0; i < numOfTrials; i++) {
-    if(i === 4){
-      timeline.push(repeatInstructions)
+      timeline.push(stimulusBlock);
     }
-    timeline.push(setupStimulus);
-    timeline.push(stimulusBlock);
+
+    const unnormedTrials: StimulusType[] = selectNItems(corpora.unnormed, 5); 
+  
+    const unnormedBlock = {
+      timeline: unnormedTrials.map((trial) => afcStimulusTemplate(trialConfig, trial))
+    }
+  
+    timeline.push(unnormedBlock);
+  } else {
+    const numOfTrials = taskStore().totalTrials; 
+    for (let i = 0; i < numOfTrials; i++) {
+      if (i === 4) {
+        timeline.push(repeatInstructions)
+      }
+      timeline.push(stimulusBlock);
+    }
   }
 
   initializeCat();

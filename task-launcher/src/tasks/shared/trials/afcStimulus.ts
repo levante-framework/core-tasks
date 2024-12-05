@@ -1,7 +1,7 @@
 // For all tasks except: H&F, Memory Game, Same Different Selection
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 // @ts-ignore
-import { jsPsych, isTouchScreen } from '../../taskSetup';
+import { jsPsych, isTouchScreen, cat } from '../../taskSetup';
 import {
   arrowKeyEmojis,
   replayButtonSvg,
@@ -105,8 +105,8 @@ const handleStaggeredButtons = async (layoutConfig: LayoutConfigType, pageState:
   }
 };
 
-function getStimulus(layoutConfigMap: Record<string, LayoutConfigType>) {
-  const stim = taskStore().nextStimulus;
+function getStimulus(layoutConfigMap: Record<string, LayoutConfigType>, trial?: StimulusType) {
+  const stim = trial || taskStore().nextStimulus;
   const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
   if (itemLayoutConfig) {
     const audioPath = itemLayoutConfig?.playAudioOnLoad ? camelize(stim.audioFile) : 'nullAudio';
@@ -122,6 +122,7 @@ const getPromptTemplate = (
   stimText: string | null | undefined,
   equalSizeStim: boolean,
   stimulusContainerClassList: string[],
+  promptClassList: string[]
 ) => {
   let template = '<div class="lev-stimulus-container">';
 
@@ -132,8 +133,13 @@ const getPromptTemplate = (
   `;
 
   if (prompt) {
+    let containerClass = "lev-row-container instruction"; 
+    if (promptClassList) {
+      containerClass = promptClassList.join(' ');
+    } 
+
     template += `
-      <div class="lev-row-container instruction">
+      <div class="${containerClass}">
         <p>${prompt}</p>
       </div>
     `;
@@ -171,9 +177,9 @@ const getPromptTemplate = (
   return template;
 };
 
-function getPrompt(layoutConfigMap: Record<string, LayoutConfigType>) {
+function getPrompt(layoutConfigMap: Record<string, LayoutConfigType>, trial?: StimulusType) {
   // showItem itemIsImage
-  const stim = taskStore().nextStimulus;
+  const stim = trial || taskStore().nextStimulus;
   const t = taskStore().translations;
   const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
 
@@ -183,7 +189,8 @@ function getPrompt(layoutConfigMap: Record<string, LayoutConfigType>) {
         enabled: promptEnabled,
       },
       classOverrides: {
-        stimulusContainerClassList
+        stimulusContainerClassList,
+        promptClassList
       },
       equalSizeStim,
       showStimImage,
@@ -203,6 +210,7 @@ function getPrompt(layoutConfigMap: Record<string, LayoutConfigType>) {
       stimText,
       equalSizeStim,
       stimulusContainerClassList,
+      promptClassList
     );
   }
 }
@@ -225,8 +233,8 @@ function generateImageChoices(choices: string[], target: string) {
   });
 }
 
-function getButtonChoices(layoutConfigMap: Record<string, LayoutConfigType>) {
-  const stimulus = taskStore().nextStimulus;
+function getButtonChoices(layoutConfigMap: Record<string, LayoutConfigType>, trial?: StimulusType) {
+  const stimulus = trial || taskStore().nextStimulus;
   const itemLayoutConfig = layoutConfigMap?.[stimulus.itemId];
   const { response } = itemLayoutConfig; 
   const target = response.target; 
@@ -244,8 +252,8 @@ function getButtonChoices(layoutConfigMap: Record<string, LayoutConfigType>) {
   }
 }
 
-function getButtonHtml(layoutConfigMap: Record<string, LayoutConfigType>) {
-  const stimulus = taskStore().nextStimulus;
+function getButtonHtml(layoutConfigMap: Record<string, LayoutConfigType>, trial?: StimulusType) {
+  const stimulus = trial || taskStore().nextStimulus;
   const isPracticeTrial = stimulus.assessmentStage === 'practice_response';
   const itemLayoutConfig = layoutConfigMap?.[stimulus.itemId];
   if (itemLayoutConfig) {
@@ -275,7 +283,7 @@ function handlePracticeButtonPress(
   const isCorrectChoice = choice?.toString() === stim.answer?.toString();
   let feedbackAudio;
   if (isCorrectChoice) {
-    btn.classList.add('practice-correct');
+    btn.classList.add('success-shadow');
     feedbackAudio = mediaAssets.audio.feedbackGoodJob;
     setTimeout(
       () => jsPsych.finishTrial({
@@ -287,7 +295,7 @@ function handlePracticeButtonPress(
       1000,
     );
   } else {
-    btn.classList.add('practice-incorrect');
+    btn.classList.add('error-shadow');
     feedbackAudio = mediaAssets.audio.feedbackTryAgain;
     // jspysch disables the buttons for some reason, so re-enable them
     setTimeout(() => enableBtns(practiceBtns), 500);
@@ -328,13 +336,13 @@ function addKeyHelpers(el: HTMLElement, keyIndex: number) {
   }
 }
 
-function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>) {
+function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: StimulusType) {
   // play trial audio
   PageAudioHandler.playAudio(getStimulus(layoutConfigMap)); 
 
   startTime = performance.now();
 
-  const stim = taskStore().nextStimulus;
+  const stim = trial || taskStore().nextStimulus;
   const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
   const playAudioOnLoad = itemLayoutConfig?.playAudioOnLoad;
   const pageStateHandler = new PageStateHandler(stim.audioFile, playAudioOnLoad);
@@ -418,12 +426,13 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>) {
   setupReplayAudio(pageStateHandler);
 }
 
-function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, LayoutConfigType>) {
+function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, LayoutConfigType>, trial?: StimulusType) {
   PageAudioHandler.stopAndDisconnectNode();
 
   // note: nextStimulus is actually the current stimulus
-  const stimulus = taskStore().nextStimulus;
+  const stimulus = trial || taskStore().nextStimulus;
   const itemLayoutConfig = layoutConfigMap?.[stimulus.itemId];
+  const { runCat } = taskStore();
   let responseValue = null
   let target = null; 
   let responseIndex = null; 
@@ -442,6 +451,22 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
       target = response.target; 
       data.correct = responseValue === target;
     }
+
+    if (runCat) {
+    // update theta for CAT
+      const zeta = {
+        a: 1, // item discrimination (default value of 1)
+        b: stimulus.difficulty, // item difficulty (from corpus)
+        c: stimulus.chanceLevel, // probability of correct answer from guessing
+        d: 1 // max probability of correct response (default 1)
+      }; 
+    
+      if (!(Number.isNaN(zeta.b)) && (stimulus.assessmentStage !== 'practice_response')) {
+        const answer = data.correct ? 1 : 0;
+        cat.updateAbilityEstimate(zeta, answer)
+      }
+    }
+
 
     // check response and record it
     const responseType = data.button_response ? 'mouse' : 'keyboard';
@@ -518,7 +543,7 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
 
   if (itemLayoutConfig.inCorrectTrialConfig.onIncorrectTrial === 'skip') {
     setSkipCurrentBlock(stimulus.trialType);
-  } else if ((taskStore().numIncorrect >= taskStore().maxIncorrect)) {
+  } else if ((taskStore().numIncorrect >= taskStore().maxIncorrect && !runCat)) {
     finishExperiment();
   }
 }
@@ -529,13 +554,14 @@ export const afcStimulusTemplate = (
     promptAboveButtons: boolean,
     task: string,
     layoutConfigMap: Record<string, LayoutConfigType>,
-  }
+  }, 
+  trial?: StimulusType
 ) => {
   return {
     type: jsPsychHtmlMultiResponse,
     response_allowed_while_playing: responseAllowed,
     data: () => {
-      const stim = taskStore().nextStimulus;
+      const stim = trial || taskStore().nextStimulus;
       let isPracticeTrial = stim.assessmentStage === 'practice_response'; 
       return {
         // not camelCase because firekit
@@ -545,17 +571,23 @@ export const afcStimulusTemplate = (
         isPracticeTrial: isPracticeTrial,
       };
     },
-    stimulus: () => getPrompt(layoutConfigMap),
+    stimulus: () => getStimulus(layoutConfigMap, trial),
+    prompt: () => getPrompt(layoutConfigMap, trial),
     prompt_above_buttons: promptAboveButtons,
     keyboard_choices: () => {
-      const stim = taskStore().nextStimulus;
+      const stim = trial || taskStore().nextStimulus; 
+
       const itemLayoutConfig = layoutConfigMap[stim.itemId];
       return getKeyboardChoices(itemLayoutConfig);
     },
-    button_choices: () => getButtonChoices(layoutConfigMap),
-    button_html: () => getButtonHtml(layoutConfigMap),
-    on_load: () => doOnLoad(layoutConfigMap),
-    on_finish: (data: any) => doOnFinish(data, task, layoutConfigMap),
-    response_ends_trial: () => (taskStore().nextStimulus.assessmentStage === 'practice_response' ? false : true),
+    button_choices: () => getButtonChoices(layoutConfigMap, trial),
+    button_html: () => getButtonHtml(layoutConfigMap, trial),
+    on_load: () => doOnLoad(layoutConfigMap, trial),
+    on_finish: (data: any) => doOnFinish(data, task, layoutConfigMap, trial),
+    response_ends_trial: () => {
+      const stim = trial || taskStore().nextStimulus;
+
+      return stim.assessmentStage !== 'practice_response';
+    },
   };
 };

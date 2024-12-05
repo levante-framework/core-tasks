@@ -1,0 +1,31 @@
+@use '../abstracts' as *;
+
+.lev-toast-default {
+  // Initial style for the toast
+  position: fixed;
+  top: -100px; // Start off-screen
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: $bg-bubble-base;
+  color: $bg-button-primary;
+  padding: 10px 20px;
+  border: $bg-accent_secondary solid 3px;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  display: block;
+  transition: top 0.5s ease;
+  font-size: 1.5rem;
+
+  @include respond-to('small-medium') {
+    font-size: 1.2rem;
+  }
+
+  &.show {
+    top: 10vh; // Final position
+
+    @include respond-to('small-medium') {
+      top: 5vh;
+    }
+  }
+}

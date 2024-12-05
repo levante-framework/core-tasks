@@ -4,12 +4,13 @@ import 'regenerator-runtime/runtime';
 import { initTrialSaving, initTimeline, createPreloadTrials, taskStore } from '../shared/helpers';
 import { instructions } from './trials/instructions';
 //@ts-ignore
-import { jsPsych, initializeCat } from '../taskSetup';
+import { jsPsych, initializeCat, cat } from '../taskSetup';
 // trials
 //@ts-ignore
-import { afcStimulusTemplate, exitFullscreen, setupStimulus, taskFinished, getAudioResponse } from '../shared/trials';
+import { afcStimulusTemplate, exitFullscreen, setupStimulus, fixationOnly, taskFinished, getAudioResponse } from '../shared/trials';
 import { getLayoutConfig } from './helpers/config';
 import { repeatInstructionsMessage } from '../shared/trials/repeatInstructions';
+import { prepareCorpus, selectNItems } from '../shared/helpers/prepareCat';
 
 export default function buildMatrixTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
@@ -33,6 +34,8 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {}; 
+  const { runCat } = taskStore(); 
+  const { semThreshold } = taskStore();
 
   const layoutConfigMap: Record<string, LayoutConfigType> = {};
   let i = 0;
@@ -61,44 +64,66 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
 
   const stimulusBlock = (config: Record<string, any>) => ({
     timeline: [
-      afcStimulusTemplate(config) 
+      setupStimulus,
+      afcStimulusTemplate(config), 
+      ifRealTrialResponse
     ],
     // true = execute normally, false = skip
     conditional_function: () => {
       if (taskStore().skipCurrentTrial) {
         taskStore('skipCurrentTrial', false);
         return false;
-      } else {
-        return true;
+      } 
+      if (runCat && cat._seMeasurement < semThreshold) {
+        return false; 
       }
+      return true;
     },
   });
 
   const repeatInstructions = {
     timeline: [
       repeatInstructionsMessage,
+      ...instructions
     ],
     conditional_function: () => {
       return taskStore().numIncorrect >= 2; 
     }
   }; 
 
-  const instructionsRepeated = {
-    timeline: instructions,
-    conditional_function: () => {
-      return taskStore().numIncorrect >= 2; 
-    }
-  }
+  if (runCat) {
+    // seperate out corpus to get cat/non-cat blocks
+    const corpora = prepareCorpus(corpus); 
 
-  const numOfTrials = taskStore().totalTrials;
-  for (let i = 0; i < numOfTrials; i += 1) {
-    if(i === 4){
-      timeline.push(repeatInstructions); 
-      timeline.push(instructionsRepeated);
+    // push in instruction block
+    corpora.instructionPractice.forEach((trial: StimulusType) => {
+      timeline.push(fixationOnly); 
+      timeline.push(afcStimulusTemplate(trialConfig, trial)); 
+    });
+
+    const numOfCatTrials = corpora.cat.length;
+    for (let i = 0; i < numOfCatTrials; i++) {
+      if (i === 2) {
+        timeline.push(repeatInstructions)
+      }
+      timeline.push(stimulusBlock);
     }
-    timeline.push(setupStimulus);
-    timeline.push(stimulusBlock(trialConfig));
-    timeline.push(ifRealTrialResponse); 
+
+    const unnormedTrials: StimulusType[] = selectNItems(corpora.unnormed, 5); 
+  
+    const unnormedBlock = {
+      timeline: unnormedTrials.map((trial) => afcStimulusTemplate(trialConfig, trial))
+    }
+  
+    timeline.push(unnormedBlock);
+  } else {
+    const numOfTrials = taskStore().totalTrials;
+    for (let i = 0; i < numOfTrials; i += 1) {
+      if(i === 4){
+        timeline.push(repeatInstructions);
+      }
+      timeline.push(stimulusBlock(trialConfig)); 
+    }
   }
 
   initializeCat();

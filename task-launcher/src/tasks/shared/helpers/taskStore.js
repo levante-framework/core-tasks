@@ -15,6 +15,7 @@ import store from 'store2';
  * @property {string} task - Name of the task, default is 'egma-math'.
  * @property {number} maxIncorrect - Maximum number of incorrect trials, default is 3.
  * @property {boolean} keyHelpers - Whether to use keyboard helpers, default is true.
+ * @property {boolean} runCat - Whether to run task adaptively as a CAT, default is false
  * @property {boolean} storeItemId - Whether to store the item ID, default is false.
  * @property {boolean} isRoarApp - Whether the app is running in ROAR mode, default is false.
  * @property {boolean} maxTimeReached - Whether the max time has been reached, default is false.
@@ -67,6 +68,8 @@ export const setTaskStore = (config) => {
     task: config.task,
     maxIncorrect: config.maxIncorrect,
     keyHelpers: config.keyHelpers,
+    runCat: config.cat, 
+    semThreshold: config.semThreshold,
     storeItemId: config.storeItemId,
     isRoarApp: config.isRoarApp,
     numOfBlocks: config.userMetadata.age > 12 ? 9 : 4,
@@ -77,6 +80,7 @@ export const setTaskStore = (config) => {
     stimulusSide: 'left',
     stimulusPosition: 0,
     isCorrect: false,
+    inferenceNumStories: config.inferenceNumStories,
   });
 };
 

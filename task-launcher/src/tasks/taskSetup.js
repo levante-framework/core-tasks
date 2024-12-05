@@ -8,12 +8,17 @@ export const isTouchScreen = getDevice() === 'mobile';
 
 export let cat;
 
+const { runCat } = taskStore(); 
+const nStartItems = runCat ? 5 : 0; 
+
 export const initializeCat = () => {
   cat = new Cat({
     method: 'MLE',
-    // minTheta: -6,
-    // maxTheta: 6,
-    itemSelect: taskStore().itemSelect,
+    minTheta: -6,
+    maxTheta: 6,
+    nStartItems: nStartItems, 
+    startSelect: 'random',
+    itemSelect: taskStore().itemSelect
   });
 };
 

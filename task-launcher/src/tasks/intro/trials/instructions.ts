@@ -55,7 +55,6 @@ export const instructions = instructionData.map(data => {
                         <img
                             src=${mediaAssets.images[data.image]}
                             alt='Instruction graphic'
-                            style="height:330px;width:330px"
                         />
                     </div>
                 </div>
@@ -82,7 +81,8 @@ export const instructions = instructionData.map(data => {
             PageAudioHandler.stopAndDisconnectNode();
             
             jsPsych.data.addDataToLastTrial({
-                audioButtonPresses: PageAudioHandler.replayPresses
+                audioButtonPresses: PageAudioHandler.replayPresses, 
+                assessment_stage: 'instructions'
               });
             PageAudioHandler.stopAndDisconnectNode();
         }
