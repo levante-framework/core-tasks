@@ -62,7 +62,7 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus, task) =
       timeLimit: row.time_limit,
       answer: _toNumber(row.answer) || row.answer,
       assessmentStage: row.assessment_stage,
-      chanceLevel: row.chance_level,
+      chanceLevel: _toNumber(row.chance_level),
       itemId: row.item_id,
       distractors: (() => {
         if (row.task === 'roar-inference') {
@@ -73,8 +73,9 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus, task) =
             : stringToNumberArray(row.response_alternatives);
         }
       })(),
-      // difficulty: row.difficulty,
       audioFile: row.audio_file,
+      // difficulty must be undefined to avoid running cat
+      difficulty: taskStore().runCat ? _toNumber(row.d || row.difficulty) : undefined,
       story: (() => {
         if (row.task === 'roar-inference') {
           return row.story;
