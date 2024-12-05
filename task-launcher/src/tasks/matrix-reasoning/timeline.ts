@@ -35,6 +35,7 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {}; 
   const { runCat } = taskStore(); 
+  const { semThreshold } = taskStore();
 
   const layoutConfigMap: Record<string, LayoutConfigType> = {};
   let i = 0;
@@ -72,9 +73,11 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
       if (taskStore().skipCurrentTrial) {
         taskStore('skipCurrentTrial', false);
         return false;
-      } else {
-        return true;
+      } 
+      if (runCat && cat._seMeasurement < semThreshold) {
+        return false; 
       }
+      return true;
     },
   });
 

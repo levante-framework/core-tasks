@@ -69,6 +69,7 @@ export const setTaskStore = (config) => {
     maxIncorrect: config.maxIncorrect,
     keyHelpers: config.keyHelpers,
     runCat: config.cat, 
+    semThreshold: config.semThreshold,
     storeItemId: config.storeItemId,
     isRoarApp: config.isRoarApp,
     numOfBlocks: config.userMetadata.age > 12 ? 9 : 4,
