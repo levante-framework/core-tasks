@@ -338,7 +338,7 @@ function addKeyHelpers(el: HTMLElement, keyIndex: number) {
 
 function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: StimulusType) {
   // play trial audio
-  PageAudioHandler.playAudio(getStimulus(layoutConfigMap)); 
+  PageAudioHandler.playAudio(getStimulus(layoutConfigMap, trial)); 
 
   startTime = performance.now();
 
@@ -571,8 +571,7 @@ export const afcStimulusTemplate = (
         isPracticeTrial: isPracticeTrial,
       };
     },
-    stimulus: () => getStimulus(layoutConfigMap, trial),
-    prompt: () => getPrompt(layoutConfigMap, trial),
+    stimulus: () => getPrompt(layoutConfigMap, trial),
     prompt_above_buttons: promptAboveButtons,
     keyboard_choices: () => {
       const stim = trial || taskStore().nextStimulus; 
