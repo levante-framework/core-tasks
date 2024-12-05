@@ -92,6 +92,31 @@
     }
   }
 
+  &.instruction-no-border{
+    display: flex;
+    border: none;
+    border-radius: 0;
+    background-color: transparent;
+    color: black;
+    font-size: xx-large;
+    padding-bottom: 0;
+
+    p{
+      margin-bottom: 0;
+    }
+  }
+
+  &.roar-instruction-question{
+    display: flex;
+    border: none;
+    border-radius: 0;
+    background-color: transparent;
+    color: black;
+    font-size: xx-large;
+    padding: 12px;
+    font-weight: bold;
+  }
+
   &.instruction-small {
     display: flex;
     padding: $lev-spacing-s;
@@ -101,7 +126,8 @@
     border: 3px solid $bg-accent_secondary;
     border-radius: 32px;
     background-color: $bg-bubble-base;
-    max-width: 90vw;
+    width: 90vw;
+    max-width: max-content; 
 
     p {
       font-size: $font-size-xs-em;
@@ -118,7 +144,7 @@
       border-radius: 24px;
   
       p {
-        font-size: $font-size-xxs;
+        font-size: $font-size-xs-em;
         font-weight: $font-weight-light;
         line-height: 1.0;
         margin: 0;
@@ -133,7 +159,7 @@
       border-radius: 16px;
   
       p {
-        font-size: $font-size-xxxs;
+        font-size: $font-size-xs-em;
         font-weight: $font-weight-light;
         line-height: 1.0;
         margin: 0;
@@ -240,4 +266,12 @@
   &.lev-staggered-opacity {
     opacity: 0.6;
   }
+}
+
+.lev-fixation-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: black;
+  font-size: 4rem;
 }

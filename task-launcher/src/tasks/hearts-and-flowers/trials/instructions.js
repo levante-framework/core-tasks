@@ -136,7 +136,8 @@ function buildInstructionTrial(mascotImage, promptAudioKey, promptText, buttonTe
       PageAudioHandler.stopAndDisconnectNode();
       
       jsPsych.data.addDataToLastTrial({
-        audioButtonPresses: PageAudioHandler.replayPresses
+        audioButtonPresses: PageAudioHandler.replayPresses, 
+        assessment_stage: 'instructions'
       });
     }
   };

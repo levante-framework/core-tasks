@@ -57,7 +57,7 @@ export const instructions = instructionData.map(data => {
                         </div>
                         <div class="lev-stim-content-x-3">
                             ${data.video ? 
-                                `<video class='instruction-video' autoplay loop>
+                                `<video class='instruction-video-small' autoplay loop>
                                     <source src=${mediaAssets.video[data.video]} type='video/mp4'>
                                 </video>` :
                                 `<img
@@ -79,6 +79,7 @@ export const instructions = instructionData.map(data => {
             ]
         },
         keyboard_choices: 'NO_KEYS',
+        post_trial_gap: 500,
         on_load: () => {
             PageAudioHandler.playAudio(mediaAssets.audio[data.prompt]);
             const pageStateHandler = new PageStateHandler(data.prompt);
@@ -87,7 +88,8 @@ export const instructions = instructionData.map(data => {
         on_finish: () => {
             PageAudioHandler.stopAndDisconnectNode();
             jsPsych.data.addDataToLastTrial({
-                audioButtonPresses: PageAudioHandler.replayPresses
+                audioButtonPresses: PageAudioHandler.replayPresses, 
+                assessment_stage: 'instructions'
               });
         }
     }

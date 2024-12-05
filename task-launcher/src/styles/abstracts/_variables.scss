@@ -11,7 +11,7 @@ $button-default-font-weight: 500;
 $button-secondary-box-shadow: -8px -10px 0px 0px;
 $button-secondary-inner-shadow: 0px 0px 12px 0px;
 
-$response-size-default: clamp(120px, 12vw, 150px);
-$response-size-sm: clamp(100px, 20vw, 150px);
-$response-size-s: 25vw;
+$response-size-default: clamp(120px, 10vw, 150px);
+$response-size-sm: clamp(100px, 18vw, 150px);
+$response-size-s: 22vw;
 $response-size-m: calc(clamp(70px, 22vw, 250px) - 10px);
