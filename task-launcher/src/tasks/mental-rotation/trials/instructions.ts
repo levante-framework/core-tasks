@@ -1,4 +1,4 @@
-import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
+import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
 // @ts-ignore
 import { taskStore, replayButtonSvg, PageStateHandler, PageAudioHandler, setupReplayAudio } from '../../shared/helpers';
@@ -7,17 +7,23 @@ import { jsPsych } from '../../taskSetup';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 
+function enableOkBtn() {
+  const okButton: HTMLButtonElement | null = document.querySelector('.primary'); 
+  if (okButton != null) {
+    okButton.disabled = false;
+  }
+}
+
 // Switch to HTMLMultiResponse when we have video with audio
 export const videoInstructionsFit = {
-  type: jsPsychAudioMultiResponse,
+  type: jsPsychHtmlMultiResponse,
   data: () => {
     return {
       // save_trial: true,
       assessment_stage: 'instructions',
     };
   },
-  stimulus: () => mediaAssets.audio.mentalRotationTrainingInstruct3,
-  prompt: () => {
+  stimulus: () => {
     return `
       <div class="lev-stimulus-container">
         <button id="${replayButtonHtmlId}" class="replay">
@@ -34,20 +40,21 @@ export const videoInstructionsFit = {
   button_choices: ['Continue'],
   button_html: () => {
     const t = taskStore().translations;
-    return `<button class="primary">${t.continueButtonText}</button>`;
+    return `<button class="primary" disabled>${t.continueButtonText}</button>`;
   },
   keyboard_choices: 'NO_KEYS',
-  trial_ends_after_audio: false,
-  response_allowed_while_playing: false,
   on_load: () => {
     // const wrapper = document.getElementById('jspsych-audio-multi-response-prompt');
     // wrapper.style.display = 'flex';
     // wrapper.style.justifyContent = 'center';
+    PageAudioHandler.playAudio(mediaAssets.audio.mentalRotationTrainingInstruct3, enableOkBtn);
     
     const pageStateHandler = new PageStateHandler('mental-rotation-training-instruct3');
     setupReplayAudio(pageStateHandler);
   },
   on_finish: () => {
+    PageAudioHandler.stopAndDisconnectNode();
+
     jsPsych.data.addDataToLastTrial({
       audioButtonPresses: PageAudioHandler.replayPresses
     });
@@ -55,14 +62,13 @@ export const videoInstructionsFit = {
 };
 
 export const videoInstructionsMisfit = {
-  type: jsPsychAudioMultiResponse,
+  type: jsPsychHtmlMultiResponse,
   data: () => {
     return {
       assessment_stage: 'instructions',
     };
   },
-  stimulus: () => mediaAssets.audio.mentalRotationTrainingInstruct2,
-  prompt: () => {
+  stimulus: () => {
     return `
       <div class="lev-stimulus-container">
         <button id="${replayButtonHtmlId}" class="replay">
@@ -79,16 +85,18 @@ export const videoInstructionsMisfit = {
   button_choices: ['Continue'],
   button_html: () => {
     const t = taskStore().translations;
-    return `<button class="primary">${t.continueButtonText}</button>`;
+    return `<button class="primary" id="ok-button" disabled>${t.continueButtonText}</button>`;
   },
   keyboard_choices: 'NO_KEYS',
-  trial_ends_after_audio: false,
-  response_allowed_while_playing: false,
   on_load: () => {
+    PageAudioHandler.playAudio(mediaAssets.audio.mentalRotationTrainingInstruct2, enableOkBtn); 
+    
     const pageStateHandler = new PageStateHandler('mental-rotation-training-instruct2');
     setupReplayAudio(pageStateHandler);
 },
 on_finish: () => {
+  PageAudioHandler.stopAndDisconnectNode();
+
   jsPsych.data.addDataToLastTrial({
     audioButtonPresses: PageAudioHandler.replayPresses
   });
@@ -96,14 +104,13 @@ on_finish: () => {
 };
 
 export const imageInstructions = {
-  type: jsPsychAudioMultiResponse,
+  type: jsPsychHtmlMultiResponse,
   data: () => {
     return {
       assessment_stage: 'instructions',
     };
   },
-  stimulus: () => mediaAssets.audio.mentalRotationInstruct1,
-  prompt: () => {
+  stimulus: () => {
     return `
       <div class="lev-stimulus-container">
         <button id="${replayButtonHtmlId}" class="replay">
@@ -117,16 +124,18 @@ export const imageInstructions = {
   button_choices: ['Continue'],
   button_html: () => {
     const t = taskStore().translations;
-    return `<button class="primary">${t.continueButtonText}</button>`;
+    return `<button class="primary" disabled>${t.continueButtonText}</button>`;
   },
   keyboard_choices: 'NO_KEYS',
-  trial_ends_after_audio: false,
-  response_allowed_while_playing: false,
   on_load: () => {
+    PageAudioHandler.playAudio(mediaAssets.audio.mentalRotationInstruct1, enableOkBtn); 
+
     const pageStateHandler = new PageStateHandler('mental-rotation-instruct1');
     setupReplayAudio(pageStateHandler);
 },
 on_finish: () => {
+  PageAudioHandler.stopAndDisconnectNode();
+
   jsPsych.data.addDataToLastTrial({
     audioButtonPresses: PageAudioHandler.replayPresses
   });
