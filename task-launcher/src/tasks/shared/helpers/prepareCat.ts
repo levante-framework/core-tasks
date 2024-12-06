@@ -1,6 +1,6 @@
 import _shuffle from 'lodash/shuffle';
 // @ts-ignore
-import { taskStore } from './taskStore.js';
+import { taskStore } from '../../../taskStore';
 
 // separates trials from corpus into blocks for cat
 export function prepareCorpus(corpus: StimulusType[]) {

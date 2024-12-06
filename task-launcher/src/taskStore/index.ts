@@ -58,6 +58,8 @@ export type TaskStoreDataType = {
     age: number;
   };
   inferenceNumStories?: number; // FIXME: Remove
+  cat: boolean;
+  semThreshold: number;
 };
 
 /**
