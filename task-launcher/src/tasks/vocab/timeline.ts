@@ -1,7 +1,7 @@
 import 'regenerator-runtime/runtime';
 // setup
 // @ts-ignore
-import { initTrialSaving, initTimeline, createPreloadTrials, taskStore } from '../shared/helpers';
+import { initTrialSaving, initTimeline, createPreloadTrials } from '../shared/helpers';
 // @ts-ignore
 import { jsPsych, initializeCat, cat } from '../taskSetup';
 // trials
@@ -9,6 +9,7 @@ import { jsPsych, initializeCat, cat } from '../taskSetup';
 import { afcStimulusTemplate, exitFullscreen, setupStimulus, fixationOnly, taskFinished } from '../shared/trials';
 import { getLayoutConfig } from './helpers/config';
 import { prepareCorpus, selectNItems } from '../shared/helpers/prepareCat';
+import { taskStore } from '../../taskStore';
 
 export default function buildVocabTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;

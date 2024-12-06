@@ -1,13 +1,14 @@
 import 'regenerator-runtime/runtime';
 // setup
 //@ts-ignore
-import { initTrialSaving, initTimeline, createPreloadTrials, taskStore } from '../shared/helpers';
+import { initTrialSaving, initTimeline, createPreloadTrials } from '../shared/helpers';
 //@ts-ignore
 import { jsPsych, initializeCat } from '../taskSetup';
 // trials
 //@ts-ignore
 import { afcStimulusTemplate, exitFullscreen, setupStimulus, taskFinished } from '../shared/trials';
 import { getLayoutConfig } from './helpers/config';
+import { taskStore } from '../../taskStore';
 
 export default function buildTOMTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;

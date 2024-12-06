@@ -1,7 +1,8 @@
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
 import { mediaAssets } from '../../..';
 // @ts-ignore
-import { taskStore, replayButtonSvg, PageStateHandler, setupReplayAudio } from '../helpers';
+import { replayButtonSvg, PageStateHandler, setupReplayAudio } from '../helpers';
+import { taskStore } from '../../../taskStore';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 
