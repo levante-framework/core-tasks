@@ -44,6 +44,24 @@ import store from 'store2';
  * @property {boolean} isCorrect - Whether the response to the previous trial was correct, default is false.
  */
 
+export type TaskStoreDataType = {
+  audioFeedback: string;
+  skipInstructions: boolean;
+  corpusId: string;
+  buttonLayout: string;
+  task: string; // FIXME: tighten to task name strings
+  maxIncorrect: number;
+  keyHelpers: boolean;
+  storeItemId: boolean;
+  isRoarApp: boolean;
+  userMetadata: {
+    age: number;
+  };
+  inferenceNumStories?: number; // FIXME: Remove
+  cat: boolean;
+  semThreshold: number;
+};
+
 /**
  * Store for managing task state. For all tasks.
  * 
@@ -51,7 +69,7 @@ import store from 'store2';
  */
 export const taskStore = store.page.namespace('taskStore');
 
-export const setTaskStore = (config) => {
+export const setTaskStore = (config: TaskStoreDataType) => {
   taskStore({
     itemSelect: 'mfi',
     trialNumSubtask: 0,

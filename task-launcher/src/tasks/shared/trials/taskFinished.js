@@ -1,6 +1,7 @@
 import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
-import { taskStore, PageAudioHandler } from '../helpers';
+import { PageAudioHandler } from '../helpers';
 import { mediaAssets } from '../../..';
+import { taskStore } from '../../../taskStore';
 
 export const taskFinished = (endMessage = 'taskFinished') => {
   return {

@@ -4,12 +4,12 @@ import {
   dashToCamelCase, 
   showLevanteLogoLoading, 
   hideLevanteLogoLoading, 
-  setTaskStore
   // @ts-ignore
 } from './tasks/shared/helpers';
 import './styles/index.scss';
 import taskConfig from './tasks/taskConfig';
 import { RoarAppkit } from '@bdelab/roar-firekit';
+import { setTaskStore } from './taskStore';
 
 export let mediaAssets: MediaAssetsType;
 export class TaskLauncher {
