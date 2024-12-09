@@ -4,13 +4,28 @@ import { taskStore } from '../../../taskStore';
 
 // separates trials from corpus into blocks for cat
 export function prepareCorpus(corpus: StimulusType[]) {
+  const maxStartingDifficulty = 1; 
+
   const instructionPracticeTrials: StimulusType[] = corpus.filter(trial => 
     trial.assessmentStage === 'instructions' || trial.assessmentStage === 'practice_response'
   );
-  const catCorpus: StimulusType[] = corpus.filter(trial => !instructionPracticeTrials.includes(trial));
+
+  const possibleStartItems: StimulusType[] = corpus.filter(trial =>
+    (trial.difficulty !== undefined && !isNaN(trial.difficulty)) &&
+    !instructionPracticeTrials.includes(trial) &&
+    (trial.difficulty <= maxStartingDifficulty)
+  )
+  
+  const startItems: StimulusType[] = selectNItems(possibleStartItems, 5);
+  
+  const catCorpus: StimulusType[] = corpus.filter(trial => 
+    !instructionPracticeTrials.includes(trial) && !startItems.includes(trial)
+  );
+
   const unnormedTrials: StimulusType[] = catCorpus.filter((trial) => 
     trial.difficulty == undefined || isNaN(trial.difficulty)
   );
+
   const normedCatCorpus: StimulusType[] = catCorpus.filter(trial => !unnormedTrials.includes(trial));
 
   // remove instruction, practice, and unnormed trials from corpus so that they don't run during CAT block
@@ -22,6 +37,7 @@ export function prepareCorpus(corpus: StimulusType[]) {
 
   const corpora = {
     instructionPractice: instructionPracticeTrials, // all instruction + practice trials
+    start: startItems, // 5 random items to be used in starting block (all under a certain max difficulty)
     unnormed: unnormedTrials, // all items without IRT parameters
     cat: normedCatCorpus // all normed items for CAT
   }
