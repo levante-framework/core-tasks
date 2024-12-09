@@ -48,6 +48,8 @@ export type TaskStoreDataType = {
   audioFeedback: string;
   skipInstructions: boolean;
   corpusId: string;
+  corpus: string,
+  stimulusBlocks: number;
   buttonLayout: string;
   task: string; // FIXME: tighten to task name strings
   maxIncorrect: number;
