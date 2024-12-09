@@ -2,7 +2,7 @@ import _shuffle from 'lodash/shuffle';
 
 export function shuffleStories(
   corpus: StimulusType[],
-  inferenceNumStories: number | null,
+  inferenceNumStories: number,
   storyKey: string,
   typesToAvoid: string[],
   numItemsPerStory: number
@@ -22,7 +22,7 @@ export function shuffleStories(
   const shuffledStories = _shuffle(stories);
 
   // Process each story up to the number of stories specified
-  for (let i = 0; i < (inferenceNumStories ?? 15); i += 1) {
+  for (let i = 0; i < (inferenceNumStories); i += 1) {
     const story = shuffledStories[i];
     const filteredByStory = corpus.filter(c => c[storyKey as keyof typeof c] === story);
 
