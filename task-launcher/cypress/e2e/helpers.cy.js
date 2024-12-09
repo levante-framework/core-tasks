@@ -20,30 +20,10 @@ export function clickThroughInstructions(){
   });  
 }
 
-function handlePracticeButtons(){
-  cy.wait(300);
-  // wait for fixation cross to go away
-  cy.get('.lev-stimulus-container', {timeout: 60000}).should('exist'); 
-
-  cy.get('.jspsych-content').then((content) => {
-    const practiceButtons = content.find('.practice-btn');
-    
-    if (practiceButtons.length > 0){
-      cy.get('.practice-btn').each((button) => {
-        button.click(); 
-      })
-      handlePracticeButtons();
-    } else {
-      return 
-    }
-  })
-}
-
 // clicks first image option until game is over
 function selectAnswers(correctFlag, buttonClass){
   handleMathSlider();
   clickThroughInstructions(); 
-  handlePracticeButtons(); 
 
   // wait for fixation cross to go away 
   cy.get('.lev-stimulus-container', {timeout: 60000}).should('exist'); 
