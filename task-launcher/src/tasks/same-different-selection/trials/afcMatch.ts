@@ -40,8 +40,10 @@ export const afcMatch = {
     };
   },
   stimulus: () => {
-    const stimulusAudio = camelize(taskStore().nextStimulus.audioFile);
-    return mediaAssets.audio[stimulusAudio];
+    const stim = taskStore().nextStimulus;
+    const audioFile = camelize(stim.audioFile);
+
+    return mediaAssets.audio[audioFile];
   },
   prompt: () => {
     const prompt = camelize(taskStore().nextStimulus.audioFile);
@@ -82,10 +84,9 @@ export const afcMatch = {
     // create img elements and arrange in grid as cards
     // on click they will be selected
     // can select multiple cards and deselect them
-    const stim = taskStore().nextStimulus;
-    
     startTime = performance.now();
-
+    
+    const stim = taskStore().nextStimulus;
     const audioFile = stim.audioFile;
     const pageStateHandler = new PageStateHandler(audioFile);
     setupReplayAudio(pageStateHandler);

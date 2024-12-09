@@ -1,5 +1,5 @@
 // For all tasks except: H&F, Memory Game, Same Different Selection
-import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
+import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 // @ts-ignore
 import { jsPsych, isTouchScreen, cat } from '../../taskSetup';
 import {
@@ -74,7 +74,7 @@ const showStaggeredBtnAndPlaySound = (
 
 const handleStaggeredButtons = async (layoutConfig: LayoutConfigType, pageState: PageStateHandler) => {
   if (layoutConfig?.isStaggered) {
-      const parentResponseDiv = document.getElementById('jspsych-audio-multi-response-btngroup') as HTMLDivElement;
+      const parentResponseDiv = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
       let i = 0;
       const stimulusDuration = await pageState.getStimulusDurationMs();
       const intialDelay = stimulusDuration + 300;
@@ -336,6 +336,9 @@ function addKeyHelpers(el: HTMLElement, keyIndex: number) {
 }
 
 function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: StimulusType) {
+  // play trial audio
+  PageAudioHandler.playAudio(getStimulus(layoutConfigMap, trial)); 
+
   startTime = performance.now();
 
   const stim = trial || taskStore().nextStimulus;
@@ -393,7 +396,7 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
   }
 
   if (stim.trialType !== 'instructions') {
-    const buttonContainer = document.getElementById('jspsych-audio-multi-response-btngroup') as HTMLDivElement;
+    const buttonContainer = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
     const responseButtons = buttonContainer.children as HTMLCollectionOf<HTMLButtonElement>;
     const totalResponseButtons = responseButtons.length;
     const { buttonLayout } = taskStore();
@@ -554,7 +557,7 @@ export const afcStimulusTemplate = (
   trial?: StimulusType
 ) => {
   return {
-    type: jsPsychAudioMultiResponse,
+    type: jsPsychHtmlMultiResponse,
     response_allowed_while_playing: responseAllowed,
     data: () => {
       const stim = trial || taskStore().nextStimulus;
@@ -567,8 +570,7 @@ export const afcStimulusTemplate = (
         isPracticeTrial: isPracticeTrial,
       };
     },
-    stimulus: () => getStimulus(layoutConfigMap, trial),
-    prompt: () => getPrompt(layoutConfigMap, trial),
+    stimulus: () => getPrompt(layoutConfigMap, trial),
     prompt_above_buttons: promptAboveButtons,
     keyboard_choices: () => {
       const stim = trial || taskStore().nextStimulus; 
