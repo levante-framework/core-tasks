@@ -51,12 +51,14 @@ export const computedScoreCallback = (rawScores) => {
   // computedScores should now have keys for each subtask.
   // But we also want to update the total score so we add up all of the others.
   //const totalScore = _reduce(_omit(computedScores, ['composite']), (sum, score) => sum + score.subScore, 0);
-  const { totalCorrect, trialNumTotal } = taskStore();
+  const { totalCorrect } = taskStore();
 
   computedScores.composite = {
     totalCorrect: totalCorrect,
-    totalNumAttempted: trialNumTotal,
-    totalPercentCorrect: Math.round((totalCorrect / trialNumTotal) * 100),
+    totalNumAttempted: rawScores?.composite?.test?.numAttempted,
+    totalPercentCorrect: rawScores?.composite?.test?.numAttempted > 0 
+      ? Math.round((totalCorrect / rawScores?.composite?.test?.numAttempted) * 100) 
+      : 0, // Default to 0 if numAttempted is zero
   };
 
   return computedScores;

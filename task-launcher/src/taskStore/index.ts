@@ -48,6 +48,8 @@ export type TaskStoreDataType = {
   audioFeedback: string;
   skipInstructions: boolean;
   corpusId: string;
+  corpus: string,
+  stimulusBlocks: number;
   buttonLayout: string;
   task: string; // FIXME: tighten to task name strings
   maxIncorrect: number;
@@ -82,6 +84,7 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     audioFeedback: config.audioFeedback,
     skipInstructions: config.skipInstructions,
     corpusId: config.corpusId,
+    corpus: config.corpus,
     buttonLayout: config.buttonLayout,
     task: config.task,
     maxIncorrect: config.maxIncorrect,
@@ -92,6 +95,7 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     isRoarApp: config.isRoarApp,
     numOfBlocks: config.userMetadata.age > 12 ? 9 : 4,
     blockSize: config.userMetadata.age > 12 ? 30 : 50,
+    stimulusBlocks: config.stimulusBlocks,
     gridSize: config.userMetadata.age > 12 ? 3 : 2,
     maxTimeReached: false,
     stimulus: 'heart',

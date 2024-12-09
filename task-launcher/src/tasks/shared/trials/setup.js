@@ -29,7 +29,6 @@ const setupTrials = setupData.map((trial, i) => {
     prompt: '',
     choices: 'NO_KEYS',
     trial_duration: 350,
-
     data: {
       task: 'fixation',
     },
