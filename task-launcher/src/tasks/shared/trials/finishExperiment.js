@@ -1,6 +1,7 @@
-import { jsPsych } from "../../taskSetup";
-import { taskStore, PageAudioHandler } from "../helpers";
-import { mediaAssets} from '../../..'; 
+import { jsPsych } from '../../taskSetup';
+import { PageAudioHandler } from '../helpers';
+import { mediaAssets} from '../../..';
+import { taskStore } from '../../../taskStore';
 
 
 export function finishExperiment() {

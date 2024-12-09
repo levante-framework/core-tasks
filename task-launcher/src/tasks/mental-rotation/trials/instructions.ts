@@ -1,9 +1,10 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
 // @ts-ignore
-import { taskStore, replayButtonSvg, PageStateHandler, PageAudioHandler, setupReplayAudio } from '../../shared/helpers';
+import { replayButtonSvg, PageStateHandler, PageAudioHandler, setupReplayAudio } from '../../shared/helpers';
 // @ts-ignore
 import { jsPsych } from '../../taskSetup';
+import { taskStore } from '../../../taskStore';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 

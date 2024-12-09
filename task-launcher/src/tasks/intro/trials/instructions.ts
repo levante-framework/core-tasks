@@ -3,7 +3,8 @@ import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-respons
 import { isTouchScreen, jsPsych } from '../../taskSetup';
 import { mediaAssets } from '../../..';
 // @ts-ignore
-import { PageAudioHandler, PageStateHandler, replayButtonSvg, setupReplayAudio, taskStore } from '../../shared/helpers';
+import { PageAudioHandler, PageStateHandler, replayButtonSvg, setupReplayAudio } from '../../shared/helpers';
+import { taskStore } from '../../../taskStore';
 
 const instructionData = [
     {

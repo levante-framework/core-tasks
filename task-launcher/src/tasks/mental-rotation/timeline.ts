@@ -3,7 +3,7 @@ import 'regenerator-runtime/runtime';
 // @ts-ignore
 import { jsPsych, initializeCat, cat } from '../taskSetup';
 // @ts-ignore
-import { createPreloadTrials, taskStore, initTrialSaving, initTimeline } from '../shared/helpers';
+import { createPreloadTrials, initTrialSaving, initTimeline } from '../shared/helpers';
 // trials
 // @ts-ignore
 import { afcStimulusTemplate, taskFinished, exitFullscreen, setupStimulus, fixationOnly, getAudioResponse } from '../shared/trials';
@@ -11,6 +11,7 @@ import { imageInstructions, videoInstructionsFit, videoInstructionsMisfit } from
 import { getLayoutConfig } from './helpers/config';
 import { repeatInstructionsMessage } from '../shared/trials/repeatInstructions';
 import { prepareCorpus, selectNItems } from '../shared/helpers/prepareCat';
+import { taskStore } from '../../taskStore';
 
 export default function buildMentalRotationTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
