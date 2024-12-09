@@ -1,5 +1,5 @@
 import _mapValues from 'lodash/mapValues';
-import { taskStore } from '../../shared/helpers';
+import { taskStore } from '../../../taskStore';
 
 /**
  * This function calculates computed scores given raw scores for each subtask.

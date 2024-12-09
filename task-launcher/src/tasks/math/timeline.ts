@@ -2,7 +2,7 @@ import 'regenerator-runtime/runtime';
 import store from 'store2';
 // setup
 //@ts-ignore
-import { initTrialSaving, initTimeline, createPreloadTrials, taskStore } from '../shared/helpers';
+import { initTrialSaving, initTimeline, createPreloadTrials } from '../shared/helpers';
 //@ts-ignore
 import { jsPsych, initializeCat } from '../taskSetup';
 // trials
@@ -10,6 +10,7 @@ import { slider } from './trials/sliderStimulus';
 //@ts-ignore
 import { afcStimulusTemplate, exitFullscreen, getAudioResponse, setupStimulus, taskFinished } from '../shared/trials';
 import { getLayoutConfig } from './helpers/config';
+import { taskStore } from '../../taskStore';
 
 
 export default function buildMathTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {

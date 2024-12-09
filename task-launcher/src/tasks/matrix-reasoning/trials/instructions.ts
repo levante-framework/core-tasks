@@ -1,9 +1,10 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
 // @ts-ignore
-import { PageStateHandler, PageAudioHandler, replayButtonSvg, setupReplayAudio, taskStore } from '../../shared/helpers';
+import { PageStateHandler, PageAudioHandler, replayButtonSvg, setupReplayAudio } from '../../shared/helpers';
 // @ts-ignore
 import { jsPsych } from '../../taskSetup';
+import { taskStore } from '../../../taskStore';
 
 const instructionData = [
     {
