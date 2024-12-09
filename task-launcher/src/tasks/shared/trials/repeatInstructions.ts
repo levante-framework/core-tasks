@@ -1,20 +1,19 @@
-import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
+import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
 // @ts-ignore
-import { replayButtonSvg, PageStateHandler, setupReplayAudio } from '../helpers';
+import { replayButtonSvg, PageStateHandler, setupReplayAudio, PageAudioHandler } from '../helpers';
 import { taskStore } from '../../../taskStore';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 
 export const repeatInstructionsMessage = {
-    type: jsPsychAudioMultiResponse,
+    type: jsPsychHtmlMultiResponse,
     data: () => {
       return {
         assessment_stage: 'instructions',
       };
     },
-    stimulus: () => mediaAssets.audio.generalRepeatInstructions,
-    prompt: () => {
+    stimulus: () => {
       const t = taskStore().translations;
       return `<div class="lev-stimulus-container">
                 <button
@@ -35,10 +34,13 @@ export const repeatInstructionsMessage = {
       return `<button class="primary">${t.continueButtonText}</button>`;
     },
     keyboard_choices: 'NO_KEYS',
-    trial_ends_after_audio: false,
-    response_allowed_while_playing: false,
     on_load: () => {
+      PageAudioHandler.playAudio(mediaAssets.audio.generalRepeatInstructions);
+
       const pageStateHandler = new PageStateHandler('generalRepeatInstructions');
       setupReplayAudio(pageStateHandler);
-  }
+    }, 
+    on_finish: () => {
+      PageAudioHandler.stopAndDisconnectNode();
+    } 
 };

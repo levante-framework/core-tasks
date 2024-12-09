@@ -1,4 +1,4 @@
-import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
+import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 // @ts-ignore
 import { isTouchScreen, jsPsych } from '../../taskSetup';
 import { mediaAssets } from '../../..';
@@ -41,9 +41,8 @@ if (!isTouchScreen) {
 
 export const instructions = instructionData.map(data => {
     return {
-        type: jsPsychAudioMultiResponse,
-        stimulus: () => mediaAssets.audio[data.prompt],
-        prompt: () => {
+        type: jsPsychHtmlMultiResponse,
+        stimulus: () => {
             const t = taskStore().translations;
             return `
                 <div class="lev-stimulus-container">
@@ -74,10 +73,14 @@ export const instructions = instructionData.map(data => {
         },
         keyboard_choices: () => isTouchScreen ? 'NO_KEYS' : 'ALL_KEYS',
         on_load: () => {
+            PageAudioHandler.playAudio(mediaAssets.audio[data.prompt]); 
+
             const pageStateHandler = new PageStateHandler(data.prompt);
             setupReplayAudio(pageStateHandler);
         },
         on_finish: () => {
+            PageAudioHandler.stopAndDisconnectNode();
+            
             jsPsych.data.addDataToLastTrial({
                 audioButtonPresses: PageAudioHandler.replayPresses, 
                 assessment_stage: 'instructions'

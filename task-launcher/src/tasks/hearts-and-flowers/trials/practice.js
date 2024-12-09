@@ -1,4 +1,4 @@
-import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
+import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
 import { isTouchScreen } from '../../taskSetup';
 import {
@@ -32,9 +32,8 @@ export function buildInstructionPracticeTrial(stimulusType, promptText, promptAu
   const replayButtonHtmlId = 'replay-btn-revisited';
   const validAnswer = getCorrectInputSide(stimulusType, stimulusSideType);
   const trial = {
-    type: jsPsychAudioMultiResponse,
-    stimulus: promptAudioAsset,
-    prompt: () => {
+    type: jsPsychHtmlMultiResponse,
+    stimulus: () => {
       return getStimulusLayout(
         mediaAssets.images[stimulusType],
         stimulusSideType === StimulusSideType.Left,
@@ -48,10 +47,10 @@ export function buildInstructionPracticeTrial(stimulusType, promptText, promptAu
       taskStore('stimulusSide', stimulusSideType);
     },
     on_load: () => {
-      document.getElementById('jspsych-audio-multi-response-prompt').classList.add('haf-parent-container');
-      document.getElementById('jspsych-audio-multi-response-btngroup').classList.add('haf-parent-container');
-      document.getElementById('jspsych-audio-multi-response-btngroup').classList.add('lev-response-row');
-      document.getElementById('jspsych-audio-multi-response-btngroup').classList.add('linear-4');
+      document.getElementById('jspsych-html-multi-response-stimulus').classList.add('haf-parent-container');
+      document.getElementById('jspsych-html-multi-response-btngroup').classList.add('haf-parent-container');
+      document.getElementById('jspsych-html-multi-response-btngroup').classList.add('lev-response-row');
+      document.getElementById('jspsych-html-multi-response-btngroup').classList.add('linear-4');
 
       //TODO: use alt tag to query the proper button directly
       const buttons = document.querySelectorAll('.secondary--green');
@@ -59,6 +58,8 @@ export function buildInstructionPracticeTrial(stimulusType, promptText, promptAu
         console.error(`There are ${buttons.length} instead of 2 wrappers in the practice trials`);
       }
       buttons[validAnswer].style.animation = 'pulse 2s infinite';
+
+      PageAudioHandler.playAudio(promptAudioAsset);
       const pageStateHandler = new PageStateHandler(audioAssetKey);
       setupReplayAudio(pageStateHandler);
 
@@ -73,7 +74,7 @@ export function buildInstructionPracticeTrial(stimulusType, promptText, promptAu
       <button class='secondary--green'></button>
     </div>`],
     on_finish: (data) => {
-      // console.log('data in practice: ', data)
+      PageAudioHandler.stopAndDisconnectNode();
 
       let response;
       if (data.button_response === 0 || data.button_response === 1) {
@@ -159,12 +160,8 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
   }
 
   const trial = {
-    type: jsPsychAudioMultiResponse,
+    type: jsPsychHtmlMultiResponse,
     stimulus: () => {
-      const audioAssetKey = getAssetKey();
-      return mediaAssets.audio[audioAssetKey];
-    },
-    prompt: () => {
       const stimulusType = taskStore().stimulus;
       const incorrect = taskStore().isCorrect === false
       //TODO: now that the 'correct' feedback layout differs significantly from the 'incorrect' feedback layout, we should consider
@@ -192,10 +189,10 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
     },
     prompt_above_buttons: true,
     on_load: () => {
-      document.getElementById('jspsych-audio-multi-response-prompt').classList.add('haf-parent-container');
-      document.getElementById('jspsych-audio-multi-response-btngroup').classList.add('haf-parent-container');
-      document.getElementById('jspsych-audio-multi-response-btngroup').classList.add('lev-response-row');
-      document.getElementById('jspsych-audio-multi-response-btngroup').classList.add('linear-4');
+      document.getElementById('jspsych-html-multi-response-stimulus').classList.add('haf-parent-container');
+      document.getElementById('jspsych-html-multi-response-btngroup').classList.add('haf-parent-container');
+      document.getElementById('jspsych-html-multi-response-btngroup').classList.add('lev-response-row');
+      document.getElementById('jspsych-html-multi-response-btngroup').classList.add('linear-4');
       const buttons = document.querySelectorAll('.secondary--green');
       buttons.forEach(button => {
         if (button.id === validAnswerButtonHtmlIdentifier) {
@@ -204,7 +201,9 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
           button.disabled = true;
         }
       });
+
       const audioAssetKey = getAssetKey();
+      PageAudioHandler.playAudio(mediaAssets.audio[audioAssetKey], jsPsych.finishTrial); 
       const pageStateHandler = new PageStateHandler(audioAssetKey);
       setupReplayAudio(pageStateHandler);
     },
@@ -252,11 +251,9 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
         return `<button class='secondary--green' style='display: none;'></button>`;
       }
     },
-    trial_ends_after_audio: () => {
-      // always end practice trial after audio regardless of response
-      return true;
-    },
     on_finish: (data) => {
+      PageAudioHandler.stopAndDisconnectNode(); 
+
       if (onFinishTimelineCallback) {
         onFinishTimelineCallback(data);
       }
