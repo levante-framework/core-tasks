@@ -4,7 +4,7 @@ import { taskStore } from '../../../taskStore';
 
 // separates trials from corpus into blocks for cat
 export function prepareCorpus(corpus: StimulusType[]) {
-  const maxStartingDifficulty = 1; 
+  const excludedTrialTypes = '3D'; 
 
   const instructionPracticeTrials: StimulusType[] = corpus.filter(trial => 
     trial.assessmentStage === 'instructions' || trial.assessmentStage === 'practice_response'
@@ -13,7 +13,7 @@ export function prepareCorpus(corpus: StimulusType[]) {
   const possibleStartItems: StimulusType[] = corpus.filter(trial =>
     (trial.difficulty !== undefined && !isNaN(trial.difficulty)) &&
     !instructionPracticeTrials.includes(trial) &&
-    (trial.difficulty <= maxStartingDifficulty)
+    (trial.trialType !== excludedTrialTypes)
   )
   
   const startItems: StimulusType[] = selectNItems(possibleStartItems, 5);
