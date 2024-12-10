@@ -23,7 +23,7 @@ export function prepareCorpus(corpus: StimulusType[]) {
   );
 
   const unnormedTrials: StimulusType[] = catCorpus.filter((trial) => 
-    trial.difficulty == undefined || isNaN(trial.difficulty)
+    isNaN(trial.difficulty)
   );
 
   const normedCatCorpus: StimulusType[] = catCorpus.filter(trial => !unnormedTrials.includes(trial));
