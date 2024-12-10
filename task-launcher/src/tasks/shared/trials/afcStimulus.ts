@@ -222,7 +222,7 @@ function generateImageChoices(choices: string[], target: string) {
     const imageUrl = mediaAssets.images[camelize(choice)] || practiceUrl;
 
     // if the task is running in a cypress test, the correct answer should be indicated with 'correct' class
-    if (window.Cypress && stimulus.assessmentStage !== 'practice_response'){
+    if (window.Cypress){
       const isCorrect = choice === target;
       return isCorrect ? `<img src=${imageUrl} alt=${choice} class='correct'/>` : `<img src=${imageUrl} alt=${choice} />`;
     } else {
@@ -355,7 +355,7 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
     twoTrialsAgoIndex = currentTrialIndex - 3; // math has a fixation or something
 
     // flag correct answers with alt text for math if running a Cypress test
-    if (window.Cypress && !isPracticeTrial && !isInstructionTrial) {
+    if (window.Cypress) {
       const choices: NodeListOf<HTMLButtonElement> = document.querySelectorAll('.secondary');
 
       for (var i = 0; i < choices.length; i++) {
