@@ -74,22 +74,6 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus, task) =
         }
       })(),
       audioFile: row.audio_file,
-      // difficulty must be undefined to avoid running cat
-      difficulty: taskStore().runCat ? _toNumber(row.d || row.difficulty) : undefined,
-      story: (() => {
-        if (row.task === 'roar-inference') {
-          return row.story;
-        } else {
-          return '';
-        }
-      })(),
-      storyId: (() => {
-        if (row.task === 'roar-inference') {
-          return row.story_id;
-        } else {
-          return '';
-        }
-      })(),
     };
     if (row.task === 'Mental Rotation') {
       newRow.item = camelize(newRow.item);
@@ -149,8 +133,9 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus, task) =
 
   if (task === 'roar-inference') {
     const inferenceNumStories = taskStore().inferenceNumStories;
+    const numItemsPerStory = taskStore().stimulusBlocks;
     const notStoryTypes = ['introduction', 'practice'];
-    stimulusData = shuffleStories(stimulusData, inferenceNumStories, 'storyId', notStoryTypes, 1);
+    stimulusData = shuffleStories(stimulusData, inferenceNumStories, 'item', notStoryTypes, numItemsPerStory);
     return;
   }
 
