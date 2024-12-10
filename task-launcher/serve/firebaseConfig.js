@@ -1,3 +1,4 @@
+// ONLY FOR STANDALONE (WEB APP)
 
 // Change this to use your projects database API keys
 const devFirebaseConfig = {
