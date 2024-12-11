@@ -450,7 +450,7 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
       target = response.target; 
       data.correct = responseValue === target;
     }
-
+    
     if (runCat) {
     // update theta for CAT
       const zeta = {
@@ -465,7 +465,6 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
         cat.updateAbilityEstimate(zeta, answer)
       }
     }
-
 
     // check response and record it
     const responseType = data.button_response ? 'mouse' : 'keyboard';

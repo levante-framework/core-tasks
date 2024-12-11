@@ -102,6 +102,13 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
       timeline.push(afcStimulusTemplate(trialConfig, trial)); 
     });
 
+    // push in starting block
+    corpora.start.forEach((trial: StimulusType) => {
+      timeline.push(fixationOnly); 
+      timeline.push(afcStimulusTemplate(trialConfig, trial));
+      timeline.push(ifRealTrialResponse); 
+    });
+
     const numOfCatTrials = corpora.cat.length;
     for (let i = 0; i < numOfCatTrials; i++) {
       if (i === 2) {
