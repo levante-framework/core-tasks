@@ -79,6 +79,12 @@ export default function buildVocabTimeline(config: Record<string, any>, mediaAss
       timeline.push(afcStimulusTemplate(trialConfig, trial)); 
     });
 
+    // push in starting block
+    corpora.start.forEach((trial: StimulusType) => {
+      timeline.push(fixationOnly); 
+      timeline.push(afcStimulusTemplate(trialConfig, trial)); 
+    });
+
     // cat block
     const numOfCatTrials = corpora.cat.length;
     for (let i = 0; i < numOfCatTrials; i++) {
