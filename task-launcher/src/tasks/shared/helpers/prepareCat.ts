@@ -11,7 +11,8 @@ export function prepareCorpus(corpus: StimulusType[]) {
   );
 
   const possibleStartItems: StimulusType[] = corpus.filter(trial =>
-    (trial.difficulty !== undefined && !isNaN(trial.difficulty)) &&
+    (trial.difficulty != null) &&
+    !isNaN(trial.difficulty) &&
     !instructionPracticeTrials.includes(trial) &&
     (trial.trialType !== excludedTrialTypes)
   )
@@ -23,7 +24,7 @@ export function prepareCorpus(corpus: StimulusType[]) {
   );
 
   const unnormedTrials: StimulusType[] = catCorpus.filter((trial) => 
-    isNaN(trial.difficulty)
+    trial.difficulty == null || isNaN(trial.difficulty)
   );
 
   const normedCatCorpus: StimulusType[] = catCorpus.filter(trial => !unnormedTrials.includes(trial));
