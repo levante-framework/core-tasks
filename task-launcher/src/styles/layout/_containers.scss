@@ -100,9 +100,22 @@
     color: black;
     font-size: xx-large;
     padding-bottom: 0;
+    margin-right: 25%;
+    margin-left: 25%;
 
     p{
       margin-bottom: 0;
+    }
+
+    @include respond-to('small-medium') {
+      margin-left: 15%;
+      margin-right: 15%;
+      font-size: x-large;
+    }
+
+    @include respond-to('small') {
+      margin-left: 5%;
+      margin-right: 5%;
     }
   }
 
@@ -115,6 +128,11 @@
     font-size: xx-large;
     padding: 12px;
     font-weight: bold;
+
+    @include respond-to('small-medium') {
+      font-size: x-large;
+    }
+
   }
 
   &.instruction-small {
