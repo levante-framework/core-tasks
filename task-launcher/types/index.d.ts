@@ -1,3 +1,5 @@
+import { JsPsych } from 'jspsych';
+
 export {};
 
 declare global {
@@ -73,5 +75,6 @@ declare global {
 
   interface Window {
     Cypress: any; // FIXME: Add explict type
+    initJsPsych: JsPsych;
   }
 }

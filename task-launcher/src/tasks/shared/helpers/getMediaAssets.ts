@@ -1,38 +1,29 @@
+//@ts-ignore
 import { getDevice } from '@bdelab/roar-utils';
 import { camelize } from './camelize';
-// Grab by device, check nested shared
 
-// How to use whitelist: The key is the parent folder, the value is the actual (child) folder to whitelist
-// This is because we need to know the folder in which to whitelist
-// The value is an array of strings (folder names)
+type CategorizedObjectsType = {
+  images: Record<string, string>,
+  audio: Record<string, string>,
+  video: Record<string, string>,
+};
 
-// TODO:
-// 1. Add search device folder after language code folder
-// 2. Whitelisting
+type ResponseItemType = {
+  name: string;
+  contentType: string;
+};
 
-const wlist = {
-  // desktop: ['ai1', 'anotherOne'],
-  // ai1: ['woman']
-
-  desktop: {
-    ai1: ['women'],
-    ai2: ['robotImages'],
-    ai3: {
-      animals: {
-        mamals: {
-          color: ['brown', 'orange'],
-        },
-      },
-    },
-  },
+type ResponseDataType = {
+  items: ResponseItemType[];
+  nextPageToken: string;
 };
 
 export async function getMediaAssets(
-  bucketName,
-  whitelist = {},
-  language,
+  bucketName: string,
+  whitelist: Record<string, any> = {},
+  language: string,
   nextPageToken = '',
-  categorizedObjects = { images: {}, audio: {}, video: {} },
+  categorizedObjects: CategorizedObjectsType = { images: {}, audio: {}, video: {} },
 ) {
   const device = getDevice();
 
@@ -43,14 +34,14 @@ export async function getMediaAssets(
   }
 
   const response = await fetch(url);
-  const data = await response.json();
+  const data: ResponseDataType = await response.json();
 
   data.items.forEach((item) => {
     if (isLanguageAndDeviceValid(item.name, language, device) && isWhitelisted(item.name, whitelist)) {
       const contentType = item.contentType;
       const id = item.name;
       const path = `https://storage.googleapis.com/${bucketName}/${id}`;
-      const fileName = id.split('/').pop().split('.')[0];
+      const fileName = id.split('/').pop()?.split('.')[0] || '';
       const camelCaseFileName = camelize(fileName);
 
       if (contentType.startsWith('image/')) {
@@ -71,7 +62,7 @@ export async function getMediaAssets(
   }
 }
 
-function isLanguageAndDeviceValid(filePath, languageCode, device) {
+function isLanguageAndDeviceValid(filePath: string, languageCode: string, device: string) {
   const parts = filePath.split('/');
   if (parts[0] === 'shared') {
     return true; // Shared folder is always valid
@@ -85,7 +76,7 @@ function isLanguageAndDeviceValid(filePath, languageCode, device) {
 }
 
 // TODO: allow nested whitelisting (whitelisting within an already whitelisted folder)
-function isWhitelisted(filePath, whitelist) {
+function isWhitelisted(filePath: string, whitelist: Record<string, string[]>) {
   const parts = filePath.split('/');
   for (const [parent, children] of Object.entries(whitelist)) {
     const parentIndex = parts.indexOf(parent);
