@@ -355,7 +355,7 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
     twoTrialsAgoIndex = currentTrialIndex - 3; // math has a fixation or something
 
     // flag correct answers with alt text for math if running a Cypress test
-    if (window.Cypress) {
+    if (window.Cypress && !isInstructionTrial) {
       const choices: NodeListOf<HTMLButtonElement> = document.querySelectorAll('.secondary');
 
       for (var i = 0; i < choices.length; i++) {
