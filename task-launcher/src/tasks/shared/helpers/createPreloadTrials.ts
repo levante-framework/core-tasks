@@ -1,18 +1,37 @@
 import jsPsychPreload from '@jspsych/plugin-preload';
 
+type CategorizedObjectsType = Record<string, Array<string>>;
+
+function createJsPsychPreloadObject() {
+  return {
+    type: jsPsychPreload,
+    // message: 'The experiment is loading',
+    show_progress_bar: true,
+    continue_after_error: false,
+    error_message: '',
+    show_detailed_errors: true,
+    max_load_time: null,
+    on_error: null,
+    on_success: null,
+    images: [],
+    audio: [],
+    video: [],
+  };
+}
+
 // TODO: Handle shared files when using blocks.
-export function createPreloadTrials(categorizedObjects, blocks = []) {
+export function createPreloadTrials(categorizedObjects: CategorizedObjectsType, blocks: string[] = []) {
   // Initialize jsPsychPreload trial objects for each block
   const trials =
     blocks.length > 0
-      ? blocks.reduce((acc, block) => {
+      ? blocks.reduce((acc: Record<string, any>, block) => {
           acc[block] = createJsPsychPreloadObject();
           return acc;
         }, {})
       : { default: createJsPsychPreloadObject() };
 
   // Helper function to check if URL contains a block name as an exact folder name
-  const containsBlock = (url, block) => {
+  const containsBlock = (url: string, block: string) => {
     const urlParts = new URL(url).pathname.split('/');
     return urlParts.some((part) => part === block);
   };
@@ -38,25 +57,4 @@ export function createPreloadTrials(categorizedObjects, blocks = []) {
   });
 
   return trials;
-}
-
-function createJsPsychPreloadObject() {
-  return {
-    type: jsPsychPreload,
-    // message: 'The experiment is loading',
-    show_progress_bar: true,
-    continue_after_error: false,
-    error_message: '',
-    show_detailed_errors: true,
-    max_load_time: null,
-    on_error: null,
-    on_success: null,
-    images: [],
-    audio: [],
-    video: [],
-    // TODO: Make LEVANTE loading screen disappear when preload is done
-    // on_finish: () => {
-    //   hideLevanteLogoLoading();
-    // },
-  };
 }
