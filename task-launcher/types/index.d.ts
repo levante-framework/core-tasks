@@ -61,7 +61,7 @@ declare global {
     requiredSelections: number;
     blockIndex?: number;
     prompt: string;
-    difficulty?: number;
+    difficulty: number;
   };
 
   type MediaAssetsType = {
