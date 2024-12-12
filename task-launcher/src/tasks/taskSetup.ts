@@ -1,3 +1,4 @@
+//@ts-ignore
 import { getDevice } from '@bdelab/roar-utils';
 import { Cat } from '@bdelab/jscat';
 import { initJsPsych } from 'jspsych';
@@ -6,7 +7,7 @@ import { taskStore } from '../taskStore';
 
 export const isTouchScreen = getDevice() === 'mobile';
 
-export let cat;
+export let cat: any;
 
 const { runCat } = taskStore(); 
 
