@@ -74,7 +74,10 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus, task) =
         }
       })(),
       audioFile: row.audio_file,
+      // difficulty must be undefined to avoid running cat
+      difficulty: taskStore().runCat ? parseFloat(row.d || row.difficulty) : NaN,
     };
+
     if (row.task === 'Mental Rotation') {
       newRow.item = camelize(newRow.item);
       newRow.answer = camelize(newRow.answer);

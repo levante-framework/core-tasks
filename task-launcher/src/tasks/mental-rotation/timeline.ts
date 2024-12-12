@@ -26,6 +26,9 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
 
     conditional_function: () => {
       const stim = taskStore().nextStimulus;
+      if (runCat) { // this trial is never used after a practice trial when running in cat
+        return true; 
+      }
       if (stim.assessmentStage === 'practice_response') {
         return false;
       }
@@ -110,6 +113,13 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
     corpora.instructionPractice.forEach((trial: StimulusType) => {
       timeline.push(fixationOnly); 
       timeline.push(afcStimulusTemplate(trialConfig, trial)); 
+    });
+
+    // push in starting block
+    corpora.start.forEach((trial: StimulusType) => {
+      timeline.push(fixationOnly); 
+      timeline.push(afcStimulusTemplate(trialConfig, trial));
+      timeline.push(ifRealTrialResponse); 
     });
 
     const numOfCatTrials = corpora.cat.length;
