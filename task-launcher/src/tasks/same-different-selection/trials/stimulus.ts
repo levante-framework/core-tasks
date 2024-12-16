@@ -7,6 +7,8 @@ import { finishExperiment } from '../../shared/trials';
 //@ts-ignore
 import { jsPsych } from '../../taskSetup';
 import { taskStore } from '../../../taskStore';
+import { handleStaggeredButtons } from '../../shared/helpers/staggerButtons';
+
 
 const replayButtonHtmlId = 'replay-btn-revisited'; 
 let incorrectPracticeResponses: string[] = [];
@@ -144,7 +146,8 @@ export const stimulus = {
   ),
   on_load: () => {
     startTime = performance.now();
-    const audioFile = taskStore().nextStimulus.audioFile;
+    const stimulus = taskStore().nextStimulus; 
+    const audioFile = stimulus.audioFile;
     PageAudioHandler.playAudio(mediaAssets.audio[camelize(audioFile)]);
 
     const pageStateHandler = new PageStateHandler(audioFile);
@@ -154,6 +157,14 @@ export const stimulus = {
     buttonContainer.classList.add('multi-4');
     const trialType = taskStore().nextStimulus.trialType; 
     const assessmentStage = taskStore().nextStimulus.assessmentStage;
+
+    if (stimulus.trialType === 'something-same-2') {
+      handleStaggeredButtons(
+        pageStateHandler, 
+        buttonContainer, 
+        ['same-different-selection-highlight-1', 'same-different-selection-highlight-2'],
+      );
+    }
     
     if (trialType === 'test-dimensions' || assessmentStage === 'practice_response'){ // cards should give feedback during test dimensions block
       const practiceBtns = Array.from(buttonContainer.children)
