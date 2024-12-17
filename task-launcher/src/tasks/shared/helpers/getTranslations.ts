@@ -1,3 +1,4 @@
+//@ts-ignore
 import Papa from 'papaparse';
 import { camelize } from './camelize';
 import { taskStore } from '../../../taskStore';
@@ -33,11 +34,11 @@ export const getTranslations = async (configLanguage: string) => {
         download: true,
         header: true,
         skipEmptyLines: true,
-        complete: function (results) {
+        complete: function (results: any) {
           parseTranslations(results.data, configLanguage);
           resolve(results.data);
         },
-        error: function (error) {
+        error: function (error: any) {
           reject(error);
         },
       });
