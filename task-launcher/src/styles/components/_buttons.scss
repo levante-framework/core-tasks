@@ -121,6 +121,12 @@ button {
     border-color: $border-green_dark;
     box-shadow: $button-secondary-box-shadow $border-green_dark inset,
       $button-secondary-inner-shadow $bg-green-gradient inset;
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
     
     @include respond-to('small') {
       font-size: $font-size-l;
