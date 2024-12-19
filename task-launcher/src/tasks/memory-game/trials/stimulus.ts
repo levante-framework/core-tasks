@@ -113,7 +113,6 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false, rese
         taskStore('isCorrect', data.correct);
 
         if (data.correct && !isPractice) {
-          taskStore('numIncorrect', 0)
           numCorrect++;
 
           if (numCorrect === 3) {
