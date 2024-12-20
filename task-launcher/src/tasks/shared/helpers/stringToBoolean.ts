@@ -1,4 +1,4 @@
-export function stringToBoolean(str, defaultValue = false) {
+export function stringToBoolean(str?: string, defaultValue = false) {
   if (str === null || str === undefined) {
     return defaultValue;
   }
