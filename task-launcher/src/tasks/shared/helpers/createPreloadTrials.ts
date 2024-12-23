@@ -1,7 +1,5 @@
 import jsPsychPreload from '@jspsych/plugin-preload';
 
-type CategorizedObjectsType = Record<string, Array<string>>;
-
 function createJsPsychPreloadObject() {
   return {
     type: jsPsychPreload,
@@ -20,7 +18,7 @@ function createJsPsychPreloadObject() {
 }
 
 // TODO: Handle shared files when using blocks.
-export function createPreloadTrials(categorizedObjects: CategorizedObjectsType, blocks: string[] = []) {
+export function createPreloadTrials(categorizedObjects: MediaAssetsType, blocks: string[] = []) {
   // Initialize jsPsychPreload trial objects for each block
   const trials =
     blocks.length > 0

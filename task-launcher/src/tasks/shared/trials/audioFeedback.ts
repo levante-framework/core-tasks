@@ -1,7 +1,7 @@
 import jsPsychAudioKeyboardResponse from '@jspsych/plugin-audio-keyboard-response';
 import { taskStore } from '../../../taskStore';
 
-export function getAudioResponse(mediaAssets) {
+export function getAudioResponse(mediaAssets: MediaAssetsType) {
   return {
     type: jsPsychAudioKeyboardResponse,
     stimulus: () => {

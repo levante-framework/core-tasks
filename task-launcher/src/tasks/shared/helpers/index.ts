@@ -24,3 +24,4 @@ export * from './setSkipCurrentBlock'
 export { PageAudioHandler } from './audioHandler';
 export { PageStateHandler } from './PageStateHandler';
 export { camelize } from './camelize';
+export { prepareCorpus, selectNItems } from './prepareCat';

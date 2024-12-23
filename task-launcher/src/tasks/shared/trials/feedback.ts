@@ -4,7 +4,7 @@ import { PageAudioHandler } from '../helpers';
 import { taskStore } from '../../../taskStore';
 
 // isPractice parameter is for tasks that don't have a corpus (e.g. memory game)
-export const feedback = (isPractice = false, correctFeedbackAudioKey, inCorrectFeedbackAudioKey) => {
+export const feedback = (isPractice = false, correctFeedbackAudioKey: string, inCorrectFeedbackAudioKey: string) => {
     return {
         timeline: [
             {
