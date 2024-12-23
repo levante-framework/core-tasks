@@ -1,19 +1,15 @@
-//@ts-ignore
 import { initTimeline, initTrialSaving } from '../shared/helpers';
 // setup
-//@ts-ignore
 import { jsPsych } from '../taskSetup';
-//@ts-ignore
 import { initializeCat } from '../taskSetup';
 // trials
-//@ts-ignore
-import { exitFullscreen, feedback } from '../shared/trials';
+import { enterFullscreen, exitFullscreen, feedback, finishExperiment } from '../shared/trials';
 import { getCorsiBlocks } from './trials/stimulus';
 import { instructions, readyToPlay, reverseOrderPrompt } from './trials/instructions';
 
 export default function buildMemoryTimeline(config: Record<string, any>) {
   initTrialSaving(config);
-  const initialTimeline = initTimeline(config);
+  const initialTimeline = initTimeline(config, enterFullscreen, finishExperiment);
 
   const corsiBlocksPractice = {
     timeline: [
@@ -48,7 +44,7 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
     repetitions: 21,
   };
 
-  const timeline = [
+  const timeline: any[] = [
     initialTimeline,
     ...instructions,
     corsiBlocksPractice,
