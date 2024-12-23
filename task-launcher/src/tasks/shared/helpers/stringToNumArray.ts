@@ -1,4 +1,4 @@
-export function stringToNumberArray(inputString) {
+export function stringToNumberArray(inputString: string) {
   // Trim the input string to remove leading and trailing spaces
   const trimmedInput = inputString.trim();
 
