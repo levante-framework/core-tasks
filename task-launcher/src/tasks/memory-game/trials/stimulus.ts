@@ -45,7 +45,7 @@ function setUpAudio(contentWrapper: HTMLDivElement, prompt: HTMLParagraphElement
 
   PageAudioHandler.playAudio(audioFile, () => {
     // set up replay button audio after the first audio has played
-    const pageStateHandler = new PageStateHandler(cue);
+    const pageStateHandler = new PageStateHandler(cue, true);
     setupReplayAudio(pageStateHandler);
   });  
 }

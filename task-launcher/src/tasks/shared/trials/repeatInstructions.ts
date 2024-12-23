@@ -37,7 +37,7 @@ export const repeatInstructionsMessage = {
     on_load: () => {
       PageAudioHandler.playAudio(mediaAssets.audio.generalRepeatInstructions);
 
-      const pageStateHandler = new PageStateHandler('generalRepeatInstructions');
+      const pageStateHandler = new PageStateHandler('generalRepeatInstructions', true);
       setupReplayAudio(pageStateHandler);
     }, 
     on_finish: () => {
