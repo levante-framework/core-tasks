@@ -6,9 +6,9 @@ import { taskStore } from '../../../taskStore';
 
 export function finishExperiment() {
     const t = taskStore().translations;
-    const removeDOMElements = (event) => {
+    const removeDOMElements = (event: Event) => {
         if (event.type === 'click'){
-            const buttonId = event.target.id;
+            const buttonId = (event.target as HTMLElement)?.id;
             if (buttonId === 'exit-button') {
                 document.body.innerHTML = '';
                 window.removeEventListener('click', removeDOMElements);

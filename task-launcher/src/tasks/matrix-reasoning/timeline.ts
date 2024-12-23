@@ -1,13 +1,10 @@
 import 'regenerator-runtime/runtime';
 // setup
-//@ts-ignore
 import { initTrialSaving, initTimeline, createPreloadTrials } from '../shared/helpers';
 import { instructions } from './trials/instructions';
-//@ts-ignore
 import { jsPsych, initializeCat, cat } from '../taskSetup';
 // trials
-//@ts-ignore
-import { afcStimulusTemplate, exitFullscreen, setupStimulus, fixationOnly, taskFinished, getAudioResponse } from '../shared/trials';
+import { afcStimulusTemplate, exitFullscreen, setupStimulus, fixationOnly, taskFinished, getAudioResponse, enterFullscreen, finishExperiment } from '../shared/trials';
 import { getLayoutConfig } from './helpers/config';
 import { repeatInstructionsMessage } from '../shared/trials/repeatInstructions';
 import { prepareCorpus, selectNItems } from '../shared/helpers/prepareCat';
@@ -17,7 +14,7 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
   const preloadTrials = createPreloadTrials(mediaAssets).default;
 
   initTrialSaving(config);
-  const initialTimeline = initTimeline(config);
+  const initialTimeline = initTimeline(config, enterFullscreen, finishExperiment);
 
   const ifRealTrialResponse = {
     timeline: [getAudioResponse(mediaAssets)],
@@ -63,7 +60,7 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
     layoutConfigMap,
   };
 
-  const stimulusBlock = (config: Record<string, any>) => ({
+  const stimulusBlock = (config: typeof trialConfig) => ({
     timeline: [
       setupStimulus,
       afcStimulusTemplate(config), 

@@ -1,8 +1,11 @@
-import { enterFullscreen } from '../trials';
 import { makePid } from './makePID';
-import { startAppTimer } from './index';
+import { startAppTimer } from './appTimer';
 
-export const initTimeline = (config) => {
+export const initTimeline = (
+  config: Record<string, any>,
+  enterFullscreen: Record<string, any>,
+  finishExperiment: () => void
+) => {
   const initialTimeline = [enterFullscreen];
 
   const beginningTimeline = {
@@ -13,7 +16,7 @@ export const initTimeline = (config) => {
         ...config.userMetadata,
       });
 
-      startAppTimer(config);
+      startAppTimer(config.maxTime, finishExperiment);
     },
   };
 

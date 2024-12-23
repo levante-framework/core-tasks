@@ -1,5 +1,5 @@
 import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
-import { getStimulus, } from '../helpers';
+import { getStimulus } from '../helpers';
 
 // choosing the next stimulus from the corpus occurs during the fixation trial
 // prior to the actual display of the stimulus, where user response is collected
@@ -20,10 +20,10 @@ const setupData = [
   }
 ];
 
-const setupTrials = setupData.map((trial, i) => {
+const setupTrials = setupData.map((trial) => {
   return {
     type: jsPsychHTMLMultiResponse,
-    stimulus: trial.stimulus || `<div id='lev-fixation-container'><p>+</p></div>`, // Default if not provided
+    stimulus: `<div id='lev-fixation-container'><p>+</p></div>`,
     prompt: '',
     choices: 'NO_KEYS',
     trial_duration: 350,

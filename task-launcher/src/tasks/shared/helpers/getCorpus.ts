@@ -7,32 +7,70 @@ import _compact from 'lodash/compact';
 import _toNumber from 'lodash/toNumber';
 import { stringToNumberArray } from './stringToNumArray';
 import { dashToCamelCase } from './dashToCamelCase';
-import { camelize } from '@bdelab/roar-utils';
+import { camelize } from './camelize';
 import { shuffleStimulusTrials } from './randomizeStimulusBlocks';
 import {shuffleStories} from '../../roar-inference/helpers/shuffleRoarInferenceStories'
 import { taskStore } from '../../../taskStore';
 
-export let corpora;
-export const sdsPhaseCount = {}
+type ParsedRowType = {
+  source: string;
+  block_index?: string;
+  blockIndex?: number;
+  task: string;
+  prompt: string;
+  item: string | number[];
+  origItemNum: string;
+  orig_item_num: string;
+  trialType: string;
+  image: string | string[];
+  timeLimit: string;
+  answer: string | number;
+  assessmentStage: string;
+  chanceLevel: number;
+  itemId: string;
+  distractors: number[] | string[];
+  audioFile: string;
+  // difficulty must be undefined to avoid running cat
+  difficulty: string;
+  d: string;
+  trial_type: string;
+  required_selections: string;
+  requiredSelections?: number;
+  time_limit: string;
+  assessment_stage: string;
+  chance_level: string;
+  item_id: string;
+  response_alternatives: string;
+  audio_file: string;
+};
+
+export const sdsPhaseCount = {
+  phase1: 0,
+  phase2a: 0,
+  phase2b: 0,
+  phase2c: 0,
+  phase2d: 0,
+  phase2e: 0,
+};
 
 let totalTrials = 0;
 
-let stimulusData = [];
+let stimulusData: StimulusType[] = [];
 
-function writeItem(row) {
+function writeItem(row: ParsedRowType) {
   if (row.task === 'math' && row.trial_type.includes('Number Line')) {
-    const splitArr = row.item.split(',');
+    const splitArr = (row.item as string).split(',');
     return splitArr.map((el) => _toNumber(el));
   }
 
   return row.item;
 }
 
-function containsLettersOrSlash(str) {
+function containsLettersOrSlash(str: string) {
   return /[a-zA-Z\/]/.test(str);
 }
 
-const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus, task) => {
+const transformCSV = (csvInput: ParsedRowType[], numOfPracticeTrials: number, sequentialStimulus: boolean, task: string) => {
   let currTrialTypeBlock = '';
   let currPracticeAmount = 0;
 
@@ -49,7 +87,7 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus, task) =
     // Leaving this here for quick testing of a certain type of trial
     // if (!row.trial_type.includes('Number Line')) return;
 
-    const newRow = {
+    const newRow: StimulusType = {
       source: row.source,
       block_index: row.block_index,
       task: row.task,
@@ -58,7 +96,7 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus, task) =
       item: writeItem(row),
       origItemNum: row.orig_item_num,
       trialType: row.trial_type,
-      image: row?.image?.includes(',') ? row.image.split(',') : row?.image,
+      image: row?.image?.includes(',') ? (row.image as string).split(',') : row?.image,
       timeLimit: row.time_limit,
       answer: _toNumber(row.answer) || row.answer,
       assessmentStage: row.assessment_stage,
@@ -79,14 +117,14 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus, task) =
     };
 
     if (row.task === 'Mental Rotation') {
-      newRow.item = camelize(newRow.item);
-      newRow.answer = camelize(newRow.answer);
-      newRow.distractors = newRow.distractors.map((choice) => camelize(choice));
+      newRow.item = camelize(newRow.item as string);
+      newRow.answer = camelize(newRow.answer as string);
+      newRow.distractors = (newRow.distractors as string[]).map((choice) => camelize(choice));
     }
 
     if (row.task === 'same-different-selection') {
       newRow.requiredSelections = parseInt(row.required_selections)
-      newRow.blockIndex = parseInt(row.block_index)
+      newRow.blockIndex = parseInt(row.block_index || '')
       // all instructions are part of phase 1
       if (((newRow.trialType.includes('something-same') || 
           newRow.trialType.includes('test-dimensions')) &&
@@ -147,8 +185,8 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus, task) =
   }
 };
 
-export const getCorpus = async (config) => {
-  const { corpus, task, sequentialStimulus, sequentialPractice, numOfPracticeTrials } = config;
+export const getCorpus = async (config: Record<string, any>) => {
+  const { corpus, task, sequentialStimulus, numOfPracticeTrials } = config;
 
   const corpusLocation = {
     egmaMath: `https://storage.googleapis.com/${task}/shared/corpora/${corpus}.csv`,
@@ -161,9 +199,9 @@ export const getCorpus = async (config) => {
     roarInference: `https://storage.googleapis.com/roar-inference/en/corpora/${corpus}.csv`,
   };
 
-  function downloadCSV(url, i) {
+  function downloadCSV(url: string) {
     return new Promise((resolve, reject) => {
-      Papa.parse(url, {
+      Papa.parse<ParsedRowType>(url, {
         download: true,
         header: true,
         skipEmptyLines: true,
@@ -178,13 +216,13 @@ export const getCorpus = async (config) => {
     });
   }
 
-  async function parseCSVs(urls) {
-    const promises = urls.map((url, i) => downloadCSV(url, i));
+  async function parseCSVs(urls: string[]) {
+    const promises = urls.map((url, i) => downloadCSV(url));
     return Promise.all(promises);
   }
 
   async function fetchData() {
-    const urls = [corpusLocation[dashToCamelCase(task)]];
+    const urls = [corpusLocation[dashToCamelCase(task) as keyof typeof corpusLocation]];
 
     try {
       await parseCSVs(urls);
@@ -201,10 +239,5 @@ export const getCorpus = async (config) => {
     stimulus: stimulusData, // previously shuffled by shuffleStimulusTrials
   };
 
-  corpora = {
-    practice: csvTransformed.practice,
-    stimulus: csvTransformed.stimulus,
-  };
-
-  taskStore('corpora', corpora);
+  taskStore('corpora', csvTransformed);
 };

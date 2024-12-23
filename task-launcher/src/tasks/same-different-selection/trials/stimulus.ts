@@ -147,7 +147,7 @@ export const stimulus = {
     const audioFile = taskStore().nextStimulus.audioFile;
     PageAudioHandler.playAudio(mediaAssets.audio[camelize(audioFile)]);
 
-    const pageStateHandler = new PageStateHandler(audioFile);
+    const pageStateHandler = new PageStateHandler(audioFile, true);
     setupReplayAudio(pageStateHandler);
     const buttonContainer = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
     buttonContainer.classList.add('lev-response-row');

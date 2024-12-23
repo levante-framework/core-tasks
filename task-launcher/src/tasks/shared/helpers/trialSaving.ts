@@ -1,3 +1,5 @@
+import { jsPsych } from '../../taskSetup';
+import cloneDeep from 'lodash/cloneDeep';
 import _mapValues from 'lodash/mapValues';
 import { taskStore } from '../../../taskStore';
 
@@ -31,10 +33,10 @@ import { taskStore } from '../../../taskStore';
  * @param {*} rawScores
  * @returns {*} computedScores
  */
-export const computedScoreCallback = (rawScores) => {
+export const computedScoreCallback = (rawScores: Record<string, any>) => {
   // This returns an object with the same top-level keys as the input raw scores
   // But the values are the number of correct trials, not including practice trials.
-  const computedScores = _mapValues(rawScores, (subtaskScores) => {
+  const computedScores: any = _mapValues(rawScores, (subtaskScores) => {
     const subScore = subtaskScores.test?.numCorrect || 0;
     const subPercentCorrect = subtaskScores.test?.numCorrect / subtaskScores.numAttempted || 0;
 
@@ -90,7 +92,71 @@ export const computedScoreCallback = (rawScores) => {
  * @returns {*} normedScores
  */
 // eslint-disable-next-line no-unused-vars
-export const normedScoreCallback = (computedScores, demographic_data) => {
+export const normedScoreCallback = (computedScores: any) => {
   // TODO: Add table lookup after norms have been collected and established.
   return Object.fromEntries(Object.entries(computedScores).map(([key, val]) => [key, val]));
+};
+
+export const initTrialSaving = (config: Record<string, any>) => {
+  if (config.displayElement) {
+    // @ts-ignore
+    jsPsych.opts.display_element = config.display_element;
+  }
+
+  // Extend jsPsych's on_finish and on_data_update lifecycle functions to mark the
+  // run as completed and write data to Firestore, respectively.
+  const extend = (fn: Function, code: Function) => (
+    function () {
+      // eslint-disable-next-line prefer-rest-params
+      fn.apply(fn, arguments);
+      // eslint-disable-next-line prefer-rest-params
+      code.apply(fn, arguments);
+    }
+  );
+
+  // @ts-ignore
+  jsPsych.opts.on_finish = extend(jsPsych.opts.on_finish, () => {
+    // Add finishing metadata to run doc
+    // const finishingMetadata = {}
+    // const { maxTimeReached, numIncorrect, maxIncorrect } = taskStore();
+
+    // if (maxTimeReached) {
+    //   finishingMetadata.reasonTaskEnded = 'Max Time'
+    // } else if (numIncorrect >= maxIncorrect) {
+    //   finishingMetadata.reasonTaskEnded = 'Max Incorrect Trials'
+    // } else {
+    //   finishingMetadata.reasonTaskEnded = 'Completed Task'
+    // }
+
+    // config.firekit.finishRun(finishingMetadata);
+
+    config.firekit.finishRun();
+  });
+
+  // @ts-ignore
+  jsPsych.opts.on_data_update = extend(jsPsych.opts.on_data_update, (data) => {
+    if (data.save_trial) {
+      // save_trial is a flag that indicates whether the trial should
+      // be saved to Firestore. No point in writing it to the db.
+      // creating a deep copy to prevent modifying of original data
+      // since it is used down the line for the rest of the pipeline
+
+      const dataCopy = cloneDeep(data);
+      delete dataCopy.save_trial;
+      delete dataCopy.internal_node_id;
+      delete dataCopy.button_response;
+      delete dataCopy.keyboard_response;
+      delete dataCopy.response_source;
+      dataCopy.responseSource = data.response_source;
+      delete dataCopy.trial_type;
+      dataCopy.trialIndex = dataCopy.trial_index;
+      delete dataCopy.trial_index;
+
+      if (config.isRoarApp) {
+        config.firekit.writeTrial(dataCopy, computedScoreCallback);
+      } else {
+        config.firekit.writeTrial(dataCopy);
+      }
+    }
+  });
 };
