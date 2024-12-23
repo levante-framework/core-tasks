@@ -7,7 +7,7 @@ import _compact from 'lodash/compact';
 import _toNumber from 'lodash/toNumber';
 import { stringToNumberArray } from './stringToNumArray';
 import { dashToCamelCase } from './dashToCamelCase';
-import { camelize } from '@bdelab/roar-utils';
+import { camelize } from './camelize';
 import { shuffleStimulusTrials } from './randomizeStimulusBlocks';
 import {shuffleStories} from '../../roar-inference/helpers/shuffleRoarInferenceStories'
 import { taskStore } from '../../../taskStore';
