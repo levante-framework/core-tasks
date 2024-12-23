@@ -1,6 +1,4 @@
-import { camelize } from "../../shared/helpers/camelize";
-//@ts-ignore
-import { prepareChoices } from "../../shared/helpers/prepareChoices";
+import { prepareChoices } from "../../shared/helpers";
 import { DEFAULT_LAYOUT_CONFIG } from "../../shared/helpers/config";
 import { validateLayoutConfig } from "../../shared/helpers/validateLayoutConfig";
 
