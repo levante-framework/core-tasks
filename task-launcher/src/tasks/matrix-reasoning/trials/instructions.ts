@@ -52,7 +52,7 @@ export const instructions = instructionData.map(data => {
         on_load: () => {
             PageAudioHandler.playAudio(mediaAssets.audio[data.prompt]); 
 
-            const pageStateHandler = new PageStateHandler(data.prompt);
+            const pageStateHandler = new PageStateHandler(data.prompt, true);
             setupReplayAudio(pageStateHandler);
         }, 
         on_finish: () => {
