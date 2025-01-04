@@ -1,6 +1,10 @@
-import { prepareChoices } from "../../shared/helpers";
-import { DEFAULT_LAYOUT_CONFIG } from "../../shared/helpers/config";
-import { validateLayoutConfig } from "../../shared/helpers/validateLayoutConfig";
+import {
+  convertItemToString,
+  validateLayoutConfig,
+  prepareChoices,
+  DEFAULT_LAYOUT_CONFIG,
+  mapDistractorsToString,
+} from '../../shared/helpers';
 
 type GetConfigReturnType = {
   itemConfig: LayoutConfigType;
@@ -17,11 +21,12 @@ export const getLayoutConfig = (
   defaultConfig.isPracticeTrial = stimulus.assessmentStage === 'practice_response';
   defaultConfig.isInstructionTrial = stimulus.trialType === 'instructions';
   defaultConfig.stimText = {
-    value: stimulus.item,
+    value: convertItemToString(stimulus.item),
     displayValue: undefined,
   };
   if (!defaultConfig.isInstructionTrial) {
-    const prepChoices = prepareChoices(answer, distractors, false, trialType);
+    const mappedDistractors = mapDistractorsToString(distractors);
+    const prepChoices = prepareChoices(answer.toString(), mappedDistractors, false, trialType);
     defaultConfig.isImageButtonResponse = true;
     defaultConfig.classOverrides.stimulusContainerClassList = ['lev-stim-content'];
     defaultConfig.classOverrides.buttonClassList = ['image-large'];

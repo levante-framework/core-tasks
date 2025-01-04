@@ -1,14 +1,10 @@
 import 'regenerator-runtime/runtime';
 // setup
-//@ts-ignore
-import { initTrialSaving, initTimeline, createPreloadTrials } from '../shared/helpers';
+import { initTrialSaving, initTimeline, createPreloadTrials, convertItemToString } from '../shared/helpers';
 import { instructions } from './trials/instructions';
-//@ts-ignore
 import { jsPsych, initializeCat } from '../taskSetup';
 // trials
-//@ts-ignore
-import { exitFullscreen, setupStimulus, taskFinished } from '../shared/trials';
-//@ts-ignore
+import { exitFullscreen, setupStimulus, taskFinished, enterFullscreen, finishExperiment } from '../shared/trials';
 import {AfcStimulusInput, afcStimulusInference } from './trials/afcInference';
 import { getLayoutConfig } from './helpers/config';
 import { repeatInstructionsMessage } from '../shared/trials/repeatInstructions';
@@ -20,7 +16,7 @@ export default function buildRoarInferenceTimeline(config: Record<string, any>, 
   const preloadTrials = createPreloadTrials(mediaAssets).default;
 
   initTrialSaving(config);
-  const initialTimeline = initTimeline(config);
+  const initialTimeline = initTimeline(config, enterFullscreen, finishExperiment);
 
   const timeline = [preloadTrials, initialTimeline, ...instructions];
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
@@ -32,7 +28,7 @@ export default function buildRoarInferenceTimeline(config: Record<string, any>, 
   for (const c of corpus) {
     const { itemConfig, errorMessages } = getLayoutConfig(c, translations, mediaAssets, i);
     layoutConfigMap[c.itemId] = itemConfig;
-    layoutConfigMap[c.itemId].story = c.item;
+    layoutConfigMap[c.itemId].story = convertItemToString(c.item);
     layoutConfigMap[c.itemId].storyId = c.itemId;
     if (errorMessages.length) {
       validationErrorMap[c.itemId] = errorMessages.join('; ');
