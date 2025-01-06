@@ -9,7 +9,7 @@ import { initializeCat } from '../taskSetup';
 //@ts-ignore
 import { exitFullscreen, feedback } from '../shared/trials';
 import { getCorsiBlocks } from './trials/stimulus';
-import { instructions, readyToPlay, reverseOrderPrompt } from './trials/instructions';
+import { instructions, readyToPlay, reverseOrderPrompt, reverseOrderInstructions } from './trials/instructions';
 import { taskStore } from '../../taskStore';
 
 export default function buildMemoryTimeline(config: Record<string, any>) {
@@ -29,7 +29,7 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
     timeline: [
       getCorsiBlocks({ mode: 'display', isPractice: true, reverse: true }),
       getCorsiBlocks({ mode: 'input', isPractice: true, reverse: true }),
-      feedback(true, 'feedbackCorrect', 'memoryGameForwardTryAgain'),
+      feedback(true, 'feedbackCorrect', 'memoryGameBackwardTryAgain'),
     ],
     repetitions: 3,
   };
@@ -77,8 +77,10 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
     readyToPlay,
     corsiBlocksStimulus,
     forwardTrialResetSeq,
+    reverseOrderInstructions,
     reverseOrderPrompt,
     corsiBlocksPracticeReverse,
+    readyToPlay,
     corsiBlocksReverse,
   ];
 
