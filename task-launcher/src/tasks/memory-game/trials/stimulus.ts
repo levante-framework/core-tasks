@@ -126,7 +126,7 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false, rese
           numCorrect = 0;
         }
 
-        if (taskStore().numIncorrect == taskStore().maxIncorrect) {
+        if (taskStore().numIncorrect == taskStore().maxIncorrect && reverse) {
           finishExperiment();
         }
 
