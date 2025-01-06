@@ -1,3 +1,5 @@
+@use '../abstracts' as *;
+
 .jspsych-display-element {
   height: 100%;
   width: 100%;
@@ -13,6 +15,7 @@
   -ms-user-select: none; /* Internet Explorer/Edge */
   user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
   color: #0f3cac;
+  background-color: $bg-workspace-base;
   background-image: url('../assets/levante-background.png');
   background-size: cover;
 
