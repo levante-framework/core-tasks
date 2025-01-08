@@ -7,7 +7,7 @@ import { createPreloadTrials, initTrialSaving, initTimeline } from '../shared/he
 // trials
 // @ts-ignore
 import { afcStimulusTemplate, taskFinished, exitFullscreen, setupStimulus, fixationOnly, getAudioResponse } from '../shared/trials';
-import { imageInstructions, videoInstructionsFit, videoInstructionsMisfit } from './trials/instructions';
+import { imageInstructions, threeDimInstructions, videoInstructionsFit, videoInstructionsMisfit } from './trials/instructions';
 import { getLayoutConfig } from './helpers/config';
 import { repeatInstructionsMessage } from '../shared/trials/repeatInstructions';
 import { prepareCorpus, selectNItems } from '../shared/helpers/prepareCat';
@@ -17,6 +17,7 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
   const preloadTrials = createPreloadTrials(mediaAssets).default;
   const { runCat } = taskStore();
   const { semThreshold } = taskStore();
+  let playedThreeDimInstructions = false; 
 
   initTrialSaving(config);
   const initialTimeline = initTimeline(config);
@@ -76,7 +77,6 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
   // runs with adaptive algorithm if cat enabled
   const stimulusBlock = {
     timeline: [
-      setupStimulus,
       afcStimulusTemplate(trialConfig), 
       ifRealTrialResponse
     ],
@@ -105,6 +105,20 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
     }
   }; 
 
+  const threeDimInstructBlock = {
+    timeline: [
+      threeDimInstructions
+    ], 
+    conditional_function: () => {
+      if (taskStore().nextStimulus.trialType === '3D' && !playedThreeDimInstructions) {
+        playedThreeDimInstructions = true; 
+        return true
+      }
+
+      return false
+    }
+  }
+
   if (runCat) {
     // seperate out corpus to get cat/non-cat blocks
     const corpora = prepareCorpus(corpus); 
@@ -127,6 +141,8 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
       if (i === 2) {
         timeline.push(repeatInstructions)
       }
+      timeline.push(setupStimulus);
+      timeline.push(threeDimInstructBlock);
       timeline.push(stimulusBlock);
     }
 
@@ -143,6 +159,8 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
       if (i === 4) {
         timeline.push(repeatInstructions)
       }
+      timeline.push(setupStimulus); 
+      timeline.push(threeDimInstructBlock);
       timeline.push(stimulusBlock);
     }
   }

@@ -195,11 +195,10 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
       document.getElementById('jspsych-html-multi-response-btngroup').classList.add('linear-4');
       const buttons = document.querySelectorAll('.secondary--green');
       buttons.forEach(button => {
+        button.disabled = true;
         if (button.id === validAnswerButtonHtmlIdentifier) {
           button.style.animation = 'pulse 2s infinite';
-        } else {
-          button.disabled = true;
-        }
+        } 
       });
 
       const audioAssetKey = getAssetKey();
@@ -208,17 +207,7 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
       setupReplayAudio(pageStateHandler);
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
-    keyboard_choices: () => {
-      if (isTouchScreen) return InputKey.NoKeys;
-      //else: allow keyboard input
-      if (taskStore().isCorrect === false) {
-        const validAnswerPosition = getCorrectInputSide(taskStore().stimulus, taskStore().stimulusSide);
-        return validAnswerPosition === 0?
-          InputKey.ArrowLeft : InputKey.ArrowRight;
-      } else {
-        return InputKey.AllKeys;
-      }
-    },
+    keyboard_choices: 'NO_KEYS',
     button_html: () => {
       if (taskStore().isCorrect === false) {
         const validAnswerPosition = getCorrectInputSide(taskStore().stimulus, taskStore().stimulusSide);
