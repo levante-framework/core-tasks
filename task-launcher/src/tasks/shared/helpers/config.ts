@@ -76,6 +76,7 @@ export const setSharedConfig = async (firekit: RoarAppkit, gameParams: GameParam
     maxTime, // maximum app duration in minutes
     storeItemId,
     cat,
+    heavyInstructions,
     inferenceNumStories,
     semThreshold
   } = cleanParams;
@@ -103,6 +104,7 @@ export const setSharedConfig = async (firekit: RoarAppkit, gameParams: GameParam
     storeItemId: storeItemId,
     isRoarApp: isRoarApp(firekit),
     cat: cat ?? false,
+    heavyInstructions: heavyInstructions, 
     inferenceNumStories: inferenceNumStories ?? null,
     semThreshold: semThreshold
   };
