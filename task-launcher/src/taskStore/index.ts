@@ -44,6 +44,26 @@ import store from 'store2';
  * @property {boolean} isCorrect - Whether the response to the previous trial was correct, default is false.
  */
 
+export type TaskStoreDataType = {
+  audioFeedback: string;
+  skipInstructions: boolean;
+  corpusId: string;
+  corpus: string,
+  stimulusBlocks: number;
+  buttonLayout: string;
+  task: string; // FIXME: tighten to task name strings
+  maxIncorrect: number;
+  keyHelpers: boolean;
+  storeItemId: boolean;
+  isRoarApp: boolean;
+  userMetadata: {
+    age: number;
+  };
+  inferenceNumStories?: number; // FIXME: Remove
+  cat: boolean;
+  semThreshold: number;
+};
+
 /**
  * Store for managing task state. For all tasks.
  * 
@@ -51,7 +71,7 @@ import store from 'store2';
  */
 export const taskStore = store.page.namespace('taskStore');
 
-export const setTaskStore = (config) => {
+export const setTaskStore = (config: TaskStoreDataType) => {
   taskStore({
     itemSelect: 'mfi',
     trialNumSubtask: 0,
@@ -64,6 +84,7 @@ export const setTaskStore = (config) => {
     audioFeedback: config.audioFeedback,
     skipInstructions: config.skipInstructions,
     corpusId: config.corpusId,
+    corpus: config.corpus,
     buttonLayout: config.buttonLayout,
     task: config.task,
     maxIncorrect: config.maxIncorrect,
@@ -74,6 +95,7 @@ export const setTaskStore = (config) => {
     isRoarApp: config.isRoarApp,
     numOfBlocks: config.userMetadata.age > 12 ? 9 : 4,
     blockSize: config.userMetadata.age > 12 ? 30 : 50,
+    stimulusBlocks: config.stimulusBlocks,
     gridSize: config.userMetadata.age > 12 ? 3 : 2,
     maxTimeReached: false,
     stimulus: 'heart',

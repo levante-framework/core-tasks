@@ -24,7 +24,7 @@ export const getLayoutConfig = (
   defaultConfig.prompt.enabled = true;
   defaultConfig.prompt.useStimText = true;
   defaultConfig.stimText = {
-    value: stimulus.item,
+    value: stimulus.prompt,
     displayValue: undefined,
   };
   defaultConfig.disableButtonsWhenAudioPlaying = true;

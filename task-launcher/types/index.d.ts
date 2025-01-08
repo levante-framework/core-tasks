@@ -1,3 +1,5 @@
+import { JsPsych } from 'jspsych';
+
 export {};
 
 declare global {
@@ -59,7 +61,7 @@ declare global {
     requiredSelections: number;
     blockIndex?: number;
     prompt: string;
-    difficulty?: number;
+    difficulty: number;
   };
 
   type MediaAssetsType = {
@@ -70,4 +72,9 @@ declare global {
 
   type GameParamsType = Record<string, string>;
   type UserParamsType = Record<string, string>;
+
+  interface Window {
+    Cypress: any; // FIXME: Add explict type
+    initJsPsych: JsPsych;
+  }
 }

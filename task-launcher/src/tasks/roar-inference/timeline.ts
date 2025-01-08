@@ -1,7 +1,7 @@
 import 'regenerator-runtime/runtime';
 // setup
 //@ts-ignore
-import { initTrialSaving, initTimeline, createPreloadTrials, taskStore } from '../shared/helpers';
+import { initTrialSaving, initTimeline, createPreloadTrials } from '../shared/helpers';
 import { instructions } from './trials/instructions';
 //@ts-ignore
 import { jsPsych, initializeCat } from '../taskSetup';
@@ -13,11 +13,8 @@ import {AfcStimulusInput, afcStimulusInference } from './trials/afcInference';
 import { getLayoutConfig } from './helpers/config';
 import { repeatInstructionsMessage } from '../shared/trials/repeatInstructions';
 import type { LayoutConfigTypeInference } from './types/inferenceTypes';
+import { taskStore } from '../../taskStore';
 
-type InferenceStimulusType = StimulusType & {
-  storyId: string;
-  story: string;
-};
 
 export default function buildRoarInferenceTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
@@ -26,7 +23,7 @@ export default function buildRoarInferenceTimeline(config: Record<string, any>, 
   const initialTimeline = initTimeline(config);
 
   const timeline = [preloadTrials, initialTimeline, ...instructions];
-  const corpus: InferenceStimulusType[] = taskStore().corpora.stimulus;
+  const corpus: StimulusType[] = taskStore().corpora.stimulus;
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {}; 
   const layoutConfigMap: Record<string, LayoutConfigTypeInference> = {};
@@ -35,8 +32,8 @@ export default function buildRoarInferenceTimeline(config: Record<string, any>, 
   for (const c of corpus) {
     const { itemConfig, errorMessages } = getLayoutConfig(c, translations, mediaAssets, i);
     layoutConfigMap[c.itemId] = itemConfig;
-    layoutConfigMap[c.itemId].story = c.story;
-    layoutConfigMap[c.itemId].storyId = c.storyId;
+    layoutConfigMap[c.itemId].story = c.item;
+    layoutConfigMap[c.itemId].storyId = c.itemId;
     if (errorMessages.length) {
       validationErrorMap[c.itemId] = errorMessages.join('; ');
     }
@@ -73,15 +70,19 @@ export default function buildRoarInferenceTimeline(config: Record<string, any>, 
   }
 
   const inferenceNumStories = taskStore().inferenceNumStories;
+  const stimulusBlocks = taskStore().stimulusBlocks;
 
-  const numOfTrials = inferenceNumStories ?? taskStore().totalTrials;
+  const numOfTrials = inferenceNumStories*stimulusBlocks ?? taskStore().totalTrials;
 
   for (let i = 0; i < numOfTrials; i += 1) {
     if(i === 4) {
       timeline.push(repeatInstructions); 
       timeline.push(instructionsRepeated);
     }
-    timeline.push(setupStimulus);
+    timeline.push({
+      ...setupStimulus,
+      stimulus: ``, // Custom stimulus
+    });
     timeline.push(stimulusBlock(trialConfig));
     // timeline.push(ifRealTrialResponse);
   }

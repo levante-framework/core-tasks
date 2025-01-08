@@ -1,24 +1,15 @@
-import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response'
+import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response'
 import { mediaAssets } from '../../..';
-import { taskStore } from '../helpers';
+import { PageAudioHandler } from '../helpers';
+import { taskStore } from '../../../taskStore';
 
 // isPractice parameter is for tasks that don't have a corpus (e.g. memory game)
 export const feedback = (isPractice = false, correctFeedbackAudioKey, inCorrectFeedbackAudioKey) => {
     return {
         timeline: [
             {
-                type: jsPsychAudioMultiResponse,
+                type: jsPsychHtmlMultiResponse,
                 stimulus: () => {
-                    const isCorrect = taskStore().isCorrect;
-                    const stimulusPath = isCorrect 
-                        ? mediaAssets.audio[correctFeedbackAudioKey]
-                        : mediaAssets.audio[inCorrectFeedbackAudioKey];
-                    
-                    return (
-                        stimulusPath || mediaAssets.audio.nullAudio
-                    )
-                },
-                prompt: () => {
                     const t = taskStore().translations;
                     const isCorrect = taskStore().isCorrect;
                     const imageUrl = isCorrect
@@ -60,6 +51,17 @@ export const feedback = (isPractice = false, correctFeedbackAudioKey, inCorrectF
                 button_html: () => {
                     const t = taskStore().translations;
                     return (`<button class="primary">${t.continueButtonText}</button>`)
+                }, 
+                on_load: () => {
+                    const isCorrect = taskStore().isCorrect;
+                    const stimulusPath = isCorrect 
+                        ? mediaAssets.audio[correctFeedbackAudioKey]
+                        : mediaAssets.audio[inCorrectFeedbackAudioKey];
+                    
+                    PageAudioHandler.playAudio(stimulusPath || mediaAssets.audio.nullAudio);
+                }, 
+                on_finish: () => {
+                    PageAudioHandler.stopAndDisconnectNode();
                 }
             } 
         ],

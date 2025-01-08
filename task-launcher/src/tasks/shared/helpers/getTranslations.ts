@@ -1,20 +1,21 @@
 import Papa from 'papaparse';
+import { camelize } from './camelize';
+import { taskStore } from '../../../taskStore';
+
 import 'regenerator-runtime/runtime';
-import { camelize } from '@bdelab/roar-utils';
-import { taskStore } from './';
 
-let translations = {};
+let translations: Record<string, string> = {};
 
-function getRowData(row, language, nonLocalDialect) {
+function getRowData(row: Record<string, string>, language: string, nonLocalDialect: string) {
   const translation = row[language.toLowerCase()];
 
   // Only need this because we don't have base language translations for all languages.
   // Ex we have 'es-co' but not 'es'
-  const noBaseLang = Object.keys(row).find((key) => key.includes(nonLocalDialect));
+  const noBaseLang = Object.keys(row).find((key) => key.includes(nonLocalDialect)) || '';
   return translation || row[nonLocalDialect] || row[noBaseLang] || row['en'];
 }
 
-function parseTranslations(translationData, configLanguage) {
+function parseTranslations(translationData: Record<string, string>[], configLanguage: string) {
   const nonLocalDialect = configLanguage.split('-')[0].toLowerCase();
 
   translationData.forEach((row) => {
@@ -25,10 +26,10 @@ function parseTranslations(translationData, configLanguage) {
   taskStore('translations', translations);
 }
 
-export const getTranslations = async (configLanguage) => {
-  function downloadCSV(url, i) {
+export const getTranslations = async (configLanguage: string) => {
+  function downloadCSV(url: string) {
     return new Promise((resolve, reject) => {
-      Papa.parse(url, {
+      Papa.parse<Record<string, string>>(url, {
         download: true,
         header: true,
         skipEmptyLines: true,
@@ -43,8 +44,8 @@ export const getTranslations = async (configLanguage) => {
     });
   }
 
-  async function parseCSVs(urls) {
-    const promises = urls.map((url, i) => downloadCSV(url, i));
+  async function parseCSVs(urls: string[]) {
+    const promises = urls.map((url) => downloadCSV(url));
     return Promise.all(promises);
   }
 
