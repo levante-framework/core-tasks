@@ -16,6 +16,7 @@ import store from 'store2';
  * @property {number} maxIncorrect - Maximum number of incorrect trials, default is 3.
  * @property {boolean} keyHelpers - Whether to use keyboard helpers, default is true.
  * @property {boolean} runCat - Whether to run task adaptively as a CAT, default is false
+ * @property {boolean} heavyInstructions - Whether to start with heavy instructions for younger kids
  * @property {boolean} storeItemId - Whether to store the item ID, default is false.
  * @property {boolean} isRoarApp - Whether the app is running in ROAR mode, default is false.
  * @property {boolean} maxTimeReached - Whether the max time has been reached, default is false.
@@ -61,6 +62,7 @@ export type TaskStoreDataType = {
   };
   inferenceNumStories?: number; // FIXME: Remove
   cat: boolean;
+  heavyInstructions: boolean;
   semThreshold: number;
 };
 
@@ -90,6 +92,7 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     maxIncorrect: config.maxIncorrect,
     keyHelpers: config.keyHelpers,
     runCat: config.cat, 
+    heavyInstructions: config.heavyInstructions,
     semThreshold: config.semThreshold,
     storeItemId: config.storeItemId,
     isRoarApp: config.isRoarApp,
