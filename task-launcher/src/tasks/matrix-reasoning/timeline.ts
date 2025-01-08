@@ -1,7 +1,7 @@
 import 'regenerator-runtime/runtime';
 // setup
 //@ts-ignore
-import { initTrialSaving, initTimeline, createPreloadTrials, taskStore } from '../shared/helpers';
+import { initTrialSaving, initTimeline, createPreloadTrials } from '../shared/helpers';
 import { instructions } from './trials/instructions';
 //@ts-ignore
 import { jsPsych, initializeCat, cat } from '../taskSetup';
@@ -11,6 +11,7 @@ import { afcStimulusTemplate, exitFullscreen, setupStimulus, fixationOnly, taskF
 import { getLayoutConfig } from './helpers/config';
 import { repeatInstructionsMessage } from '../shared/trials/repeatInstructions';
 import { prepareCorpus, selectNItems } from '../shared/helpers/prepareCat';
+import { taskStore } from '../../taskStore';
 
 export default function buildMatrixTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
@@ -99,6 +100,13 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
     corpora.instructionPractice.forEach((trial: StimulusType) => {
       timeline.push(fixationOnly); 
       timeline.push(afcStimulusTemplate(trialConfig, trial)); 
+    });
+
+    // push in starting block
+    corpora.start.forEach((trial: StimulusType) => {
+      timeline.push(fixationOnly); 
+      timeline.push(afcStimulusTemplate(trialConfig, trial));
+      timeline.push(ifRealTrialResponse); 
     });
 
     const numOfCatTrials = corpora.cat.length;

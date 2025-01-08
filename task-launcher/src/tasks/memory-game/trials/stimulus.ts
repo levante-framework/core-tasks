@@ -8,7 +8,8 @@ import { finishExperiment } from '../../shared/trials';
 import { mediaAssets } from '../../..';
 import { getMemoryGameType } from '../helpers/getMemoryGameType';
 //@ts-ignore
-import { taskStore, setupReplayAudio, PageAudioHandler, replayButtonSvg, PageStateHandler } from '../../shared/helpers';
+import { setupReplayAudio, PageAudioHandler, replayButtonSvg, PageStateHandler } from '../../shared/helpers';
+import { taskStore } from '../../../taskStore';
 
 type CorsiBlocksArgs = {
   mode: 'display' | 'input';
@@ -112,7 +113,6 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false, rese
         taskStore('isCorrect', data.correct);
 
         if (data.correct && !isPractice) {
-          taskStore('numIncorrect', 0)
           numCorrect++;
 
           if (numCorrect === 3) {

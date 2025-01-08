@@ -1,8 +1,9 @@
 // setup
 import { jsPsych } from '../taskSetup';
 import { fixation } from './trials/fixation';
-import { initTrialSaving, initTimeline, createPreloadTrials, taskStore } from '../shared/helpers';
+import { initTrialSaving, initTimeline, createPreloadTrials } from '../shared/helpers';
 import { mediaAssets } from '../..';
+import { taskStore } from '../../taskStore';
 
 // trials
 import { exitFullscreen } from '../shared/trials';

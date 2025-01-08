@@ -6,9 +6,9 @@ import { jsPsych, isTouchScreen } from '../../taskSetup';
 //@ts-ignore
 import { camelize } from '@bdelab/roar-utils';
 //@ts-ignore
-import { arrowKeyEmojis, setSkipCurrentBlock, taskStore, replayButtonSvg, setupReplayAudio, PageAudioHandler, PageStateHandler } from '../../shared/helpers';
+import { arrowKeyEmojis, setSkipCurrentBlock, replayButtonSvg, setupReplayAudio, PageAudioHandler, PageStateHandler } from '../../shared/helpers';
 import { mediaAssets } from '../../..';
-import Cypress from 'cypress';
+import { taskStore } from '../../../taskStore';
 
 let chosenAnswer: number;
 let responseIdx: number; 
@@ -163,7 +163,7 @@ export const slider = {
       distractors.push(answer);
 
       taskStore('target', answer);
-      taskStore('choices', distractors);
+      taskStore('choices', _shuffle(distractors));
 
       const responseChoices = taskStore().choices;
 
@@ -176,7 +176,6 @@ export const slider = {
         // flag correct answer if running in cypress
         if (window.Cypress && (btn.textContent == answer)) {
           btn.setAttribute("aria-label", "correct");
-        
         }
 
         btn.classList.add('secondary');

@@ -1,5 +1,5 @@
 // For all tasks except: H&F, Memory Game, Same Different Selection
-import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
+import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 // @ts-ignore
 import { jsPsych, isTouchScreen, cat } from '../../taskSetup';
 import {
@@ -7,7 +7,6 @@ import {
   replayButtonSvg,
   setupReplayAudio,
   setSkipCurrentBlock,
-  taskStore,
   PageAudioHandler,
   PageStateHandler,
   //@ts-ignore
@@ -17,7 +16,7 @@ import { mediaAssets } from '../../..';
 import _toNumber from 'lodash/toNumber';
 // @ts-ignore
 import { finishExperiment } from '.';
-import Cypress from 'cypress'; 
+import { taskStore } from '../../../taskStore'; 
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 // Previously chosen responses for current practice trial
@@ -75,7 +74,7 @@ const showStaggeredBtnAndPlaySound = (
 
 const handleStaggeredButtons = async (layoutConfig: LayoutConfigType, pageState: PageStateHandler) => {
   if (layoutConfig?.isStaggered) {
-      const parentResponseDiv = document.getElementById('jspsych-audio-multi-response-btngroup') as HTMLDivElement;
+      const parentResponseDiv = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
       let i = 0;
       const stimulusDuration = await pageState.getStimulusDurationMs();
       const intialDelay = stimulusDuration + 300;
@@ -223,7 +222,7 @@ function generateImageChoices(choices: string[], target: string) {
     const imageUrl = mediaAssets.images[camelize(choice)] || practiceUrl;
 
     // if the task is running in a cypress test, the correct answer should be indicated with 'correct' class
-    if (window.Cypress && stimulus.assessmentStage !== 'practice_response'){
+    if (window.Cypress){
       const isCorrect = choice === target;
       return isCorrect ? `<img src=${imageUrl} alt=${choice} class='correct'/>` : `<img src=${imageUrl} alt=${choice} />`;
     } else {
@@ -337,6 +336,9 @@ function addKeyHelpers(el: HTMLElement, keyIndex: number) {
 }
 
 function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: StimulusType) {
+  // play trial audio
+  PageAudioHandler.playAudio(getStimulus(layoutConfigMap, trial)); 
+
   startTime = performance.now();
 
   const stim = trial || taskStore().nextStimulus;
@@ -353,7 +355,7 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
     twoTrialsAgoIndex = currentTrialIndex - 3; // math has a fixation or something
 
     // flag correct answers with alt text for math if running a Cypress test
-    if (window.Cypress && !isPracticeTrial && !isInstructionTrial) {
+    if (window.Cypress && !isInstructionTrial) {
       const choices: NodeListOf<HTMLButtonElement> = document.querySelectorAll('.secondary');
 
       for (var i = 0; i < choices.length; i++) {
@@ -394,7 +396,7 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
   }
 
   if (stim.trialType !== 'instructions') {
-    const buttonContainer = document.getElementById('jspsych-audio-multi-response-btngroup') as HTMLDivElement;
+    const buttonContainer = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
     const responseButtons = buttonContainer.children as HTMLCollectionOf<HTMLButtonElement>;
     const totalResponseButtons = responseButtons.length;
     const { buttonLayout } = taskStore();
@@ -448,7 +450,7 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
       target = response.target; 
       data.correct = responseValue === target;
     }
-
+    
     if (runCat) {
     // update theta for CAT
       const zeta = {
@@ -463,7 +465,6 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
         cat.updateAbilityEstimate(zeta, answer)
       }
     }
-
 
     // check response and record it
     const responseType = data.button_response ? 'mouse' : 'keyboard';
@@ -499,6 +500,7 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
     if (taskStore().storeItemId) {
       jsPsych.data.addDataToLastTrial({
         corpusId: taskStore().corpusId,
+        corpus: taskStore().corpus, // adding this for ROAR compatibility
         itemId: stimulus.source + '-' + stimulus.origItemNum,
       });
     }
@@ -555,7 +557,7 @@ export const afcStimulusTemplate = (
   trial?: StimulusType
 ) => {
   return {
-    type: jsPsychAudioMultiResponse,
+    type: jsPsychHtmlMultiResponse,
     response_allowed_while_playing: responseAllowed,
     data: () => {
       const stim = trial || taskStore().nextStimulus;
@@ -568,8 +570,7 @@ export const afcStimulusTemplate = (
         isPracticeTrial: isPracticeTrial,
       };
     },
-    stimulus: () => getStimulus(layoutConfigMap, trial),
-    prompt: () => getPrompt(layoutConfigMap, trial),
+    stimulus: () => getPrompt(layoutConfigMap, trial),
     prompt_above_buttons: promptAboveButtons,
     keyboard_choices: () => {
       const stim = trial || taskStore().nextStimulus; 

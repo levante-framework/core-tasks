@@ -10,7 +10,7 @@ import { dashToCamelCase } from './dashToCamelCase';
 import { camelize } from '@bdelab/roar-utils';
 import { shuffleStimulusTrials } from './randomizeStimulusBlocks';
 import {shuffleStories} from '../../roar-inference/helpers/shuffleRoarInferenceStories'
-import { taskStore } from './';
+import { taskStore } from '../../../taskStore';
 
 export let corpora;
 export const sdsPhaseCount = {}
@@ -75,22 +75,9 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus, task) =
       })(),
       audioFile: row.audio_file,
       // difficulty must be undefined to avoid running cat
-      difficulty: taskStore().runCat ? _toNumber(row.d || row.difficulty) : undefined,
-      story: (() => {
-        if (row.task === 'roar-inference') {
-          return row.story;
-        } else {
-          return '';
-        }
-      })(),
-      storyId: (() => {
-        if (row.task === 'roar-inference') {
-          return row.story_id;
-        } else {
-          return '';
-        }
-      })(),
+      difficulty: taskStore().runCat ? parseFloat(row.d || row.difficulty) : NaN,
     };
+
     if (row.task === 'Mental Rotation') {
       newRow.item = camelize(newRow.item);
       newRow.answer = camelize(newRow.answer);
@@ -149,8 +136,9 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus, task) =
 
   if (task === 'roar-inference') {
     const inferenceNumStories = taskStore().inferenceNumStories;
+    const numItemsPerStory = taskStore().stimulusBlocks;
     const notStoryTypes = ['introduction', 'practice'];
-    stimulusData = shuffleStories(stimulusData, inferenceNumStories, 'storyId', notStoryTypes, 1);
+    stimulusData = shuffleStories(stimulusData, inferenceNumStories, 'item', notStoryTypes, numItemsPerStory);
     return;
   }
 

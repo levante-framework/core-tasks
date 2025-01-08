@@ -3,7 +3,7 @@ import 'regenerator-runtime/runtime';
 // @ts-ignore
 import { jsPsych, initializeCat, cat } from '../taskSetup';
 // @ts-ignore
-import { createPreloadTrials, taskStore, initTrialSaving, initTimeline } from '../shared/helpers';
+import { createPreloadTrials, initTrialSaving, initTimeline } from '../shared/helpers';
 // trials
 // @ts-ignore
 import { afcStimulusTemplate, taskFinished, exitFullscreen, setupStimulus, fixationOnly, getAudioResponse } from '../shared/trials';
@@ -11,6 +11,7 @@ import { imageInstructions, threeDimInstructions, videoInstructionsFit, videoIns
 import { getLayoutConfig } from './helpers/config';
 import { repeatInstructionsMessage } from '../shared/trials/repeatInstructions';
 import { prepareCorpus, selectNItems } from '../shared/helpers/prepareCat';
+import { taskStore } from '../../taskStore';
 
 export default function buildMentalRotationTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
@@ -26,6 +27,9 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
 
     conditional_function: () => {
       const stim = taskStore().nextStimulus;
+      if (runCat) { // this trial is never used after a practice trial when running in cat
+        return true; 
+      }
       if (stim.assessmentStage === 'practice_response') {
         return false;
       }
@@ -123,6 +127,13 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
     corpora.instructionPractice.forEach((trial: StimulusType) => {
       timeline.push(fixationOnly); 
       timeline.push(afcStimulusTemplate(trialConfig, trial)); 
+    });
+
+    // push in starting block
+    corpora.start.forEach((trial: StimulusType) => {
+      timeline.push(fixationOnly); 
+      timeline.push(afcStimulusTemplate(trialConfig, trial));
+      timeline.push(ifRealTrialResponse); 
     });
 
     const numOfCatTrials = corpora.cat.length;
