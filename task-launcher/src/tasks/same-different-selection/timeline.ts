@@ -1,22 +1,22 @@
 import 'regenerator-runtime/runtime';
-//@ts-ignore
-import { initTrialSaving, initTimeline } from '../shared/helpers';
+import { initTrialSaving, initTimeline, createPreloadTrials, sdsPhaseCount } from '../shared/helpers';
 
 // setup
-//@ts-ignore
 import { jsPsych } from '../taskSetup';
-//@ts-ignore
-import { createPreloadTrials, sdsPhaseCount } from '../shared/helpers';
-//@ts-ignore
 import { initializeCat } from '../taskSetup';
 
 // trials
-//@ts-ignore
-import { setupStimulus, exitFullscreen, taskFinished } from '../shared/trials';
+import {
+  setupStimulus,
+  exitFullscreen,
+  taskFinished,
+  feedback,
+  getAudioResponse,
+  enterFullscreen,
+  finishExperiment,
+} from '../shared/trials';
 import { afcMatch } from './trials/afcMatch';
 import { stimulus } from './trials/stimulus';
-//@ts-ignore
-import { feedback, getAudioResponse } from '../shared/trials';
 import { taskStore } from '../../taskStore';
 
 
@@ -25,7 +25,7 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
   let feedbackGiven = false;
 
   initTrialSaving(config);
-  const initialTimeline = initTimeline(config);
+  const initialTimeline = initTimeline(config, enterFullscreen, finishExperiment);
 
   const buttonNoise = {
     timeline: [getAudioResponse(mediaAssets)],
