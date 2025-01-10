@@ -216,7 +216,6 @@ function doOnLoad(mode: 'display' | 'input', isPractice: boolean, reverse: boole
           // start a timer for toast notification
           const toastTimer = setTimeout(() => {
             const toast = document.getElementById('lev-toast-default') as HTMLDivElement;
-            console.log('mark://', 'showing toast');
             toast.classList.add('show');
           }, 10);
 
