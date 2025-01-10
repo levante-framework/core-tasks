@@ -4,7 +4,7 @@ import { initTrialSaving, initTimeline, createPreloadTrials, prepareCorpus, sele
 import { jsPsych, initializeCat, cat } from '../taskSetup';
 // trials
 // @ts-ignore
-import { afcStimulusTemplate, exitFullscreen, setupStimulus, fixationOnly, taskFinished, enterFullScreen, finishExperiment } from '../shared/trials';
+import { afcStimulusTemplate, exitFullscreen, setupStimulus, fixationOnly, taskFinished, enterFullscreen, finishExperiment } from '../shared/trials';
 import { getLayoutConfig } from './helpers/config';
 import { taskStore } from '../../taskStore';
 
@@ -12,7 +12,7 @@ export default function buildVocabTimeline(config: Record<string, any>, mediaAss
   const preloadTrials = createPreloadTrials(mediaAssets).default;
 
   initTrialSaving(config);
-  const initialTimeline = initTimeline(config, enterFullScreen, finishExperiment);
+  const initialTimeline = initTimeline(config, enterFullscreen, finishExperiment);
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {}; 
