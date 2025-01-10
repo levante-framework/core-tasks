@@ -124,7 +124,7 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
     const corpora = prepareCorpus(corpus); 
 
     // push in instruction block
-    corpora.instructionPractice.forEach((trial: StimulusType) => {
+    corpora.ipLight.forEach((trial: StimulusType) => {
       timeline.push(fixationOnly); 
       timeline.push(afcStimulusTemplate(trialConfig, trial)); 
     });

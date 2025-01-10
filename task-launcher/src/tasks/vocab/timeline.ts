@@ -74,7 +74,7 @@ export default function buildVocabTimeline(config: Record<string, any>, mediaAss
     const corpora = prepareCorpus(corpus);
 
     // instruction block (non-cat)
-    corpora.instructionPractice.forEach((trial: StimulusType) => {
+    corpora.ipLight.forEach((trial: StimulusType) => {
       timeline.push(fixationOnly); 
       timeline.push(afcStimulusTemplate(trialConfig, trial)); 
     });

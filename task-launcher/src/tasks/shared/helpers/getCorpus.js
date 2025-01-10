@@ -38,12 +38,12 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus, task) =
 
   // Phase 1 is test-dimensions and something-same
   // Phase 2 is match and unique - subphases are either matching or test-dimensions 
-  let sdsPhase1Count = 0
-  let sdsPhase2aCount = 0
-  let sdsPhase2bCount = 0
-  let sdsPhase2cCount = 0
-  let sdsPhase2dCount = 0
-  let sdsPhase2eCount = 0
+  let sdsBlock1Count = 0
+  let sdsBlock2Count = 0
+  let sdsBlock3Count = 0
+  let sdsBlock4Count = 0
+  let sdsBlock5Count = 0
+  let sdsBlock6Count = 0
 
   csvInput.forEach((row) => {
     // Leaving this here for quick testing of a certain type of trial
@@ -74,9 +74,12 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus, task) =
         }
       })(),
       audioFile: row.audio_file,
-      // difficulty must be undefined to avoid running cat
-      difficulty: taskStore().runCat ? parseFloat(row.d || row.difficulty) : NaN,
-    };
+      // difficulty must be undefined for non-instruction/practice trials to avoid running cat
+      difficulty: (taskStore().runCat || 
+      row.trial_type === 'instructions' ||
+      row.assessment_stage === 'practice-response') ? 
+      parseFloat(row.d || row.difficulty) : NaN,
+    }; 
 
     if (row.task === 'Mental Rotation') {
       newRow.item = camelize(newRow.item);
@@ -88,30 +91,26 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus, task) =
       newRow.requiredSelections = parseInt(row.required_selections)
       newRow.blockIndex = parseInt(row.block_index)
       // all instructions are part of phase 1
-      if (((newRow.trialType.includes('something-same') || 
-          newRow.trialType.includes('test-dimensions')) &&
-          newRow.blockIndex < 3) ||
-          newRow.trialType.includes('instructions')
-      ) {
-        sdsPhase1Count += 1
-      } else if (newRow.trialType.includes('2-match')) {
-        sdsPhase2aCount += 1
-      } else if (newRow.trialType.includes('test-dimensions') && newRow.blockIndex == 4) {
-        sdsPhase2bCount += 1
-      } else if (newRow.trialType.includes('3-match')) {
-        sdsPhase2cCount += 1
-      } else if (newRow.trialType.includes('test-dimensions') && newRow.blockIndex == 5) {
-        sdsPhase2dCount += 1
+      if (newRow.blockIndex == 1) {
+        sdsBlock1Count += 1
+      } else if (newRow.blockIndex == 2) {
+        sdsBlock2Count += 1
+      } else if (newRow.blockIndex == 3) {
+        sdsBlock3Count += 1
+      } else if (newRow.blockIndex == 4) {
+        sdsBlock4Count += 1
+      } else if (newRow.blockIndex == 5) {
+        sdsBlock5Count += 1
       } else {
-        sdsPhase2eCount += 1
+        sdsBlock6Count += 1
       }
 
-      sdsPhaseCount.phase1 = sdsPhase1Count
-      sdsPhaseCount.phase2a = sdsPhase2aCount
-      sdsPhaseCount.phase2b = sdsPhase2bCount
-      sdsPhaseCount.phase2c = sdsPhase2cCount
-      sdsPhaseCount.phase2d = sdsPhase2dCount
-      sdsPhaseCount.phase2e = sdsPhase2eCount
+      sdsPhaseCount.block1 = sdsBlock1Count
+      sdsPhaseCount.block2 = sdsBlock2Count
+      sdsPhaseCount.block3 = sdsBlock3Count
+      sdsPhaseCount.block4 = sdsBlock4Count
+      sdsPhaseCount.block5 = sdsBlock5Count
+      sdsPhaseCount.block6 = sdsBlock6Count
     }
 
     let currentTrialType = newRow.trialType;

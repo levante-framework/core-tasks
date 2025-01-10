@@ -53,10 +53,11 @@ function handleButtonFeedback(btn: HTMLButtonElement, cards: HTMLButtonElement[]
   PageAudioHandler.playAudio(feedbackAudio);
 }
 
-export const stimulus = {
+export const stimulus = (trial?: StimulusType) => {
+  return {
   type: jsPsychHtmlMultiResponse,
   data: () => {
-    const stim = taskStore().nextStimulus;
+    const stim = trial || taskStore().nextStimulus;
     let isPracticeTrial = stim.assessmentStage === 'practice_response';
     return {
       save_trial: stim.assessmentStage !== 'instructions',
@@ -66,7 +67,7 @@ export const stimulus = {
     };
   },
   stimulus: () => {
-    const stim = taskStore().nextStimulus;
+    const stim = trial || taskStore().nextStimulus;
     const prompt = camelize(stim.audioFile);
     const t = taskStore().translations;
     return (
@@ -125,8 +126,8 @@ export const stimulus = {
   },
   prompt_above_buttons: true,
   button_choices: () => {
-    const stim = taskStore().nextStimulus;
-    if (stim.assessmentStage === 'instructions') {
+    const stim = trial || taskStore().nextStimulus;
+    if (stim.assessmentStage === 'instructions' || stim.trialType == "something-same-1") {
       return ['OK'];
     } else {
       // Randomize choices if there is an answer
@@ -135,18 +136,20 @@ export const stimulus = {
     }
   },
   button_html: () => {
-    const stim = taskStore().nextStimulus;
+    const stim = trial || taskStore().nextStimulus;
     const buttonClass = stim.assessmentStage === 'instructions'
       ?'primary'
       : 'image-medium';
     return `<button class="${buttonClass}">%choice%</button>`;
   },
-  response_ends_trial: () => !(
-    taskStore().nextStimulus.trialType === 'test-dimensions' || taskStore().nextStimulus.assessmentStage === 'practice_response'
-  ),
+  response_ends_trial: () => {
+    const stim = trial || taskStore().nextStimulus;
+    return !(stim.trialType === 'test-dimensions' || stim.assessmentStage === 'practice_response'); 
+  },
   on_load: () => {
     startTime = performance.now();
-    const stimulus = taskStore().nextStimulus; 
+    const stimulus = trial || taskStore().nextStimulus;
+    console.log(stimulus.trialType);
     const audioFile = stimulus.audioFile;
     PageAudioHandler.playAudio(mediaAssets.audio[camelize(audioFile)]);
 
@@ -155,8 +158,8 @@ export const stimulus = {
     const buttonContainer = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
     buttonContainer.classList.add('lev-response-row');
     buttonContainer.classList.add('multi-4');
-    const trialType = taskStore().nextStimulus.trialType; 
-    const assessmentStage = taskStore().nextStimulus.assessmentStage;
+    const trialType = stimulus.trialType; 
+    const assessmentStage = stimulus.assessmentStage;
 
     if (stimulus.trialType === 'something-same-2') {
       handleStaggeredButtons(
@@ -179,7 +182,7 @@ export const stimulus = {
     }
   },
   on_finish: (data: any) => {
-    const stim = taskStore().nextStimulus;
+    const stim = trial || taskStore().nextStimulus;
     const choices = taskStore().choices;
     const endTime = performance.now();
 
@@ -233,5 +236,6 @@ export const stimulus = {
         finishExperiment();
       }
     }
+}
 }
 };
