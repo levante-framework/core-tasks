@@ -1,8 +1,0 @@
-GET https://api.staging.skillprint.co/api/recommendations/ HTTP/1.1
-content-type: application/json
-X-Auth-Token: Token wryE7y10.TLvKugwjKpEGyPdclbn7OZVNcdmPTbfO
-
-{
-    "name": "sample",
-    "time": "Wed, 21 Oct 2015 18:27:50 GMT"
-}
