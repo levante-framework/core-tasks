@@ -175,7 +175,7 @@ export const threeDimInstructions = {
   response_allowed_while_playing: false,
   on_load: () => {
     PageAudioHandler.playAudio(mediaAssets.audio.mentalRotationInstruct3D);
-    const pageStateHandler = new PageStateHandler('mental-rotation-instruct-3D');
+    const pageStateHandler = new PageStateHandler('mental-rotation-instruct-3D', true);
     setupReplayAudio(pageStateHandler);
 },
 on_finish: () => {
