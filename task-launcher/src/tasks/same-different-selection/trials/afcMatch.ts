@@ -85,7 +85,7 @@ export const afcMatch = {
     // on click they will be selected
     // can select multiple cards and deselect them
     startTime = performance.now();
-    
+    console.log("afc");
     const stim = taskStore().nextStimulus;
     const audioFile = stim.audioFile;
     const pageStateHandler = new PageStateHandler(audioFile);
