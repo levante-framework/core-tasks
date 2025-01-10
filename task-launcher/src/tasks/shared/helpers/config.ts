@@ -94,17 +94,17 @@ export const setSharedConfig = async (firekit: RoarAppkit, gameParams: GameParam
     buttonLayout: buttonLayout || 'default',
     numberOfTrials: numberOfTrials ?? 300,
     task: taskName ?? 'egma-math',
-    stimulusBlocks: Number(stimulusBlocks) ?? 3,
-    numOfPracticeTrials: numOfPracticeTrials ?? 2,
-    maxIncorrect: Number(maxIncorrect) ?? 3,
+    stimulusBlocks: Number(stimulusBlocks) || 3,
+    numOfPracticeTrials: Number(numOfPracticeTrials) || 2,
+    maxIncorrect: Number(maxIncorrect) || 3,
     keyHelpers: !!keyHelpers ?? true,
     language: language ?? i18next.language,
     maxTime: Number(maxTime) || 100,
     storeItemId: !!storeItemId,
     isRoarApp: isRoarApp(firekit),
     cat: !!cat ?? false,
-    inferenceNumStories: Number(inferenceNumStories) ?? null,
-    semThreshold: Number(semThreshold)
+    inferenceNumStories: Number(inferenceNumStories) || undefined,
+    semThreshold: Number(semThreshold) || 0
   };
 
   // default corpus if nothing is passed in
