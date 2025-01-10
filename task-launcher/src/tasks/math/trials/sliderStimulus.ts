@@ -23,7 +23,7 @@ function setUpAudio(responseType: string) {
   PageAudioHandler.playAudio(audioFile, () => {
     // set up replay button audio after the first audio has played
     if (cue) {
-      const pageStateHandler = new PageStateHandler(cue);
+      const pageStateHandler = new PageStateHandler(cue, true);
       setupReplayAudio(pageStateHandler);
     }
   });  

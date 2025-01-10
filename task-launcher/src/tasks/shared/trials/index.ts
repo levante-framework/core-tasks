@@ -5,3 +5,4 @@ export * from './afcStimulus';
 export * from './taskFinished';
 export * from './feedback';
 export * from './finishExperiment'
+export * from './repeatInstructions';
