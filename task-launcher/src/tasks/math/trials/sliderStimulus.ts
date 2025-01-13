@@ -133,7 +133,7 @@ export const slider = {
       //}
     });
     const { buttonLayout, keyHelpers } = taskStore();
-    const distractors = taskStore().nextStimulus;
+    const { distractors } = taskStore().nextStimulus;
 
     const wrapper = document.getElementById('jspsych-html-slider-response-wrapper') as HTMLDivElement;
     const buttonContainer = document.createElement('div');
@@ -142,9 +142,10 @@ export const slider = {
       buttonContainer.id = 'slider-btn-container';
     }
 
-    // don't apply layout if there aren't exactly 3 button options
-    if (!(buttonLayout === 'triple' && distractors.length !== 2)) {
-      buttonContainer.classList.add(`${buttonLayout}-layout`);
+    // answer has not been pushed to distractor yet
+    // support for diamond layout
+    if (buttonLayout === 'diamond' && distractors.length === 3) {
+      buttonContainer.classList.add('lev-response-row-diamond-layout');
     }
 
     if (taskStore().nextStimulus.trialType === 'Number Line 4afc') {
@@ -175,7 +176,7 @@ export const slider = {
 
         // flag correct answer if running in cypress
         if (window.Cypress && (btn.textContent == answer)) {
-          btn.setAttribute("aria-label", "correct");
+          btn.setAttribute('aria-label', 'correct');
         }
 
         btn.classList.add('secondary');
@@ -186,9 +187,6 @@ export const slider = {
         }
 
         if (!(buttonLayout === 'triple' && distractors.length !== 2)) {
-          if (buttonLayout === 'triple' || buttonLayout === 'diamond') {
-            btnWrapper.classList.add(`button${i + 1}`);
-          }
 
           keyboardResponseMap[arrowKeyEmojis[i][0]] = responseChoices[i];
 
