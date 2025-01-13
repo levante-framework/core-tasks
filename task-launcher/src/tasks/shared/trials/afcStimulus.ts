@@ -402,7 +402,7 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
     const { buttonLayout } = taskStore();
 
     if (itemLayoutConfig) {
-      if (buttonLayout === 'diamond') { // have to do it in the runtime
+      if (buttonLayout === 'diamond' && totalResponseButtons === 4) { // have to do it in the runtime
         buttonContainer.classList.add('lev-response-row-diamond-layout');
       } else {
         buttonContainer.classList.add(...itemLayoutConfig.classOverrides.buttonContainerClassList);
