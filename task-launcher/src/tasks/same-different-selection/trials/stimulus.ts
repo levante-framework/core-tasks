@@ -68,7 +68,12 @@ export const stimulus = (trial?: StimulusType) => {
   },
   stimulus: () => {
     const stim = trial || taskStore().nextStimulus;
-    const prompt = camelize(stim.audioFile);
+    let prompt = camelize(stim.audioFile);
+    console.log(prompt);
+    if (taskStore().heavyInstructions && stim.assessmentStage !== "practice_response" && stim.trialType !== "instructions") {
+      prompt += "Heavy";
+    }
+
     const t = taskStore().translations;
     return (
       `<div class="lev-stimulus-container">
@@ -127,7 +132,7 @@ export const stimulus = (trial?: StimulusType) => {
   prompt_above_buttons: true,
   button_choices: () => {
     const stim = trial || taskStore().nextStimulus;
-    if (stim.assessmentStage === 'instructions' || stim.trialType == "something-same-1") {
+    if (stim.trialType === 'instructions' || stim.trialType == "something-same-1") {
       return ['OK'];
     } else {
       // Randomize choices if there is an answer
@@ -137,20 +142,23 @@ export const stimulus = (trial?: StimulusType) => {
   },
   button_html: () => {
     const stim = trial || taskStore().nextStimulus;
-    const buttonClass = stim.assessmentStage === 'instructions'
-      ?'primary'
+    const buttonClass = (stim.trialType === 'instructions') || (stim.trialType === "something-same-1")
+      ? 'primary'
       : 'image-medium';
     return `<button class="${buttonClass}">%choice%</button>`;
   },
   response_ends_trial: () => {
     const stim = trial || taskStore().nextStimulus;
-    return !(stim.trialType === 'test-dimensions' || stim.assessmentStage === 'practice_response'); 
+    return !(stim.trialType === 'test-dimensions' || (stim.assessmentStage === 'practice_response' && stim.trialType !== "something-same-1")); 
   },
   on_load: () => {
     startTime = performance.now();
     const stimulus = trial || taskStore().nextStimulus;
-    console.log(stimulus.trialType);
-    const audioFile = stimulus.audioFile;
+    let audioFile = stimulus.audioFile;
+    if (taskStore().heavyInstructions && stimulus.assessmentStage !== "practice_response" && stimulus.trialType !== "instructions") {
+      audioFile += "-heavy";
+    }
+
     PageAudioHandler.playAudio(mediaAssets.audio[camelize(audioFile)]);
 
     const pageStateHandler = new PageStateHandler(audioFile);
@@ -161,7 +169,7 @@ export const stimulus = (trial?: StimulusType) => {
     const trialType = stimulus.trialType; 
     const assessmentStage = stimulus.assessmentStage;
 
-    if (stimulus.trialType === 'something-same-2') {
+    if (stimulus.trialType === 'something-same-2' && taskStore().heavyInstructions) {
       handleStaggeredButtons(
         pageStateHandler, 
         buttonContainer, 
@@ -169,7 +177,7 @@ export const stimulus = (trial?: StimulusType) => {
       );
     }
     
-    if (trialType === 'test-dimensions' || assessmentStage === 'practice_response'){ // cards should give feedback during test dimensions block
+    if (trialType === 'test-dimensions' || (assessmentStage === 'practice_response' && trialType !== "something-same-1")){ // cards should give feedback during test dimensions block
       const practiceBtns = Array.from(buttonContainer.children)
         .map(btnDiv => btnDiv.firstChild)
         .filter(btn => !!btn) as HTMLButtonElement[];

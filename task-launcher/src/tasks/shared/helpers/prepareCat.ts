@@ -9,7 +9,7 @@ export function prepareCorpus(corpus: StimulusType[]) {
   let corpora;
 
   const instructionPracticeTrials: StimulusType[] = corpus.filter(trial =>
-    trial.trialType === 'instructions' || trial.assessmentStage === 'practice-response'
+    trial.trialType === 'instructions' || trial.assessmentStage === 'practice_response'
   );
 
   const heavyInstructionPracticeTrials: StimulusType[] = instructionPracticeTrials.filter(trial =>

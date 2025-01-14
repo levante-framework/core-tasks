@@ -19,6 +19,7 @@ import { stimulus } from './trials/stimulus';
 //@ts-ignore
 import { feedback, getAudioResponse } from '../shared/trials';
 import { taskStore } from '../../taskStore';
+import { somethingSameDemo1, somethingSameDemo2, somethingSameDemo3, matchDemo1, matchDemo2 } from './trials/heavyInstructions';
 
 
 export default function buildSameDifferentTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
@@ -29,6 +30,8 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
   const preparedCorpus = prepareCorpus(corpus); 
   console.log(taskStore().corpora.stimulus);
+  //console.log(preparedCorpus.ipHeavy)
+  //console.log(preparedCorpus.ipLight)
 
   initTrialSaving(config);
   const initialTimeline = initTimeline(config);
@@ -47,6 +50,7 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
     },
   };
 
+  // used for instruction and practice trials
   const ipBlock = (trial: StimulusType) => {
     return {
       timeline: [
@@ -112,6 +116,7 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
   })
 
   const instructionPractice: StimulusType[] = heavy ? preparedCorpus.ipHeavy : preparedCorpus.ipLight
+  console.log(instructionPractice);
 
   instructionPractice.filter(trial => trial.blockIndex == 0).forEach(trial => {
     timeline.push(ipBlock(trial))
@@ -124,6 +129,13 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
     timeline.push(buttonNoise) // adds button noise for appropriate trials
   }
 
+  // push in something same demo if using heavy instructions
+  if (heavy) {
+    timeline.push(somethingSameDemo1)
+    timeline.push(somethingSameDemo2)
+    timeline.push(somethingSameDemo3)
+  }
+
   instructionPractice.filter(trial => trial.blockIndex == 2).forEach(trial => {
     timeline.push(ipBlock(trial))
   });
@@ -134,6 +146,11 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
     timeline.push(stimulusBlock)
     timeline.push(buttonNoise) // adds button noise for appropriate trials
     //timeline.push(feedbackBlock)
+  }
+
+  if (heavy) {
+    timeline.push(matchDemo1)
+    timeline.push(matchDemo2)
   }
 
   // 2-match
