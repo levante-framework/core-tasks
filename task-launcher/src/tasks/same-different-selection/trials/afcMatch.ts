@@ -46,7 +46,12 @@ export const afcMatch = {
     return mediaAssets.audio[audioFile];
   },
   prompt: () => {
-    const prompt = camelize(taskStore().nextStimulus.audioFile);
+    const stimulus = taskStore().nextStimulus;
+    let prompt = camelize(stimulus.audioFile);
+    if (taskStore().heavyInstructions && stimulus.assessmentStage !== "practice_response" && stimulus.trialType !== "instructions") {
+      prompt += "Heavy";
+    }
+
     const t = taskStore().translations;
     return (
       `<div class="lev-stimulus-container">
@@ -85,9 +90,12 @@ export const afcMatch = {
     // on click they will be selected
     // can select multiple cards and deselect them
     startTime = performance.now();
-    console.log("afc");
     const stim = taskStore().nextStimulus;
-    const audioFile = stim.audioFile;
+    let audioFile = stim.audioFile;
+    if (taskStore().heavyInstructions  && stim.assessmentStage !== "practice_response" && stim.trialType !== "instructions") {
+      audioFile += "-heavy";
+    }
+
     const pageStateHandler = new PageStateHandler(audioFile);
     setupReplayAudio(pageStateHandler);
     const buttonContainer = document.getElementById('jspsych-audio-multi-response-btngroup') as HTMLDivElement;

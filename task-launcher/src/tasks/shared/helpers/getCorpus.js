@@ -77,7 +77,7 @@ const transformCSV = (csvInput, numOfPracticeTrials, sequentialStimulus, task) =
       // difficulty must be undefined for non-instruction/practice trials to avoid running cat
       difficulty: (taskStore().runCat || 
       row.trial_type === 'instructions' ||
-      row.assessment_stage === 'practice-response') ? 
+      row.assessment_stage === 'practice_response') ? 
       parseFloat(row.d || row.difficulty) : NaN,
     }; 
 
