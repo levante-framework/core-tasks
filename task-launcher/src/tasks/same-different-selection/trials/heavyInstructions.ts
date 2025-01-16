@@ -23,7 +23,7 @@ export const somethingSameDemo1 = {
       };
     },
     stimulus: () => {
-      const prompt = "sameDifferentSelectionBothYellow";
+      const prompt = "sameDifferentSelectionBothYellowHeavy";
       const t = taskStore().translations;
       return (
         `<div class="lev-stimulus-container">
@@ -63,13 +63,13 @@ export const somethingSameDemo1 = {
     prompt_above_buttons: true,
     button_choices: ['OK'],
     button_html: () => {
-      return `<button class='primary'>OK</button>`;
+      return `<button disabled class='primary'>OK</button>`;
     },
     response_ends_trial: true,
     post_trial_gap: 350,
     on_load: () => {
-      const audioFile = "sameDifferentSelectionBothYellow";
-      PageAudioHandler.playAudio(mediaAssets.audio[audioFile]);
+      const audioFile = "sameDifferentSelectionBothYellowHeavy";
+      PageAudioHandler.playAudio(mediaAssets.audio[audioFile], enableOkBtn);
   
       const pageStateHandler = new PageStateHandler(audioFile);
       setupReplayAudio(pageStateHandler);
@@ -223,7 +223,7 @@ const videoInstructions = videoInstructionData.map(data => {
           <div class="lev-row-container instruction">
             <p>${t[camelize(data.prompt)]}</p>
           </div>
-          <video class="instruction-video" autoplay>
+          <video class="instruction-video" autoplay loop>
             <source src=${mediaAssets.video[data.video]} type="video/mp4"/>
             Your browser does not support the video tag.
           </video>
@@ -231,6 +231,7 @@ const videoInstructions = videoInstructionData.map(data => {
       `;
     },
     prompt_above_buttons: true,
+    post_trial_gap: 350,
     button_choices: ['Continue'],
     button_html: () => {
       const t = taskStore().translations;

@@ -25,7 +25,13 @@ function enableBtns(btnElements: HTMLButtonElement[]) {
   btnElements.forEach((btn) => (btn.removeAttribute('disabled')));
 }
 
-function handleButtonFeedback(btn: HTMLButtonElement, cards: HTMLButtonElement[], isKeyBoardResponse: boolean, responsevalue: number) {
+function handleButtonFeedback(
+  btn: HTMLButtonElement, 
+  cards: HTMLButtonElement[], 
+  isKeyBoardResponse: boolean, 
+  responsevalue: number, 
+  correctAudio: string
+) {
   const choice = btn?.parentElement?.id || ''; 
   const answer = taskStore().correctResponseIdx.toString(); 
 
@@ -33,16 +39,7 @@ function handleButtonFeedback(btn: HTMLButtonElement, cards: HTMLButtonElement[]
   let feedbackAudio;
   if (isCorrectChoice) {
     btn.classList.add('success-shadow');
-    feedbackAudio = mediaAssets.audio.feedbackGoodJob;
-    setTimeout(
-      () => jsPsych.finishTrial({
-        response: choice,
-        incorrectPracticeResponses, 
-        button_response: !isKeyBoardResponse ? responsevalue : null,
-        keyboard_response: isKeyBoardResponse ? responsevalue : null,
-      }),
-      1000,
-    );
+    feedbackAudio = mediaAssets.audio[correctAudio];
   } else {
     btn.classList.add('error-shadow');
     feedbackAudio = mediaAssets.audio.feedbackTryAgain;
@@ -50,7 +47,19 @@ function handleButtonFeedback(btn: HTMLButtonElement, cards: HTMLButtonElement[]
     setTimeout(() => enableBtns(cards), 500);
     incorrectPracticeResponses.push(choice);
   }
-  PageAudioHandler.playAudio(feedbackAudio);
+
+  function finishTrial() {
+    jsPsych.finishTrial({
+      response: choice,
+      incorrectPracticeResponses, 
+      button_response: !isKeyBoardResponse ? responsevalue : null,
+      keyboard_response: isKeyBoardResponse ? responsevalue : null,
+    });
+  }
+
+  isCorrectChoice ? 
+  PageAudioHandler.playAudio(feedbackAudio, finishTrial) :
+  PageAudioHandler.playAudio(feedbackAudio)
 }
 
 export const stimulus = (trial?: StimulusType) => {
@@ -69,7 +78,6 @@ export const stimulus = (trial?: StimulusType) => {
   stimulus: () => {
     const stim = trial || taskStore().nextStimulus;
     let prompt = camelize(stim.audioFile);
-    console.log(prompt);
     if (taskStore().heavyInstructions && stim.assessmentStage !== "practice_response" && stim.trialType !== "instructions") {
       prompt += "Heavy";
     }
@@ -181,10 +189,19 @@ export const stimulus = (trial?: StimulusType) => {
       const practiceBtns = Array.from(buttonContainer.children)
         .map(btnDiv => btnDiv.firstChild)
         .filter(btn => !!btn) as HTMLButtonElement[];
+
+      let correctAudio; 
+      if (stimulus.itemId === "sds-something-same-1-test-heavy") {
+        correctAudio = "sdsFeedbackBothBlue";
+      } else if (stimulus.itemId === "sds-something-same-2-test-heavy") {
+        correctAudio = "sdsFeedbackBothLarge";
+      } else {
+        correctAudio = "feedbackGoodJob"
+      }
+      
       practiceBtns.forEach((card, i) =>
         card.addEventListener('click', async (e) => {
-
-          handleButtonFeedback(card, practiceBtns, false, i);
+          handleButtonFeedback(card, practiceBtns, false, i, correctAudio);
         })
       )
     }
