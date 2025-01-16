@@ -28,10 +28,7 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
   const heavy: boolean = taskStore().heavyInstructions; 
 
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
-  const preparedCorpus = prepareCorpus(corpus); 
-  console.log(taskStore().corpora.stimulus);
-  //console.log(preparedCorpus.ipHeavy)
-  //console.log(preparedCorpus.ipLight)
+  const preparedCorpus = prepareCorpus(corpus);
 
   initTrialSaving(config);
   const initialTimeline = initTimeline(config);
@@ -116,7 +113,6 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
   })
 
   const instructionPractice: StimulusType[] = heavy ? preparedCorpus.ipHeavy : preparedCorpus.ipLight
-  console.log(instructionPractice);
 
   instructionPractice.filter(trial => trial.blockIndex == 0).forEach(trial => {
     timeline.push(ipBlock(trial))
@@ -129,6 +125,13 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
     timeline.push(buttonNoise) // adds button noise for appropriate trials
   }
 
+  // push in first instruction in block 2
+  const instructionPracticeBlock2 = instructionPractice.filter(trial => trial.blockIndex == 2); 
+  const firstInstruction = instructionPracticeBlock2.shift(); 
+  if (firstInstruction != undefined) {
+    timeline.push(ipBlock(firstInstruction))
+  }
+  
   // push in something same demo if using heavy instructions
   if (heavy) {
     timeline.push(somethingSameDemo1)
@@ -136,7 +139,8 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
     timeline.push(somethingSameDemo3)
   }
 
-  instructionPractice.filter(trial => trial.blockIndex == 2).forEach(trial => {
+  // push in remaining instructions
+  instructionPracticeBlock2.forEach(trial => {
     timeline.push(ipBlock(trial))
   });
 
@@ -147,6 +151,10 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
     timeline.push(buttonNoise) // adds button noise for appropriate trials
     //timeline.push(feedbackBlock)
   }
+
+  instructionPractice.filter(trial => trial.blockIndex == 3).forEach(trial => {
+    timeline.push(ipBlock(trial))
+  });
 
   if (heavy) {
     timeline.push(matchDemo1)
