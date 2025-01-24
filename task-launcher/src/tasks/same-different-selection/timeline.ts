@@ -14,6 +14,7 @@ import { initializeCat } from '../taskSetup';
 // trials
 //@ts-ignore
 import { setupStimulus, exitFullscreen, taskFinished } from '../shared/trials';
+import { dataQualityScreen } from '../shared/trials/dataQuality';
 import { afcMatch } from './trials/afcMatch';
 import { stimulus } from './trials/stimulus';
 //@ts-ignore
@@ -82,6 +83,15 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
     ],
   };
 
+  const dataQualityBlock = {
+    timeline: [
+      dataQualityScreen
+    ], 
+    conditional_function: () => {
+      return taskStore().numIncorrect >= taskStore().maxIncorrect; 
+    }
+  }
+
   const timeline = [
     preloadTrials, 
     initialTimeline, 
@@ -123,6 +133,7 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
     timeline.push(setupStimulus)
     timeline.push(stimulusBlock)
     timeline.push(buttonNoise) // adds button noise for appropriate trials
+    timeline.push(dataQualityBlock)
   }
 
   // push in first instruction in block 2
@@ -149,6 +160,7 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
     timeline.push(setupStimulus)
     timeline.push(stimulusBlock)
     timeline.push(buttonNoise) // adds button noise for appropriate trials
+    timeline.push(dataQualityBlock)
     //timeline.push(feedbackBlock)
   }
 
@@ -166,6 +178,7 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
     timeline.push(setupStimulus)
     timeline.push(afcBlock)
     timeline.push(buttonNoise)
+    timeline.push(dataQualityBlock)
   }
 
   instructionPractice.filter(trial => trial.blockIndex == 4).forEach(trial => {
@@ -183,6 +196,7 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
     timeline.push(setupStimulus)
     timeline.push(afcBlock)
     timeline.push(buttonNoise)
+    timeline.push(dataQualityBlock)
   }
 
   // 4-match
@@ -190,11 +204,13 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
     timeline.push(setupStimulus)
     timeline.push(afcBlock)
     timeline.push(buttonNoise) 
+    timeline.push(dataQualityBlock)
   }
 
 
   initializeCat();
 
+  timeline.push(dataQualityScreen);
   timeline.push(taskFinished());
   timeline.push(exitFullscreen);
   return { jsPsych, timeline };
