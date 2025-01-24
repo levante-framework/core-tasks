@@ -240,7 +240,8 @@ export const afcMatch = {
     selectedCards = [];
     selectedCardIdxs = [];
 
-    if ((taskStore().numIncorrect >= taskStore().maxIncorrect)) {
+    // if heavy instructions is true, show data quality screen before ending 
+    if ((taskStore().numIncorrect >= taskStore().maxIncorrect) && !taskStore().heavyInstructions) {
       finishExperiment();
     }
   },

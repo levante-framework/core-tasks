@@ -52,7 +52,7 @@ export const getTranslations = async (configLanguage: string) => {
   async function fetchData() {
     const urls = [
       // This will eventually be split into separate files
-      `https://storage.googleapis.com/road-dashboard/sds_downward_extension_items_test.csv`,
+      `https://storage.googleapis.com/road-dashboard/item-bank-translations.csv`,
     ];
 
     try {
