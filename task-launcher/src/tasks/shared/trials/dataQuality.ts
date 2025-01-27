@@ -1,12 +1,14 @@
 import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { jsPsych } from '../../taskSetup';
+import { taskStore } from '../../../taskStore';
 //@ts-ignore
 import { finishExperiment } from './finishExperiment.js'
 
+const t = taskStore().translations; 
 const buttonText = [
-  "I have SERIOUS CONCERNS about these data (e.g., the child did not seem to understand the task, was frequently distracted/interrupted, etc.)",
-  "I feel OK about these data (e.g., the child seemed to understand the task pretty well, only experienced a few distractions/interruptions, etc.)",
-  "I feel GOOD about these data (e.g., the child clearly understood the task, had very few (if any) distractions/ interruptions, etc.)"
+  "dataQuestionnaireButtonText1",
+  "dataQuestionnaireButtonText2",
+  "dataQuestionnaireButtonText3",
 ]
 
 export const dataQualityScreen = {
@@ -27,9 +29,11 @@ export const dataQualityScreen = {
       <footer style="text-align: center; margin: 20px 0;">
         Note: This is NOT a question about how well the child performed. Instead, we want your impression of how well the child understood and actively participated in the task.
       </footer>`,
-    button_choices: buttonText,
     keyboard_choices: 'NO_KEYS',
-    button_html: `<button class="primary" style="font-size: 16px">%choice%</button>`,
+    button_html: () => {
+      const t = taskStore().translations; 
+      return buttonText.map(text => `<button class="primary" style="font-size: 16px">${t[text]}</button>`);
+    },
     on_load: () => {
       const jsPsychContent = document.getElementsByClassName('jspsych-content')[0];  
       jsPsychContent.setAttribute("style", "width: 80vw; max-width: 800px; padding: 20px; background-color: white");
