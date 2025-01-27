@@ -21,6 +21,9 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
 
     conditional_function: () => {
       const stim = taskStore().nextStimulus;
+      if (runCat) { 
+        return true; 
+      }
       if (stim.assessmentStage === 'practice_response' || stim.trialType === 'instructions') {
         return false;
       }
@@ -60,10 +63,10 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
     layoutConfigMap,
   };
 
-  const stimulusBlock = (config: typeof trialConfig) => ({
+  const stimulusBlock = {
     timeline: [
       setupStimulus,
-      afcStimulusTemplate(config), 
+      afcStimulusTemplate(trialConfig), 
       ifRealTrialResponse
     ],
     // true = execute normally, false = skip
@@ -77,7 +80,7 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
       }
       return true;
     },
-  });
+  };
 
   const repeatInstructions = {
     timeline: [
@@ -127,7 +130,7 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
       if(i === 4){
         timeline.push(repeatInstructions);
       }
-      timeline.push(stimulusBlock(trialConfig)); 
+      timeline.push(stimulusBlock); 
     }
   }
 
