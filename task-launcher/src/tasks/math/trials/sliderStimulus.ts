@@ -6,7 +6,7 @@ import { jsPsych, isTouchScreen } from '../../taskSetup';
 //@ts-ignore
 import { camelize } from '@bdelab/roar-utils';
 //@ts-ignore
-import { arrowKeyEmojis, setSkipCurrentBlock, replayButtonSvg, setupReplayAudio, PageAudioHandler, PageStateHandler } from '../../shared/helpers';
+import { arrowKeyEmojis, setSkipCurrentBlock, replayButtonSvg, setupReplayAudio, PageAudioHandler, PageStateHandler, setSentryContext } from '../../shared/helpers';
 import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
 
@@ -133,7 +133,15 @@ export const slider = {
       //}
     });
     const { buttonLayout, keyHelpers } = taskStore();
-    const { distractors } = taskStore().nextStimulus;
+    const stim = taskStore().nextStimulus as StimulusType;
+    const { distractors } = stim;
+
+    // Setup Sentry Context
+    setSentryContext({
+      itemId: stim.itemId,
+      taskName: stim.task,
+      pageContext: 'sliderStimulus',
+    });
 
     const wrapper = document.getElementById('jspsych-html-slider-response-wrapper') as HTMLDivElement;
     const buttonContainer = document.createElement('div');
@@ -148,7 +156,7 @@ export const slider = {
       buttonContainer.classList.add('lev-response-row-diamond-layout');
     }
 
-    if (taskStore().nextStimulus.trialType === 'Number Line 4afc') {
+    if (stim.trialType === 'Number Line 4afc') {
       // don't let participant move slider
       slider.disabled = true;
 
@@ -159,7 +167,7 @@ export const slider = {
       continueBtn.disabled = true;
       continueBtn.style.visibility = 'hidden';
 
-      const { answer, distractors } = taskStore().nextStimulus;
+      const { answer, distractors } = stim;
 
       distractors.push(answer);
 
