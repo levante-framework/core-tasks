@@ -61,7 +61,7 @@ declare global {
     chanceLevel: number;
     itemId: string;
     item_id?: string;
-    distractors: string[] | number[];
+    distractors: Array<string | number>;
     audioFile: string;
     audio_file?: string;
     requiredSelections?: number;

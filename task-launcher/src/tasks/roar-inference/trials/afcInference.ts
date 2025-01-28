@@ -5,6 +5,7 @@ import {
   arrowKeyEmojis,
   setSkipCurrentBlock,
   PageStateHandler,
+  setSentryContext,
   //@ts-ignore
 } from '../../shared/helpers';
 import { camelize } from '../../shared/helpers/camelize';
@@ -176,7 +177,7 @@ function addKeyHelpers(el: HTMLElement, keyIndex: number) {
 }
 
 function doOnLoad(layoutConfigMap: Record<string, LayoutConfigTypeInference>) {
-  const stim = taskStore().nextStimulus;
+  const stim = taskStore().nextStimulus as StimulusType;
   const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
   const playAudioOnLoad = itemLayoutConfig?.playAudioOnLoad;
   const pageStateHandler = new PageStateHandler(stim.audioFile, playAudioOnLoad); // this falls to nullAudio
@@ -184,6 +185,12 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigTypeInference>) {
   const isInstructionTrial = stim.trialType === 'instructions';
   // Handle the staggered buttons
   handleStaggeredButtons(itemLayoutConfig, pageStateHandler);
+  // Setup Sentry Context
+  setSentryContext({
+    itemId: stim.itemId,
+    taskName: stim.task,
+    pageContext: 'afcInference',
+  });
   
   if (isPracticeTrial) {
     const practiceBtns: NodeListOf<HTMLButtonElement> = document.querySelectorAll('.practice-btn');
