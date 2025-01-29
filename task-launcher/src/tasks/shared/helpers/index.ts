@@ -24,3 +24,8 @@ export * from './setSkipCurrentBlock'
 export { PageAudioHandler } from './audioHandler';
 export { PageStateHandler } from './PageStateHandler';
 export { camelize } from './camelize';
+export { prepareCorpus, selectNItems } from './prepareCat';
+export { convertItemToString } from './convertItemToString';
+export { validateLayoutConfig } from './validateLayoutConfig';
+export { mapDistractorsToString } from './mapDistractorsToString';
+export { setSentryContext } from './setSentryContext';

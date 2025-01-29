@@ -1,12 +1,9 @@
 import 'regenerator-runtime/runtime';
 // setup
-//@ts-ignore
 import { initTrialSaving, initTimeline, createPreloadTrials } from '../shared/helpers';
-//@ts-ignore
 import { jsPsych, initializeCat, cat } from '../taskSetup';
 // trials
-//@ts-ignore
-import { afcStimulusTemplate, exitFullscreen, fixationOnly, setupStimulus, taskFinished } from '../shared/trials';
+import { afcStimulusTemplate, exitFullscreen, fixationOnly, setupStimulus, taskFinished, enterFullscreen, finishExperiment } from '../shared/trials';
 import { getLayoutConfig } from './helpers/config';
 import { prepareCorpus, selectNItems } from '../shared/helpers/prepareCat';
 import { taskStore } from '../../taskStore';
@@ -15,7 +12,7 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
   const preloadTrials = createPreloadTrials(mediaAssets).default;
 
   initTrialSaving(config);
-  const initialTimeline = initTimeline(config);
+  const initialTimeline = initTimeline(config, enterFullscreen, finishExperiment);
   const timeline = [preloadTrials, initialTimeline];
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
   const translations: Record<string, string> = taskStore().translations;

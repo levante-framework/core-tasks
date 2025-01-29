@@ -48,7 +48,7 @@ import store from 'store2';
 export type TaskStoreDataType = {
   audioFeedback: string;
   skipInstructions: boolean;
-  corpusId: string;
+  corpusId?: string;
   corpus: string,
   stimulusBlocks: number;
   buttonLayout: string;
@@ -59,11 +59,12 @@ export type TaskStoreDataType = {
   isRoarApp: boolean;
   userMetadata: {
     age: number;
-  };
+  } & Record<string, any>;
   inferenceNumStories?: number; // FIXME: Remove
   cat: boolean;
   heavyInstructions: boolean;
   semThreshold: number;
+  language?: string;
 };
 
 /**

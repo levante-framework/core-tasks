@@ -1,9 +1,11 @@
-//@ts-ignore
-import { fractionToMathML } from '../../shared/helpers';
-//@ts-ignore
-import { prepareChoices } from "../../shared/helpers/prepareChoices";
-import { DEFAULT_LAYOUT_CONFIG } from "../../shared/helpers/config";
-import { validateLayoutConfig } from "../../shared/helpers/validateLayoutConfig";
+import {
+  convertItemToString,
+  validateLayoutConfig,
+  prepareChoices,
+  DEFAULT_LAYOUT_CONFIG,
+  mapDistractorsToString,
+  fractionToMathML,
+} from '../../shared/helpers';
 
 type GetConfigReturnType = {
   itemConfig: LayoutConfigType;
@@ -18,16 +20,18 @@ export const getLayoutConfig = (
 ): GetConfigReturnType => {
   const { answer, distractors, trialType } = stimulus;
   const defaultConfig: LayoutConfigType = JSON.parse(JSON.stringify(DEFAULT_LAYOUT_CONFIG));
+  const stimItem = convertItemToString(stimulus.item);
   defaultConfig.isPracticeTrial = stimulus.assessmentStage === 'practice_response';
   defaultConfig.isInstructionTrial = stimulus.trialType === 'instructions';
   defaultConfig.showStimImage = false;
   defaultConfig.stimText = {
-    value: stimulus.item,
+    value: stimItem,
     displayValue: undefined,
   };
   defaultConfig.inCorrectTrialConfig.onIncorrectTrial = 'skip';
   if (!defaultConfig.isInstructionTrial) {
-    const prepChoices = prepareChoices(answer, distractors, true, trialType); 
+    const mappedDistractors = mapDistractorsToString(distractors);
+    const prepChoices = prepareChoices(answer.toString(), mappedDistractors, true, trialType); 
     defaultConfig.prompt.enabled = false;
     defaultConfig.isImageButtonResponse = false;
     defaultConfig.classOverrides.buttonClassList = ['secondary'];
@@ -39,10 +43,10 @@ export const getLayoutConfig = (
     };
     if (!['Number Identification', 'Number Comparison'].includes(stimulus.trialType)) {
       defaultConfig.stimText = {
-        value: stimulus.item,
+        value: stimItem,
         displayValue: stimulus.trialType === 'Fraction'
-          ? fractionToMathML(stimulus.item)
-          : stimulus.item,
+          ? fractionToMathML(stimItem)
+          : stimItem,
       };
     }
   } else {

@@ -91,12 +91,13 @@ export const afcMatch = {
     // can select multiple cards and deselect them
     startTime = performance.now();
     const stim = taskStore().nextStimulus;
+
     let audioFile = stim.audioFile;
     if (taskStore().heavyInstructions  && stim.assessmentStage !== "practice_response" && stim.trialType !== "instructions") {
       audioFile += "-heavy";
     }
 
-    const pageStateHandler = new PageStateHandler(audioFile);
+    const pageStateHandler = new PageStateHandler(audioFile, true);
     setupReplayAudio(pageStateHandler);
     const buttonContainer = document.getElementById('jspsych-audio-multi-response-btngroup') as HTMLDivElement;
     const responseBtns = Array.from(buttonContainer.children)

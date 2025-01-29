@@ -1,7 +1,10 @@
-//@ts-ignore
-import { prepareChoices } from "../../shared/helpers/prepareChoices";
-import { DEFAULT_LAYOUT_CONFIG } from "../../shared/helpers/config";
-import { validateLayoutConfig } from "../../shared/helpers/validateLayoutConfig";
+import {
+  convertItemToString,
+  validateLayoutConfig,
+  prepareChoices,
+  DEFAULT_LAYOUT_CONFIG,
+  mapDistractorsToString,
+} from '../../shared/helpers';
 
 type GetConfigReturnType = {
   itemConfig: LayoutConfigType;
@@ -20,12 +23,13 @@ export const getLayoutConfig = (
   defaultConfig.isPracticeTrial = stimulus.assessmentStage === 'practice_response';
   defaultConfig.isInstructionTrial = stimulus.trialType === 'instructions';
   defaultConfig.stimText = {
-    value: stimulus.item,
+    value: convertItemToString(stimulus.item),
     displayValue: undefined,
   };
   defaultConfig.classOverrides.promptClassList = ['lev-row-container', 'instruction-small'];
   if (!defaultConfig.isInstructionTrial) {
-    const prepChoices = prepareChoices(answer, distractors, true, trialType);
+    const mappedDistractors = mapDistractorsToString(distractors);
+    const prepChoices = prepareChoices(answer.toString(), mappedDistractors, true, trialType);
     defaultConfig.isImageButtonResponse = true;
     defaultConfig.response = {
       target: prepChoices.target,
