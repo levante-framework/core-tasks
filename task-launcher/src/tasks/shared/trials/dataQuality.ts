@@ -2,7 +2,7 @@ import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-respons
 import { jsPsych } from '../../taskSetup';
 import { taskStore } from '../../../taskStore';
 //@ts-ignore
-import { finishExperiment } from './finishExperiment.js'
+import { finishExperiment } from './finishExperiment.ts'
 
 const t = taskStore().translations; 
 const buttonText = [
@@ -30,6 +30,7 @@ export const dataQualityScreen = {
         Note: This is NOT a question about how well the child performed. Instead, we want your impression of how well the child understood and actively participated in the task.
       </footer>`,
     keyboard_choices: 'NO_KEYS',
+    button_choices: () => buttonText,
     button_html: () => {
       const t = taskStore().translations; 
       return buttonText.map(text => `<button class="primary" style="font-size: 16px">${t[text]}</button>`);

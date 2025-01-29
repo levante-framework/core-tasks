@@ -45,12 +45,12 @@ type ParsedRowType = {
 };
 
 export const sdsPhaseCount = {
-  phase1: 0,
-  phase2a: 0,
-  phase2b: 0,
-  phase2c: 0,
-  phase2d: 0,
-  phase2e: 0,
+  block1: 0,
+  block2: 0,
+  block3: 0,
+  block4: 0,
+  block5: 0,
+  block6: 0,
 };
 
 let totalTrials = 0;
