@@ -71,7 +71,7 @@ export const somethingSameDemo1 = {
       const audioFile = "sameDifferentSelectionBothYellowHeavy";
       PageAudioHandler.playAudio(mediaAssets.audio[audioFile], enableOkBtn);
   
-      const pageStateHandler = new PageStateHandler(audioFile);
+      const pageStateHandler = new PageStateHandler(audioFile, true);
       setupReplayAudio(pageStateHandler);
       const buttonContainer = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
       buttonContainer.classList.add('lev-response-row');
@@ -142,7 +142,7 @@ export const somethingSameDemo2 = {
       const audioFile = "sdsPrompt3DemoHeavy";
       PageAudioHandler.playAudio(mediaAssets.audio[audioFile], enableOkBtn);
   
-      const pageStateHandler = new PageStateHandler(audioFile);
+      const pageStateHandler = new PageStateHandler(audioFile, true);
       setupReplayAudio(pageStateHandler);
       const buttonContainer = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
       buttonContainer.classList.add('lev-response-row');
@@ -241,7 +241,7 @@ const videoInstructions = videoInstructionData.map(data => {
     on_load: () => {
       PageAudioHandler.playAudio(mediaAssets.audio[camelize(data.prompt)], enableOkBtn);
       
-      const pageStateHandler = new PageStateHandler(data.prompt);
+      const pageStateHandler = new PageStateHandler(data.prompt, true);
       setupReplayAudio(pageStateHandler);
     },
     on_finish: () => {
