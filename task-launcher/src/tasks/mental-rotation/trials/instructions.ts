@@ -50,7 +50,7 @@ export const videoInstructionsFit = {
     // wrapper.style.justifyContent = 'center';
     PageAudioHandler.playAudio(mediaAssets.audio.mentalRotationTrainingInstruct3, enableOkBtn);
     
-    const pageStateHandler = new PageStateHandler('mental-rotation-training-instruct3');
+    const pageStateHandler = new PageStateHandler('mental-rotation-training-instruct3', true);
     setupReplayAudio(pageStateHandler);
   },
   on_finish: () => {
@@ -92,7 +92,7 @@ export const videoInstructionsMisfit = {
   on_load: () => {
     PageAudioHandler.playAudio(mediaAssets.audio.mentalRotationTrainingInstruct2, enableOkBtn); 
     
-    const pageStateHandler = new PageStateHandler('mental-rotation-training-instruct2');
+    const pageStateHandler = new PageStateHandler('mental-rotation-training-instruct2', true);
     setupReplayAudio(pageStateHandler);
 },
 on_finish: () => {
@@ -131,7 +131,7 @@ export const imageInstructions = {
   on_load: () => {
     PageAudioHandler.playAudio(mediaAssets.audio.mentalRotationInstruct1, enableOkBtn); 
 
-    const pageStateHandler = new PageStateHandler('mental-rotation-instruct1');
+    const pageStateHandler = new PageStateHandler('mental-rotation-instruct1', true);
     setupReplayAudio(pageStateHandler);
 },
 on_finish: () => {
@@ -175,7 +175,7 @@ export const threeDimInstructions = {
   response_allowed_while_playing: false,
   on_load: () => {
     PageAudioHandler.playAudio(mediaAssets.audio.mentalRotationInstruct3D);
-    const pageStateHandler = new PageStateHandler('mental-rotation-instruct-3D');
+    const pageStateHandler = new PageStateHandler('mental-rotation-instruct-3D', true);
     setupReplayAudio(pageStateHandler);
 },
 on_finish: () => {

@@ -1,24 +1,26 @@
-import 'regenerator-runtime/runtime';
-//@ts-ignore
-import { initTrialSaving, initTimeline } from '../shared/helpers';
-
 // setup
-//@ts-ignore
+import 'regenerator-runtime/runtime';
 import { jsPsych } from '../taskSetup';
 //@ts-ignore
-import { createPreloadTrials, sdsPhaseCount } from '../shared/helpers';
+import { initTrialSaving, initTimeline, createPreloadTrials, sdsPhaseCount } from '../shared/helpers';
 import { prepareCorpus } from '../shared/helpers/prepareCat';
 //@ts-ignore
 import { initializeCat } from '../taskSetup';
-
 // trials
 //@ts-ignore
-import { setupStimulus, exitFullscreen, taskFinished } from '../shared/trials';
 import { dataQualityScreen } from '../shared/trials/dataQuality';
+// trials
+import {
+  setupStimulus,
+  exitFullscreen,
+  taskFinished,
+  feedback,
+  getAudioResponse,
+  enterFullscreen,
+  finishExperiment,
+} from '../shared/trials';
 import { afcMatch } from './trials/afcMatch';
 import { stimulus } from './trials/stimulus';
-//@ts-ignore
-import { feedback, getAudioResponse } from '../shared/trials';
 import { taskStore } from '../../taskStore';
 import { somethingSameDemo1, somethingSameDemo2, somethingSameDemo3, matchDemo1, matchDemo2 } from './trials/heavyInstructions';
 
@@ -32,7 +34,7 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
   const preparedCorpus = prepareCorpus(corpus);
 
   initTrialSaving(config);
-  const initialTimeline = initTimeline(config);
+  const initialTimeline = initTimeline(config, enterFullscreen, finishExperiment);
 
   const buttonNoise = {
     timeline: [getAudioResponse(mediaAssets)],

@@ -1,6 +1,6 @@
 // For all tasks except: H&F, Memory Game, Same Different Selection
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
-// @ts-ignore
+import _toNumber from 'lodash/toNumber';
 import { jsPsych, isTouchScreen, cat } from '../../taskSetup';
 import {
   arrowKeyEmojis,
@@ -9,15 +9,13 @@ import {
   setSkipCurrentBlock,
   PageAudioHandler,
   PageStateHandler,
-  //@ts-ignore
+  camelize,
+  setSentryContext,
 } from '../helpers';
 import { handleStaggeredButtons } from '../helpers/staggerButtons';
-import { camelize } from '../helpers/camelize';
 import { mediaAssets } from '../../..';
-import _toNumber from 'lodash/toNumber';
-// @ts-ignore
 import { finishExperiment } from '.';
-import { taskStore } from '../../../taskStore'; 
+import { taskStore } from '../../../taskStore';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 // Previously chosen responses for current practice trial
@@ -277,11 +275,11 @@ function addKeyHelpers(el: HTMLElement, keyIndex: number) {
 
 function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: StimulusType) {
   // play trial audio
-  PageAudioHandler.playAudio(getStimulus(layoutConfigMap, trial)); 
+  PageAudioHandler.playAudio(getStimulus(layoutConfigMap, trial) || ''); 
 
   startTime = performance.now();
 
-  const stim = trial || taskStore().nextStimulus;
+  const stim = trial || taskStore().nextStimulus as StimulusType;
   const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
   const playAudioOnLoad = itemLayoutConfig?.playAudioOnLoad;
   const pageStateHandler = new PageStateHandler(stim.audioFile, playAudioOnLoad);
@@ -304,6 +302,14 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
 
   const currentTrialIndex = jsPsych.getProgress().current_trial_global;
   let twoTrialsAgoIndex = currentTrialIndex - 2;
+
+  // Setup Sentry Context
+  setSentryContext({
+    itemId: stim.itemId,
+    taskName: stim.task,
+    pageContext: 'afcStimulus',
+  });
+
   if (stim.task === 'math') {
     twoTrialsAgoIndex = currentTrialIndex - 3; // math has a fixation or something
 
@@ -355,7 +361,7 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
     const { buttonLayout } = taskStore();
 
     if (itemLayoutConfig) {
-      if (buttonLayout === 'diamond') { // have to do it in the runtime
+      if (buttonLayout === 'diamond' && totalResponseButtons === 4) { // have to do it in the runtime
         buttonContainer.classList.add('lev-response-row-diamond-layout');
       } else {
         buttonContainer.classList.add(...itemLayoutConfig.classOverrides.buttonContainerClassList);

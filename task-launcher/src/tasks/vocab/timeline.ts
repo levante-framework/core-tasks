@@ -1,21 +1,18 @@
 import 'regenerator-runtime/runtime';
 // setup
-// @ts-ignore
-import { initTrialSaving, initTimeline, createPreloadTrials } from '../shared/helpers';
-// @ts-ignore
+import { initTrialSaving, initTimeline, createPreloadTrials, prepareCorpus, selectNItems } from '../shared/helpers';
 import { jsPsych, initializeCat, cat } from '../taskSetup';
 // trials
 // @ts-ignore
-import { afcStimulusTemplate, exitFullscreen, setupStimulus, fixationOnly, taskFinished } from '../shared/trials';
+import { afcStimulusTemplate, exitFullscreen, setupStimulus, fixationOnly, taskFinished, enterFullscreen, finishExperiment } from '../shared/trials';
 import { getLayoutConfig } from './helpers/config';
-import { prepareCorpus, selectNItems } from '../shared/helpers/prepareCat';
 import { taskStore } from '../../taskStore';
 
 export default function buildVocabTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
 
   initTrialSaving(config);
-  const initialTimeline = initTimeline(config);
+  const initialTimeline = initTimeline(config, enterFullscreen, finishExperiment);
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {}; 

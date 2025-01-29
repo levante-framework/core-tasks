@@ -13,11 +13,11 @@ export function prepareCorpus(corpus: StimulusType[]) {
   );
 
   const heavyInstructionPracticeTrials: StimulusType[] = instructionPracticeTrials.filter(trial =>
-    trial.difficulty < 0
+    Number(trial.difficulty) < 0
   );
 
   const lightInstructionPracticeTrials: StimulusType[] = instructionPracticeTrials.filter(trial =>
-    trial.difficulty > 0 || trial.difficulty == null || isNaN(trial.difficulty)
+    Number(trial.difficulty) > 0 || trial.difficulty == null || isNaN(Number(trial.difficulty))
   );
 
   const corpusParts = {
@@ -28,7 +28,7 @@ export function prepareCorpus(corpus: StimulusType[]) {
 
   // separate out normed/unnormed trials
   const unnormedTrials: StimulusType[] = corpusParts.test.filter(trial =>
-    trial.difficulty == null || isNaN(trial.difficulty)
+    trial.difficulty == null || isNaN(Number(trial.difficulty))
   );
   const normedTrials: StimulusType[] = corpusParts.test.filter(trial =>
     !unnormedTrials.includes(trial)

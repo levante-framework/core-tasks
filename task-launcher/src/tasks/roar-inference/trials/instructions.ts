@@ -50,7 +50,7 @@ export const instructions = instructionData.map(data => {
         keyboard_choices: () => 'NO_KEYS',
 
         on_load: () => {
-            const pageStateHandler = new PageStateHandler(data.prompt);
+            const pageStateHandler = new PageStateHandler(data.prompt, true);
             setupReplayAudio(pageStateHandler);
         }, 
         on_finish: () => {

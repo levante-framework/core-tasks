@@ -1,13 +1,10 @@
 import 'regenerator-runtime/runtime';
 // setup
-//@ts-ignore
 import { initTrialSaving, initTimeline, createPreloadTrials } from '../shared/helpers';
 import { instructions } from './trials/instructions';
-//@ts-ignore
 import { jsPsych, initializeCat, cat } from '../taskSetup';
 // trials
-//@ts-ignore
-import { afcStimulusTemplate, exitFullscreen, setupStimulus, fixationOnly, taskFinished, getAudioResponse } from '../shared/trials';
+import { afcStimulusTemplate, exitFullscreen, setupStimulus, fixationOnly, taskFinished, getAudioResponse, enterFullscreen, finishExperiment } from '../shared/trials';
 import { getLayoutConfig } from './helpers/config';
 import { repeatInstructionsMessage } from '../shared/trials/repeatInstructions';
 import { prepareCorpus, selectNItems } from '../shared/helpers/prepareCat';
@@ -17,13 +14,16 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
   const preloadTrials = createPreloadTrials(mediaAssets).default;
 
   initTrialSaving(config);
-  const initialTimeline = initTimeline(config);
+  const initialTimeline = initTimeline(config, enterFullscreen, finishExperiment);
 
   const ifRealTrialResponse = {
     timeline: [getAudioResponse(mediaAssets)],
 
     conditional_function: () => {
       const stim = taskStore().nextStimulus;
+      if (runCat) { 
+        return true; 
+      }
       if (stim.assessmentStage === 'practice_response' || stim.trialType === 'instructions') {
         return false;
       }
@@ -63,10 +63,10 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
     layoutConfigMap,
   };
 
-  const stimulusBlock = (config: Record<string, any>) => ({
+  const stimulusBlock = {
     timeline: [
       setupStimulus,
-      afcStimulusTemplate(config), 
+      afcStimulusTemplate(trialConfig), 
       ifRealTrialResponse
     ],
     // true = execute normally, false = skip
@@ -80,7 +80,7 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
       }
       return true;
     },
-  });
+  };
 
   const repeatInstructions = {
     timeline: [
@@ -130,7 +130,7 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
       if(i === 4){
         timeline.push(repeatInstructions);
       }
-      timeline.push(stimulusBlock(trialConfig)); 
+      timeline.push(stimulusBlock); 
     }
   }
 

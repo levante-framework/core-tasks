@@ -39,7 +39,7 @@ const corpus = urlParams.get('corpus');
 const buttonLayout = urlParams.get('buttonLayout');
 const numOfPracticeTrials = urlParams.get('practiceTrials');
 const numberOfTrials = urlParams.get('trials') === null ? null : parseInt(urlParams.get('trials'), 10);
-const maxIncorrect = urlParams.get('maxIncorrect');
+const maxIncorrect = urlParams.get('maxIncorrect') === null? null : parseInt(urlParams.get('maxIncorrect'), 10);
 const stimulusBlocks = urlParams.get('blocks') === null ? null : parseInt(urlParams.get('blocks'), 10);
 const age = urlParams.get('age') === null ? null : parseInt(urlParams.get('age'), 10);
 const maxTime = urlParams.get('maxTime') === null ? null : parseInt(urlParams.get('maxTime'), 10); // time limit for real trials

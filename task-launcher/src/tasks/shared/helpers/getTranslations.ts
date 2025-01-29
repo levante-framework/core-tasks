@@ -26,7 +26,11 @@ function parseTranslations(translationData: Record<string, string>[], configLang
   taskStore('translations', translations);
 }
 
-export const getTranslations = async (configLanguage: string) => {
+export const getTranslations = async (configLanguage?: string) => {
+  if (!configLanguage) {
+    return;
+  }
+
   function downloadCSV(url: string) {
     return new Promise((resolve, reject) => {
       Papa.parse<Record<string, string>>(url, {
@@ -34,7 +38,7 @@ export const getTranslations = async (configLanguage: string) => {
         header: true,
         skipEmptyLines: true,
         complete: function (results) {
-          parseTranslations(results.data, configLanguage);
+          parseTranslations(results.data, configLanguage || '');
           resolve(results.data);
         },
         error: function (error) {

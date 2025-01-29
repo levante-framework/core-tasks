@@ -6,7 +6,7 @@ export const prepareChoices = (
   target: string,
   distractors: string[],
   randomizeOrder = true,
-  trialType: string,
+  trialType?: string,
 ) => {
   let choices;
   if (!target || distractors.includes(target)) { // If target is not present, don't add to options
