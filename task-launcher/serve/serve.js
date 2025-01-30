@@ -46,7 +46,8 @@ const maxTime = urlParams.get('maxTime') === null ? null : parseInt(urlParams.ge
 const language = urlParams.get('lng');
 const pid = urlParams.get('pid');
 const inferenceNumStories = urlParams.get('inferenceNumStories') === null? null : parseInt(urlParams.get('inferenceNumStories'), 10);
-const semThreshold = Number(urlParams.get('semThreshold') || '0.5');
+const semThreshold = Number(urlParams.get('semThreshold') || '0');
+const startingTheta = Number(urlParams.get('theta') || '0'); 
 
 // Boolean parameters
 const keyHelpers = stringToBoolean(urlParams.get('keyHelpers'));
@@ -89,7 +90,8 @@ async function startWebApp() {
       storeItemId,
       cat,
       inferenceNumStories,
-      semThreshold
+      semThreshold, 
+      startingTheta
     };
 
       const taskInfo = {

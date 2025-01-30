@@ -62,6 +62,7 @@ export type TaskStoreDataType = {
   inferenceNumStories?: number; // FIXME: Remove
   cat: boolean;
   semThreshold: number;
+  startingTheta: number;
   language?: string;
 };
 
@@ -92,6 +93,7 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     keyHelpers: config.keyHelpers,
     runCat: config.cat, 
     semThreshold: config.semThreshold,
+    startingTheta: config.startingTheta, 
     storeItemId: config.storeItemId,
     isRoarApp: config.isRoarApp,
     numOfBlocks: config.userMetadata.age > 12 ? 9 : 4,

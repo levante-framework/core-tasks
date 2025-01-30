@@ -5,6 +5,8 @@ import { taskStore } from '../../../taskStore';
 // separates trials from corpus into blocks for cat
 export function prepareCorpus(corpus: StimulusType[]) {
   const excludedTrialTypes = '3D'; 
+  // limit random starting items so that their difficulty is less than starting theta
+  const maxTrialDifficulty = taskStore().startingTheta; 
 
   const instructionPracticeTrials: StimulusType[] = corpus.filter(trial => 
     trial.assessmentStage === 'instructions' || trial.assessmentStage === 'practice_response'
@@ -14,7 +16,8 @@ export function prepareCorpus(corpus: StimulusType[]) {
     (trial.difficulty != null) &&
     !isNaN(Number(trial.difficulty)) &&
     !instructionPracticeTrials.includes(trial) &&
-    (trial.trialType !== excludedTrialTypes)
+    (trial.trialType !== excludedTrialTypes) &&
+    (trial.difficulty <= maxTrialDifficulty)
   )
   
   const startItems: StimulusType[] = selectNItems(possibleStartItems, 5);
