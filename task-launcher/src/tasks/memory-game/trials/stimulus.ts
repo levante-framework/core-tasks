@@ -217,7 +217,7 @@ function doOnLoad(mode: 'display' | 'input', isPractice: boolean, reverse: boole
           const toastTimer = setTimeout(() => {
             const toast = document.getElementById('lev-toast-default') as HTMLDivElement;
             toast.classList.add('show');
-          }, 10);
+          }, 10000);
 
           const hideToast = setTimeout(() => {
             const toast = document.getElementById('lev-toast-default') as HTMLDivElement;
