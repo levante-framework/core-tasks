@@ -298,6 +298,8 @@ function handlePracticeButtonPress(
     setTimeout(() => enableBtns(practiceBtns), 500);
     incorrectPracticeResponses.push(choice);
   }
+  // if there is audio playing, stop it first before playing feedback audio to prevent overlap between trials
+  PageAudioHandler.stopAndDisconnectNode();
   PageAudioHandler.playAudio(feedbackAudio);
 }
 
