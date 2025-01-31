@@ -63,3 +63,16 @@ export function selectNItems(corpus: StimulusType[], n: number) {
 
   return finalTrials; 
 }
+
+// separates cat corpus into blocks of trials of a certain type (or list of types)
+export function prepareMultiBlockCat(corpus: StimulusType[], trialTypes: string[][]) {
+  const blockList: StimulusType[][] = []; // a list of blocks, each containing trials
+
+  trialTypes.forEach((trialList: string[]) => {
+    blockList.push(corpus.filter(trial => 
+      trialList.includes(trial.trialType)
+    ));
+  });
+
+  return blockList; 
+}
