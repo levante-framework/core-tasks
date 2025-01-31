@@ -342,6 +342,8 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
   startTime = performance.now();
 
   const stim = trial || taskStore().nextStimulus as StimulusType;
+  console.log("Item difficulty:\n");
+  console.log(stim.difficulty);
   const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
   const playAudioOnLoad = itemLayoutConfig?.playAudioOnLoad;
   const pageStateHandler = new PageStateHandler(stim.audioFile, playAudioOnLoad);

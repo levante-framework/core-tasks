@@ -2,7 +2,7 @@ import HTMLSliderResponse from '@jspsych/plugin-html-slider-response';
 import _shuffle from 'lodash/shuffle';
 import _toNumber from 'lodash/toNumber';
 //@ts-ignore
-import { jsPsych, isTouchScreen } from '../../taskSetup';
+import { jsPsych, isTouchScreen, cat } from '../../taskSetup';
 //@ts-ignore
 import { camelize } from '@bdelab/roar-utils';
 //@ts-ignore
@@ -134,6 +134,8 @@ export const slider = {
     });
     const { buttonLayout, keyHelpers } = taskStore();
     const stim = taskStore().nextStimulus as StimulusType;
+    console.log("Item difficulty:\n");
+    console.log(stim.difficulty);
     const { distractors } = stim;
 
     // Setup Sentry Context
@@ -242,6 +244,7 @@ export const slider = {
     // Need to remove event listener after trial completion or they will stack and cause an error.
     document.removeEventListener('keydown', captureBtnValue);
     const endTime = performance.now();
+    const runCat = taskStore().runCat; 
 
     const sliderScoringThreshold = 0.05 // proportion of maximum slider value that response must fall within to be scored correct
     const stimulus = taskStore().nextStimulus;
@@ -258,6 +261,21 @@ export const slider = {
       } else {
         taskStore.transact('numIncorrect', (oldVal: number) => oldVal + 1);
       }
+
+      if (runCat) {
+          // update theta for CAT
+            const zeta = {
+              a: 1, // item discrimination (default value of 1)
+              b: stimulus.difficulty, // item difficulty (from corpus)
+              c: stimulus.chanceLevel, // probability of correct answer from guessing
+              d: 1 // max probability of correct response (default 1)
+            }; 
+          
+            if (!(Number.isNaN(zeta.b)) && (stimulus.assessmentStage !== 'practice_response')) {
+              const answer = data.correct ? 1 : 0;
+              cat.updateAbilityEstimate(zeta, answer)
+            }
+          }
     }
 
     const response = chosenAnswer;

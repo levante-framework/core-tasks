@@ -8,12 +8,17 @@ import { cat, jsPsych } from '../../taskSetup';
 // the next item, stores it in a session variable, and removes it from the corpus
 // corpusType is the name of the subTask's corpus within corpusLetterAll[]
 
-export const getStimulus = (corpusType: string) => {
+export const getStimulus = (corpusType: string, blockNumber?: number) => {
   let corpus, itemSuggestion;
 
   corpus = taskStore().corpora;
+  console.log("Block number:\n");
+  console.log(blockNumber);
 
-  itemSuggestion = cat.findNextItem(corpus[corpusType]);
+  // if block number is specified, get next item from only the indicated block of the corpus
+  blockNumber != undefined ? 
+    itemSuggestion = cat.findNextItem(corpus[corpusType][blockNumber]) : 
+    itemSuggestion = cat.findNextItem(corpus[corpusType])
 
   const stimAudio = itemSuggestion.nextStimulus.audioFile;
   if (stimAudio && !mediaAssets.audio[camelize(stimAudio)]) {
@@ -27,6 +32,9 @@ export const getStimulus = (corpusType: string) => {
   taskStore('nextStimulus', itemSuggestion.nextStimulus);
 
   // update the corpus with the remaining unused items
-  corpus[corpusType] = itemSuggestion.remainingStimuli;
+  blockNumber != undefined ? 
+    corpus[corpusType][blockNumber] = itemSuggestion.remainingStimuli :
+    corpus[corpusType] = itemSuggestion.remainingStimuli
+
   taskStore('corpora', corpus);
 };
