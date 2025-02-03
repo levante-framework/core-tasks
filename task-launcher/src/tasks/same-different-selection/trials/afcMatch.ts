@@ -41,9 +41,12 @@ export const afcMatch = {
   },
   stimulus: () => {
     const stim = taskStore().nextStimulus;
-    const audioFile = camelize(stim.audioFile);
+    let audioFile = stim.audioFile;
+    if (taskStore().heavyInstructions && stim.assessmentStage !== "practice_response" && stim.trialType !== "instructions") {
+      audioFile += "-heavy";
+    }
 
-    return mediaAssets.audio[audioFile];
+    return mediaAssets.audio[camelize(audioFile)];
   },
   prompt: () => {
     const stimulus = taskStore().nextStimulus;
@@ -93,7 +96,7 @@ export const afcMatch = {
     const stim = taskStore().nextStimulus;
 
     let audioFile = stim.audioFile;
-    if (taskStore().heavyInstructions  && stim.assessmentStage !== "practice_response" && stim.trialType !== "instructions") {
+    if (taskStore().heavyInstructions && stim.assessmentStage !== "practice_response" && stim.trialType !== "instructions") {
       audioFile += "-heavy";
     }
 
