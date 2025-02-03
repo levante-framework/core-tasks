@@ -102,6 +102,11 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
   // all instructions + practice trials
   const instructionPractice: StimulusType[] = heavy ? preparedCorpus.ipHeavy : preparedCorpus.ipLight
 
+  // returns practice + instruction trials for a given block
+  function getPracticeInstructions(blockNum: number) : StimulusType[] {
+    return instructionPractice.filter(trial => (trial.blockIndex == blockNum));
+  }
+
   // create list of numbers of trials per block
   const blockCountList: number[] = [];
   taskStore().corpora.stimulus.forEach((trial: StimulusType) => {
@@ -140,30 +145,28 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
 
   // add trials to timeline according to block structure defined in blockOperations
   blockCountList.forEach((count, index) => {
-    // push in instructions 
-    instructionPractice.filter(trial => (trial.blockIndex == index && trial.trialType == "instructions"))
-    .forEach(trial => {
-      timeline.push(ipBlock(trial)); 
-    });
+    const currentBlockInstructionPractice = getPracticeInstructions(index); 
 
-    // push in any demos for that block
-    if (index == 1 && heavy) {
+    // push in instruction + practice trials
+    if (index === 1 && heavy) { // something's the same block has demo trials in between instructions
+      const firstInstruction = currentBlockInstructionPractice.shift();
+      if (firstInstruction != undefined) { timeline.push(ipBlock(firstInstruction)) }; 
+
       timeline.push(somethingSameDemo1);
       timeline.push(somethingSameDemo2);
       timeline.push(somethingSameDemo3);
-    } 
-    if (index == 2 && heavy) {
+    }
+
+    currentBlockInstructionPractice.forEach(trial => {
+      timeline.push(ipBlock(trial));
+    });
+
+    if (index === 2 && heavy) { // 2-match has demo trials after instructions
       timeline.push(matchDemo1);
       timeline.push(matchDemo2);
     }
 
-    // push in practice trials in the corpus
-    instructionPractice.filter(trial => (trial.blockIndex == index && trial.assessmentStage == "practice_response"))
-    .forEach(trial => {
-      timeline.push(ipBlock(trial)); 
-    });
-
-    // test trials
+    // push in test trials
     for (let i = 0; i < count; i += 1) {
       blockOperations[index]();
     }
