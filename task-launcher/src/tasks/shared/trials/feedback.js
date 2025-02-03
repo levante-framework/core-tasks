@@ -22,7 +22,11 @@ export const feedback = (isPractice = false, correctFeedbackAudioKey, inCorrectF
                             promptOnIncorrect = t.sds2matchPrompt1;
                             break; 
                         case 'memory-game': 
-                            promptOnIncorrect = t.memoryGameForwardPrompt;
+                            if (inCorrectFeedbackAudioKey.toUpperCase().includes("BACKWARD")) {
+                                promptOnIncorrect = t.memoryGameBackWardPrompt;
+                            } else {
+                                promptOnIncorrect = t.memoryGameForwardPrompt;
+                            }
                             break; 
                         default: 
                             promptOnIncorrect = '';
