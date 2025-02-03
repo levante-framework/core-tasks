@@ -45,7 +45,7 @@ function setUpAudio(contentWrapper: HTMLDivElement, prompt: HTMLParagraphElement
 
   PageAudioHandler.playAudio(audioFile, () => {
     // set up replay button audio after the first audio has played
-    const pageStateHandler = new PageStateHandler(cue);
+    const pageStateHandler = new PageStateHandler(cue, true);
     setupReplayAudio(pageStateHandler);
   });  
 }
@@ -218,9 +218,8 @@ function doOnLoad(mode: 'display' | 'input', isPractice: boolean, reverse: boole
           // start a timer for toast notification
           const toastTimer = setTimeout(() => {
             const toast = document.getElementById('lev-toast-default') as HTMLDivElement;
-            console.log('mark://', 'showing toast');
             toast.classList.add('show');
-          }, 10);
+          }, 10000);
 
           const hideToast = setTimeout(() => {
             const toast = document.getElementById('lev-toast-default') as HTMLDivElement;

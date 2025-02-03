@@ -5,7 +5,7 @@ export const isTaskFinished = (conditionFunction: Function) => {
     if (conditionFunction()) {
       resolve();
     } else {
-      setTimeout((_) => poll(resolve), 400);
+      setTimeout(() => poll(resolve), 400);
     }
   };
 

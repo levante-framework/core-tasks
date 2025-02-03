@@ -88,7 +88,7 @@ export const afcMatch = {
     
     const stim = taskStore().nextStimulus;
     const audioFile = stim.audioFile;
-    const pageStateHandler = new PageStateHandler(audioFile);
+    const pageStateHandler = new PageStateHandler(audioFile, true);
     setupReplayAudio(pageStateHandler);
     const buttonContainer = document.getElementById('jspsych-audio-multi-response-btngroup') as HTMLDivElement;
     const responseBtns = Array.from(buttonContainer.children)

@@ -50,7 +50,7 @@ export const videoInstructionsFit = {
     // wrapper.style.justifyContent = 'center';
     PageAudioHandler.playAudio(mediaAssets.audio.mentalRotationTrainingInstruct3, enableOkBtn);
     
-    const pageStateHandler = new PageStateHandler('mental-rotation-training-instruct3');
+    const pageStateHandler = new PageStateHandler('mental-rotation-training-instruct3', true);
     setupReplayAudio(pageStateHandler);
   },
   on_finish: () => {
@@ -92,7 +92,7 @@ export const videoInstructionsMisfit = {
   on_load: () => {
     PageAudioHandler.playAudio(mediaAssets.audio.mentalRotationTrainingInstruct2, enableOkBtn); 
     
-    const pageStateHandler = new PageStateHandler('mental-rotation-training-instruct2');
+    const pageStateHandler = new PageStateHandler('mental-rotation-training-instruct2', true);
     setupReplayAudio(pageStateHandler);
 },
 on_finish: () => {
@@ -131,12 +131,54 @@ export const imageInstructions = {
   on_load: () => {
     PageAudioHandler.playAudio(mediaAssets.audio.mentalRotationInstruct1, enableOkBtn); 
 
-    const pageStateHandler = new PageStateHandler('mental-rotation-instruct1');
+    const pageStateHandler = new PageStateHandler('mental-rotation-instruct1', true);
     setupReplayAudio(pageStateHandler);
 },
 on_finish: () => {
   PageAudioHandler.stopAndDisconnectNode();
 
+  jsPsych.data.addDataToLastTrial({
+    audioButtonPresses: PageAudioHandler.replayPresses
+  });
+}
+};
+
+export const threeDimInstructions = {
+  type: jsPsychHtmlMultiResponse,
+  data: () => {
+    return {
+      assessment_stage: 'instructions',
+    };
+  },
+  stimulus: () => {
+    const t = taskStore().translations; 
+    return `
+      <div class="lev-stimulus-container">
+        <div class="lev-row-container instruction">
+          <p>${t.mentalRotationInstruct3D}</p>
+        </div>
+        <button id="${replayButtonHtmlId}" class="replay">
+          ${replayButtonSvg}
+        </button>
+      </div>
+    `;
+  },
+  prompt_above_buttons: true,
+  button_choices: ['Continue'],
+  post_trial_gap: 350, 
+  button_html: () => {
+    const t = taskStore().translations;
+    return `<button class="primary">${t.continueButtonText}</button>`;
+  },
+  keyboard_choices: 'NO_KEYS',
+  trial_ends_after_audio: false,
+  response_allowed_while_playing: false,
+  on_load: () => {
+    PageAudioHandler.playAudio(mediaAssets.audio.mentalRotationInstruct3D);
+    const pageStateHandler = new PageStateHandler('mental-rotation-instruct-3D', true);
+    setupReplayAudio(pageStateHandler);
+},
+on_finish: () => {
   jsPsych.data.addDataToLastTrial({
     audioButtonPresses: PageAudioHandler.replayPresses
   });

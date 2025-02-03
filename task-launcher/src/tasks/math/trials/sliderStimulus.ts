@@ -6,7 +6,7 @@ import { jsPsych, isTouchScreen } from '../../taskSetup';
 //@ts-ignore
 import { camelize } from '@bdelab/roar-utils';
 //@ts-ignore
-import { arrowKeyEmojis, setSkipCurrentBlock, replayButtonSvg, setupReplayAudio, PageAudioHandler, PageStateHandler } from '../../shared/helpers';
+import { arrowKeyEmojis, setSkipCurrentBlock, replayButtonSvg, setupReplayAudio, PageAudioHandler, PageStateHandler, setSentryContext } from '../../shared/helpers';
 import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
 
@@ -23,7 +23,7 @@ function setUpAudio(responseType: string) {
   PageAudioHandler.playAudio(audioFile, () => {
     // set up replay button audio after the first audio has played
     if (cue) {
-      const pageStateHandler = new PageStateHandler(cue);
+      const pageStateHandler = new PageStateHandler(cue, true);
       setupReplayAudio(pageStateHandler);
     }
   });  
@@ -133,7 +133,15 @@ export const slider = {
       //}
     });
     const { buttonLayout, keyHelpers } = taskStore();
-    const distractors = taskStore().nextStimulus;
+    const stim = taskStore().nextStimulus as StimulusType;
+    const { distractors } = stim;
+
+    // Setup Sentry Context
+    setSentryContext({
+      itemId: stim.itemId,
+      taskName: stim.task,
+      pageContext: 'sliderStimulus',
+    });
 
     const wrapper = document.getElementById('jspsych-html-slider-response-wrapper') as HTMLDivElement;
     const buttonContainer = document.createElement('div');
@@ -142,12 +150,13 @@ export const slider = {
       buttonContainer.id = 'slider-btn-container';
     }
 
-    // don't apply layout if there aren't exactly 3 button options
-    if (!(buttonLayout === 'triple' && distractors.length !== 2)) {
-      buttonContainer.classList.add(`${buttonLayout}-layout`);
+    // answer has not been pushed to distractor yet
+    // support for diamond layout
+    if (buttonLayout === 'diamond' && distractors.length === 3) {
+      buttonContainer.classList.add('lev-response-row-diamond-layout');
     }
 
-    if (taskStore().nextStimulus.trialType === 'Number Line 4afc') {
+    if (stim.trialType === 'Number Line 4afc') {
       // don't let participant move slider
       slider.disabled = true;
 
@@ -158,7 +167,7 @@ export const slider = {
       continueBtn.disabled = true;
       continueBtn.style.visibility = 'hidden';
 
-      const { answer, distractors } = taskStore().nextStimulus;
+      const { answer, distractors } = stim;
 
       distractors.push(answer);
 
@@ -175,7 +184,7 @@ export const slider = {
 
         // flag correct answer if running in cypress
         if (window.Cypress && (btn.textContent == answer)) {
-          btn.setAttribute("aria-label", "correct");
+          btn.setAttribute('aria-label', 'correct');
         }
 
         btn.classList.add('secondary');
@@ -186,9 +195,6 @@ export const slider = {
         }
 
         if (!(buttonLayout === 'triple' && distractors.length !== 2)) {
-          if (buttonLayout === 'triple' || buttonLayout === 'diamond') {
-            btnWrapper.classList.add(`button${i + 1}`);
-          }
 
           keyboardResponseMap[arrowKeyEmojis[i][0]] = responseChoices[i];
 

@@ -1,7 +1,9 @@
-//@ts-ignore
-import { prepareChoices } from "../../shared/helpers/prepareChoices";
-import { DEFAULT_LAYOUT_CONFIG } from "../../shared/helpers/config";
-import { validateLayoutConfig } from "../../shared/helpers/validateLayoutConfig";
+import {
+  validateLayoutConfig,
+  prepareChoices,
+  DEFAULT_LAYOUT_CONFIG,
+  mapDistractorsToString,
+} from '../../shared/helpers';
 
 type GetConfigReturnType = {
   itemConfig: LayoutConfigType;
@@ -15,7 +17,8 @@ export const getLayoutConfig = (stimulus: StimulusType, translations: Record<str
   defaultConfig.isInstructionTrial = stimulus.trialType === 'instructions';
   defaultConfig.showStimImage = false;
   if (!defaultConfig.isInstructionTrial) {
-    const prepChoices = prepareChoices(answer, distractors, true, trialType);
+    const mappedDistractors = mapDistractorsToString(distractors);
+    const prepChoices = prepareChoices(answer.toString(), mappedDistractors, true, trialType);
     defaultConfig.prompt = {
       enabled: false,
       aboveStimulus: false,
