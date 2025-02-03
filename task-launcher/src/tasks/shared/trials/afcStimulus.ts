@@ -11,8 +11,8 @@ import {
   PageStateHandler,
   camelize,
   setSentryContext,
+handleStaggeredButtons
 } from '../helpers';
-import { handleStaggeredButtons } from '../helpers/staggerButtons';
 import { mediaAssets } from '../../..';
 import { finishExperiment } from '.';
 import { taskStore } from '../../../taskStore';

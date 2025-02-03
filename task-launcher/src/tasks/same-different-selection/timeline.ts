@@ -99,116 +99,75 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
     initialTimeline, 
   ];
 
-  let block1 = 0, block2 = 0, block3 = 0, block4 = 0, block5 = 0, block6 = 0;
-
-  taskStore().corpora.stimulus.forEach((trial: StimulusType) => {
-    switch (trial.blockIndex) {
-      case 1: 
-        block1 += 1; 
-        break;
-      case 2: 
-        block2 += 1;
-        break;
-      case 3: 
-        block3 += 1;
-        break;
-      case 4: 
-        block4 += 1;
-        break;
-      case 5: 
-        block5 += 1;
-        break;
-      case 6: 
-        block6 += 1;
-        break;
-    }
-  })
-
+  // all instructions + practice trials
   const instructionPractice: StimulusType[] = heavy ? preparedCorpus.ipHeavy : preparedCorpus.ipLight
 
-  instructionPractice.filter(trial => trial.blockIndex == 0).forEach(trial => {
-    timeline.push(ipBlock(trial))
+  // create list of numbers of trials per block
+  const blockCountList: number[] = [];
+  taskStore().corpora.stimulus.forEach((trial: StimulusType) => {
+    blockCountList[Number(trial.blockIndex)] = (blockCountList[Number(trial.blockIndex)]  || 0) + 1;
+  })
+
+  // functions to add trials to blocks of each type
+  function updateTestDimensions() {
+    timeline.push(setupStimulus);
+    timeline.push(stimulusBlock);
+  }
+
+  function updateSomethingSame() {
+    timeline.push(setupStimulus);
+    timeline.push(stimulusBlock);
+    timeline.push(buttonNoise);
+    timeline.push(dataQualityBlock);
+  }
+
+  function updateMatching() {
+    timeline.push(setupStimulus);
+    timeline.push(afcBlock);
+    timeline.push(buttonNoise);
+    timeline.push(dataQualityBlock); 
+  }
+
+  // add to this list with any additional blocks
+  const blockOperations = [
+    updateTestDimensions, 
+    updateSomethingSame, 
+    updateMatching, 
+    updateTestDimensions, 
+    updateMatching, 
+    updateMatching
+  ]
+
+  // add trials to timeline according to block structure defined in blockOperations
+  blockCountList.forEach((count, index) => {
+    // push in instructions 
+    instructionPractice.filter(trial => (trial.blockIndex == index && trial.trialType == "instructions"))
+    .forEach(trial => {
+      timeline.push(ipBlock(trial)); 
+    });
+
+    // push in any demos for that block
+    if (index == 1 && heavy) {
+      timeline.push(somethingSameDemo1);
+      timeline.push(somethingSameDemo2);
+      timeline.push(somethingSameDemo3);
+    } 
+    if (index == 2 && heavy) {
+      timeline.push(matchDemo1);
+      timeline.push(matchDemo2);
+    }
+
+    // push in practice trials in the corpus
+    instructionPractice.filter(trial => (trial.blockIndex == index && trial.assessmentStage == "practice_response"))
+    .forEach(trial => {
+      timeline.push(ipBlock(trial)); 
+    });
+
+    // test trials
+    for (let i = 0; i < count; i += 1) {
+      blockOperations[index]();
+    }
   });
-
-  // test dimensions
-  for (let i = 0; i < block1; i++) {
-    timeline.push(setupStimulus)
-    timeline.push(stimulusBlock)
-    timeline.push(buttonNoise) // adds button noise for appropriate trials
-    timeline.push(dataQualityBlock)
-  }
-
-  // push in first instruction in block 2
-  const instructionPracticeBlock2 = instructionPractice.filter(trial => trial.blockIndex == 2); 
-  const firstInstruction = instructionPracticeBlock2.shift(); 
-  if (firstInstruction != undefined) {
-    timeline.push(ipBlock(firstInstruction))
-  }
-  
-  // push in something same demo if using heavy instructions
-  if (heavy) {
-    timeline.push(somethingSameDemo1)
-    timeline.push(somethingSameDemo2)
-    timeline.push(somethingSameDemo3)
-  }
-
-  // push in remaining instructions
-  instructionPracticeBlock2.forEach(trial => {
-    timeline.push(ipBlock(trial))
-  });
-
-  // something-same
-  for (let i = 0; i < block2; i++) {
-    timeline.push(setupStimulus)
-    timeline.push(stimulusBlock)
-    timeline.push(buttonNoise) // adds button noise for appropriate trials
-    timeline.push(dataQualityBlock)
-    //timeline.push(feedbackBlock)
-  }
-
-  instructionPractice.filter(trial => trial.blockIndex == 3).forEach(trial => {
-    timeline.push(ipBlock(trial))
-  });
-
-  if (heavy) {
-    timeline.push(matchDemo1)
-    timeline.push(matchDemo2)
-  }
-
-  // 2-match
-  for (let i = 0; i < block3; i++) { 
-    timeline.push(setupStimulus)
-    timeline.push(afcBlock)
-    timeline.push(buttonNoise)
-    timeline.push(dataQualityBlock)
-  }
-
-  instructionPractice.filter(trial => trial.blockIndex == 4).forEach(trial => {
-    timeline.push(ipBlock(trial))
-  });
-
-  // test-dimensions
-  for (let i = 0; i < block4; i++) {
-    timeline.push(setupStimulus)
-    timeline.push(stimulusBlock) 
-  }
-
-  // 3-match
-  for (let i = 0; i < block5; i++) { 
-    timeline.push(setupStimulus)
-    timeline.push(afcBlock)
-    timeline.push(buttonNoise)
-    timeline.push(dataQualityBlock)
-  }
-
-  // 4-match
-  for (let i = 0; i < block6; i++) {
-    timeline.push(setupStimulus)
-    timeline.push(afcBlock)
-    timeline.push(buttonNoise) 
-    timeline.push(dataQualityBlock)
-  }
-
 
   initializeCat();
 
