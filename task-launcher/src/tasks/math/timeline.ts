@@ -114,7 +114,6 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
     const fullCorpus = prepareCorpus(corpus); 
 
     const allBlocks: StimulusType[][] = prepareMultiBlockCat(taskStore().corpora.stimulus); 
-    console.log(allBlocks);
 
     const newCorpora = {
       practice: taskStore().corpora.practice,
