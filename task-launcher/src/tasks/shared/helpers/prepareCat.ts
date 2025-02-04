@@ -99,7 +99,6 @@ export function updateTheta(item: StimulusType, correct: boolean) {
         if (!(Number.isNaN(zeta.b)) && (item.assessmentStage !== 'practice_response')) {
           const answer = correct ? 1 : 0;
           cat.updateAbilityEstimate(zeta, answer); 
-          console.log(cat.theta);
         }
       }
 }
