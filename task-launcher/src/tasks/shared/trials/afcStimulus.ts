@@ -1,7 +1,7 @@
 // For all tasks except: H&F, Memory Game, Same Different Selection
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import _toNumber from 'lodash/toNumber';
-import { jsPsych, isTouchScreen, cat } from '../../taskSetup';
+import { jsPsych, isTouchScreen } from '../../taskSetup';
 import {
   arrowKeyEmojis,
   replayButtonSvg,
@@ -11,6 +11,7 @@ import {
   PageStateHandler,
   camelize,
   setSentryContext,
+  updateTheta
 } from '../helpers';
 import { mediaAssets } from '../../..';
 import { finishExperiment } from '.';
@@ -342,8 +343,6 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
   startTime = performance.now();
 
   const stim = trial || taskStore().nextStimulus as StimulusType;
-  console.log("Item difficulty:\n");
-  console.log(stim.difficulty);
   const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
   const playAudioOnLoad = itemLayoutConfig?.playAudioOnLoad;
   const pageStateHandler = new PageStateHandler(stim.audioFile, playAudioOnLoad);
@@ -462,18 +461,7 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
     }
     
     if (runCat) {
-    // update theta for CAT
-      const zeta = {
-        a: 1, // item discrimination (default value of 1)
-        b: stimulus.difficulty, // item difficulty (from corpus)
-        c: stimulus.chanceLevel, // probability of correct answer from guessing
-        d: 1 // max probability of correct response (default 1)
-      }; 
-    
-      if (!(Number.isNaN(zeta.b)) && (stimulus.assessmentStage !== 'practice_response')) {
-        const answer = data.correct ? 1 : 0;
-        cat.updateAbilityEstimate(zeta, answer)
-      }
+      updateTheta(stimulus, data.correct); 
     }
 
     // check response and record it

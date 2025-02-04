@@ -15,16 +15,18 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
   initTrialSaving(config);
   const initialTimeline = initTimeline(config, enterFullscreen, finishExperiment);
 
-  const ifRealTrialResponse = {
-    timeline: [getAudioResponse(mediaAssets)],
+  const ifRealTrialResponse = (trial?: StimulusType) => {
+    return {
+      timeline: [getAudioResponse(mediaAssets)],
 
-    conditional_function: () => {
-      const stim = taskStore().nextStimulus;
-      if (stim.assessmentStage === 'practice_response' || stim.trialType === 'instructions') {
-        return false;
-      }
-      return true;
-    },
+      conditional_function: () => {
+        const stim = (trial || taskStore().nextStimulus);
+        if (stim.assessmentStage === 'practice_response' || stim.trialType === 'instructions') {
+          return false;
+        }
+        return true;
+      },
+    }
   };
 
   const timeline = [
@@ -64,54 +66,55 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
     layoutConfigMap,
   };
 
-  const afcStimulusBlock = {
-    timeline: [
-      afcStimulusTemplate(trialConfig),
-    ],
-    conditional_function: () => {
-      return !taskStore().nextStimulus.trialType?.includes('Number Line');
-    },
+  const afcStimulusBlock = (trial?: StimulusType) => {
+    return {
+      timeline: [
+        afcStimulusTemplate(trialConfig, trial),
+      ],
+      conditional_function: () => {
+        return !(trial || taskStore().nextStimulus).trialType?.includes('Number Line');
+      },
+    }
   };
 
-  const sliderBlock = {
-    timeline: [slider],
-    conditional_function: () => {
-      return taskStore().nextStimulus.trialType?.includes('Number Line');
-    },
+  const sliderBlock = (trial?: StimulusType) => {
+    return {
+      timeline: [slider(trial)],
+      conditional_function: () => {
+        return (trial || taskStore().nextStimulus).trialType?.includes('Number Line');
+      },
+    }
   };
 
-  const stimulusBlock = {
-    timeline: [
-      afcStimulusBlock,
-      sliderBlock,
-      ifRealTrialResponse,
-    ],
-    conditional_function: () => {
-      if (taskStore().skipCurrentTrial) {
-        taskStore('skipCurrentTrial', false);
-        return false;
-      }
-      const stim = taskStore().nextStimulus;
-      const skipBlockTrialType = store.page.get('skipCurrentBlock');
-      if (stim.trialType === skipBlockTrialType && !runCat) {
-        return false;
-      } else {
-        return true;
-      }
-    },
+  const stimulusBlock = (trial?: StimulusType) => {
+    return {
+      timeline: [
+        afcStimulusBlock(trial),
+        sliderBlock(trial),
+        ifRealTrialResponse(trial),
+      ],
+      conditional_function: () => {
+        if (taskStore().skipCurrentTrial) {
+          taskStore('skipCurrentTrial', false);
+          return false;
+        }
+        const stim = trial || taskStore().nextStimulus;
+        const skipBlockTrialType = store.page.get('skipCurrentBlock');
+        if (stim.trialType === skipBlockTrialType && !runCat) {
+          return false;
+        } else {
+          return true;
+        }
+      },
+    }
   };
 
   if (runCat) {
     // puts the CAT portion of the corpus into taskStore and removes instructions
     const fullCorpus = prepareCorpus(corpus); 
 
-    // determines the trial types in each block - this should match indexes/trial types of blocks in corpus
-    const trialTypesByBlock: string[][] = [
-      ["Number Identification", "Number Comparison", "Missing Number", "Number Line 4afc"], 
-      ["Addition", "Subtraction", "Fraction", "Multiplication"], 
-      ["Number Line Slider"]
-    ]
-    const allBlocks: StimulusType[][] = prepareMultiBlockCat(taskStore().corpora.stimulus, trialTypesByBlock); 
+    const allBlocks: StimulusType[][] = prepareMultiBlockCat(taskStore().corpora.stimulus); 
+    console.log(allBlocks);
 
     const newCorpora = {
       practice: taskStore().corpora.practice,
@@ -126,21 +129,33 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
         return trial.block_index === i.toString();
       });
       instructionPractice.forEach((trial) => {
-        timeline.push(fixationOnly);
+        timeline.push({...fixationOnly, stimulus: ''});
         timeline.push(afcStimulusTemplate(trialConfig, trial));
       });
 
+      // push in random items at start of first block (after practice trials)
+      if (i === 0) {
+        fullCorpus.start.forEach(trial => 
+          timeline.push(stimulusBlock(trial))
+        );
+      }
+
       const numOfTrials = allBlocks[i].length / 2; // we want to run 50% of the trials in each block
       for (let j = 0; j < numOfTrials; j++) {
-        timeline.push(setupStimulusFromBlock(i)); // select only from the current block
-        timeline.push(stimulusBlock);
+        timeline.push({...setupStimulusFromBlock(i), stimulus: ''}); // select only from the current block
+        timeline.push(stimulusBlock());
       }
+      
+      fullCorpus.unnormed.forEach(trial => {
+        timeline.push({...fixationOnly, stimulus: ''});
+        timeline.push(stimulusBlock(trial)); 
+      })
     }
   } else {
     const numOfTrials = taskStore().totalTrials;
     for (let i = 0; i < numOfTrials; i++) {
-      timeline.push(setupStimulus);
-      timeline.push(stimulusBlock);
+      timeline.push({...setupStimulus, stimulus: ''});
+      timeline.push(stimulusBlock());
     }
   }
 

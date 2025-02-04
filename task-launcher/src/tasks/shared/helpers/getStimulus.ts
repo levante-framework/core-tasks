@@ -12,8 +12,6 @@ export const getStimulus = (corpusType: string, blockNumber?: number) => {
   let corpus, itemSuggestion;
 
   corpus = taskStore().corpora;
-  console.log("Block number:\n");
-  console.log(blockNumber);
 
   // if block number is specified, get next item from only the indicated block of the corpus
   blockNumber != undefined ? 
