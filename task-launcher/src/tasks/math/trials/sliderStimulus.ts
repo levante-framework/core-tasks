@@ -6,7 +6,16 @@ import { jsPsych, isTouchScreen, cat } from '../../taskSetup';
 //@ts-ignore
 import { camelize } from '@bdelab/roar-utils';
 //@ts-ignore
-import { arrowKeyEmojis, setSkipCurrentBlock, replayButtonSvg, setupReplayAudio, PageAudioHandler, PageStateHandler, setSentryContext } from '../../shared/helpers';
+import { 
+  arrowKeyEmojis, 
+  setSkipCurrentBlock, 
+  replayButtonSvg, 
+  setupReplayAudio, 
+  PageAudioHandler, 
+  PageStateHandler, 
+  setSentryContext, 
+  updateTheta
+} from '../../shared/helpers';
 import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
 
@@ -70,17 +79,18 @@ function getRandomValue(max: number, avoid: number, tolerance: number = 0.1) {
   return result * max;
 }
 
-export const slider = {
+export const slider = (trial?: StimulusType) => {
+  return {
   type: HTMLSliderResponse,
   data: () => {
     return {
       save_trial: true,
-      assessment_stage: taskStore().nextStimulus.assessmentStage,
-      isPracticeTrial: taskStore().nextStimulus.assessmentStage === 'practice_response',
+      assessment_stage: (trial || taskStore().nextStimulus).assessmentStage,
+      isPracticeTrial: (trial || taskStore().nextStimulus).assessmentStage === 'practice_response',
     };
   },
   stimulus: () => {
-    const stim = taskStore().nextStimulus;
+    const stim = trial || taskStore().nextStimulus;
     let t = taskStore().translations;
 
     const isSlider = stim.trialType === 'Number Line Slider';
@@ -98,15 +108,15 @@ export const slider = {
       </div>
     `);
   },
-  labels: () => taskStore().nextStimulus.item,
+  labels: () => (trial || taskStore().nextStimulus).item,
   // button_label: 'OK',
-  require_movement: () => taskStore().nextStimulus.trialType === 'Number Line Slider',
+  require_movement: () => (trial || taskStore().nextStimulus).trialType === 'Number Line Slider',
   // slider_width: 800,
-  min: () => taskStore().nextStimulus.item[0],
-  max: () => taskStore().nextStimulus.item[1],
+  min: () => (trial || taskStore().nextStimulus).item[0],
+  max: () => (trial || taskStore().nextStimulus).item[1],
   // max: () => (taskStore().nextStimulus.item[1] === 1 ? 100 : taskStore().nextStimulus.item[1]),
   slider_start: () => {
-    const stim = taskStore().nextStimulus;
+    const stim = trial || taskStore().nextStimulus;
 
     if (stim.trialType.includes('Slider')) {
       // const max = stim.item[1] === 1 ? 100 : stim.item[1];
@@ -133,9 +143,7 @@ export const slider = {
       //}
     });
     const { buttonLayout, keyHelpers } = taskStore();
-    const stim = taskStore().nextStimulus as StimulusType;
-    console.log("Item difficulty:\n");
-    console.log(stim.difficulty);
+    const stim = (trial || taskStore().nextStimulus) as StimulusType;
     const { distractors } = stim;
 
     // Setup Sentry Context
@@ -234,7 +242,7 @@ export const slider = {
 
     wrapper.appendChild(buttonContainer);
 
-    const stimulus = taskStore().nextStimulus; 
+    const stimulus = trial || taskStore().nextStimulus; 
     const responseType = stimulus.trialType.includes('4afc') ? 'button' : 'slider';
 
     setUpAudio(responseType)
@@ -247,7 +255,7 @@ export const slider = {
     const runCat = taskStore().runCat; 
 
     const sliderScoringThreshold = 0.05 // proportion of maximum slider value that response must fall within to be scored correct
-    const stimulus = taskStore().nextStimulus;
+    const stimulus = trial || taskStore().nextStimulus;
     if (stimulus.trialType === 'Number Line 4afc') {
       data.correct = chosenAnswer === taskStore().target;
     } else {
@@ -263,19 +271,8 @@ export const slider = {
       }
 
       if (runCat) {
-          // update theta for CAT
-            const zeta = {
-              a: 1, // item discrimination (default value of 1)
-              b: stimulus.difficulty, // item difficulty (from corpus)
-              c: stimulus.chanceLevel, // probability of correct answer from guessing
-              d: 1 // max probability of correct response (default 1)
-            }; 
-          
-            if (!(Number.isNaN(zeta.b)) && (stimulus.assessmentStage !== 'practice_response')) {
-              const answer = data.correct ? 1 : 0;
-              cat.updateAbilityEstimate(zeta, answer)
-            }
-          }
+        updateTheta(stimulus, data.correct); 
+      }
     }
 
     const response = chosenAnswer;
@@ -305,4 +302,5 @@ export const slider = {
   
     setSkipCurrentBlock(stimulus.trialType);
   },
+  }
 };
