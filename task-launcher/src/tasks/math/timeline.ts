@@ -39,7 +39,6 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
   const validationErrorMap: Record<string, string> = {};
 
   const { runCat } = taskStore(); 
-  const { semThreshold } = taskStore();
 
   const layoutConfigMap: Record<string, LayoutConfigType> = {};
   let i = 0;
