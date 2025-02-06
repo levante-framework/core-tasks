@@ -41,6 +41,8 @@ export class TaskLauncher {
         mediaAssets = await getMediaAssets('memory-game-levante', {}, language);
       } else if (taskName.includes('roar-inference')) {
         mediaAssets = await getMediaAssets(`roar-inference`, {}, language);
+      } else if (taskName === 'adult-reasoning') {
+        mediaAssets = await getMediaAssets('egma-math', {}, language) // adult reasoning uses the math bucket for assets
       }
         else {
         mediaAssets = await getMediaAssets(taskName, {}, language);
