@@ -111,6 +111,14 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
   if (runCat) {
     // puts the CAT portion of the corpus into taskStore and removes instructions
     const fullCorpus = prepareCorpus(corpus); 
+    // until younger-kid version of math is implemented, combine heavy/light instructions
+    const allInstructionPractice = fullCorpus.ipLight.concat(fullCorpus.ipHeavy); 
+    const instructions = allInstructionPractice.filter(trial => 
+      trial.trialType == "instructions"
+    );
+    const practice = allInstructionPractice.filter(trial => 
+      trial.assessmentStage == "practice_response"
+    ); 
 
     const allBlocks: StimulusType[][] = prepareMultiBlockCat(taskStore().corpora.stimulus); 
 
@@ -123,10 +131,19 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
     const numOfBlocks = allBlocks.length; 
     for (let i = 0; i < numOfBlocks; i++) {
       // push in block-specific instructions 
-      const instructionPractice = fullCorpus.instructionPractice.filter(trial => {
+      const blockInstructions = instructions.filter(trial => {
         return trial.block_index === i.toString();
       });
-      instructionPractice.forEach((trial) => {
+      blockInstructions.forEach((trial) => {
+        timeline.push({...fixationOnly, stimulus: ''});
+        timeline.push(afcStimulusTemplate(trialConfig, trial));
+      });
+
+      // push in block-specific practice trials 
+      const blockPractice = practice.filter(trial => {
+        return trial.block_index === i.toString();
+      });
+      blockPractice.forEach((trial) => {
         timeline.push({...fixationOnly, stimulus: ''});
         timeline.push(afcStimulusTemplate(trialConfig, trial));
       });
