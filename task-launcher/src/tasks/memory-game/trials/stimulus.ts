@@ -95,6 +95,8 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false, rese
     },
     on_load: () => doOnLoad(mode, isPractice, reverse),
     on_finish: (data: any) => {
+      PageAudioHandler.stopAndDisconnectNode();
+
       jsPsych.data.addDataToLastTrial({
         audioButtonPresses: PageAudioHandler.replayPresses
       });
@@ -126,7 +128,7 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false, rese
           numCorrect = 0;
         }
 
-        if (taskStore().numIncorrect == taskStore().maxIncorrect) {
+        if (taskStore().numIncorrect == taskStore().maxIncorrect && reverse) {
           finishExperiment();
         }
 
@@ -217,7 +219,7 @@ function doOnLoad(mode: 'display' | 'input', isPractice: boolean, reverse: boole
           const toastTimer = setTimeout(() => {
             const toast = document.getElementById('lev-toast-default') as HTMLDivElement;
             toast.classList.add('show');
-          }, 10);
+          }, 10000);
 
           const hideToast = setTimeout(() => {
             const toast = document.getElementById('lev-toast-default') as HTMLDivElement;

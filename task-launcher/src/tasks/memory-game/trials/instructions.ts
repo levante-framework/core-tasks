@@ -33,8 +33,13 @@ const instructionData = [
         buttonText: 'continueButtonText',
     },
     {
+        prompt: 'memoryGameInstruct6', 
+        image: 'catAvatar',
+        buttonText: 'continueButtonText'
+    },
+    {
         prompt: 'memoryGameBackwardPrompt',
-        image: 'highlightedBlock',
+        video: 'selectSequenceReverse',
         buttonText: 'continueButtonText',
     },
 ]
@@ -85,6 +90,12 @@ export const instructions = instructionData.map(data => {
             PageAudioHandler.playAudio(mediaAssets.audio[data.prompt]);
             const pageStateHandler = new PageStateHandler(data.prompt, true);
             setupReplayAudio(pageStateHandler);
+
+            // hide toast if it is there 
+            const toast = document.getElementById('lev-toast-default');
+            if (toast) {
+                toast.classList.remove('show'); 
+            }
         }, 
         on_finish: () => {
             PageAudioHandler.stopAndDisconnectNode();
@@ -92,9 +103,14 @@ export const instructions = instructionData.map(data => {
                 audioButtonPresses: PageAudioHandler.replayPresses, 
                 assessment_stage: 'instructions'
               });
+            
+            if (data.prompt === 'memoryGameBackwardPrompt') {
+                taskStore('numIncorrect', 0);
+            }
         }
     }
 })
 
 export const reverseOrderPrompt = instructions.pop()
+export const reverseOrderInstructions = instructions.pop()
 export const readyToPlay = instructions.pop()
