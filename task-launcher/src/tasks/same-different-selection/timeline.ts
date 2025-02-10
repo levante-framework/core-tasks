@@ -1,15 +1,11 @@
 // setup
 import 'regenerator-runtime/runtime';
 import { jsPsych } from '../taskSetup';
-//@ts-ignore
-import { initTrialSaving, initTimeline, createPreloadTrials, sdsPhaseCount } from '../shared/helpers';
+import { initTrialSaving, initTimeline, createPreloadTrials } from '../shared/helpers';
 import { prepareCorpus } from '../shared/helpers/prepareCat';
-//@ts-ignore
 import { initializeCat } from '../taskSetup';
 // trials
-//@ts-ignore
 import { dataQualityScreen } from '../shared/trials/dataQuality';
-// trials
 import {
   setupStimulus,
   exitFullscreen,

@@ -1,5 +1,4 @@
 import _shuffle from 'lodash/shuffle';
-// @ts-ignore
 import { taskStore } from '../../../taskStore';
 
 // separates trials from corpus into blocks depending on for heavy/light instructions and CAT

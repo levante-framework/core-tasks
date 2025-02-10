@@ -3,7 +3,6 @@ import 'regenerator-runtime/runtime';
 import { jsPsych, initializeCat, cat } from '../taskSetup';
 import { createPreloadTrials, initTrialSaving, initTimeline } from '../shared/helpers';
 // trials
-// @ts-ignore
 import { imageInstructions, threeDimInstructions, videoInstructionsFit, videoInstructionsMisfit } from './trials/instructions';
 import { afcStimulusTemplate, taskFinished, exitFullscreen, setupStimulus, fixationOnly, getAudioResponse, enterFullscreen, finishExperiment, repeatInstructionsMessage } from '../shared/trials';
 import { getLayoutConfig } from './helpers/config';
