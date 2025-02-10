@@ -1,10 +1,7 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
-//@ts-ignore
 import { PageStateHandler, prepareChoices, replayButtonSvg, setupReplayAudio, PageAudioHandler, camelize } from '../../shared/helpers';
-//@ts-ignore
 import { finishExperiment } from '../../shared/trials';
-//@ts-ignore
 import { jsPsych } from '../../taskSetup';
 import { taskStore } from '../../../taskStore';
 import { handleStaggeredButtons } from '../../shared/helpers/staggerButtons';

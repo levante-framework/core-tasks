@@ -1,8 +1,7 @@
 import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { jsPsych } from '../../taskSetup';
 import { taskStore } from '../../../taskStore';
-//@ts-ignore
-import { finishExperiment } from './finishExperiment.ts'
+import { finishExperiment } from './finishExperiment'
 
 const t = taskStore().translations; 
 const buttonText = [
