@@ -167,6 +167,17 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
       })
     }
   } else {
+    // if cat is not running, remove difficulty field from all items 
+    corpus.forEach(trial => 
+      trial.difficulty = NaN
+    ); 
+
+    const newCorpora = {
+      practice: taskStore().corpora.practice,
+      stimulus: corpus
+    }
+    taskStore('corpora', newCorpora); 
+
     const numOfTrials = taskStore().totalTrials;
     for (let i = 0; i < numOfTrials; i++) {
       timeline.push({...setupStimulus, stimulus: ''});
