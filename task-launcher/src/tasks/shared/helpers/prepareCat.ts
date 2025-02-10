@@ -1,5 +1,6 @@
 import _shuffle from 'lodash/shuffle';
 import { taskStore } from '../../../taskStore';
+import { cat } from '../../taskSetup';
 
 // separates trials from corpus into blocks depending on for heavy/light instructions and CAT
 export function prepareCorpus(corpus: StimulusType[]) {
@@ -35,7 +36,8 @@ export function prepareCorpus(corpus: StimulusType[]) {
 
   // determine start items
   const possibleStartItems: StimulusType[] = normedTrials.filter(trial =>
-    (trial.trialType !== excludedTrialTypes)
+    (trial.trialType !== excludedTrialTypes) && 
+    (taskStore().task == "egma-math" && trial.block_index == "0")
   )
   const startItems: StimulusType[] = selectNItems(possibleStartItems, 5);
 
@@ -85,6 +87,42 @@ export function selectNItems(corpus: StimulusType[], n: number) {
       finalTrials.push(trial);
     }
   }
+  return finalTrials; 
+}
 
-  return finalTrials;
+// separates cat corpus into blocks
+export function prepareMultiBlockCat(corpus: StimulusType[]) {
+  const blockList: StimulusType[][] = []; // a list of blocks, each containing trials
+
+  corpus.forEach((trial: StimulusType) => {
+    const block: number = Number(trial.block_index);
+
+    if (block != undefined) {
+      if (block >= blockList.length) {
+        blockList.push([trial]);
+      } else {
+        blockList[block].push(trial);
+      }
+    }
+  });
+
+  return blockList; 
+}
+
+export function updateTheta(item: StimulusType, correct: boolean) {
+  const runCat = taskStore().runCat; 
+  if (runCat) {
+    // update theta for CAT
+      const zeta = {
+        a: 1, // item discrimination (default value of 1)
+        b: item.difficulty, // item difficulty (from corpus)
+        c: item.chanceLevel, // probability of correct answer from guessing
+        d: 1 // max probability of correct response (default 1)
+      }; 
+      
+      if (!(Number.isNaN(zeta.b)) && (item.assessmentStage !== 'practice_response')) {
+        const answer = correct ? 1 : 0;
+        cat.updateAbilityEstimate(zeta, answer); 
+      }
+  }
 }
