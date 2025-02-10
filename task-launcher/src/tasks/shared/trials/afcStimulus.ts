@@ -11,6 +11,7 @@ import {
   PageStateHandler,
   camelize,
   setSentryContext,
+  handleStaggeredButtons,
   updateTheta
 } from '../helpers';
 import { mediaAssets } from '../../..';
@@ -40,67 +41,6 @@ const getKeyboardChoices = (itemLayoutConfig: LayoutConfigType) => {
     return ['ArrowUp', 'ArrowLeft', 'ArrowRight', 'ArrowDown'];
   }
   throw new Error('More than 4 buttons are not supported yet');
-};
-
-const showStaggeredBtnAndPlaySound = (
-  index: number,
-  btnList: HTMLButtonElement[],
-  pageState: PageStateHandler,
-) => {
-  const btn = btnList[index];
-  btn.classList.remove(
-    'lev-staggered-grayscale',
-    'lev-staggered-opacity',
-  );
-  const img = btn.getElementsByTagName('img')?.[0];
-  let audioAsset = mediaAssets.audio[camelize(img?.alt ?? '')];
-  if (!audioAsset) {
-    console.error('Audio Asset not available for:', img?.alt);
-    audioAsset = mediaAssets.audio.nullAudio;
-  }
-
-  PageAudioHandler.playAudio(audioAsset, () => {
-    if (index + 1 === btnList?.length) { // Last Element
-      for (const jsResponseEl of btnList) {
-        jsResponseEl.classList.remove('lev-staggered-disabled');
-      }
-      pageState.enableReplayBtn();
-    } else { //recurse
-      showStaggeredBtnAndPlaySound(index + 1, btnList, pageState);
-    }
-  });
-};
-
-const handleStaggeredButtons = async (layoutConfig: LayoutConfigType, pageState: PageStateHandler) => {
-  if (layoutConfig?.isStaggered) {
-      const parentResponseDiv = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
-      let i = 0;
-      const stimulusDuration = await pageState.getStimulusDurationMs();
-      const intialDelay = stimulusDuration + 300;
-
-      // Disable the replay button till this animation is finished
-      setTimeout(() => {
-        pageState.disableReplayBtn();
-      }, stimulusDuration + 110);
-
-      for (const jsResponseEl of parentResponseDiv.children) {
-        // disable the buttons so that they are not active during the animation
-        jsResponseEl.classList.add(
-          'lev-staggered-responses',
-          'lev-staggered-disabled',
-          'lev-staggered-grayscale',
-          'lev-staggered-opacity',
-        );
-      }
-      setTimeout(() => {
-        showStaggeredBtnAndPlaySound(
-          0,
-          Array.from(parentResponseDiv?.children as HTMLCollectionOf<HTMLButtonElement>),
-          pageState,
-        );
-      }, intialDelay);
-      
-  }
 };
 
 function getStimulus(layoutConfigMap: Record<string, LayoutConfigType>, trial?: StimulusType) {
@@ -348,8 +288,21 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
   const pageStateHandler = new PageStateHandler(stim.audioFile, playAudioOnLoad);
   const isPracticeTrial = stim.assessmentStage === 'practice_response';
   const isInstructionTrial = stim.trialType === 'instructions';
-  // Handle the staggered buttons
-  handleStaggeredButtons(itemLayoutConfig, pageStateHandler);
+
+  if (itemLayoutConfig.isStaggered) {
+    // Handle the staggered buttons
+    const buttonContainer = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
+    const imgButtons = Array.from(buttonContainer.children as HTMLCollectionOf<HTMLButtonElement>); 
+    let audioKeys: string[] = [];
+    for (let i = 0; i < imgButtons.length; i++) {
+      const img = imgButtons[i].children[0].getElementsByTagName('img')[0];
+      const audioKey = camelize(img?.alt ?? '');
+      audioKeys.push(audioKey)
+    }
+  
+    handleStaggeredButtons(pageStateHandler, buttonContainer, audioKeys);
+  }
+
   const currentTrialIndex = jsPsych.getProgress().current_trial_global;
   let twoTrialsAgoIndex = currentTrialIndex - 2;
 

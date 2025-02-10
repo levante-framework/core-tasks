@@ -55,6 +55,7 @@ const sequentialPractice = stringToBoolean(urlParams.get('sequentialPractice'), 
 const sequentialStimulus = stringToBoolean(urlParams.get('sequentialStimulus'), true);
 const storeItemId = stringToBoolean(urlParams.get('storeItemId'), false);
 const cat = stringToBoolean(urlParams.get('cat'), false);
+const heavyInstructions = stringToBoolean(urlParams.get('heavyInstructions'), false); 
 
 async function startWebApp() {
   // @ts-ignore
@@ -89,7 +90,8 @@ async function startWebApp() {
       storeItemId,
       cat,
       inferenceNumStories,
-      semThreshold
+      semThreshold, 
+      heavyInstructions
     };
 
       const taskInfo = {
