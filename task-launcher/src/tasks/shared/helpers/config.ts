@@ -48,7 +48,7 @@ const defaultCorpus: Record<string, string> = {
   egmaMath: 'math-item-bank',
   matrixReasoning: 'matrix-reasoning-item-bank',
   mentalRotation: 'mental-rotation-item-bank',
-  sameDifferentSelection: 'same-different-selection-item-bank',
+  sameDifferentSelection: 'same-different-selection-item-bank-v4',
   trog: 'trog-item-bank',
   theoryOfMind: 'theory-of-mind-item-bank',
   vocab: 'vocab-item-bank',
@@ -77,6 +77,7 @@ export const setSharedConfig = async (firekit: RoarAppkit, gameParams: GameParam
     maxTime, // maximum app duration in minutes
     storeItemId,
     cat,
+    heavyInstructions,
     inferenceNumStories,
     semThreshold, 
     startingTheta
@@ -85,7 +86,7 @@ export const setSharedConfig = async (firekit: RoarAppkit, gameParams: GameParam
   const config = {
     userMetadata: { ...userMetadata, age: Number(age) },
     audioFeedback: audioFeedback || 'neutral',
-    skipInstructions: !!skipInstructions ?? true, // Not used in any task
+    skipInstructions: !!skipInstructions, // Not used in any task
     startTime: new Date(),
     firekit,
     sequentialPractice: sequentialPractice ?? true,
@@ -98,12 +99,14 @@ export const setSharedConfig = async (firekit: RoarAppkit, gameParams: GameParam
     stimulusBlocks: Number(stimulusBlocks) || 3,
     numOfPracticeTrials: Number(numOfPracticeTrials) || 2,
     maxIncorrect: Number(maxIncorrect) || 3,
-    keyHelpers: !!keyHelpers ?? true,
+    keyHelpers: !!keyHelpers,
     language: language ?? i18next.language,
     maxTime: Number(maxTime) || 100,
     storeItemId: !!storeItemId,
     isRoarApp: isRoarApp(firekit),
-    cat: !!cat ?? false,
+
+    cat: !!cat, // defaults to false 
+    heavyInstructions: !!heavyInstructions,
     inferenceNumStories: Number(inferenceNumStories) || undefined,
     semThreshold: Number(semThreshold), 
     startingTheta: Number(startingTheta)

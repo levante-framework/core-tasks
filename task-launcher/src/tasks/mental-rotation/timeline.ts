@@ -3,7 +3,6 @@ import 'regenerator-runtime/runtime';
 import { jsPsych, initializeCat, cat } from '../taskSetup';
 import { createPreloadTrials, initTrialSaving, initTimeline } from '../shared/helpers';
 // trials
-// @ts-ignore
 import { imageInstructions, threeDimInstructions, videoInstructionsFit, videoInstructionsMisfit } from './trials/instructions';
 import { afcStimulusTemplate, taskFinished, exitFullscreen, setupStimulus, fixationOnly, getAudioResponse, enterFullscreen, finishExperiment, repeatInstructionsMessage } from '../shared/trials';
 import { getLayoutConfig } from './helpers/config';
@@ -121,7 +120,7 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
     const corpora = prepareCorpus(corpus); 
 
     // push in instruction block
-    corpora.instructionPractice.forEach((trial: StimulusType) => {
+    corpora.ipLight.forEach((trial: StimulusType) => {
       timeline.push(fixationOnly); 
       timeline.push(afcStimulusTemplate(trialConfig, trial)); 
     });

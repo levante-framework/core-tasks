@@ -97,7 +97,7 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
     const corpora = prepareCorpus(corpus); 
 
     // push in instruction block
-    corpora.instructionPractice.forEach((trial: StimulusType) => {
+    corpora.ipLight.forEach((trial: StimulusType) => {
       timeline.push(fixationOnly); 
       timeline.push(afcStimulusTemplate(trialConfig, trial)); 
     });
