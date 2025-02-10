@@ -4,23 +4,8 @@ import { getStimulus } from '../helpers';
 // choosing the next stimulus from the corpus occurs during the fixation trial
 // prior to the actual display of the stimulus, where user response is collected
 // the array allows us to use the same structure for all corpuses
-const setupData = [
-  {
-    onFinish: () => {
-      getStimulus('practice');
-    },
-  },
-  {
-    onFinish: () => {
-      getStimulus('stimulus');
-    },
-  },
-  {
-    onFinish: () => {}
-  }
-];
 
-const setupTrials = setupData.map((trial) => {
+const fixationTrial = (corpusType?: string, blockNum?: number) => {
   return {
     type: jsPsychHTMLMultiResponse,
     stimulus: `<div id='lev-fixation-container'><p>+</p></div>`,
@@ -30,10 +15,20 @@ const setupTrials = setupData.map((trial) => {
     data: {
       task: 'fixation',
     },
-    on_finish: trial.onFinish,
+    on_finish: () => {
+      if (corpusType) {
+        if (blockNum != undefined) {
+          getStimulus(corpusType, blockNum);
+        } else {
+          getStimulus(corpusType); 
+        }
+      }
+    },
   };
-});
+};
 
-export const setupPractice = setupTrials[0];
-export const setupStimulus = setupTrials[1];
-export const fixationOnly = setupTrials[2]; 
+export const setupPractice = fixationTrial("practice");
+export const setupStimulus = fixationTrial("stimulus");
+export const setupStimulusFromBlock = (blockNum: number) => fixationTrial("stimulus", blockNum);
+export const fixationOnly = fixationTrial(); 
+

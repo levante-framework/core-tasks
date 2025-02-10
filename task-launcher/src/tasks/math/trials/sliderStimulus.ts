@@ -2,11 +2,20 @@ import HTMLSliderResponse from '@jspsych/plugin-html-slider-response';
 import _shuffle from 'lodash/shuffle';
 import _toNumber from 'lodash/toNumber';
 //@ts-ignore
-import { jsPsych, isTouchScreen } from '../../taskSetup';
+import { jsPsych, isTouchScreen, cat } from '../../taskSetup';
 //@ts-ignore
 import { camelize } from '@bdelab/roar-utils';
 //@ts-ignore
-import { arrowKeyEmojis, setSkipCurrentBlock, replayButtonSvg, setupReplayAudio, PageAudioHandler, PageStateHandler, setSentryContext } from '../../shared/helpers';
+import { 
+  arrowKeyEmojis, 
+  setSkipCurrentBlock, 
+  replayButtonSvg, 
+  setupReplayAudio, 
+  PageAudioHandler, 
+  PageStateHandler, 
+  setSentryContext, 
+  updateTheta
+} from '../../shared/helpers';
 import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
 
@@ -70,17 +79,18 @@ function getRandomValue(max: number, avoid: number, tolerance: number = 0.1) {
   return result * max;
 }
 
-export const slider = {
+export const slider = (trial?: StimulusType) => {
+  return {
   type: HTMLSliderResponse,
   data: () => {
     return {
       save_trial: true,
-      assessment_stage: taskStore().nextStimulus.assessmentStage,
-      isPracticeTrial: taskStore().nextStimulus.assessmentStage === 'practice_response',
+      assessment_stage: (trial || taskStore().nextStimulus).assessmentStage,
+      isPracticeTrial: (trial || taskStore().nextStimulus).assessmentStage === 'practice_response',
     };
   },
   stimulus: () => {
-    const stim = taskStore().nextStimulus;
+    const stim = trial || taskStore().nextStimulus;
     let t = taskStore().translations;
 
     const isSlider = stim.trialType === 'Number Line Slider';
@@ -98,15 +108,15 @@ export const slider = {
       </div>
     `);
   },
-  labels: () => taskStore().nextStimulus.item,
+  labels: () => (trial || taskStore().nextStimulus).item,
   // button_label: 'OK',
-  require_movement: () => taskStore().nextStimulus.trialType === 'Number Line Slider',
+  require_movement: () => (trial || taskStore().nextStimulus).trialType === 'Number Line Slider',
   // slider_width: 800,
-  min: () => taskStore().nextStimulus.item[0],
-  max: () => taskStore().nextStimulus.item[1],
+  min: () => (trial || taskStore().nextStimulus).item[0],
+  max: () => (trial || taskStore().nextStimulus).item[1],
   // max: () => (taskStore().nextStimulus.item[1] === 1 ? 100 : taskStore().nextStimulus.item[1]),
   slider_start: () => {
-    const stim = taskStore().nextStimulus;
+    const stim = trial || taskStore().nextStimulus;
 
     if (stim.trialType.includes('Slider')) {
       // const max = stim.item[1] === 1 ? 100 : stim.item[1];
@@ -133,7 +143,7 @@ export const slider = {
       //}
     });
     const { buttonLayout, keyHelpers } = taskStore();
-    const stim = taskStore().nextStimulus as StimulusType;
+    const stim = (trial || taskStore().nextStimulus) as StimulusType;
     const { distractors } = stim;
 
     // Setup Sentry Context
@@ -232,7 +242,7 @@ export const slider = {
 
     wrapper.appendChild(buttonContainer);
 
-    const stimulus = taskStore().nextStimulus; 
+    const stimulus = trial || taskStore().nextStimulus; 
     const responseType = stimulus.trialType.includes('4afc') ? 'button' : 'slider';
 
     setUpAudio(responseType)
@@ -242,9 +252,10 @@ export const slider = {
     // Need to remove event listener after trial completion or they will stack and cause an error.
     document.removeEventListener('keydown', captureBtnValue);
     const endTime = performance.now();
+    const runCat = taskStore().runCat; 
 
     const sliderScoringThreshold = 0.05 // proportion of maximum slider value that response must fall within to be scored correct
-    const stimulus = taskStore().nextStimulus;
+    const stimulus = trial || taskStore().nextStimulus;
     if (stimulus.trialType === 'Number Line 4afc') {
       data.correct = chosenAnswer === taskStore().target;
     } else {
@@ -257,6 +268,10 @@ export const slider = {
         taskStore.transact('totalCorrect', (oldVal: number) => oldVal + 1);
       } else {
         taskStore.transact('numIncorrect', (oldVal: number) => oldVal + 1);
+      }
+
+      if (runCat) {
+        updateTheta(stimulus, data.correct); 
       }
     }
 
@@ -287,4 +302,5 @@ export const slider = {
   
     setSkipCurrentBlock(stimulus.trialType);
   },
+  }
 };
