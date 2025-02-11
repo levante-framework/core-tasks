@@ -4,7 +4,9 @@ import { cat } from '../../taskSetup';
 
 // separates trials from corpus into blocks depending on for heavy/light instructions and CAT
 export function prepareCorpus(corpus: StimulusType[]) {
-  const excludedTrialTypes = '3D';
+  const excludedTrialTypes = '3D'; 
+  // limit random starting items so that their difficulty is less than 0
+  const maxTrialDifficulty = 0; 
   const cat: boolean = taskStore().runCat;
   let corpora;
 
@@ -37,7 +39,8 @@ export function prepareCorpus(corpus: StimulusType[]) {
   // determine start items
   const possibleStartItems: StimulusType[] = normedTrials.filter(trial =>
     (trial.trialType !== excludedTrialTypes) && 
-    ((taskStore().task == "egma-math" && trial.block_index == "0") || taskStore().task != "egma-math")
+    ((taskStore().task == "egma-math" && trial.block_index == "0") || taskStore().task != "egma-math") &&
+    (Number(trial.difficulty) <= maxTrialDifficulty)
   )
   const startItems: StimulusType[] = selectNItems(possibleStartItems, 5);
 
