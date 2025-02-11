@@ -79,7 +79,8 @@ export const setSharedConfig = async (firekit: RoarAppkit, gameParams: GameParam
     cat,
     heavyInstructions,
     inferenceNumStories,
-    semThreshold
+    semThreshold, 
+    startingTheta
   } = cleanParams;
 
   const config = {
@@ -107,7 +108,8 @@ export const setSharedConfig = async (firekit: RoarAppkit, gameParams: GameParam
     cat: !!cat, // defaults to false 
     heavyInstructions: !!heavyInstructions,
     inferenceNumStories: Number(inferenceNumStories) || undefined,
-    semThreshold: Number(semThreshold) || 0
+    semThreshold: Number(semThreshold), 
+    startingTheta: Number(startingTheta)
   };
 
   // default corpus if nothing is passed in

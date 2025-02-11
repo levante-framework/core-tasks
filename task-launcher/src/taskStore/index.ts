@@ -64,6 +64,7 @@ export type TaskStoreDataType = {
   cat: boolean;
   heavyInstructions: boolean;
   semThreshold: number;
+  startingTheta: number;
   language?: string;
 };
 
@@ -95,6 +96,7 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     runCat: config.cat, 
     heavyInstructions: config.heavyInstructions,
     semThreshold: config.semThreshold,
+    startingTheta: config.startingTheta, 
     storeItemId: config.storeItemId,
     isRoarApp: config.isRoarApp,
     numOfBlocks: config.userMetadata.age > 12 ? 9 : 4,

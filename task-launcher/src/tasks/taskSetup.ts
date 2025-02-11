@@ -16,6 +16,7 @@ export const initializeCat = () => {
     method: 'MLE',
     minTheta: -6,
     maxTheta: 6,
+    theta: taskStore().startingTheta || 0,  
     itemSelect: taskStore().itemSelect
   });
 };
