@@ -137,47 +137,39 @@ export const somethingSameDemo2 = {
     response_ends_trial: true,
     post_trial_gap: 350,
     on_load: () => {
-      const audioFile = "sdsPrompt3DemoHeavy";
-      PageAudioHandler.playAudio(mediaAssets.audio[audioFile], enableOkBtn);
-  
-      const pageStateHandler = new PageStateHandler(audioFile, true);
+      const pageStateHandler = new PageStateHandler("sdsPrompt3DemoHeavy", true);
       setupReplayAudio(pageStateHandler);
       const buttonContainer = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
       buttonContainer.classList.add('lev-response-row');
       buttonContainer.classList.add('multi-4');
 
-      const images = document.getElementsByTagName('img')
+      const images: HTMLButtonElement[] = document.getElementsByClassName('image-medium') as any as HTMLButtonElement[]
       const topImage = images[0];
       const bottomImages = [images[1], images[2]];
 
-      // add button highlighting
-      for (const button of bottomImages) {
-        button.classList.add(
-            'lev-staggered-responses',
-            'lev-staggered-disabled',
-            'lev-staggered-grayscale',
-            'lev-staggered-opacity',
-        );
+      function animateTopButton() {
+        topImage.style.animation = 'pulse 2s 1s';
+
+        setTimeout(() => {
+          enableOkBtn(); 
+        }, 
+        2500
+        ); 
       }
 
-      setTimeout(() => {
-        for (const button of bottomImages) {
-            button.classList.remove(
-                'lev-staggered-responses',
-                'lev-staggered-disabled',
-                'lev-staggered-grayscale',
-                'lev-staggered-opacity',
-            );
-          }
-        topImage.classList.add(
-            'lev-staggered-responses',
-            'lev-staggered-disabled',
-            'lev-staggered-grayscale',
-            'lev-staggered-opacity',
-        )
-      }, 
-      3000
-      )
+      function animateBottomButtons() {
+        bottomImages.forEach(button => 
+          button.style.animation = 'pulse 2s 1s'
+        );
+
+        setTimeout(() => {
+          PageAudioHandler.playAudio(mediaAssets.audio["sdsPrompt3DemoHeavyPart2"], animateTopButton);
+        }, 
+        2500
+        ); 
+      }
+
+      PageAudioHandler.playAudio(mediaAssets.audio["sdsPrompt3DemoHeavyPart1"], animateBottomButtons);
     },
     on_finish: () => {
       PageAudioHandler.stopAndDisconnectNode();
