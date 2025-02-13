@@ -81,12 +81,12 @@ button {
     border-color: $bg-accent_secondary;
     box-shadow: $button-secondary-box-shadow $bg-accent_secondary inset,
       $button-secondary-inner-shadow $bg-button-secondary inset;
-    font-size: $font-size-l;
+    font-size: $font-size-lm;
     width: 2.5 * $font-size-l;
     height: 2.5 * $font-size-l;
 
     @include respond-to('small-medium') {
-      font-size: $font-size-m;
+      font-size: $font-size-ms;
       font-weight: $font-weight-normal;
       border-radius: $button-default-border-radius-small;
       width: 2.4 * $font-size-m;
