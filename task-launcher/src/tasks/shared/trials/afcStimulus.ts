@@ -180,7 +180,7 @@ function getButtonChoices(layoutConfigMap: Record<string, LayoutConfigType>, tri
     const {
       isImageButtonResponse,
       response: {
-        values: buttonChoices,
+        displayValues: buttonChoices,
       },
     } = itemLayoutConfig;
     if (isImageButtonResponse) {
