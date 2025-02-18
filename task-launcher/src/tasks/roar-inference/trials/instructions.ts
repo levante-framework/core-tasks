@@ -1,21 +1,28 @@
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
 import { mediaAssets } from '../../..';
 // @ts-ignore
-import { PageStateHandler, PageAudioHandler, replayButtonSvg, setupReplayAudio, taskStore } from '../../shared/helpers';
+import { PageStateHandler, PageAudioHandler, replayButtonSvg, setupReplayAudio } from '../../shared/helpers';
 // @ts-ignore
 import { jsPsych } from '../../taskSetup';
+import { taskStore } from '../../../taskStore';
 
 const instructionData = [
     {
-        prompt: 'inferenceIns',
+        prompt: 'inferenceInstructions2',
+        buttonText: 'Go',
     },
-];
+    {
+        prompt: 'inferenceInstructions',
+        buttonText: 'Continue',
+    },
+]
+
 const replayButtonHtmlId = 'replay-btn-revisited';
 
 export const instructions = instructionData.map(data => {
     return {
         type: jsPsychAudioMultiResponse,
-        stimulus: () => mediaAssets.audio.inferenceInstructions ?? mediaAssets.audio.nullAudio,
+        stimulus: () => mediaAssets.audio[data.prompt],
         prompt: () => {
             const t = taskStore().translations;
             return `<div class="lev-stimulus-container">
@@ -31,24 +38,25 @@ export const instructions = instructionData.map(data => {
                     </div>`;
         },
         prompt_above_buttons: true,
-        button_choices: ['Continue'],
+        button_choices: ['Next'],
         button_html: () => {
             const t = taskStore().translations;
             return [
             `<button class="primary">
-                Continue
+            ${[data.buttonText]}
             </button>`,
             ]
         },
         keyboard_choices: () => 'NO_KEYS',
 
         on_load: () => {
-            const pageStateHandler = new PageStateHandler(data.prompt);
+            const pageStateHandler = new PageStateHandler(data.prompt, true);
             setupReplayAudio(pageStateHandler);
         }, 
         on_finish: () => {
             jsPsych.data.addDataToLastTrial({
-                audioButtonPresses: PageAudioHandler.replayPresses
+                audioButtonPresses: PageAudioHandler.replayPresses, 
+                assessment_stage: 'instructions'
               }); 
         }
     }

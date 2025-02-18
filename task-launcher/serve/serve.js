@@ -39,20 +39,24 @@ const corpus = urlParams.get('corpus');
 const buttonLayout = urlParams.get('buttonLayout');
 const numOfPracticeTrials = urlParams.get('practiceTrials');
 const numberOfTrials = urlParams.get('trials') === null ? null : parseInt(urlParams.get('trials'), 10);
-const maxIncorrect = urlParams.get('maxIncorrect');
+const maxIncorrect = urlParams.get('maxIncorrect') === null? null : parseInt(urlParams.get('maxIncorrect'), 10);
 const stimulusBlocks = urlParams.get('blocks') === null ? null : parseInt(urlParams.get('blocks'), 10);
 const age = urlParams.get('age') === null ? null : parseInt(urlParams.get('age'), 10);
 const maxTime = urlParams.get('maxTime') === null ? null : parseInt(urlParams.get('maxTime'), 10); // time limit for real trials
 const language = urlParams.get('lng');
 const pid = urlParams.get('pid');
 const inferenceNumStories = urlParams.get('inferenceNumStories') === null? null : parseInt(urlParams.get('inferenceNumStories'), 10);
+const semThreshold = Number(urlParams.get('semThreshold') || '0');
+const startingTheta = Number(urlParams.get('theta') || '0'); 
 
 // Boolean parameters
-const keyHelpers = stringToBoolean(urlParams.get('keyHelpers')); // GK: shouldn't this default to false?
+const keyHelpers = stringToBoolean(urlParams.get('keyHelpers'));
 const skipInstructions = stringToBoolean(urlParams.get('skip'), true);
 const sequentialPractice = stringToBoolean(urlParams.get('sequentialPractice'), true);
 const sequentialStimulus = stringToBoolean(urlParams.get('sequentialStimulus'), true);
 const storeItemId = stringToBoolean(urlParams.get('storeItemId'), false);
+const cat = stringToBoolean(urlParams.get('cat'), false);
+const heavyInstructions = stringToBoolean(urlParams.get('heavyInstructions'), false); 
 
 async function startWebApp() {
   // @ts-ignore
@@ -85,7 +89,11 @@ async function startWebApp() {
       age,
       maxTime,
       storeItemId,
+      cat,
       inferenceNumStories,
+      semThreshold,
+      startingTheta,
+      heavyInstructions
     };
 
       const taskInfo = {

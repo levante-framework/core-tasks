@@ -1,3 +1,5 @@
+import { JsPsych } from 'jspsych';
+
 export {};
 
 declare global {
@@ -46,19 +48,32 @@ declare global {
   type StimulusType = {
     source: string;
     block_index?: string;
-    task: string; // TODO: define all task types here
-    item: string;
-    trialType: string;
-    image: string;
-    answer: string;
-    assessmentStage: string;
-    chanceLevel: string;
-    itemId: string;
-    distractors: string[];
-    audioFile: string;
-    requiredSelections: number;
     blockIndex?: number;
+    task: string; // TODO: define all task types here
+    item: string | number[];
+    trial_type?: string;
+    trialType: string;
+    image: string | string[];
+    answer: string | number;
+    assessment_stage?: string;
+    assessmentStage: string;
+    chance_level?: string;
+    chanceLevel: number;
+    itemId: string;
+    item_id?: string;
+    distractors: Array<string | number>;
+    audioFile: string;
+    audio_file?: string;
+    requiredSelections?: number;
+    required_selections?: string;
     prompt: string;
+    difficulty: number | string;
+    orig_item_num?: string;
+    origItemNum: string;
+    time_limit?: string;
+    timeLimit: string;
+    response_alternatives?: string;
+    d?: string;
   };
 
   type MediaAssetsType = {
@@ -69,4 +84,9 @@ declare global {
 
   type GameParamsType = Record<string, string>;
   type UserParamsType = Record<string, string>;
+
+  interface Window {
+    Cypress: any; // FIXME: Add explict type
+    initJsPsych: JsPsych;
+  }
 }

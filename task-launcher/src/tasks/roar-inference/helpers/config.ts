@@ -1,7 +1,10 @@
-//@ts-ignore
-import { prepareChoices } from "../../shared/helpers/prepareChoices";
-import { DEFAULT_LAYOUT_CONFIG } from "../../shared/helpers/config";
-import { validateLayoutConfig } from "../../shared/helpers/validateLayoutConfig";
+import {
+  convertItemToString,
+  validateLayoutConfig,
+  prepareChoices,
+  DEFAULT_LAYOUT_CONFIG,
+  mapDistractorsToString,
+} from '../../shared/helpers';
 import type { LayoutConfigTypeInference } from '../types/inferenceTypes';
 
 type GetConfigReturnType = {
@@ -24,12 +27,13 @@ export const getLayoutConfig = (
   defaultConfig.prompt.enabled = true;
   defaultConfig.prompt.useStimText = true;
   defaultConfig.stimText = {
-    value: stimulus.item,
+    value: stimulus.prompt,
     displayValue: undefined,
   };
   defaultConfig.disableButtonsWhenAudioPlaying = true;
   if (!defaultConfig.isInstructionTrial) {
-    const prepChoices = prepareChoices(answer, distractors, true, trialType); 
+    const mappedDistractors = mapDistractorsToString(distractors);
+    const prepChoices = prepareChoices(answer.toString(), mappedDistractors, true, trialType); 
     defaultConfig.isImageButtonResponse = false;
     defaultConfig.classOverrides.buttonClassList = ['roar-inference-btn'];
     defaultConfig.response = {
