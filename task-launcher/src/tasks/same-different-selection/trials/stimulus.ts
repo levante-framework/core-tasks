@@ -6,6 +6,7 @@ import { PageStateHandler, prepareChoices, replayButtonSvg, setupReplayAudio, ta
 import { finishExperiment } from '../../shared/trials';
 //@ts-ignore
 import { jsPsych } from '../../taskSetup';
+import Cypress from 'cypress';
 
 const replayButtonHtmlId = 'replay-btn-revisited'; 
 let incorrectPracticeResponses: string[] = [];
@@ -155,6 +156,17 @@ export const stimulus = {
     buttonContainer.classList.add('multi-4');
     const trialType = taskStore().nextStimulus.trialType; 
     const assessmentStage = taskStore().nextStimulus.assessmentStage;
+
+    // if the task is running in a cypress test, the correct answer should be indicated with 'correct' class
+    if (window.Cypress && trialType !== 'something-same-1') {
+      const responseBtns = document.querySelectorAll('.image-medium'); 
+      responseBtns.forEach((button) => {
+        const imgAlt = button.querySelector('img')?.getAttribute('alt'); 
+        if (imgAlt === taskStore().nextStimulus.answer) {
+          button.classList.add('correct');
+        }
+      });
+    }
     
     if (trialType === 'test-dimensions' || assessmentStage === 'practice_response'){ // cards should give feedback during test dimensions block
       const practiceBtns = Array.from(buttonContainer.children)
