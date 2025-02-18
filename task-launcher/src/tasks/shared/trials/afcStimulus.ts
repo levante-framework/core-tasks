@@ -154,7 +154,6 @@ function getPrompt(layoutConfigMap: Record<string, LayoutConfigType>, trial?: St
 }
 
 function generateImageChoices(choices: string[], target: string) {
-  const stimulus = taskStore().nextStimulus; 
   const practiceUrl =
     'https://imgs.search.brave.com/w5KWc-ehwDScllwJRMDt7-gTJcykNTicRzUahn6-gHg/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZW5k/ZXIuZmluZWFydGFt/ZXJpY2EuY29tL2lt/YWdlcy9pbWFnZXMt/cHJvZmlsZS1mbG93/LzQwMC9pbWFnZXMt/bWVkaXVtLWxhcmdl/LTUvZmF0aGVyLWFu/ZC1kYXVnaHRlci1p/bi10aGUtb3V0ZXIt/YmFua3MtY2hyaXMt/d2Vpci5qcGc';
   return choices.map((choice) => {
@@ -319,12 +318,7 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
     // flag correct answers with alt text for math if running a Cypress test
     if (window.Cypress && !isInstructionTrial) {
       const choices: NodeListOf<HTMLButtonElement> = document.querySelectorAll('.secondary');
-
-      for (var i = 0; i < choices.length; i++) {
-        if (choices[i].textContent == itemLayoutConfig.response.target){
-          choices[i].setAttribute("aria-label", "correct");
-        }
-      }
+      choices[itemLayoutConfig.response.targetIndex].setAttribute('aria-label', 'correct');
     }
   }
   const twoTrialsAgoStimulus = jsPsych.data.get().filter({ trial_index: twoTrialsAgoIndex }).values();

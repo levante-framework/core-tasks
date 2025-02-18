@@ -32,8 +32,11 @@ function selectAnswers(correctFlag, buttonClass){
     const responseButtons = content.find(buttonClass); 
     
     if (responseButtons.length > 1){ 
-      if (correctFlag === 'alt') { 
-        cy.get('[aria-label="correct"]').click({timeout: 30000}); // add timeout to handle staggered buttons
+      if (correctFlag === 'alt') {
+        cy.get('[aria-label="correct"]')
+        .should('be.visible')
+        .and('not.be.disabled')
+        .click({force: true, timeout: 30000});  // add timeout to handle staggered buttons
       } else { // use correct class by default 
         cy.get('.correct').click({timeout: 30000}); // add timeout to handle staggered buttons
       }
