@@ -4,24 +4,22 @@ import {
   dashToCamelCase, 
   showLevanteLogoLoading, 
   hideLevanteLogoLoading, 
-  setTaskStore
   // @ts-ignore
 } from './tasks/shared/helpers';
 import './styles/index.scss';
 import taskConfig from './tasks/taskConfig';
 import { RoarAppkit } from '@bdelab/roar-firekit';
+import { setTaskStore } from './taskStore';
 
 export let mediaAssets: MediaAssetsType;
 export class TaskLauncher {
   gameParams: GameParamsType;
   userParams: UserParamsType;
   firekit: RoarAppkit;
-  displayElement: boolean;
-  constructor(firekit: RoarAppkit, gameParams: GameParamsType, userParams: UserParamsType, displayElement: boolean) {
+  constructor(firekit: RoarAppkit, gameParams: GameParamsType, userParams: UserParamsType) {
     this.gameParams = gameParams;
     this.userParams = userParams;
     this.firekit = firekit;
-    this.displayElement = displayElement;
   }
 
   async init() {
@@ -51,7 +49,7 @@ export class TaskLauncher {
       throw new Error('Error fetching media assets: ' + error);
     }
 
-    const config = await setConfig(this.firekit, this.gameParams, this.userParams, this.displayElement);
+    const config = await setConfig(this.firekit, this.gameParams, this.userParams);
 
     setTaskStore(config)
 

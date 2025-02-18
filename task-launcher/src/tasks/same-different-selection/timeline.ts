@@ -1,30 +1,36 @@
-import 'regenerator-runtime/runtime';
-//@ts-ignore
-import { initTrialSaving, initTimeline, taskStore } from '../shared/helpers';
-
 // setup
-//@ts-ignore
+import 'regenerator-runtime/runtime';
 import { jsPsych } from '../taskSetup';
-//@ts-ignore
-import { createPreloadTrials, sdsPhaseCount } from '../shared/helpers';
-//@ts-ignore
+import { initTrialSaving, initTimeline, createPreloadTrials } from '../shared/helpers';
+import { prepareCorpus } from '../shared/helpers/prepareCat';
 import { initializeCat } from '../taskSetup';
-
 // trials
-//@ts-ignore
-import { setupStimulus, exitFullscreen, taskFinished } from '../shared/trials';
+import { dataQualityScreen } from '../shared/trials/dataQuality';
+import {
+  setupStimulus,
+  exitFullscreen,
+  taskFinished,
+  feedback,
+  getAudioResponse,
+  enterFullscreen,
+  finishExperiment,
+} from '../shared/trials';
 import { afcMatch } from './trials/afcMatch';
 import { stimulus } from './trials/stimulus';
-//@ts-ignore
-import { feedback, getAudioResponse } from '../shared/trials'; 
+import { taskStore } from '../../taskStore';
+import { somethingSameDemo1, somethingSameDemo2, somethingSameDemo3, matchDemo1, matchDemo2 } from './trials/heavyInstructions';
 
 
 export default function buildSameDifferentTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
   let feedbackGiven = false;
+  const heavy: boolean = taskStore().heavyInstructions; 
+
+  const corpus: StimulusType[] = taskStore().corpora.stimulus;
+  const preparedCorpus = prepareCorpus(corpus);
 
   initTrialSaving(config);
-  const initialTimeline = initTimeline(config);
+  const initialTimeline = initTimeline(config, enterFullscreen, finishExperiment);
 
   const buttonNoise = {
     timeline: [getAudioResponse(mediaAssets)],
@@ -40,9 +46,18 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
     },
   };
 
+  // used for instruction and practice trials
+  const ipBlock = (trial: StimulusType) => {
+    return {
+      timeline: [
+        stimulus(trial)
+      ]
+    }
+  };
+
   const stimulusBlock = {
     timeline: [
-      stimulus
+      stimulus()
     ],
   };
   
@@ -66,58 +81,97 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
     ],
   };
 
+  const dataQualityBlock = {
+    timeline: [
+      dataQualityScreen
+    ], 
+    conditional_function: () => {
+      return taskStore().numIncorrect >= taskStore().maxIncorrect; 
+    }
+  }
+
   const timeline = [
     preloadTrials, 
     initialTimeline, 
   ];
 
-  const { phase1, phase2a, phase2b, phase2c, phase2d, phase2e } = sdsPhaseCount
+  // all instructions + practice trials
+  const instructionPractice: StimulusType[] = heavy ? preparedCorpus.ipHeavy : preparedCorpus.ipLight
 
-  for (let i = 0; i < phase1; i++) {
-    timeline.push(setupStimulus)
-    timeline.push(stimulusBlock)
-    timeline.push(buttonNoise) // adds button noise for appropriate trials
+  // returns practice + instruction trials for a given block
+  function getPracticeInstructions(blockNum: number) : StimulusType[] {
+    return instructionPractice.filter(trial => (trial.blockIndex == blockNum));
   }
 
-  // 1st matching phase (with feedback)
-  for (let i = 0; i < phase2a; i++) {
-    timeline.push(setupStimulus)
-    timeline.push(afcBlock)
-    timeline.push(buttonNoise) // adds button noise for appropriate trials
-    timeline.push(feedbackBlock)
+  // create list of numbers of trials per block
+  const blockCountList: number[] = [];
+  taskStore().corpora.stimulus.forEach((trial: StimulusType) => {
+    blockCountList[Number(trial.blockIndex)] = (blockCountList[Number(trial.blockIndex)]  || 0) + 1;
+  })
+
+  // functions to add trials to blocks of each type
+  function updateTestDimensions() {
+    timeline.push(setupStimulus);
+    timeline.push(stimulusBlock);
   }
 
-  // test-dimensions phase
-  for (let i = 0; i < phase2b; i++) { 
-    timeline.push(setupStimulus)
-    timeline.push(stimulusBlock)
+  function updateSomethingSame() {
+    timeline.push(setupStimulus);
+    timeline.push(stimulusBlock);
+    timeline.push(buttonNoise);
+    timeline.push(dataQualityBlock);
   }
 
-  // matching phase 
-  for (let i = 0; i < phase2c; i++) {
-    timeline.push(setupStimulus)
-    timeline.push(afcBlock)
-    timeline.push(buttonNoise) // adds button noise for appropriate trials
+  function updateMatching() {
+    timeline.push(setupStimulus);
+    timeline.push(afcBlock);
+    timeline.push(buttonNoise);
+    timeline.push(dataQualityBlock); 
   }
 
-  // test-dimensions phase
-  for (let i = 0; i < phase2d; i++) { 
-    timeline.push(setupStimulus)
-    timeline.push(stimulusBlock)
-  }
+  // add to this list with any additional blocks
+  const blockOperations = [
+    updateTestDimensions, 
+    updateSomethingSame, 
+    updateMatching, 
+    updateTestDimensions, 
+    updateMatching, 
+    updateMatching
+  ]
 
-  // matching phase 
-  for (let i = 0; i < phase2e; i++) {
-    timeline.push(setupStimulus)
-    timeline.push(afcBlock)
-    timeline.push(buttonNoise) // adds button noise for appropriate trials
-  }
+  // add trials to timeline according to block structure defined in blockOperations
+  blockCountList.forEach((count, index) => {
+    const currentBlockInstructionPractice = getPracticeInstructions(index); 
 
+    // push in instruction + practice trials
+    if (index === 1 && heavy) { // something's the same block has demo trials in between instructions
+      const firstInstruction = currentBlockInstructionPractice.shift();
+      if (firstInstruction != undefined) { timeline.push(ipBlock(firstInstruction)) }; 
+
+      timeline.push(somethingSameDemo1);
+      timeline.push(somethingSameDemo2);
+      timeline.push(somethingSameDemo3);
+    }
+
+    currentBlockInstructionPractice.forEach(trial => {
+      timeline.push(ipBlock(trial));
+    });
+
+    if (index === 2 && heavy) { // 2-match has demo trials after instructions
+      timeline.push(matchDemo1);
+      timeline.push(matchDemo2);
+    }
+
+    // push in test trials
+    for (let i = 0; i < count; i += 1) {
+      blockOperations[index]();
+    }
+  });
 
   initializeCat();
 
+  timeline.push(dataQualityScreen);
   timeline.push(taskFinished());
   timeline.push(exitFullscreen);
-
   return { jsPsych, timeline };
 }

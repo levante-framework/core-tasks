@@ -1,9 +1,10 @@
-import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
+import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 //@ts-ignore
 import { jsPsych } from '../../taskSetup';
 import { mediaAssets } from '../../..';
 //@ts-ignore
-import { PageStateHandler, PageAudioHandler, replayButtonSvg, setupReplayAudio, taskStore } from '../../shared/helpers';
+import { PageStateHandler, PageAudioHandler, replayButtonSvg, setupReplayAudio } from '../../shared/helpers';
+import { taskStore } from '../../../taskStore';
 
 const instructionData = [
     {
@@ -32,8 +33,13 @@ const instructionData = [
         buttonText: 'continueButtonText',
     },
     {
+        prompt: 'memoryGameInstruct6', 
+        image: 'catAvatar',
+        buttonText: 'continueButtonText'
+    },
+    {
         prompt: 'memoryGameBackwardPrompt',
-        image: 'highlightedBlock',
+        video: 'selectSequenceReverse',
         buttonText: 'continueButtonText',
     },
 ]
@@ -42,9 +48,8 @@ const replayButtonHtmlId = 'replay-btn-revisited';
 
 export const instructions = instructionData.map(data => {
     return {
-        type: jsPsychAudioMultiResponse,
-        stimulus: () => mediaAssets.audio[data.prompt],
-        prompt: () => {
+        type: jsPsychHtmlMultiResponse,
+        stimulus: () => {
             const t = taskStore().translations;
             return `<div class="lev-stimulus-container">
                         <button
@@ -58,7 +63,7 @@ export const instructions = instructionData.map(data => {
                         </div>
                         <div class="lev-stim-content-x-3">
                             ${data.video ? 
-                                `<video class='instruction-video' autoplay loop>
+                                `<video class='instruction-video-small' autoplay loop>
                                     <source src=${mediaAssets.video[data.video]} type='video/mp4'>
                                 </video>` :
                                 `<img
@@ -80,18 +85,32 @@ export const instructions = instructionData.map(data => {
             ]
         },
         keyboard_choices: 'NO_KEYS',
+        post_trial_gap: 500,
         on_load: () => {
-            const pageStateHandler = new PageStateHandler(data.prompt);
+            PageAudioHandler.playAudio(mediaAssets.audio[data.prompt]);
+            const pageStateHandler = new PageStateHandler(data.prompt, true);
             setupReplayAudio(pageStateHandler);
+
+            // hide toast if it is there 
+            const toast = document.getElementById('lev-toast-default');
+            if (toast) {
+                toast.classList.remove('show'); 
+            }
         }, 
         on_finish: () => {
+            PageAudioHandler.stopAndDisconnectNode();
             jsPsych.data.addDataToLastTrial({
                 audioButtonPresses: PageAudioHandler.replayPresses, 
                 assessment_stage: 'instructions'
               });
+            
+            if (data.prompt === 'memoryGameBackwardPrompt') {
+                taskStore('numIncorrect', 0);
+            }
         }
     }
 })
 
 export const reverseOrderPrompt = instructions.pop()
+export const reverseOrderInstructions = instructions.pop()
 export const readyToPlay = instructions.pop()

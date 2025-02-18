@@ -1,13 +1,14 @@
 {
   "name": "@levante-framework/core-tasks",
-  "version": "1.0.0-beta.24",
+  "version": "1.0.0-beta.30",
   "description": "",
-  "main": "lib/index.30aaaadd.js",
-  "module": "lib/index.30aaaadd.js",
+  "main": "lib/index.ef89aec7.js",
+  "module": "lib/index.ef89aec7.js",
   "type": "module",
   "files": [
     "lib",
-    "lib/resources"
+    "lib/resources",
+    "patchPackages.js"
   ],
   "scripts": {
     "build": "npx webpack --mode production --env dbmode=production",
@@ -67,7 +68,9 @@
     "@rollup/plugin-node-resolve": "^15.1.0",
     "@rollup/plugin-terser": "^0.4.3",
     "@rollup/plugin-typescript": "^11.1.6",
+    "@types/fscreen": "^1.0.4",
     "@types/lodash": "^4.17.7",
+    "@types/papaparse": "^5.3.15",
     "babel-loader": "^9.1.2",
     "css-loader": "^6.7.1",
     "csv-loader": "^3.0.5",

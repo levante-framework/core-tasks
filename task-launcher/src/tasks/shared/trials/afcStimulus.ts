@@ -1,23 +1,22 @@
 // For all tasks except: H&F, Memory Game, Same Different Selection
-import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
-// @ts-ignore
+import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
+import _toNumber from 'lodash/toNumber';
 import { jsPsych, isTouchScreen } from '../../taskSetup';
 import {
   arrowKeyEmojis,
   replayButtonSvg,
   setupReplayAudio,
   setSkipCurrentBlock,
-  taskStore,
   PageAudioHandler,
   PageStateHandler,
-  //@ts-ignore
+  camelize,
+  setSentryContext,
+  handleStaggeredButtons,
+  updateTheta
 } from '../helpers';
-import { camelize } from '../helpers/camelize';
 import { mediaAssets } from '../../..';
-import _toNumber from 'lodash/toNumber';
-// @ts-ignore
 import { finishExperiment } from '.';
-import Cypress from 'cypress'; 
+import { taskStore } from '../../../taskStore';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 // Previously chosen responses for current practice trial
@@ -44,69 +43,8 @@ const getKeyboardChoices = (itemLayoutConfig: LayoutConfigType) => {
   throw new Error('More than 4 buttons are not supported yet');
 };
 
-const showStaggeredBtnAndPlaySound = (
-  index: number,
-  btnList: HTMLButtonElement[],
-  pageState: PageStateHandler,
-) => {
-  const btn = btnList[index];
-  btn.classList.remove(
-    'lev-staggered-grayscale',
-    'lev-staggered-opacity',
-  );
-  const img = btn.getElementsByTagName('img')?.[0];
-  let audioAsset = mediaAssets.audio[camelize(img?.alt ?? '')];
-  if (!audioAsset) {
-    console.error('Audio Asset not available for:', img?.alt);
-    audioAsset = mediaAssets.audio.nullAudio;
-  }
-
-  PageAudioHandler.playAudio(audioAsset, () => {
-    if (index + 1 === btnList?.length) { // Last Element
-      for (const jsResponseEl of btnList) {
-        jsResponseEl.classList.remove('lev-staggered-disabled');
-      }
-      pageState.enableReplayBtn();
-    } else { //recurse
-      showStaggeredBtnAndPlaySound(index + 1, btnList, pageState);
-    }
-  });
-};
-
-const handleStaggeredButtons = async (layoutConfig: LayoutConfigType, pageState: PageStateHandler) => {
-  if (layoutConfig?.isStaggered) {
-      const parentResponseDiv = document.getElementById('jspsych-audio-multi-response-btngroup') as HTMLDivElement;
-      let i = 0;
-      const stimulusDuration = await pageState.getStimulusDurationMs();
-      const intialDelay = stimulusDuration + 300;
-
-      // Disable the replay button till this animation is finished
-      setTimeout(() => {
-        pageState.disableReplayBtn();
-      }, stimulusDuration + 110);
-
-      for (const jsResponseEl of parentResponseDiv.children) {
-        // disable the buttons so that they are not active during the animation
-        jsResponseEl.classList.add(
-          'lev-staggered-responses',
-          'lev-staggered-disabled',
-          'lev-staggered-grayscale',
-          'lev-staggered-opacity',
-        );
-      }
-      setTimeout(() => {
-        showStaggeredBtnAndPlaySound(
-          0,
-          Array.from(parentResponseDiv?.children as HTMLCollectionOf<HTMLButtonElement>),
-          pageState,
-        );
-      }, intialDelay);
-      
-  }
-};
-
-function getStimulus(layoutConfigMap: Record<string, LayoutConfigType>) {
-  const stim = taskStore().nextStimulus;
+function getStimulus(layoutConfigMap: Record<string, LayoutConfigType>, trial?: StimulusType) {
+  const stim = trial || taskStore().nextStimulus;
   const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
   if (itemLayoutConfig) {
     const audioPath = itemLayoutConfig?.playAudioOnLoad ? camelize(stim.audioFile) : 'nullAudio';
@@ -177,9 +115,9 @@ const getPromptTemplate = (
   return template;
 };
 
-function getPrompt(layoutConfigMap: Record<string, LayoutConfigType>) {
+function getPrompt(layoutConfigMap: Record<string, LayoutConfigType>, trial?: StimulusType) {
   // showItem itemIsImage
-  const stim = taskStore().nextStimulus;
+  const stim = trial || taskStore().nextStimulus;
   const t = taskStore().translations;
   const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
 
@@ -223,7 +161,7 @@ function generateImageChoices(choices: string[], target: string) {
     const imageUrl = mediaAssets.images[camelize(choice)] || practiceUrl;
 
     // if the task is running in a cypress test, the correct answer should be indicated with 'correct' class
-    if (window.Cypress && stimulus.assessmentStage !== 'practice_response'){
+    if (window.Cypress){
       const isCorrect = choice === target;
       return isCorrect ? `<img src=${imageUrl} alt=${choice} class='correct'/>` : `<img src=${imageUrl} alt=${choice} />`;
     } else {
@@ -233,8 +171,8 @@ function generateImageChoices(choices: string[], target: string) {
   });
 }
 
-function getButtonChoices(layoutConfigMap: Record<string, LayoutConfigType>) {
-  const stimulus = taskStore().nextStimulus;
+function getButtonChoices(layoutConfigMap: Record<string, LayoutConfigType>, trial?: StimulusType) {
+  const stimulus = trial || taskStore().nextStimulus;
   const itemLayoutConfig = layoutConfigMap?.[stimulus.itemId];
   const { response } = itemLayoutConfig; 
   const target = response.target; 
@@ -252,8 +190,8 @@ function getButtonChoices(layoutConfigMap: Record<string, LayoutConfigType>) {
   }
 }
 
-function getButtonHtml(layoutConfigMap: Record<string, LayoutConfigType>) {
-  const stimulus = taskStore().nextStimulus;
+function getButtonHtml(layoutConfigMap: Record<string, LayoutConfigType>, trial?: StimulusType) {
+  const stimulus = trial || taskStore().nextStimulus;
   const isPracticeTrial = stimulus.assessmentStage === 'practice_response';
   const itemLayoutConfig = layoutConfigMap?.[stimulus.itemId];
   if (itemLayoutConfig) {
@@ -301,6 +239,8 @@ function handlePracticeButtonPress(
     setTimeout(() => enableBtns(practiceBtns), 500);
     incorrectPracticeResponses.push(choice);
   }
+  // if there is audio playing, stop it first before playing feedback audio to prevent overlap between trials
+  PageAudioHandler.stopAndDisconnectNode();
   PageAudioHandler.playAudio(feedbackAudio);
 }
 
@@ -336,24 +276,48 @@ function addKeyHelpers(el: HTMLElement, keyIndex: number) {
   }
 }
 
-function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>) {
+function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: StimulusType) {
+  // play trial audio
+  PageAudioHandler.playAudio(getStimulus(layoutConfigMap, trial) || ''); 
+
   startTime = performance.now();
 
-  const stim = taskStore().nextStimulus;
+  const stim = trial || taskStore().nextStimulus as StimulusType;
   const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
   const playAudioOnLoad = itemLayoutConfig?.playAudioOnLoad;
   const pageStateHandler = new PageStateHandler(stim.audioFile, playAudioOnLoad);
   const isPracticeTrial = stim.assessmentStage === 'practice_response';
   const isInstructionTrial = stim.trialType === 'instructions';
-  // Handle the staggered buttons
-  handleStaggeredButtons(itemLayoutConfig, pageStateHandler);
+
+  if (itemLayoutConfig.isStaggered) {
+    // Handle the staggered buttons
+    const buttonContainer = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
+    const imgButtons = Array.from(buttonContainer.children as HTMLCollectionOf<HTMLButtonElement>); 
+    let audioKeys: string[] = [];
+    for (let i = 0; i < imgButtons.length; i++) {
+      const img = imgButtons[i].children[0].getElementsByTagName('img')[0];
+      const audioKey = camelize(img?.alt ?? '');
+      audioKeys.push(audioKey)
+    }
+  
+    handleStaggeredButtons(pageStateHandler, buttonContainer, audioKeys);
+  }
+
   const currentTrialIndex = jsPsych.getProgress().current_trial_global;
   let twoTrialsAgoIndex = currentTrialIndex - 2;
+
+  // Setup Sentry Context
+  setSentryContext({
+    itemId: stim.itemId,
+    taskName: stim.task,
+    pageContext: 'afcStimulus',
+  });
+
   if (stim.task === 'math') {
     twoTrialsAgoIndex = currentTrialIndex - 3; // math has a fixation or something
 
     // flag correct answers with alt text for math if running a Cypress test
-    if (window.Cypress && !isPracticeTrial && !isInstructionTrial) {
+    if (window.Cypress && !isInstructionTrial) {
       const choices: NodeListOf<HTMLButtonElement> = document.querySelectorAll('.secondary');
 
       for (var i = 0; i < choices.length; i++) {
@@ -394,13 +358,13 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>) {
   }
 
   if (stim.trialType !== 'instructions') {
-    const buttonContainer = document.getElementById('jspsych-audio-multi-response-btngroup') as HTMLDivElement;
+    const buttonContainer = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
     const responseButtons = buttonContainer.children as HTMLCollectionOf<HTMLButtonElement>;
     const totalResponseButtons = responseButtons.length;
     const { buttonLayout } = taskStore();
 
     if (itemLayoutConfig) {
-      if (buttonLayout === 'diamond') { // have to do it in the runtime
+      if (buttonLayout === 'diamond' && totalResponseButtons === 4) { // have to do it in the runtime
         buttonContainer.classList.add('lev-response-row-diamond-layout');
       } else {
         buttonContainer.classList.add(...itemLayoutConfig.classOverrides.buttonContainerClassList);
@@ -423,12 +387,13 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>) {
   setupReplayAudio(pageStateHandler);
 }
 
-function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, LayoutConfigType>) {
+function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, LayoutConfigType>, trial?: StimulusType) {
   PageAudioHandler.stopAndDisconnectNode();
 
   // note: nextStimulus is actually the current stimulus
-  const stimulus = taskStore().nextStimulus;
+  const stimulus = trial || taskStore().nextStimulus;
   const itemLayoutConfig = layoutConfigMap?.[stimulus.itemId];
+  const { runCat } = taskStore();
   let responseValue = null
   let target = null; 
   let responseIndex = null; 
@@ -446,6 +411,10 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
       responseValue = response.values[responseIndex];
       target = response.target; 
       data.correct = responseValue === target;
+    }
+    
+    if (runCat) {
+      updateTheta(stimulus, data.correct); 
     }
 
     // check response and record it
@@ -482,6 +451,7 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
     if (taskStore().storeItemId) {
       jsPsych.data.addDataToLastTrial({
         corpusId: taskStore().corpusId,
+        corpus: taskStore().corpus, // adding this for ROAR compatibility
         itemId: stimulus.source + '-' + stimulus.origItemNum,
       });
     }
@@ -523,7 +493,7 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
 
   if (itemLayoutConfig.inCorrectTrialConfig.onIncorrectTrial === 'skip') {
     setSkipCurrentBlock(stimulus.trialType);
-  } else if ((taskStore().numIncorrect >= taskStore().maxIncorrect)) {
+  } else if ((taskStore().numIncorrect >= taskStore().maxIncorrect && !runCat)) {
     finishExperiment();
   }
 }
@@ -534,13 +504,14 @@ export const afcStimulusTemplate = (
     promptAboveButtons: boolean,
     task: string,
     layoutConfigMap: Record<string, LayoutConfigType>,
-  }
+  }, 
+  trial?: StimulusType
 ) => {
   return {
-    type: jsPsychAudioMultiResponse,
+    type: jsPsychHtmlMultiResponse,
     response_allowed_while_playing: responseAllowed,
     data: () => {
-      const stim = taskStore().nextStimulus;
+      const stim = trial || taskStore().nextStimulus;
       let isPracticeTrial = stim.assessmentStage === 'practice_response'; 
       return {
         // not camelCase because firekit
@@ -550,18 +521,22 @@ export const afcStimulusTemplate = (
         isPracticeTrial: isPracticeTrial,
       };
     },
-    stimulus: () => getStimulus(layoutConfigMap),
-    prompt: () => getPrompt(layoutConfigMap),
+    stimulus: () => getPrompt(layoutConfigMap, trial),
     prompt_above_buttons: promptAboveButtons,
     keyboard_choices: () => {
-      const stim = taskStore().nextStimulus;
+      const stim = trial || taskStore().nextStimulus; 
+
       const itemLayoutConfig = layoutConfigMap[stim.itemId];
       return getKeyboardChoices(itemLayoutConfig);
     },
-    button_choices: () => getButtonChoices(layoutConfigMap),
-    button_html: () => getButtonHtml(layoutConfigMap),
-    on_load: () => doOnLoad(layoutConfigMap),
-    on_finish: (data: any) => doOnFinish(data, task, layoutConfigMap),
-    response_ends_trial: () => (taskStore().nextStimulus.assessmentStage === 'practice_response' ? false : true),
+    button_choices: () => getButtonChoices(layoutConfigMap, trial),
+    button_html: () => getButtonHtml(layoutConfigMap, trial),
+    on_load: () => doOnLoad(layoutConfigMap, trial),
+    on_finish: (data: any) => doOnFinish(data, task, layoutConfigMap, trial),
+    response_ends_trial: () => {
+      const stim = trial || taskStore().nextStimulus;
+
+      return stim.assessmentStage !== 'practice_response';
+    },
   };
 };

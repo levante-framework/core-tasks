@@ -2,10 +2,12 @@
 import _omitBy from 'lodash/omitBy';
 import _isNull from 'lodash/isNull';
 import _isUndefined from 'lodash/isUndefined';
+import _toNumber from 'lodash/toNumber';
 import i18next from 'i18next';
 import { isRoarApp } from './isRoarApp';
 import { camelize } from './camelize';
 import { RoarAppkit } from '@bdelab/roar-firekit';
+import { TaskStoreDataType } from '../../../taskStore';
 
 export const DEFAULT_LAYOUT_CONFIG: LayoutConfigType = {
   playAudioOnLoad: true,
@@ -46,14 +48,14 @@ const defaultCorpus: Record<string, string> = {
   egmaMath: 'math-item-bank',
   matrixReasoning: 'matrix-reasoning-item-bank',
   mentalRotation: 'mental-rotation-item-bank',
-  sameDifferentSelection: 'same-different-selection-item-bank',
+  sameDifferentSelection: 'same-different-selection-item-bank-v4',
   trog: 'trog-item-bank',
   theoryOfMind: 'theory-of-mind-item-bank',
   vocab: 'vocab-item-bank',
   roarInference: 'type_inference-demo-2024-11-11v3'
 };
 
-export const setSharedConfig = async (firekit: RoarAppkit, gameParams: GameParamsType, userParams: UserParamsType, displayElement: HTMLElement) => {
+export const setSharedConfig = async (firekit: RoarAppkit, gameParams: GameParamsType, userParams: UserParamsType): Promise<TaskStoreDataType> => {
   const cleanParams = _omitBy(_omitBy({ ...gameParams, ...userParams }, _isNull), _isUndefined);
 
   const {
@@ -74,16 +76,19 @@ export const setSharedConfig = async (firekit: RoarAppkit, gameParams: GameParam
     age,
     maxTime, // maximum app duration in minutes
     storeItemId,
+    cat,
+    heavyInstructions,
     inferenceNumStories,
+    semThreshold, 
+    startingTheta
   } = cleanParams;
 
   const config = {
-    userMetadata: { ...userMetadata, age },
+    userMetadata: { ...userMetadata, age: Number(age) },
     audioFeedback: audioFeedback || 'neutral',
-    skipInstructions: skipInstructions ?? true, // Not used in any task
+    skipInstructions: !!skipInstructions, // Not used in any task
     startTime: new Date(),
     firekit,
-    displayElement: displayElement || null,
     sequentialPractice: sequentialPractice ?? true,
     sequentialStimulus: sequentialStimulus ?? true,
     // name of the csv files in the storage bucket
@@ -91,15 +96,20 @@ export const setSharedConfig = async (firekit: RoarAppkit, gameParams: GameParam
     buttonLayout: buttonLayout || 'default',
     numberOfTrials: numberOfTrials ?? 300,
     task: taskName ?? 'egma-math',
-    stimulusBlocks: stimulusBlocks ?? 3,
-    numOfPracticeTrials: numOfPracticeTrials ?? 2,
-    maxIncorrect: maxIncorrect ?? 3,
-    keyHelpers: keyHelpers ?? true,
+    stimulusBlocks: Number(stimulusBlocks) || 3,
+    numOfPracticeTrials: Number(numOfPracticeTrials) || 2,
+    maxIncorrect: Number(maxIncorrect) || 3,
+    keyHelpers: !!keyHelpers,
     language: language ?? i18next.language,
-    maxTime: maxTime || 100,
-    storeItemId: storeItemId,
+    maxTime: Number(maxTime) || 100,
+    storeItemId: !!storeItemId,
     isRoarApp: isRoarApp(firekit),
-    inferenceNumStories: inferenceNumStories ?? null,
+
+    cat: !!cat, // defaults to false 
+    heavyInstructions: !!heavyInstructions,
+    inferenceNumStories: Number(inferenceNumStories) || undefined,
+    semThreshold: Number(semThreshold), 
+    startingTheta: Number(startingTheta)
   };
 
   // default corpus if nothing is passed in

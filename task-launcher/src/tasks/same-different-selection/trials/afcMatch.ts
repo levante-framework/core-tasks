@@ -1,11 +1,9 @@
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
 import { mediaAssets } from '../../..';
-// @ts-ignore
 import { jsPsych } from '../../taskSetup';
-// @ts-ignore
-import { prepareChoices, replayButtonSvg, setupReplayAudio, taskStore, PageStateHandler, PageAudioHandler, camelize } from '../../shared/helpers';
-// @ts-ignore
+import { prepareChoices, replayButtonSvg, setupReplayAudio, PageStateHandler, PageAudioHandler, camelize } from '../../shared/helpers';
 import { finishExperiment } from '../../shared/trials';
+import { taskStore } from '../../../taskStore';
 
 let selectedCards: string[] = [];
 let selectedCardIdxs: number[] = [];
@@ -39,11 +37,21 @@ export const afcMatch = {
     };
   },
   stimulus: () => {
-    const stimulusAudio = camelize(taskStore().nextStimulus.audioFile);
-    return mediaAssets.audio[stimulusAudio];
+    const stim = taskStore().nextStimulus;
+    let audioFile = stim.audioFile;
+    if (taskStore().heavyInstructions && stim.assessmentStage !== "practice_response" && stim.trialType !== "instructions") {
+      audioFile += "-heavy";
+    }
+
+    return mediaAssets.audio[camelize(audioFile)];
   },
   prompt: () => {
-    const prompt = camelize(taskStore().nextStimulus.audioFile);
+    const stimulus = taskStore().nextStimulus;
+    let prompt = camelize(stimulus.audioFile);
+    if (taskStore().heavyInstructions && stimulus.assessmentStage !== "practice_response" && stimulus.trialType !== "instructions") {
+      prompt += "Heavy";
+    }
+
     const t = taskStore().translations;
     return (
       `<div class="lev-stimulus-container">
@@ -81,12 +89,15 @@ export const afcMatch = {
     // create img elements and arrange in grid as cards
     // on click they will be selected
     // can select multiple cards and deselect them
-    const stim = taskStore().nextStimulus;
-    
     startTime = performance.now();
+    const stim = taskStore().nextStimulus;
 
-    const audioFile = stim.audioFile;
-    const pageStateHandler = new PageStateHandler(audioFile);
+    let audioFile = stim.audioFile;
+    if (taskStore().heavyInstructions && stim.assessmentStage !== "practice_response" && stim.trialType !== "instructions") {
+      audioFile += "-heavy";
+    }
+
+    const pageStateHandler = new PageStateHandler(audioFile, true);
     setupReplayAudio(pageStateHandler);
     const buttonContainer = document.getElementById('jspsych-audio-multi-response-btngroup') as HTMLDivElement;
     const responseBtns = Array.from(buttonContainer.children)
@@ -230,7 +241,8 @@ export const afcMatch = {
     selectedCards = [];
     selectedCardIdxs = [];
 
-    if ((taskStore().numIncorrect >= taskStore().maxIncorrect)) {
+    // if heavy instructions is true, show data quality screen before ending 
+    if ((taskStore().numIncorrect >= taskStore().maxIncorrect) && !taskStore().heavyInstructions) {
       finishExperiment();
     }
   },

@@ -11,7 +11,7 @@ import {
 } from '../helpers/utils';
 import shuffle from 'lodash/shuffle';
 import { finishExperiment } from '../../shared/trials';
-import { taskStore } from '../../shared/helpers';
+import { taskStore } from '../../../taskStore';
 
 /**
  *TODO: we should perhaps allow {@link https://www.jspsych.org/7.2/overview/media-preloading/#automatic-preloading automatic preload}

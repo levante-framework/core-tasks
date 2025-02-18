@@ -4,8 +4,8 @@ import { jsPsych, isTouchScreen } from '../../taskSetup';
 import {
   arrowKeyEmojis,
   setSkipCurrentBlock,
-  taskStore,
   PageStateHandler,
+  setSentryContext,
   //@ts-ignore
 } from '../../shared/helpers';
 import { camelize } from '../../shared/helpers/camelize';
@@ -13,7 +13,7 @@ import _toNumber from 'lodash/toNumber';
 // @ts-ignore
 import { finishExperiment } from '../../shared/trials';
 import type { LayoutConfigTypeInference } from '../types/inferenceTypes';
-import { mediaAssets } from '../../..';
+import { taskStore } from '../../../taskStore';
 
 // Previously chosen responses for current practice trial
 let practiceResponses = [];
@@ -177,7 +177,7 @@ function addKeyHelpers(el: HTMLElement, keyIndex: number) {
 }
 
 function doOnLoad(layoutConfigMap: Record<string, LayoutConfigTypeInference>) {
-  const stim = taskStore().nextStimulus;
+  const stim = taskStore().nextStimulus as StimulusType;
   const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
   const playAudioOnLoad = itemLayoutConfig?.playAudioOnLoad;
   const pageStateHandler = new PageStateHandler(stim.audioFile, playAudioOnLoad); // this falls to nullAudio
@@ -185,6 +185,12 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigTypeInference>) {
   const isInstructionTrial = stim.trialType === 'instructions';
   // Handle the staggered buttons
   handleStaggeredButtons(itemLayoutConfig, pageStateHandler);
+  // Setup Sentry Context
+  setSentryContext({
+    itemId: stim.itemId,
+    taskName: stim.task,
+    pageContext: 'afcInference',
+  });
   
   if (isPracticeTrial) {
     const practiceBtns: NodeListOf<HTMLButtonElement> = document.querySelectorAll('.practice-btn');
@@ -288,7 +294,7 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
     // corpusId and itemId fields are used by ROAR but not ROAD
     if (taskStore().storeItemId) {
       jsPsych.data.addDataToLastTrial({
-        corpusId: taskStore().corpusId,
+        corpus: taskStore().corpus,
         itemId: stimulus.source + '-' + stimulus.origItemNum,
       });
     }

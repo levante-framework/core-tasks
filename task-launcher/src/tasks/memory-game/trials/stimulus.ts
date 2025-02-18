@@ -8,7 +8,8 @@ import { finishExperiment } from '../../shared/trials';
 import { mediaAssets } from '../../..';
 import { getMemoryGameType } from '../helpers/getMemoryGameType';
 //@ts-ignore
-import { taskStore, setupReplayAudio, PageAudioHandler, replayButtonSvg, PageStateHandler } from '../../shared/helpers';
+import { setupReplayAudio, PageAudioHandler, replayButtonSvg, PageStateHandler } from '../../shared/helpers';
+import { taskStore } from '../../../taskStore';
 
 type CorsiBlocksArgs = {
   mode: 'display' | 'input';
@@ -44,7 +45,7 @@ function setUpAudio(contentWrapper: HTMLDivElement, prompt: HTMLParagraphElement
 
   PageAudioHandler.playAudio(audioFile, () => {
     // set up replay button audio after the first audio has played
-    const pageStateHandler = new PageStateHandler(cue);
+    const pageStateHandler = new PageStateHandler(cue, true);
     setupReplayAudio(pageStateHandler);
   });  
 }
@@ -94,6 +95,8 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false, rese
     },
     on_load: () => doOnLoad(mode, isPractice, reverse),
     on_finish: (data: any) => {
+      PageAudioHandler.stopAndDisconnectNode();
+
       jsPsych.data.addDataToLastTrial({
         audioButtonPresses: PageAudioHandler.replayPresses
       });
@@ -112,7 +115,6 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false, rese
         taskStore('isCorrect', data.correct);
 
         if (data.correct && !isPractice) {
-          taskStore('numIncorrect', 0)
           numCorrect++;
 
           if (numCorrect === 3) {
@@ -126,7 +128,7 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false, rese
           numCorrect = 0;
         }
 
-        if (taskStore().numIncorrect == taskStore().maxIncorrect) {
+        if (taskStore().numIncorrect == taskStore().maxIncorrect && reverse) {
           finishExperiment();
         }
 
@@ -216,9 +218,8 @@ function doOnLoad(mode: 'display' | 'input', isPractice: boolean, reverse: boole
           // start a timer for toast notification
           const toastTimer = setTimeout(() => {
             const toast = document.getElementById('lev-toast-default') as HTMLDivElement;
-            console.log('mark://', 'showing toast');
             toast.classList.add('show');
-          }, 10);
+          }, 10000);
 
           const hideToast = setTimeout(() => {
             const toast = document.getElementById('lev-toast-default') as HTMLDivElement;

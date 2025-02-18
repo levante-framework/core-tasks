@@ -1,12 +1,11 @@
-import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
+import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
-//@ts-ignore
-import { PageStateHandler, prepareChoices, replayButtonSvg, setupReplayAudio, taskStore, PageAudioHandler, camelize } from '../../shared/helpers';
-//@ts-ignore
+import { PageStateHandler, prepareChoices, replayButtonSvg, setupReplayAudio, PageAudioHandler, camelize } from '../../shared/helpers';
 import { finishExperiment } from '../../shared/trials';
-//@ts-ignore
 import { jsPsych } from '../../taskSetup';
 import Cypress from 'cypress';
+import { taskStore } from '../../../taskStore';
+import { handleStaggeredButtons } from '../../shared/helpers/staggerButtons';
 
 const replayButtonHtmlId = 'replay-btn-revisited'; 
 let incorrectPracticeResponses: string[] = [];
@@ -23,7 +22,13 @@ function enableBtns(btnElements: HTMLButtonElement[]) {
   btnElements.forEach((btn) => (btn.removeAttribute('disabled')));
 }
 
-function handleButtonFeedback(btn: HTMLButtonElement, cards: HTMLButtonElement[], isKeyBoardResponse: boolean, responsevalue: number) {
+function handleButtonFeedback(
+  btn: HTMLButtonElement, 
+  cards: HTMLButtonElement[], 
+  isKeyBoardResponse: boolean, 
+  responsevalue: number, 
+  correctAudio: string
+) {
   const choice = btn?.parentElement?.id || ''; 
   const answer = taskStore().correctResponseIdx.toString(); 
 
@@ -31,16 +36,7 @@ function handleButtonFeedback(btn: HTMLButtonElement, cards: HTMLButtonElement[]
   let feedbackAudio;
   if (isCorrectChoice) {
     btn.classList.add('success-shadow');
-    feedbackAudio = mediaAssets.audio.feedbackGoodJob;
-    setTimeout(
-      () => jsPsych.finishTrial({
-        response: choice,
-        incorrectPracticeResponses, 
-        button_response: !isKeyBoardResponse ? responsevalue : null,
-        keyboard_response: isKeyBoardResponse ? responsevalue : null,
-      }),
-      1000,
-    );
+    feedbackAudio = mediaAssets.audio[correctAudio];
   } else {
     btn.classList.add('error-shadow');
     feedbackAudio = mediaAssets.audio.feedbackTryAgain;
@@ -48,13 +44,26 @@ function handleButtonFeedback(btn: HTMLButtonElement, cards: HTMLButtonElement[]
     setTimeout(() => enableBtns(cards), 500);
     incorrectPracticeResponses.push(choice);
   }
-  PageAudioHandler.playAudio(feedbackAudio);
+
+  function finishTrial() {
+    jsPsych.finishTrial({
+      response: choice,
+      incorrectPracticeResponses, 
+      button_response: !isKeyBoardResponse ? responsevalue : null,
+      keyboard_response: isKeyBoardResponse ? responsevalue : null,
+    });
+  }
+
+  isCorrectChoice ? 
+  PageAudioHandler.playAudio(feedbackAudio, finishTrial) :
+  PageAudioHandler.playAudio(feedbackAudio)
 }
 
-export const stimulus = {
-  type: jsPsychAudioMultiResponse,
+export const stimulus = (trial?: StimulusType) => {
+  return {
+  type: jsPsychHtmlMultiResponse,
   data: () => {
-    const stim = taskStore().nextStimulus;
+    const stim = trial || taskStore().nextStimulus;
     let isPracticeTrial = stim.assessmentStage === 'practice_response';
     return {
       save_trial: stim.assessmentStage !== 'instructions',
@@ -64,12 +73,12 @@ export const stimulus = {
     };
   },
   stimulus: () => {
-    const stimulusAudio = taskStore().nextStimulus.audioFile;
-    return mediaAssets.audio[camelize(stimulusAudio)];
-  },
-  prompt: () => {
-    const stim = taskStore().nextStimulus;
-    const prompt = camelize(stim.audioFile);
+    const stim = trial || taskStore().nextStimulus;
+    let prompt = camelize(stim.audioFile);
+    if (taskStore().heavyInstructions && stim.assessmentStage !== "practice_response" && stim.trialType !== "instructions") {
+      prompt += "Heavy";
+    }
+
     const t = taskStore().translations;
     return (
       `<div class="lev-stimulus-container">
@@ -127,8 +136,8 @@ export const stimulus = {
   },
   prompt_above_buttons: true,
   button_choices: () => {
-    const stim = taskStore().nextStimulus;
-    if (stim.assessmentStage === 'instructions') {
+    const stim = trial || taskStore().nextStimulus;
+    if (stim.trialType === 'instructions' || stim.trialType == "something-same-1") {
       return ['OK'];
     } else {
       // Randomize choices if there is an answer
@@ -137,25 +146,34 @@ export const stimulus = {
     }
   },
   button_html: () => {
-    const stim = taskStore().nextStimulus;
-    const buttonClass = stim.assessmentStage === 'instructions'
-      ?'primary'
+    const stim = trial || taskStore().nextStimulus;
+    const buttonClass = (stim.trialType === 'instructions') || (stim.trialType === "something-same-1")
+      ? 'primary'
       : 'image-medium';
     return `<button class="${buttonClass}">%choice%</button>`;
   },
-  response_ends_trial: () => !(
-    taskStore().nextStimulus.trialType === 'test-dimensions' || taskStore().nextStimulus.assessmentStage === 'practice_response'
-  ),
+  response_ends_trial: () => {
+    const stim = trial || taskStore().nextStimulus;
+    return !(stim.trialType === 'test-dimensions' || (stim.assessmentStage === 'practice_response' && stim.trialType !== "something-same-1")); 
+  },
   on_load: () => {
     startTime = performance.now();
-    const audioFile = taskStore().nextStimulus.audioFile;
-    const pageStateHandler = new PageStateHandler(audioFile);
+    const stimulus = trial || taskStore().nextStimulus;
+    let audioFile = stimulus.audioFile;
+    if (taskStore().heavyInstructions && stimulus.assessmentStage !== "practice_response" && stimulus.trialType !== "instructions") {
+      audioFile += "-heavy";
+    }
+
+    PageAudioHandler.playAudio(mediaAssets.audio[camelize(audioFile)]);
+
+    const pageStateHandler = new PageStateHandler(audioFile, true);
     setupReplayAudio(pageStateHandler);
-    const buttonContainer = document.getElementById('jspsych-audio-multi-response-btngroup') as HTMLDivElement;
+    const buttonContainer = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
     buttonContainer.classList.add('lev-response-row');
     buttonContainer.classList.add('multi-4');
-    const trialType = taskStore().nextStimulus.trialType; 
-    const assessmentStage = taskStore().nextStimulus.assessmentStage;
+
+    const trialType = stimulus.trialType; 
+    const assessmentStage = stimulus.assessmentStage;
 
     // if the task is running in a cypress test, the correct answer should be indicated with 'correct' class
     if (window.Cypress && trialType !== 'something-same-1') {
@@ -165,25 +183,44 @@ export const stimulus = {
         if (imgAlt === taskStore().nextStimulus.answer) {
           button.classList.add('correct');
         }
-      });
+      })
+    };
+
+    if (stimulus.trialType === 'something-same-2' && taskStore().heavyInstructions) {
+      handleStaggeredButtons(
+        pageStateHandler, 
+        buttonContainer, 
+        ['same-different-selection-highlight-1', 'same-different-selection-highlight-2'],
+      );
     }
     
-    if (trialType === 'test-dimensions' || assessmentStage === 'practice_response'){ // cards should give feedback during test dimensions block
+    if (trialType === 'test-dimensions' || (assessmentStage === 'practice_response' && trialType !== "something-same-1")){ // cards should give feedback during test dimensions block
       const practiceBtns = Array.from(buttonContainer.children)
         .map(btnDiv => btnDiv.firstChild)
         .filter(btn => !!btn) as HTMLButtonElement[];
+
+      let correctAudio; 
+      if (stimulus.itemId === "sds-something-same-1-test-heavy") {
+        correctAudio = "sdsFeedbackBothBlue";
+      } else if (stimulus.itemId === "sds-something-same-2-test-heavy") {
+        correctAudio = "sdsFeedbackBothLarge";
+      } else {
+        correctAudio = "feedbackGoodJob"
+      }
+      
       practiceBtns.forEach((card, i) =>
         card.addEventListener('click', async (e) => {
-
-          handleButtonFeedback(card, practiceBtns, false, i);
+          handleButtonFeedback(card, practiceBtns, false, i, correctAudio);
         })
       )
     }
   },
   on_finish: (data: any) => {
-    const stim = taskStore().nextStimulus;
+    const stim = trial || taskStore().nextStimulus;
     const choices = taskStore().choices;
     const endTime = performance.now();
+
+    PageAudioHandler.stopAndDisconnectNode();
 
     jsPsych.data.addDataToLastTrial({
       audioButtonPresses: PageAudioHandler.replayPresses
@@ -229,9 +266,11 @@ export const stimulus = {
         })
       }
 
-      if ((taskStore().numIncorrect >= taskStore().maxIncorrect)) {
+      // if heavy instructions is true, show data quality screen before ending 
+      if ((taskStore().numIncorrect >= taskStore().maxIncorrect) && !taskStore().heavyInstructions) {
         finishExperiment();
       }
     }
+}
 }
 };

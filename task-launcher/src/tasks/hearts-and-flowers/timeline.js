@@ -1,11 +1,12 @@
 // setup
 import { jsPsych } from '../taskSetup';
 import { fixation } from './trials/fixation';
-import { initTrialSaving, initTimeline, createPreloadTrials, taskStore } from '../shared/helpers';
+import { initTrialSaving, initTimeline, createPreloadTrials } from '../shared/helpers';
 import { mediaAssets } from '../..';
+import { taskStore } from '../../taskStore';
 
 // trials
-import { exitFullscreen } from '../shared/trials';
+import { exitFullscreen, enterFullscreen, finishExperiment } from '../shared/trials';
 import { stimulus, buildHeartsOrFlowersTimelineVariables, buildMixedTimelineVariables } from './trials/stimulus';
 import {
   buildInstructionPracticeTrial,
@@ -28,7 +29,7 @@ export default function buildHeartsAndFlowersTimeline(config, mediaAssets) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
 
   initTrialSaving(config);
-  const initialTimeline = initTimeline(config);
+  const initialTimeline = initTimeline(config, enterFullscreen, finishExperiment);
 
   // TODO: parse from user input
   const timelineAdminConfig = {
