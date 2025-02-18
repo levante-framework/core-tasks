@@ -21,6 +21,7 @@ import introTimeline from './intro/timeline';
 import tROGTimeline from './trog/timeline';
 // @ts-ignore
 import inferenceTimeline from './roar-inference/timeline';
+import adultReasoningTimeline from './adult-reasoning/timeline'
 
 // TODO: Abstract to import config from specifc task folder
 // Will allow for multiple devs to work on the repo without merge conflicts
@@ -112,4 +113,11 @@ export default {
       },
     },
   },
+  adultReasoning: {
+    setConfig: setSharedConfig,
+    getCorpus: getCorpus,
+    getTranslations: getTranslations,
+    buildTaskTimeline: adultReasoningTimeline,
+    variants: {},
+  }
 };
