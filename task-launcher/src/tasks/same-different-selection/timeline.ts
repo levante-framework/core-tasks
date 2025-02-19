@@ -8,6 +8,7 @@ import { initializeCat } from '../taskSetup';
 import { dataQualityScreen } from '../shared/trials/dataQuality';
 import {
   setupStimulus,
+  fixationOnly,
   exitFullscreen,
   taskFinished,
   feedback,
@@ -50,6 +51,7 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
   const ipBlock = (trial: StimulusType) => {
     return {
       timeline: [
+        {...fixationOnly, stimulus: ''}, 
         stimulus(trial)
       ]
     }

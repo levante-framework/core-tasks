@@ -54,6 +54,7 @@ function handleButtonFeedback(
     });
   }
 
+  PageAudioHandler.stopAndDisconnectNode(); // disconnect first to avoid overlap
   isCorrectChoice ? 
   PageAudioHandler.playAudio(feedbackAudio, finishTrial) :
   PageAudioHandler.playAudio(feedbackAudio)
