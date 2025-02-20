@@ -220,8 +220,8 @@ export const afcMatch = {
           previousSelections.forEach((item: string[]) => {
             // check that most recent selection does not have the same cards as a previous selection (even in reverse)
             if (
-              selections[0] == item[0] && selections[1] == item[1] ||
-              selections[1] == item[0] && selections[0] == item[1]
+              selections[0] === item[0] && selections[1] === item[1] ||
+              selections[1] === item[0] && selections[0] === item[1]
             ) {
               hasNewSelection = false; 
             }
