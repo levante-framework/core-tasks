@@ -4,7 +4,15 @@ import { initTrialSaving, initTimeline, createPreloadTrials, prepareCorpus, sele
 import { jsPsych, initializeCat, cat } from '../taskSetup';
 // trials
 // @ts-ignore
-import { afcStimulusTemplate, exitFullscreen, setupStimulus, fixationOnly, taskFinished, enterFullscreen, finishExperiment } from '../shared/trials';
+import { 
+  afcStimulusTemplate, 
+  exitFullscreen, 
+  setupStimulus, 
+  fixationOnly, 
+  taskFinished, 
+  enterFullscreen, 
+  finishExperiment
+} from '../shared/trials';
 import { getLayoutConfig } from './helpers/config';
 import { taskStore } from '../../taskStore';
 
@@ -48,7 +56,7 @@ export default function buildVocabTimeline(config: Record<string, any>, mediaAss
 
   const stimulusBlock = {
     timeline: [
-      setupStimulus,
+      {...setupStimulus, stimulus: ''},
       afcStimulusTemplate(trialConfig)
     ],
     // true = execute normally, false = skip
@@ -72,19 +80,20 @@ export default function buildVocabTimeline(config: Record<string, any>, mediaAss
 
     // instruction block (non-cat)
     corpora.ipLight.forEach((trial: StimulusType) => {
-      timeline.push(fixationOnly); 
+      timeline.push({...fixationOnly, stimulus: ''},); 
       timeline.push(afcStimulusTemplate(trialConfig, trial)); 
     });
 
     // push in starting block
     corpora.start.forEach((trial: StimulusType) => {
-      timeline.push(fixationOnly); 
+      timeline.push({...fixationOnly, stimulus: ''},); 
       timeline.push(afcStimulusTemplate(trialConfig, trial)); 
     });
 
     // cat block
     const numOfCatTrials = corpora.cat.length;
     for (let i = 0; i < numOfCatTrials; i++) {
+      timeline.push({...setupStimulus, stimulus: ''});
       timeline.push(stimulusBlock);
     }
   
