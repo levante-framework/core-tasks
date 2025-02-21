@@ -106,9 +106,11 @@ const transformCSV = (csvInput: ParsedRowType[], numOfPracticeTrials: number, se
         if (row.task === 'roar-inference') {
           return row.response_alternatives.split(',').map((alt) => alt.replace(/"/g, ''));
         } else {
-          return containsLettersOrSlash(row.response_alternatives)
-            ? row.response_alternatives.split(',')
-            : stringToNumberArray(row.response_alternatives);
+          return (
+            containsLettersOrSlash(row.response_alternatives) || 
+            (row.task === 'adult-reasoning' && (row.response_alternatives).includes(";")))
+              ? row.response_alternatives.split(',')
+              : stringToNumberArray(row.response_alternatives);
         }
       })(),
       audioFile: row.audio_file,
@@ -196,6 +198,7 @@ export const getCorpus = async (config: Record<string, any>) => {
     theoryOfMind: `https://storage.googleapis.com/${task}/shared/corpora/${corpus}.csv`,
     vocab: `https://storage.googleapis.com/vocab-test/shared/corpora/${corpus}.csv`,
     roarInference: `https://storage.googleapis.com/roar-inference/en/corpora/${corpus}.csv`,
+    adultReasoning: `https://storage.googleapis.com/egma-math/shared/corpora/${corpus}.csv`
   };
 
   function downloadCSV(url: string) {
