@@ -27,7 +27,12 @@ let startTime: number;
 
 function setUpAudio(responseType: string) {
   const cue = responseType === 'button' ? 'numberLinePrompt1' : 'numberLineSliderPrompt1';
-  const audioFile = mediaAssets.audio[cue] || '';
+
+  // mute repetitive audio
+  const recentAudio = taskStore().recentAudio; 
+  const playAudio = !(recentAudio.every((item: string) => cue === camelize(item))) || recentAudio.length === 0;
+
+  const audioFile = playAudio ? (mediaAssets.audio[cue] || '') : mediaAssets.audio.nullAudio; 
   
   PageAudioHandler.playAudio(audioFile, () => {
     // set up replay button audio after the first audio has played
@@ -249,6 +254,8 @@ export const slider = (trial?: StimulusType) => {
 
   },
   on_finish: (data: any) => {
+    PageAudioHandler.stopAndDisconnectNode();
+
     // Need to remove event listener after trial completion or they will stack and cause an error.
     document.removeEventListener('keydown', captureBtnValue);
     const endTime = performance.now();
@@ -274,6 +281,14 @@ export const slider = (trial?: StimulusType) => {
         updateTheta(stimulus, data.correct); 
       }
     }
+
+     // store the last 2 audio files played
+     let recentAudio = taskStore().recentAudio; 
+     recentAudio.push(stimulus.audioFile); 
+     if (recentAudio.length > 2) {
+       recentAudio.shift();
+     }
+     taskStore("recentAudio", recentAudio);
 
     const response = chosenAnswer;
     const responseType = stimulus.trialType.includes('4afc') ? 'button' : 'slider';
