@@ -59,7 +59,6 @@ const cat = stringToBoolean(urlParams.get('cat'), false);
 const heavyInstructions = stringToBoolean(urlParams.get('heavyInstructions'), false); 
 
 async function startWebApp() {
-  // @ts-ignore
   const appKit = await initializeFirebaseProject(firebaseConfig, 'assessmentApp', 'none');
 
   onAuthStateChanged(appKit.auth, (user) => {

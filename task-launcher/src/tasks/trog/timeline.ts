@@ -3,7 +3,16 @@ import 'regenerator-runtime/runtime';
 import { initTrialSaving, initTimeline, createPreloadTrials } from '../shared/helpers';
 import { jsPsych, initializeCat, cat } from '../taskSetup';
 // trials
-import { afcStimulusTemplate, exitFullscreen, fixationOnly, setupStimulus, taskFinished, enterFullscreen, finishExperiment } from '../shared/trials';
+import { 
+  afcStimulusTemplate, 
+  exitFullscreen, 
+  fixationOnly, 
+  setupStimulus, 
+  taskFinished, 
+  enterFullscreen, 
+  finishExperiment, 
+  practiceTransition 
+} from '../shared/trials';
 import { getLayoutConfig } from './helpers/config';
 import { prepareCorpus, selectNItems } from '../shared/helpers/prepareCat';
 import { taskStore } from '../../taskStore';
@@ -48,8 +57,7 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
   };
 
   const stimulusBlock = {
-    timeline: [
-      setupStimulus, 
+    timeline: [ 
       afcStimulusTemplate(trialConfig)
     ],
     // true = execute normally, false = skip
@@ -71,19 +79,25 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
 
     // instruction block (non-cat)
     corpora.ipLight.forEach((trial: StimulusType) => {
-      timeline.push(fixationOnly); 
+      timeline.push({...fixationOnly, stimulus: ''}); 
       timeline.push(afcStimulusTemplate(trialConfig, trial)); 
     });
 
+    // push in practice transition
+    if (corpora.ipLight.length > 0) {
+      timeline.push(practiceTransition);
+    }
+
     // push in starting block
     corpora.start.forEach((trial: StimulusType) => {
-      timeline.push(fixationOnly); 
+      timeline.push({...fixationOnly, stimulus: ''}); 
       timeline.push(afcStimulusTemplate(trialConfig, trial)); 
     });
 
     // cat block
     const numOfCatTrials = corpora.cat.length;
     for (let i = 0; i < numOfCatTrials; i++) {
+      timeline.push({...setupStimulus, stimulus: ''});
       timeline.push(stimulusBlock);
     }
   
@@ -98,6 +112,8 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
   } else {
     const numOfTrials = taskStore().totalTrials;
     for (let i = 0; i < numOfTrials; i++) {
+      timeline.push({...setupStimulus, stimulus: ''}); 
+      timeline.push(practiceTransition);
       timeline.push(stimulusBlock);
     }
   }

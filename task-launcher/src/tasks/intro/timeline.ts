@@ -2,7 +2,6 @@ import 'regenerator-runtime/runtime';
 // setup
 import { initTrialSaving, initTimeline, createPreloadTrials } from '../shared/helpers';
 import { instructions } from './trials/instructions';
-// @ts-ignore
 import { jsPsych } from '../taskSetup';
 // trials
 import { enterFullscreen, exitFullscreen, finishExperiment, taskFinished } from '../shared/trials';

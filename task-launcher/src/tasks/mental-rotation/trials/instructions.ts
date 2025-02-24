@@ -1,8 +1,6 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
-// @ts-ignore
 import { replayButtonSvg, PageStateHandler, PageAudioHandler, setupReplayAudio } from '../../shared/helpers';
-// @ts-ignore
 import { jsPsych } from '../../taskSetup';
 import { taskStore } from '../../../taskStore';
 

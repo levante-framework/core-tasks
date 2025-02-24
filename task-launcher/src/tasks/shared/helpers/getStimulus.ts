@@ -29,6 +29,13 @@ export const getStimulus = (corpusType: string, blockNumber?: number) => {
   // store the item for use in the trial
   taskStore('nextStimulus', itemSuggestion.nextStimulus);
 
+  if (
+    itemSuggestion.nextStimulus.assessmentStage === "practice_response" || 
+    itemSuggestion.nextStimulus.trialType === "instructions"
+  ) {
+    taskStore("testPhase", false); 
+  }
+
   // update the corpus with the remaining unused items
   blockNumber != undefined ? 
     corpus[corpusType][blockNumber] = itemSuggestion.remainingStimuli :

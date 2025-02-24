@@ -4,7 +4,6 @@ import {
   dashToCamelCase, 
   showLevanteLogoLoading, 
   hideLevanteLogoLoading, 
-  // @ts-ignore
 } from './tasks/shared/helpers';
 import './styles/index.scss';
 import taskConfig from './tasks/taskConfig';

@@ -1,25 +1,15 @@
-// @ts-ignore
 import { getCorpus, setSharedConfig, getTranslations } from './shared/helpers';
-// @ts-ignore
 import mathTimeline from './math/timeline';
-// @ts-ignore
 import matrixTimeline from './matrix-reasoning/timeline';
-// @ts-ignore
 import mentalRotationTimeline from './mental-rotation/timeline';
 // @ts-ignore
 import heartsAndFlowersTimeline from './hearts-and-flowers/timeline';
-// @ts-ignore
 import memoryGameTimeline from './memory-game/timeline';
-// @ts-ignore
 import sameDifferentSelectionTimeline from './same-different-selection/timeline';
-// @ts-ignore
 import vocabTimeline from './vocab/timeline';
-// @ts-ignore
 import tomTimeline from './theory-of-mind/timeline';
-// @ts-ignore
 import introTimeline from './intro/timeline';
 import tROGTimeline from './trog/timeline';
-// @ts-ignore
 import inferenceTimeline from './roar-inference/timeline';
 import adultReasoningTimeline from './adult-reasoning/timeline'
 

@@ -9,7 +9,7 @@ export function clickThroughInstructions(){
       cy.get('.jspsych-content').then((content) => {
         const okButton = content.find('.primary');
         if (okButton.length > 0) {
-          cy.contains('OK').click({timeout: 60000}); 
+          cy.get('.primary').click({timeout: 60000}); 
           clickThroughInstructions();
         } else {
           return; 
@@ -41,7 +41,9 @@ function selectAnswers(correctFlag, buttonClass){
         cy.get('.correct').click({timeout: 30000}); // add timeout to handle staggered buttons
       }
 
-      selectAnswers(correctFlag, buttonClass);  
+      cy.get('.lev-stimulus-container').should('not.exist').then(() => {
+        selectAnswers(correctFlag, buttonClass);  
+      });
 
     } else {
       cy.contains('Thank you!').should('exist');

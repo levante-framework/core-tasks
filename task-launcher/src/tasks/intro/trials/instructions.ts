@@ -1,8 +1,6 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
-// @ts-ignore
 import { isTouchScreen, jsPsych } from '../../taskSetup';
 import { mediaAssets } from '../../..';
-// @ts-ignore
 import { PageAudioHandler, PageStateHandler, replayButtonSvg, setupReplayAudio } from '../../shared/helpers';
 import { taskStore } from '../../../taskStore';
 

@@ -3,7 +3,14 @@ import 'regenerator-runtime/runtime';
 import { initTrialSaving, initTimeline, createPreloadTrials } from '../shared/helpers';
 import { jsPsych, initializeCat } from '../taskSetup';
 // trials
-import { afcStimulusTemplate, exitFullscreen, setupStimulus, taskFinished, enterFullscreen, finishExperiment } from '../shared/trials';
+import { 
+  afcStimulusTemplate, 
+  exitFullscreen, 
+  setupStimulus, 
+  taskFinished, 
+  enterFullscreen, 
+  finishExperiment
+} from '../shared/trials';
 import { getLayoutConfig } from './helpers/config';
 import { taskStore } from '../../taskStore';
 
@@ -59,7 +66,7 @@ export default function buildTOMTimeline(config: Record<string, any>, mediaAsset
 
   const numOfTrials = taskStore().totalTrials;
   for (let i = 0; i < numOfTrials; i++) {
-    timeline.push(setupStimulus);
+    timeline.push({...setupStimulus, stimulus: ''});
     timeline.push(stimulusBlock);
   }
 

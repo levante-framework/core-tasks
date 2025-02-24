@@ -4,7 +4,17 @@ import { initTrialSaving, initTimeline, createPreloadTrials } from '../shared/he
 import { instructions } from './trials/instructions';
 import { jsPsych, initializeCat, cat } from '../taskSetup';
 // trials
-import { afcStimulusTemplate, exitFullscreen, setupStimulus, fixationOnly, taskFinished, getAudioResponse, enterFullscreen, finishExperiment } from '../shared/trials';
+import { 
+  afcStimulusTemplate, 
+  exitFullscreen, 
+  setupStimulus, 
+  fixationOnly, 
+  taskFinished, 
+  getAudioResponse, 
+  enterFullscreen, 
+  finishExperiment, 
+  practiceTransition 
+} from '../shared/trials';
 import { getLayoutConfig } from './helpers/config';
 import { repeatInstructionsMessage } from '../shared/trials/repeatInstructions';
 import { prepareCorpus, selectNItems } from '../shared/helpers/prepareCat';
@@ -65,7 +75,8 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
 
   const stimulusBlock = {
     timeline: [
-      setupStimulus,
+      {...setupStimulus, stimulus: ''},
+      practiceTransition,
       afcStimulusTemplate(trialConfig), 
       ifRealTrialResponse
     ],
@@ -101,6 +112,11 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
       timeline.push(fixationOnly); 
       timeline.push(afcStimulusTemplate(trialConfig, trial)); 
     });
+
+    // push in practice transition
+    if (corpora.ipLight.length > 0) {
+      timeline.push(practiceTransition);
+    }
 
     // push in starting block
     corpora.start.forEach((trial: StimulusType) => {

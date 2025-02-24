@@ -4,7 +4,18 @@ import store from 'store2';
 import { initTrialSaving, initTimeline, createPreloadTrials, prepareCorpus, prepareMultiBlockCat } from '../shared/helpers';
 import { jsPsych, initializeCat } from '../taskSetup';
 import { slider } from './trials/sliderStimulus';
-import { afcStimulusTemplate, enterFullscreen, exitFullscreen, finishExperiment, getAudioResponse, setupStimulus, fixationOnly, setupStimulusFromBlock, taskFinished } from '../shared/trials';
+import { 
+  afcStimulusTemplate, 
+  enterFullscreen, 
+  exitFullscreen, 
+  finishExperiment, 
+  getAudioResponse, 
+  setupStimulus, 
+  fixationOnly, 
+  setupStimulusFromBlock, 
+  taskFinished, 
+  practiceTransition
+} from '../shared/trials';
 import { getLayoutConfig } from './helpers/config';
 import { taskStore } from '../../taskStore';
 
@@ -148,6 +159,9 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
         timeline.push(afcStimulusTemplate(trialConfig, trial));
       });
 
+      // practice transition screen
+      timeline.push(practiceTransition);
+
       // push in random items at start of first block (after practice trials)
       if (i === 0) {
         fullCorpus.start.forEach(trial => 
@@ -181,6 +195,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
     const numOfTrials = taskStore().totalTrials;
     for (let i = 0; i < numOfTrials; i++) {
       timeline.push({...setupStimulus, stimulus: ''});
+      timeline.push(practiceTransition); 
       timeline.push(stimulusBlock());
     }
   }
