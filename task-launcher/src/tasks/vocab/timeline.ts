@@ -3,7 +3,6 @@ import 'regenerator-runtime/runtime';
 import { initTrialSaving, initTimeline, createPreloadTrials, prepareCorpus, selectNItems } from '../shared/helpers';
 import { jsPsych, initializeCat, cat } from '../taskSetup';
 // trials
-// @ts-ignore
 import { 
   afcStimulusTemplate, 
   exitFullscreen, 

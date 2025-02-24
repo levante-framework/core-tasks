@@ -1,6 +1,5 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
-// @ts-ignore
 import { replayButtonSvg, PageStateHandler, setupReplayAudio, PageAudioHandler } from '../helpers';
 import { taskStore } from '../../../taskStore';
 
@@ -63,7 +62,6 @@ export const practiceTransition = {
         taskStore().nextStimulus.assessmentStage != "practice_response" && 
         !taskStore().testPhase; 
 
-        console.log(runTrial);
         if (runTrial) {
             taskStore("testPhase", true)
         }

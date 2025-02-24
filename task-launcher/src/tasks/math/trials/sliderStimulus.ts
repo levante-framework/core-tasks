@@ -1,11 +1,9 @@
 import HTMLSliderResponse from '@jspsych/plugin-html-slider-response';
 import _shuffle from 'lodash/shuffle';
 import _toNumber from 'lodash/toNumber';
-//@ts-ignore
 import { jsPsych, isTouchScreen, cat } from '../../taskSetup';
 //@ts-ignore
 import { camelize } from '@bdelab/roar-utils';
-//@ts-ignore
 import { 
   arrowKeyEmojis, 
   setSkipCurrentBlock, 

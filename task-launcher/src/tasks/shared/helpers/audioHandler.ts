@@ -1,4 +1,3 @@
-//@ts-ignore
 import { jsPsych } from '../../taskSetup';
 
 export class PageAudioHandler {
