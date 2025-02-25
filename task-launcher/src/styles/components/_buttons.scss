@@ -81,12 +81,12 @@ button {
     border-color: $bg-accent_secondary;
     box-shadow: $button-secondary-box-shadow $bg-accent_secondary inset,
       $button-secondary-inner-shadow $bg-button-secondary inset;
-    font-size: $font-size-l;
+    font-size: $font-size-lm;
     width: 2.5 * $font-size-l;
     height: 2.5 * $font-size-l;
 
     @include respond-to('small-medium') {
-      font-size: $font-size-m;
+      font-size: $font-size-ms;
       font-weight: $font-weight-normal;
       border-radius: $button-default-border-radius-small;
       width: 2.4 * $font-size-m;
@@ -150,6 +150,38 @@ button {
       border-color: $border-button-green-clicked;
       box-shadow: $button-secondary-box-shadow $border-button-green-clicked inset,
         $button-secondary-inner-shadow $bg-green-gradient inset;
+    }
+  }
+
+  &.secondary--wide {
+    @extend .button-base;
+    background: $bg-button-primary;
+    padding: $button-primary-padding;
+    border-color: $bg-accent_secondary;
+    box-shadow: $button-default-box-shadow rgba($bg-accent_secondary, 0.5) inset;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-dark;
+    color: $txt-white;
+
+    @include respond-to('small') {
+      font-size: $font-size-xxs;
+      font-weight: $font-weight-normal;
+      color: $txt-white;
+      padding: $button-primary-padding-small;
+      border-radius: $button-default-border-radius-small;
+    }
+
+    &:hover {
+      background: $bg-button-primary-hover;
+      border-color: $border-button-primary-hover;
+      box-shadow: $bg-button-secondary inset;
+    }
+
+    &:active {
+      background: $bg-button-primary-clicked;
+      border-color: $border-button-primary-clicked;
+      box-shadow: $button-secondary-box-shadow $border-button-primary-clicked inset,
+        $button-secondary-inner-shadow $bg-button-secondary inset;
     }
   }
 
