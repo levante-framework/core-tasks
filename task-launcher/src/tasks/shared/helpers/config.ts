@@ -52,7 +52,8 @@ const defaultCorpus: Record<string, string> = {
   trog: 'trog-item-bank',
   theoryOfMind: 'theory-of-mind-item-bank',
   vocab: 'vocab-item-bank',
-  roarInference: 'type_inference-demo-2024-11-11v3'
+  roarInference: 'type_inference-demo-2024-11-11v3', 
+  adultReasoning: 'adult-reasoning-item-bank'
 };
 
 export const setSharedConfig = async (firekit: RoarAppkit, gameParams: GameParamsType, userParams: UserParamsType): Promise<TaskStoreDataType> => {
