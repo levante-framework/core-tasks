@@ -25,6 +25,7 @@ import store from 'store2';
  * @property {Object} corpora - Object containing the corpus data (stimulus).
  * @property {Object} translations - Object containing the translations.
  * @property {Object} nextStimulus - Object containing the next stimulus.
+ * @property {Array} recentAudio - Contains the 3 most recent audio files played. 
  * ------- AFC and SDS only -------
  * @property {string} target - Target item.
  * @property {Array} choices - List of choices.
@@ -109,6 +110,7 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     stimulusPosition: 0,
     isCorrect: false,
     inferenceNumStories: config.inferenceNumStories,
+    recentAudio: [],
   });
 };
 

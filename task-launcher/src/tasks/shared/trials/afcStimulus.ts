@@ -47,7 +47,11 @@ function getStimulus(layoutConfigMap: Record<string, LayoutConfigType>, trial?: 
   const stim = trial || taskStore().nextStimulus;
   const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
   if (itemLayoutConfig) {
-    const audioPath = itemLayoutConfig?.playAudioOnLoad ? camelize(stim.audioFile) : 'nullAudio';
+    // mute audio if it has already been played 3 times in a row
+    const recentAudio = taskStore().recentAudio;
+    const playAudio = !(recentAudio.every((item: string) => stim.audioFile === item)) || recentAudio.length === 0;
+
+    const audioPath = itemLayoutConfig?.playAudioOnLoad && playAudio ? camelize(stim.audioFile) : 'nullAudio';
     return mediaAssets.audio[audioPath];
   }
 }
@@ -391,6 +395,14 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
   let responseValue = null
   let target = null; 
   let responseIndex = null; 
+
+  // store the last 2 audio files played
+  let recentAudio = taskStore().recentAudio; 
+  recentAudio.push(stimulus.audioFile); 
+  if (recentAudio.length > 2) {
+    recentAudio.shift();
+  }
+  taskStore("recentAudio", recentAudio);
 
   if (stimulus.trialType !== 'instructions') {
     if (itemLayoutConfig) {
