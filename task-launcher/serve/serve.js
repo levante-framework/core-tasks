@@ -71,6 +71,8 @@ async function startWebApp() {
 
       const userParams = {
         pid,
+        birthMonth: 9, 
+        birthYear: 2001
       };
 
     const gameParams = {
