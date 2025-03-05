@@ -1,13 +1,10 @@
 import jsPsychCorsiBlocks from '@jspsych-contrib/plugin-corsi-blocks';
 import { createGrid, generateRandomSequence } from '../helpers/grid';
-//@ts-ignore
 import { jsPsych } from '../../taskSetup';
 import _isEqual from 'lodash/isEqual';
-//@ts-ignore
 import { finishExperiment } from '../../shared/trials';
 import { mediaAssets } from '../../..';
 import { getMemoryGameType } from '../helpers/getMemoryGameType';
-//@ts-ignore
 import { setupReplayAudio, PageAudioHandler, replayButtonSvg, PageStateHandler } from '../../shared/helpers';
 import { taskStore } from '../../../taskStore';
 
