@@ -1,7 +1,6 @@
 let taskCompleted = false; 
-
-// clicks 'OK' button to get through instruction trial
-export function clickThroughInstructions(){
+// recursively completes an instruction block
+export function instructions() {
   cy.get('.jspsych-content').then((content) => {
     const okButton = content.find('.primary');
 
@@ -9,18 +8,15 @@ export function clickThroughInstructions(){
       // check for end of task
       cy.get('.lev-stimulus-container').then((content) => {
         if (content.find('footer').length === 1){
-          console.log('clicking exit');
           cy.contains('Exit').click({timeout: 60000});
-          taskCompleted = true; 
+          taskCompleted = true;
           return; 
         } else {
           cy.get('.primary').click({timeout: 60000});
-          return; 
+          instructions();
         }
       });
-    } else {
-      return; 
-    }
+    } 
   });
 }
 
@@ -36,7 +32,7 @@ function selectAnswers(correctFlag, buttonClass) {
         .and('not.be.disabled')
         .click({force: true, timeout: 30000});  // add timeout to handle staggered buttons
       } else { // use correct class by default 
-        cy.get('.correct').click({timeout: 30000}); // add timeout to handle staggered buttons
+        cy.get('.correct').click({timeout: 60000}); // add timeout to handle staggered buttons
       }
 
     } else {
@@ -68,9 +64,9 @@ function taskLoop(correctFlag, buttonClass) {
 
   handleMathSlider(); 
   selectAnswers(correctFlag, buttonClass); 
-  clickThroughInstructions(); 
+  instructions(); 
 
-  cy.get('.lev-stimulus-container').should('not.exist').then(() => {
+  cy.get('.lev-stimulus-container', {timeout: 60000}).should('not.exist').then(() => {
     if (taskCompleted) {
       return; 
     } else {
