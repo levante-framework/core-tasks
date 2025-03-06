@@ -88,7 +88,7 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
       dataQualityScreen
     ], 
     conditional_function: () => {
-      return taskStore().numIncorrect >= taskStore().maxIncorrect; 
+      return (taskStore().numIncorrect >= taskStore().maxIncorrect) && heavy; 
     }
   }
 
@@ -172,7 +172,9 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
 
   initializeCat();
 
-  timeline.push(dataQualityScreen);
+  if (heavy) { 
+    timeline.push(dataQualityScreen) 
+  };
   timeline.push(taskFinished());
   timeline.push(exitFullscreen);
   return { jsPsych, timeline };
