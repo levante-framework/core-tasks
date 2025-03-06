@@ -69,7 +69,7 @@ async function startWebApp() {
       };
 
       const userParams = {
-        pid,
+        pid
       };
 
     const gameParams = {
