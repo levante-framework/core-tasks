@@ -1,7 +1,14 @@
 import 'regenerator-runtime/runtime';
 import store from 'store2';
 // setup
-import { initTrialSaving, initTimeline, createPreloadTrials, prepareCorpus, prepareMultiBlockCat } from '../shared/helpers';
+import { 
+  initTrialSaving, 
+  initTimeline, 
+  createPreloadTrials, 
+  prepareCorpus, 
+  prepareMultiBlockCat, 
+  getStimulus 
+} from '../shared/helpers';
 import { jsPsych, initializeCat } from '../taskSetup';
 import { slider } from './trials/sliderStimulus';
 import { 
@@ -95,12 +102,42 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
     }
   }
 
+  const setupBlock = {
+    timeline: [
+      {...setupStimulus, stimulus: ''}
+    ], 
+    conditional_function: () => {
+      const trialsSkipped = store.page.get("trialsSkipped");
+
+      if (trialsSkipped > 0) {
+        store.page.transact('trialsSkipped', (oldVal: number) => oldVal - 1); 
+        return false;
+      } else {
+        return true;
+      }
+    }
+  }
+
+  const interBlockGap = {
+    timeline: [
+      {...fixationOnly, stimulus: ''}
+    ], 
+    conditional_function: () => {
+      return (store.page.get('trialsSkipped') === 1);
+    }
+  }
+
   const afcStimulusBlock = (trial?: StimulusType) => {
     return {
       timeline: [
         afcStimulusTemplate(trialConfig, trial),
       ],
       conditional_function: () => {
+        const trialsSkipped = store.page.get("trialsSkipped");
+        if (trialsSkipped > 0) {
+          return false; 
+        }
+
         return !(trial || taskStore().nextStimulus).trialType?.includes('Number Line');
       },
     }
@@ -113,6 +150,12 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
         feedbackBlock(trial)
       ],
       conditional_function: () => {
+        const trialsSkipped = store.page.get("trialsSkipped");
+        
+        if (trialsSkipped > 0) {
+          return false; 
+        }
+
         return (trial || taskStore().nextStimulus).trialType?.includes('Number Line');
       },
     }
@@ -260,9 +303,10 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
 
     const numOfTrials = taskStore().totalTrials;
     for (let i = 0; i < numOfTrials; i++) {
-      timeline.push({...setupStimulus, stimulus: ''});
+      timeline.push(setupBlock);
       timeline.push(repeatSliderPracticeBlock());
-      timeline.push(practiceTransition); 
+      timeline.push(practiceTransition);
+      timeline.push(interBlockGap);  
       timeline.push(stimulusBlock());
     }
   }
