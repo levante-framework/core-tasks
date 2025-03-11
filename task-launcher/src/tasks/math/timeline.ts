@@ -240,6 +240,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
     taskStore('corpora', newCorpora); // puts all blocks into taskStore
 
     const numOfBlocks = allBlocks.length; 
+    const trialProportionsPerBlock = [2, 3, 3]; // divide by these numbers to get trials per block
     for (let i = 0; i < numOfBlocks; i++) {
       // push in block-specific instructions 
       const blockInstructions = instructions.filter(trial => {
@@ -278,7 +279,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
         );
       }
 
-      const numOfTrials = allBlocks[i].length / 2; // we want to run 50% of the trials in each block
+      const numOfTrials = (allBlocks[i].length / trialProportionsPerBlock[i]); 
       for (let j = 0; j < numOfTrials; j++) {
         timeline.push({...setupStimulusFromBlock(i), stimulus: ''}); // select only from the current block
         timeline.push(stimulusBlock());
