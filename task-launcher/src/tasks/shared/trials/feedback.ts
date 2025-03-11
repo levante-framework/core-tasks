@@ -28,7 +28,10 @@ export const feedback = (isPractice = false, correctFeedbackAudioKey: string, in
                                 promptOnIncorrect = t.memoryGameForwardPrompt;
                             }
                             break; 
-                        default: 
+                        case 'egma-math':
+                            promptOnIncorrect = t.numberLineSliderPrompt1; 
+                            break;
+                        default:
                             promptOnIncorrect = '';
                     }
 

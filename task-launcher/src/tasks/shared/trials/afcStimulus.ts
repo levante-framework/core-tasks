@@ -216,7 +216,18 @@ function handlePracticeButtonPress(
   isKeyBoardResponse: boolean,
   responsevalue: string | number,
 ) {
-  const choice = btn?.children?.length ? (btn.children[0] as HTMLImageElement).alt : btn.textContent;
+  let choice; 
+  if (stim.trialType.includes("Fraction")) {
+    // get the numbers nested inside the button in the DOM
+    const numerator = [0, 0, 0, 0, 0].reduce((el: any, index) => el.children[index], btn).textContent; 
+    const denominator = [0, 0, 0, 1, 0].reduce((el: any, index) => el.children[index], btn).textContent;
+
+    choice = numerator + "/" + denominator; 
+
+  } else {
+    choice = btn?.children?.length ? (btn.children[0] as HTMLImageElement).alt : btn.textContent;
+  }
+
   const isCorrectChoice = choice?.toString() === stim.answer?.toString();
   let feedbackAudio;
   if (isCorrectChoice) {
@@ -251,7 +262,18 @@ async function keyboardBtnFeedback(e: KeyboardEvent, practiceBtns: NodeListOf<HT
   if (allowedKeys.includes(e.key)) {
     const choice = choices[index];
     const btnClicked = Array.from(practiceBtns).find(btn => {
-      const btnOption = btn?.children?.length ? (btn.children[0] as HTMLImageElement).alt : btn.textContent;
+      let btnOption; 
+      if (stim.trialType.includes("Fraction")) {
+        // get the numbers nested inside the button in the DOM
+        const numerator = [0, 0, 0, 0, 0].reduce((el: any, index) => el.children[index], btn).textContent; 
+        const denominator = [0, 0, 0, 1, 0].reduce((el: any, index) => el.children[index], btn).textContent;
+
+        btnOption = numerator + "/" + denominator; 
+
+      } else {
+        btnOption = btn?.children?.length ? (btn.children[0] as HTMLImageElement).alt : btn.textContent;
+      }
+      
       return (btnOption || '').toString() === (choice || '')?.toString();
     });
     if (btnClicked) {
