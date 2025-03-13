@@ -95,7 +95,7 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     maxIncorrect: config.maxIncorrect,
     keyHelpers: config.keyHelpers,
     runCat: config.cat, 
-    heavyInstructions: config.heavyInstructions,
+    heavyInstructions: config.heavyInstructions || config.userMetadata.age < 6,
     semThreshold: config.semThreshold,
     startingTheta: config.startingTheta, 
     storeItemId: config.storeItemId,
