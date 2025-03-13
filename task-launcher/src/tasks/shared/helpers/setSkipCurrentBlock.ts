@@ -4,11 +4,12 @@ import { getStimulus } from './getStimulus';
 
 function skipBlock() {
     const skipBlockTrialType = store.page.get('skipCurrentBlock');
-    store.page.set('trialsSkipped', 0); 
+    taskStore('trialsSkipped', 0); 
     while (taskStore().nextStimulus.trialType === skipBlockTrialType) {
-      getStimulus("stimulus"); 
-      taskStore().nextStimulus.trialType; 
-      store.page.transact('trialsSkipped', (oldVal: number) => oldVal + 1); 
+      getStimulus("stimulus");
+      
+      const trialsSkipped = taskStore().trialsSkipped;
+      taskStore("trialsSkipped", (trialsSkipped + 1));
     }
   }
 

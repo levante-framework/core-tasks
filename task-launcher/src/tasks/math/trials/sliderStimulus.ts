@@ -13,8 +13,7 @@ import {
   PageStateHandler, 
   setSentryContext, 
   updateTheta, 
-  handlePracticeButtonPress, 
-  keyboardBtnFeedback
+  addPracticeButtonListeners
 } from '../../shared/helpers';
 import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
@@ -23,8 +22,7 @@ let chosenAnswer: number;
 let responseIdx: number; 
 let sliderStart: number;
 let keyboardResponseMap: Record<string, any> = {};
-let startTime: number; 
-let incorrectPracticeResponses: Array<string | null> = []; 
+let startTime: number;  
 let keyboardFeedbackHandler: (ev: KeyboardEvent) => void;
 let keyboardResponseHandler: (ev: KeyboardEvent) => void; 
 
@@ -84,7 +82,7 @@ function getRandomValue(max: number, avoid: number, tolerance: number = 0.1) {
   return result * max;
 }
 
-export const slider = (trial?: StimulusType) => {
+export const slider = (layoutConfigMap: Record<string, LayoutConfigType>, trial?: StimulusType) => {
   return {
   type: HTMLSliderResponse,
   data: () => {
@@ -141,6 +139,9 @@ export const slider = (trial?: StimulusType) => {
   on_load: () => {
     startTime = performance.now();
 
+    const incorrectPracticeResponses: Array<string | null> = [];
+    taskStore("incorrectPracticeResponses", incorrectPracticeResponses);
+
     const slider = document.getElementById('jspsych-html-slider-response-response') as HTMLButtonElement;
     const sliderLabels = document.getElementsByTagName('span') as HTMLCollectionOf<HTMLSpanElement>;
     Array.from(sliderLabels).forEach((el, i) => {
@@ -184,12 +185,11 @@ export const slider = (trial?: StimulusType) => {
       continueBtn.disabled = true;
       continueBtn.style.visibility = 'hidden';
 
-      const { answer, distractors } = stim;
-
-      distractors.push(answer);
+      const response = layoutConfigMap[stim.itemId].response;
+      const answer = _toNumber(response.target);
 
       taskStore('target', answer);
-      taskStore('choices', _shuffle(distractors));
+      taskStore('choices', response.values);
 
       const responseChoices = taskStore().choices;
 
@@ -200,7 +200,7 @@ export const slider = (trial?: StimulusType) => {
         btn.textContent = responseChoices[i];
 
         // flag correct answer if running in cypress
-        if (window.Cypress && (btn.textContent == answer)) {
+        if (window.Cypress && (_toNumber(btn.textContent) == answer)) {
           btn.setAttribute('aria-label', 'correct');
         }
 
@@ -259,21 +259,14 @@ export const slider = (trial?: StimulusType) => {
 
     setUpAudio(responseType); 
 
-    if (stimulus.assessmentStage === "practice_response") {
-        const practiceBtns: NodeListOf<HTMLButtonElement> = document.querySelectorAll('.practice-btn');
-    
-        practiceBtns.forEach((btn, i) =>
-          btn.addEventListener('click', async (e) => {
-            incorrectPracticeResponses = handlePracticeButtonPress(btn, stim, practiceBtns, false, i, incorrectPracticeResponses);
-          }),
-        );
-    
-        if (!isTouchScreen) {
-          keyboardFeedbackHandler = (e: KeyboardEvent) => keyboardBtnFeedback(e, practiceBtns, stim);
-          document.addEventListener('keydown', keyboardFeedbackHandler);
-        }
-      }
+    if (isPractice) {
+      let feedbackHandler; 
+      feedbackHandler = addPracticeButtonListeners(stim, isTouchScreen, layoutConfigMap?.[stim.itemId]);
 
+      if (feedbackHandler !== undefined) {
+        keyboardFeedbackHandler = feedbackHandler; 
+      }
+    }
   },
   on_finish: (data: any) => {
     const stimulus = trial || taskStore().nextStimulus;
@@ -281,7 +274,7 @@ export const slider = (trial?: StimulusType) => {
     // Need to remove event listeners after trial completion or they will stack and cause an error.
     document.removeEventListener('keydown', keyboardResponseHandler);
 
-    if (stimulus.assessmentStage === 'practice_response') {
+    if (isPractice) {
       document.removeEventListener('keydown', keyboardFeedbackHandler);
     }
     const endTime = performance.now();
@@ -289,7 +282,12 @@ export const slider = (trial?: StimulusType) => {
 
     const sliderScoringThreshold = 0.05 // proportion of maximum slider value that response must fall within to be scored correct
     if (stimulus.trialType === 'Number Line 4afc') {
-      data.correct = chosenAnswer === taskStore().target;
+      if (isPractice) {
+        data.correct = taskStore().incorrectPracticeResponses.length === 0;
+      } else {
+        data.correct = chosenAnswer === taskStore().target;
+      }
+      
     } else {
       data.correct = (Math.abs(chosenAnswer - stimulus.answer) / stimulus.item[1]) < sliderScoringThreshold;
     }
@@ -297,7 +295,7 @@ export const slider = (trial?: StimulusType) => {
     // update taskStore
     taskStore("isCorrect", data.correct);
 
-    if (!(stimulus.assessmentStage === 'practice_response')) {
+    if (!isPractice) {
       if (data.correct) {
         taskStore('numIncorrect', 0);
         taskStore.transact('totalCorrect', (oldVal: number) => oldVal + 1);

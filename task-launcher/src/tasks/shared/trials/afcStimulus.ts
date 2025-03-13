@@ -12,7 +12,8 @@ import {
   camelize,
   setSentryContext,
   handleStaggeredButtons,
-  updateTheta
+  updateTheta, 
+  addPracticeButtonListeners
 } from '../helpers';
 import { mediaAssets } from '../../..';
 import { finishExperiment } from '.';
@@ -205,83 +206,6 @@ function getButtonHtml(layoutConfigMap: Record<string, LayoutConfigType>, trial?
   }
 }
 
-function enableBtns(btnElements: NodeListOf<HTMLButtonElement>) {
-  btnElements.forEach((btn) => (btn.disabled = false));
-}
-
-function handlePracticeButtonPress(
-  btn: HTMLButtonElement,
-  stim: StimulusType,
-  practiceBtns: NodeListOf<HTMLButtonElement>,
-  isKeyBoardResponse: boolean,
-  responsevalue: string | number,
-) {
-  let choice; 
-  if (stim.trialType.includes("Fraction")) {
-    // get the numbers nested inside the button in the DOM
-    const numerator = [0, 0, 0, 0, 0].reduce((el: any, index) => el.children[index], btn).textContent; 
-    const denominator = [0, 0, 0, 1, 0].reduce((el: any, index) => el.children[index], btn).textContent;
-
-    choice = numerator + "/" + denominator; 
-
-  } else {
-    choice = btn?.children?.length ? (btn.children[0] as HTMLImageElement).alt : btn.textContent;
-  }
-
-  const isCorrectChoice = choice?.toString() === stim.answer?.toString();
-  let feedbackAudio;
-  if (isCorrectChoice) {
-    btn.classList.add('success-shadow');
-    feedbackAudio = mediaAssets.audio.feedbackGoodJob;
-    setTimeout(
-      () => jsPsych.finishTrial({
-        response: choice,
-        incorrectPracticeResponses, 
-        button_response: !isKeyBoardResponse ? responsevalue : null,
-        keyboard_response: isKeyBoardResponse ? responsevalue : null,
-      }),
-      1000,
-    );
-  } else {
-    btn.classList.add('error-shadow');
-    feedbackAudio = mediaAssets.audio.feedbackTryAgain;
-    // jspysch disables the buttons for some reason, so re-enable them
-    setTimeout(() => enableBtns(practiceBtns), 500);
-    incorrectPracticeResponses.push(choice);
-  }
-  // if there is audio playing, stop it first before playing feedback audio to prevent overlap between trials
-  PageAudioHandler.stopAndDisconnectNode();
-  PageAudioHandler.playAudio(feedbackAudio);
-}
-
-async function keyboardBtnFeedback(e: KeyboardEvent, practiceBtns: NodeListOf<HTMLButtonElement>, stim: StimulusType, itemConfig: LayoutConfigType) {
-  const allowedKeys = getKeyboardChoices(itemConfig);
-  const choices = itemConfig?.response?.values || [];
-  const index = allowedKeys.findIndex(f => f.toLowerCase() === e.key.toLowerCase())
-
-  if (allowedKeys.includes(e.key)) {
-    const choice = choices[index];
-    const btnClicked = Array.from(practiceBtns).find(btn => {
-      let btnOption; 
-      if (stim.trialType.includes("Fraction")) {
-        // get the numbers nested inside the button in the DOM
-        const numerator = [0, 0, 0, 0, 0].reduce((el: any, index) => el.children[index], btn).textContent; 
-        const denominator = [0, 0, 0, 1, 0].reduce((el: any, index) => el.children[index], btn).textContent;
-
-        btnOption = numerator + "/" + denominator; 
-
-      } else {
-        btnOption = btn?.children?.length ? (btn.children[0] as HTMLImageElement).alt : btn.textContent;
-      }
-      
-      return (btnOption || '').toString() === (choice || '')?.toString();
-    });
-    if (btnClicked) {
-      handlePracticeButtonPress(btnClicked, stim, practiceBtns, true, e.key.toLowerCase());
-    }
-  }
-}
-
 function addKeyHelpers(el: HTMLElement, keyIndex: number) {
   const { keyHelpers } = taskStore();
   if (keyHelpers && !isTouchScreen) {
@@ -302,6 +226,9 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
   PageAudioHandler.playAudio(getStimulus(layoutConfigMap, trial) || ''); 
 
   startTime = performance.now();
+
+  const incorrectPracticeResponses: Array<string | null> = [];
+  taskStore("incorrectPracticeResponses", incorrectPracticeResponses);
 
   const stim = trial || taskStore().nextStimulus as StimulusType;
   const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
@@ -346,17 +273,11 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
   const twoTrialsAgoStimulus = jsPsych.data.get().filter({ trial_index: twoTrialsAgoIndex }).values();
   
   if (isPracticeTrial) {
-    const practiceBtns: NodeListOf<HTMLButtonElement> = document.querySelectorAll('.practice-btn');
-
-    practiceBtns.forEach((btn, i) =>
-      btn.addEventListener('click', async (e) => {
-        handlePracticeButtonPress(btn, stim, practiceBtns, false, i);
-      }),
-    );
-
-    if (!isTouchScreen) {
-      keyboardFeedbackHandler = (e: KeyboardEvent) => keyboardBtnFeedback(e, practiceBtns, stim, itemLayoutConfig);
-      document.addEventListener('keydown', keyboardFeedbackHandler);
+    let feedbackHandler; 
+    feedbackHandler = addPracticeButtonListeners(stim, isTouchScreen, layoutConfigMap?.[stim.itemId]);
+    
+    if (feedbackHandler !== undefined) {
+      keyboardFeedbackHandler = feedbackHandler; 
     }
   }
 
