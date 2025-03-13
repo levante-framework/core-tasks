@@ -7,7 +7,6 @@ import {
   createPreloadTrials, 
   prepareCorpus, 
   prepareMultiBlockCat, 
-  getStimulus 
 } from '../shared/helpers';
 import { jsPsych, initializeCat } from '../taskSetup';
 import { slider } from './trials/sliderStimulus';
@@ -22,7 +21,7 @@ import {
   setupStimulusFromBlock, 
   taskFinished, 
   practiceTransition, 
-  feedback
+  feedback,
 } from '../shared/trials';
 import { getLayoutConfig } from './helpers/config';
 import { taskStore } from '../../taskStore';
@@ -107,10 +106,10 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
       {...setupStimulus, stimulus: ''}
     ], 
     conditional_function: () => {
-      const trialsSkipped = store.page.get("trialsSkipped");
+      const trialsSkipped = taskStore().trialsSkipped;
 
       if (trialsSkipped > 0) {
-        store.page.transact('trialsSkipped', (oldVal: number) => oldVal - 1); 
+        taskStore("trialsSkipped", (trialsSkipped -1)); 
         return false;
       } else {
         return true;
@@ -123,7 +122,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
       {...fixationOnly, stimulus: ''}
     ], 
     conditional_function: () => {
-      return (store.page.get('trialsSkipped') === 1);
+      return (taskStore().trialsSkipped === 1);
     }
   }
 
@@ -133,7 +132,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
         afcStimulusTemplate(trialConfig, trial),
       ],
       conditional_function: () => {
-        const trialsSkipped = store.page.get("trialsSkipped");
+        const trialsSkipped = taskStore().trialsSkipped;
         if (trialsSkipped > 0) {
           return false; 
         }
@@ -146,11 +145,11 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
   const sliderBlock = (trial?: StimulusType) => {
     return {
       timeline: [
-        slider(trial), 
+        slider(layoutConfigMap, trial), 
         feedbackBlock(trial)
       ],
       conditional_function: () => {
-        const trialsSkipped = store.page.get("trialsSkipped");
+        const trialsSkipped = taskStore().trialsSkipped;
         
         if (trialsSkipped > 0) {
           return false; 
@@ -169,7 +168,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
   const repeatSliderPracticeBlock = () => {
     let trials: any[] = []; 
     sliderPractice.forEach((trial, index) => {
-      trials.push(slider(trial)); 
+      trials.push(slider(layoutConfigMap, trial)); 
       if (index < sliderPractice.length - 1) {
         trials.push(
           {
