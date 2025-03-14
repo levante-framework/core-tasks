@@ -119,7 +119,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
 
   const interBlockGap = {
     timeline: [
-      {...fixationOnly, stimulus: ''}
+      {...fixationOnly, stimulus: '', post_trial_gap: 350}
     ], 
     conditional_function: () => {
       return (taskStore().trialsSkipped === 1);
