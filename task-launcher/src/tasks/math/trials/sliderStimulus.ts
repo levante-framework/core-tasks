@@ -333,7 +333,9 @@ export const slider = (layoutConfigMap: Record<string, LayoutConfigType>, trial?
       });
     }
   
-    setSkipCurrentBlock(stimulus.trialType);
+    if (!runCat) {
+      setSkipCurrentBlock(stimulus.trialType);
+    }
   },
   }
 };
