@@ -25,7 +25,7 @@ let startTime: number;
 
 function setUpAudio(responseType: string) {
   const cue = responseType === 'button' ? 'numberLinePrompt1' : 'numberLineSliderPrompt1';
-  const audioFile = mediaAssets.audio[cue] || '';
+  const audioFile = mediaAssets.audio[cue] || ''; 
   
   PageAudioHandler.playAudio(audioFile, () => {
     // set up replay button audio after the first audio has played
@@ -247,6 +247,8 @@ export const slider = (trial?: StimulusType) => {
 
   },
   on_finish: (data: any) => {
+    PageAudioHandler.stopAndDisconnectNode();
+
     // Need to remove event listener after trial completion or they will stack and cause an error.
     document.removeEventListener('keydown', captureBtnValue);
     const endTime = performance.now();
