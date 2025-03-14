@@ -1,7 +1,13 @@
-export const getMemoryGameType = (mode: 'input' | 'display', reverse: boolean) => {
+export const getMemoryGameType = (mode: 'input' | 'display', reverse: boolean, gridSize: number) => {
+  let memoryGameType: string;
+
   if (mode === 'input') {
-    return reverse ? 'backward' : 'forward';
+    memoryGameType = reverse ? 'backward' : 'forward';
   } else {
-    return reverse ? 'backward-training' : 'forward-training';
+    memoryGameType = reverse ? 'backward-training' : 'forward-training';
   }
+
+  memoryGameType += ("-" + gridSize);
+
+  return memoryGameType;
 }
