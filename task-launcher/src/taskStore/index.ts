@@ -32,8 +32,10 @@ import store from 'store2';
  * ------- AFC only -------
  * @property {boolean} skipCurrentTrial - Whether to skip the current trial, default is false.
  * @property {number} correctResponseIdx - Index of the correct response, starting at 0.
+ * @property {number} incorrectPracticeResponses - Number of incorrect responses to the current practice trial. 
  * ------- Math only -------
  * @property {Array} nonFractionSelections - List of non-fraction selections.
+ * @property {number} trialsSkipped - Number of trials that have been skipped while jumping to the next block.
  * ------- H&F only -------
  * @property {string} stimulus - Name of the stimulus, default is 'heart'.
  * @property {string} stimulusSide - Side of the stimulus, default is 'left'.

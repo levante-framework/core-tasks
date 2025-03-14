@@ -12,7 +12,8 @@ import {
   PageAudioHandler, 
   PageStateHandler, 
   setSentryContext, 
-  updateTheta
+  updateTheta, 
+  addPracticeButtonListeners
 } from '../../shared/helpers';
 import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
@@ -21,7 +22,9 @@ let chosenAnswer: number;
 let responseIdx: number; 
 let sliderStart: number;
 let keyboardResponseMap: Record<string, any> = {};
-let startTime: number; 
+let startTime: number;  
+let keyboardFeedbackHandler: (ev: KeyboardEvent) => void;
+let keyboardResponseHandler: (ev: KeyboardEvent) => void; 
 
 function setUpAudio(responseType: string) {
   const cue = responseType === 'button' ? 'numberLinePrompt1' : 'numberLineSliderPrompt1';
@@ -36,7 +39,7 @@ function setUpAudio(responseType: string) {
   });  
 }
 
-function captureValue(btnElement: HTMLButtonElement | null, event: Event & {key?: string}, i: number) {
+function captureValue(btnElement: HTMLButtonElement | null, event: Event & {key?: string}, i: number, isPractice: boolean) {
   let containerEl = document.getElementById('slider-btn-container') || null;
 
   if (!containerEl) {
@@ -56,14 +59,16 @@ function captureValue(btnElement: HTMLButtonElement | null, event: Event & {key?
 
   responseIdx = i; 
 
-  jsPsych.finishTrial();
+  if (!isPractice) {
+    jsPsych.finishTrial();
+  }
 }
 
 // Defining the function here since we need a reference to it to remove the event listener later
-function captureBtnValue(event: Event & {key?: string}) {
+function captureBtnValue(event: Event & {key?: string}, isPractice: boolean) {
   // record responseIdx in addition to value
   const responseIndex = event.key ? ['ArrowUp', 'ArrowLeft', 'ArrowRight', 'ArrowDown'].indexOf(event.key) : -1; 
-  responseIndex > -1 && captureValue(null, event, responseIndex);
+  responseIndex > -1 && captureValue(null, event, responseIndex, isPractice);
 }
 
 function getRandomValue(max: number, avoid: number, tolerance: number = 0.1) {
@@ -77,7 +82,7 @@ function getRandomValue(max: number, avoid: number, tolerance: number = 0.1) {
   return result * max;
 }
 
-export const slider = (trial?: StimulusType) => {
+export const slider = (layoutConfigMap: Record<string, LayoutConfigType>, trial?: StimulusType) => {
   return {
   type: HTMLSliderResponse,
   data: () => {
@@ -129,9 +134,13 @@ export const slider = (trial?: StimulusType) => {
   },
   // step: 1,
   step: 'any',
-  // response_ends_trial: true,
+  // add gap if it is a practice trial because setup trial will not be immediately after
+  post_trial_gap: () => (trial || taskStore().nextStimulus).assessmentStage === "practice_response" ? 350 : 0,
   on_load: () => {
     startTime = performance.now();
+
+    const incorrectPracticeResponses: Array<string | null> = [];
+    taskStore("incorrectPracticeResponses", incorrectPracticeResponses);
 
     const slider = document.getElementById('jspsych-html-slider-response-response') as HTMLButtonElement;
     const sliderLabels = document.getElementsByTagName('span') as HTMLCollectionOf<HTMLSpanElement>;
@@ -143,6 +152,7 @@ export const slider = (trial?: StimulusType) => {
     const { buttonLayout, keyHelpers } = taskStore();
     const stim = (trial || taskStore().nextStimulus) as StimulusType;
     const { distractors } = stim;
+    const isPractice = stim.assessmentStage === "practice_response";
 
     // Setup Sentry Context
     setSentryContext({
@@ -175,12 +185,11 @@ export const slider = (trial?: StimulusType) => {
       continueBtn.disabled = true;
       continueBtn.style.visibility = 'hidden';
 
-      const { answer, distractors } = stim;
-
-      distractors.push(answer);
+      const response = layoutConfigMap[stim.itemId].response;
+      const answer = _toNumber(response.target);
 
       taskStore('target', answer);
-      taskStore('choices', _shuffle(distractors));
+      taskStore('choices', response.values);
 
       const responseChoices = taskStore().choices;
 
@@ -191,15 +200,20 @@ export const slider = (trial?: StimulusType) => {
         btn.textContent = responseChoices[i];
 
         // flag correct answer if running in cypress
-        if (window.Cypress && (btn.textContent == answer)) {
+        if (window.Cypress && (_toNumber(btn.textContent) == answer)) {
           btn.setAttribute('aria-label', 'correct');
         }
 
         btn.classList.add('secondary');
-        btn.addEventListener('click', (e) => captureValue(btn, e, i));
+        if (stim.assessmentStage === "practice_response") {
+          btn.classList.add('practice-btn'); 
+        }
+        btn.addEventListener('click', (e) => captureValue(btn, e, i, isPractice));
+
         // To not duplicate event listeners
         if (i === 0) {
-          document.addEventListener('keydown', captureBtnValue);
+          keyboardResponseHandler = (e: KeyboardEvent) => captureBtnValue(e, isPractice);
+          document.addEventListener('keydown', keyboardResponseHandler);
         }
 
         if (!(buttonLayout === 'triple' && distractors.length !== 2)) {
@@ -243,24 +257,45 @@ export const slider = (trial?: StimulusType) => {
     const stimulus = trial || taskStore().nextStimulus; 
     const responseType = stimulus.trialType.includes('4afc') ? 'button' : 'slider';
 
-    setUpAudio(responseType)
+    setUpAudio(responseType); 
 
+    if (isPractice) {
+      let feedbackHandler; 
+      feedbackHandler = addPracticeButtonListeners(stim, isTouchScreen, layoutConfigMap?.[stim.itemId]);
+
+      if (feedbackHandler !== undefined) {
+        keyboardFeedbackHandler = feedbackHandler; 
+      }
+    }
   },
   on_finish: (data: any) => {
-    // Need to remove event listener after trial completion or they will stack and cause an error.
-    document.removeEventListener('keydown', captureBtnValue);
+    const stimulus = trial || taskStore().nextStimulus;
+    const isPractice = stimulus.assessmentStage === "practice_response"; 
+    // Need to remove event listeners after trial completion or they will stack and cause an error.
+    document.removeEventListener('keydown', keyboardResponseHandler);
+
+    if (isPractice) {
+      document.removeEventListener('keydown', keyboardFeedbackHandler);
+    }
     const endTime = performance.now();
     const runCat = taskStore().runCat; 
 
     const sliderScoringThreshold = 0.05 // proportion of maximum slider value that response must fall within to be scored correct
-    const stimulus = trial || taskStore().nextStimulus;
     if (stimulus.trialType === 'Number Line 4afc') {
-      data.correct = chosenAnswer === taskStore().target;
+      if (isPractice) {
+        data.correct = taskStore().incorrectPracticeResponses.length === 0;
+      } else {
+        data.correct = chosenAnswer === taskStore().target;
+      }
+      
     } else {
       data.correct = (Math.abs(chosenAnswer - stimulus.answer) / stimulus.item[1]) < sliderScoringThreshold;
     }
 
-    if (!(stimulus.assessmentStage === 'practice_response')) {
+    // update taskStore
+    taskStore("isCorrect", data.correct);
+
+    if (!isPractice) {
       if (data.correct) {
         taskStore('numIncorrect', 0);
         taskStore.transact('totalCorrect', (oldVal: number) => oldVal + 1);
@@ -298,7 +333,9 @@ export const slider = (trial?: StimulusType) => {
       });
     }
   
-    setSkipCurrentBlock(stimulus.trialType);
+    if (!runCat) {
+      setSkipCurrentBlock(stimulus.trialType);
+    }
   },
   }
 };
