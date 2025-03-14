@@ -428,7 +428,7 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
     audioButtonPresses: PageAudioHandler.replayPresses
   });
 
-  if (itemLayoutConfig.inCorrectTrialConfig.onIncorrectTrial === 'skip') {
+  if (itemLayoutConfig.inCorrectTrialConfig.onIncorrectTrial === 'skip' && !runCat) {
     setSkipCurrentBlock(stimulus.trialType);
   } else if ((taskStore().numIncorrect >= taskStore().maxIncorrect && !runCat)) {
     finishExperiment();
