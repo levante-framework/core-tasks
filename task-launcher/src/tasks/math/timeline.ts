@@ -42,6 +42,12 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
         if (stim.assessmentStage === 'practice_response' || stim.trialType === 'instructions') {
           return false;
         }
+
+        const trialsSkipped = taskStore().trialsSkipped;
+        if (trialsSkipped > 0) {
+          return false; 
+        }
+
         return true;
       },
     }
@@ -109,7 +115,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
       const trialsSkipped = taskStore().trialsSkipped;
 
       if (trialsSkipped > 0) {
-        taskStore("trialsSkipped", (trialsSkipped -1)); 
+        taskStore("trialsSkipped", (trialsSkipped - 1)); 
         return false;
       } else {
         return true;
