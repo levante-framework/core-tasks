@@ -5,6 +5,7 @@ import { finishExperiment } from '../../shared/trials';
 import { jsPsych } from '../../taskSetup';
 import { taskStore } from '../../../taskStore';
 import { handleStaggeredButtons } from '../../shared/helpers/staggerButtons';
+import { updateTheta } from '../../shared/helpers';
 
 
 const replayButtonHtmlId = 'replay-btn-revisited'; 
@@ -53,6 +54,9 @@ function handleButtonFeedback(
       keyboard_response: isKeyBoardResponse ? responsevalue : null,
     });
   }
+
+  // if there is audio playing, stop it first before playing feedback audio to prevent overlap between trials
+  PageAudioHandler.stopAndDisconnectNode();
 
   isCorrectChoice ? 
   PageAudioHandler.playAudio(feedbackAudio, finishTrial) :
@@ -207,6 +211,7 @@ export const stimulus = (trial?: StimulusType) => {
     const stim = trial || taskStore().nextStimulus;
     const choices = taskStore().choices;
     const endTime = performance.now();
+    const cat = taskStore().runCat;
 
     PageAudioHandler.stopAndDisconnectNode();
 
@@ -255,9 +260,29 @@ export const stimulus = (trial?: StimulusType) => {
       }
 
       // if heavy instructions is true, show data quality screen before ending 
-      if ((taskStore().numIncorrect >= taskStore().maxIncorrect) && !taskStore().heavyInstructions) {
+      if ((taskStore().numIncorrect >= taskStore().maxIncorrect) && !taskStore().heavyInstructions && !cat) {
         finishExperiment();
       }
+
+      if (cat) {
+        updateTheta(stim, isCorrect);
+      
+        const allSequentialTrials = taskStore().sequentialTrials;
+        const nextTrials = allSequentialTrials.filter((trial: StimulusType) => {
+          return (trial.trialNumber === stim.trialNumber && trial.block_index === stim.block_index); 
+        });
+
+        // manually set the next stimulus here if there are remaining trials in the block
+        if (nextTrials.length > 0) {
+          const nextStim = nextTrials[0];
+          taskStore("nextStimulus", nextStim);
+          const newSequentialTrials = allSequentialTrials.filter((trial: StimulusType) => {
+            return (trial.itemId !== nextStim.itemId);
+          });
+
+          taskStore("sequentialTrials", newSequentialTrials);
+        }
+      } 
     }
 }
 }
