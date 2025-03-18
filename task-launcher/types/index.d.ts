@@ -74,6 +74,7 @@ declare global {
     timeLimit: string;
     response_alternatives?: string;
     d?: string;
+    trialNumber?: number
   };
 
   type MediaAssetsType = {

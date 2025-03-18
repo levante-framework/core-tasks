@@ -4,6 +4,7 @@ import { jsPsych } from '../../taskSetup';
 import { prepareChoices, replayButtonSvg, setupReplayAudio, PageStateHandler, PageAudioHandler, camelize } from '../../shared/helpers';
 import { finishExperiment } from '../../shared/trials';
 import { taskStore } from '../../../taskStore';
+import { updateTheta } from '../../shared/helpers';
 
 let selectedCards: string[] = [];
 let selectedCardIdxs: number[] = [];
@@ -136,6 +137,7 @@ export const afcMatch = {
   response_ends_trial: false,
   on_finish: () => {
     const stim = taskStore().nextStimulus;
+    const cat = taskStore().runCat; 
 
     const endTime = performance.now();
     const calculatedRt = endTime - startTime; 
@@ -242,8 +244,31 @@ export const afcMatch = {
     selectedCardIdxs = [];
 
     // if heavy instructions is true, show data quality screen before ending 
-    if ((taskStore().numIncorrect >= taskStore().maxIncorrect) && !taskStore().heavyInstructions) {
+    if ((taskStore().numIncorrect >= taskStore().maxIncorrect) && !taskStore().heavyInstructions && !cat) {
       finishExperiment();
+    }
+
+    if (cat) {
+      updateTheta(stim, isCorrect);
+          
+      const allSequentialTrials = taskStore().sequentialTrials;
+      const nextTrials = allSequentialTrials.filter((trial: StimulusType) => {
+        return (
+          trial.trialNumber === stim.trialNumber && 
+          trial.trialType === stim.trialType
+        ); 
+      });
+    
+      // set the next stimulus here (rather than selecting it in a CAT) if there are remaining trials in the block
+      if (nextTrials.length > 0) {
+        const nextStim = nextTrials[0];
+          taskStore("nextStimulus", nextStim);
+          const newSequentialTrials = allSequentialTrials.filter((trial: StimulusType) => {
+            return (trial.itemId !== nextStim.itemId);
+          });
+
+          taskStore("sequentialTrials", newSequentialTrials);
+      }
     }
   },
 };
