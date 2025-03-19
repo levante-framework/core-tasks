@@ -264,7 +264,7 @@ export const stimulus = (trial?: StimulusType) => {
         finishExperiment();
       }
 
-      if (cat) {
+      if (cat && !(stim.assessmentStage === "practice_response")) {
         updateTheta(stim, isCorrect);
       
         const allSequentialTrials = taskStore().sequentialTrials;
