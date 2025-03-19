@@ -30,3 +30,4 @@ export { validateLayoutConfig } from './validateLayoutConfig';
 export { mapDistractorsToString } from './mapDistractorsToString';
 export { setSentryContext } from './setSentryContext';
 export { handleStaggeredButtons } from './staggerButtons';
+export { addPracticeButtonListeners } from './handlePracticeButtons';

@@ -2,11 +2,9 @@
  * Class that handles the page state in a singleton
  * stores the stimuli length and replay button state and modifier
  */
-//@ts-ignore
 import { jsPsych } from "../../taskSetup";
 //@ts-ignore
 import { camelize } from "@bdelab/roar-utils";
-//@ts-ignore
 import { mediaAssets } from "../../..";
 
 export class PageStateHandler {
