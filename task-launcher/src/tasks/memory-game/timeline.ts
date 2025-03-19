@@ -8,26 +8,55 @@ import { getCorsiBlocks } from './trials/stimulus';
 import { instructions, readyToPlay, reverseOrderPrompt, reverseOrderInstructions } from './trials/instructions';
 import { taskStore } from '../../taskStore';
 
+const generatePracticeTrialTimeline = (reverse: boolean, tryAgainText: string, repetitions: number) => {
+  const basicBlock = [
+    getCorsiBlocks({ mode: 'display', isPractice: true, reverse }),
+    getCorsiBlocks({ mode: 'input', isPractice: true, reverse }),
+    feedback(true, 'feedbackCorrect', tryAgainText),
+  ];
+
+  const finalTimeline = [];
+  for (let i = 0; i < repetitions; i += 1) {
+    finalTimeline.push(...basicBlock);
+  }
+  return finalTimeline;
+};
+
+const getSecondRoundPracticeTrials = (reverse: boolean, tryAgainText: string) => {
+  return ({
+    timeline: [
+      ...generatePracticeTrialTimeline(reverse, tryAgainText, 2),
+      getCorsiBlocks({ mode: 'display', isPractice: true, reverse }),
+      getCorsiBlocks({ mode: 'input', isPractice: true, reverse }),
+      {
+        timeline: [
+          feedback(true, 'feedbackCorrect', tryAgainText),
+        ],
+        conditional_function: () => {
+          return taskStore().isCorrect
+        },
+      },
+    ],
+    conditional_function: () => {
+      return !taskStore().isCorrect
+    },
+  });
+};
+
 export default function buildMemoryTimeline(config: Record<string, any>) {
   initTrialSaving(config);
   const initialTimeline = initTimeline(config, enterFullscreen, finishExperiment);
 
   const corsiBlocksPractice = {
     timeline: [
-      getCorsiBlocks({ mode: 'display', isPractice: true }),
-      getCorsiBlocks({ mode: 'input', isPractice: true }),
-      feedback(true, 'feedbackCorrect', 'memoryGameForwardTryAgain'),
+      ...generatePracticeTrialTimeline(false, 'memoryGameForwardTryAgain', 3),
     ],
-    repetitions: 3,
   };
 
   const corsiBlocksPracticeReverse = {
     timeline: [
-      getCorsiBlocks({ mode: 'display', isPractice: true, reverse: true }),
-      getCorsiBlocks({ mode: 'input', isPractice: true, reverse: true }),
-      feedback(true, 'feedbackCorrect', 'memoryGameBackwardTryAgain'),
+      ...generatePracticeTrialTimeline(true, 'memoryGameBackwardTryAgain', 3),
     ],
-    repetitions: 3,
   };
 
   const forwardTrial = {
@@ -38,7 +67,7 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
     conditional_function: () => {
       return (taskStore().numIncorrect < taskStore().maxIncorrect)
     },
-  }
+  };
 
   const corsiBlocksStimulus = {
     timeline: [
@@ -70,12 +99,14 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
     initialTimeline,
     ...instructions,
     corsiBlocksPractice,
+    getSecondRoundPracticeTrials(false, 'memoryGameForwardTryAgain'),
     readyToPlay,
     corsiBlocksStimulus,
     forwardTrialResetSeq,
     reverseOrderInstructions,
     reverseOrderPrompt,
     corsiBlocksPracticeReverse,
+    getSecondRoundPracticeTrials(true, 'memoryGameBackwardTryAgain'),
     readyToPlay,
     corsiBlocksReverse,
   ];

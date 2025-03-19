@@ -16,7 +16,7 @@
   user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
   color: #0f3cac;
   background-color: $bg-workspace-base;
-  background-image: url('../assets/levante-background.png');
+  background-image: url('https://storage.googleapis.com/tasks-shared/levante-background.png');
   background-size: cover;
 
   .jspsych-content-wrapper {
