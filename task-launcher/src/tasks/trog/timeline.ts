@@ -84,7 +84,7 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
     });
 
     // push in practice transition
-    if (corpora.ipLight.length > 0) {
+    if (corpora.ipLight.filter(trial => trial.assessmentStage === "practice_response").length > 0) {
       timeline.push(practiceTransition);
     }
 

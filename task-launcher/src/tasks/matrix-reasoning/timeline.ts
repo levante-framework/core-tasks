@@ -109,28 +109,27 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
 
     // push in instruction block
     corpora.ipLight.forEach((trial: StimulusType) => {
-      timeline.push(fixationOnly); 
+      timeline.push({...fixationOnly, stimulus: ''}); 
       timeline.push(afcStimulusTemplate(trialConfig, trial)); 
     });
 
     // push in practice transition
-    if (corpora.ipLight.length > 0) {
+    if (corpora.ipLight.filter(trial => trial.assessmentStage === "practice_response").length > 0) {
       timeline.push(practiceTransition);
     }
 
     // push in starting block
     corpora.start.forEach((trial: StimulusType) => {
-      timeline.push(fixationOnly); 
+      timeline.push({...fixationOnly, stimulus: ''}); 
       timeline.push(afcStimulusTemplate(trialConfig, trial));
       timeline.push(ifRealTrialResponse); 
     });
 
     const numOfCatTrials = corpora.cat.length;
     for (let i = 0; i < numOfCatTrials; i++) {
-      if (i === 2) {
-        timeline.push(repeatInstructions)
-      }
-      timeline.push(stimulusBlock);
+      timeline.push({...setupStimulus, stimulus: ''});
+      timeline.push(afcStimulusTemplate(trialConfig));
+      timeline.push(ifRealTrialResponse);
     }
 
     const unnormedTrials: StimulusType[] = selectNItems(corpora.unnormed, 5); 
