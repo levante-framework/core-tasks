@@ -3,9 +3,9 @@ import { mediaAssets } from '../../..';
 import { PageStateHandler, prepareChoices, replayButtonSvg, setupReplayAudio, PageAudioHandler, camelize } from '../../shared/helpers';
 import { finishExperiment } from '../../shared/trials';
 import { jsPsych } from '../../taskSetup';
+import Cypress from 'cypress';
 import { taskStore } from '../../../taskStore';
 import { handleStaggeredButtons } from '../../shared/helpers/staggerButtons';
-
 
 const replayButtonHtmlId = 'replay-btn-revisited'; 
 let incorrectPracticeResponses: string[] = [];
@@ -172,8 +172,20 @@ export const stimulus = (trial?: StimulusType) => {
     const buttonContainer = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
     buttonContainer.classList.add('lev-response-row');
     buttonContainer.classList.add('multi-4');
+
     const trialType = stimulus.trialType; 
     const assessmentStage = stimulus.assessmentStage;
+
+    // if the task is running in a cypress test, the correct answer should be indicated with 'correct' class
+    if (window.Cypress && trialType !== 'something-same-1') {
+      const responseBtns = document.querySelectorAll('.image-medium'); 
+      responseBtns.forEach((button) => {
+        const imgAlt = button.querySelector('img')?.getAttribute('alt'); 
+        if (imgAlt === taskStore().nextStimulus.answer) {
+          button.classList.add('correct');
+        }
+      })
+    };
 
     if (stimulus.trialType === 'something-same-2' && taskStore().heavyInstructions) {
       handleStaggeredButtons(
