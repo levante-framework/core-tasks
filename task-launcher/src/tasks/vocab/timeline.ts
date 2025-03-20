@@ -92,7 +92,6 @@ export default function buildVocabTimeline(config: Record<string, any>, mediaAss
     // cat block
     const numOfCatTrials = corpora.cat.length;
     for (let i = 0; i < numOfCatTrials; i++) {
-      timeline.push({...setupStimulus, stimulus: ''});
       timeline.push(stimulusBlock);
     }
   
