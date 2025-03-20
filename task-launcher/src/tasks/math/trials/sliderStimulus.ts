@@ -28,7 +28,7 @@ let keyboardResponseHandler: (ev: KeyboardEvent) => void;
 
 function setUpAudio(responseType: string) {
   const cue = responseType === 'button' ? 'numberLinePrompt1' : 'numberLineSliderPrompt1';
-  const audioFile = mediaAssets.audio[cue] || '';
+  const audioFile = mediaAssets.audio[cue] || ''; 
   
   PageAudioHandler.playAudio(audioFile, () => {
     // set up replay button audio after the first audio has played
@@ -269,6 +269,8 @@ export const slider = (layoutConfigMap: Record<string, LayoutConfigType>, trial?
     }
   },
   on_finish: (data: any) => {
+    PageAudioHandler.stopAndDisconnectNode();
+
     const stimulus = trial || taskStore().nextStimulus;
     const isPractice = stimulus.assessmentStage === "practice_response"; 
     // Need to remove event listeners after trial completion or they will stack and cause an error.
@@ -277,6 +279,7 @@ export const slider = (layoutConfigMap: Record<string, LayoutConfigType>, trial?
     if (isPractice) {
       document.removeEventListener('keydown', keyboardFeedbackHandler);
     }
+
     const endTime = performance.now();
     const runCat = taskStore().runCat; 
 
