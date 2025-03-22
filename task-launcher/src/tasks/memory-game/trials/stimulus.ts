@@ -19,7 +19,6 @@ const x = 20;
 const y = 20;
 const blockSpacing = 0.5;
 let grid: {x: number; y: number;}[];
-// CHANGE BACK TO 2
 let sequenceLength = 2;
 let generatedSequence: number[] | null;
 let selectedCoordinates: [number, number][] = [];
@@ -127,8 +126,13 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false, rese
           numCorrect = 0;
         }
 
-        if (taskStore().numIncorrect == taskStore().maxIncorrect && reverse) {
-          finishExperiment();
+        if (taskStore().numIncorrect == taskStore().maxIncorrect) {
+          if (reverse) {
+            finishExperiment();
+          } else {
+            sequenceLength = 2; 
+          }
+          
         }
 
         selectedCoordinates = [];
