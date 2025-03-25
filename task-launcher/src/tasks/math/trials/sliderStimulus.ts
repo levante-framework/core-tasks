@@ -55,17 +55,6 @@ function setUpAudio(responseType: string) {
 }
 
 function captureValue(btnElement: HTMLButtonElement | null, event: Event & {key?: string}, i: number, isPractice: boolean) {
-  // let containerEl = document.getElementById('slider-btn-container') || null;
-
-  // if (!containerEl) {
-  //   const layout = taskStore().buttonLayout;
-  //   containerEl = document.getElementsByClassName(`${layout}-layout`)[0] as HTMLButtonElement;
-  // }
-
-  // Array.from(containerEl.children).forEach((el) => {
-  //   el.children[0].id = '';
-  // });
-
   if (event?.key) {
     chosenAnswer = _toNumber(keyboardResponseMap[event.key.toLowerCase()]);
   } else {
