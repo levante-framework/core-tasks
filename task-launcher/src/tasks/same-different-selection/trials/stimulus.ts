@@ -277,7 +277,9 @@ export const stimulus = (trial?: StimulusType) => {
       }
 
       if (cat && !(stim.assessmentStage === "practice_response")) {
-        updateTheta(stim, isCorrect);
+        if (stim.trialType !== "something-same-1" && stim.trialType !== "instructions") {
+          updateTheta(stim, isCorrect);
+        }
       
         const allSequentialTrials = taskStore().sequentialTrials;
         const nextTrials = allSequentialTrials.filter((trial: StimulusType) => {

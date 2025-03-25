@@ -245,7 +245,7 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
         }
       }
     
-      const numOfTrials = count / 2; // change this based on simulation results?
+      const numOfTrials = (index === 0) ? count : count / 2; // change this based on simulation results?
       for (let i = 0; i < numOfTrials; i++) {
         timeline.push({...setupStimulusFromBlock(index), stimulus: ''});
 
