@@ -21,9 +21,9 @@ export class PageAudioHandler {
     }
   }
 
-  static async playAudio(audioUri: string, onEnded?: Function) {
+  static async playAudio(audioUri: string, onEnded?: Function, replay: boolean = false) {
     // check for repeat audio
-    if (PageAudioHandler.audioUri === audioUri) {
+    if (PageAudioHandler.audioUri === audioUri && !replay) { // don't count repeats if they are triggered by replay button
       PageAudioHandler.replays ++; 
     } else {
       PageAudioHandler.replays = 0; 
