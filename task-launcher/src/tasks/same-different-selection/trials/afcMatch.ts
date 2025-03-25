@@ -8,7 +8,7 @@ import { updateTheta } from '../../shared/helpers';
 
 let selectedCards: string[] = [];
 let selectedCardIdxs: number[] = [];
-let previousSelections: string[] = [];
+let previousSelections: string[][] = [];
 let startTime: number; 
 
 const replayButtonHtmlId = 'replay-btn-revisited';
@@ -160,11 +160,24 @@ export const afcMatch = {
       previousSelections = [];
     }
 
+    function cleanAttributes(attributes: string[]) {
+      const nonWhiteBackgrounds: string[] = ["gray", "striped", "black"]; 
+      // add in the background string if it's not there (white background)
+      if (!attributes.some((item) => nonWhiteBackgrounds.includes(item))) {
+        attributes.push("white");
+      } 
+      if (!attributes.some((item) => !isNaN(Number(item)))) {
+        attributes.splice(3, 0, "1"); 
+      }
+
+      return attributes; 
+    }
+
     // First check amongst the selections if they all share one trait
     // Second check if any previous selections used those EXACT same selections
     // At least one selection must be different from previous selections
     // (also, ignore any specified dimension -- some blocks now don't vary particular dimensions)
-    function compareSelections(selections: string[], previousSelections: string[], ignoreDims: string[]) {
+    function compareSelections(selections: string[], previousSelections: string[][], ignoreDims: string[]) {
       const dimensionIndices = {
           size: 0,
           color: 1,
@@ -186,7 +199,7 @@ export const afcMatch = {
   
           // Populate sets with values from selections
           for (const sel of selections) {
-              const attributes = sel.split("-");
+              const attributes = cleanAttributes(sel.split("-"));
               for (const [dim, set] of Object.entries(sets)) {
                   const index = dimensionIndices[dim as keyof typeof dimensionIndices];
                   if (attributes[index] !== undefined) {
@@ -194,20 +207,30 @@ export const afcMatch = {
                   }
               }
           }
-  
           // Check if any non-ignored dimension has all the same values
           return Object.values(sets).some(set => set.size === 1);
       }
   
       // Check if any selection is different from all previous selections
-      function hasNewSelection(selections: string[], previousSelections: string[]) {
+      function hasNewSelection(selections: string[], previousSelections: string[][]) {
           // If there are no previous selections, every current selection is considered new
           if (!previousSelections || previousSelections.length === 0) {
               return true;
           }
+
+          let hasNewSelection = true; 
+          previousSelections.forEach((item: string[]) => {
+            // check that most recent selection does not have the same cards as a previous selection (even in reverse)
+            if (
+              selections[0] === item[0] && selections[1] === item[1] ||
+              selections[1] === item[0] && selections[0] === item[1]
+            ) {
+              hasNewSelection = false; 
+            }
+          })
+
   
-          const allPrevious = new Set(previousSelections);
-          return selections.some(sel => !allPrevious.has(sel));
+          return hasNewSelection;
       }
   
       // Perform checks
@@ -239,7 +262,7 @@ export const afcMatch = {
     jsPsych.data.addDataToLastTrial({
       correct: isCorrect,
     });
-    previousSelections.push(...selectedCards);
+    previousSelections.push(selectedCards);
     selectedCards = [];
     selectedCardIdxs = [];
 

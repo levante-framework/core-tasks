@@ -1,33 +1,27 @@
-// clicks 'OK' button until instructions are complete
-export function clickThroughInstructions(){
-  // if footer is present, the task has ended
-  cy.get('.lev-stimulus-container').then((content) => {
-    if (content.find('footer').length === 1){
-      return; 
-    } else {
-      // otherwise check for OK button, indicating instruction phase
-      cy.get('.jspsych-content').then((content) => {
-        const okButton = content.find('.primary');
-        if (okButton.length > 0) {
-          cy.contains('OK').click({timeout: 60000}); 
-          clickThroughInstructions();
-        } else {
+let taskCompleted = false; 
+// recursively completes an instruction block
+export function instructions() {
+  cy.get('.jspsych-content').then((content) => {
+    const okButton = content.find('.primary');
+
+    if (okButton.length > 0) {
+      // check for end of task
+      cy.get('.lev-stimulus-container').then((content) => {
+        if (content.find('footer').length === 1){
+          cy.contains('Exit').click({timeout: 60000});
+          taskCompleted = true;
           return; 
+        } else {
+          cy.get('.primary').click({timeout: 60000});
+          instructions();
         }
-      })
-      return; 
-    }
-  });  
+      });
+    } 
+  });
 }
 
-// clicks first image option until game is over
-function selectAnswers(correctFlag, buttonClass){
-  handleMathSlider();
-  clickThroughInstructions(); 
-
-  // wait for fixation cross to go away 
-  cy.get('.lev-stimulus-container', {timeout: 60000}).should('exist'); 
-
+// clicks correct answers
+function selectAnswers(correctFlag, buttonClass) {
   cy.get('.jspsych-content').then((content) => {
     const responseButtons = content.find(buttonClass); 
     
@@ -38,23 +32,16 @@ function selectAnswers(correctFlag, buttonClass){
         .and('not.be.disabled')
         .click({force: true, timeout: 30000});  // add timeout to handle staggered buttons
       } else { // use correct class by default 
-        cy.get('.correct').click({timeout: 30000}); // add timeout to handle staggered buttons
+        cy.get('.correct').click({timeout: 60000}); // add timeout to handle staggered buttons
       }
 
-      selectAnswers(correctFlag, buttonClass);  
-
     } else {
-      cy.contains('Thank you!').should('exist');
       return; 
     }
   });
 }
 
 function handleMathSlider() {
-  cy.wait(300);
-// wait for fixation cross to go away
-  cy.get('.lev-stimulus-container', {timeout: 60000}).should('exist');
-
   cy.get('.jspsych-content').then((content) => {
     const slider = content.find('.jspsych-slider');
     const responseButtons = content.find('.secondary'); // should be length zero if in the movable slider phase
@@ -63,8 +50,7 @@ function handleMathSlider() {
       cy.get('.jspsych-slider').realClick(); 
 
       cy.get('.primary').then((continueButton) => {
-        continueButton.click(); 
-        handleMathSlider();
+        continueButton.click();
       })
     } 
   })
@@ -72,10 +58,26 @@ function handleMathSlider() {
   return; 
 }
 
-export function testAfc(correctFlag, buttonClass){
+function taskLoop(correctFlag, buttonClass) {
+  // wait for fixation cross to go away 
+  cy.get('.lev-stimulus-container', {timeout: 60000}).should('exist'); 
+
+  handleMathSlider(); 
+  selectAnswers(correctFlag, buttonClass); 
+  instructions(); 
+
+  cy.get('.lev-stimulus-container', {timeout: 60000}).should('not.exist').then(() => {
+    if (taskCompleted) {
+      return; 
+    } else {
+      taskLoop(correctFlag, buttonClass);
+    }
+  });
+}
+
+export function testAfc(correctFlag, buttonClass) {
     // wait for OK button to be visible
     cy.contains('OK', {timeout: 600000}).should('be.visible'); 
     cy.contains('OK').realClick(); // real click mimics user gesture so that fullscreen can start
-    selectAnswers(correctFlag, buttonClass);
-    cy.contains('Exit').click(); 
+    taskLoop(correctFlag, buttonClass);
 }

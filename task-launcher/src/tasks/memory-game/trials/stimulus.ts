@@ -1,13 +1,10 @@
 import jsPsychCorsiBlocks from '@jspsych-contrib/plugin-corsi-blocks';
 import { createGrid, generateRandomSequence } from '../helpers/grid';
-//@ts-ignore
 import { jsPsych } from '../../taskSetup';
 import _isEqual from 'lodash/isEqual';
-//@ts-ignore
 import { finishExperiment } from '../../shared/trials';
 import { mediaAssets } from '../../..';
 import { getMemoryGameType } from '../helpers/getMemoryGameType';
-//@ts-ignore
 import { setupReplayAudio, PageAudioHandler, replayButtonSvg, PageStateHandler } from '../../shared/helpers';
 import { taskStore } from '../../../taskStore';
 
@@ -22,7 +19,6 @@ const x = 20;
 const y = 20;
 const blockSpacing = 0.5;
 let grid: {x: number; y: number;}[];
-// CHANGE BACK TO 2
 let sequenceLength = 2;
 let generatedSequence: number[] | null;
 let selectedCoordinates: [number, number][] = [];
@@ -105,11 +101,13 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false, rese
         sequenceLength = 2;
       }
 
+      const gridSize = taskStore().gridSize;
+
       if (mode === 'input') {
         jsPsych.data.addDataToLastTrial({
           correct: _isEqual(data.response, data.sequence),
           selectedCoordinates: selectedCoordinates,
-          corpusTrialType: getMemoryGameType(mode, reverse),
+          corpusTrialType: getMemoryGameType(mode, reverse, gridSize),
           responseLocation: data.response,
         });
         taskStore('isCorrect', data.correct);
@@ -128,8 +126,13 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false, rese
           numCorrect = 0;
         }
 
-        if (taskStore().numIncorrect == taskStore().maxIncorrect && reverse) {
-          finishExperiment();
+        if (taskStore().numIncorrect == taskStore().maxIncorrect) {
+          if (reverse) {
+            finishExperiment();
+          } else {
+            sequenceLength = 2; 
+          }
+          
         }
 
         selectedCoordinates = [];

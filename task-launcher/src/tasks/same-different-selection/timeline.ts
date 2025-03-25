@@ -8,6 +8,7 @@ import { initializeCat } from '../taskSetup';
 import { dataQualityScreen } from '../shared/trials/dataQuality';
 import {
   setupStimulus,
+  fixationOnly,
   exitFullscreen,
   taskFinished,
   feedback,
@@ -15,7 +16,6 @@ import {
   enterFullscreen,
   finishExperiment,
   setupStimulusFromBlock,
-  fixationOnly,
 } from '../shared/trials';
 import { afcMatch } from './trials/afcMatch';
 import { stimulus } from './trials/stimulus';
@@ -63,6 +63,7 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
   const ipBlock = (trial: StimulusType) => {
     return {
       timeline: [
+        {...fixationOnly, stimulus: ''}, 
         stimulus(trial)
       ]
     }
@@ -99,7 +100,7 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
       dataQualityScreen
     ], 
     conditional_function: () => {
-      return taskStore().numIncorrect >= taskStore().maxIncorrect; 
+      return (taskStore().numIncorrect >= taskStore().maxIncorrect) && heavy; 
     }
   }
 

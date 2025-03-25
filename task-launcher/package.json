@@ -1,9 +1,9 @@
 {
   "name": "@levante-framework/core-tasks",
-  "version": "1.0.0-beta.31",
+  "version": "1.0.0-beta.35",
   "description": "",
-  "main": "lib/index.ccd57cd1.js",
-  "module": "lib/index.ccd57cd1.js",
+  "main": "lib/index.cfa4b88c.js",
+  "module": "lib/index.cfa4b88c.js",
   "type": "module",
   "files": [
     "lib",

@@ -8,6 +8,7 @@ import { isRoarApp } from './isRoarApp';
 import { camelize } from './camelize';
 import { RoarAppkit } from '@bdelab/roar-firekit';
 import { TaskStoreDataType } from '../../../taskStore';
+import { getAge } from './getAge';
 
 export const DEFAULT_LAYOUT_CONFIG: LayoutConfigType = {
   playAudioOnLoad: true,
@@ -61,6 +62,8 @@ export const setSharedConfig = async (firekit: RoarAppkit, gameParams: GameParam
 
   const {
     userMetadata = {},
+    birthMonth, 
+    birthYear,
     audioFeedback,
     language,
     skipInstructions,
@@ -85,7 +88,7 @@ export const setSharedConfig = async (firekit: RoarAppkit, gameParams: GameParam
   } = cleanParams;
 
   const config = {
-    userMetadata: { ...userMetadata, age: Number(age) },
+    userMetadata: { ...userMetadata, age: (Number(age) || getAge(Number(birthMonth), Number(birthYear)))},
     audioFeedback: audioFeedback || 'neutral',
     skipInstructions: !!skipInstructions, // Not used in any task
     startTime: new Date(),
