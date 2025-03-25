@@ -45,9 +45,11 @@ export function prepareCorpus(corpus: StimulusType[]) {
   const startItems: StimulusType[] = selectNItems(possibleStartItems, 5);
 
   // put cat portion of corpus into taskStore 
-  const catCorpus: StimulusType[] = normedTrials.filter(trial =>
-    !startItems.includes(trial)
-  )
+  const catCorpus: StimulusType[] = (taskStore().task === "same-different-selection") ? 
+    normedTrials :
+    normedTrials.filter(trial =>
+      !startItems.includes(trial)
+    ); 
   
   corpora = {
     ipHeavy: corpusParts.ipHeavy, // heavy instruction/practice trials
@@ -106,6 +108,9 @@ export function prepareMultiBlockCat(corpus: StimulusType[]) {
     corpus.forEach((trial) => {
       if (trial.trialType === "something-same-2" || (sequentialTrialTypes.includes(trial.assessmentStage))) {
         sequentialTrials.push(trial);
+      } else if (trial.trialType === "test-dimensions") {
+        trial.difficulty = NaN;
+        newCorpus.push(trial);
       } else {
         newCorpus.push(trial);
       }
@@ -142,7 +147,7 @@ export function updateTheta(item: StimulusType, correct: boolean) {
         d: 1 // max probability of correct response (default 1)
       }; 
       
-      if (!(Number.isNaN(zeta.b)) && (item.assessmentStage !== 'practice_response')) {
+      if (!(Number.isNaN(zeta.b)) && (zeta.b !== null) && (item.assessmentStage !== 'practice_response')) {
         const answer = correct ? 1 : 0;
         cat.updateAbilityEstimate(zeta, answer); 
       }
