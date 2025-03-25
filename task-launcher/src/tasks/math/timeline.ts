@@ -92,7 +92,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
   const feedbackBlock = (trial?: StimulusType) => {
     return {
       timeline: [
-        feedback(true, 'feedbackCorrect', 'feedbackTryAgain')
+        feedback(true, 'feedbackCorrect', 'feedbackNotQuiteRight', false)
       ], 
       conditional_function: () => {
         if (!trial) {
@@ -178,7 +178,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
       if (index < sliderPractice.length - 1) {
         trials.push(
           {
-            ...feedback(true, 'feedbackCorrect', 'feedbackTryAgain'), 
+            ...feedback(true, 'feedbackCorrect', 'feedbackNotQuiteRight'), 
             conditional_function: () => {return true}, 
             post_trial_gap: 350
           } 
