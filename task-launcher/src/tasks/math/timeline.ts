@@ -1,10 +1,28 @@
 import 'regenerator-runtime/runtime';
 import store from 'store2';
 // setup
-import { initTrialSaving, initTimeline, createPreloadTrials, prepareCorpus, prepareMultiBlockCat } from '../shared/helpers';
+import { 
+  initTrialSaving, 
+  initTimeline, 
+  createPreloadTrials, 
+  prepareCorpus, 
+  prepareMultiBlockCat, 
+} from '../shared/helpers';
 import { jsPsych, initializeCat } from '../taskSetup';
 import { slider } from './trials/sliderStimulus';
-import { afcStimulusTemplate, enterFullscreen, exitFullscreen, finishExperiment, getAudioResponse, setupStimulus, fixationOnly, setupStimulusFromBlock, taskFinished } from '../shared/trials';
+import { 
+  afcStimulusTemplate, 
+  enterFullscreen, 
+  exitFullscreen, 
+  finishExperiment, 
+  getAudioResponse, 
+  setupStimulus, 
+  fixationOnly, 
+  setupStimulusFromBlock, 
+  taskFinished, 
+  practiceTransition, 
+  feedback,
+} from '../shared/trials';
 import { getLayoutConfig } from './helpers/config';
 import { taskStore } from '../../taskStore';
 
@@ -24,6 +42,12 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
         if (stim.assessmentStage === 'practice_response' || stim.trialType === 'instructions') {
           return false;
         }
+
+        const trialsSkipped = taskStore().trialsSkipped;
+        if (trialsSkipped > 0) {
+          return false; 
+        }
+
         return true;
       },
     }
@@ -65,12 +89,60 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
     layoutConfigMap,
   };
 
+  const feedbackBlock = (trial?: StimulusType) => {
+    return {
+      timeline: [
+        feedback(true, 'feedbackCorrect', 'feedbackTryAgain')
+      ], 
+      conditional_function: () => {
+        if (!trial) {
+          return (
+            taskStore().nextStimulus.assessmentStage === "practice_response" && 
+            taskStore().nextStimulus.trialType === "Number Line Slider"
+          )
+        } else {
+          return trial.trialType === "Number Line Slider";
+        }
+      }
+    }
+  }
+
+  const setupBlock = {
+    timeline: [
+      {...setupStimulus, stimulus: ''}
+    ], 
+    conditional_function: () => {
+      const trialsSkipped = taskStore().trialsSkipped;
+
+      if (trialsSkipped > 0) {
+        taskStore("trialsSkipped", (trialsSkipped - 1)); 
+        return false;
+      } else {
+        return true;
+      }
+    }
+  }
+
+  const interBlockGap = {
+    timeline: [
+      {...fixationOnly, stimulus: '', post_trial_gap: 350}
+    ], 
+    conditional_function: () => {
+      return (taskStore().trialsSkipped === 1);
+    }
+  }
+
   const afcStimulusBlock = (trial?: StimulusType) => {
     return {
       timeline: [
         afcStimulusTemplate(trialConfig, trial),
       ],
       conditional_function: () => {
+        const trialsSkipped = taskStore().trialsSkipped;
+        if (trialsSkipped > 0) {
+          return false; 
+        }
+
         return !(trial || taskStore().nextStimulus).trialType?.includes('Number Line');
       },
     }
@@ -78,12 +150,56 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
 
   const sliderBlock = (trial?: StimulusType) => {
     return {
-      timeline: [slider(trial)],
+      timeline: [
+        slider(layoutConfigMap, trial), 
+        feedbackBlock(trial)
+      ],
       conditional_function: () => {
+        const trialsSkipped = taskStore().trialsSkipped;
+        
+        if (trialsSkipped > 0) {
+          return false; 
+        }
+
         return (trial || taskStore().nextStimulus).trialType?.includes('Number Line');
       },
     }
   };
+
+  const sliderPractice: StimulusType[] = corpus.filter((trial) => {
+    return (trial.trialType === "Number Line Slider") && (trial.assessmentStage === "practice_response")
+  });
+
+  // this block repeats all slider practice trials
+  const repeatSliderPracticeBlock = () => {
+    let trials: any[] = []; 
+    sliderPractice.forEach((trial, index) => {
+      trials.push(slider(layoutConfigMap, trial)); 
+      if (index < sliderPractice.length - 1) {
+        trials.push(
+          {
+            ...feedback(true, 'feedbackCorrect', 'feedbackTryAgain'), 
+            conditional_function: () => {return true}, 
+            post_trial_gap: 350
+          } 
+        );
+      }
+    })
+
+    return {
+      timeline: [ 
+        ...trials
+      ], 
+      conditional_function: () => {
+        return (
+          !taskStore().isCorrect &&
+          taskStore().testPhase === false && 
+          (taskStore().nextStimulus.trialType === "Number Line Slider" || runCat) &&
+          taskStore().nextStimulus.assessmentStage === "test_response"
+        );  
+      }
+    }
+  }
 
   const stimulusBlock = (trial?: StimulusType) => {
     return {
@@ -129,6 +245,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
     taskStore('corpora', newCorpora); // puts all blocks into taskStore
 
     const numOfBlocks = allBlocks.length; 
+    const trialProportionsPerBlock = [2, 3, 3]; // divide by these numbers to get trials per block
     for (let i = 0; i < numOfBlocks; i++) {
       // push in block-specific instructions 
       const blockInstructions = instructions.filter(trial => {
@@ -145,8 +262,20 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
       });
       blockPractice.forEach((trial) => {
         timeline.push({...fixationOnly, stimulus: ''});
-        timeline.push(afcStimulusTemplate(trialConfig, trial));
+        timeline.push(stimulusBlock(trial));
+        
+        if (trial.trialType === "Number Line Slider") {
+          timeline.push(feedbackBlock()); 
+        }
       });
+
+      // final slider block
+      if (i === 2) {
+        timeline.push(repeatSliderPracticeBlock());
+      }
+
+      // practice transition screen
+      timeline.push(practiceTransition);
 
       // push in random items at start of first block (after practice trials)
       if (i === 0) {
@@ -155,7 +284,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
         );
       }
 
-      const numOfTrials = allBlocks[i].length / 2; // we want to run 50% of the trials in each block
+      const numOfTrials = (allBlocks[i].length / trialProportionsPerBlock[i]); 
       for (let j = 0; j < numOfTrials; j++) {
         timeline.push({...setupStimulusFromBlock(i), stimulus: ''}); // select only from the current block
         timeline.push(stimulusBlock());
@@ -180,7 +309,10 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
 
     const numOfTrials = taskStore().totalTrials;
     for (let i = 0; i < numOfTrials; i++) {
-      timeline.push({...setupStimulus, stimulus: ''});
+      timeline.push(setupBlock);
+      timeline.push(repeatSliderPracticeBlock());
+      timeline.push(practiceTransition);
+      timeline.push(interBlockGap);  
       timeline.push(stimulusBlock());
     }
   }

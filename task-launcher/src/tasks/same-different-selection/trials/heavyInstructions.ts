@@ -45,7 +45,7 @@ export const somethingSameDemo1 = {
                   </button>
                 </div>
               <div class='lev-response-row multi-4'>
-                ${["sm-yellow-square", "lg-yellow-circle"].map(shape => {
+                ${["lg-yellow-circle", "sm-yellow-square"].map(shape => {
                   return `<button class='image-medium no-pointer-events' style='margin: 0 4px'>
                             <img 
                               src=${mediaAssets.images[camelize(shape)]} 
@@ -116,7 +116,7 @@ export const somethingSameDemo2 = {
                   </button>
                 </div>
               <div class='lev-response-row multi-4'>
-                ${["sm-yellow-square", "lg-yellow-circle"].map(shape => {
+                ${["lg-yellow-circle", "sm-yellow-square"].map(shape => {
                   return `<button class='image-medium no-pointer-events' style='margin: 0 4px'>
                             <img 
                               src=${mediaAssets.images[camelize(shape)]} 

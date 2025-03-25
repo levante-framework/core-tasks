@@ -4,7 +4,18 @@ import { jsPsych, initializeCat, cat } from '../taskSetup';
 import { createPreloadTrials, initTrialSaving, initTimeline } from '../shared/helpers';
 // trials
 import { imageInstructions, threeDimInstructions, videoInstructionsFit, videoInstructionsMisfit } from './trials/instructions';
-import { afcStimulusTemplate, taskFinished, exitFullscreen, setupStimulus, fixationOnly, getAudioResponse, enterFullscreen, finishExperiment, repeatInstructionsMessage } from '../shared/trials';
+import { 
+  afcStimulusTemplate, 
+  taskFinished, 
+  exitFullscreen, 
+  setupStimulus, 
+  fixationOnly, 
+  getAudioResponse, 
+  enterFullscreen, 
+  finishExperiment, 
+  repeatInstructionsMessage, 
+  practiceTransition 
+} from '../shared/trials';
 import { getLayoutConfig } from './helpers/config';
 import { prepareCorpus, selectNItems } from '../shared/helpers/prepareCat';
 import { taskStore } from '../../taskStore';
@@ -121,13 +132,16 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
 
     // push in instruction block
     corpora.ipLight.forEach((trial: StimulusType) => {
-      timeline.push(fixationOnly); 
+      timeline.push({...fixationOnly, stimulus: ''}); 
       timeline.push(afcStimulusTemplate(trialConfig, trial)); 
     });
 
+    // push in practice transition
+    timeline.push(practiceTransition);
+
     // push in starting block
     corpora.start.forEach((trial: StimulusType) => {
-      timeline.push(fixationOnly); 
+      timeline.push({...fixationOnly, stimulus: ''}); 
       timeline.push(afcStimulusTemplate(trialConfig, trial));
       timeline.push(ifRealTrialResponse); 
     });
@@ -137,7 +151,7 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
       if (i === 2) {
         timeline.push(repeatInstructions)
       }
-      timeline.push(setupStimulus);
+      timeline.push({...setupStimulus, stimulus: ''});
       timeline.push(threeDimInstructBlock);
       timeline.push(stimulusBlock);
     }
@@ -155,7 +169,8 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
       if (i === 4) {
         timeline.push(repeatInstructions)
       }
-      timeline.push(setupStimulus); 
+      timeline.push({...setupStimulus, stimulus: ''}); 
+      timeline.push(practiceTransition);
       timeline.push(threeDimInstructBlock);
       timeline.push(stimulusBlock);
     }

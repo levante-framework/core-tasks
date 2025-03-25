@@ -25,14 +25,17 @@ import store from 'store2';
  * @property {Object} corpora - Object containing the corpus data (stimulus).
  * @property {Object} translations - Object containing the translations.
  * @property {Object} nextStimulus - Object containing the next stimulus.
+ * @property {boolean} testPhase - True if not running practice/instruction trial
  * ------- AFC and SDS only -------
  * @property {string} target - Target item.
  * @property {Array} choices - List of choices.
  * ------- AFC only -------
  * @property {boolean} skipCurrentTrial - Whether to skip the current trial, default is false.
  * @property {number} correctResponseIdx - Index of the correct response, starting at 0.
+ * @property {number} incorrectPracticeResponses - Number of incorrect responses to the current practice trial. 
  * ------- Math only -------
  * @property {Array} nonFractionSelections - List of non-fraction selections.
+ * @property {number} trialsSkipped - Number of trials that have been skipped while jumping to the next block.
  * ------- H&F only -------
  * @property {string} stimulus - Name of the stimulus, default is 'heart'.
  * @property {string} stimulusSide - Side of the stimulus, default is 'left'.
@@ -96,21 +99,22 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     maxIncorrect: config.maxIncorrect,
     keyHelpers: config.keyHelpers,
     runCat: config.cat, 
-    heavyInstructions: config.heavyInstructions,
+    heavyInstructions: config.heavyInstructions || config.userMetadata.age < 6,
     semThreshold: config.semThreshold,
     startingTheta: config.startingTheta, 
     storeItemId: config.storeItemId,
     isRoarApp: config.isRoarApp,
-    numOfBlocks: config.userMetadata.age > 12 ? 9 : 4,
-    blockSize: config.userMetadata.age > 12 ? 30 : 50,
+    numOfBlocks: config.userMetadata.age > 4 ? 9 : 4,
+    blockSize: config.userMetadata.age > 4 ? 30 : 50,
     stimulusBlocks: config.stimulusBlocks,
-    gridSize: config.userMetadata.age > 12 ? 3 : 2,
+    gridSize: config.userMetadata.age > 4 ? 3 : 2,
     maxTimeReached: false,
     stimulus: 'heart',
     stimulusSide: 'left',
     stimulusPosition: 0,
     isCorrect: false,
     inferenceNumStories: config.inferenceNumStories,
+    testPhase: false,
   });
 };
 
