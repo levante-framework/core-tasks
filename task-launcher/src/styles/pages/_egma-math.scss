@@ -22,3 +22,48 @@
   display: flex;
   justify-content: space-around;
 }
+
+.number-line-4afc-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 8px;
+  border-radius: 16px;
+  border: 1px solid #bdc1c3;
+}
+
+/* Track: webkit browsers */
+.number-line-4afc-slider::-webkit-slider-runnable-track {
+  height: 8px;
+  border-radius: 2px;
+}
+
+/* Track: Mozilla Firefox */
+.number-line-4afc-slider::-moz-range-track {
+  height: 8px;
+  border-radius: 2px;
+}
+
+/* Thumb: webkit */
+.number-line-4afc-slider::-webkit-slider-thumb {
+  /* removing default appearance */
+  -webkit-appearance: none;
+  appearance: none; 
+  /* creating a custom design */
+  margin-top: -3px;
+  height: 15px;
+  width: 15px;
+  background-color: #275BDD;
+  border-radius: 50%;
+}
+
+
+/* Thumb: Firefox */
+.number-line-4afc-slider::-moz-range-thumb {
+  /* removing default appearance */
+  -webkit-appearance: none;
+  appearance: none;
+  height: 15px;
+  width: 15px;
+  background-color: #275BDD;
+  border-radius: 50%;
+}

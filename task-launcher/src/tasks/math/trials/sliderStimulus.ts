@@ -24,7 +24,22 @@ let sliderStart: number;
 let keyboardResponseMap: Record<string, any> = {};
 let startTime: number;  
 let keyboardFeedbackHandler: (ev: KeyboardEvent) => void;
-let keyboardResponseHandler: (ev: KeyboardEvent) => void; 
+let keyboardResponseHandler: (ev: KeyboardEvent) => void;
+
+function addKeyHelpers(el: HTMLElement, keyIndex: number) {
+  const { keyHelpers } = taskStore();
+  if (keyHelpers && !isTouchScreen) {
+    const arrowKeyBorder = document.createElement('div');
+    arrowKeyBorder.classList.add('arrow-key-border');
+
+    const arrowKey = document.createElement('p');
+    arrowKey.innerHTML = arrowKeyEmojis[keyIndex][1];
+    arrowKey.style.textAlign = 'center';
+    arrowKey.style.margin = '0';
+    arrowKeyBorder.appendChild(arrowKey);
+    el.appendChild(arrowKeyBorder);
+  }
+}
 
 function setUpAudio(responseType: string) {
   const cue = responseType === 'button' ? 'numberLinePrompt1' : 'numberLineSliderPrompt1';
@@ -40,16 +55,16 @@ function setUpAudio(responseType: string) {
 }
 
 function captureValue(btnElement: HTMLButtonElement | null, event: Event & {key?: string}, i: number, isPractice: boolean) {
-  let containerEl = document.getElementById('slider-btn-container') || null;
+  // let containerEl = document.getElementById('slider-btn-container') || null;
 
-  if (!containerEl) {
-    const layout = taskStore().buttonLayout;
-    containerEl = document.getElementsByClassName(`${layout}-layout`)[0] as HTMLButtonElement;
-  }
+  // if (!containerEl) {
+  //   const layout = taskStore().buttonLayout;
+  //   containerEl = document.getElementsByClassName(`${layout}-layout`)[0] as HTMLButtonElement;
+  // }
 
-  Array.from(containerEl.children).forEach((el) => {
-    el.children[0].id = '';
-  });
+  // Array.from(containerEl.children).forEach((el) => {
+  //   el.children[0].id = '';
+  // });
 
   if (event?.key) {
     chosenAnswer = _toNumber(keyboardResponseMap[event.key.toLowerCase()]);
@@ -139,10 +154,13 @@ export const slider = (layoutConfigMap: Record<string, LayoutConfigType>, trial?
   on_load: () => {
     startTime = performance.now();
 
+    const stim = (trial || taskStore().nextStimulus) as StimulusType;
+    const { distractors } = stim;
+    const itemLayoutConfig = layoutConfigMap[stim.itemId];
     const incorrectPracticeResponses: Array<string | null> = [];
     taskStore("incorrectPracticeResponses", incorrectPracticeResponses);
 
-    const slider = document.getElementById('jspsych-html-slider-response-response') as HTMLButtonElement;
+    const slider = document.getElementById('jspsych-html-slider-response-response') as HTMLInputElement;
     const sliderLabels = document.getElementsByTagName('span') as HTMLCollectionOf<HTMLSpanElement>;
     Array.from(sliderLabels).forEach((el, i) => {
       //if (i == 1 || i == 2) {
@@ -150,9 +168,14 @@ export const slider = (layoutConfigMap: Record<string, LayoutConfigType>, trial?
       //}
     });
     const { buttonLayout, keyHelpers } = taskStore();
-    const stim = (trial || taskStore().nextStimulus) as StimulusType;
-    const { distractors } = stim;
     const isPractice = stim.assessmentStage === "practice_response";
+    const response = layoutConfigMap[stim.itemId].response;
+    const answer = _toNumber(response.target);
+
+    taskStore('target', answer);
+    taskStore('choices', response.values);
+
+    const responseChoices = response.values;
 
     // Setup Sentry Context
     setSentryContext({
@@ -162,21 +185,24 @@ export const slider = (layoutConfigMap: Record<string, LayoutConfigType>, trial?
     });
 
     const wrapper = document.getElementById('jspsych-html-slider-response-wrapper') as HTMLDivElement;
+    const responseRow = document.createElement('div');
+    responseRow.style.display = 'flex';
+    responseRow.style.justifyContent = 'center';
+    responseRow.style.alignItems = 'center';
     const buttonContainer = document.createElement('div');
 
-    if (buttonLayout === 'default') {
-      buttonContainer.id = 'slider-btn-container';
-    }
-
-    // answer has not been pushed to distractor yet
-    // support for diamond layout
-    if (buttonLayout === 'diamond' && distractors.length === 3) {
+    if (buttonLayout === 'diamond' && response.values.length === 4) { // have to do it in the runtime
       buttonContainer.classList.add('lev-response-row-diamond-layout');
+    } else {
+      buttonContainer.classList.add(...itemLayoutConfig.classOverrides.buttonContainerClassList);
     }
 
     if (stim.trialType === 'Number Line 4afc') {
       // don't let participant move slider
+      const progress = Number(slider.value) * 100 / (Number(slider.max) - Number(slider.min));
+      slider.classList.add('number-line-4afc-slider');
       slider.disabled = true;
+      slider.style.background = `linear-gradient(to right, #275BDD ${progress}%, #edf0ed ${progress}%)`;
 
       wrapper.style.margin = '0 0 2rem 0';
 
@@ -185,17 +211,11 @@ export const slider = (layoutConfigMap: Record<string, LayoutConfigType>, trial?
       continueBtn.disabled = true;
       continueBtn.style.visibility = 'hidden';
 
-      const response = layoutConfigMap[stim.itemId].response;
-      const answer = _toNumber(response.target);
-
-      taskStore('target', answer);
-      taskStore('choices', response.values);
-
-      const responseChoices = taskStore().choices;
 
       // create buttons
       for (let i = 0; i < responseChoices.length; i++) {
         const btnWrapper = document.createElement('div');
+        btnWrapper.style.margin = '0px 8px';
         const btn = document.createElement('button');
         btn.textContent = responseChoices[i];
 
@@ -205,7 +225,7 @@ export const slider = (layoutConfigMap: Record<string, LayoutConfigType>, trial?
         }
 
         btn.classList.add('secondary');
-        if (stim.assessmentStage === "practice_response") {
+        if (stim.assessmentStage === 'practice_response') {
           btn.classList.add('practice-btn'); 
         }
         btn.addEventListener('click', (e) => captureValue(btn, e, i, isPractice));
@@ -216,28 +236,10 @@ export const slider = (layoutConfigMap: Record<string, LayoutConfigType>, trial?
           document.addEventListener('keydown', keyboardResponseHandler);
         }
 
-        if (!(buttonLayout === 'triple' && distractors.length !== 2)) {
+        const keyIndex = responseChoices.length === 2 ? i + 1 : i;
 
-          keyboardResponseMap[arrowKeyEmojis[i][0]] = responseChoices[i];
-
-          btnWrapper.appendChild(btn);
-
-          if (keyHelpers && !isTouchScreen && buttonLayout !== 'default') {
-            // Margin on the actual button element
-            btn.style.marginBottom = '.5rem';
-
-            const arrowKeyBorder = document.createElement('div');
-            arrowKeyBorder.classList.add('arrow-key-border');
-
-            const arrowKey = document.createElement('p');
-            arrowKey.innerHTML = arrowKeyEmojis[i][1];
-            arrowKey.style.textAlign = 'center';
-            arrowKey.style.margin = '0';
-            arrowKeyBorder.appendChild(arrowKey);
-
-            btnWrapper.appendChild(arrowKeyBorder);
-          }
-        }
+        btnWrapper.appendChild(btn);
+        addKeyHelpers(btnWrapper, keyIndex);
 
         buttonContainer.appendChild(btnWrapper);
       }
@@ -252,7 +254,8 @@ export const slider = (layoutConfigMap: Record<string, LayoutConfigType>, trial?
       slider.addEventListener('input', () => (chosenAnswer = Number(slider.value)));
     }
 
-    wrapper.appendChild(buttonContainer);
+    responseRow.appendChild(buttonContainer);
+    wrapper.appendChild(responseRow);
 
     const stimulus = trial || taskStore().nextStimulus; 
     const responseType = stimulus.trialType.includes('4afc') ? 'button' : 'slider';
