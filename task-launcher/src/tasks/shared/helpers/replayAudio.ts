@@ -22,7 +22,7 @@ export async function setupReplayAudio(pageStateHandler: PageStateHandler) {
     async function replayAudio() {
       PageAudioHandler.replayPresses ++;
       pageStateHandler.disableReplayBtn();
-      PageAudioHandler.playAudio(pageStateHandler.audioUri, onAudioEnd);
+      PageAudioHandler.playAudio(pageStateHandler.audioUri, onAudioEnd, true);
     }
 
     pageStateHandler.replayBtn.addEventListener('click', replayAudio);
