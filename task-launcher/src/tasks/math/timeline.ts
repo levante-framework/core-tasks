@@ -248,9 +248,33 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
     const trialProportionsPerBlock = [2, 3, 3]; // divide by these numbers to get trials per block
     for (let i = 0; i < numOfBlocks; i++) {
       // push in block-specific instructions 
+      let usedIDs: string[] = []; 
       const blockInstructions = instructions.filter(trial => {
-        return trial.block_index === i.toString();
+        let allowedIDs: string[]; // CAT only uses particular instructions from corpus
+
+        switch(i) {
+          case 0:
+            allowedIDs = ["math-instructions1", "math-intro1"];
+            break;
+          case 1:
+            allowedIDs = ["math-intro2"];
+            break;
+          case 2:
+            allowedIDs = ["math-intro2", "number-line-instruct1"];
+            break;
+          default:
+            allowedIDs = [];
+        }
+
+        const include = trial.block_index === i.toString() && allowedIDs.includes(trial.itemId) && !(usedIDs.includes(trial.itemId));
+
+        if (include) {
+          usedIDs.push(trial.itemId);
+        }
+         
+        return include; 
       });
+
       blockInstructions.forEach((trial) => {
         timeline.push({...fixationOnly, stimulus: ''});
         timeline.push(afcStimulusTemplate(trialConfig, trial));
