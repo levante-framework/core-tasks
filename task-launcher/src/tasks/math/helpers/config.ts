@@ -23,7 +23,7 @@ export const getLayoutConfig = (
   const stimItem = convertItemToString(stimulus.item);
   defaultConfig.isPracticeTrial = stimulus.assessmentStage === 'practice_response';
   defaultConfig.isInstructionTrial = stimulus.trialType === 'instructions';
-  defaultConfig.showStimImage = false;
+  defaultConfig.showStimImage = stimulus.trialType === "instructions";
   defaultConfig.stimText = {
     value: stimItem,
     displayValue: undefined,
@@ -51,6 +51,7 @@ export const getLayoutConfig = (
     }
   } else {
     defaultConfig.classOverrides.buttonClassList = ['primary'];
+    defaultConfig.classOverrides.stimulusContainerClassList = ['lev-row-container'];
   }
 
   const messages = validateLayoutConfig(defaultConfig, mediaAssets, translations, stimulus)

@@ -12,7 +12,7 @@ const generatePracticeTrialTimeline = (reverse: boolean, tryAgainText: string, r
   const basicBlock = [
     getCorsiBlocks({ mode: 'display', isPractice: true, reverse }),
     getCorsiBlocks({ mode: 'input', isPractice: true, reverse }),
-    feedback(true, 'feedbackCorrect', tryAgainText),
+    feedback(true, 'feedbackCorrect', tryAgainText, true),
   ];
 
   const finalTimeline = [];
@@ -30,7 +30,7 @@ const getSecondRoundPracticeTrials = (reverse: boolean, tryAgainText: string) =>
       getCorsiBlocks({ mode: 'input', isPractice: true, reverse }),
       {
         timeline: [
-          feedback(true, 'feedbackCorrect', tryAgainText),
+          feedback(true, 'feedbackCorrect', tryAgainText, true),
         ],
         conditional_function: () => {
           return taskStore().isCorrect
