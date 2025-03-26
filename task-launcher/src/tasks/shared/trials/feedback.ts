@@ -4,7 +4,7 @@ import { PageAudioHandler } from '../helpers';
 import { taskStore } from '../../../taskStore';
 
 // isPractice parameter is for tasks that don't have a corpus (e.g. memory game)
-export const feedback = (isPractice = false, correctFeedbackAudioKey: string, inCorrectFeedbackAudioKey: string) => {
+export const feedback = (isPractice = false, correctFeedbackAudioKey: string, inCorrectFeedbackAudioKey: string, showPrompt: boolean = false) => {
     return {
         timeline: [
             {
@@ -38,13 +38,13 @@ export const feedback = (isPractice = false, correctFeedbackAudioKey: string, in
                     return (
                         `<div class="lev-stimulus-container">
                             <div class="lev-row-container instruction">
-                                <p>${isCorrect ? t.feedbackCorrect : t.heartsAndFlowersTryAgain}</p>
+                                <p>${isCorrect ? t.feedbackCorrect : t.feedbackNotQuiteRight}</p>
                             </div>
                             <div class="lev-stim-content">
                                 <img src=${imageUrl} alt='Instruction graphic'/>
                             </div>
                     
-                            ${isCorrect ? '' :
+                            ${isCorrect || !showPrompt ? '' :
                              `<div class="lev-row-container instruction"'>
                                 <p>${promptOnIncorrect}</p>
                               </div>`
