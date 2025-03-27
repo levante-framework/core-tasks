@@ -3,6 +3,12 @@ import { PageAudioHandler } from '../helpers';
 import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
 
+function endTask() {
+  taskStore('taskComplete', true);
+  window.removeEventListener('click', endTask);
+  window.removeEventListener('keydown', endTask);
+}
+
 export const taskFinished = (endMessage = 'taskFinished') => {
   return {
     type: jsPsychHTMLMultiResponse,
@@ -27,6 +33,9 @@ export const taskFinished = (endMessage = 'taskFinished') => {
     keyboard_choices: 'ALL_KEYS',
     button_html: '<button class="primary" style=margin-top:10%>Exit</button>',
     on_load: () => {
+      window.addEventListener('click', endTask);
+      window.addEventListener('keydown', endTask);
+
       if (mediaAssets.audio[endMessage]) {
         PageAudioHandler.playAudio(mediaAssets.audio[endMessage])
       }
