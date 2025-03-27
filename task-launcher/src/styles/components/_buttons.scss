@@ -65,14 +65,19 @@ button {
     // text
     color: black;
     font-family: 'Noto Sans';
-    font-size: 1.5rem;
+    font-size: 1rem;
     font-style: normal;
     font-weight: 700;
     line-height: normal;
     cursor: pointer;
-  }
-  &.roar-inference-btn:hover {
-    background-color: gainsboro;
+
+    &:hover {
+      background-color: gainsboro;
+    }
+
+    @include respond-to('huge') {
+      font-size: 1.5rem;
+    }
   }
 
   &.secondary {
