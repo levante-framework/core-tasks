@@ -98,7 +98,7 @@
     border-radius: 0;
     background-color: transparent;
     color: black;
-    font-size: xx-large;
+    font-size: x-large;
     padding-bottom: 0;
     margin-right: 25%;
     margin-left: 25%;
@@ -117,6 +117,10 @@
       margin-left: 5%;
       margin-right: 5%;
     }
+
+    @include respond-to('huge') {
+      font-size: xx-large;
+    }
   }
 
   &.roar-instruction-question{
@@ -125,14 +129,13 @@
     border-radius: 0;
     background-color: transparent;
     color: black;
-    font-size: xx-large;
+    font-size: x-large;
     padding: 12px;
     font-weight: bold;
 
-    @include respond-to('small-medium') {
-      font-size: x-large;
+    @include respond-to('huge') {
+      font-size: xx-large;
     }
-
   }
 
   &.instruction-small {
