@@ -135,6 +135,11 @@ function buildInstructionTrial(mascotImage, promptAudioKey, promptText, buttonTe
     }, 
     on_finish: () => {
       PageAudioHandler.stopAndDisconnectNode();
+
+      if (promptAudioKey === 'heartsAndFlowersEnd') {
+        taskStore('taskComplete', true);
+      }
+
       
       jsPsych.data.addDataToLastTrial({
         audioButtonPresses: PageAudioHandler.replayPresses, 
