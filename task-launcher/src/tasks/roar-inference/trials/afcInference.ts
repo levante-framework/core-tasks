@@ -235,7 +235,7 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigTypeInference>) {
     taskStore.transact('trialNumSubtask', (oldVal: number) => oldVal + 1);
     // update total real trials
     if (isPracticeTrial) {
-      taskStore.transact('trialNumTotal', (oldVal: number) => oldVal + 1);
+      taskStore.transact('testTrialCount', (oldVal: number) => oldVal + 1);
     }
   }
 }

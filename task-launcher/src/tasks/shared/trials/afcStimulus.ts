@@ -425,7 +425,7 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
   });
 
   if (stimulus.assessmentStage === "test_response") {
-    taskStore.transact('trialNumTotal', (oldVal: number) => oldVal + 1);
+    taskStore.transact('testTrialCount', (oldVal: number) => oldVal + 1);
   }
   
   if (itemLayoutConfig.inCorrectTrialConfig.onIncorrectTrial === 'skip' && !runCat) {

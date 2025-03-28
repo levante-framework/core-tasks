@@ -132,7 +132,7 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false, rese
           } else {
             sequenceLength = 2; 
             // update total trials to account for skipped forward block
-            taskStore('trialNumTotal', 21); 
+            taskStore('testTrialCount', 21); 
           }
           
         }
@@ -162,7 +162,7 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false, rese
           timeoutIDs.forEach(id => clearTimeout(id));
           timeoutIDs = [];
 
-          taskStore.transact('trialNumTotal', (oldVal: number) => oldVal + 1);
+          taskStore.transact('testTrialCount', (oldVal: number) => oldVal + 1);
         }
 
       } 

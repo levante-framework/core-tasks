@@ -112,7 +112,7 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
   })
   
   const totalRealTrials = blockCountList.reduce(((acc, total) => acc + total), 0);
-  taskStore('totalRealTrials', totalRealTrials);
+  taskStore('totalTestTrials', totalRealTrials);
 
   // functions to add trials to blocks of each type
   function updateTestDimensions() {

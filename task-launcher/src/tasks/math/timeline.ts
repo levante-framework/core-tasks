@@ -117,7 +117,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
 
       if (trialsSkipped > 0) {
         taskStore("trialsSkipped", (trialsSkipped - 1)); 
-        taskStore.transact('trialNumTotal', (oldVal: number) => oldVal + 1); 
+        taskStore.transact('testTrialCount', (oldVal: number) => oldVal + 1); 
         return false;
       } else {
         return true;
@@ -245,7 +245,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
       stimulus: allBlocks
     }
     taskStore('corpora', newCorpora); // puts all blocks into taskStore
-    taskStore('totalRealTrials', 0); // add to this while building out each block
+    taskStore('totalTestTrials', 0); // add to this while building out each block
 
     const numOfBlocks = allBlocks.length; 
     const trialProportionsPerBlock = [2, 3, 3]; // divide by these numbers to get trials per block
@@ -300,7 +300,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
       })
     }
   } else {
-    taskStore('totalRealTrials', getRealTrials(corpus));
+    taskStore('totalTestTrials', getRealTrials(corpus));
 
     // if cat is not running, remove difficulty field from all items 
     corpus.forEach(trial => 

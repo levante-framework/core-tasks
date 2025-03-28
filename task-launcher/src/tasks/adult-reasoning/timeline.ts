@@ -23,7 +23,7 @@ export default function buildAdultReasoningTimeline(config: Record<string, any>,
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {}; 
 
-  taskStore('totalRealTrials', getRealTrials(corpus));
+  taskStore('totalTestTrials', getRealTrials(corpus));
   
   const layoutConfigMap: Record<string, LayoutConfigType> = {};
     for (const c of corpus) {

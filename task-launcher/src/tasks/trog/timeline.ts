@@ -96,7 +96,7 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
 
     // cat block
     const numOfCatTrials = corpora.cat.length;
-    taskStore('totalRealTrials', numOfCatTrials);
+    taskStore('totalTestTrials', numOfCatTrials);
     for (let i = 0; i < numOfCatTrials; i++) {
       timeline.push({...setupStimulus, stimulus: ''});
       timeline.push(stimulusBlock);
@@ -112,7 +112,7 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
     timeline.push(unnormedBlock);
   } else {
     const numOfTrials = taskStore().totalTrials;
-    taskStore('totalRealTrials', getRealTrials(corpus));
+    taskStore('totalTestTrials', getRealTrials(corpus));
     for (let i = 0; i < numOfTrials; i++) {
       timeline.push({...setupStimulus, stimulus: ''}); 
       timeline.push(practiceTransition);

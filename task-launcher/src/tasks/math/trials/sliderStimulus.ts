@@ -328,7 +328,7 @@ export const slider = (layoutConfigMap: Record<string, LayoutConfigType>, trial?
     });
 
     if (stimulus.assessmentStage === "test_response") {
-      taskStore.transact('trialNumTotal', (oldVal: number) => oldVal + 1);
+      taskStore.transact('testTrialCount', (oldVal: number) => oldVal + 1);
     }
 
     if (responseType === 'button') {
