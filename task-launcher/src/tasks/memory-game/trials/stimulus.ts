@@ -126,11 +126,13 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false, rese
           numCorrect = 0;
         }
 
-        if (taskStore().numIncorrect == taskStore().maxIncorrect) {
+        if (taskStore().numIncorrect === taskStore().maxIncorrect) {
           if (reverse) {
             finishExperiment();
           } else {
             sequenceLength = 2; 
+            // update total trials to account for skipped forward block
+            taskStore('trialNumTotal', 21); 
           }
           
         }
@@ -159,8 +161,11 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false, rese
         if (!isPractice) {
           timeoutIDs.forEach(id => clearTimeout(id));
           timeoutIDs = [];
+
+          taskStore.transact('trialNumTotal', (oldVal: number) => oldVal + 1);
         }
-      }
+
+      } 
     },
   };
 }

@@ -7,6 +7,7 @@ import {
   createPreloadTrials, 
   prepareCorpus, 
   prepareMultiBlockCat, 
+  getRealTrials,
 } from '../shared/helpers';
 import { jsPsych, initializeCat } from '../taskSetup';
 import { slider } from './trials/sliderStimulus';
@@ -116,6 +117,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
 
       if (trialsSkipped > 0) {
         taskStore("trialsSkipped", (trialsSkipped - 1)); 
+        taskStore.transact('trialNumTotal', (oldVal: number) => oldVal + 1); 
         return false;
       } else {
         return true;
@@ -243,6 +245,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
       stimulus: allBlocks
     }
     taskStore('corpora', newCorpora); // puts all blocks into taskStore
+    taskStore('totalRealTrials', 0); // add to this while building out each block
 
     const numOfBlocks = allBlocks.length; 
     const trialProportionsPerBlock = [2, 3, 3]; // divide by these numbers to get trials per block
@@ -285,6 +288,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
       }
 
       const numOfTrials = (allBlocks[i].length / trialProportionsPerBlock[i]); 
+      taskStore.transact('numOfTrials', (oldVal: number) => oldVal += numOfTrials); 
       for (let j = 0; j < numOfTrials; j++) {
         timeline.push({...setupStimulusFromBlock(i), stimulus: ''}); // select only from the current block
         timeline.push(stimulusBlock());
@@ -296,6 +300,8 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
       })
     }
   } else {
+    taskStore('totalRealTrials', getRealTrials(corpus));
+
     // if cat is not running, remove difficulty field from all items 
     corpus.forEach(trial => 
       trial.difficulty = NaN

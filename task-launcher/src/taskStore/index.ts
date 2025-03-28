@@ -22,6 +22,7 @@ import store from 'store2';
  * @property {boolean} maxTimeReached - Whether the max time has been reached, default is false.
  * ------- Added after config is parsed -------
  * @property {number} totalTrials - Counter for total trials in the experiment, starting at 0.
+ * @property {number} totalRealTrials - Total number of test trials in the experiment timeline.
  * @property {Object} corpora - Object containing the corpus data (stimulus).
  * @property {Object} translations - Object containing the translations.
  * @property {Object} nextStimulus - Object containing the next stimulus.
