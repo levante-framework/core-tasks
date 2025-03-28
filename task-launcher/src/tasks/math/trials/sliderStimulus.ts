@@ -327,6 +327,10 @@ export const slider = (layoutConfigMap: Record<string, LayoutConfigType>, trial?
       audioButtonPresses: PageAudioHandler.replayPresses
     });
 
+    if (stimulus.assessmentStage === "test_response") {
+      taskStore.transact('testTrialCount', (oldVal: number) => oldVal + 1);
+    }
+
     if (responseType === 'button') {
       const calculatedRt = Math.round(endTime - startTime);
 

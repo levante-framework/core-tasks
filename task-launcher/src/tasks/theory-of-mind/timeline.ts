@@ -1,6 +1,6 @@
 import 'regenerator-runtime/runtime';
 // setup
-import { initTrialSaving, initTimeline, createPreloadTrials } from '../shared/helpers';
+import { initTrialSaving, initTimeline, createPreloadTrials, getRealTrials } from '../shared/helpers';
 import { jsPsych, initializeCat } from '../taskSetup';
 // trials
 import { 
@@ -65,6 +65,7 @@ export default function buildTOMTimeline(config: Record<string, any>, mediaAsset
   };
 
   const numOfTrials = taskStore().totalTrials;
+  taskStore('totalTestTrials', getRealTrials(corpus));
   for (let i = 0; i < numOfTrials; i++) {
     timeline.push({...setupStimulus, stimulus: ''});
     timeline.push(stimulusBlock);

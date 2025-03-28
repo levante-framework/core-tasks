@@ -264,6 +264,10 @@ export const afcMatch = {
     selectedCards = [];
     selectedCardIdxs = [];
 
+    if (stim.assessmentStage === "test_response") {
+      taskStore.transact('testTrialCount', (oldVal: number) => oldVal + 1);
+    }
+
     // if heavy instructions is true, show data quality screen before ending 
     if ((taskStore().numIncorrect >= taskStore().maxIncorrect) && !taskStore().heavyInstructions) {
       finishExperiment();

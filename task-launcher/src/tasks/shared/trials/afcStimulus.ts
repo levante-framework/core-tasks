@@ -315,10 +315,6 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
 
     // update the trial number
     taskStore.transact('trialNumSubtask', (oldVal: number) => oldVal + 1);
-    // update total real trials
-    if (isPracticeTrial) {
-      taskStore.transact('trialNumTotal', (oldVal: number) => oldVal + 1);
-    }
   }
 
   setupReplayAudio(pageStateHandler);
@@ -428,6 +424,10 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
     audioButtonPresses: PageAudioHandler.replayPresses
   });
 
+  if (stimulus.assessmentStage === "test_response") {
+    taskStore.transact('testTrialCount', (oldVal: number) => oldVal + 1);
+  }
+  
   if (itemLayoutConfig.inCorrectTrialConfig.onIncorrectTrial === 'skip' && !runCat) {
     setSkipCurrentBlock(stimulus.trialType);
   } else if ((taskStore().numIncorrect >= taskStore().maxIncorrect && !runCat)) {

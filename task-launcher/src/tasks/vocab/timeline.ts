@@ -1,6 +1,6 @@
 import 'regenerator-runtime/runtime';
 // setup
-import { initTrialSaving, initTimeline, createPreloadTrials, prepareCorpus, selectNItems } from '../shared/helpers';
+import { initTrialSaving, initTimeline, createPreloadTrials, prepareCorpus, selectNItems, getRealTrials } from '../shared/helpers';
 import { jsPsych, initializeCat, cat } from '../taskSetup';
 // trials
 import { 
@@ -91,6 +91,7 @@ export default function buildVocabTimeline(config: Record<string, any>, mediaAss
 
     // cat block
     const numOfCatTrials = corpora.cat.length;
+    taskStore('totalTestTrials', numOfCatTrials);
     for (let i = 0; i < numOfCatTrials; i++) {
       timeline.push(stimulusBlock);
     }
@@ -105,6 +106,7 @@ export default function buildVocabTimeline(config: Record<string, any>, mediaAss
     timeline.push(unnormedBlock);
   } else {
     const numOfTrials = taskStore().totalTrials;
+    taskStore('totalTestTrials', getRealTrials(corpus));
     for (let i = 0; i < numOfTrials; i++) {
       timeline.push(stimulusBlock);
     }
