@@ -1,6 +1,6 @@
 import 'regenerator-runtime/runtime';
 // setup
-import { initTrialSaving, initTimeline, createPreloadTrials } from '../shared/helpers';
+import { initTrialSaving, initTimeline, createPreloadTrials, getRealTrials } from '../shared/helpers';
 import { instructions } from './trials/instructions';
 import { jsPsych, initializeCat, cat } from '../taskSetup';
 // trials
@@ -126,6 +126,7 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
     });
 
     const numOfCatTrials = corpora.cat.length;
+    taskStore('totalTestTrials', numOfCatTrials);
     for (let i = 0; i < numOfCatTrials; i++) {
       timeline.push({...setupStimulus, stimulus: ''});
       timeline.push(afcStimulusTemplate(trialConfig));
@@ -141,6 +142,7 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
     timeline.push(unnormedBlock);
   } else {
     const numOfTrials = taskStore().totalTrials;
+    taskStore('totalTestTrials', getRealTrials(corpus)); 
     for (let i = 0; i < numOfTrials; i += 1) {
       if(i === 4){
         timeline.push(repeatInstructions);

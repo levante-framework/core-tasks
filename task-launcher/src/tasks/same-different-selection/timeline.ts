@@ -110,6 +110,9 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
   taskStore().corpora.stimulus.forEach((trial: StimulusType) => {
     blockCountList[Number(trial.blockIndex)] = (blockCountList[Number(trial.blockIndex)]  || 0) + 1;
   })
+  
+  const totalRealTrials = blockCountList.reduce(((acc, total) => acc + total), 0);
+  taskStore('totalTestTrials', totalRealTrials);
 
   // functions to add trials to blocks of each type
   function updateTestDimensions() {

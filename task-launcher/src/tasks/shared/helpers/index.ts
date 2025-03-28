@@ -1,4 +1,7 @@
 // JavaScript modules are resolved and executed in the order they are imported.
+
+import { getRealTrials } from './getRealTrials';
+
 // Order of export matters
 export * from './config';
 export * from './stringToNumArray';
@@ -31,3 +34,4 @@ export { mapDistractorsToString } from './mapDistractorsToString';
 export { setSentryContext } from './setSentryContext';
 export { handleStaggeredButtons } from './staggerButtons';
 export { addPracticeButtonListeners } from './handlePracticeButtons';
+export { getRealTrials } from './getRealTrials';

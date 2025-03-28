@@ -61,6 +61,14 @@ export default function buildHeartsAndFlowersTimeline(config, mediaAssets) {
     },
   };
 
+  const totalRealTrials = 
+    timelineAdminConfig.heart.testTrialCount +
+    timelineAdminConfig.flower.testTrialCount +
+    timelineAdminConfig.mixed1.testTrialCount +
+    timelineAdminConfig.mixed2.testTrialCount; 
+
+  taskStore('totalTestTrials', totalRealTrials);
+
   let timeline = [
     preloadTrials,
     initialTimeline,
