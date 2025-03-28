@@ -96,7 +96,7 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
   };
 
   const totalRealTrials = corsiBlocksStimulus.repetitions + corsiBlocksReverse.repetitions; 
-  taskStore('totalRealTrials', totalRealTrials);
+  taskStore('totalTestTrials', totalRealTrials);
 
   const timeline: any[] = [
     initialTimeline,

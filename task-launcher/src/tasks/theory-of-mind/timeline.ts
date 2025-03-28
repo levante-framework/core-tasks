@@ -65,7 +65,7 @@ export default function buildTOMTimeline(config: Record<string, any>, mediaAsset
   };
 
   const numOfTrials = taskStore().totalTrials;
-  taskStore('totalRealTrials', getRealTrials(corpus));
+  taskStore('totalTestTrials', getRealTrials(corpus));
   for (let i = 0; i < numOfTrials; i++) {
     timeline.push({...setupStimulus, stimulus: ''});
     timeline.push(stimulusBlock);

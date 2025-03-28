@@ -147,7 +147,7 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
     });
 
     const numOfCatTrials = corpora.cat.length;
-    taskStore('totalRealTrials', numOfCatTrials); 
+    taskStore('totalTestTrials', numOfCatTrials); 
     for (let i = 0; i < numOfCatTrials; i++) {
       if (i === 2) {
         timeline.push(repeatInstructions)
@@ -166,7 +166,7 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
     timeline.push(unnormedBlock);
   } else {
     const numOfTrials = taskStore().totalTrials; 
-    taskStore('totalRealTrials', getRealTrials(corpus));
+    taskStore('totalTestTrials', getRealTrials(corpus));
     for (let i = 0; i < numOfTrials; i++) {
       if (i === 4) {
         timeline.push(repeatInstructions)

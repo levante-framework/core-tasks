@@ -67,7 +67,7 @@ export default function buildHeartsAndFlowersTimeline(config, mediaAssets) {
     timelineAdminConfig.mixed1.testTrialCount +
     timelineAdminConfig.mixed2.testTrialCount; 
 
-  taskStore('totalRealTrials', totalRealTrials);
+  taskStore('totalTestTrials', totalRealTrials);
 
   let timeline = [
     preloadTrials,

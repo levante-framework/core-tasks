@@ -126,7 +126,7 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
     });
 
     const numOfCatTrials = corpora.cat.length;
-    taskStore('totalRealTrials', numOfCatTrials);
+    taskStore('totalTestTrials', numOfCatTrials);
     for (let i = 0; i < numOfCatTrials; i++) {
       timeline.push({...setupStimulus, stimulus: ''});
       timeline.push(afcStimulusTemplate(trialConfig));
@@ -142,7 +142,7 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
     timeline.push(unnormedBlock);
   } else {
     const numOfTrials = taskStore().totalTrials;
-    taskStore('totalRealTrials', getRealTrials(corpus)); 
+    taskStore('totalTestTrials', getRealTrials(corpus)); 
     for (let i = 0; i < numOfTrials; i += 1) {
       if(i === 4){
         timeline.push(repeatInstructions);

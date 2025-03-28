@@ -91,7 +91,7 @@ export default function buildVocabTimeline(config: Record<string, any>, mediaAss
 
     // cat block
     const numOfCatTrials = corpora.cat.length;
-    taskStore('totalRealTrials', numOfCatTrials);
+    taskStore('totalTestTrials', numOfCatTrials);
     for (let i = 0; i < numOfCatTrials; i++) {
       timeline.push(stimulusBlock);
     }
@@ -106,7 +106,7 @@ export default function buildVocabTimeline(config: Record<string, any>, mediaAss
     timeline.push(unnormedBlock);
   } else {
     const numOfTrials = taskStore().totalTrials;
-    taskStore('totalRealTrials', getRealTrials(corpus));
+    taskStore('totalTestTrials', getRealTrials(corpus));
     for (let i = 0; i < numOfTrials; i++) {
       timeline.push(stimulusBlock);
     }
