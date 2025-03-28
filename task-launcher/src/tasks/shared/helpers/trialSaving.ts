@@ -2,6 +2,7 @@ import { jsPsych } from '../../taskSetup';
 import cloneDeep from 'lodash/cloneDeep';
 import _mapValues from 'lodash/mapValues';
 import { taskStore } from '../../../taskStore';
+import { recordCompletion } from './recordCompletion';
 
 /**
  * This function calculates computed scores given raw scores for each subtask.
@@ -132,6 +133,14 @@ export const initTrialSaving = (config: Record<string, any>) => {
 
     config.firekit.finishRun();
   });
+
+  // @ts-ignore
+  jsPsych.opts.on_trial_finish = extend(jsPsych.opts.on_trial_finish, () => {
+    // add to trial counter
+    if (taskStore().trialNumTotal >= (taskStore().totalRealTrials * 0.8)) {
+      recordCompletion(config);
+    }
+  }); 
 
   // @ts-ignore
   jsPsych.opts.on_data_update = extend(jsPsych.opts.on_data_update, (data) => {

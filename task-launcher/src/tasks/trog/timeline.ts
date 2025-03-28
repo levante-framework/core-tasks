@@ -1,6 +1,6 @@
 import 'regenerator-runtime/runtime';
 // setup
-import { initTrialSaving, initTimeline, createPreloadTrials } from '../shared/helpers';
+import { initTrialSaving, initTimeline, createPreloadTrials, getRealTrials } from '../shared/helpers';
 import { jsPsych, initializeCat, cat } from '../taskSetup';
 // trials
 import { 
@@ -96,6 +96,7 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
 
     // cat block
     const numOfCatTrials = corpora.cat.length;
+    taskStore('totalRealTrials', numOfCatTrials);
     for (let i = 0; i < numOfCatTrials; i++) {
       timeline.push({...setupStimulus, stimulus: ''});
       timeline.push(stimulusBlock);
@@ -111,6 +112,7 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
     timeline.push(unnormedBlock);
   } else {
     const numOfTrials = taskStore().totalTrials;
+    taskStore('totalRealTrials', getRealTrials(corpus));
     for (let i = 0; i < numOfTrials; i++) {
       timeline.push({...setupStimulus, stimulus: ''}); 
       timeline.push(practiceTransition);

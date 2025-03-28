@@ -114,6 +114,8 @@ export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrial
         responseLocation: response
       });
 
+      taskStore.transact('trialNumTotal', (oldVal) => oldVal += 1);
+
       if (onTrialFinishTimelineCallback) {
         onTrialFinishTimelineCallback(data);
       }

@@ -1,7 +1,7 @@
 import 'regenerator-runtime/runtime';
 // setup
 import { jsPsych, initializeCat, cat } from '../taskSetup';
-import { createPreloadTrials, initTrialSaving, initTimeline } from '../shared/helpers';
+import { createPreloadTrials, initTrialSaving, initTimeline, getRealTrials } from '../shared/helpers';
 // trials
 import { imageInstructions, threeDimInstructions, videoInstructionsFit, videoInstructionsMisfit } from './trials/instructions';
 import { 
@@ -147,6 +147,7 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
     });
 
     const numOfCatTrials = corpora.cat.length;
+    taskStore('totalRealTrials', numOfCatTrials); 
     for (let i = 0; i < numOfCatTrials; i++) {
       if (i === 2) {
         timeline.push(repeatInstructions)
@@ -165,6 +166,7 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
     timeline.push(unnormedBlock);
   } else {
     const numOfTrials = taskStore().totalTrials; 
+    taskStore('totalRealTrials', getRealTrials(corpus));
     for (let i = 0; i < numOfTrials; i++) {
       if (i === 4) {
         timeline.push(repeatInstructions)
