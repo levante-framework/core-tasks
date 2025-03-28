@@ -20,6 +20,7 @@ import store from 'store2';
  * @property {boolean} storeItemId - Whether to store the item ID, default is false.
  * @property {boolean} isRoarApp - Whether the app is running in ROAR mode, default is false.
  * @property {boolean} maxTimeReached - Whether the max time has been reached, default is false.
+ * @property {boolean} taskComplete - Whether the task has ended - if true, the user should return to dashboard.
  * ------- Added after config is parsed -------
  * @property {number} totalTrials - Counter for total trials in the experiment, starting at 0.
  * @property {Object} corpora - Object containing the corpus data (stimulus).
@@ -107,6 +108,7 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     stimulusBlocks: config.stimulusBlocks,
     gridSize: config.userMetadata.age > 4 ? 3 : 2,
     maxTimeReached: false,
+    taskComplete: false,
     stimulus: 'heart',
     stimulusSide: 'left',
     stimulusPosition: 0,
