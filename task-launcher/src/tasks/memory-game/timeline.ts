@@ -3,7 +3,7 @@ import { initTimeline, initTrialSaving } from '../shared/helpers';
 import { jsPsych } from '../taskSetup';
 import { initializeCat } from '../taskSetup';
 // trials
-import { enterFullscreen, exitFullscreen, feedback, finishExperiment } from '../shared/trials';
+import { enterFullscreen, exitFullscreen, feedback, finishExperiment, taskFinished } from '../shared/trials';
 import { getCorsiBlocks } from './trials/stimulus';
 import { instructions, readyToPlay, reverseOrderPrompt, reverseOrderInstructions } from './trials/instructions';
 import { taskStore } from '../../taskStore';
@@ -112,6 +112,7 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
     getSecondRoundPracticeTrials(true, 'memoryGameBackwardTryAgain'),
     readyToPlay,
     corsiBlocksReverse,
+    taskFinished(),
   ];
 
   initializeCat();
