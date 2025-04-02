@@ -136,8 +136,8 @@ export const initTrialSaving = (config: Record<string, any>) => {
 
   // @ts-ignore
   jsPsych.opts.on_trial_finish = extend(jsPsych.opts.on_trial_finish, () => {
-    // add to trial counter
-    if (taskStore().trialNumTotal >= (taskStore().totalRealTrials * 0.8)) {
+    // record completion at 80%
+    if (taskStore().testTrialCount >= (taskStore().totalTestTrials * 0.8)) {
       recordCompletion(config);
     }
   }); 
