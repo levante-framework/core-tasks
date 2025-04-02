@@ -11,7 +11,14 @@ $button-default-font-weight: 500;
 $button-secondary-box-shadow: -8px -10px 0px 0px;
 $button-secondary-inner-shadow: 0px 0px 12px 0px;
 
-$response-size-default: clamp(120px, 10vw, 150px);
+$response-size-default-width: clamp(120px, 10vw, 150px);
+$response-size-default-height: 15vh;
+
+$response-size-default: min($response-size-default-width, $response-size-default-height);;
 $response-size-sm: clamp(100px, 18vw, 150px);
 $response-size-s: 22vw;
 $response-size-m: calc(clamp(70px, 22vw, 250px) - 10px);
+
+// replay btn
+$replay_btn_size: min(64px, 8vh);
+$replay_btn_pos: min(8px, 1vh);
