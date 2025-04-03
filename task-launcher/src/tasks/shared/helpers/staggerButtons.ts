@@ -54,15 +54,23 @@ const showStaggeredBtnAndPlaySound = (
       console.error('Audio Asset not available for:', audioList[index]);
       audioAsset = mediaAssets.audio.nullAudio;
     }
-  
-    PageAudioHandler.playAudio(audioAsset, () => {
-      if (index + 1 === btnList?.length) { // Last Element
-        for (const jsResponseEl of btnList) {
-          jsResponseEl.classList.remove('lev-staggered-disabled');
+
+    const audioConfig: AudioConfigType = {
+      restrictRepetition: {
+        enabled: false, 
+        maxRepetitions: 2
+      }, 
+      onEnded: () => {
+        if (index + 1 === btnList?.length) { // Last Element
+          for (const jsResponseEl of btnList) {
+            jsResponseEl.classList.remove('lev-staggered-disabled');
+          }
+          pageState.enableReplayBtn();
+        } else { //recurse
+          showStaggeredBtnAndPlaySound(index + 1, btnList, audioList, pageState);
         }
-        pageState.enableReplayBtn();
-      } else { //recurse
-        showStaggeredBtnAndPlaySound(index + 1, btnList, audioList, pageState);
-      }
-    });
+      }, 
+    }
+  
+    PageAudioHandler.playAudio(audioAsset, audioConfig);
   };
