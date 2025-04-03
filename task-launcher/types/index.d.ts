@@ -45,6 +45,14 @@ declare global {
     };
   }
 
+  type AudioConfigType = {
+    restrictRepetition: {
+      enabled: boolean,
+      maxRepetitions: number,
+    }, 
+    onEnded?: Function,
+  }
+
   type StimulusType = {
     source: string;
     block_index?: string;

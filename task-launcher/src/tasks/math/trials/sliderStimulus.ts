@@ -30,13 +30,21 @@ function setUpAudio(responseType: string) {
   const cue = responseType === 'button' ? 'numberLinePrompt1' : 'numberLineSliderPrompt1';
   const audioFile = mediaAssets.audio[cue] || ''; 
   
-  PageAudioHandler.playAudio(audioFile, () => {
-    // set up replay button audio after the first audio has played
-    if (cue) {
-      const pageStateHandler = new PageStateHandler(cue, true);
-      setupReplayAudio(pageStateHandler);
+  const audioConfig: AudioConfigType = {
+    restrictRepetition: {
+      enabled: true, 
+      maxRepetitions: 2,
+    }, 
+    onEnded: () => {
+      // set up replay button audio after the first audio has played
+      if (cue) {
+        const pageStateHandler = new PageStateHandler(cue, true);
+        setupReplayAudio(pageStateHandler);
+      }
     }
-  });  
+  }
+  
+  PageAudioHandler.playAudio(audioFile, audioConfig);    
 }
 
 function captureValue(btnElement: HTMLButtonElement | null, event: Event & {key?: string}, i: number, isPractice: boolean) {
