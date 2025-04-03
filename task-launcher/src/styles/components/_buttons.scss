@@ -19,7 +19,7 @@ button {
     padding: $button-primary-padding;
     border-color: $bg-accent_secondary;
     box-shadow: $button-default-box-shadow rgba($bg-accent_secondary, 0.5) inset;
-    font-size: $font-size-xs;
+    font-size: $font-size-xs-em;
     font-weight: $font-weight-dark;
     color: $txt-white;
 
@@ -210,6 +210,8 @@ button {
     padding: 0;
     box-sizing: border-box;
     border-color: $bg-button-primary;
+    min-width: unset !important;
+    min-height: unset !important;
 
     img {
       border: none;
@@ -217,16 +219,16 @@ button {
       height: $response-size-default;
       padding: 0;
       margin: 0;
-      border-radius: $lev-spacing-s;
+      border-radius: $button-default-border-radius;
       float: left;
     }
 
     @include respond-to('small-medium') {
-      border-radius: $lev-spacing-s;
+      border-radius: $button-default-border-radius;
       img {
         width: $response-size-sm;
         height: $response-size-sm;
-        border-radius: $lev-spacing-xs;
+        border-radius: $button-default-border-radius-small;
       }
     }
 
@@ -260,7 +262,7 @@ button {
       height: $lev-resized-buttons-2;
       padding: 0;
       margin: 0;
-      border-radius: $lev-spacing-s;
+      border-radius: $button-default-border-radius-small;
       float: left;
     }
 
@@ -285,7 +287,7 @@ button {
       height: $response-size-m;
       padding: 0;
       margin: 0;
-      border-radius: $lev-spacing-s;
+      border-radius: $button-default-border-radius;
       float: left;
     }
 
@@ -294,7 +296,7 @@ button {
       img {
         width: $response-size-s;
         height: $response-size-s;
-        border-radius: $lev-spacing-xs;
+        border-radius: $button-default-border-radius-small;
       }
     }
 
