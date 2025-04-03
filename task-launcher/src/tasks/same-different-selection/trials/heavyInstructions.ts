@@ -67,7 +67,16 @@ export const somethingSameDemo1 = {
     post_trial_gap: 350,
     on_load: () => {
       const audioFile = "sameDifferentSelectionBothYellowHeavy";
-      PageAudioHandler.playAudio(mediaAssets.audio[audioFile], enableOkBtn);
+      
+      const audioConfig: AudioConfigType = {
+        restrictRepetition: {
+          enabled: true, 
+          maxRepetitions: 2
+        }, 
+        onEnded: enableOkBtn, 
+      }
+
+      PageAudioHandler.playAudio(mediaAssets.audio[audioFile], audioConfig);
   
       const pageStateHandler = new PageStateHandler(audioFile, true);
       setupReplayAudio(pageStateHandler);
@@ -162,14 +171,30 @@ export const somethingSameDemo2 = {
           button.style.animation = 'pulse 2s 1s'
         );
 
+        const audioConfig: AudioConfigType = {
+          restrictRepetition: {
+            enabled: true, 
+            maxRepetitions: 2
+          }, 
+          onEnded: animateTopButton, 
+        } 
+
         setTimeout(() => {
-          PageAudioHandler.playAudio(mediaAssets.audio["sdsPrompt3DemoHeavyPart2"], animateTopButton);
+          PageAudioHandler.playAudio(mediaAssets.audio["sdsPrompt3DemoHeavyPart2"], audioConfig);
         }, 
         2500
         ); 
       }
 
-      PageAudioHandler.playAudio(mediaAssets.audio["sdsPrompt3DemoHeavyPart1"], animateBottomButtons);
+      const audioConfig: AudioConfigType = {
+        restrictRepetition: {
+          enabled: true, 
+          maxRepetitions: 2
+        }, 
+        onEnded: animateBottomButtons, 
+      } 
+
+      PageAudioHandler.playAudio(mediaAssets.audio["sdsPrompt3DemoHeavyPart1"], audioConfig);
     },
     on_finish: () => {
       PageAudioHandler.stopAndDisconnectNode();
@@ -229,7 +254,15 @@ const videoInstructions = videoInstructionData.map(data => {
     },
     keyboard_choices: 'NO_KEYS',
     on_load: () => {
-      PageAudioHandler.playAudio(mediaAssets.audio[camelize(data.prompt)], enableOkBtn);
+      const audioConfig: AudioConfigType = {
+        restrictRepetition: {
+          enabled: true, 
+          maxRepetitions: 2
+        }, 
+        onEnded: enableOkBtn, 
+      }
+
+      PageAudioHandler.playAudio(mediaAssets.audio[camelize(data.prompt)], audioConfig);
       
       const pageStateHandler = new PageStateHandler(data.prompt, true);
       setupReplayAudio(pageStateHandler);

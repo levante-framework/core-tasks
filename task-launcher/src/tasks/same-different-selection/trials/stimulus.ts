@@ -54,10 +54,25 @@ function handleButtonFeedback(
     });
   }
 
+  const correctAudioConfig: AudioConfigType = {
+    restrictRepetition: {
+      enabled: true, 
+      maxRepetitions: 2
+    }, 
+    onEnded: finishTrial, 
+  }
+
+  const incorrectAudioConfig: AudioConfigType = {
+    restrictRepetition: {
+      enabled: false, 
+      maxRepetitions: 2
+    },
+  }
+
   PageAudioHandler.stopAndDisconnectNode(); // disconnect first to avoid overlap
   isCorrectChoice ? 
-  PageAudioHandler.playAudio(feedbackAudio, finishTrial) :
-  PageAudioHandler.playAudio(feedbackAudio)
+  PageAudioHandler.playAudio(feedbackAudio, correctAudioConfig) :
+  PageAudioHandler.playAudio(feedbackAudio, incorrectAudioConfig)
 }
 
 export const stimulus = (trial?: StimulusType) => {

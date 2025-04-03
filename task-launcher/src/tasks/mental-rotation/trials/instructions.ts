@@ -13,6 +13,14 @@ function enableOkBtn() {
   }
 }
 
+const audioConfig: AudioConfigType = {
+  restrictRepetition: {
+    enabled: true, 
+    maxRepetitions: 2
+  }, 
+  onEnded: enableOkBtn, 
+}
+
 // Switch to HTMLMultiResponse when we have video with audio
 export const videoInstructionsFit = {
   type: jsPsychHtmlMultiResponse,
@@ -46,7 +54,7 @@ export const videoInstructionsFit = {
     // const wrapper = document.getElementById('jspsych-audio-multi-response-prompt');
     // wrapper.style.display = 'flex';
     // wrapper.style.justifyContent = 'center';
-    PageAudioHandler.playAudio(mediaAssets.audio.mentalRotationTrainingInstruct3, enableOkBtn);
+    PageAudioHandler.playAudio(mediaAssets.audio.mentalRotationTrainingInstruct3, audioConfig);
     
     const pageStateHandler = new PageStateHandler('mental-rotation-training-instruct3', true);
     setupReplayAudio(pageStateHandler);
@@ -88,7 +96,7 @@ export const videoInstructionsMisfit = {
   },
   keyboard_choices: 'NO_KEYS',
   on_load: () => {
-    PageAudioHandler.playAudio(mediaAssets.audio.mentalRotationTrainingInstruct2, enableOkBtn); 
+    PageAudioHandler.playAudio(mediaAssets.audio.mentalRotationTrainingInstruct2, audioConfig); 
     
     const pageStateHandler = new PageStateHandler('mental-rotation-training-instruct2', true);
     setupReplayAudio(pageStateHandler);
@@ -127,7 +135,7 @@ export const imageInstructions = {
   },
   keyboard_choices: 'NO_KEYS',
   on_load: () => {
-    PageAudioHandler.playAudio(mediaAssets.audio.mentalRotationInstruct1, enableOkBtn); 
+    PageAudioHandler.playAudio(mediaAssets.audio.mentalRotationInstruct1, audioConfig); 
 
     const pageStateHandler = new PageStateHandler('mental-rotation-instruct1', true);
     setupReplayAudio(pageStateHandler);
