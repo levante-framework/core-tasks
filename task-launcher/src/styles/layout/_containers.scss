@@ -46,16 +46,18 @@
 
   &.instruction {
     display: flex;
-    padding: $lev-spacing-s;
+    padding: min($lev-spacing-s, 3.5vh);
     justify-content: center;
     align-items: center;
     text-align: center;
     border: 3px solid $bg-accent_secondary;
-    border-radius: 32px;
+    border-radius: $button-default-border-radius;
     background-color: $bg-bubble-base;
+    width: calc(100vw - 2 * ($replay_btn_size + $replay_btn_pos + $lev-spacing-s));
+    max-width: max-content;
 
     p {
-      font-size: $font-size-xs;
+      font-size: $font-size-xs-em;
       font-weight: $font-weight-light;
       line-height: 1.0;
       margin: 0;
@@ -63,13 +65,13 @@
     
     @include respond-to('medium') {
       display: flex;
-      padding: $lev-spacing-xs;
+      padding: min($lev-spacing-xs, 2.5vh);
       justify-content: center;
       align-items: center;
-      border-radius: 24px;
+      border-radius: $button-default-border-radius-small;
   
       p {
-        font-size: $font-size-xxs;
+        font-size: $font-size-xs-em;
         font-weight: $font-weight-light;
         line-height: 1.0;
         margin: 0;
@@ -81,10 +83,11 @@
       padding: $lev-spacing-xxs;
       justify-content: center;
       align-items: center;
-      border-radius: 16px;
+      border-radius: $button-default-border-radius-small;
+      width: 90vw;
   
       p {
-        font-size: $font-size-xxxs;
+        font-size: $font-size-xs-em;
         font-weight: $font-weight-light;
         line-height: 1.0;
         margin: 0;
@@ -94,12 +97,12 @@
 
   &.instruction-small {
     display: flex;
-    padding: $lev-spacing-s;
+    padding: min($lev-spacing-s, 3.5vh);
     justify-content: center;
     align-items: center;
     text-align: center;
     border: 3px solid $bg-accent_secondary;
-    border-radius: 32px;
+    border-radius: $button-default-border-radius;
     background-color: $bg-bubble-base;
     width: calc(100vw - 2 * ($replay_btn_size + $replay_btn_pos + $lev-spacing-s));
     max-width: max-content; 
@@ -113,10 +116,10 @@
     
     @include respond-to('medium') {
       display: flex;
-      padding: $lev-spacing-xs;
+      padding: min($lev-spacing-xs, 2.5vh);
       justify-content: center;
       align-items: center;
-      border-radius: 24px;
+      border-radius: $button-default-border-radius-small;
   
       p {
         font-size: $font-size-xs-em;
@@ -132,6 +135,7 @@
       justify-content: center;
       align-items: center;
       border-radius: 16px;
+      width: 90vw;
   
       p {
         font-size: $font-size-xs-em;
