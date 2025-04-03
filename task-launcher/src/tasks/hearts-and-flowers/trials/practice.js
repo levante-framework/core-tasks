@@ -202,7 +202,14 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
       });
 
       const audioAssetKey = getAssetKey();
-      PageAudioHandler.playAudio(mediaAssets.audio[audioAssetKey], jsPsych.finishTrial); 
+      const audioConfig = {
+        restrictRepetition: {
+          enabled: true, 
+          maxRepetitions: 2,
+        }, 
+        onEnded: () => {jsPsych.finishTrial()}
+      }
+      PageAudioHandler.playAudio(mediaAssets.audio[audioAssetKey], audioConfig); 
       const pageStateHandler = new PageStateHandler(audioAssetKey);
       setupReplayAudio(pageStateHandler);
     },

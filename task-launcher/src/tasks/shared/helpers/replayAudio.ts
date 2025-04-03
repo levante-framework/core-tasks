@@ -15,14 +15,18 @@ export async function setupReplayAudio(pageStateHandler: PageStateHandler) {
       }, totalDelay);
     }
 
-    const onAudioEnd = () => {
-      pageStateHandler.enableReplayBtn();
+    const audioConfig: AudioConfigType = {
+      restrictRepetition: {
+        enabled: false, 
+        maxRepetitions: 2
+      }, 
+      onEnded: () => {pageStateHandler.enableReplayBtn()}
     }
 
     async function replayAudio() {
       PageAudioHandler.replayPresses ++;
       pageStateHandler.disableReplayBtn();
-      PageAudioHandler.playAudio(pageStateHandler.audioUri, onAudioEnd, true);
+      PageAudioHandler.playAudio(pageStateHandler.audioUri, audioConfig);
     }
 
     pageStateHandler.replayBtn.addEventListener('click', replayAudio);

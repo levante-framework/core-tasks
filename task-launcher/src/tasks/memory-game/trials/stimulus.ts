@@ -38,12 +38,21 @@ function setUpAudio(contentWrapper: HTMLDivElement, prompt: HTMLParagraphElement
   const cue = mode === 'display' ? 'memoryGameDisplay' : inputAudioPrompt;
 
   const audioFile = mediaAssets.audio[cue] || '';
+  const audioConfig: AudioConfigType = {
+    restrictRepetition: {
+      enabled: true, 
+      maxRepetitions: 2
+    }, 
+    onEnded: () => {
+      // set up replay button audio after the first audio has played
+      if (cue) {
+        const pageStateHandler = new PageStateHandler(cue, true);
+        setupReplayAudio(pageStateHandler);
+      }
+    }
+  }
 
-  PageAudioHandler.playAudio(audioFile, () => {
-    // set up replay button audio after the first audio has played
-    const pageStateHandler = new PageStateHandler(cue, true);
-    setupReplayAudio(pageStateHandler);
-  });  
+  PageAudioHandler.playAudio(audioFile, audioConfig);
 }
 
 // This function produces both the display and input trials for the corsi blocks

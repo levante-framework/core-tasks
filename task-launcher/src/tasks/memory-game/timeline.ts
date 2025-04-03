@@ -1,4 +1,4 @@
-import { initTimeline, initTrialSaving } from '../shared/helpers';
+import { initTimeline, initTrialSaving, createPreloadTrials } from '../shared/helpers';
 // setup
 import { jsPsych } from '../taskSetup';
 import { initializeCat } from '../taskSetup';
@@ -7,6 +7,7 @@ import { enterFullscreen, exitFullscreen, feedback, finishExperiment } from '../
 import { getCorsiBlocks } from './trials/stimulus';
 import { instructions, readyToPlay, reverseOrderPrompt, reverseOrderInstructions } from './trials/instructions';
 import { taskStore } from '../../taskStore';
+import { mediaAssets } from '../..';
 
 const generatePracticeTrialTimeline = (reverse: boolean, tryAgainText: string, repetitions: number) => {
   const basicBlock = [
@@ -45,6 +46,7 @@ const getSecondRoundPracticeTrials = (reverse: boolean, tryAgainText: string) =>
 
 export default function buildMemoryTimeline(config: Record<string, any>) {
   initTrialSaving(config);
+  const preloadTrials = createPreloadTrials(mediaAssets).default;
   const initialTimeline = initTimeline(config, enterFullscreen, finishExperiment);
 
   const corsiBlocksPractice = {
@@ -96,6 +98,7 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
   };
 
   const timeline: any[] = [
+    preloadTrials,
     initialTimeline,
     ...instructions,
     corsiBlocksPractice,
