@@ -10,6 +10,7 @@ import taskConfig from './tasks/taskConfig';
 import { RoarAppkit } from '@bdelab/roar-firekit';
 import { setTaskStore } from './taskStore';
 import { taskStore } from './taskStore';
+import { InitPageSetup } from './utils';
 
 export let mediaAssets: MediaAssetsType;
 export class TaskLauncher {
@@ -66,10 +67,12 @@ export class TaskLauncher {
   }
 
   async run() {
+    const pageSetup = new InitPageSetup(4000);
     showLevanteLogoLoading();
     const { jsPsych, timeline } = await this.init();
     hideLevanteLogoLoading();
     jsPsych.run(timeline);
+    pageSetup.init();
     await isTaskFinished(() => this.firekit?.run?.completed === true && taskStore().taskComplete);
   }
 }
