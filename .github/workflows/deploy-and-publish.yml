@@ -1,0 +1,106 @@
+name: Deploy and Publish Package
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to deploy from'
+        required: true
+        default: 'main'
+        type: string
+      version-type:
+        description: 'Type of version bump'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    outputs:
+      new_version: ${{ steps.version.outputs.new_version }}
+
+    steps:
+      # Checkout the code from the user-defined branch
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.inputs.branch }}  # Use the branch input provided by the user
+
+      # Set up Node.js to use npm
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      # Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # Authenticate with npm
+      - name: Authenticate with npm
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      # Bump the version to the input version
+      - name: Bump version
+        id: version
+        run: |
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "GitHub Actions"
+          NEW_VERSION=$(npm version ${{ github.event.inputs.version-type }} -m "Bump version to %s")
+          echo "new_version=${NEW_VERSION}" >> $GITHUB_OUTPUT
+
+      # Push the version update and tag to the repository
+      - name: Push changes
+        run: |
+          git push origin ${{ github.event.inputs.branch }}
+          git push origin --tags
+
+      # Publish the package
+      - name: Publish to npm
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  update-dashboard:
+    needs: publish
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the levante-dashboard repository
+      - name: Checkout dashboard repository
+        uses: actions/checkout@v3
+        with:
+          repository: levante-framework/levante-dashboard
+          token: ${{ secrets.GH_PAT }}
+
+      # Set up Node.js for the dashboard repository
+      - name: Set up Node.js for levante-dashboard
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+        working-directory: levante-dashboard
+
+      # Install dependencies for levante-dashboard
+      - name: Install dependencies for levante-dashboard
+        run: npm install
+        working-directory: levante-dashboard
+
+      # Update the @levante-framework/core-tasks version in levante-dashboard's package.json
+      - name: Update dependency version
+        run: |
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "GitHub Actions"
+          npm install @levante-framework/core-tasks@${{ needs.publish.outputs.new_version }}
+          git add package.json package-lock.json
+          git commit -m "chore: update core-tasks to ${{ needs.publish.outputs.new_version }}"
+          git push origin main
+        working-directory: levante-dashboard
