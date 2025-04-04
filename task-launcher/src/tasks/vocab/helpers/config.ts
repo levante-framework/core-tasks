@@ -18,7 +18,7 @@ export const getLayoutConfig = (stimulus: StimulusType, translations: Record<str
   defaultConfig.showStimImage = false;
   if (!defaultConfig.isInstructionTrial) {
     const mappedDistractors = mapDistractorsToString(distractors);
-    const prepChoices = prepareChoices(answer.toString(), mappedDistractors, true, trialType);
+    const prepChoices = prepareChoices(answer.toString(), mappedDistractors, 'yes', trialType);
     defaultConfig.prompt = {
       enabled: false,
       aboveStimulus: false,
