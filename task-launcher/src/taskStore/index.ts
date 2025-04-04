@@ -48,6 +48,8 @@ import store from 'store2';
  * @property {number} gridSize - Size of the grid in the memory game, default is 2x2.
  * ------- H&F & Memory Game only -------
  * @property {boolean} isCorrect - Whether the response to the previous trial was correct, default is false.
+ * --------- ToM only ---------
+ * @property {Array} previousChoices - Array containing previously randomized order of choices for the current block.
  */
 
 export type TaskStoreDataType = {
