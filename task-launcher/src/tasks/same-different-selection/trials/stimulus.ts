@@ -141,8 +141,9 @@ export const stimulus = (trial?: StimulusType) => {
     if (stim.trialType === 'instructions' || stim.trialType == "something-same-1") {
       return ['OK'];
     } else {
+      const randomize = !!stim.answer ? 'yes' : 'no'; 
       // Randomize choices if there is an answer
-      const { choices } = prepareChoices(stim.answer, stim.distractors, !!stim.answer);
+      const { choices } = prepareChoices(stim.answer, stim.distractors, randomize);
       return generateImageChoices(choices);
     }
   },

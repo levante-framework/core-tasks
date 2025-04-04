@@ -73,8 +73,9 @@ export const afcMatch = {
     if (stim.assessmentStage === 'instructions') {
       return ['OK'];
     } else {
+      const randomize = !!stim.answser ? 'yes' : 'no'; 
       // Randomize choices if there is an answer
-      const { choices } = prepareChoices(stim.answer, stim.distractors, !!stim.answer);
+      const { choices } = prepareChoices(stim.answer, stim.distractors, randomize);
       return generateImageChoices(choices);
     }
   },
