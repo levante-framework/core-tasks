@@ -46,16 +46,18 @@
 
   &.instruction {
     display: flex;
-    padding: $lev-spacing-s;
+    padding: min($lev-spacing-s, 3.5vh);
     justify-content: center;
     align-items: center;
     text-align: center;
     border: 3px solid $bg-accent_secondary;
-    border-radius: 32px;
+    border-radius: $button-default-border-radius;
     background-color: $bg-bubble-base;
+    width: calc(100vw - 2 * ($replay_btn_size + $replay_btn_pos + $lev-spacing-s));
+    max-width: max-content;
 
     p {
-      font-size: $font-size-xs;
+      font-size: $font-size-xs-em;
       font-weight: $font-weight-light;
       line-height: 1.0;
       margin: 0;
@@ -63,13 +65,13 @@
     
     @include respond-to('medium') {
       display: flex;
-      padding: $lev-spacing-xs;
+      padding: min($lev-spacing-xs, 2.5vh);
       justify-content: center;
       align-items: center;
-      border-radius: 24px;
+      border-radius: $button-default-border-radius-small;
   
       p {
-        font-size: $font-size-xxs;
+        font-size: $font-size-xs-em;
         font-weight: $font-weight-light;
         line-height: 1.0;
         margin: 0;
@@ -81,10 +83,11 @@
       padding: $lev-spacing-xxs;
       justify-content: center;
       align-items: center;
-      border-radius: 16px;
+      border-radius: $button-default-border-radius-small;
+      width: 90vw;
   
       p {
-        font-size: $font-size-xxxs;
+        font-size: $font-size-xs-em;
         font-weight: $font-weight-light;
         line-height: 1.0;
         margin: 0;
@@ -94,14 +97,14 @@
 
   &.instruction-small {
     display: flex;
-    padding: $lev-spacing-s;
+    padding: min($lev-spacing-s, 3.5vh);
     justify-content: center;
     align-items: center;
     text-align: center;
     border: 3px solid $bg-accent_secondary;
-    border-radius: 32px;
+    border-radius: $button-default-border-radius;
     background-color: $bg-bubble-base;
-    width: 90vw;
+    width: calc(100vw - 2 * ($replay_btn_size + $replay_btn_pos + $lev-spacing-s));
     max-width: max-content; 
 
     p {
@@ -113,10 +116,10 @@
     
     @include respond-to('medium') {
       display: flex;
-      padding: $lev-spacing-xs;
+      padding: min($lev-spacing-xs, 2.5vh);
       justify-content: center;
       align-items: center;
-      border-radius: 24px;
+      border-radius: $button-default-border-radius-small;
   
       p {
         font-size: $font-size-xs-em;
@@ -132,6 +135,7 @@
       justify-content: center;
       align-items: center;
       border-radius: 16px;
+      width: 90vw;
   
       p {
         font-size: $font-size-xs-em;
@@ -149,12 +153,14 @@
   width: 100%;
   max-width: 900px;
   justify-content: center;
-  margin-top: 64px;
+  margin-top: calc($replay_btn_size + $replay_btn_pos);
   margin-bottom: 16px;
   align-items: center;
 
   img {
     max-width: 100%;
+    width: calc(3 * $response-size-default);
+    height: calc(3 * $response-size-default);
   }
 }
 
@@ -165,7 +171,7 @@
   justify-content: center;
   font-size: $font-size-l;
   color: $txt-primary;
-  margin: $lev-spacing-s 0;
+  // margin: min($lev-spacing-s, 3vh) 0;
 
   img {
     border: none;
@@ -173,7 +179,7 @@
     height: $lev-resized-buttons-2;
     padding: 0;
     margin: 0;
-    border-radius: $lev-spacing-s;
+    border-radius: min($lev-spacing-s, 3vh);
   }
 }
 
