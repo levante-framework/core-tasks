@@ -87,7 +87,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '20'
-        working-directory: levante-dashboard
 
       # Install dependencies for levante-dashboard
       - name: Install dependencies for levante-dashboard
