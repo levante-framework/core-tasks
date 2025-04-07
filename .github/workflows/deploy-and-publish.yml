@@ -16,6 +16,8 @@ on:
 jobs:
   version-and-publish:
     runs-on: ubuntu-latest
+    outputs:
+      new_version: ${{ steps.bump_package_version.outputs.new_version }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -80,6 +82,8 @@ jobs:
 
       - name: Update core-tasks dependency
         run: |
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "GitHub Actions"
           npm install @levante-framework/core-tasks@${{ needs.version-and-publish.outputs.new_version }}
           git add package.json package-lock.json
           git commit -m "chore: update core-tasks to ${{ needs.version-and-publish.outputs.new_version }}"
