@@ -10,8 +10,14 @@ export class PageAudioHandler {
   static audioUri: string;
   static audioSource?: AudioBufferSourceNode;
   static replayPresses: number;
-  static maxReplays: number = 2; 
-  static replays: number = 0; 
+  static replays: number = 0;
+
+  static defaultAudioConfig: AudioConfigType = {
+    restrictRepetition: {
+      enabled: true,
+      maxRepetitions: 2,
+    },
+  };
 
   static stopAndDisconnectNode() {
     if (PageAudioHandler.audioSource) {
@@ -21,24 +27,27 @@ export class PageAudioHandler {
     }
   }
 
-  static async playAudio(audioUri: string, onEnded?: Function) {
+  static async playAudio(audioUri: string, config: AudioConfigType = this.defaultAudioConfig) {
+    const { enabled, maxRepetitions } = config.restrictRepetition;
+    const { onEnded } = config;
+
     // check for repeat audio
-    if (PageAudioHandler.audioUri === audioUri) {
-      PageAudioHandler.replays ++; 
+    if (PageAudioHandler.audioUri === audioUri && enabled) {
+      PageAudioHandler.replays++;
     } else {
-      PageAudioHandler.replays = 0; 
+      PageAudioHandler.replays = 0;
     }
 
     PageAudioHandler.audioUri = audioUri;
 
     // mute audio if it has already been played twice
-    if (PageAudioHandler.replays >= 2) {
+    if (PageAudioHandler.replays >= maxRepetitions) {
       audioUri = mediaAssets.audio.nullAudio;
-    };
+    }
 
     const jsPsychAudioCtx = jsPsych.pluginAPI.audioContext();
     // Returns a promise of the AudioBuffer of the preloaded file path.
-    const audioBuffer = await jsPsych.pluginAPI.getAudioBuffer(audioUri) as AudioBuffer;
+    const audioBuffer = (await jsPsych.pluginAPI.getAudioBuffer(audioUri)) as AudioBuffer;
     const audioSource: AudioBufferSourceNode = jsPsychAudioCtx.createBufferSource();
     PageAudioHandler.audioSource = audioSource;
     audioSource.buffer = audioBuffer;

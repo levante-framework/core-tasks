@@ -10,13 +10,13 @@ import type { LayoutConfigTypeInference } from '../types/inferenceTypes';
 type GetConfigReturnType = {
   itemConfig: LayoutConfigTypeInference;
   errorMessages: string[];
-}
+};
 
 export const getLayoutConfig = (
   stimulus: StimulusType,
   translations: Record<string, string>,
   mediaAssets: MediaAssetsType,
-  trialNumber: number
+  trialNumber: number,
 ): GetConfigReturnType => {
   const { answer, distractors, trialType } = stimulus;
   const defaultConfig: LayoutConfigTypeInference = JSON.parse(JSON.stringify(DEFAULT_LAYOUT_CONFIG));
@@ -46,10 +46,10 @@ export const getLayoutConfig = (
     defaultConfig.classOverrides.buttonClassList = ['primary'];
   }
 
-  const messages = validateLayoutConfig(defaultConfig, mediaAssets, translations, stimulus)
+  const messages = validateLayoutConfig(defaultConfig, mediaAssets, translations, stimulus);
 
-  return ({
+  return {
     itemConfig: defaultConfig,
     errorMessages: messages,
-  });
+  };
 };

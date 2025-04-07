@@ -1,0 +1,17 @@
+.turn {
+  width: 240px;
+  height: 240px;
+  animation: rotateOnce 4s infinite;
+}
+
+@keyframes rotateOnce {
+  0% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(180deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}

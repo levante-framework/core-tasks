@@ -7,7 +7,7 @@ export const getMemoryGameType = (mode: 'input' | 'display', reverse: boolean, g
     memoryGameType = reverse ? 'backward-training' : 'forward-training';
   }
 
-  memoryGameType += ("-" + gridSize);
+  memoryGameType += '-' + gridSize;
 
   return memoryGameType;
-}
+};
