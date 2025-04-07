@@ -32,6 +32,13 @@ jobs:
         run: npm ci
         working-directory: ./task-launcher
 
+      - name: Bump package version
+        run: |
+          npm version ${{ github.event.inputs.version-type }} --no-git-tag-version
+          NEW_VERSION=$(node -p "require('./package.json').version")
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+        working-directory: ./task-launcher
+
       - name: Bump version and create tag
         uses: anothrNick/github-tag-action@1.71.0
         env:
@@ -39,6 +46,18 @@ jobs:
           WITH_V: true
           DEFAULT_BUMP: ${{ github.event.inputs.version-type }}
           RELEASE_BRANCHES: main
+          SKIP_TAG: true  # Skip tag creation as we'll do it manually
+
+      - name: Create and push git tag
+        run: |
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git add package.json
+          git commit -m "chore: bump version to ${{ steps.bump_package_version.outputs.new_version }}"
+          git tag -a "v${{ steps.bump_package_version.outputs.new_version }}" -m "Release v${{ steps.bump_package_version.outputs.new_version }}"
+          git push origin main
+          git push origin "v${{ steps.bump_package_version.outputs.new_version }}"
+        working-directory: ./task-launcher
 
       - name: Publish to npm
         run: npm publish --access public
@@ -57,6 +76,7 @@ jobs:
         with:
           repository: levante-framework/levante-dashboard
           token: ${{ secrets.GIT_BOT_TOKEN }}
+          working-directory: levante-dashboard
 
       # Set up Node.js for the dashboard repository
       - name: Set up Node.js for levante-dashboard
