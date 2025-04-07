@@ -3,15 +3,15 @@ import 'regenerator-runtime/runtime';
 import { initTrialSaving, initTimeline, createPreloadTrials, getRealTrials } from '../shared/helpers';
 import { jsPsych, initializeCat, cat } from '../taskSetup';
 // trials
-import { 
-  afcStimulusTemplate, 
-  exitFullscreen, 
-  fixationOnly, 
-  setupStimulus, 
-  taskFinished, 
-  enterFullscreen, 
-  finishExperiment, 
-  practiceTransition 
+import {
+  afcStimulusTemplate,
+  exitFullscreen,
+  fixationOnly,
+  setupStimulus,
+  taskFinished,
+  enterFullscreen,
+  finishExperiment,
+  practiceTransition,
 } from '../shared/trials';
 import { getLayoutConfig } from './helpers/config';
 import { prepareCorpus, selectNItems } from '../shared/helpers/prepareCat';
@@ -25,8 +25,8 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
   const timeline = [preloadTrials, initialTimeline];
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
   const translations: Record<string, string> = taskStore().translations;
-  const validationErrorMap: Record<string, string> = {}; 
-  const { runCat } = taskStore();  
+  const validationErrorMap: Record<string, string> = {};
+  const { runCat } = taskStore();
   const { semThreshold } = taskStore();
 
   const layoutConfigMap: Record<string, LayoutConfigType> = {};
@@ -51,15 +51,13 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
     promptAboveButtons: true,
     task: config.task,
     layoutConfig: {
-      showPrompt: false
+      showPrompt: false,
     },
     layoutConfigMap,
   };
 
   const stimulusBlock = {
-    timeline: [ 
-      afcStimulusTemplate(trialConfig)
-    ],
+    timeline: [afcStimulusTemplate(trialConfig)],
     // true = execute normally, false = skip
     conditional_function: () => {
       if (taskStore().skipCurrentTrial) {
@@ -67,7 +65,7 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
         return false;
       }
       if (runCat && cat._seMeasurement < semThreshold) {
-        return false; 
+        return false;
       }
       return true;
     },
@@ -79,42 +77,42 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
 
     // instruction block (non-cat)
     corpora.ipLight.forEach((trial: StimulusType) => {
-      timeline.push({...fixationOnly, stimulus: ''}); 
-      timeline.push(afcStimulusTemplate(trialConfig, trial)); 
+      timeline.push({ ...fixationOnly, stimulus: '' });
+      timeline.push(afcStimulusTemplate(trialConfig, trial));
     });
 
     // push in practice transition
-    if (corpora.ipLight.filter(trial => trial.assessmentStage === "practice_response").length > 0) {
+    if (corpora.ipLight.filter((trial) => trial.assessmentStage === 'practice_response').length > 0) {
       timeline.push(practiceTransition);
     }
 
     // push in starting block
     corpora.start.forEach((trial: StimulusType) => {
-      timeline.push({...fixationOnly, stimulus: ''}); 
-      timeline.push(afcStimulusTemplate(trialConfig, trial)); 
+      timeline.push({ ...fixationOnly, stimulus: '' });
+      timeline.push(afcStimulusTemplate(trialConfig, trial));
     });
 
     // cat block
     const numOfCatTrials = corpora.cat.length;
     taskStore('totalTestTrials', numOfCatTrials);
     for (let i = 0; i < numOfCatTrials; i++) {
-      timeline.push({...setupStimulus, stimulus: ''});
+      timeline.push({ ...setupStimulus, stimulus: '' });
       timeline.push(stimulusBlock);
     }
-  
-    // select up to 5 random items from unnormed portion of corpus 
-    const unnormedTrials: StimulusType[] = selectNItems(corpora.unnormed, 5); 
-  
+
+    // select up to 5 random items from unnormed portion of corpus
+    const unnormedTrials: StimulusType[] = selectNItems(corpora.unnormed, 5);
+
     // random set of unvalidated items at end
     const unnormedBlock = {
-      timeline: unnormedTrials.map((trial) => afcStimulusTemplate(trialConfig, trial))
-    }
+      timeline: unnormedTrials.map((trial) => afcStimulusTemplate(trialConfig, trial)),
+    };
     timeline.push(unnormedBlock);
   } else {
     const numOfTrials = taskStore().totalTrials;
     taskStore('totalTestTrials', getRealTrials(corpus));
     for (let i = 0; i < numOfTrials; i++) {
-      timeline.push({...setupStimulus, stimulus: ''}); 
+      timeline.push({ ...setupStimulus, stimulus: '' });
       timeline.push(practiceTransition);
       timeline.push(stimulusBlock);
     }

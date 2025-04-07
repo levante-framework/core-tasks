@@ -55,7 +55,8 @@ export const prepareChoices = (
   }
 
   // Update session variables
-  const correctResponseIdx = trialType === 'Fraction' ? taskStore().nonFractionSelections.indexOf(target) : choices.indexOf(target);
+  const correctResponseIdx =
+    trialType === 'Fraction' ? taskStore().nonFractionSelections.indexOf(target) : choices.indexOf(target);
   taskStore('target', target);
   taskStore('correctResponseIdx', correctResponseIdx);
   taskStore('choices', choices);

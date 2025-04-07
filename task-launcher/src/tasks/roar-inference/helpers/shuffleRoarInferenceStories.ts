@@ -5,13 +5,13 @@ export function shuffleStories(
   inferenceNumStories: number,
   storyKey: string,
   typesToAvoid: string[],
-  numItemsPerStory: number
+  numItemsPerStory: number,
 ) {
   const shuffledStoryCorpus = [];
   const storyMap: Record<string, boolean> = {};
 
   // Build a unique map of stories excluding types to avoid
-  corpus.forEach(c => {
+  corpus.forEach((c) => {
     const storyName = c[storyKey as keyof typeof c] as string;
     if (!(storyName in storyMap) && !typesToAvoid.includes(storyName)) {
       storyMap[storyName] = true;
@@ -22,9 +22,9 @@ export function shuffleStories(
   const shuffledStories = _shuffle(stories);
 
   // Process each story up to the number of stories specified
-  for (let i = 0; i < (inferenceNumStories); i += 1) {
+  for (let i = 0; i < inferenceNumStories; i += 1) {
     const story = shuffledStories[i];
-    const filteredByStory = corpus.filter(c => c[storyKey as keyof typeof c] === story);
+    const filteredByStory = corpus.filter((c) => c[storyKey as keyof typeof c] === story);
 
     if (numItemsPerStory === 1) {
       // Case: numItemsPerStory is 1, shuffle and pick one item
@@ -37,8 +37,8 @@ export function shuffleStories(
       }
     } else {
       // Case: numItemsPerStory > 1, ensure one literal and shuffle the rest
-      const literalItems = filteredByStory.filter(c => c.trialType === 'literal');
-      const nonLiteralItems = filteredByStory.filter(c => c.trialType !== 'literal');
+      const literalItems = filteredByStory.filter((c) => c.trialType === 'literal');
+      const nonLiteralItems = filteredByStory.filter((c) => c.trialType !== 'literal');
 
       const selectedItems = [];
       if (literalItems.length > 0) {
@@ -66,7 +66,7 @@ export function shuffleStories(
   }
 
   // Include items to avoid (non-story items)
-  const nonStoryItems = corpus.filter(c => typesToAvoid.includes(c[storyKey as keyof typeof c] as string));
+  const nonStoryItems = corpus.filter((c) => typesToAvoid.includes(c[storyKey as keyof typeof c] as string));
 
   return [...nonStoryItems, ...shuffledStoryCorpus];
 }

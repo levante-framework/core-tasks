@@ -19,7 +19,7 @@ button {
     padding: $button-primary-padding;
     border-color: $bg-accent_secondary;
     box-shadow: $button-default-box-shadow rgba($bg-accent_secondary, 0.5) inset;
-    font-size: $font-size-xs;
+    font-size: $font-size-xs-em;
     font-weight: $font-weight-dark;
     color: $txt-white;
 
@@ -40,13 +40,13 @@ button {
     &:active {
       background: $bg-button-primary-clicked;
       border-color: $border-button-primary-clicked;
-      box-shadow:$button-default-box-shadow rgba($border-button-primary-clicked, 0.5) inset;
+      box-shadow: $button-default-box-shadow rgba($border-button-primary-clicked, 0.5) inset;
     }
 
     &:disabled {
       background: $btn-disabled-bg;
       border-color: $btn-disabled-inset;
-      box-shadow:$button-default-box-shadow $btn-disabled-inset inset;
+      box-shadow: $button-default-box-shadow $btn-disabled-inset inset;
       cursor: no-drop;
     }
   }
@@ -55,7 +55,8 @@ button {
     @extend .button-base;
     background: $border-accent;
     border-color: $bg-accent_secondary;
-    box-shadow: $button-secondary-box-shadow $bg-accent_secondary inset,
+    box-shadow:
+      $button-secondary-box-shadow $bg-accent_secondary inset,
       $button-secondary-inner-shadow $bg-button-secondary inset;
     font-size: $font-size-lm;
     width: 2.5 * $font-size-l;
@@ -73,8 +74,8 @@ button {
       font-size: $font-size-m;
       font-weight: $font-weight-normal;
       border-radius: $button-default-border-radius-small;
-      width: 3*$font-size-m;
-      height: 3*$font-size-m;
+      width: 3 * $font-size-m;
+      height: 3 * $font-size-m;
     }
 
     &:hover {
@@ -86,7 +87,8 @@ button {
     &:active {
       background: $bg-button-primary-clicked;
       border-color: $border-button-primary-clicked;
-      box-shadow: $button-secondary-box-shadow $border-button-primary-clicked inset,
+      box-shadow:
+        $button-secondary-box-shadow $border-button-primary-clicked inset,
         $button-secondary-inner-shadow $bg-button-secondary inset;
     }
   }
@@ -95,15 +97,22 @@ button {
     background: $bg-green_base;
     padding: $button-secondary-padding;
     border-color: $border-green_dark;
-    box-shadow: $button-secondary-box-shadow $border-green_dark inset,
+    box-shadow:
+      $button-secondary-box-shadow $border-green_dark inset,
       $button-secondary-inner-shadow $bg-green-gradient inset;
 
     @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.1); }
-      100% { transform: scale(1); }
+      0% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.1);
+      }
+      100% {
+        transform: scale(1);
+      }
     }
-    
+
     @include respond-to('small') {
       font-size: $font-size-l;
       font-weight: $font-weight-normal;
@@ -117,14 +126,16 @@ button {
     &:hover {
       background: $bg-green-base-hover;
       border-color: $border-button-green-hover;
-      box-shadow: $button-secondary-box-shadow $border-button-green-hover inset,
+      box-shadow:
+        $button-secondary-box-shadow $border-button-green-hover inset,
         $button-secondary-inner-shadow $bg-green-gradient inset;
     }
 
     &:active {
       background: $bg-green-base-clicked;
       border-color: $border-button-green-clicked;
-      box-shadow: $button-secondary-box-shadow $border-button-green-clicked inset,
+      box-shadow:
+        $button-secondary-box-shadow $border-button-green-clicked inset,
         $button-secondary-inner-shadow $bg-green-gradient inset;
     }
   }
@@ -156,7 +167,8 @@ button {
     &:active {
       background: $bg-button-primary-clicked;
       border-color: $border-button-primary-clicked;
-      box-shadow: $button-secondary-box-shadow $border-button-primary-clicked inset,
+      box-shadow:
+        $button-secondary-box-shadow $border-button-primary-clicked inset,
         $button-secondary-inner-shadow $bg-button-secondary inset;
     }
   }
@@ -164,17 +176,17 @@ button {
   &.replay {
     // This is also used by the Hearts and Flowers task
     position: absolute;
-    top: 8px;
-    right: 8px;
+    top: $replay_btn_pos;
+    right: $replay_btn_pos;
     cursor: pointer;
-    border-radius: 16px;
-    padding: 16px;
+    border-radius: min(16px, 2vh);
+    padding: min(16px, 2vh);
     background-color: rgba($bg-button-primary, 0.2);
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 64px;
-    height: 64px;
+    width: $replay_btn_size;
+    height: $replay_btn_size;
     border: 2px solid $border-button-accent;
 
     @include respond-to('small') {
@@ -210,6 +222,8 @@ button {
     padding: 0;
     box-sizing: border-box;
     border-color: $bg-button-primary;
+    min-width: unset !important;
+    min-height: unset !important;
 
     img {
       border: none;
@@ -217,16 +231,16 @@ button {
       height: $response-size-default;
       padding: 0;
       margin: 0;
-      border-radius: $lev-spacing-s;
+      border-radius: $button-default-border-radius;
       float: left;
     }
 
     @include respond-to('small-medium') {
-      border-radius: $lev-spacing-s;
+      border-radius: $button-default-border-radius;
       img {
         width: $response-size-sm;
         height: $response-size-sm;
-        border-radius: $lev-spacing-xs;
+        border-radius: $button-default-border-radius-small;
       }
     }
 
@@ -260,7 +274,7 @@ button {
       height: $lev-resized-buttons-2;
       padding: 0;
       margin: 0;
-      border-radius: $lev-spacing-s;
+      border-radius: $button-default-border-radius-small;
       float: left;
     }
 
@@ -274,9 +288,9 @@ button {
   }
 
   &.image-medium {
-    @extend .button-base; 
-    padding: 0; 
-    box-sizing: border-box; 
+    @extend .button-base;
+    padding: 0;
+    box-sizing: border-box;
     border-color: $bg-button-primary;
 
     img {
@@ -285,7 +299,7 @@ button {
       height: $response-size-m;
       padding: 0;
       margin: 0;
-      border-radius: $lev-spacing-s;
+      border-radius: $button-default-border-radius-small;
       float: left;
     }
 
@@ -294,7 +308,7 @@ button {
       img {
         width: $response-size-s;
         height: $response-size-s;
-        border-radius: $lev-spacing-xs;
+        border-radius: $button-default-border-radius-small;
       }
     }
 
@@ -309,7 +323,6 @@ button {
     &.selected {
       border-color: $border-button-primary-clicked;
     }
-
   }
   &.no-pointer-events {
     pointer-events: none;

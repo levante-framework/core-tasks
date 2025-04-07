@@ -1,4 +1,4 @@
-import { replayButtonSvg } from "../../shared/helpers";
+import { replayButtonSvg } from '../../shared/helpers';
 
 export const StimulusType = Object.freeze({
   Heart: 'heart',
@@ -23,14 +23,13 @@ export const InputKey = Object.freeze({
   Enter: 'enter',
 });
 
-
 export const AssessmentStageType = Object.freeze({
-    HeartsPractice: 'practice_response',
-    FlowersPractice: 'practice_response',
-    HeartsStimulus: 'test_response',
-    FlowersStimulus: 'test_response',
-    HeartsAndFlowersPractice: 'practice_response',
-    HeartsAndFlowersStimulus: 'test_response',
+  HeartsPractice: 'practice_response',
+  FlowersPractice: 'practice_response',
+  HeartsStimulus: 'test_response',
+  FlowersStimulus: 'test_response',
+  HeartsAndFlowersPractice: 'practice_response',
+  HeartsAndFlowersStimulus: 'test_response',
 });
 
 export const CorpusTrialType = Object.freeze({
@@ -41,7 +40,6 @@ export const CorpusTrialType = Object.freeze({
   HeartsAndFlowersPractice: 'hearts and flowers',
   HeartsAndFlowersStimulus: 'hearts and flowers',
 });
-
 
 // TODO: better Exception/Error handling
 /**
@@ -76,11 +74,11 @@ export function getCorrectInputSide(stimulusType, stimulusSideType) {
  * retrieve html for the visual stimulus container
  * @param {*} imageSrc stimulus image source
  * @param {*} isLeft whether the stimulus should be shown on the left side
- * @param {*} promptText if you need to show a prompt text, 
+ * @param {*} promptText if you need to show a prompt text,
  * @param {*} replayButtonHtmlId if you need to show an audio replay button
- * @returns 
+ * @returns
  */
-export const getStimulusLayout = (imageSrc, isLeft, promptText=undefined, replayButtonHtmlId=undefined) => {
+export const getStimulusLayout = (imageSrc, isLeft, promptText = undefined, replayButtonHtmlId = undefined) => {
   const stimulusClass = isLeft ? 'stimulus-left' : 'stimulus-right';
   let template = '<div class="haf-stimulus-holder">';
   if (replayButtonHtmlId) {
@@ -88,7 +86,7 @@ export const getStimulusLayout = (imageSrc, isLeft, promptText=undefined, replay
       <button id='${replayButtonHtmlId}' class="replay">
         ${replayButtonSvg}
       </button>
-    `
+    `;
   }
   if (promptText) {
     template += `
@@ -97,7 +95,7 @@ export const getStimulusLayout = (imageSrc, isLeft, promptText=undefined, replay
           ${promptText}
         </p>
       </div>
-    `
+    `;
   }
   template += `
       <div class='haf-stimulus-container'>
@@ -106,7 +104,7 @@ export const getStimulusLayout = (imageSrc, isLeft, promptText=undefined, replay
         </div>
       </div>
     </div>
-  `
+  `;
 
   return template;
-}; 
+};

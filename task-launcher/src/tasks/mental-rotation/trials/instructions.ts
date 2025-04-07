@@ -7,11 +7,19 @@ import { taskStore } from '../../../taskStore';
 const replayButtonHtmlId = 'replay-btn-revisited';
 
 function enableOkBtn() {
-  const okButton: HTMLButtonElement | null = document.querySelector('.primary'); 
+  const okButton: HTMLButtonElement | null = document.querySelector('.primary');
   if (okButton != null) {
     okButton.disabled = false;
   }
 }
+
+const audioConfig: AudioConfigType = {
+  restrictRepetition: {
+    enabled: true,
+    maxRepetitions: 2,
+  },
+  onEnded: enableOkBtn,
+};
 
 // Switch to HTMLMultiResponse when we have video with audio
 export const videoInstructionsFit = {
@@ -46,8 +54,8 @@ export const videoInstructionsFit = {
     // const wrapper = document.getElementById('jspsych-audio-multi-response-prompt');
     // wrapper.style.display = 'flex';
     // wrapper.style.justifyContent = 'center';
-    PageAudioHandler.playAudio(mediaAssets.audio.mentalRotationTrainingInstruct3, enableOkBtn);
-    
+    PageAudioHandler.playAudio(mediaAssets.audio.mentalRotationTrainingInstruct3, audioConfig);
+
     const pageStateHandler = new PageStateHandler('mental-rotation-training-instruct3', true);
     setupReplayAudio(pageStateHandler);
   },
@@ -55,9 +63,9 @@ export const videoInstructionsFit = {
     PageAudioHandler.stopAndDisconnectNode();
 
     jsPsych.data.addDataToLastTrial({
-      audioButtonPresses: PageAudioHandler.replayPresses
+      audioButtonPresses: PageAudioHandler.replayPresses,
     });
-  }
+  },
 };
 
 export const videoInstructionsMisfit = {
@@ -88,18 +96,18 @@ export const videoInstructionsMisfit = {
   },
   keyboard_choices: 'NO_KEYS',
   on_load: () => {
-    PageAudioHandler.playAudio(mediaAssets.audio.mentalRotationTrainingInstruct2, enableOkBtn); 
-    
+    PageAudioHandler.playAudio(mediaAssets.audio.mentalRotationTrainingInstruct2, audioConfig);
+
     const pageStateHandler = new PageStateHandler('mental-rotation-training-instruct2', true);
     setupReplayAudio(pageStateHandler);
-},
-on_finish: () => {
-  PageAudioHandler.stopAndDisconnectNode();
+  },
+  on_finish: () => {
+    PageAudioHandler.stopAndDisconnectNode();
 
-  jsPsych.data.addDataToLastTrial({
-    audioButtonPresses: PageAudioHandler.replayPresses
-  });
-}
+    jsPsych.data.addDataToLastTrial({
+      audioButtonPresses: PageAudioHandler.replayPresses,
+    });
+  },
 };
 
 export const imageInstructions = {
@@ -127,18 +135,18 @@ export const imageInstructions = {
   },
   keyboard_choices: 'NO_KEYS',
   on_load: () => {
-    PageAudioHandler.playAudio(mediaAssets.audio.mentalRotationInstruct1, enableOkBtn); 
+    PageAudioHandler.playAudio(mediaAssets.audio.mentalRotationInstruct1, audioConfig);
 
     const pageStateHandler = new PageStateHandler('mental-rotation-instruct1', true);
     setupReplayAudio(pageStateHandler);
-},
-on_finish: () => {
-  PageAudioHandler.stopAndDisconnectNode();
+  },
+  on_finish: () => {
+    PageAudioHandler.stopAndDisconnectNode();
 
-  jsPsych.data.addDataToLastTrial({
-    audioButtonPresses: PageAudioHandler.replayPresses
-  });
-}
+    jsPsych.data.addDataToLastTrial({
+      audioButtonPresses: PageAudioHandler.replayPresses,
+    });
+  },
 };
 
 export const threeDimInstructions = {
@@ -149,7 +157,7 @@ export const threeDimInstructions = {
     };
   },
   stimulus: () => {
-    const t = taskStore().translations; 
+    const t = taskStore().translations;
     return `
       <div class="lev-stimulus-container">
         <div class="lev-row-container instruction">
@@ -163,7 +171,7 @@ export const threeDimInstructions = {
   },
   prompt_above_buttons: true,
   button_choices: ['Continue'],
-  post_trial_gap: 350, 
+  post_trial_gap: 350,
   button_html: () => {
     const t = taskStore().translations;
     return `<button class="primary">${t.continueButtonText}</button>`;
@@ -175,10 +183,10 @@ export const threeDimInstructions = {
     PageAudioHandler.playAudio(mediaAssets.audio.mentalRotationInstruct3D);
     const pageStateHandler = new PageStateHandler('mental-rotation-instruct-3D', true);
     setupReplayAudio(pageStateHandler);
-},
-on_finish: () => {
-  jsPsych.data.addDataToLastTrial({
-    audioButtonPresses: PageAudioHandler.replayPresses
-  });
-}
+  },
+  on_finish: () => {
+    jsPsych.data.addDataToLastTrial({
+      audioButtonPresses: PageAudioHandler.replayPresses,
+    });
+  },
 };

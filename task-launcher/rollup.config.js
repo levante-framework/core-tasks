@@ -9,7 +9,7 @@ import typescript from '@rollup/plugin-typescript';
 export default {
   input: 'src/index.ts',
   plugins: [
-    typescript({ module: "ESNext" }),
+    typescript({ module: 'ESNext' }),
     postcss({
       extract: 'resources/core-tasks.css',
     }),

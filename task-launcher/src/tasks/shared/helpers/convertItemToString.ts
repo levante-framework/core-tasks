@@ -3,4 +3,4 @@ export const convertItemToString = (item: string | number[]): string => {
     return item;
   }
   return item.join(', ');
-}
+};
