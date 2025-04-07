@@ -33,20 +33,12 @@ jobs:
         working-directory: ./task-launcher
 
       - name: Bump package version
+        id: bump_package_version
         run: |
           npm version ${{ github.event.inputs.version-type }} --no-git-tag-version
           NEW_VERSION=$(node -p "require('./package.json').version")
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
         working-directory: ./task-launcher
-
-      - name: Bump version and create tag
-        uses: anothrNick/github-tag-action@1.71.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GIT_BOT_TOKEN }}
-          WITH_V: true
-          DEFAULT_BUMP: ${{ github.event.inputs.version-type }}
-          RELEASE_BRANCHES: main
-          SKIP_TAG: true  # Skip tag creation as we'll do it manually
 
       - name: Create and push git tag
         run: |
