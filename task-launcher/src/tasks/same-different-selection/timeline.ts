@@ -19,13 +19,18 @@ import {
 import { afcMatch } from './trials/afcMatch';
 import { stimulus } from './trials/stimulus';
 import { taskStore } from '../../taskStore';
-import { somethingSameDemo1, somethingSameDemo2, somethingSameDemo3, matchDemo1, matchDemo2 } from './trials/heavyInstructions';
-
+import {
+  somethingSameDemo1,
+  somethingSameDemo2,
+  somethingSameDemo3,
+  matchDemo1,
+  matchDemo2,
+} from './trials/heavyInstructions';
 
 export default function buildSameDifferentTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
   let feedbackGiven = false;
-  const heavy: boolean = taskStore().heavyInstructions; 
+  const heavy: boolean = taskStore().heavyInstructions;
 
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
   const preparedCorpus = prepareCorpus(corpus);
@@ -38,9 +43,9 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
 
     conditional_function: () => {
       const trialType = taskStore().nextStimulus.trialType;
-      const assessmentStage = taskStore().nextStimulus.assessmentStage; 
+      const assessmentStage = taskStore().nextStimulus.assessmentStage;
 
-      if ((trialType === 'something-same-2' || trialType.includes('match')) && (assessmentStage != 'practice_response')) {
+      if ((trialType === 'something-same-2' || trialType.includes('match')) && assessmentStage != 'practice_response') {
         return true;
       }
       return false;
@@ -50,68 +55,54 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
   // used for instruction and practice trials
   const ipBlock = (trial: StimulusType) => {
     return {
-      timeline: [
-        {...fixationOnly, stimulus: ''}, 
-        stimulus(trial)
-      ]
-    }
+      timeline: [{ ...fixationOnly, stimulus: '' }, stimulus(trial)],
+    };
   };
 
   const stimulusBlock = {
-    timeline: [
-      stimulus()
-    ],
+    timeline: [stimulus()],
   };
-  
+
   const feedbackBlock = {
-    timeline: [
-      feedback(true, 'feedbackCorrect', 'feedbackTryAgain')
-    ],
-  
+    timeline: [feedback(true, 'feedbackCorrect', 'feedbackTryAgain')],
+
     conditional_function: () => {
-      if (!feedbackGiven){
-        feedbackGiven = true; 
-        return true
+      if (!feedbackGiven) {
+        feedbackGiven = true;
+        return true;
       }
-      return false
-    }
+      return false;
+    },
   };
-  
+
   const afcBlock = {
-    timeline: [
-      afcMatch
-    ],
+    timeline: [afcMatch],
   };
 
   const dataQualityBlock = {
-    timeline: [
-      dataQualityScreen
-    ], 
+    timeline: [dataQualityScreen],
     conditional_function: () => {
-      return (taskStore().numIncorrect >= taskStore().maxIncorrect) && heavy; 
-    }
-  }
+      return taskStore().numIncorrect >= taskStore().maxIncorrect && heavy;
+    },
+  };
 
-  const timeline = [
-    preloadTrials, 
-    initialTimeline, 
-  ];
+  const timeline = [preloadTrials, initialTimeline];
 
   // all instructions + practice trials
-  const instructionPractice: StimulusType[] = heavy ? preparedCorpus.ipHeavy : preparedCorpus.ipLight
+  const instructionPractice: StimulusType[] = heavy ? preparedCorpus.ipHeavy : preparedCorpus.ipLight;
 
   // returns practice + instruction trials for a given block
-  function getPracticeInstructions(blockNum: number) : StimulusType[] {
-    return instructionPractice.filter(trial => (trial.blockIndex == blockNum));
+  function getPracticeInstructions(blockNum: number): StimulusType[] {
+    return instructionPractice.filter((trial) => trial.blockIndex == blockNum);
   }
 
   // create list of numbers of trials per block
   const blockCountList: number[] = [];
   taskStore().corpora.stimulus.forEach((trial: StimulusType) => {
-    blockCountList[Number(trial.blockIndex)] = (blockCountList[Number(trial.blockIndex)]  || 0) + 1;
-  })
-  
-  const totalRealTrials = blockCountList.reduce(((acc, total) => acc + total), 0);
+    blockCountList[Number(trial.blockIndex)] = (blockCountList[Number(trial.blockIndex)] || 0) + 1;
+  });
+
+  const totalRealTrials = blockCountList.reduce((acc, total) => acc + total, 0);
   taskStore('totalTestTrials', totalRealTrials);
 
   // functions to add trials to blocks of each type
@@ -131,38 +122,42 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
     timeline.push(setupStimulus);
     timeline.push(afcBlock);
     timeline.push(buttonNoise);
-    timeline.push(dataQualityBlock); 
+    timeline.push(dataQualityBlock);
   }
 
   // add to this list with any additional blocks
   const blockOperations = [
-    updateTestDimensions, 
-    updateSomethingSame, 
-    updateMatching, 
-    updateTestDimensions, 
-    updateMatching, 
-    updateMatching
-  ]
+    updateTestDimensions,
+    updateSomethingSame,
+    updateMatching,
+    updateTestDimensions,
+    updateMatching,
+    updateMatching,
+  ];
 
   // add trials to timeline according to block structure defined in blockOperations
   blockCountList.forEach((count, index) => {
-    const currentBlockInstructionPractice = getPracticeInstructions(index); 
+    const currentBlockInstructionPractice = getPracticeInstructions(index);
 
     // push in instruction + practice trials
-    if (index === 1 && heavy) { // something's the same block has demo trials in between instructions
+    if (index === 1 && heavy) {
+      // something's the same block has demo trials in between instructions
       const firstInstruction = currentBlockInstructionPractice.shift();
-      if (firstInstruction != undefined) { timeline.push(ipBlock(firstInstruction)) }; 
+      if (firstInstruction != undefined) {
+        timeline.push(ipBlock(firstInstruction));
+      }
 
       timeline.push(somethingSameDemo1);
       timeline.push(somethingSameDemo2);
       timeline.push(somethingSameDemo3);
     }
 
-    currentBlockInstructionPractice.forEach(trial => {
+    currentBlockInstructionPractice.forEach((trial) => {
       timeline.push(ipBlock(trial));
     });
 
-    if (index === 2 && heavy) { // 2-match has demo trials after instructions
+    if (index === 2 && heavy) {
+      // 2-match has demo trials after instructions
       timeline.push(matchDemo1);
       timeline.push(matchDemo2);
     }
@@ -175,9 +170,9 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
 
   initializeCat();
 
-  if (heavy) { 
-    timeline.push(dataQualityScreen) 
-  };
+  if (heavy) {
+    timeline.push(dataQualityScreen);
+  }
   timeline.push(taskFinished());
   timeline.push(exitFullscreen);
   return { jsPsych, timeline };

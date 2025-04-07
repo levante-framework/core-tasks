@@ -18,52 +18,57 @@ type CorsiBlocksArgs = {
 const x = 20;
 const y = 20;
 const blockSpacing = 0.5;
-let grid: {x: number; y: number;}[];
+let grid: { x: number; y: number }[];
 let sequenceLength = 2;
 let generatedSequence: number[] | null;
 let selectedCoordinates: [number, number][] = [];
 let numCorrect = 0;
 
 // play audio cue
-function setUpAudio(contentWrapper: HTMLDivElement, prompt: HTMLParagraphElement, reverse: boolean, mode: 'display' | 'input') {
+function setUpAudio(
+  contentWrapper: HTMLDivElement,
+  prompt: HTMLParagraphElement,
+  reverse: boolean,
+  mode: 'display' | 'input',
+) {
   // add replay button
-  const replayButton = document.createElement('button'); 
+  const replayButton = document.createElement('button');
   replayButton.innerHTML = replayButtonSvg;
   replayButton.id = 'replay-btn-revisited';
-  replayButton.classList.add('replay'); 
+  replayButton.classList.add('replay');
   replayButton.disabled = true;
   contentWrapper.insertBefore(replayButton, prompt);
 
-  const inputAudioPrompt = reverse ? 'memoryGameBackwardPrompt' : 'memoryGameInput'
+  const inputAudioPrompt = reverse ? 'memoryGameBackwardPrompt' : 'memoryGameInput';
   const cue = mode === 'display' ? 'memoryGameDisplay' : inputAudioPrompt;
 
   const audioFile = mediaAssets.audio[cue] || '';
   const audioConfig: AudioConfigType = {
     restrictRepetition: {
-      enabled: true, 
-      maxRepetitions: 2
-    }, 
+      enabled: true,
+      maxRepetitions: 2,
+    },
     onEnded: () => {
       // set up replay button audio after the first audio has played
       if (cue) {
         const pageStateHandler = new PageStateHandler(cue, true);
         setupReplayAudio(pageStateHandler);
       }
-    }
-  }
+    },
+  };
 
   PageAudioHandler.playAudio(audioFile, audioConfig);
 }
 
 // This function produces both the display and input trials for the corsi blocks
-export function getCorsiBlocks({ mode, reverse = false, isPractice = false, resetSeq = false}: CorsiBlocksArgs) {
+export function getCorsiBlocks({ mode, reverse = false, isPractice = false, resetSeq = false }: CorsiBlocksArgs) {
   return {
     type: jsPsychCorsiBlocks,
     sequence: () => {
       // On very first trial, generate initial sequence
       if (!generatedSequence) {
         const numOfBlocks: number = Number(taskStore().numOfBlocks);
-        generatedSequence = generateRandomSequence({numOfBlocks, sequenceLength, previousSequence: null});
+        generatedSequence = generateRandomSequence({ numOfBlocks, sequenceLength, previousSequence: null });
       }
 
       if (mode === 'input' && reverse) {
@@ -75,7 +80,7 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false, rese
     blocks: () => {
       if (!grid) {
         const { numOfBlocks, blockSize, gridSize } = taskStore();
-        grid = createGrid({x, y, numOfBlocks, blockSize, gridSize, blockSpacing})
+        grid = createGrid({ x, y, numOfBlocks, blockSize, gridSize, blockSpacing });
       }
       return grid;
     },
@@ -88,7 +93,7 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false, rese
     highlight_color: '#275BDD',
     // Show feedback only for practice
     correct_color: () => '#8CAEDF',
-    incorrect_color: () => isPractice ? '#f00' : '#8CAEDF',
+    incorrect_color: () => (isPractice ? '#f00' : '#8CAEDF'),
     post_trial_gap: 1000,
     data: {
       // not camelCase because firekit
@@ -96,14 +101,14 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false, rese
       assessment_stage: isPractice ? 'practice_response' : 'test_response',
       // not for firekit
       isPracticeTrial: isPractice,
-      trialMode: mode
+      trialMode: mode,
     },
     on_load: () => doOnLoad(mode, isPractice, reverse),
     on_finish: (data: any) => {
       PageAudioHandler.stopAndDisconnectNode();
 
       jsPsych.data.addDataToLastTrial({
-        audioButtonPresses: PageAudioHandler.replayPresses
+        audioButtonPresses: PageAudioHandler.replayPresses,
       });
 
       if (resetSeq) {
@@ -131,7 +136,7 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false, rese
         }
 
         if (!data.correct && !isPractice) {
-          taskStore.transact('numIncorrect', (value: number) => value + 1)
+          taskStore.transact('numIncorrect', (value: number) => value + 1);
           numCorrect = 0;
         }
 
@@ -139,11 +144,10 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false, rese
           if (reverse) {
             finishExperiment();
           } else {
-            sequenceLength = 2; 
+            sequenceLength = 2;
             // update total trials to account for skipped forward block
-            taskStore('testTrialCount', 21); 
+            taskStore('testTrialCount', 21);
           }
-          
         }
 
         selectedCoordinates = [];
@@ -152,34 +156,33 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false, rese
 
         // Avoid generating the same sequence twice in a row
         let newSequence = generateRandomSequence({
-            numOfBlocks, 
-            sequenceLength,
-            previousSequence: generatedSequence
+          numOfBlocks,
+          sequenceLength,
+          previousSequence: generatedSequence,
         });
 
         while (_isEqual(newSequence, generatedSequence)) {
           newSequence = generateRandomSequence({
-            numOfBlocks, 
-            sequenceLength, 
-            previousSequence: generatedSequence
+            numOfBlocks,
+            sequenceLength,
+            previousSequence: generatedSequence,
           });
         }
 
         generatedSequence = newSequence;
 
         if (!isPractice) {
-          timeoutIDs.forEach(id => clearTimeout(id));
+          timeoutIDs.forEach((id) => clearTimeout(id));
           timeoutIDs = [];
 
           taskStore.transact('testTrialCount', (oldVal: number) => oldVal + 1);
         }
-
-      } 
+      }
     },
   };
 }
 
-let timeoutIDs: Array<NodeJS.Timeout | number> = []
+let timeoutIDs: Array<NodeJS.Timeout | number> = [];
 
 function doOnLoad(mode: 'display' | 'input', isPractice: boolean, reverse: boolean) {
   const container = document.getElementById('jspsych-corsi-stimulus') as HTMLDivElement;
@@ -190,7 +193,7 @@ function doOnLoad(mode: 'display' | 'input', isPractice: boolean, reverse: boole
 
   container.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
   container.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;
-  
+
   const t = taskStore().translations;
 
   if (!isPractice) {
@@ -228,7 +231,7 @@ function doOnLoad(mode: 'display' | 'input', isPractice: boolean, reverse: boole
         if (!isPractice) {
           // Avoid stacking timeouts
           if (timeoutIDs.length) {
-            timeoutIDs.forEach(id => clearTimeout(id));
+            timeoutIDs.forEach((id) => clearTimeout(id));
             timeoutIDs = [];
           }
 
@@ -250,13 +253,12 @@ function doOnLoad(mode: 'display' | 'input', isPractice: boolean, reverse: boole
     }
   });
 
-
   const contentWrapper = document.getElementById('jspsych-content') as HTMLDivElement;
   const corsiBlocksHTML = contentWrapper.children[1] as HTMLDivElement;
   const promptContainer = document.createElement('div');
   promptContainer.classList.add('lev-row-container', 'instruction');
   const prompt = document.createElement('p');
-  const inputTextPrompt = reverse ? t.memoryGameBackwardPrompt : t.memoryGameInput; 
+  const inputTextPrompt = reverse ? t.memoryGameBackwardPrompt : t.memoryGameInput;
   prompt.textContent = mode === 'display' ? t.memoryGameDisplay : inputTextPrompt;
   promptContainer.appendChild(prompt);
   // Inserting element at the second child position rather than

@@ -1,38 +1,37 @@
 import { jsPsych } from '../../taskSetup';
 import { PageAudioHandler } from '../helpers';
-import { mediaAssets} from '../../..';
+import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
 
-
 export function finishExperiment() {
-    const t = taskStore().translations;
-    const removeDOMElements = (event: Event) => {
-        if (event.type === 'click'){
-            const buttonId = (event.target as HTMLElement)?.id;
-            if (buttonId === 'exit-button') {
-                document.body.innerHTML = '';
-                taskStore('taskComplete', true);
-                window.removeEventListener('click', removeDOMElements);
-                window.removeEventListener('keydown', removeDOMElements);
-            }
-        } else if (event.type === 'keydown'){
-            document.body.innerHTML = '';
-            taskStore('taskComplete', true);
-            window.removeEventListener('keydown', removeDOMElements);
-            window.removeEventListener('click', removeDOMElements);
-        }
+  const t = taskStore().translations;
+  const removeDOMElements = (event: Event) => {
+    if (event.type === 'click') {
+      const buttonId = (event.target as HTMLElement)?.id;
+      if (buttonId === 'exit-button') {
+        document.body.innerHTML = '';
+        taskStore('taskComplete', true);
+        window.removeEventListener('click', removeDOMElements);
+        window.removeEventListener('keydown', removeDOMElements);
+      }
+    } else if (event.type === 'keydown') {
+      document.body.innerHTML = '';
+      taskStore('taskComplete', true);
+      window.removeEventListener('keydown', removeDOMElements);
+      window.removeEventListener('click', removeDOMElements);
     }
-    window.addEventListener('click', removeDOMElements);
-    window.addEventListener('keydown', removeDOMElements);
+  };
+  window.addEventListener('click', removeDOMElements);
+  window.addEventListener('keydown', removeDOMElements);
 
-    jsPsych.endExperiment(
-        `<div class='lev-stimulus-container'>
+  jsPsych.endExperiment(
+    `<div class='lev-stimulus-container'>
             <div class='lev-row-container instruction'>
                 <h1>${t.taskFinished}</h1>
             </div>
             <footer>${t.generalFooter}</footer>
             <button id="exit-button" class="primary" style=margin-top:5%>Exit</button>
         </div>`,
-        PageAudioHandler.playAudio(mediaAssets.audio.taskFinished)
-    ); 
+    PageAudioHandler.playAudio(mediaAssets.audio.taskFinished),
+  );
 }

@@ -4,7 +4,7 @@ import { startAppTimer } from './appTimer';
 export const initTimeline = (
   config: Record<string, any>,
   enterFullscreen: Record<string, any>,
-  finishExperiment: () => void
+  finishExperiment: () => void,
 ) => {
   const initialTimeline = [enterFullscreen];
 

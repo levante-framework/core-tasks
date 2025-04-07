@@ -47,15 +47,14 @@
 .number-line-4afc-slider::-webkit-slider-thumb {
   /* removing default appearance */
   -webkit-appearance: none;
-  appearance: none; 
+  appearance: none;
   /* creating a custom design */
   margin-top: -3px;
   height: 15px;
   width: 15px;
-  background-color: #275BDD;
+  background-color: #275bdd;
   border-radius: 50%;
 }
-
 
 /* Thumb: Firefox */
 .number-line-4afc-slider::-moz-range-thumb {
@@ -64,6 +63,6 @@
   appearance: none;
   height: 15px;
   width: 15px;
-  background-color: #275BDD;
+  background-color: #275bdd;
   border-radius: 50%;
 }

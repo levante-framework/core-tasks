@@ -9,7 +9,7 @@ import { stringToNumberArray } from './stringToNumArray';
 import { dashToCamelCase } from './dashToCamelCase';
 import { camelize } from './camelize';
 import { shuffleStimulusTrials } from './randomizeStimulusBlocks';
-import {shuffleStories} from '../../roar-inference/helpers/shuffleRoarInferenceStories'
+import { shuffleStories } from '../../roar-inference/helpers/shuffleRoarInferenceStories';
 import { taskStore } from '../../../taskStore';
 
 type ParsedRowType = {
@@ -70,18 +70,23 @@ function containsLettersOrSlash(str: string) {
   return /[a-zA-Z\/]/.test(str);
 }
 
-const transformCSV = (csvInput: ParsedRowType[], numOfPracticeTrials: number, sequentialStimulus: boolean, task: string) => {
+const transformCSV = (
+  csvInput: ParsedRowType[],
+  numOfPracticeTrials: number,
+  sequentialStimulus: boolean,
+  task: string,
+) => {
   let currTrialTypeBlock = '';
   let currPracticeAmount = 0;
 
   // Phase 1 is test-dimensions and something-same
-  // Phase 2 is match and unique - subphases are either matching or test-dimensions 
-  let sdsBlock1Count = 0
-  let sdsBlock2Count = 0
-  let sdsBlock3Count = 0
-  let sdsBlock4Count = 0
-  let sdsBlock5Count = 0
-  let sdsBlock6Count = 0
+  // Phase 2 is match and unique - subphases are either matching or test-dimensions
+  let sdsBlock1Count = 0;
+  let sdsBlock2Count = 0;
+  let sdsBlock3Count = 0;
+  let sdsBlock4Count = 0;
+  let sdsBlock5Count = 0;
+  let sdsBlock6Count = 0;
 
   csvInput.forEach((row) => {
     // Leaving this here for quick testing of a certain type of trial
@@ -106,20 +111,19 @@ const transformCSV = (csvInput: ParsedRowType[], numOfPracticeTrials: number, se
         if (row.task === 'roar-inference') {
           return row.response_alternatives.split(',').map((alt) => alt.replace(/"/g, ''));
         } else {
-          return (
-            containsLettersOrSlash(row.response_alternatives) || 
-            (row.task === 'adult-reasoning' && (row.response_alternatives).includes(";")))
-              ? row.response_alternatives.split(',')
-              : stringToNumberArray(row.response_alternatives);
+          return containsLettersOrSlash(row.response_alternatives) ||
+            (row.task === 'adult-reasoning' && row.response_alternatives.includes(';'))
+            ? row.response_alternatives.split(',')
+            : stringToNumberArray(row.response_alternatives);
         }
       })(),
       audioFile: row.audio_file,
       // difficulty must be undefined for non-instruction/practice trials to avoid running cat
-      difficulty: (taskStore().runCat || 
-      row.trial_type === 'instructions' ||
-      row.assessment_stage === 'practice_response') ? 
-      parseFloat(row.d || row.difficulty) : NaN,
-    }; 
+      difficulty:
+        taskStore().runCat || row.trial_type === 'instructions' || row.assessment_stage === 'practice_response'
+          ? parseFloat(row.d || row.difficulty)
+          : NaN,
+    };
 
     if (row.task === 'Mental Rotation') {
       newRow.item = camelize(newRow.item as string);
@@ -128,29 +132,29 @@ const transformCSV = (csvInput: ParsedRowType[], numOfPracticeTrials: number, se
     }
 
     if (row.task === 'same-different-selection') {
-      newRow.requiredSelections = parseInt(row.required_selections)
-      newRow.blockIndex = parseInt(row.block_index || '')
+      newRow.requiredSelections = parseInt(row.required_selections);
+      newRow.blockIndex = parseInt(row.block_index || '');
       // all instructions are part of phase 1
       if (newRow.blockIndex == 1) {
-        sdsBlock1Count += 1
+        sdsBlock1Count += 1;
       } else if (newRow.blockIndex == 2) {
-        sdsBlock2Count += 1
+        sdsBlock2Count += 1;
       } else if (newRow.blockIndex == 3) {
-        sdsBlock3Count += 1
+        sdsBlock3Count += 1;
       } else if (newRow.blockIndex == 4) {
-        sdsBlock4Count += 1
+        sdsBlock4Count += 1;
       } else if (newRow.blockIndex == 5) {
-        sdsBlock5Count += 1
+        sdsBlock5Count += 1;
       } else {
-        sdsBlock6Count += 1
+        sdsBlock6Count += 1;
       }
 
-      sdsPhaseCount.block1 = sdsBlock1Count
-      sdsPhaseCount.block2 = sdsBlock2Count
-      sdsPhaseCount.block3 = sdsBlock3Count
-      sdsPhaseCount.block4 = sdsBlock4Count
-      sdsPhaseCount.block5 = sdsBlock5Count
-      sdsPhaseCount.block6 = sdsBlock6Count
+      sdsPhaseCount.block1 = sdsBlock1Count;
+      sdsPhaseCount.block2 = sdsBlock2Count;
+      sdsPhaseCount.block3 = sdsBlock3Count;
+      sdsPhaseCount.block4 = sdsBlock4Count;
+      sdsPhaseCount.block5 = sdsBlock5Count;
+      sdsPhaseCount.block6 = sdsBlock6Count;
     }
 
     let currentTrialType = newRow.trialType;
@@ -198,7 +202,7 @@ export const getCorpus = async (config: Record<string, any>) => {
     theoryOfMind: `https://storage.googleapis.com/${task}/shared/corpora/${corpus}.csv`,
     vocab: `https://storage.googleapis.com/vocab-test/shared/corpora/${corpus}.csv`,
     roarInference: `https://storage.googleapis.com/roar-inference/en/corpora/${corpus}.csv`,
-    adultReasoning: `https://storage.googleapis.com/egma-math/shared/corpora/${corpus}.csv`
+    adultReasoning: `https://storage.googleapis.com/egma-math/shared/corpora/${corpus}.csv`,
   };
 
   function downloadCSV(url: string) {
@@ -229,7 +233,6 @@ export const getCorpus = async (config: Record<string, any>) => {
     try {
       await parseCSVs(urls);
       taskStore('totalTrials', totalTrials);
-
     } catch (error) {
       console.error('Error:', error);
     }

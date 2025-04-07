@@ -3,9 +3,9 @@ import { getDevice } from '@bdelab/roar-utils';
 import { camelize } from './camelize';
 
 type CategorizedObjectsType = {
-  images: Record<string, string>,
-  audio: Record<string, string>,
-  video: Record<string, string>,
+  images: Record<string, string>;
+  audio: Record<string, string>;
+  video: Record<string, string>;
 };
 
 type ResponseItemType = {
