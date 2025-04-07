@@ -29,7 +29,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.branch }}  # Use the branch input provided by the user
+          ref: ${{ github.event.inputs.branch }}
+          token: ${{ secrets.GIT_BOT_TOKEN }}
 
       # Set up Node.js to use npm
       - name: Set up Node.js
@@ -73,8 +74,12 @@ jobs:
       # Push the version update and tag to the repository
       - name: Push changes
         run: |
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git remote set-url origin https://x-access-token:${{ secrets.GIT_BOT_TOKEN }}@github.com/${{ github.repository }}.git
           git push origin ${{ github.event.inputs.branch }}
           git push origin --tags
+        working-directory: ./task-launcher
 
       # Publish the package
       - name: Publish to npm
@@ -93,7 +98,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: levante-framework/levante-dashboard
-          token: ${{ secrets.GH_PAT }}
+          token: ${{ secrets.GIT_BOT_TOKEN }}
 
       # Set up Node.js for the dashboard repository
       - name: Set up Node.js for levante-dashboard
