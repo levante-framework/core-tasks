@@ -120,20 +120,12 @@ const transformCSV = (
       })(),
       audioFile: row.audio_file,
       // difficulty must be undefined for non-instruction/practice trials to avoid running cat
-<<<<<<< HEAD
-      difficulty: (taskStore().runCat || 
-      row.trial_type === 'instructions' ||
-      row.assessment_stage === 'practice_response') ? 
-      parseFloat(row.d || row.difficulty) : NaN,
-      randomize: row.randomize as 'yes' | 'no' | 'at_block_level',
-    }; 
-=======
       difficulty:
         taskStore().runCat || row.trial_type === 'instructions' || row.assessment_stage === 'practice_response'
           ? parseFloat(row.d || row.difficulty)
           : NaN,
+      randomize: row.randomize as 'yes' | 'no' | 'at_block_level',
     };
->>>>>>> main
 
     if (row.task === 'Mental Rotation') {
       newRow.item = camelize(newRow.item as string);
