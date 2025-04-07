@@ -67,8 +67,8 @@ jobs:
         run: |
           git config --global user.email "github-actions@github.com"
           git config --global user.name "GitHub Actions"
-          NEW_VERSION=$(npm version ${{ github.event.inputs.version-type }} -m "Bump version to %s")
-          echo "new_version=${NEW_VERSION}" >> $GITHUB_OUTPUT
+          NEW_VERSION=$(npm version ${{ github.event.inputs.version-type }} --no-git-tag-version -m "Bump version to %s")
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
         working-directory: ./task-launcher
 
       # Push the version update and tag to the repository
@@ -77,8 +77,11 @@ jobs:
           git config --global user.email "github-actions@github.com"
           git config --global user.name "GitHub Actions"
           git remote set-url origin https://x-access-token:${{ secrets.GIT_BOT_TOKEN }}@github.com/${{ github.repository }}.git
+          git add package.json
+          git commit -m "chore: bump version to ${{ steps.version.outputs.new_version }}"
+          git tag -a "v${{ steps.version.outputs.new_version }}" -m "Release v${{ steps.version.outputs.new_version }}"
           git push origin ${{ github.event.inputs.branch }}
-          git push origin --tags
+          git push origin "v${{ steps.version.outputs.new_version }}"
         working-directory: ./task-launcher
 
       # Publish the package
