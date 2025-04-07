@@ -20,15 +20,14 @@ const fixationTrial = (corpusType?: string, blockNum?: number) => {
         if (blockNum != undefined) {
           getStimulus(corpusType, blockNum);
         } else {
-          getStimulus(corpusType); 
+          getStimulus(corpusType);
         }
       }
     },
   };
 };
 
-export const setupPractice = fixationTrial("practice");
-export const setupStimulus = fixationTrial("stimulus");
-export const setupStimulusFromBlock = (blockNum: number) => fixationTrial("stimulus", blockNum);
-export const fixationOnly = fixationTrial(); 
-
+export const setupPractice = fixationTrial('practice');
+export const setupStimulus = fixationTrial('stimulus');
+export const setupStimulusFromBlock = (blockNum: number) => fixationTrial('stimulus', blockNum);
+export const fixationOnly = fixationTrial();

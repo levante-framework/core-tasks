@@ -40,13 +40,13 @@ button {
     &:active {
       background: $bg-button-primary-clicked;
       border-color: $border-button-primary-clicked;
-      box-shadow:$button-default-box-shadow rgba($border-button-primary-clicked, 0.5) inset;
+      box-shadow: $button-default-box-shadow rgba($border-button-primary-clicked, 0.5) inset;
     }
 
     &:disabled {
       background: $btn-disabled-bg;
       border-color: $btn-disabled-inset;
-      box-shadow:$button-default-box-shadow $btn-disabled-inset inset;
+      box-shadow: $button-default-box-shadow $btn-disabled-inset inset;
       cursor: no-drop;
     }
   }
@@ -55,7 +55,8 @@ button {
     @extend .button-base;
     background: $border-accent;
     border-color: $bg-accent_secondary;
-    box-shadow: $button-secondary-box-shadow $bg-accent_secondary inset,
+    box-shadow:
+      $button-secondary-box-shadow $bg-accent_secondary inset,
       $button-secondary-inner-shadow $bg-button-secondary inset;
     font-size: $font-size-lm;
     width: 2.5 * $font-size-l;
@@ -73,8 +74,8 @@ button {
       font-size: $font-size-m;
       font-weight: $font-weight-normal;
       border-radius: $button-default-border-radius-small;
-      width: 3*$font-size-m;
-      height: 3*$font-size-m;
+      width: 3 * $font-size-m;
+      height: 3 * $font-size-m;
     }
 
     &:hover {
@@ -86,7 +87,8 @@ button {
     &:active {
       background: $bg-button-primary-clicked;
       border-color: $border-button-primary-clicked;
-      box-shadow: $button-secondary-box-shadow $border-button-primary-clicked inset,
+      box-shadow:
+        $button-secondary-box-shadow $border-button-primary-clicked inset,
         $button-secondary-inner-shadow $bg-button-secondary inset;
     }
   }
@@ -95,15 +97,22 @@ button {
     background: $bg-green_base;
     padding: $button-secondary-padding;
     border-color: $border-green_dark;
-    box-shadow: $button-secondary-box-shadow $border-green_dark inset,
+    box-shadow:
+      $button-secondary-box-shadow $border-green_dark inset,
       $button-secondary-inner-shadow $bg-green-gradient inset;
 
     @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.1); }
-      100% { transform: scale(1); }
+      0% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.1);
+      }
+      100% {
+        transform: scale(1);
+      }
     }
-    
+
     @include respond-to('small') {
       font-size: $font-size-l;
       font-weight: $font-weight-normal;
@@ -117,14 +126,16 @@ button {
     &:hover {
       background: $bg-green-base-hover;
       border-color: $border-button-green-hover;
-      box-shadow: $button-secondary-box-shadow $border-button-green-hover inset,
+      box-shadow:
+        $button-secondary-box-shadow $border-button-green-hover inset,
         $button-secondary-inner-shadow $bg-green-gradient inset;
     }
 
     &:active {
       background: $bg-green-base-clicked;
       border-color: $border-button-green-clicked;
-      box-shadow: $button-secondary-box-shadow $border-button-green-clicked inset,
+      box-shadow:
+        $button-secondary-box-shadow $border-button-green-clicked inset,
         $button-secondary-inner-shadow $bg-green-gradient inset;
     }
   }
@@ -156,7 +167,8 @@ button {
     &:active {
       background: $bg-button-primary-clicked;
       border-color: $border-button-primary-clicked;
-      box-shadow: $button-secondary-box-shadow $border-button-primary-clicked inset,
+      box-shadow:
+        $button-secondary-box-shadow $border-button-primary-clicked inset,
         $button-secondary-inner-shadow $bg-button-secondary inset;
     }
   }
@@ -276,9 +288,9 @@ button {
   }
 
   &.image-medium {
-    @extend .button-base; 
-    padding: 0; 
-    box-sizing: border-box; 
+    @extend .button-base;
+    padding: 0;
+    box-sizing: border-box;
     border-color: $bg-button-primary;
 
     img {
@@ -311,7 +323,6 @@ button {
     &.selected {
       border-color: $border-button-primary-clicked;
     }
-
   }
   &.no-pointer-events {
     pointer-events: none;

@@ -18,14 +18,16 @@ export function fixation(interStimulusInterval) {
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
     keyboard_choice: InputKey.NoKeys,
-    button_html: [`
+    button_html: [
+      `
     <div class='response-container--small'>
       <button class='secondary--green'></button>
-    </div>`, 
-    `<div class='response-container--small'>
+    </div>`,
+      `<div class='response-container--small'>
       <button class='secondary--green'></button>
-    </div>`],
+    </div>`,
+    ],
     trial_duration: interStimulusInterval,
     response_ends_trial: false,
-  }
+  };
 }

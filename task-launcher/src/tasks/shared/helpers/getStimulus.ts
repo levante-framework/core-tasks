@@ -14,9 +14,9 @@ export const getStimulus = (corpusType: string, blockNumber?: number) => {
   corpus = taskStore().corpora;
 
   // if block number is specified, get next item from only the indicated block of the corpus
-  blockNumber != undefined ? 
-    itemSuggestion = cat.findNextItem(corpus[corpusType][blockNumber]) : 
-    itemSuggestion = cat.findNextItem(corpus[corpusType])
+  blockNumber != undefined
+    ? (itemSuggestion = cat.findNextItem(corpus[corpusType][blockNumber]))
+    : (itemSuggestion = cat.findNextItem(corpus[corpusType]));
 
   const stimAudio = itemSuggestion.nextStimulus.audioFile;
   if (stimAudio && !mediaAssets.audio[camelize(stimAudio)]) {
@@ -30,16 +30,16 @@ export const getStimulus = (corpusType: string, blockNumber?: number) => {
   taskStore('nextStimulus', itemSuggestion.nextStimulus);
 
   if (
-    itemSuggestion.nextStimulus.assessmentStage === "practice_response" || 
-    itemSuggestion.nextStimulus.trialType === "instructions"
+    itemSuggestion.nextStimulus.assessmentStage === 'practice_response' ||
+    itemSuggestion.nextStimulus.trialType === 'instructions'
   ) {
-    taskStore("testPhase", false); 
+    taskStore('testPhase', false);
   }
 
   // update the corpus with the remaining unused items
-  blockNumber != undefined ? 
-    corpus[corpusType][blockNumber] = itemSuggestion.remainingStimuli :
-    corpus[corpusType] = itemSuggestion.remainingStimuli
+  blockNumber != undefined
+    ? (corpus[corpusType][blockNumber] = itemSuggestion.remainingStimuli)
+    : (corpus[corpusType] = itemSuggestion.remainingStimuli);
 
   taskStore('corpora', corpus);
 };

@@ -1,7 +1,7 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
 import { InputKey } from '../helpers/utils';
-import { setupReplayAudio, replayButtonSvg, PageStateHandler, PageAudioHandler } from '../../shared/helpers'; 
+import { setupReplayAudio, replayButtonSvg, PageStateHandler, PageAudioHandler } from '../../shared/helpers';
 import { jsPsych } from '../../taskSetup';
 import { taskStore } from '../../../taskStore';
 
@@ -87,7 +87,7 @@ export function getEndGame() {
   );
 }
 
-function buildInstructionTrial(mascotImage, promptAudioKey, promptText, buttonText, bottomText=undefined) {
+function buildInstructionTrial(mascotImage, promptAudioKey, promptText, buttonText, bottomText = undefined) {
   if (!mascotImage) {
     // throw new Error(`Missing mascot image for instruction trial`);
     console.error(`buildInstructionTrial: Missing mascot image`);
@@ -103,8 +103,7 @@ function buildInstructionTrial(mascotImage, promptAudioKey, promptText, buttonTe
   const replayButtonHtmlId = 'replay-btn-revisited';
   const trial = {
     type: jsPsychHtmlMultiResponse,
-    stimulus:
-      `<div class="haf-stimulus-holder">
+    stimulus: `<div class="haf-stimulus-holder">
         <div class="lev-row-container header">
           <p>${promptText}</p>
         </div>
@@ -123,16 +122,17 @@ function buildInstructionTrial(mascotImage, promptAudioKey, promptText, buttonTe
     prompt_above_buttons: true,
     keyboard_choices: InputKey.NoKeys,
     button_choices: ['Next'],
-    button_html:[
+    button_html: [
       `<button class='primary'>
         ${buttonText.trim()}
-      </button>`,],
+      </button>`,
+    ],
     on_load: () => {
       PageAudioHandler.playAudio(mediaAssets.audio[promptAudioKey]);
 
       const pageStateHandler = new PageStateHandler(promptAudioKey);
       setupReplayAudio(pageStateHandler);
-    }, 
+    },
     on_finish: () => {
       PageAudioHandler.stopAndDisconnectNode();
 
@@ -140,12 +140,11 @@ function buildInstructionTrial(mascotImage, promptAudioKey, promptText, buttonTe
         taskStore('taskComplete', true);
       }
 
-      
       jsPsych.data.addDataToLastTrial({
-        audioButtonPresses: PageAudioHandler.replayPresses, 
-        assessment_stage: 'instructions'
+        audioButtonPresses: PageAudioHandler.replayPresses,
+        assessment_stage: 'instructions',
       });
-    }
+    },
   };
   return trial;
 }

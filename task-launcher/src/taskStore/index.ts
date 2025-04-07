@@ -34,7 +34,7 @@ import store from 'store2';
  * ------- AFC only -------
  * @property {boolean} skipCurrentTrial - Whether to skip the current trial, default is false.
  * @property {number} correctResponseIdx - Index of the correct response, starting at 0.
- * @property {number} incorrectPracticeResponses - Number of incorrect responses to the current practice trial. 
+ * @property {number} incorrectPracticeResponses - Number of incorrect responses to the current practice trial.
  * ------- Math only -------
  * @property {Array} nonFractionSelections - List of non-fraction selections.
  * @property {number} trialsSkipped - Number of trials that have been skipped while jumping to the next block.
@@ -54,7 +54,7 @@ export type TaskStoreDataType = {
   audioFeedback: string;
   skipInstructions: boolean;
   corpusId?: string;
-  corpus: string,
+  corpus: string;
   stimulusBlocks: number;
   buttonLayout: string;
   task: string; // FIXME: tighten to task name strings
@@ -75,7 +75,7 @@ export type TaskStoreDataType = {
 
 /**
  * Store for managing task state. For all tasks.
- * 
+ *
  * @type {import('store2').StoreAPI & (() => TaskStore)}
  */
 export const taskStore = store.page.namespace('taskStore');
@@ -98,10 +98,10 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     task: config.task,
     maxIncorrect: config.maxIncorrect,
     keyHelpers: config.keyHelpers,
-    runCat: config.cat, 
+    runCat: config.cat,
     heavyInstructions: config.heavyInstructions || config.userMetadata.age < 6,
     semThreshold: config.semThreshold,
-    startingTheta: config.startingTheta, 
+    startingTheta: config.startingTheta,
     storeItemId: config.storeItemId,
     isRoarApp: config.isRoarApp,
     numOfBlocks: config.userMetadata.age > 4 ? 9 : 4,
@@ -119,7 +119,6 @@ export const setTaskStore = (config: TaskStoreDataType) => {
   });
 };
 
-
 // Leaving this for ROAR fork / documentation
 
 // STATE
@@ -135,7 +134,6 @@ export const setTaskStore = (config: TaskStoreDataType) => {
 // keyHelpers: keyHelpers ?? true,
 // storeItemId: storeItemId,
 // isRoarApp: isRoarApp(firekit)
-
 
 // DONT NEED STATE FOR THESE
 // userMetadata: { ...userMetadata, age },

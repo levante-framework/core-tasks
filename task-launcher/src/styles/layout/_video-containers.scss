@@ -62,7 +62,6 @@ img {
     width: $instruction_default_size;
     height: $instruction_default_size;
 
-
     @include respond-to('medium') {
       width: $instruction_m_size;
       height: $instruction_m_size;

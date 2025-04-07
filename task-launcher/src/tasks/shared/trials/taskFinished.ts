@@ -37,11 +37,9 @@ export const taskFinished = (endMessage = 'taskFinished') => {
       window.addEventListener('keydown', endTask);
 
       if (mediaAssets.audio[endMessage]) {
-        PageAudioHandler.playAudio(mediaAssets.audio[endMessage])
+        PageAudioHandler.playAudio(mediaAssets.audio[endMessage]);
       }
-    }
+    },
     // trial_duration: 1000,
-  }
+  };
 };
-
-

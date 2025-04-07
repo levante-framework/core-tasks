@@ -13,7 +13,7 @@ export class InitPageSetup {
   smallDeviceOverlayDiv: HTMLDivElement;
   #overlayShown: boolean;
   #timeout?: number;
-  
+
   constructor(warningDuration: number) {
     this.warningDuration = warningDuration;
     this.rotateOverlayDiv = this.createRotateOverlayDiv();
@@ -27,7 +27,7 @@ export class InitPageSetup {
     // Check orientation on resize
     window.matchMedia('(orientation: portrait)').addEventListener('change', () => {
       this.onOrientationChange();
-  });
+    });
   }
 
   createRotateOverlayDiv() {
@@ -73,10 +73,10 @@ export class InitPageSetup {
     this.#timeout = window.setTimeout(() => {
       this.hideOverlay(overlayDiv);
     }, this.warningDuration);
-  } 
+  }
 
   onOrientationChange() {
-    const {screen} = window;
+    const { screen } = window;
     const isPortrait = screen.orientation.type.includes('portrait');
     const primaryDimension = isPortrait ? screen.availWidth : screen.availHeight;
     if (primaryDimension < 500) {

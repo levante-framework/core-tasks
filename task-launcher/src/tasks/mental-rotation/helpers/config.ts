@@ -9,7 +9,7 @@ import {
 type GetConfigReturnType = {
   itemConfig: LayoutConfigType;
   errorMessages: string[];
-}
+};
 
 export const getLayoutConfig = (
   stimulus: StimulusType,
@@ -40,10 +40,10 @@ export const getLayoutConfig = (
     defaultConfig.classOverrides.buttonClassList = ['primary'];
   }
 
-  const messages = validateLayoutConfig(defaultConfig, mediaAssets, translations, stimulus)
+  const messages = validateLayoutConfig(defaultConfig, mediaAssets, translations, stimulus);
 
-  return ({
+  return {
     itemConfig: defaultConfig,
     errorMessages: messages,
-  });
+  };
 };

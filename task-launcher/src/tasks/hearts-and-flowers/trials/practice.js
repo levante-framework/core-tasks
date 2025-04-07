@@ -1,17 +1,10 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
 import { isTouchScreen } from '../../taskSetup';
-import {
-  StimulusType,
-  StimulusSideType,
-  InputKey,
-  getCorrectInputSide,
-  getStimulusLayout
-} from '../helpers/utils';
+import { StimulusType, StimulusSideType, InputKey, getCorrectInputSide, getStimulusLayout } from '../helpers/utils';
 import { PageStateHandler, setupReplayAudio, PageAudioHandler } from '../../shared/helpers';
 import { jsPsych } from '../../taskSetup';
 import { taskStore } from '../../../taskStore';
-
 
 /**
  * Builds a practice trial for the Instruction sections.
@@ -20,7 +13,13 @@ import { taskStore } from '../../../taskStore';
  * @param {*} promptAudioAsset
  * @param {*} stimulusSideType
  */
-export function buildInstructionPracticeTrial(stimulusType, promptText, promptAudioAsset, stimulusSideType, audioAssetKey) {
+export function buildInstructionPracticeTrial(
+  stimulusType,
+  promptText,
+  promptAudioAsset,
+  stimulusSideType,
+  audioAssetKey,
+) {
   if (!promptAudioAsset) {
     // throw new Error(`Missing prompt audio for instruction practice trial`);
     console.error(`buildInstructionPracticeTrial: Missing prompt audio`);
@@ -62,30 +61,31 @@ export function buildInstructionPracticeTrial(stimulusType, promptText, promptAu
       PageAudioHandler.playAudio(promptAudioAsset);
       const pageStateHandler = new PageStateHandler(audioAssetKey);
       setupReplayAudio(pageStateHandler);
-
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
-    keyboard_choices: isTouchScreen? InputKey.NoKeys : [InputKey.ArrowLeft, InputKey.ArrowRight],
-    button_html: [`
+    keyboard_choices: isTouchScreen ? InputKey.NoKeys : [InputKey.ArrowLeft, InputKey.ArrowRight],
+    button_html: [
+      `
     <div class='response-container--small'>
       <button class='secondary--green'></button>
-    </div>`, 
-    `<div class='response-container--small'>
+    </div>`,
+      `<div class='response-container--small'>
       <button class='secondary--green'></button>
-    </div>`],
+    </div>`,
+    ],
     on_finish: (data) => {
       PageAudioHandler.stopAndDisconnectNode();
 
       let response;
       if (data.button_response === 0 || data.button_response === 1) {
         response = data.button_response;
-      } else if (data.keyboard_response === InputKey.ArrowLeft || data.keyboard_response === InputKey.ArrowRight){
+      } else if (data.keyboard_response === InputKey.ArrowLeft || data.keyboard_response === InputKey.ArrowRight) {
         response = data.keyboard_response === InputKey.ArrowLeft ? 0 : 1;
       } else {
         const errorMessage = `Invalid response: ${data.button_response} or ${data.keyboard_response} in ${data}`;
         console.error(errorMessage);
       }
-      
+
       if (response === validAnswer) {
         taskStore('isCorrect', true);
       } else {
@@ -93,12 +93,12 @@ export function buildInstructionPracticeTrial(stimulusType, promptText, promptAu
       }
 
       jsPsych.data.addDataToLastTrial({
-        audioButtonPresses: PageAudioHandler.replayPresses, 
-        assessment_stage: 'practice_response'
+        audioButtonPresses: PageAudioHandler.replayPresses,
+        assessment_stage: 'practice_response',
       });
     },
     // TODO handle stimulus presentation timeout and other parameters
-  }
+  };
   return trial;
 }
 
@@ -110,36 +110,63 @@ export function buildInstructionPracticeTrial(stimulusType, promptText, promptAu
  * Builds a feedback trial for cases where the feedback prompt may change only depending on
  * whether the answer was correct or incorrect.
  */
-export function buildStimulusInvariantPracticeFeedback(feedbackPromptIncorrectKey, feedbackPromptCorrectKey, onFinishTimelineCallback=undefined) {
-  return buildPracticeFeedback(feedbackPromptIncorrectKey, feedbackPromptCorrectKey, feedbackPromptIncorrectKey, feedbackPromptCorrectKey, onFinishTimelineCallback);
+export function buildStimulusInvariantPracticeFeedback(
+  feedbackPromptIncorrectKey,
+  feedbackPromptCorrectKey,
+  onFinishTimelineCallback = undefined,
+) {
+  return buildPracticeFeedback(
+    feedbackPromptIncorrectKey,
+    feedbackPromptCorrectKey,
+    feedbackPromptIncorrectKey,
+    feedbackPromptCorrectKey,
+    onFinishTimelineCallback,
+  );
 }
 
 /**
  * Builds a feedback trial for cases where the feedback prompt may change depending on
  * the stimulus type and whether the answer was correct or incorrect.
  */
-export function buildMixedPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPromptCorrectKey, flowerFeedbackPromptIncorrectKey, flowerfeedbackPromptCorrectKey, onFinishTimelineCallback=undefined) {
-  return buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPromptCorrectKey, flowerFeedbackPromptIncorrectKey, flowerfeedbackPromptCorrectKey, onFinishTimelineCallback)
+export function buildMixedPracticeFeedback(
+  heartFeedbackPromptIncorrectKey,
+  heartfeedbackPromptCorrectKey,
+  flowerFeedbackPromptIncorrectKey,
+  flowerfeedbackPromptCorrectKey,
+  onFinishTimelineCallback = undefined,
+) {
+  return buildPracticeFeedback(
+    heartFeedbackPromptIncorrectKey,
+    heartfeedbackPromptCorrectKey,
+    flowerFeedbackPromptIncorrectKey,
+    flowerfeedbackPromptCorrectKey,
+    onFinishTimelineCallback,
+  );
 }
 
 /**
  * Builds a feedback trial for instructions practice trials and practice trials.
  */
-function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPromptCorrectKey, flowerFeedbackPromptIncorrectKey, flowerfeedbackPromptCorrectKey,
-  onFinishTimelineCallback) {
+function buildPracticeFeedback(
+  heartFeedbackPromptIncorrectKey,
+  heartfeedbackPromptCorrectKey,
+  flowerFeedbackPromptIncorrectKey,
+  flowerfeedbackPromptCorrectKey,
+  onFinishTimelineCallback,
+) {
   const validAnswerButtonHtmlIdentifier = 'valid-answer-btn';
   const feedbackTexts = {
-    IncorrectHeart:   taskStore().translations[heartFeedbackPromptIncorrectKey],
-    CorrectHeart:     taskStore().translations[heartfeedbackPromptCorrectKey],
-    IncorrectFlower:  taskStore().translations[flowerFeedbackPromptIncorrectKey],
-    CorrectFlower:    taskStore().translations[flowerfeedbackPromptCorrectKey],
-  }
+    IncorrectHeart: taskStore().translations[heartFeedbackPromptIncorrectKey],
+    CorrectHeart: taskStore().translations[heartfeedbackPromptCorrectKey],
+    IncorrectFlower: taskStore().translations[flowerFeedbackPromptIncorrectKey],
+    CorrectFlower: taskStore().translations[flowerfeedbackPromptCorrectKey],
+  };
   const feedbackAudio = {
-    IncorrectHeart:   heartFeedbackPromptIncorrectKey,
-    CorrectHeart:     heartfeedbackPromptCorrectKey,
-    IncorrectFlower:  flowerFeedbackPromptIncorrectKey,
-    CorrectFlower:    flowerfeedbackPromptCorrectKey,
-  }
+    IncorrectHeart: heartFeedbackPromptIncorrectKey,
+    CorrectHeart: heartfeedbackPromptCorrectKey,
+    IncorrectFlower: flowerFeedbackPromptIncorrectKey,
+    CorrectFlower: flowerfeedbackPromptCorrectKey,
+  };
   Object.entries(feedbackTexts).forEach(([key, value]) => {
     if (!value) {
       // throw new Error(`Missing feedback text for ${key}`);
@@ -163,7 +190,7 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
     type: jsPsychHtmlMultiResponse,
     stimulus: () => {
       const stimulusType = taskStore().stimulus;
-      const incorrect = taskStore().isCorrect === false
+      const incorrect = taskStore().isCorrect === false;
       //TODO: now that the 'correct' feedback layout differs significantly from the 'incorrect' feedback layout, we should consider
       // moving them to separate trials and using conditional trials
       if (!incorrect) {
@@ -177,15 +204,9 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
       }
       //no else: user input was incorrect
       const imageSrc = mediaAssets.images[stimulusType];
-      const promptText = stimulusType === StimulusType.Heart
-        ? feedbackTexts.IncorrectHeart
-        : feedbackTexts.IncorrectFlower;
-      return getStimulusLayout(
-        imageSrc,
-        taskStore().stimulusSide === StimulusSideType.Left,
-        promptText,
-        false,
-      )
+      const promptText =
+        stimulusType === StimulusType.Heart ? feedbackTexts.IncorrectHeart : feedbackTexts.IncorrectFlower;
+      return getStimulusLayout(imageSrc, taskStore().stimulusSide === StimulusSideType.Left, promptText, false);
     },
     prompt_above_buttons: true,
     on_load: () => {
@@ -194,22 +215,24 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
       document.getElementById('jspsych-html-multi-response-btngroup').classList.add('lev-response-row');
       document.getElementById('jspsych-html-multi-response-btngroup').classList.add('linear-4');
       const buttons = document.querySelectorAll('.secondary--green');
-      buttons.forEach(button => {
+      buttons.forEach((button) => {
         button.disabled = true;
         if (button.id === validAnswerButtonHtmlIdentifier) {
           button.style.animation = 'pulse 2s infinite';
-        } 
+        }
       });
 
       const audioAssetKey = getAssetKey();
       const audioConfig = {
         restrictRepetition: {
-          enabled: true, 
+          enabled: true,
           maxRepetitions: 2,
-        }, 
-        onEnded: () => {jsPsych.finishTrial()}
-      }
-      PageAudioHandler.playAudio(mediaAssets.audio[audioAssetKey], audioConfig); 
+        },
+        onEnded: () => {
+          jsPsych.finishTrial();
+        },
+      };
+      PageAudioHandler.playAudio(mediaAssets.audio[audioAssetKey], audioConfig);
       const pageStateHandler = new PageStateHandler(audioAssetKey);
       setupReplayAudio(pageStateHandler);
     },
@@ -218,37 +241,37 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
     button_html: () => {
       if (taskStore().isCorrect === false) {
         const validAnswerPosition = getCorrectInputSide(taskStore().stimulus, taskStore().stimulusSide);
-        return validAnswerPosition === 0 ? // is valid answer on the left?
-        [
-          `
+        return validAnswerPosition === 0 // is valid answer on the left?
+          ? [
+              `
           <div class='response-container--small'>
             <button class='secondary--green' id='${validAnswerButtonHtmlIdentifier}'></button>
           </div>
           `,
-          `
-          <div class='response-container--small'>
-            <button class='secondary--green'></button>
-          </div>
-          `
-        ]
-        : [
-          `
+              `
           <div class='response-container--small'>
             <button class='secondary--green'></button>
           </div>
           `,
-          `
+            ]
+          : [
+              `
+          <div class='response-container--small'>
+            <button class='secondary--green'></button>
+          </div>
+          `,
+              `
           <div class='response-container--small'>
             <button class='secondary--green' id='${validAnswerButtonHtmlIdentifier}'></button>
           </div>
           `,
-        ];
+            ];
       } else {
         return `<button class='secondary--green' style='display: none;'></button>`;
       }
     },
     on_finish: (data) => {
-      PageAudioHandler.stopAndDisconnectNode(); 
+      PageAudioHandler.stopAndDisconnectNode();
 
       if (onFinishTimelineCallback) {
         onFinishTimelineCallback(data);
@@ -256,4 +279,4 @@ function buildPracticeFeedback(heartFeedbackPromptIncorrectKey, heartfeedbackPro
     },
   };
   return trial;
-};
+}

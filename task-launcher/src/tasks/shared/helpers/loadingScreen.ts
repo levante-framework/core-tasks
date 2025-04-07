@@ -138,15 +138,15 @@ export const showLevanteLogoLoading = () => {
   parentDiv.style.display = 'flex';
   parentDiv.style.justifyContent = 'center';
   parentDiv.style.alignItems = 'center';
-  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    svg.setAttribute('id', LEVANTE_LOGO_ID);
-    svg.setAttribute('viewBox', '0 0 620 620');
-    svg.setAttribute('width', '300');
-    svg.setAttribute('height', '300');
-    svg.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xlink", "http://www.w3.org/1999/xlink");
-    svg.innerHTML = svgInnerHTML;
-    parentDiv.appendChild(svg);
-    document.body.appendChild(parentDiv);
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('id', LEVANTE_LOGO_ID);
+  svg.setAttribute('viewBox', '0 0 620 620');
+  svg.setAttribute('width', '300');
+  svg.setAttribute('height', '300');
+  svg.setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:xlink', 'http://www.w3.org/1999/xlink');
+  svg.innerHTML = svgInnerHTML;
+  parentDiv.appendChild(svg);
+  document.body.appendChild(parentDiv);
 };
 
 export const hideLevanteLogoLoading = () => {
