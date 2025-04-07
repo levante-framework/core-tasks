@@ -28,7 +28,7 @@ export const getLayoutConfig = (
   defaultConfig.classOverrides.promptClassList = ['lev-row-container', 'instruction-small'];
   if (!defaultConfig.isInstructionTrial) {
     const mappedDistractors = mapDistractorsToString(distractors);
-    const prepChoices = prepareChoices(answer.toString(), mappedDistractors, true, trialType);
+    const prepChoices = prepareChoices(answer.toString(), mappedDistractors, 'yes', trialType);
     defaultConfig.isImageButtonResponse = true;
     defaultConfig.response = {
       target: prepChoices.target,
