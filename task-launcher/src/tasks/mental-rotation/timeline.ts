@@ -8,6 +8,9 @@ import {
   threeDimInstructions,
   videoInstructionsFit,
   videoInstructionsMisfit,
+  demo1, 
+  demo2,
+  encouragement
 } from './trials/instructions';
 import {
   afcStimulusTemplate,
@@ -27,9 +30,9 @@ import { taskStore } from '../../taskStore';
 
 export default function buildMentalRotationTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
-  const { runCat } = taskStore();
-  const { semThreshold } = taskStore();
+  const { runCat, semThreshold, heavyInstructions } = taskStore();
   let playedThreeDimInstructions = false;
+  let encouragementCounter = 0; // only used for younger kid version (heavy instructions)
 
   initTrialSaving(config);
   const initialTimeline = initTimeline(config, enterFullscreen, finishExperiment);
@@ -50,7 +53,17 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
     },
   };
 
-  const timeline = [preloadTrials, initialTimeline, imageInstructions, videoInstructionsMisfit, videoInstructionsFit];
+  const timeline = [
+    preloadTrials, 
+    initialTimeline, 
+    imageInstructions, 
+    videoInstructionsMisfit, 
+    videoInstructionsFit,
+  ];
+
+  if (heavyInstructions) {
+    timeline.push(demo1);
+  }
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {};
@@ -105,7 +118,9 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
   };
 
   const threeDimInstructBlock = {
-    timeline: [threeDimInstructions],
+    timeline: [
+      (heavyInstructions ? demo2 : threeDimInstructions)
+    ],
     conditional_function: () => {
       if (taskStore().nextStimulus.trialType === '3D' && !playedThreeDimInstructions) {
         playedThreeDimInstructions = true;
@@ -139,12 +154,22 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
     const numOfCatTrials = corpora.cat.length;
     taskStore('totalTestTrials', numOfCatTrials);
     for (let i = 0; i < numOfCatTrials; i++) {
+      if (heavyInstructions) {
+        encouragementCounter ++
+      }; 
+
       if (i === 2) {
         timeline.push(repeatInstructions);
       }
       timeline.push({ ...setupStimulus, stimulus: '' });
       timeline.push(threeDimInstructBlock);
       timeline.push(stimulusBlock);
+
+      // add encouragement at variable interval
+      if ((encouragementCounter > 5) && Math.random() < 0.25 && heavyInstructions) {
+        timeline.push(encouragement); 
+        encouragementCounter = 0;
+      }
     }
 
     const unnormedTrials: StimulusType[] = selectNItems(corpora.unnormed, 5);
@@ -158,6 +183,10 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
     const numOfTrials = taskStore().totalTrials;
     taskStore('totalTestTrials', getRealTrials(corpus));
     for (let i = 0; i < numOfTrials; i++) {
+      if (heavyInstructions) {
+        encouragementCounter ++
+      };
+
       if (i === 4) {
         timeline.push(repeatInstructions);
       }
@@ -165,6 +194,11 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
       timeline.push(practiceTransition);
       timeline.push(threeDimInstructBlock);
       timeline.push(stimulusBlock);
+
+      if ((encouragementCounter > 4) && Math.random() < 0.3 && heavyInstructions) {
+        timeline.push(encouragement); 
+        encouragementCounter = 0;
+      }
     }
   }
 
