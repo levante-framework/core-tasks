@@ -18,7 +18,7 @@ const replayButtonHtmlId = 'replay-btn-revisited';
 let incorrectPracticeResponses: string[] = [];
 let startTime: number;
 
-const generateImageChoices = (choices: string[]) => {
+export const generateImageChoices = (choices: string[]) => {
   return choices.map((choice) => {
     const imageUrl = mediaAssets.images[camelize(choice)];
     return `<img src=${imageUrl} alt=${choice} />`;
@@ -29,7 +29,7 @@ function enableBtns(btnElements: HTMLButtonElement[]) {
   btnElements.forEach((btn) => btn.removeAttribute('disabled'));
 }
 
-function handleButtonFeedback(
+export function handleButtonFeedback(
   btn: HTMLButtonElement,
   cards: HTMLButtonElement[],
   isKeyBoardResponse: boolean,
