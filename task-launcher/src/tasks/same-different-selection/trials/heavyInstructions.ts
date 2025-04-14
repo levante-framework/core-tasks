@@ -291,7 +291,7 @@ const practiceData = [
     image: ['sm-blue-triangle', 'med-red-triangle'], 
     answer: '', 
     distractors: [],
-    itemId: '',
+    itemId: 'sds-something-same-1-instr-heavy',
     correctAudio: '',
   }, 
   {
@@ -309,7 +309,7 @@ const practiceData = [
     image: ['lg-red-square', 'sm-red-triangle'], 
     answer: '', 
     distractors: [],
-    itemId: '',
+    itemId: 'sds-something-same-2-instr-heavy',
     correctAudio: '',
   }, 
   {
