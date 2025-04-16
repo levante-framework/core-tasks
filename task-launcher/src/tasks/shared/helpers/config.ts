@@ -18,7 +18,7 @@ export const DEFAULT_LAYOUT_CONFIG: LayoutConfigType = {
   },
   classOverrides: {
     buttonContainerClassList: ['lev-response-row', 'multi-4'],
-    buttonClassList: ['image'], 
+    buttonClassList: ['image'],
     promptClassList: ['lev-row-container', 'instruction'],
     stimulusContainerClassList: ['lev-stim-content-x-3'],
   },
@@ -53,16 +53,20 @@ const defaultCorpus: Record<string, string> = {
   trog: 'trog-item-bank',
   theoryOfMind: 'theory-of-mind-item-bank',
   vocab: 'vocab-item-bank',
-  roarInference: 'type_inference-demo-2024-11-11v3', 
-  adultReasoning: 'adult-reasoning-item-bank'
+  roarInference: 'type_inference-demo-2024-11-11v3',
+  adultReasoning: 'adult-reasoning-item-bank',
 };
 
-export const setSharedConfig = async (firekit: RoarAppkit, gameParams: GameParamsType, userParams: UserParamsType): Promise<TaskStoreDataType> => {
+export const setSharedConfig = async (
+  firekit: RoarAppkit,
+  gameParams: GameParamsType,
+  userParams: UserParamsType,
+): Promise<TaskStoreDataType> => {
   const cleanParams = _omitBy(_omitBy({ ...gameParams, ...userParams }, _isNull), _isUndefined);
 
   const {
     userMetadata = {},
-    birthMonth, 
+    birthMonth,
     birthYear,
     audioFeedback,
     language,
@@ -83,12 +87,12 @@ export const setSharedConfig = async (firekit: RoarAppkit, gameParams: GameParam
     cat,
     heavyInstructions,
     inferenceNumStories,
-    semThreshold, 
-    startingTheta
+    semThreshold,
+    startingTheta,
   } = cleanParams;
 
   const config = {
-    userMetadata: { ...userMetadata, age: (Number(age) || getAge(Number(birthMonth), Number(birthYear)))},
+    userMetadata: { ...userMetadata, age: Number(age) || getAge(Number(birthMonth), Number(birthYear)) },
     audioFeedback: audioFeedback || 'neutral',
     skipInstructions: !!skipInstructions, // Not used in any task
     startTime: new Date(),
@@ -109,17 +113,17 @@ export const setSharedConfig = async (firekit: RoarAppkit, gameParams: GameParam
     storeItemId: !!storeItemId,
     isRoarApp: isRoarApp(firekit),
 
-    cat: !!cat, // defaults to false 
+    cat: !!cat, // defaults to false
     heavyInstructions: !!heavyInstructions,
     inferenceNumStories: Number(inferenceNumStories) || undefined,
-    semThreshold: Number(semThreshold), 
-    startingTheta: Number(startingTheta)
+    semThreshold: Number(semThreshold),
+    startingTheta: Number(startingTheta),
   };
 
   // default corpus if nothing is passed in
   if (!config.corpus) {
-    config.corpus = defaultCorpus[camelize(taskName)]
-  };
+    config.corpus = defaultCorpus[camelize(taskName)];
+  }
 
   const updatedGameParams = Object.fromEntries(
     Object.entries(gameParams).map(([key, value]) => [key, config[key as keyof typeof config] ?? value]),

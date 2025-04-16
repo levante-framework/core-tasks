@@ -1,14 +1,16 @@
-import { 
-  isTaskFinished, 
-  getMediaAssets, 
-  dashToCamelCase, 
-  showLevanteLogoLoading, 
-  hideLevanteLogoLoading, 
+import {
+  isTaskFinished,
+  getMediaAssets,
+  dashToCamelCase,
+  showLevanteLogoLoading,
+  hideLevanteLogoLoading,
 } from './tasks/shared/helpers';
 import './styles/index.scss';
 import taskConfig from './tasks/taskConfig';
 import { RoarAppkit } from '@bdelab/roar-firekit';
 import { setTaskStore } from './taskStore';
+import { taskStore } from './taskStore';
+import { InitPageSetup } from './utils';
 
 export let mediaAssets: MediaAssetsType;
 export class TaskLauncher {
@@ -41,18 +43,17 @@ export class TaskLauncher {
       } else if (taskName.includes('roar-inference')) {
         mediaAssets = await getMediaAssets(`roar-inference`, {}, language);
       } else if (taskName === 'adult-reasoning') {
-        mediaAssets = await getMediaAssets('egma-math', {}, language) // adult reasoning uses the math bucket for assets
-      }
-        else {
+        mediaAssets = await getMediaAssets('egma-math', {}, language); // adult reasoning uses the math bucket for assets
+      } else {
         mediaAssets = await getMediaAssets(taskName, {}, language);
-      } 
+      }
     } catch (error) {
       throw new Error('Error fetching media assets: ' + error);
     }
 
     const config = await setConfig(this.firekit, this.gameParams, this.userParams);
 
-    setTaskStore(config)
+    setTaskStore(config);
 
     // TODO: make hearts and flowers corpus? make list of tasks that don't need corpora?
     if (taskName !== 'hearts-and-flowers' && taskName !== 'memory-game' && taskName !== 'intro') {
@@ -65,10 +66,12 @@ export class TaskLauncher {
   }
 
   async run() {
+    const pageSetup = new InitPageSetup(4000);
     showLevanteLogoLoading();
     const { jsPsych, timeline } = await this.init();
     hideLevanteLogoLoading();
     jsPsych.run(timeline);
-    await isTaskFinished(() => this.firekit?.run?.completed === true);
+    pageSetup.init();
+    await isTaskFinished(() => this.firekit?.run?.completed === true && taskStore().taskComplete);
   }
 }

@@ -14,16 +14,16 @@
 // ***********************************************************
 
 // Import commands.js using ES2015 syntax:
-import './commands'
+import './commands';
 
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
 
-import "cypress-real-events";
+import 'cypress-real-events';
 
 // prevent firestore error from failing test
 Cypress.on('uncaught:exception', (err, runnable) => {
-    if (err.message.includes('user not in Firestore')){
-        return false
-    }
-}); 
+  if (err.message.includes('user not in Firestore')) {
+    return false;
+  }
+});

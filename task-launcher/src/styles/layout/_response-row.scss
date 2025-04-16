@@ -60,14 +60,13 @@
     }
   }
 
-  &.multi-stack{
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      gap: 1rem;
+  &.multi-stack {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
   }
-
 }
 
 .lev-response-row-inline {
@@ -86,7 +85,7 @@
     grid-gap: 4px;
 
     & > * {
-      grid-column: span 2
+      grid-column: span 2;
     }
 
     & > *:nth-child(4) {

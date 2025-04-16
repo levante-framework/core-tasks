@@ -18,14 +18,14 @@ import { taskStore } from '../../../taskStore';
   of the stimulus image and modify the DOM nodes that jsPsych creates in on_load?
   */
 
-export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrialFinishTimelineCallback = undefined ) {
+export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrialFinishTimelineCallback = undefined) {
   return {
     type: jsPsychHTMLMultiResponse,
     data: () => {
       return {
         // not camelCase because firekit
         save_trial: true,
-        assessment_stage: stage, 
+        assessment_stage: stage,
         corpus_trial_type: trialType,
         // not for firekit
         isPracticeTrial: isPractice,
@@ -47,14 +47,16 @@ export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrial
       document.getElementById('jspsych-html-multi-response-btngroup').classList.add('linear-4');
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
-    keyboard_choices: isTouchScreen? InputKey.NoKeys : [InputKey.ArrowLeft, InputKey.ArrowRight],
-    button_html: [`
+    keyboard_choices: isTouchScreen ? InputKey.NoKeys : [InputKey.ArrowLeft, InputKey.ArrowRight],
+    button_html: [
+      `
     <div class='response-container--small'>
       <button class='secondary--green'></button>
-    </div>`, 
-    `<div class='response-container--small'>
+    </div>`,
+      `<div class='response-container--small'>
       <button class='secondary--green'></button>
-    </div>`],
+    </div>`,
+    ],
     //TODO: save whether answer is correct/incorrect to fix practice feedback
     //TODO: check data is saved properly
     on_finish: (data) => {
@@ -65,13 +67,13 @@ export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrial
       let response;
       if (data.button_response === 0 || data.button_response === 1) {
         response = data.button_response;
-      } else if (data.keyboard_response === InputKey.ArrowLeft || data.keyboard_response === InputKey.ArrowRight){
+      } else if (data.keyboard_response === InputKey.ArrowLeft || data.keyboard_response === InputKey.ArrowRight) {
         response = data.keyboard_response === InputKey.ArrowLeft ? 0 : 1;
       } else {
         const errorMessage = `Invalid response: ${data.button_response} or ${data.keyboard_response} in ${data}`;
         console.error(errorMessage);
       }
-      
+
       // get stimulus side
       let stimuluSide;
       if (stimulusPosition === 0) {
@@ -84,13 +86,12 @@ export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrial
       }
 
       // record whether answer was correct or not
-      const validAnswer = getCorrectInputSide(stimulusType, stimuluSide)
+      const validAnswer = getCorrectInputSide(stimulusType, stimuluSide);
       data.correct = validAnswer === response;
 
       if (!isPractice) {
-        if (!data.correct) {  
+        if (!data.correct) {
           taskStore.transact('numIncorrect', (oldVal) => oldVal + 1);
-
         } else {
           taskStore('numIncorrect', 0);
         }
@@ -109,10 +110,12 @@ export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrial
 
       jsPsych.data.addDataToLastTrial({
         item: stimulusType,
-        answer: validAnswer === 0? ResponseSideType.Left : ResponseSideType.Right,
-        response: response === 0? ResponseSideType.Left : ResponseSideType.Right,
-        responseLocation: response
+        answer: validAnswer === 0 ? ResponseSideType.Left : ResponseSideType.Right,
+        response: response === 0 ? ResponseSideType.Left : ResponseSideType.Right,
+        responseLocation: response,
       });
+
+      taskStore.transact('testTrialCount', (oldVal) => oldVal + 1);
 
       if (onTrialFinishTimelineCallback) {
         onTrialFinishTimelineCallback(data);
@@ -123,7 +126,7 @@ export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrial
     // trial_duration: null,
     // response_ends_trial: true,
   };
-};
+}
 
 const randomPosition = () => Math.round(Math.random());
 
@@ -163,10 +166,10 @@ export function buildHeartsOrFlowersTimelineVariables(trialCount, stimulusType) 
 }
 
 export function buildMixedTimelineVariables(trialCount) {
-  const heartLeft = { stimulus: StimulusType.Heart, position: 0 }
-  const heartRight = { stimulus: StimulusType.Heart, position: 1 }
-  const flowerLeft = { stimulus: StimulusType.Flower, position: 0 }
-  const flowerRight = { stimulus: StimulusType.Flower, position: 1 }
+  const heartLeft = { stimulus: StimulusType.Heart, position: 0 };
+  const heartRight = { stimulus: StimulusType.Heart, position: 1 };
+  const flowerLeft = { stimulus: StimulusType.Flower, position: 0 };
+  const flowerRight = { stimulus: StimulusType.Flower, position: 1 };
   const optionsToRandomize = [heartLeft, heartRight, flowerLeft, flowerRight];
 
   const jsPsychTimelineVariablesArray = [];

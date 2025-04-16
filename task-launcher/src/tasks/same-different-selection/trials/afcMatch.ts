@@ -1,7 +1,14 @@
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
 import { mediaAssets } from '../../..';
 import { jsPsych } from '../../taskSetup';
-import { prepareChoices, replayButtonSvg, setupReplayAudio, PageStateHandler, PageAudioHandler, camelize } from '../../shared/helpers';
+import {
+  prepareChoices,
+  replayButtonSvg,
+  setupReplayAudio,
+  PageStateHandler,
+  PageAudioHandler,
+  camelize,
+} from '../../shared/helpers';
 import { finishExperiment } from '../../shared/trials';
 import { taskStore } from '../../../taskStore';
 import { updateTheta } from '../../shared/helpers';
@@ -9,7 +16,7 @@ import { updateTheta } from '../../shared/helpers';
 let selectedCards: string[] = [];
 let selectedCardIdxs: number[] = [];
 let previousSelections: string[][] = [];
-let startTime: number; 
+let startTime: number;
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 const SELECT_CLASS_NAME = 'info-shadow';
@@ -22,7 +29,7 @@ const generateImageChoices = (choices: string[]) => {
 };
 
 function enableBtns(btnElements: HTMLButtonElement[]) {
-  btnElements.forEach((btn) => (btn.removeAttribute('disabled')));
+  btnElements.forEach((btn) => btn.removeAttribute('disabled'));
 }
 
 export const afcMatch = {
@@ -33,15 +40,19 @@ export const afcMatch = {
     return {
       save_trial: stim.trialType !== 'instructions',
       assessment_stage: stim.assessmentStage,
-        // not for firekit
+      // not for firekit
       isPracticeTrial: isPracticeTrial,
     };
   },
   stimulus: () => {
     const stim = taskStore().nextStimulus;
     let audioFile = stim.audioFile;
-    if (taskStore().heavyInstructions && stim.assessmentStage !== "practice_response" && stim.trialType !== "instructions") {
-      audioFile += "-heavy";
+    if (
+      taskStore().heavyInstructions &&
+      stim.assessmentStage !== 'practice_response' &&
+      stim.trialType !== 'instructions'
+    ) {
+      audioFile += '-heavy';
     }
 
     return mediaAssets.audio[camelize(audioFile)];
@@ -49,13 +60,16 @@ export const afcMatch = {
   prompt: () => {
     const stimulus = taskStore().nextStimulus;
     let prompt = camelize(stimulus.audioFile);
-    if (taskStore().heavyInstructions && stimulus.assessmentStage !== "practice_response" && stimulus.trialType !== "instructions") {
-      prompt += "Heavy";
+    if (
+      taskStore().heavyInstructions &&
+      stimulus.assessmentStage !== 'practice_response' &&
+      stimulus.trialType !== 'instructions'
+    ) {
+      prompt += 'Heavy';
     }
 
     const t = taskStore().translations;
-    return (
-      `<div class="lev-stimulus-container">
+    return `<div class="lev-stimulus-container">
         <button
             id="${replayButtonHtmlId}"
             class="replay"
@@ -65,8 +79,7 @@ export const afcMatch = {
         <div class="lev-row-container instruction">
           <p>${t[prompt]}</p>
         </div>
-      </div>`
-    );
+      </div>`;
   },
   prompt_above_buttons: true,
   button_choices: () => {
@@ -81,9 +94,7 @@ export const afcMatch = {
   },
   button_html: () => {
     const stim = taskStore().nextStimulus;
-    const buttonClass = stim.assessmentStage === 'instructions'
-      ?'primary'
-      : 'image-medium';
+    const buttonClass = stim.assessmentStage === 'instructions' ? 'primary' : 'image-medium';
     return `<button class="${buttonClass}">%choice%</button>`;
   },
   on_load: () => {
@@ -94,19 +105,25 @@ export const afcMatch = {
     const stim = taskStore().nextStimulus;
 
     let audioFile = stim.audioFile;
-    if (taskStore().heavyInstructions && stim.assessmentStage !== "practice_response" && stim.trialType !== "instructions") {
-      audioFile += "-heavy";
+    if (
+      taskStore().heavyInstructions &&
+      stim.assessmentStage !== 'practice_response' &&
+      stim.trialType !== 'instructions'
+    ) {
+      audioFile += '-heavy';
     }
 
     const pageStateHandler = new PageStateHandler(audioFile, true);
     setupReplayAudio(pageStateHandler);
     const buttonContainer = document.getElementById('jspsych-audio-multi-response-btngroup') as HTMLDivElement;
     const responseBtns = Array.from(buttonContainer.children)
-      .map(btnDiv => btnDiv.firstChild as HTMLButtonElement)
-      .filter(btn => !!btn);
-    if (responseBtns.length === 5) { // 3 x 2 button layout
+      .map((btnDiv) => btnDiv.firstChild as HTMLButtonElement)
+      .filter((btn) => !!btn);
+    if (responseBtns.length === 5) {
+      // 3 x 2 button layout
       buttonContainer.classList.add('lev-response-row-inline', 'grid-3x2');
-    } else { // linear button layout
+    } else {
+      // linear button layout
       buttonContainer.classList.add('lev-response-row', 'multi-4');
     }
     responseBtns.forEach((card, i) =>
@@ -131,7 +148,7 @@ export const afcMatch = {
           }
         }
         setTimeout(() => enableBtns(responseBtns), 500);
-      })
+      }),
     );
   },
   response_ends_trial: false,
@@ -140,7 +157,7 @@ export const afcMatch = {
     const cat = taskStore().runCat; 
 
     const endTime = performance.now();
-    const calculatedRt = endTime - startTime; 
+    const calculatedRt = endTime - startTime;
 
     // save data
     jsPsych.data.addDataToLastTrial({
@@ -153,7 +170,7 @@ export const afcMatch = {
       audioButtonPresses: PageAudioHandler.replayPresses,
       responseLocation: selectedCardIdxs,
     });
-  
+
     if (stim.audioFile.split('-')[2] === 'prompt1') {
       // Prompt 1 is the start and prompt 2 trials are when the selections
       // Must be different from previous selections
@@ -161,16 +178,16 @@ export const afcMatch = {
     }
 
     function cleanAttributes(attributes: string[]) {
-      const nonWhiteBackgrounds: string[] = ["gray", "striped", "black"]; 
+      const nonWhiteBackgrounds: string[] = ['gray', 'striped', 'black'];
       // add in the background string if it's not there (white background)
       if (!attributes.some((item) => nonWhiteBackgrounds.includes(item))) {
-        attributes.push("white");
-      } 
+        attributes.push('white');
+      }
       if (!attributes.some((item) => !isNaN(Number(item)))) {
-        attributes.splice(3, 0, "1"); 
+        attributes.splice(3, 0, '1');
       }
 
-      return attributes; 
+      return attributes;
     }
 
     // First check amongst the selections if they all share one trait
@@ -179,86 +196,85 @@ export const afcMatch = {
     // (also, ignore any specified dimension -- some blocks now don't vary particular dimensions)
     function compareSelections(selections: string[], previousSelections: string[][], ignoreDims: string[]) {
       const dimensionIndices = {
-          size: 0,
-          color: 1,
-          shape: 2,
-          number: 3,
-          bgcolor: 4,
+        size: 0,
+        color: 1,
+        shape: 2,
+        number: 3,
+        bgcolor: 4,
       };
-  
+
       // Check if all selections share at least one common trait (ignoring specified dimensions)
       function sharedTrait(selections: string[], ignoreDims: string[]) {
-          const sets: Record<string, Set<string>> = {};
-  
-          // Initialize sets for each non-ignored dimension
-          for (const [dim, index] of Object.entries(dimensionIndices)) {
-              if (!ignoreDims.includes(dim)) {
-                  sets[dim] = new Set();
-              }
+        const sets: Record<string, Set<string>> = {};
+
+        // Initialize sets for each non-ignored dimension
+        for (const [dim, index] of Object.entries(dimensionIndices)) {
+          if (!ignoreDims.includes(dim)) {
+            sets[dim] = new Set();
           }
-  
-          // Populate sets with values from selections
-          for (const sel of selections) {
-              const attributes = cleanAttributes(sel.split("-"));
-              for (const [dim, set] of Object.entries(sets)) {
-                  const index = dimensionIndices[dim as keyof typeof dimensionIndices];
-                  if (attributes[index] !== undefined) {
-                      set.add(attributes[index]);
-                  }
-              }
+        }
+
+        // Populate sets with values from selections
+        for (const sel of selections) {
+          const attributes = cleanAttributes(sel.split('-'));
+          for (const [dim, set] of Object.entries(sets)) {
+            const index = dimensionIndices[dim as keyof typeof dimensionIndices];
+            if (attributes[index] !== undefined) {
+              set.add(attributes[index]);
+            }
           }
-          // Check if any non-ignored dimension has all the same values
-          return Object.values(sets).some(set => set.size === 1);
+        }
+        // Check if any non-ignored dimension has all the same values
+        return Object.values(sets).some((set) => set.size === 1);
       }
-  
+
       // Check if any selection is different from all previous selections
       function hasNewSelection(selections: string[], previousSelections: string[][]) {
-          // If there are no previous selections, every current selection is considered new
-          if (!previousSelections || previousSelections.length === 0) {
-              return true;
+        // If there are no previous selections, every current selection is considered new
+        if (!previousSelections || previousSelections.length === 0) {
+          return true;
+        }
+
+        let hasNewSelection = true;
+        previousSelections.forEach((item: string[]) => {
+          // check that most recent selection does not have the same cards as a previous selection (even in reverse)
+          if (
+            (selections[0] === item[0] && selections[1] === item[1]) ||
+            (selections[1] === item[0] && selections[0] === item[1])
+          ) {
+            hasNewSelection = false;
           }
+        });
 
-          let hasNewSelection = true; 
-          previousSelections.forEach((item: string[]) => {
-            // check that most recent selection does not have the same cards as a previous selection (even in reverse)
-            if (
-              selections[0] === item[0] && selections[1] === item[1] ||
-              selections[1] === item[0] && selections[0] === item[1]
-            ) {
-              hasNewSelection = false; 
-            }
-          })
-
-  
-          return hasNewSelection;
+        return hasNewSelection;
       }
-  
+
       // Perform checks
       const traitShared = sharedTrait(selections, ignoreDims);
       const containsNew = hasNewSelection(selections, previousSelections);
-  
+
       return traitShared && containsNew;
     }
 
     let ignoreDims: string[] = [];
-    if(stim.trialType === 'something-same-2') {
-      ignoreDims = ["number","bgcolor"];
-    } else if(stim.trialType === '2-match') {
-      ignoreDims = ["number","bgcolor"]; 
-    } else if(stim.trialType === '3-match' || stim.trialType === '4-match') {
-      ignoreDims = ["size"];
-    } 
+    if (stim.trialType === 'something-same-2') {
+      ignoreDims = ['number', 'bgcolor'];
+    } else if (stim.trialType === '2-match') {
+      ignoreDims = ['number', 'bgcolor'];
+    } else if (stim.trialType === '3-match' || stim.trialType === '4-match') {
+      ignoreDims = ['size'];
+    }
     const isCorrect = compareSelections(selectedCards, previousSelections, ignoreDims);
 
     // update task store
-    taskStore('isCorrect', isCorrect); 
+    taskStore('isCorrect', isCorrect);
 
     if (isCorrect === false) {
       taskStore.transact('numIncorrect', (oldVal: number) => oldVal + 1);
     } else {
       taskStore('numIncorrect', 0);
     }
-    
+
     jsPsych.data.addDataToLastTrial({
       correct: isCorrect,
     });
@@ -266,7 +282,11 @@ export const afcMatch = {
     selectedCards = [];
     selectedCardIdxs = [];
 
-    // if heavy instructions is true, show data quality screen before ending 
+    if (stim.assessmentStage === 'test_response') {
+      taskStore.transact('testTrialCount', (oldVal: number) => oldVal + 1);
+    }
+
+    // if heavy instructions is true, show data quality screen before ending
     if ((taskStore().numIncorrect >= taskStore().maxIncorrect) && !taskStore().heavyInstructions && !cat) {
       finishExperiment();
     }

@@ -1,4 +1,4 @@
-import { defineConfig } from "cypress";
+import { defineConfig } from 'cypress';
 
 export default defineConfig({
   e2e: {
@@ -7,7 +7,7 @@ export default defineConfig({
     },
   },
   retries: {
-    runMode: 2, 
-    openMode: 0
-  }
+    runMode: 2,
+    openMode: 0,
+  },
 });

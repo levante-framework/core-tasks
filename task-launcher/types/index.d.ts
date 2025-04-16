@@ -8,19 +8,19 @@ declare global {
   type LayoutConfigType = {
     playAudioOnLoad: boolean; // stimulus will play audio (nullAudio if false)
     staggered: {
-      enabled: boolean,
-      trialTypes: string[], // filter for trial types, TODO: Remove this and move the logic to the task
-    },
+      enabled: boolean;
+      trialTypes: string[]; // filter for trial types, TODO: Remove this and move the logic to the task
+    };
     classOverrides: {
       buttonContainerClassList: string[]; // This is where we can declare grid etc
-      buttonClassList: string[]; // primary, secondary, image-large, image etc 
+      buttonClassList: string[]; // primary, secondary, image-large, image etc
       promptClassList: string[];
       stimulusContainerClassList: string[];
-    },
+    };
     prompt: {
       enabled: boolean;
       aboveStimulus: boolean;
-    }
+    };
     equalSizeStim: boolean; // TODO Remove since classes declaration can handle this
     disableButtonsWhenAudioPlaying: boolean;
     isPracticeTrial: boolean;
@@ -37,13 +37,21 @@ declare global {
     };
     stimText?: {
       value?: string;
-      displayValue?: string; 
+      displayValue?: string;
     };
     inCorrectTrialConfig: {
       onIncorrectTrial: 'skip' | 'end';
       // Other config can be placed here
     };
-  }
+  };
+
+  type AudioConfigType = {
+    restrictRepetition: {
+      enabled: boolean;
+      maxRepetitions: number;
+    };
+    onEnded?: Function;
+  };
 
   type StimulusType = {
     source: string;

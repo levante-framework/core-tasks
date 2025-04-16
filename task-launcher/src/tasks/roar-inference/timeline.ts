@@ -5,12 +5,11 @@ import { instructions } from './trials/instructions';
 import { jsPsych, initializeCat } from '../taskSetup';
 // trials
 import { exitFullscreen, setupStimulus, taskFinished, enterFullscreen, finishExperiment } from '../shared/trials';
-import {AfcStimulusInput, afcStimulusInference } from './trials/afcInference';
+import { AfcStimulusInput, afcStimulusInference } from './trials/afcInference';
 import { getLayoutConfig } from './helpers/config';
 import { repeatInstructionsMessage } from '../shared/trials/repeatInstructions';
 import type { LayoutConfigTypeInference } from './types/inferenceTypes';
 import { taskStore } from '../../taskStore';
-
 
 export default function buildRoarInferenceTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
@@ -21,7 +20,7 @@ export default function buildRoarInferenceTimeline(config: Record<string, any>, 
   const timeline = [preloadTrials, initialTimeline, ...instructions];
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
   const translations: Record<string, string> = taskStore().translations;
-  const validationErrorMap: Record<string, string> = {}; 
+  const validationErrorMap: Record<string, string> = {};
   const layoutConfigMap: Record<string, LayoutConfigTypeInference> = {};
 
   let i = 0;
@@ -36,7 +35,7 @@ export default function buildRoarInferenceTimeline(config: Record<string, any>, 
     i += 1;
   }
 
-  const trialConfig:AfcStimulusInput = {
+  const trialConfig: AfcStimulusInput = {
     responseAllowed: true,
     promptAboveButtons: true,
     task: config.task,
@@ -44,35 +43,31 @@ export default function buildRoarInferenceTimeline(config: Record<string, any>, 
   };
 
   const stimulusBlock = (config: AfcStimulusInput) => ({
-    timeline: [
-      afcStimulusInference(config) 
-    ],
+    timeline: [afcStimulusInference(config)],
   });
 
   const repeatInstructions = {
-    timeline: [
-      repeatInstructionsMessage,
-    ],
+    timeline: [repeatInstructionsMessage],
     conditional_function: () => {
-      return taskStore().numIncorrect >= 2; 
-    }
-  }; 
+      return taskStore().numIncorrect >= 2;
+    },
+  };
 
   const instructionsRepeated = {
     timeline: instructions,
     conditional_function: () => {
-      return taskStore().numIncorrect >= 2; 
-    }
-  }
+      return taskStore().numIncorrect >= 2;
+    },
+  };
 
   const inferenceNumStories = taskStore().inferenceNumStories;
   const stimulusBlocks = taskStore().stimulusBlocks;
 
-  const numOfTrials = inferenceNumStories*stimulusBlocks ?? taskStore().totalTrials;
+  const numOfTrials = inferenceNumStories * stimulusBlocks ?? taskStore().totalTrials;
 
   for (let i = 0; i < numOfTrials; i += 1) {
-    if(i === 4) {
-      timeline.push(repeatInstructions); 
+    if (i === 4) {
+      timeline.push(repeatInstructions);
       timeline.push(instructionsRepeated);
     }
     timeline.push({

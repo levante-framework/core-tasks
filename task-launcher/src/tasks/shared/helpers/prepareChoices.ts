@@ -2,14 +2,10 @@ import _shuffle from 'lodash/shuffle';
 import { fractionToMathML } from './fractionToMathML';
 import { taskStore } from '../../../taskStore';
 
-export const prepareChoices = (
-  target: string,
-  distractors: string[],
-  randomizeOrder = true,
-  trialType?: string,
-) => {
+export const prepareChoices = (target: string, distractors: string[], randomizeOrder = true, trialType?: string) => {
   let choices;
-  if (!target || distractors.includes(target)) { // If target is not present, don't add to options
+  if (!target || distractors.includes(target)) {
+    // If target is not present, don't add to options
     choices = [...distractors];
   } else {
     choices = [target, ...distractors]; // add target to options
@@ -26,7 +22,8 @@ export const prepareChoices = (
   }
 
   // Update session variables
-  const correctResponseIdx = trialType === 'Fraction' ? taskStore().nonFractionSelections.indexOf(target) : choices.indexOf(target);
+  const correctResponseIdx =
+    trialType === 'Fraction' ? taskStore().nonFractionSelections.indexOf(target) : choices.indexOf(target);
   taskStore('target', target);
   taskStore('correctResponseIdx', correctResponseIdx);
   taskStore('choices', choices);

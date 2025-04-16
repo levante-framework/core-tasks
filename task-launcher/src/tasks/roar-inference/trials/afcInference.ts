@@ -23,32 +23,27 @@ const incorrectPracticeResponses: Array<string | null> = [];
 
 const handleStaggeredButtons = async (layoutConfig: LayoutConfigTypeInference, pageState: PageStateHandler) => {
   if (layoutConfig?.isStaggered) {
-      const parentResponseDiv = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
-      const stimulusDuration = await pageState.getStimulusDurationMs();
+    const parentResponseDiv = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
+    const stimulusDuration = await pageState.getStimulusDurationMs();
 
-      // Disable the replay button till this animation is finished
-      setTimeout(() => {
-        pageState.disableReplayBtn();
-      }, stimulusDuration + 110);
+    // Disable the replay button till this animation is finished
+    setTimeout(() => {
+      pageState.disableReplayBtn();
+    }, stimulusDuration + 110);
 
-      for (const jsResponseEl of parentResponseDiv.children) {
-        // disable the buttons so that they are not active during the animation
-        jsResponseEl.classList.add(
-          'lev-staggered-responses',
-          'lev-staggered-disabled',
-          'lev-staggered-grayscale',
-          'lev-staggered-opacity',
-        );
-      }
-      
+    for (const jsResponseEl of parentResponseDiv.children) {
+      // disable the buttons so that they are not active during the animation
+      jsResponseEl.classList.add(
+        'lev-staggered-responses',
+        'lev-staggered-disabled',
+        'lev-staggered-grayscale',
+        'lev-staggered-opacity',
+      );
+    }
   }
 };
 
-const getPromptTemplate = (
-  prompt: string,
-  story?: string | null,
-  useStimText?: boolean,
-) => {
+const getPromptTemplate = (prompt: string, story?: string | null, useStimText?: boolean) => {
   let template = '';
   if (prompt && !useStimText) {
     template += `
@@ -57,7 +52,7 @@ const getPromptTemplate = (
       </div>
     `;
   }
-  if(prompt && useStimText) {
+  if (prompt && useStimText) {
     template += `
       <div class="lev-row-container instruction-no-border">
         <p>${story}</p>
@@ -75,15 +70,12 @@ function getPrompt(layoutConfigMap: Record<string, LayoutConfigTypeInference>) {
   // showItem itemIsImage
   const stim = taskStore().nextStimulus;
   const t = taskStore().translations;
-  
+
   let itemLayoutConfig = layoutConfigMap?.[stim.itemId];
 
   if (itemLayoutConfig) {
     const {
-      prompt: {
-        enabled: promptEnabled,
-        useStimText: useStimText,
-      },
+      prompt: { enabled: promptEnabled, useStimText: useStimText },
       story,
       stimText: stimulusTextConfig,
     } = itemLayoutConfig;
@@ -91,23 +83,16 @@ function getPrompt(layoutConfigMap: Record<string, LayoutConfigTypeInference>) {
     if (promptEnabled && useStimText) {
       prompt = stimulusTextConfig?.value ?? '';
     }
-    return getPromptTemplate(
-      prompt,
-      story,
-      useStimText,
-    );
+    return getPromptTemplate(prompt, story, useStimText);
   }
 }
-
 
 function getButtonChoices(layoutConfigMap: Record<string, LayoutConfigTypeInference>) {
   const stimulus = taskStore().nextStimulus;
   const itemLayoutConfig = layoutConfigMap?.[stimulus.itemId];
   if (itemLayoutConfig) {
     const {
-      response: {
-        values: buttonChoices,
-      },
+      response: { values: buttonChoices },
     } = itemLayoutConfig;
     return buttonChoices;
   }
@@ -145,12 +130,13 @@ function handlePracticeButtonPress(
   if (isCorrectChoice) {
     btn.classList.add('success-shadow');
     setTimeout(
-      () => jsPsych.finishTrial({
-        response: choice,
-        incorrectPracticeResponses, 
-        button_response: !isKeyBoardResponse ? responsevalue : null,
-        keyboard_response: isKeyBoardResponse ? responsevalue : null,
-      }),
+      () =>
+        jsPsych.finishTrial({
+          response: choice,
+          incorrectPracticeResponses,
+          button_response: !isKeyBoardResponse ? responsevalue : null,
+          keyboard_response: isKeyBoardResponse ? responsevalue : null,
+        }),
       1000,
     );
   } else {
@@ -191,7 +177,7 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigTypeInference>) {
     taskName: stim.task,
     pageContext: 'afcInference',
   });
-  
+
   if (isPracticeTrial) {
     const practiceBtns: NodeListOf<HTMLButtonElement> = document.querySelectorAll('.practice-btn');
 
@@ -202,15 +188,14 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigTypeInference>) {
     );
 
     if (!isTouchScreen) {
-    //   keyboardFeedbackHandler = (e: KeyboardEvent) => keyboardBtnFeedback(e, practiceBtns, stim, itemLayoutConfig);
+      //   keyboardFeedbackHandler = (e: KeyboardEvent) => keyboardBtnFeedback(e, practiceBtns, stim, itemLayoutConfig);
       document.addEventListener('keydown', keyboardFeedbackHandler);
     }
   }
 
-    if (!isPracticeTrial && !isInstructionTrial) {
-      trialsOfCurrentType += 1;
-    }
-
+  if (!isPracticeTrial && !isInstructionTrial) {
+    trialsOfCurrentType += 1;
+  }
 
   if (stim.trialType !== 'instructions') {
     const buttonContainer = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
@@ -219,7 +204,8 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigTypeInference>) {
     const { buttonLayout } = taskStore();
 
     if (itemLayoutConfig) {
-      if (buttonLayout === 'diamond') { // have to do it in the runtime
+      if (buttonLayout === 'diamond') {
+        // have to do it in the runtime
         buttonContainer.classList.add('lev-response-row-diamond-layout');
       } else {
         buttonContainer.classList.add(...itemLayoutConfig.classOverrides.buttonContainerClassList);
@@ -235,7 +221,7 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigTypeInference>) {
     taskStore.transact('trialNumSubtask', (oldVal: number) => oldVal + 1);
     // update total real trials
     if (isPracticeTrial) {
-      taskStore.transact('trialNumTotal', (oldVal: number) => oldVal + 1);
+      taskStore.transact('testTrialCount', (oldVal: number) => oldVal + 1);
     }
   }
 }
@@ -244,9 +230,9 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
   // note: nextStimulus is actually the current stimulus
   const stimulus = taskStore().nextStimulus;
   const itemLayoutConfig = layoutConfigMap?.[stimulus.itemId];
-  let responseValue = null
-  let target = null; 
-  let responseIndex = null; 
+  let responseValue = null;
+  let target = null;
+  let responseIndex = null;
 
   if (stimulus.trialType !== 'instructions') {
     if (itemLayoutConfig) {
@@ -254,10 +240,10 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
       if (!response) {
         throw new Error('Choices not defined in the config');
       }
-    //   const keyboardChoices = getKeyboardChoices(itemLayoutConfig);
+      //   const keyboardChoices = getKeyboardChoices(itemLayoutConfig);
       responseIndex = data.button_response;
       responseValue = response.values[responseIndex];
-      target = response.target; 
+      target = response.target;
       data.correct = responseValue === target;
     }
 
@@ -288,7 +274,7 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
       distractors: stimulus.distractors,
       corpusTrialType: stimulus.trialType,
       responseType,
-      responseLocation: responseIndex, 
+      responseLocation: responseIndex,
     });
 
     // corpusId and itemId fields are used by ROAR but not ROAD
@@ -322,7 +308,7 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
 
   if (itemLayoutConfig.inCorrectTrialConfig.onIncorrectTrial === 'skip') {
     setSkipCurrentBlock(stimulus.trialType);
-  } else if ((taskStore().numIncorrect >= taskStore().maxIncorrect)) {
+  } else if (taskStore().numIncorrect >= taskStore().maxIncorrect) {
     finishExperiment();
   }
 }
@@ -334,15 +320,18 @@ export interface AfcStimulusInput {
   layoutConfigMap: Record<string, LayoutConfigTypeInference>;
 }
 
-export const afcStimulusInference = (
-  { responseAllowed, promptAboveButtons, task, layoutConfigMap }: AfcStimulusInput,
-) => {
+export const afcStimulusInference = ({
+  responseAllowed,
+  promptAboveButtons,
+  task,
+  layoutConfigMap,
+}: AfcStimulusInput) => {
   return {
     type: jsPsychHtmlMultiResponse,
     response_allowed_while_playing: responseAllowed,
     data: () => {
       const stim = taskStore().nextStimulus;
-      let isPracticeTrial = stim.assessmentStage === 'practice_response'; 
+      let isPracticeTrial = stim.assessmentStage === 'practice_response';
       return {
         // not camelCase because firekit
         save_trial: true,

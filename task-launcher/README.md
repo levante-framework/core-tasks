@@ -66,7 +66,7 @@ In standalone web app mode, tasks and parameters can be changes through query st
 
 ### Common Parameters
 
-_Note: All tasks are timed. The default is listed below.
+\_Note: All tasks are timed. The default is listed below.
 
 ```
 task: 'egma-math' | 'matrix-reasoning' | 'mental-rotation' | 'hearts-and-flowers' | 'memory-game' | 'same-different-selection' | 'theory-of-mind' | 'trog' [string] (optional)
@@ -108,7 +108,6 @@ pid: [string] (optional) {Default: random generated string}
 
 [Data flow diagram](https://miro.com/app/board/uXjVNY-_qDA=/?share_link_id=967374624080)
 
-
 # End to End Testing
 
 We leverage the cypress framework for end to end testing. The tests are located in the `cypress` directory. To run the tests, you can use the following command:
@@ -120,4 +119,3 @@ npm install
 # Run the tests
 npx cypress open
 ```
-

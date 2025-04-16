@@ -10,7 +10,7 @@
   @include respond-to('small-medium') {
     padding: 1rem;
   }
-  
+
   @include respond-to('very-large') {
     padding: 0;
   }

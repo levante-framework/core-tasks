@@ -1,16 +1,23 @@
 import 'regenerator-runtime/runtime';
 // setup
-import { initTrialSaving, initTimeline, createPreloadTrials, prepareCorpus, selectNItems } from '../shared/helpers';
+import {
+  initTrialSaving,
+  initTimeline,
+  createPreloadTrials,
+  prepareCorpus,
+  selectNItems,
+  getRealTrials,
+} from '../shared/helpers';
 import { jsPsych, initializeCat, cat } from '../taskSetup';
 // trials
-import { 
-  afcStimulusTemplate, 
-  exitFullscreen, 
-  setupStimulus, 
-  fixationOnly, 
-  taskFinished, 
-  enterFullscreen, 
-  finishExperiment
+import {
+  afcStimulusTemplate,
+  exitFullscreen,
+  setupStimulus,
+  fixationOnly,
+  taskFinished,
+  enterFullscreen,
+  finishExperiment,
 } from '../shared/trials';
 import { getLayoutConfig } from './helpers/config';
 import { taskStore } from '../../taskStore';
@@ -22,7 +29,7 @@ export default function buildVocabTimeline(config: Record<string, any>, mediaAss
   const initialTimeline = initTimeline(config, enterFullscreen, finishExperiment);
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
   const translations: Record<string, string> = taskStore().translations;
-  const validationErrorMap: Record<string, string> = {}; 
+  const validationErrorMap: Record<string, string> = {};
   const { runCat } = taskStore();
   const { semThreshold } = taskStore();
 
@@ -48,16 +55,13 @@ export default function buildVocabTimeline(config: Record<string, any>, mediaAss
     promptAboveButtons: true,
     task: config.task,
     layoutConfig: {
-      showPrompt: false
+      showPrompt: false,
     },
     layoutConfigMap,
   };
 
   const stimulusBlock = {
-    timeline: [
-      {...setupStimulus, stimulus: ''},
-      afcStimulusTemplate(trialConfig)
-    ],
+    timeline: [{ ...setupStimulus, stimulus: '' }, afcStimulusTemplate(trialConfig)],
     // true = execute normally, false = skip
     conditional_function: () => {
       if (taskStore().skipCurrentTrial) {
@@ -65,7 +69,7 @@ export default function buildVocabTimeline(config: Record<string, any>, mediaAss
         return false;
       }
       if (runCat && cat._seMeasurement < semThreshold) {
-        return false; 
+        return false;
       }
       return true;
     },
@@ -79,32 +83,34 @@ export default function buildVocabTimeline(config: Record<string, any>, mediaAss
 
     // instruction block (non-cat)
     corpora.ipLight.forEach((trial: StimulusType) => {
-      timeline.push({...fixationOnly, stimulus: ''},); 
-      timeline.push(afcStimulusTemplate(trialConfig, trial)); 
+      timeline.push({ ...fixationOnly, stimulus: '' });
+      timeline.push(afcStimulusTemplate(trialConfig, trial));
     });
 
     // push in starting block
     corpora.start.forEach((trial: StimulusType) => {
-      timeline.push({...fixationOnly, stimulus: ''},); 
-      timeline.push(afcStimulusTemplate(trialConfig, trial)); 
+      timeline.push({ ...fixationOnly, stimulus: '' });
+      timeline.push(afcStimulusTemplate(trialConfig, trial));
     });
 
     // cat block
     const numOfCatTrials = corpora.cat.length;
+    taskStore('totalTestTrials', numOfCatTrials);
     for (let i = 0; i < numOfCatTrials; i++) {
       timeline.push(stimulusBlock);
     }
-  
-    // select up to 5 random items from unnormed portion of corpus 
-    const unnormedTrials: StimulusType[] = selectNItems(corpora.unnormed, 5); 
-  
+
+    // select up to 5 random items from unnormed portion of corpus
+    const unnormedTrials: StimulusType[] = selectNItems(corpora.unnormed, 5);
+
     // random set of unvalidated items at end
     const unnormedBlock = {
-      timeline: unnormedTrials.map((trial) => afcStimulusTemplate(trialConfig, trial))
-    }
+      timeline: unnormedTrials.map((trial) => afcStimulusTemplate(trialConfig, trial)),
+    };
     timeline.push(unnormedBlock);
   } else {
     const numOfTrials = taskStore().totalTrials;
+    taskStore('totalTestTrials', getRealTrials(corpus));
     for (let i = 0; i < numOfTrials; i++) {
       timeline.push(stimulusBlock);
     }
