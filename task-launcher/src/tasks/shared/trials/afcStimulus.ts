@@ -12,8 +12,8 @@ import {
   camelize,
   setSentryContext,
   handleStaggeredButtons,
-  updateTheta, 
-  addPracticeButtonListeners
+  updateTheta,
+  addPracticeButtonListeners,
 } from '../helpers';
 import { mediaAssets } from '../../..';
 import { finishExperiment } from '.';
@@ -29,7 +29,8 @@ const incorrectPracticeResponses: Array<string | null> = [];
 
 const getKeyboardChoices = (itemLayoutConfig: LayoutConfigType) => {
   const buttonLength = itemLayoutConfig.response.values.length;
-  if (buttonLength === 1) { // instruction trial
+  if (buttonLength === 1) {
+    // instruction trial
     return ['Enter'];
   }
   if (buttonLength === 2) {
@@ -53,7 +54,6 @@ function getStimulus(layoutConfigMap: Record<string, LayoutConfigType>, trial?: 
   }
 }
 
-
 const getPromptTemplate = (
   prompt: string,
   mediaSrc: string | null,
@@ -61,7 +61,7 @@ const getPromptTemplate = (
   stimText: string | null | undefined,
   equalSizeStim: boolean,
   stimulusContainerClassList: string[],
-  promptClassList: string[]
+  promptClassList: string[],
 ) => {
   let template = '<div class="lev-stimulus-container">';
 
@@ -72,10 +72,10 @@ const getPromptTemplate = (
   `;
 
   if (prompt) {
-    let containerClass = "lev-row-container instruction"; 
+    let containerClass = 'lev-row-container instruction';
     if (promptClassList) {
       containerClass = promptClassList.join(' ');
-    } 
+    }
 
     template += `
       <div class="${containerClass}">
@@ -100,9 +100,7 @@ const getPromptTemplate = (
       `;
     }
     // TODO: Remove after LayoutConfig implementation
-    let containerClass = equalSizeStim
-      ? 'lev-stim-content'
-      : 'lev-stim-content-x-3';
+    let containerClass = equalSizeStim ? 'lev-stim-content' : 'lev-stim-content-x-3';
     if (stimulusContainerClassList) {
       containerClass = stimulusContainerClassList.join(' ');
     }
@@ -124,13 +122,8 @@ function getPrompt(layoutConfigMap: Record<string, LayoutConfigType>, trial?: St
 
   if (itemLayoutConfig) {
     const {
-      prompt: {
-        enabled: promptEnabled,
-      },
-      classOverrides: {
-        stimulusContainerClassList,
-        promptClassList
-      },
+      prompt: { enabled: promptEnabled },
+      classOverrides: { stimulusContainerClassList, promptClassList },
       equalSizeStim,
       showStimImage,
       stimText: stimulusTextConfig,
@@ -149,7 +142,7 @@ function getPrompt(layoutConfigMap: Record<string, LayoutConfigType>, trial?: St
       stimText,
       equalSizeStim,
       stimulusContainerClassList,
-      promptClassList
+      promptClassList,
     );
   }
 }
@@ -161,27 +154,26 @@ function generateImageChoices(choices: string[], target: string) {
     const imageUrl = mediaAssets.images[camelize(choice)] || practiceUrl;
 
     // if the task is running in a cypress test, the correct answer should be indicated with 'correct' class
-    if (window.Cypress){
+    if (window.Cypress) {
       const isCorrect = choice === target;
-      return isCorrect ? `<img src=${imageUrl} alt=${choice} class='correct'/>` : `<img src=${imageUrl} alt=${choice} />`;
+      return isCorrect
+        ? `<img src=${imageUrl} alt=${choice} class='correct'/>`
+        : `<img src=${imageUrl} alt=${choice} />`;
     } else {
       return `<img src=${imageUrl} alt=${choice} />`;
     }
-    
   });
 }
 
 function getButtonChoices(layoutConfigMap: Record<string, LayoutConfigType>, trial?: StimulusType) {
   const stimulus = trial || taskStore().nextStimulus;
   const itemLayoutConfig = layoutConfigMap?.[stimulus.itemId];
-  const { response } = itemLayoutConfig; 
-  const target = response.target; 
+  const { response } = itemLayoutConfig;
+  const target = response.target;
   if (itemLayoutConfig) {
     const {
       isImageButtonResponse,
-      response: {
-        displayValues: buttonChoices,
-      },
+      response: { displayValues: buttonChoices },
     } = itemLayoutConfig;
     if (isImageButtonResponse) {
       return generateImageChoices(buttonChoices, target);
@@ -223,14 +215,14 @@ function addKeyHelpers(el: HTMLElement, keyIndex: number) {
 
 function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: StimulusType) {
   // play trial audio
-  PageAudioHandler.playAudio(getStimulus(layoutConfigMap, trial) || ''); 
+  PageAudioHandler.playAudio(getStimulus(layoutConfigMap, trial) || '');
 
   startTime = performance.now();
 
   const incorrectPracticeResponses: Array<string | null> = [];
-  taskStore("incorrectPracticeResponses", incorrectPracticeResponses);
+  taskStore('incorrectPracticeResponses', incorrectPracticeResponses);
 
-  const stim = trial || taskStore().nextStimulus as StimulusType;
+  const stim = trial || (taskStore().nextStimulus as StimulusType);
   const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
   const playAudioOnLoad = itemLayoutConfig?.playAudioOnLoad;
   const pageStateHandler = new PageStateHandler(stim.audioFile, playAudioOnLoad);
@@ -240,14 +232,14 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
   if (itemLayoutConfig.isStaggered) {
     // Handle the staggered buttons
     const buttonContainer = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
-    const imgButtons = Array.from(buttonContainer.children as HTMLCollectionOf<HTMLButtonElement>); 
+    const imgButtons = Array.from(buttonContainer.children as HTMLCollectionOf<HTMLButtonElement>);
     let audioKeys: string[] = [];
     for (let i = 0; i < imgButtons.length; i++) {
       const img = imgButtons[i].children[0].getElementsByTagName('img')[0];
       const audioKey = camelize(img?.alt ?? '');
-      audioKeys.push(audioKey)
+      audioKeys.push(audioKey);
     }
-  
+
     handleStaggeredButtons(pageStateHandler, buttonContainer, audioKeys);
   }
 
@@ -271,13 +263,13 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
     }
   }
   const twoTrialsAgoStimulus = jsPsych.data.get().filter({ trial_index: twoTrialsAgoIndex }).values();
-  
+
   if (isPracticeTrial) {
-    let feedbackHandler; 
+    let feedbackHandler;
     feedbackHandler = addPracticeButtonListeners(stim, isTouchScreen, layoutConfigMap?.[stim.itemId]);
-    
+
     if (feedbackHandler !== undefined) {
-      keyboardFeedbackHandler = feedbackHandler; 
+      keyboardFeedbackHandler = feedbackHandler;
     }
   }
 
@@ -301,7 +293,8 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
     const { buttonLayout } = taskStore();
 
     if (itemLayoutConfig) {
-      if (buttonLayout === 'diamond' && totalResponseButtons === 4) { // have to do it in the runtime
+      if (buttonLayout === 'diamond' && totalResponseButtons === 4) {
+        // have to do it in the runtime
         buttonContainer.classList.add('lev-response-row-diamond-layout');
       } else {
         buttonContainer.classList.add(...itemLayoutConfig.classOverrides.buttonContainerClassList);
@@ -315,10 +308,6 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
 
     // update the trial number
     taskStore.transact('trialNumSubtask', (oldVal: number) => oldVal + 1);
-    // update total real trials
-    if (isPracticeTrial) {
-      taskStore.transact('trialNumTotal', (oldVal: number) => oldVal + 1);
-    }
   }
 
   setupReplayAudio(pageStateHandler);
@@ -331,9 +320,9 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
   const stimulus = trial || taskStore().nextStimulus;
   const itemLayoutConfig = layoutConfigMap?.[stimulus.itemId];
   const { runCat } = taskStore();
-  let responseValue = null
-  let target = null; 
-  let responseIndex = null; 
+  let responseValue = null;
+  let target = null;
+  let responseIndex = null;
 
   if (stimulus.trialType !== 'instructions') {
     if (itemLayoutConfig) {
@@ -343,15 +332,15 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
       }
       const keyboardChoices = getKeyboardChoices(itemLayoutConfig);
       responseIndex = data.keyboard_response
-        ? keyboardChoices.findIndex(f => f.toLowerCase() === data.keyboard_response.toLowerCase())
+        ? keyboardChoices.findIndex((f) => f.toLowerCase() === data.keyboard_response.toLowerCase())
         : data.button_response;
       responseValue = response.values[responseIndex];
-      target = response.target; 
+      target = response.target;
       data.correct = responseValue === target;
     }
-    
+
     if (runCat) {
-      updateTheta(stimulus, data.correct); 
+      updateTheta(stimulus, data.correct);
     }
 
     // check response and record it
@@ -381,7 +370,7 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
       distractors: stimulus.distractors,
       corpusTrialType: stimulus.trialType,
       responseType,
-      responseLocation: responseIndex, 
+      responseLocation: responseIndex,
     });
 
     // corpusId and itemId fields are used by ROAR but not ROAD
@@ -403,7 +392,11 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
 
     // adding manually since trial does not log it properly
     // for keyboard responses
-    if (responseType === 'keyboard' || data.response_source === 'keyboard' || stimulus.assessmentStage === 'practice_response') {
+    if (
+      responseType === 'keyboard' ||
+      data.response_source === 'keyboard' ||
+      stimulus.assessmentStage === 'practice_response'
+    ) {
       const endTime = performance.now();
       const calculatedRt = Math.round(endTime - startTime);
       jsPsych.data.addDataToLastTrial({
@@ -425,31 +418,40 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
   }
 
   jsPsych.data.addDataToLastTrial({
-    audioButtonPresses: PageAudioHandler.replayPresses
+    audioButtonPresses: PageAudioHandler.replayPresses,
   });
+
+  if (stimulus.assessmentStage === 'test_response') {
+    taskStore.transact('testTrialCount', (oldVal: number) => oldVal + 1);
+  }
 
   if (itemLayoutConfig.inCorrectTrialConfig.onIncorrectTrial === 'skip' && !runCat) {
     setSkipCurrentBlock(stimulus.trialType);
-  } else if ((taskStore().numIncorrect >= taskStore().maxIncorrect && !runCat)) {
+  } else if (taskStore().numIncorrect >= taskStore().maxIncorrect && !runCat) {
     finishExperiment();
   }
 }
 
 export const afcStimulusTemplate = (
-  { responseAllowed, promptAboveButtons, task, layoutConfigMap }: {
-    responseAllowed: boolean,
-    promptAboveButtons: boolean,
-    task: string,
-    layoutConfigMap: Record<string, LayoutConfigType>,
-  }, 
-  trial?: StimulusType
+  {
+    responseAllowed,
+    promptAboveButtons,
+    task,
+    layoutConfigMap,
+  }: {
+    responseAllowed: boolean;
+    promptAboveButtons: boolean;
+    task: string;
+    layoutConfigMap: Record<string, LayoutConfigType>;
+  },
+  trial?: StimulusType,
 ) => {
   return {
     type: jsPsychHtmlMultiResponse,
     response_allowed_while_playing: responseAllowed,
     data: () => {
       const stim = trial || taskStore().nextStimulus;
-      let isPracticeTrial = stim.assessmentStage === 'practice_response'; 
+      let isPracticeTrial = stim.assessmentStage === 'practice_response';
       return {
         // not camelCase because firekit
         save_trial: true,
@@ -461,7 +463,7 @@ export const afcStimulusTemplate = (
     stimulus: () => getPrompt(layoutConfigMap, trial),
     prompt_above_buttons: promptAboveButtons,
     keyboard_choices: () => {
-      const stim = trial || taskStore().nextStimulus; 
+      const stim = trial || taskStore().nextStimulus;
 
       const itemLayoutConfig = layoutConfigMap[stim.itemId];
       return getKeyboardChoices(itemLayoutConfig);

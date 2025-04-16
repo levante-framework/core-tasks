@@ -8,7 +8,7 @@ $font-size-s: 40px;
 $font-size-xs: 32px;
 $font-size-xxs: 24px;
 $font-size-xxxs: 16px;
-$font-size-xs-em: clamp($font-size-xxxs, 1.4em, $font-size-xs); 
+$font-size-xs-em: clamp($font-size-xxxs, min(2vw, 3vh), $font-size-m);
 
 $font-weight-dark: 700;
 $font-weight-bold: 600;

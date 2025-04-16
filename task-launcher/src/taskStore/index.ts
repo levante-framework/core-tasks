@@ -4,7 +4,7 @@ import store from 'store2';
  * @typedef {Object} TaskStore
  * @property {string} itemSelect - Identifier for the selected item, default is 'mfi'. Options include: ['mfi', 'random'].
  * @property {number} trialNumSubtask - Counter for trials in the current subtask, starting at 0.
- * @property {number} trialNumTotal - Counter for total trials in the experiment, starting at 0.
+ * @property {number} testTrialCount - Counter for test trials run, starting at 0.
  * @property {number} numIncorrect - Counter for incorrect responses, starting at 0.
  * @property {number} totalCorrect - Counter for total correct trials, starting at 0.
  * @property {Array} correctItems - List of correct items, starting as an empty array.
@@ -20,8 +20,10 @@ import store from 'store2';
  * @property {boolean} storeItemId - Whether to store the item ID, default is false.
  * @property {boolean} isRoarApp - Whether the app is running in ROAR mode, default is false.
  * @property {boolean} maxTimeReached - Whether the max time has been reached, default is false.
+ * @property {boolean} taskComplete - Whether the task has ended - if true, the user should return to dashboard.
  * ------- Added after config is parsed -------
- * @property {number} totalTrials - Counter for total trials in the experiment, starting at 0.
+ * @property {number} totalTrials - Total number trials, including practice and instructions.
+ * @property {number} totalTestTrials - Total number of test trials in the experiment timeline.
  * @property {Object} corpora - Object containing the corpus data (stimulus).
  * @property {Object} translations - Object containing the translations.
  * @property {Object} nextStimulus - Object containing the next stimulus.
@@ -32,7 +34,7 @@ import store from 'store2';
  * ------- AFC only -------
  * @property {boolean} skipCurrentTrial - Whether to skip the current trial, default is false.
  * @property {number} correctResponseIdx - Index of the correct response, starting at 0.
- * @property {number} incorrectPracticeResponses - Number of incorrect responses to the current practice trial. 
+ * @property {number} incorrectPracticeResponses - Number of incorrect responses to the current practice trial.
  * ------- Math only -------
  * @property {Array} nonFractionSelections - List of non-fraction selections.
  * @property {number} trialsSkipped - Number of trials that have been skipped while jumping to the next block.
@@ -54,7 +56,7 @@ export type TaskStoreDataType = {
   audioFeedback: string;
   skipInstructions: boolean;
   corpusId?: string;
-  corpus: string,
+  corpus: string;
   stimulusBlocks: number;
   buttonLayout: string;
   task: string; // FIXME: tighten to task name strings
@@ -75,7 +77,7 @@ export type TaskStoreDataType = {
 
 /**
  * Store for managing task state. For all tasks.
- * 
+ *
  * @type {import('store2').StoreAPI & (() => TaskStore)}
  */
 export const taskStore = store.page.namespace('taskStore');
@@ -84,7 +86,7 @@ export const setTaskStore = (config: TaskStoreDataType) => {
   taskStore({
     itemSelect: 'mfi',
     trialNumSubtask: 0,
-    trialNumTotal: 0,
+    testTrialCount: 0,
     numIncorrect: 0,
     // For ROAR syntax (TROG)
     totalCorrect: 0,
@@ -98,10 +100,10 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     task: config.task,
     maxIncorrect: config.maxIncorrect,
     keyHelpers: config.keyHelpers,
-    runCat: config.cat, 
+    runCat: config.cat,
     heavyInstructions: config.heavyInstructions || config.userMetadata.age < 6,
     semThreshold: config.semThreshold,
-    startingTheta: config.startingTheta, 
+    startingTheta: config.startingTheta,
     storeItemId: config.storeItemId,
     isRoarApp: config.isRoarApp,
     numOfBlocks: config.userMetadata.age > 4 ? 9 : 4,
@@ -109,6 +111,7 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     stimulusBlocks: config.stimulusBlocks,
     gridSize: config.userMetadata.age > 4 ? 3 : 2,
     maxTimeReached: false,
+    taskComplete: false,
     stimulus: 'heart',
     stimulusSide: 'left',
     stimulusPosition: 0,
@@ -117,7 +120,6 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     testPhase: false,
   });
 };
-
 
 // Leaving this for ROAR fork / documentation
 
@@ -134,7 +136,6 @@ export const setTaskStore = (config: TaskStoreDataType) => {
 // keyHelpers: keyHelpers ?? true,
 // storeItemId: storeItemId,
 // isRoarApp: isRoarApp(firekit)
-
 
 // DONT NEED STATE FOR THESE
 // userMetadata: { ...userMetadata, age },

@@ -1,4 +1,4 @@
-import { camelize } from "./camelize";
+import { camelize } from './camelize';
 
 export const validateLayoutConfig = (
   layoutConfig: LayoutConfigType,
@@ -20,13 +20,12 @@ export const validateLayoutConfig = (
         // check if prompt with translation is present
         messages.push(`Missing prompt for: ${audioAsset}`);
       }
-
     }
   }
 
   if (layoutConfig.isImageButtonResponse) {
     // check if all images are present
-    layoutConfig.response.values.forEach(c => {
+    layoutConfig.response.values.forEach((c) => {
       const imageAsset = camelize(c);
       if (!imageAsset) {
         messages.push(`Missing image button string: ${imageAsset}`);
@@ -41,7 +40,6 @@ export const validateLayoutConfig = (
         messages.push(`Missing audio for staggered button: ${imageAsset}`);
       }
     });
-
   }
 
   return messages;

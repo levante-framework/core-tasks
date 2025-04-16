@@ -1,15 +1,15 @@
 import 'regenerator-runtime/runtime';
 // setup
-import { initTrialSaving, initTimeline, createPreloadTrials } from '../shared/helpers';
+import { initTrialSaving, initTimeline, createPreloadTrials, getRealTrials } from '../shared/helpers';
 import { jsPsych, initializeCat } from '../taskSetup';
 // trials
-import { 
-  afcStimulusTemplate, 
-  exitFullscreen, 
-  setupStimulus, 
-  taskFinished, 
-  enterFullscreen, 
-  finishExperiment
+import {
+  afcStimulusTemplate,
+  exitFullscreen,
+  setupStimulus,
+  taskFinished,
+  enterFullscreen,
+  finishExperiment,
 } from '../shared/trials';
 import { getLayoutConfig } from './helpers/config';
 import { taskStore } from '../../taskStore';
@@ -23,7 +23,7 @@ export default function buildTOMTimeline(config: Record<string, any>, mediaAsset
   const timeline = [preloadTrials, initialTimeline];
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
   const translations: Record<string, string> = taskStore().translations;
-  const validationErrorMap: Record<string, string> = {}; 
+  const validationErrorMap: Record<string, string> = {};
 
   const layoutConfigMap: Record<string, LayoutConfigType> = {};
   for (const c of corpus) {
@@ -50,9 +50,7 @@ export default function buildTOMTimeline(config: Record<string, any>, mediaAsset
   };
 
   const stimulusBlock = {
-    timeline: [
-      afcStimulusTemplate(trialConfig)
-    ],
+    timeline: [afcStimulusTemplate(trialConfig)],
     // true = execute normally, false = skip
     conditional_function: () => {
       if (taskStore().skipCurrentTrial) {
@@ -65,8 +63,9 @@ export default function buildTOMTimeline(config: Record<string, any>, mediaAsset
   };
 
   const numOfTrials = taskStore().totalTrials;
+  taskStore('totalTestTrials', getRealTrials(corpus));
   for (let i = 0; i < numOfTrials; i++) {
-    timeline.push({...setupStimulus, stimulus: ''});
+    timeline.push({ ...setupStimulus, stimulus: '' });
     timeline.push(stimulusBlock);
   }
 

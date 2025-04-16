@@ -2,10 +2,10 @@
  * Class that handles the page state in a singleton
  * stores the stimuli length and replay button state and modifier
  */
-import { jsPsych } from "../../taskSetup";
+import { jsPsych } from '../../taskSetup';
 //@ts-ignore
-import { camelize } from "@bdelab/roar-utils";
-import { mediaAssets } from "../../..";
+import { camelize } from '@bdelab/roar-utils';
+import { mediaAssets } from '../../..';
 
 export class PageStateHandler {
   audioFile: string;
@@ -16,8 +16,7 @@ export class PageStateHandler {
 
   constructor(audioFile: string, playStimulusOnLoad: boolean) {
     this.audioFile = audioFile;
-    this.audioUri = mediaAssets.audio[camelize(this.audioFile)] ||
-    mediaAssets.audio.nullAudio;
+    this.audioUri = mediaAssets.audio[camelize(this.audioFile)] || mediaAssets.audio.nullAudio;
     this.getbuffer();
     this.replayBtn = document.getElementById('replay-btn-revisited') as HTMLButtonElement;
     this.playStimulusOnLoad = playStimulusOnLoad !== undefined ? playStimulusOnLoad : true;
@@ -27,7 +26,7 @@ export class PageStateHandler {
     if (this.audioBuffer) {
       return this.audioBuffer;
     }
-    this.audioBuffer = await jsPsych.pluginAPI.getAudioBuffer(this.audioUri) as AudioBuffer;
+    this.audioBuffer = (await jsPsych.pluginAPI.getAudioBuffer(this.audioUri)) as AudioBuffer;
     return this.audioBuffer;
   }
 

@@ -22,7 +22,6 @@ function parseTranslations(translationData: Record<string, string>[], configLang
     translations[camelize(row.item_id)] = getRowData(row, configLanguage, nonLocalDialect);
   });
 
-
   taskStore('translations', translations);
 }
 

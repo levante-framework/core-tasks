@@ -1,4 +1,7 @@
 // JavaScript modules are resolved and executed in the order they are imported.
+
+import { getRealTrials } from './getRealTrials';
+
 // Order of export matters
 export * from './config';
 export * from './stringToNumArray';
@@ -17,17 +20,18 @@ export * from './prepareChoices';
 export * from './stringToBoolean';
 export * from './fractionToMathML';
 export * from './appTimer';
-export * from './components'
+export * from './components';
 export { setupReplayAudio } from './replayAudio';
 export * from './loadingScreen';
-export * from './setSkipCurrentBlock'
+export * from './setSkipCurrentBlock';
 export { PageAudioHandler } from './audioHandler';
 export { PageStateHandler } from './PageStateHandler';
 export { camelize } from './camelize';
-export { updateTheta, prepareCorpus, prepareMultiBlockCat, selectNItems} from './prepareCat';
+export { updateTheta, prepareCorpus, prepareMultiBlockCat, selectNItems } from './prepareCat';
 export { convertItemToString } from './convertItemToString';
 export { validateLayoutConfig } from './validateLayoutConfig';
 export { mapDistractorsToString } from './mapDistractorsToString';
 export { setSentryContext } from './setSentryContext';
 export { handleStaggeredButtons } from './staggerButtons';
 export { addPracticeButtonListeners } from './handlePracticeButtons';
+export { getRealTrials } from './getRealTrials';

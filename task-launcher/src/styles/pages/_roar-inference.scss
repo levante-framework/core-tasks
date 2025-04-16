@@ -1,0 +1,76 @@
+@use '../abstracts/' as *;
+
+.roar-inference-btn {
+  display: flex;
+  width: 40vh;
+  height: 9vh;
+  padding: 8px;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid black;
+  background: white;
+  border-radius: 32px;
+  // text
+  color: black;
+  font-family: 'Noto Sans';
+  font-size: 1rem;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  cursor: pointer;
+
+  &:hover {
+    background-color: gainsboro;
+  }
+
+  @include respond-to('huge') {
+    font-size: 1.5rem;
+  }
+}
+
+.instruction-no-border {
+  display: flex;
+  border: none;
+  border-radius: 0;
+  background-color: transparent;
+  color: black;
+  font-size: x-large;
+  padding-bottom: 0;
+  margin-right: 25%;
+  margin-left: 25%;
+
+  p {
+    margin-bottom: 0;
+  }
+
+  @include respond-to('small-medium') {
+    margin-left: 15%;
+    margin-right: 15%;
+    font-size: x-large;
+  }
+
+  @include respond-to('small') {
+    margin-left: 5%;
+    margin-right: 5%;
+  }
+
+  @include respond-to('huge') {
+    font-size: xx-large;
+  }
+}
+
+.roar-instruction-question {
+  display: flex;
+  border: none;
+  border-radius: 0;
+  background-color: transparent;
+  color: black;
+  font-size: x-large;
+  padding: 12px;
+  font-weight: bold;
+
+  @include respond-to('huge') {
+    font-size: xx-large;
+  }
+}

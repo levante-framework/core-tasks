@@ -2,6 +2,7 @@ import { jsPsych } from '../../taskSetup';
 import cloneDeep from 'lodash/cloneDeep';
 import _mapValues from 'lodash/mapValues';
 import { taskStore } from '../../../taskStore';
+import { recordCompletion } from './recordCompletion';
 
 /**
  * This function calculates computed scores given raw scores for each subtask.
@@ -58,9 +59,10 @@ export const computedScoreCallback = (rawScores: Record<string, any>) => {
   computedScores.composite = {
     totalCorrect: totalCorrect,
     totalNumAttempted: rawScores?.composite?.test?.numAttempted,
-    totalPercentCorrect: rawScores?.composite?.test?.numAttempted > 0 
-      ? Math.round((totalCorrect / rawScores?.composite?.test?.numAttempted) * 100) 
-      : 0, // Default to 0 if numAttempted is zero
+    totalPercentCorrect:
+      rawScores?.composite?.test?.numAttempted > 0
+        ? Math.round((totalCorrect / rawScores?.composite?.test?.numAttempted) * 100)
+        : 0, // Default to 0 if numAttempted is zero
   };
 
   return computedScores;
@@ -105,14 +107,13 @@ export const initTrialSaving = (config: Record<string, any>) => {
 
   // Extend jsPsych's on_finish and on_data_update lifecycle functions to mark the
   // run as completed and write data to Firestore, respectively.
-  const extend = (fn: Function, code: Function) => (
+  const extend = (fn: Function, code: Function) =>
     function () {
       // eslint-disable-next-line prefer-rest-params
       fn.apply(fn, arguments);
       // eslint-disable-next-line prefer-rest-params
       code.apply(fn, arguments);
-    }
-  );
+    };
 
   // @ts-ignore
   jsPsych.opts.on_finish = extend(jsPsych.opts.on_finish, () => {
@@ -131,6 +132,14 @@ export const initTrialSaving = (config: Record<string, any>) => {
     // config.firekit.finishRun(finishingMetadata);
 
     config.firekit.finishRun();
+  });
+
+  // @ts-ignore
+  jsPsych.opts.on_trial_finish = extend(jsPsych.opts.on_trial_finish, () => {
+    // record completion at 80%
+    if (taskStore().testTrialCount >= taskStore().totalTestTrials * 0.8) {
+      recordCompletion(config);
+    }
   });
 
   // @ts-ignore

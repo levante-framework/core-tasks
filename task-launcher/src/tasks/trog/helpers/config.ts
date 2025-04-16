@@ -9,9 +9,13 @@ import {
 type GetConfigReturnType = {
   itemConfig: LayoutConfigType;
   errorMessages: string[];
-}
+};
 
-export const getLayoutConfig = (stimulus: StimulusType, translations: Record<string, string>, mediaAssets: MediaAssetsType): GetConfigReturnType => {
+export const getLayoutConfig = (
+  stimulus: StimulusType,
+  translations: Record<string, string>,
+  mediaAssets: MediaAssetsType,
+): GetConfigReturnType => {
   const defaultConfig: LayoutConfigType = JSON.parse(JSON.stringify(DEFAULT_LAYOUT_CONFIG));
   const { answer, distractors, trialType } = stimulus;
   defaultConfig.isPracticeTrial = stimulus.assessmentStage === 'practice_response';
@@ -42,14 +46,12 @@ export const getLayoutConfig = (stimulus: StimulusType, translations: Record<str
         displayValue: undefined,
       };
     }
-    
   }
 
-  const messages = validateLayoutConfig(defaultConfig, mediaAssets, translations, stimulus)
+  const messages = validateLayoutConfig(defaultConfig, mediaAssets, translations, stimulus);
 
-  return ({
+  return {
     itemConfig: defaultConfig,
     errorMessages: messages,
-  });
-  
+  };
 };
