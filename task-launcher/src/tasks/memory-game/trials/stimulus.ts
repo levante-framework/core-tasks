@@ -250,6 +250,10 @@ function doOnLoad(mode: 'display' | 'input', isPractice: boolean, reverse: boole
           timeoutIDs.push(hideToast);
         }
       });
+
+      if (window.Cypress && generatedSequence !== null) {
+        window.memoryGameAnswer = generatedSequence;
+      }
     }
   });
 
