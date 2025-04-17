@@ -96,5 +96,8 @@ declare global {
   interface Window {
     Cypress: any; // FIXME: Add explict type
     initJsPsych: JsPsych;
+    cypressData: {
+      correctAnswer: string | Array<number> | number;
+    }
   }
 }
