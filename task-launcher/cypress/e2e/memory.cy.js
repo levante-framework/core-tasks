@@ -37,10 +37,10 @@ describe('test memory game', () => {
      
       if (blocks.length > 0) {
         // wait for window to contain sequence information
-        cy.window().should('have.property', 'memoryGameAnswer');
+        cy.window().its('cypressData').should('have.property', 'correctAnswer');
 
         cy.window().then((window) => {
-          const sequence = window.memoryGameAnswer;
+          const sequence = window.cypressData.correctAnswer;
           sequence.forEach((number) => {
             blocks[number].click();
           }); 
@@ -71,4 +71,3 @@ describe('test memory game', () => {
       }
     });
   }
-  

@@ -252,7 +252,11 @@ function doOnLoad(mode: 'display' | 'input', isPractice: boolean, reverse: boole
       });
 
       if (window.Cypress && generatedSequence !== null) {
-        window.memoryGameAnswer = generatedSequence;
+        const cypressData = {
+          correctAnswer: generatedSequence
+        }
+        
+        window.cypressData = cypressData;
       }
     }
   });
