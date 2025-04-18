@@ -41,7 +41,6 @@
   margin-left: 10%;
   margin-right: 10%;
   font-size: large;
-  margin-top: 10%;
 
   p {
     margin-bottom: 0;
@@ -69,11 +68,7 @@
   }
 }
 
-.lev-response-row.multi-stack {
-  margin-bottom: 1rem;
-}
-
-.jspsych-display-element .jspsych-content-wrapper .jspsych-content {
+.inference-scroll {
   overflow-x: auto;
   overflow-y: auto;
 }

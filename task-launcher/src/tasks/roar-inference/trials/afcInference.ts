@@ -196,6 +196,11 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigTypeInference>) {
   if (!isPracticeTrial && !isInstructionTrial) {
     trialsOfCurrentType += 1;
   }
+  const jsPsychContent = document.querySelector('.jspsych-content') as HTMLElement;
+
+if (itemLayoutConfig?.classOverrides.stimulusContainerClassList.includes('inference-scroll')) {
+  jsPsychContent?.classList.add('inference-scroll');
+}
 
   if (stim.trialType !== 'instructions') {
     const buttonContainer = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
@@ -311,6 +316,8 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
   } else if (taskStore().numIncorrect >= taskStore().maxIncorrect) {
     finishExperiment();
   }
+  document.querySelector('.jspsych-content')?.classList.remove('inference-scroll');
+
 }
 
 export interface AfcStimulusInput {
