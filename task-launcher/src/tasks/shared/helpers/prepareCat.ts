@@ -43,9 +43,13 @@ export function prepareCorpus(corpus: StimulusType[]) {
   );
   const startItems: StimulusType[] = selectNItems(possibleStartItems, 5);
 
-  // put cat portion of corpus into taskStore
-  const catCorpus: StimulusType[] = normedTrials.filter((trial) => !startItems.includes(trial));
-
+  // put cat portion of corpus into taskStore 
+  const catCorpus: StimulusType[] = (taskStore().task === "same-different-selection") ? 
+    normedTrials :
+    normedTrials.filter(trial =>
+      !startItems.includes(trial)
+    ); 
+  
   corpora = {
     ipHeavy: corpusParts.ipHeavy, // heavy instruction/practice trials
     ipLight: corpusParts.ipLight, // light instruction/practice
@@ -93,8 +97,30 @@ export function selectNItems(corpus: StimulusType[], n: number) {
 // separates cat corpus into blocks
 export function prepareMultiBlockCat(corpus: StimulusType[]) {
   const blockList: StimulusType[][] = []; // a list of blocks, each containing trials
+  let newCorpus: StimulusType[] = [];
+  
+  if (taskStore().task === "same-different-selection") {
+    // these trials are run sequentially (not selected in a CAT) - every trial in a group except the first one
+    const sequentialTrials: StimulusType[] = [];
+    const sequentialTrialTypes: string[] = ["second_response", "third_response", "fourth_response"]; 
 
-  corpus.forEach((trial: StimulusType) => {
+    corpus.forEach((trial) => {
+      if (trial.trialType === "something-same-2" || (sequentialTrialTypes.includes(trial.assessmentStage))) {
+        sequentialTrials.push(trial);
+      } else if (trial.trialType === "test-dimensions") {
+        trial.difficulty = NaN;
+        newCorpus.push(trial);
+      } else {
+        newCorpus.push(trial);
+      }
+    }); 
+
+    taskStore("sequentialTrials", sequentialTrials);
+  } else {
+    newCorpus = corpus; 
+  }
+
+  newCorpus.forEach((trial: StimulusType) => {
     const block: number = Number(trial.block_index);
 
     if (block != undefined) {
@@ -113,16 +139,16 @@ export function updateTheta(item: StimulusType, correct: boolean) {
   const runCat = taskStore().runCat;
   if (runCat) {
     // update theta for CAT
-    const zeta = {
-      a: 1, // item discrimination (default value of 1)
-      b: item.difficulty, // item difficulty (from corpus)
-      c: item.chanceLevel, // probability of correct answer from guessing
-      d: 1, // max probability of correct response (default 1)
-    };
-
-    if (!Number.isNaN(zeta.b) && item.assessmentStage !== 'practice_response') {
-      const answer = correct ? 1 : 0;
-      cat.updateAbilityEstimate(zeta, answer);
-    }
+      const zeta = {
+        a: 1, // item discrimination (default value of 1)
+        b: item.difficulty, // item difficulty (from corpus)
+        c: item.chanceLevel, // probability of correct answer from guessing
+        d: 1 // max probability of correct response (default 1)
+      }; 
+      
+      if (!(Number.isNaN(zeta.b)) && (zeta.b !== null) && (item.assessmentStage !== 'practice_response')) {
+        const answer = correct ? 1 : 0;
+        cat.updateAbilityEstimate(zeta, answer); 
+      }
   }
 }

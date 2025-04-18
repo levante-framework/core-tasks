@@ -13,6 +13,7 @@ import { jsPsych } from '../../taskSetup';
 import Cypress from 'cypress';
 import { taskStore } from '../../../taskStore';
 import { handleStaggeredButtons } from '../../shared/helpers/staggerButtons';
+import { updateTheta } from '../../shared/helpers';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 let incorrectPracticeResponses: string[] = [];
@@ -258,6 +259,7 @@ export const stimulus = (trial?: StimulusType) => {
       const stim = trial || taskStore().nextStimulus;
       const choices = taskStore().choices;
       const endTime = performance.now();
+      const cat = taskStore().runCat;
 
       PageAudioHandler.stopAndDisconnectNode();
 
@@ -298,23 +300,40 @@ export const stimulus = (trial?: StimulusType) => {
           responseLocation: data.button_response,
         });
 
-        if (stim.trialType === 'test-dimensions' || stim.assessmentStage === 'practice_response') {
-          const calculatedRt = Math.round(endTime - startTime);
-
-          jsPsych.data.addDataToLastTrial({
-            rt: calculatedRt,
+        if (cat && !(stim.assessmentStage === "practice_response")) {
+          if (stim.trialType !== "something-same-1" && stim.trialType !== "instructions") {
+            updateTheta(stim, isCorrect);
+          }
+      
+          const allSequentialTrials = taskStore().sequentialTrials;
+          const nextTrials = allSequentialTrials.filter((trial: StimulusType) => {
+            return (trial.trialNumber === stim.trialNumber && trial.block_index === stim.block_index); 
           });
-        }
 
-        if (stim.assessmentStage === 'test_response') {
-          taskStore.transact('testTrialCount', (oldVal: number) => oldVal + 1);
-        }
+          // manually set the next stimulus here if there are remaining trials in the block
+          if (nextTrials.length > 0) {
+            const nextStim = nextTrials[0];
+            taskStore("nextStimulus", nextStim);
+            const newSequentialTrials = allSequentialTrials.filter((trial: StimulusType) => {
+              return (trial.itemId !== nextStim.itemId);
+            });
 
-        // if heavy instructions is true, show data quality screen before ending
-        if (taskStore().numIncorrect >= taskStore().maxIncorrect && !taskStore().heavyInstructions) {
-          finishExperiment();
+            taskStore("sequentialTrials", newSequentialTrials);
+          }
         }
       }
-    },
-  };
-};
+      
+      if (stim.trialType === 'test-dimensions' || stim.assessmentStage === 'practice_response') {
+        const calculatedRt = Math.round(endTime - startTime);
+
+        jsPsych.data.addDataToLastTrial({
+          rt: calculatedRt,
+        });
+      }
+
+      if (stim.assessmentStage === 'test_response') {
+        taskStore.transact('testTrialCount', (oldVal: number) => oldVal + 1);
+      }
+    }
+  }
+}
