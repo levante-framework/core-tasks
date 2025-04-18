@@ -5,6 +5,7 @@ import {
   DEFAULT_LAYOUT_CONFIG,
   mapDistractorsToString,
 } from '../../shared/helpers';
+import { taskStore } from '../../../taskStore';
 
 type GetConfigReturnType = {
   itemConfig: LayoutConfigType;
@@ -38,6 +39,10 @@ export const getLayoutConfig = (
     };
   } else {
     defaultConfig.classOverrides.buttonClassList = ['primary'];
+  }
+
+  if (taskStore().heavyInstructions && defaultConfig.isPracticeTrial) {
+    defaultConfig.heavyPracticeStaggered = true;
   }
 
   const messages = validateLayoutConfig(defaultConfig, mediaAssets, translations, stimulus);

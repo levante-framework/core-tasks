@@ -32,6 +32,7 @@ export const DEFAULT_LAYOUT_CONFIG: LayoutConfigType = {
   isInstructionTrial: false,
   randomizeChoiceOrder: false,
   isStaggered: false,
+  heavyPracticeStaggered: false,
   isImageButtonResponse: false,
   showStimImage: true,
   response: {
