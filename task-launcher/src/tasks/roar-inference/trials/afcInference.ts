@@ -196,11 +196,12 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigTypeInference>) {
   if (!isPracticeTrial && !isInstructionTrial) {
     trialsOfCurrentType += 1;
   }
-  const jsPsychContent = document.querySelector('.jspsych-content') as HTMLElement;
 
-if (itemLayoutConfig?.classOverrides.stimulusContainerClassList.includes('inference-scroll')) {
-  jsPsychContent?.classList.add('inference-scroll');
-}
+  if (itemLayoutConfig?.classOverrides.stimulusContainerClassList.includes('inference-scroll')) {
+    const jsPsychContent = document.querySelector('.jspsych-content') as HTMLElement;
+
+    jsPsychContent?.classList.add('inference-scroll');
+  }
 
   if (stim.trialType !== 'instructions') {
     const buttonContainer = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
