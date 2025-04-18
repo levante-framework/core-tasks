@@ -2,9 +2,9 @@
 
 .roar-inference-btn {
   display: flex;
-  width: 40vh;
-  height: 9vh;
   padding: 8px;
+  width: 50vh;
+  height: 15vh;
   justify-content: center;
   align-items: center;
   gap: 8px;
@@ -24,8 +24,10 @@
     background-color: gainsboro;
   }
 
-  @include respond-to('huge') {
-    font-size: 1.5rem;
+  @include respond-to('very-large') {
+    width: 40vh;
+    height: 10vh;
+    font-size: 1.2rem;
   }
 }
 
@@ -35,28 +37,20 @@
   border-radius: 0;
   background-color: transparent;
   color: black;
-  font-size: x-large;
   padding-bottom: 0;
-  margin-right: 25%;
-  margin-left: 25%;
+  margin-left: 10%;
+  margin-right: 10%;
+  font-size: large;
+  margin-top: 10%;
 
   p {
     margin-bottom: 0;
   }
 
-  @include respond-to('small-medium') {
-    margin-left: 15%;
-    margin-right: 15%;
-    font-size: x-large;
-  }
-
-  @include respond-to('small') {
-    margin-left: 5%;
-    margin-right: 5%;
-  }
-
   @include respond-to('huge') {
     font-size: xx-large;
+    margin-left: 15%;
+    margin-right: 15%;
   }
 }
 
@@ -66,11 +60,20 @@
   border-radius: 0;
   background-color: transparent;
   color: black;
-  font-size: x-large;
+  font-size: large;
   padding: 12px;
   font-weight: bold;
 
   @include respond-to('huge') {
     font-size: xx-large;
   }
+}
+
+.lev-response-row.multi-stack {
+  margin-bottom: 1rem;
+}
+
+.jspsych-display-element .jspsych-content-wrapper .jspsych-content {
+  overflow-x: scroll;
+  overflow-y: scroll;
 }
