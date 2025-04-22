@@ -318,7 +318,6 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
     finishExperiment();
   }
   document.querySelector('.jspsych-content')?.classList.remove('inference-scroll');
-
 }
 
 export interface AfcStimulusInput {

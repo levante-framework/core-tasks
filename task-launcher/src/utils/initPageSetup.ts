@@ -35,8 +35,7 @@ export class InitPageSetup {
   createRotateOverlayDiv() {
     const rotateOverlayDiv = document.createElement('div');
     rotateOverlayDiv.classList.add('lev-overlay-default');
-    const text = this.#translations.generalRotateDevice ||
-      'Please rotate your device for optimal experience';
+    const text = this.#translations.generalRotateDevice || 'Please rotate your device for optimal experience';
     const textHolder = document.createElement('div');
     textHolder.classList.add(...['lev-row-container', 'header']);
     const textElement = document.createElement('p');
@@ -53,7 +52,8 @@ export class InitPageSetup {
   createSmallDeviceOverlayDiv() {
     const smallDeviceOverlayDiv = document.createElement('div');
     smallDeviceOverlayDiv.classList.add('lev-overlay-default');
-    const text = this.#translations.generalDeviceType ||
+    const text =
+      this.#translations.generalDeviceType ||
       'Please use a tablet or a desktop in landscape mode for optimal experience';
     const textHolder = document.createElement('div');
     textHolder.classList.add(...['lev-row-container', 'header']);
