@@ -98,6 +98,6 @@ declare global {
     initJsPsych: JsPsych;
     cypressData: {
       correctAnswer: string | Array<number> | number;
-    }
+    };
   }
 }

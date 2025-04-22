@@ -253,9 +253,9 @@ function doOnLoad(mode: 'display' | 'input', isPractice: boolean, reverse: boole
 
       if (window.Cypress && generatedSequence !== null) {
         const cypressData = {
-          correctAnswer: generatedSequence
-        }
-        
+          correctAnswer: generatedSequence,
+        };
+
         window.cypressData = cypressData;
       }
     }
