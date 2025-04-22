@@ -62,7 +62,7 @@ export class TaskLauncher {
 
     await getTranslations(config.language);
 
-    return buildTaskTimeline(config, mediaAssets);
+    return buildTaskTimeline(taskStore().runCat, config, mediaAssets);
   }
 
   async run() {
