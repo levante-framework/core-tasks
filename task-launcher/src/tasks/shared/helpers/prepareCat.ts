@@ -117,16 +117,16 @@ export function updateTheta(item: StimulusType, correct: boolean) {
   const runCat = taskStore().runCat;
   if (runCat) {
     // update theta for CAT
-      const zeta = {
-        a: 1, // item discrimination (default value of 1)
-        b: item.difficulty, // item difficulty (from corpus)
-        c: item.chanceLevel, // probability of correct answer from guessing
-        d: 1 // max probability of correct response (default 1)
-      }; 
-      
-      if (!(Number.isNaN(zeta.b)) && (zeta.b !== null) && (item.assessmentStage !== 'practice_response')) {
-        const answer = correct ? 1 : 0;
-        cat.updateAbilityEstimate(zeta, answer); 
-      }
+    const zeta = {
+      a: 1, // item discrimination (default value of 1)
+      b: item.difficulty, // item difficulty (from corpus)
+      c: item.chanceLevel, // probability of correct answer from guessing
+      d: 1 // max probability of correct response (default 1)
+    }; 
+    
+    if (!(Number.isNaN(zeta.b)) && (zeta.b !== null) && (item.assessmentStage !== 'practice_response')) {
+      const answer = correct ? 1 : 0;
+      cat.updateAbilityEstimate(zeta, answer); 
+    }
   }
 }
