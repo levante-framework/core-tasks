@@ -14,6 +14,7 @@ import Cypress from 'cypress';
 import { taskStore } from '../../../taskStore';
 import { handleStaggeredButtons } from '../../shared/helpers/staggerButtons';
 import { updateTheta } from '../../shared/helpers';
+import { setNextCatTrial } from '../helpers/setNextCatTrial';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 let incorrectPracticeResponses: string[] = [];
@@ -300,26 +301,12 @@ export const stimulus = (trial?: StimulusType) => {
           responseLocation: data.button_response,
         });
 
+        if (stim.trialType !== "something-same-1" && stim.trialType !== "instructions") {
+          updateTheta(stim, isCorrect);
+        }
+
         if (cat && !(stim.assessmentStage === "practice_response")) {
-          if (stim.trialType !== "something-same-1" && stim.trialType !== "instructions") {
-            updateTheta(stim, isCorrect);
-          }
-      
-          const allSequentialTrials = taskStore().sequentialTrials;
-          const nextTrials = allSequentialTrials.filter((trial: StimulusType) => {
-            return (trial.trialNumber === stim.trialNumber && trial.block_index === stim.block_index); 
-          });
-
-          // manually set the next stimulus here if there are remaining trials in the block
-          if (nextTrials.length > 0) {
-            const nextStim = nextTrials[0];
-            taskStore("nextStimulus", nextStim);
-            const newSequentialTrials = allSequentialTrials.filter((trial: StimulusType) => {
-              return (trial.itemId !== nextStim.itemId);
-            });
-
-            taskStore("sequentialTrials", newSequentialTrials);
-          }
+          setNextCatTrial(stim);
         }
       }
       
