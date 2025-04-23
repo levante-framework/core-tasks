@@ -62,7 +62,9 @@ export class TaskLauncher {
 
     await getTranslations(config.language);
 
-    return buildTaskTimeline(taskStore().runCat, config, mediaAssets);
+    return taskStore().task === "same-different-selection" ? 
+      buildTaskTimeline(taskStore().runCat, config, mediaAssets) :
+      buildTaskTimeline(config, mediaAssets)
   }
 
   async run() {
