@@ -42,7 +42,7 @@ type ParsedRowType = {
   item_id: string;
   response_alternatives: string;
   audio_file: string;
-  trial_num: number
+  trial_num: number;
 };
 
 export const sdsPhaseCount = {
@@ -120,12 +120,12 @@ const transformCSV = (
       })(),
       audioFile: row.audio_file,
       // difficulty must be undefined for non-instruction/practice trials to avoid running cat
-      difficulty: (taskStore().runCat || 
-      row.trial_type === 'instructions' ||
-      row.assessment_stage === 'practice_response') ? 
-      parseFloat(row.d || row.difficulty) : NaN,
-      trialNumber: row.trial_num
-    }; 
+      difficulty:
+        taskStore().runCat || row.trial_type === 'instructions' || row.assessment_stage === 'practice_response'
+          ? parseFloat(row.d || row.difficulty)
+          : NaN,
+      trialNumber: row.trial_num,
+    };
 
     if (row.task === 'Mental Rotation') {
       newRow.item = camelize(newRow.item as string);

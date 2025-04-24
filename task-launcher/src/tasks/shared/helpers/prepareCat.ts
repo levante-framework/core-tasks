@@ -43,13 +43,12 @@ export function prepareCorpus(corpus: StimulusType[]) {
   );
   const startItems: StimulusType[] = selectNItems(possibleStartItems, 5);
 
-  // put cat portion of corpus into taskStore 
-  const catCorpus: StimulusType[] = (taskStore().task === "same-different-selection") ? 
-    normedTrials :
-    normedTrials.filter(trial =>
-      !startItems.includes(trial)
-    ); 
-  
+  // put cat portion of corpus into taskStore
+  const catCorpus: StimulusType[] =
+    taskStore().task === 'same-different-selection'
+      ? normedTrials
+      : normedTrials.filter((trial) => !startItems.includes(trial));
+
   corpora = {
     ipHeavy: corpusParts.ipHeavy, // heavy instruction/practice trials
     ipLight: corpusParts.ipLight, // light instruction/practice
@@ -121,12 +120,12 @@ export function updateTheta(item: StimulusType, correct: boolean) {
       a: 1, // item discrimination (default value of 1)
       b: item.difficulty, // item difficulty (from corpus)
       c: item.chanceLevel, // probability of correct answer from guessing
-      d: 1 // max probability of correct response (default 1)
-    }; 
-    
-    if (!(Number.isNaN(zeta.b)) && (zeta.b !== null) && (item.assessmentStage !== 'practice_response')) {
+      d: 1, // max probability of correct response (default 1)
+    };
+
+    if (!Number.isNaN(zeta.b) && zeta.b !== null && item.assessmentStage !== 'practice_response') {
       const answer = correct ? 1 : 0;
-      cat.updateAbilityEstimate(zeta, answer); 
+      cat.updateAbilityEstimate(zeta, answer);
     }
   }
 }
