@@ -2,7 +2,7 @@
 import 'regenerator-runtime/runtime';
 import { jsPsych } from '../taskSetup';
 import { initTrialSaving, initTimeline, createPreloadTrials } from '../shared/helpers';
-import { prepareCorpus, prepareMultiBlockCat } from '../shared/helpers/prepareCat';
+import { prepareCorpus } from '../shared/helpers/prepareCat';
 import { initializeCat } from '../taskSetup';
 // trials
 import { dataQualityScreen } from '../shared/trials/dataQuality';
@@ -29,7 +29,7 @@ import { setTrialBlock } from './helpers/setTrialBlock';
 
 export default function buildSameDifferentTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
-  const heavy: boolean = taskStore().heavyInstructions; 
+  const heavy: boolean = taskStore().heavyInstructions;
 
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
   const preparedCorpus = prepareCorpus(corpus);

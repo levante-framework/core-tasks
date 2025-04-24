@@ -301,15 +301,15 @@ export const stimulus = (trial?: StimulusType) => {
           responseLocation: data.button_response,
         });
 
-        if (stim.trialType !== "something-same-1" && stim.trialType !== "instructions") {
+        if (stim.trialType !== 'something-same-1' && stim.trialType !== 'instructions') {
           updateTheta(stim, isCorrect);
         }
 
-        if (cat && !(stim.assessmentStage === "practice_response")) {
+        if (cat && !(stim.assessmentStage === 'practice_response')) {
           setNextCatTrial(stim);
         }
       }
-      
+
       if (stim.trialType === 'test-dimensions' || stim.assessmentStage === 'practice_response') {
         const calculatedRt = Math.round(endTime - startTime);
 
@@ -321,6 +321,6 @@ export const stimulus = (trial?: StimulusType) => {
       if (stim.assessmentStage === 'test_response') {
         taskStore.transact('testTrialCount', (oldVal: number) => oldVal + 1);
       }
-    }
-  }
-}
+    },
+  };
+};
