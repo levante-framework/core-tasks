@@ -16,11 +16,13 @@ $response-size-default-height: 15vh;
 $response-size-sm-width: clamp(100px, 18vw, 150px);
 $response-size-m-width: calc(clamp(70px, 22vw, 250px) - 10px);
 $response-size-m-height: 38vh;
+$response-size-sds-height: 28vh;
 
 $response-size-default: min($response-size-default-width, $response-size-default-height);
 $response-size-sm: min($response-size-sm-width, $response-size-default-height);
 $response-size-s: 22vw;
 $response-size-m: min($response-size-m-width, $response-size-m-height);
+$response-size-sds: min($response-size-m-width, $response-size-sds-height);
 
 // replay btn
 $replay_btn_size: min(64px, 8vh);
