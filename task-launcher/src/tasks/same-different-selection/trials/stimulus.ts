@@ -13,6 +13,8 @@ import { jsPsych } from '../../taskSetup';
 import Cypress from 'cypress';
 import { taskStore } from '../../../taskStore';
 import { handleStaggeredButtons } from '../../shared/helpers/staggerButtons';
+import { updateTheta } from '../../shared/helpers';
+import { setNextCatTrial } from '../helpers/setNextCatTrial';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 let incorrectPracticeResponses: string[] = [];
@@ -258,6 +260,7 @@ export const stimulus = (trial?: StimulusType) => {
       const stim = trial || taskStore().nextStimulus;
       const choices = taskStore().choices;
       const endTime = performance.now();
+      const cat = taskStore().runCat;
 
       PageAudioHandler.stopAndDisconnectNode();
 
@@ -298,22 +301,25 @@ export const stimulus = (trial?: StimulusType) => {
           responseLocation: data.button_response,
         });
 
-        if (stim.trialType === 'test-dimensions' || stim.assessmentStage === 'practice_response') {
-          const calculatedRt = Math.round(endTime - startTime);
-
-          jsPsych.data.addDataToLastTrial({
-            rt: calculatedRt,
-          });
+        if (stim.trialType !== 'something-same-1' && stim.trialType !== 'instructions') {
+          updateTheta(stim, isCorrect);
         }
 
-        if (stim.assessmentStage === 'test_response') {
-          taskStore.transact('testTrialCount', (oldVal: number) => oldVal + 1);
+        if (cat && !(stim.assessmentStage === 'practice_response')) {
+          setNextCatTrial(stim);
         }
+      }
 
-        // if heavy instructions is true, show data quality screen before ending
-        if (taskStore().numIncorrect >= taskStore().maxIncorrect && !taskStore().heavyInstructions) {
-          finishExperiment();
-        }
+      if (stim.trialType === 'test-dimensions' || stim.assessmentStage === 'practice_response') {
+        const calculatedRt = Math.round(endTime - startTime);
+
+        jsPsych.data.addDataToLastTrial({
+          rt: calculatedRt,
+        });
+      }
+
+      if (stim.assessmentStage === 'test_response') {
+        taskStore.transact('testTrialCount', (oldVal: number) => oldVal + 1);
       }
     },
   };

@@ -1,38 +1,49 @@
-// setup
-import 'regenerator-runtime/runtime';
-import { jsPsych } from '../taskSetup';
-import { initTrialSaving, initTimeline, createPreloadTrials } from '../shared/helpers';
-import { prepareCorpus } from '../shared/helpers/prepareCat';
-import { initializeCat } from '../taskSetup';
-// trials
-import { dataQualityScreen } from '../shared/trials/dataQuality';
-import {
-  setupStimulus,
-  fixationOnly,
-  exitFullscreen,
-  taskFinished,
-  getAudioResponse,
-  enterFullscreen,
-  finishExperiment,
-} from '../shared/trials';
-import { afcMatch } from './trials/afcMatch';
-import { stimulus } from './trials/stimulus';
 import { taskStore } from '../../taskStore';
+import { setupSds } from './helpers/prepareSdsCorpus';
 import {
+  createPreloadTrials,
+  initTimeline,
+  initTrialSaving,
+  prepareCorpus,
+  prepareMultiBlockCat,
+} from '../shared/helpers';
+import { stimulus } from './trials/stimulus';
+import { afcMatch } from './trials/afcMatch';
+import {
+  enterFullscreen,
+  exitFullscreen,
+  finishExperiment,
+  fixationOnly,
+  getAudioResponse,
+  setupStimulusFromBlock,
+  taskFinished,
+} from '../shared/trials';
+import { setTrialBlock } from './helpers/setTrialBlock';
+import {
+  matchDemo1,
+  matchDemo2,
   somethingSameDemo1,
   somethingSameDemo2,
   somethingSameDemo3,
-  matchDemo1,
-  matchDemo2,
 } from './trials/heavyInstructions';
-import { setTrialBlock } from './helpers/setTrialBlock';
+import { dataQualityScreen } from '../shared/trials/dataQuality';
+import { initializeCat, jsPsych } from '../taskSetup';
 
-export default function buildSameDifferentTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
+export default function buildSameDifferentTimelineCat(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
   const heavy: boolean = taskStore().heavyInstructions;
 
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
   const preparedCorpus = prepareCorpus(corpus);
+
+  const catCorpus = setupSds(taskStore().corpora.stimulus);
+  const allBlocks = prepareMultiBlockCat(catCorpus);
+
+  const newCorpora = {
+    practice: taskStore().corpora.practice,
+    stimulus: allBlocks,
+  };
+  taskStore('corpora', newCorpora); // puts all blocks into taskStore
 
   initTrialSaving(config);
   const initialTimeline = initTimeline(config, enterFullscreen, finishExperiment);
@@ -58,20 +69,39 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
     };
   };
 
-  const stimulusBlock = {
-    timeline: [stimulus()],
-  };
+  // returns timeline object containing the appropriate trials - only runs if they match what is in taskStore
+  function runCatTrials(trialNum: number, trialType: 'stimulus' | 'afc') {
+    const timeline = [];
+    for (let i = 0; i < trialNum; i++) {
+      if (trialType === 'stimulus') {
+        timeline.push(stimulus());
+        timeline.push(buttonNoise);
+      } else {
+        timeline.push(afcMatch);
+        timeline.push(buttonNoise);
+      }
 
-  const afcBlock = {
-    timeline: [afcMatch],
-  };
+      if (i < trialNum - 1) {
+        timeline.push({ ...fixationOnly, stimulus: '' });
+      }
+    }
 
-  const dataQualityBlock = {
-    timeline: [dataQualityScreen],
-    conditional_function: () => {
-      return taskStore().numIncorrect >= taskStore().maxIncorrect && heavy;
-    },
-  };
+    return {
+      timeline: timeline,
+      conditional_function: () => {
+        const stimulus = taskStore().nextStimulus;
+
+        if (trialType === 'stimulus') {
+          return (
+            (stimulus.trialType === 'test-dimensions' && trialNum === 1) ||
+            (stimulus.trialType.includes('something-same') && trialNum === 2)
+          );
+        } else {
+          return stimulus.trialType === trialNum + '-match';
+        }
+      },
+    };
+  }
 
   const timeline = [preloadTrials, initialTimeline];
 
@@ -84,42 +114,11 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
   }
 
   // create list of numbers of trials per block
-  const blockCountList = setTrialBlock(false);
+  const blockCountList = setTrialBlock(true);
 
   const totalRealTrials = blockCountList.reduce((acc, total) => acc + total, 0);
   taskStore('totalTestTrials', totalRealTrials);
 
-  // functions to add trials to blocks of each type
-  function updateTestDimensions() {
-    timeline.push(setupStimulus);
-    timeline.push(stimulusBlock);
-  }
-
-  function updateSomethingSame() {
-    timeline.push(setupStimulus);
-    timeline.push(stimulusBlock);
-    timeline.push(buttonNoise);
-    timeline.push(dataQualityBlock);
-  }
-
-  function updateMatching() {
-    timeline.push(setupStimulus);
-    timeline.push(afcBlock);
-    timeline.push(buttonNoise);
-    timeline.push(dataQualityBlock);
-  }
-
-  // add to this list with any additional blocks
-  const blockOperations = [
-    updateTestDimensions,
-    updateSomethingSame,
-    updateMatching,
-    updateTestDimensions,
-    updateMatching,
-    updateMatching,
-  ];
-
-  // add trials to timeline according to block structure defined in blockOperations
   blockCountList.forEach((count, index) => {
     const currentBlockInstructionPractice = getPracticeInstructions(index);
 
@@ -146,8 +145,21 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
       timeline.push(matchDemo2);
     }
 
-    for (let i = 0; i < count; i += 1) {
-      blockOperations[index]();
+    const numOfTrials = index === 0 ? count : count / 2; // change this based on simulation results?
+    for (let i = 0; i < numOfTrials; i++) {
+      timeline.push({ ...setupStimulusFromBlock(index), stimulus: '' });
+
+      if (index === 0) {
+        timeline.push(runCatTrials(1, 'stimulus'));
+      }
+      if (index === 1) {
+        timeline.push(runCatTrials(2, 'stimulus'));
+      }
+      if (index === 2) {
+        timeline.push(runCatTrials(2, 'afc'));
+        timeline.push(runCatTrials(3, 'afc'));
+        timeline.push(runCatTrials(4, 'afc'));
+      }
     }
   });
 

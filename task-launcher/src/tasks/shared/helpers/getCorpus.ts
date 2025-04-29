@@ -42,6 +42,7 @@ type ParsedRowType = {
   item_id: string;
   response_alternatives: string;
   audio_file: string;
+  trial_num: number;
 };
 
 export const sdsPhaseCount = {
@@ -123,6 +124,7 @@ const transformCSV = (
         taskStore().runCat || row.trial_type === 'instructions' || row.assessment_stage === 'practice_response'
           ? parseFloat(row.d || row.difficulty)
           : NaN,
+      trialNumber: row.trial_num,
     };
 
     if (row.task === 'Mental Rotation') {
