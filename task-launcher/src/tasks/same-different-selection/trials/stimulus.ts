@@ -120,7 +120,7 @@ export const stimulus = (trial?: StimulusType) => {
 
         ${
           stim.image && !Array.isArray(stim.image)
-            ? `<button class='image-sds' disabled>
+            ? `<button class='image-medium' disabled>
             <img 
               src=${mediaAssets.images[camelize(stim.image)]} 
               alt=${stim.image}
@@ -130,27 +130,12 @@ export const stimulus = (trial?: StimulusType) => {
         }
         
         ${
-          stim.image && Array.isArray(stim.image)
-            ? `<div class='lev-stim-content' style="flex-direction: column;">
-            ${
-              stim.trialType === 'something-same-1'
-                ? `
-              <div style="visibility: hidden;">
-                <button class='image-sds no-pointer-events'>
-                  <img 
-                    src=${mediaAssets.images[camelize(stim.image[0])]} 
-                    alt=${stim.image[0]}
-                    class='top-image'
-                  />
-                </button>
-              </div>
-              `
-                : ''
-            }
+          stim.image && Array.isArray(stim.image) ? 
+          `<div class='lev-stim-content' style="flex-direction: column;">
             <div class='lev-response-row multi-4'>
               ${(stim.image as string[])
                 .map((shape) => {
-                  return `<button class='image-sds no-pointer-events' style='margin: 0 4px'>
+                  return `<button class='image-medium no-pointer-events' style='margin: 0 4px'>
                           <img 
                             src=${mediaAssets.images[camelize(shape)]} 
                             alt=${shape} 
@@ -178,7 +163,7 @@ export const stimulus = (trial?: StimulusType) => {
     button_html: () => {
       const stim = trial || taskStore().nextStimulus;
       const buttonClass =
-        stim.trialType === 'instructions' || stim.trialType === 'something-same-1' ? 'primary' : 'image-sds';
+        stim.trialType === 'instructions' || stim.trialType === 'something-same-1' ? 'primary' : 'image-medium';
       return `<button class="${buttonClass}">%choice%</button>`;
     },
     response_ends_trial: () => {
@@ -213,7 +198,7 @@ export const stimulus = (trial?: StimulusType) => {
 
       // if the task is running in a cypress test, the correct answer should be indicated with 'correct' class
       if (window.Cypress && trialType !== 'something-same-1') {
-        const responseBtns = document.querySelectorAll('.image-sds');
+        const responseBtns = document.querySelectorAll('.image-medium');
         responseBtns.forEach((button) => {
           const imgAlt = button.querySelector('img')?.getAttribute('alt');
           if (imgAlt === taskStore().nextStimulus.answer) {

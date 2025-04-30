@@ -287,68 +287,6 @@ button {
     }
   }
 
-  &.image-sds {
-    @extend .button-base;
-    padding: 0;
-    box-sizing: border-box;
-    border-color: $bg-button-primary;
-    
-    img {
-      border: none;
-      width: $response-size-sds;
-      height: $response-size-sds;
-      padding: 0;
-      margin: 0;
-      border-radius: $button-default-border-radius-small;
-      float: left;
-    }
-
-    @include respond-to('small') {
-      border-radius: $lev-spacing-s;
-      img {
-        width: $response-size-s;
-        height: $response-size-s;
-        border-radius: $button-default-border-radius-small;
-      }
-    }
-
-    &:hover {
-      border-color: $bg-accent_secondary;
-    }
-
-    &:active {
-      border-color: $border-button-primary-clicked;
-    }
-
-    &.selected {
-      border-color: $border-button-primary-clicked;
-    }
-  }
-  &.no-pointer-events {
-    pointer-events: none;
-    cursor: default;
-  }
-
-  &.success-shadow {
-    box-shadow: 0 0 20px 5px rgb(85, 251, 56);
-    border-radius: 2rem;
-  }
-
-  &.error-shadow {
-    box-shadow: 0 0 30px 8px rgb(255, 43, 1);
-    border-radius: 2rem;
-  }
-
-  &.warning-shadow {
-    box-shadow: 0 0 20px 5px $border-yellow_dark;
-    border-radius: 2rem;
-  }
-
-  &.info-shadow {
-    box-shadow: 0 0 20px 5px $border-accent;
-    border-radius: 2rem;
-  }
-
   &.image-medium {
     @extend .button-base;
     padding: 0;
