@@ -121,7 +121,14 @@ const transformCSV = (
       audioFile: row.audio_file,
       // difficulty must be undefined for non-instruction/practice trials to avoid running cat
       difficulty:
-        taskStore().runCat || row.trial_type === 'instructions' || row.assessment_stage === 'practice_response'
+        taskStore().runCat || 
+        (
+          (
+            row.trial_type === 'instructions' || 
+            row.assessment_stage === 'practice_response'
+          ) && 
+          taskStore().heavyInstructions
+        )
           ? parseFloat(row.d || row.difficulty)
           : NaN,
       trialNumber: row.trial_num,
