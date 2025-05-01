@@ -130,8 +130,23 @@ export const stimulus = (trial?: StimulusType) => {
         }
         
         ${
-          stim.image && Array.isArray(stim.image) ? 
-          `<div class='lev-stim-content' style="flex-direction: column;">
+          stim.image && Array.isArray(stim.image)
+            ? `<div class='lev-stim-content' style="flex-direction: column;">
+            ${
+              stim.trialType === 'something-same-1'
+                ? `
+              <div style="visibility: hidden;">
+                <button class='image no-pointer-events'>
+                  <img 
+                    src=${mediaAssets.images[camelize(stim.image[0])]} 
+                    alt=${stim.image[0]}
+                    class='top-image'
+                  />
+                </button>
+              </div>
+              `
+                : ''
+            }
             <div class='lev-response-row multi-4'>
               ${(stim.image as string[])
                 .map((shape) => {
