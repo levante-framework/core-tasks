@@ -329,6 +329,7 @@ export const slider = (layoutConfigMap: Record<string, LayoutConfigType>, trial?
         // slider_start: stimulus.item[1] === 1 ? sliderStart / 100 : sliderStart,
         slider_start: sliderStart,
         audioButtonPresses: PageAudioHandler.replayPresses,
+        itemUid: stimulus.itemUid,
       });
 
       if (stimulus.assessmentStage === 'test_response') {

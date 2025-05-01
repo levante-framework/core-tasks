@@ -238,18 +238,9 @@ export const stimulus = (trial?: StimulusType) => {
           .map((btnDiv) => btnDiv.firstChild)
           .filter((btn) => !!btn) as HTMLButtonElement[];
 
-        let correctAudio;
-        if (stimulus.itemId === 'sds-something-same-1-test-heavy') {
-          correctAudio = 'sdsFeedbackBothBlue';
-        } else if (stimulus.itemId === 'sds-something-same-2-test-heavy') {
-          correctAudio = 'sdsFeedbackBothLarge';
-        } else {
-          correctAudio = 'feedbackGoodJob';
-        }
-
         practiceBtns.forEach((card, i) =>
           card.addEventListener('click', async (e) => {
-            handleButtonFeedback(card, practiceBtns, false, i, correctAudio);
+            handleButtonFeedback(card, practiceBtns, false, i, 'feedbackGoodJob');
           }),
         );
       }
@@ -296,6 +287,7 @@ export const stimulus = (trial?: StimulusType) => {
           corpusTrialType: stim.trialType,
           response: choices[data.button_response],
           responseLocation: data.button_response,
+          itemUid: stim.itemUid,
         });
 
         if (stim.trialType === 'test-dimensions' || stim.assessmentStage === 'practice_response') {

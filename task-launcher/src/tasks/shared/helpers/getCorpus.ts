@@ -40,6 +40,7 @@ type ParsedRowType = {
   assessment_stage: string;
   chance_level: string;
   item_id: string;
+  item_uid: string;
   response_alternatives: string;
   audio_file: string;
 };
@@ -107,6 +108,7 @@ const transformCSV = (
       assessmentStage: row.assessment_stage,
       chanceLevel: _toNumber(row.chance_level),
       itemId: row.item_id,
+      itemUid: row.item_uid,
       distractors: (() => {
         if (row.task === 'roar-inference') {
           return row.response_alternatives.split(',').map((alt) => alt.replace(/"/g, ''));

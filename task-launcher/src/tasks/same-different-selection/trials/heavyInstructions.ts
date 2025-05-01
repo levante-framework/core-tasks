@@ -291,6 +291,7 @@ const practiceData = [
     image: ['sm-blue-triangle', 'med-red-triangle'], 
     answer: '', 
     distractors: [],
+    itemUid: 'sds-something-same-1-instr-heavy',
     itemId: 'sds-something-same-1-instr-heavy',
     correctAudio: '',
   }, 
@@ -300,7 +301,8 @@ const practiceData = [
     image: ['lg-blue-circle'], 
     answer: 'sm-blue-triangle', 
     distractors: ['sm-blue-triangle', 'med-red-triangle'],
-    itemId: 'sds_same_',
+    itemUid: 'sds_same_',
+    itemId: 'sds-something-same-1-test-heavy',
     correctAudio: 'sdsFeedbackBothBlue',
   }, 
   {
@@ -309,6 +311,7 @@ const practiceData = [
     image: ['lg-red-square', 'sm-red-triangle'], 
     answer: '', 
     distractors: [],
+    itemUid: 'sds-something-same-2-instr-heavy',
     itemId: 'sds-something-same-2-instr-heavy',
     correctAudio: '',
   }, 
@@ -318,7 +321,7 @@ const practiceData = [
     image: 'lg-yellow-circle', 
     answer: 'lg-red-square', 
     distractors: ['lg-red-square', 'sm-red-triangle'],
-    itemId: 'sds_same_',
+    itemUid: 'sds_same_',
     correctAudio: 'sdsFeedbackBothLarge'
   }
 ]
