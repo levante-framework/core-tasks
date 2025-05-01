@@ -138,7 +138,7 @@ export const stimulus = (trial?: StimulusType) => {
               stim.trialType === 'something-same-1'
                 ? `
               <div style="visibility: hidden;">
-                <button class='image-medium no-pointer-events'>
+                <button class='image no-pointer-events'>
                   <img 
                     src=${mediaAssets.images[camelize(stim.image[0])]} 
                     alt=${stim.image[0]}
