@@ -117,8 +117,8 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false, rese
 
       const gridSize = taskStore().gridSize;
 
-      // save itemId
-      const itemId = "mg_" + `${reverse ? "backward_" : "forward_"}` + gridSize + "grid_" + "len" + sequenceLength; 
+      // save itemUid for data analysis
+      const itemUid = "mg_" + `${reverse ? "backward_" : "forward_"}` + gridSize + "grid_" + "len" + sequenceLength; 
 
       if (mode === 'input') {
         jsPsych.data.addDataToLastTrial({
@@ -126,7 +126,7 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false, rese
           selectedCoordinates: selectedCoordinates,
           corpusTrialType: getMemoryGameType(mode, reverse, gridSize),
           responseLocation: data.response,
-          itemId: itemId,
+          itemUid: itemUid,
         });
         taskStore('isCorrect', data.correct);
 

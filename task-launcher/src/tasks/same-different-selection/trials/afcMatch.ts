@@ -167,6 +167,7 @@ export const afcMatch = {
       rt: Math.round(calculatedRt),
       audioButtonPresses: PageAudioHandler.replayPresses,
       responseLocation: selectedCardIdxs,
+      itemUid: stim.itemUid,
     });
 
     if (stim.audioFile.split('-')[2] === 'prompt1') {
