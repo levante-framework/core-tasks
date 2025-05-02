@@ -290,6 +290,12 @@ export const stimulus = (trial?: StimulusType) => {
           itemUid: stim.itemUid,
         });
 
+        if (taskStore().storeItemId) {
+          jsPsych.data.addDataToLastTrial({
+            itemId: stim.itemId,
+          });
+        }
+
         if (stim.trialType === 'test-dimensions' || stim.assessmentStage === 'practice_response') {
           const calculatedRt = Math.round(endTime - startTime);
 
