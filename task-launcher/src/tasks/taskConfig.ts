@@ -63,10 +63,10 @@ export default {
     setConfig: setSharedConfig,
     getCorpus: getCorpus,
     getTranslations: getTranslations,
-    buildTaskTimeline: (config:Record<string, any>, mediaAssets: MediaAssetsType) => 
-      taskStore().runCat ? 
-      sameDifferentSelectionTimelineCat(config, mediaAssets) : 
-      sameDifferentSelectionTimeline(config, mediaAssets),
+    buildTaskTimeline: (config: Record<string, any>, mediaAssets: MediaAssetsType) =>
+      taskStore().runCat
+        ? sameDifferentSelectionTimelineCat(config, mediaAssets)
+        : sameDifferentSelectionTimeline(config, mediaAssets),
     variants: {},
   },
   trog: {
