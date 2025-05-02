@@ -11,7 +11,6 @@ import {
   fixationOnly,
   exitFullscreen,
   taskFinished,
-  feedback,
   getAudioResponse,
   enterFullscreen,
   finishExperiment,
@@ -28,6 +27,7 @@ import {
   matchDemo2,
   heavyPractice,
 } from './trials/heavyInstructions';
+import { setTrialBlock } from './helpers/setTrialBlock';
 
 export default function buildSameDifferentTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
@@ -86,10 +86,7 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
   }
 
   // create list of numbers of trials per block
-  const blockCountList: number[] = [];
-  taskStore().corpora.stimulus.forEach((trial: StimulusType) => {
-    blockCountList[Number(trial.blockIndex)] = (blockCountList[Number(trial.blockIndex)] || 0) + 1;
-  });
+  const blockCountList = setTrialBlock(false);
 
   const totalRealTrials = blockCountList.reduce((acc, total) => acc + total, 0);
   taskStore('totalTestTrials', totalRealTrials);
@@ -158,7 +155,6 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
       timeline.push(matchDemo2);
     }
 
-    // push in test trials
     for (let i = 0; i < count; i += 1) {
       blockOperations[index]();
     }
