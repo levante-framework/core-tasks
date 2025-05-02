@@ -379,7 +379,7 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
       jsPsych.data.addDataToLastTrial({
         corpusId: taskStore().corpusId,
         corpus: taskStore().corpus, // adding this for ROAR compatibility
-        itemId: stimulus.source + '-' + stimulus.origItemNum,
+        itemId: stimulus.itemId,
       });
     }
 
