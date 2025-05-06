@@ -169,7 +169,14 @@ export const afcMatch = {
       rt: Math.round(calculatedRt),
       audioButtonPresses: PageAudioHandler.replayPresses,
       responseLocation: selectedCardIdxs,
+      itemUid: stim.itemUid,
     });
+
+    if (taskStore().storeItemId) {
+      jsPsych.data.addDataToLastTrial({
+        itemId: stim.itemId,
+      })
+    }
 
     if (stim.audioFile.split('-')[2] === 'prompt1') {
       // Prompt 1 is the start and prompt 2 trials are when the selections
