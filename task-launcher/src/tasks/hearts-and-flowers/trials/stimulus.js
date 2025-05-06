@@ -108,11 +108,15 @@ export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrial
       taskStore('stimulus', stimulusType);
       taskStore('stimulusSide', stimuluSide);
 
+      // save item uid for data analysis
+      const itemUid = 'hf_' + `${trialType === 'hearts and flowers' ? 'heartsflowers' : trialType}` + "_" + stimulusType;
+
       jsPsych.data.addDataToLastTrial({
         item: stimulusType,
         answer: validAnswer === 0 ? ResponseSideType.Left : ResponseSideType.Right,
         response: response === 0 ? ResponseSideType.Left : ResponseSideType.Right,
         responseLocation: response,
+        itemUid: itemUid,
       });
 
       taskStore.transact('testTrialCount', (oldVal) => oldVal + 1);

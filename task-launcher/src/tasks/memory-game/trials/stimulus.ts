@@ -117,12 +117,16 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false, rese
 
       const gridSize = taskStore().gridSize;
 
+      // save itemUid for data analysis
+      const itemUid = "mg_" + `${reverse ? "backward_" : "forward_"}` + gridSize + "grid_" + "len" + sequenceLength; 
+
       if (mode === 'input') {
         jsPsych.data.addDataToLastTrial({
           correct: _isEqual(data.response, data.sequence),
           selectedCoordinates: selectedCoordinates,
           corpusTrialType: getMemoryGameType(mode, reverse, gridSize),
           responseLocation: data.response,
+          itemUid: itemUid,
         });
         taskStore('isCorrect', data.correct);
 
