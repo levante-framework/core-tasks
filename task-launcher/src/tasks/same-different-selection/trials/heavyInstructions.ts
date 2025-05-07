@@ -407,8 +407,9 @@ export const heavyPractice = practiceData.map((data) => {
       if (data.trialType === 'instructions' || data.trialType == 'something-same-1') {
         return ['OK'];
       } else {
+        const randomize = !!data.answer ? 'yes' : 'no'; 
         // Randomize choices if there is an answer
-        const { choices } = prepareChoices(data.answer, data.distractors, !!data.answer);
+        const { choices } = prepareChoices(data.answer, data.distractors, randomize);
         return generateImageChoices(choices);
       }
     },
