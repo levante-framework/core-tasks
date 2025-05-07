@@ -53,7 +53,7 @@ export function buildInstructionPracticeTrial(
 
       //TODO: use alt tag to query the proper button directly
       const buttons = document.querySelectorAll('.secondary--green');
-      if (buttons.length != 2) {
+      if (buttons.length !== 2) {
         console.error(`There are ${buttons.length} instead of 2 wrappers in the practice trials`);
       }
       buttons[validAnswer].style.animation = 'pulse 2s infinite';
