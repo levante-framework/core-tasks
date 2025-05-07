@@ -4,6 +4,7 @@ import {
   dashToCamelCase,
   showLevanteLogoLoading,
   hideLevanteLogoLoading,
+  combineMediaAssets
 } from './tasks/shared/helpers';
 import './styles/index.scss';
 import taskConfig from './tasks/taskConfig';
@@ -13,6 +14,8 @@ import { taskStore } from './taskStore';
 import { InitPageSetup } from './utils';
 
 export let mediaAssets: MediaAssetsType;
+let sharedMediaAssets: MediaAssetsType;
+
 export class TaskLauncher {
   gameParams: GameParamsType;
   userParams: UserParamsType;
@@ -47,10 +50,14 @@ export class TaskLauncher {
       } else {
         mediaAssets = await getMediaAssets(taskName, {}, language);
       }
+
+      sharedMediaAssets = await getMediaAssets('tasks-shared', {}, language); 
     } catch (error) {
       throw new Error('Error fetching media assets: ' + error);
     }
 
+    mediaAssets = combineMediaAssets(mediaAssets, sharedMediaAssets);
+    
     const config = await setConfig(this.firekit, this.gameParams, this.userParams);
 
     setTaskStore(config);
