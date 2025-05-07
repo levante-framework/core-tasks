@@ -11,10 +11,10 @@ import {
   fixationOnly,
   exitFullscreen,
   taskFinished,
-  feedback,
   getAudioResponse,
   enterFullscreen,
   finishExperiment,
+  practiceTransition,
 } from '../shared/trials';
 import { afcMatch } from './trials/afcMatch';
 import { stimulus } from './trials/stimulus';
@@ -25,11 +25,12 @@ import {
   somethingSameDemo3,
   matchDemo1,
   matchDemo2,
+  heavyPractice,
 } from './trials/heavyInstructions';
+import { setTrialBlock } from './helpers/setTrialBlock';
 
 export default function buildSameDifferentTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
-  let feedbackGiven = false;
   const heavy: boolean = taskStore().heavyInstructions;
 
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
@@ -63,18 +64,6 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
     timeline: [stimulus()],
   };
 
-  const feedbackBlock = {
-    timeline: [feedback(true, 'feedbackCorrect', 'feedbackTryAgain')],
-
-    conditional_function: () => {
-      if (!feedbackGiven) {
-        feedbackGiven = true;
-        return true;
-      }
-      return false;
-    },
-  };
-
   const afcBlock = {
     timeline: [afcMatch],
   };
@@ -97,29 +86,26 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
   }
 
   // create list of numbers of trials per block
-  const blockCountList: number[] = [];
-  taskStore().corpora.stimulus.forEach((trial: StimulusType) => {
-    blockCountList[Number(trial.blockIndex)] = (blockCountList[Number(trial.blockIndex)] || 0) + 1;
-  });
+  const blockCountList = setTrialBlock(false);
 
   const totalRealTrials = blockCountList.reduce((acc, total) => acc + total, 0);
   taskStore('totalTestTrials', totalRealTrials);
 
   // functions to add trials to blocks of each type
   function updateTestDimensions() {
-    timeline.push(setupStimulus);
+    timeline.push({...setupStimulus, stimulus: ''});
     timeline.push(stimulusBlock);
   }
 
   function updateSomethingSame() {
-    timeline.push(setupStimulus);
+    timeline.push({...setupStimulus, stimulus: ''});
     timeline.push(stimulusBlock);
     timeline.push(buttonNoise);
     timeline.push(dataQualityBlock);
   }
 
   function updateMatching() {
-    timeline.push(setupStimulus);
+    timeline.push({...setupStimulus, stimulus: ''});
     timeline.push(afcBlock);
     timeline.push(buttonNoise);
     timeline.push(dataQualityBlock);
@@ -149,12 +135,19 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
 
       timeline.push(somethingSameDemo1);
       timeline.push(somethingSameDemo2);
-      timeline.push(somethingSameDemo3);
+      timeline.push(somethingSameDemo3); 
+      currentBlockInstructionPractice.forEach((trial) => {
+        timeline.push(ipBlock(trial));
+      });
+      heavyPractice.forEach((trial) => {
+        timeline.push(trial);
+      });
+      timeline.push({...practiceTransition, conditional_function: () => true});
+    } else {
+      currentBlockInstructionPractice.forEach((trial) => {
+        timeline.push(ipBlock(trial));
+      });
     }
-
-    currentBlockInstructionPractice.forEach((trial) => {
-      timeline.push(ipBlock(trial));
-    });
 
     if (index === 2 && heavy) {
       // 2-match has demo trials after instructions
@@ -162,7 +155,6 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
       timeline.push(matchDemo2);
     }
 
-    // push in test trials
     for (let i = 0; i < count; i += 1) {
       blockOperations[index]();
     }

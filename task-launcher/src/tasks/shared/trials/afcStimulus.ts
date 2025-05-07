@@ -371,6 +371,7 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
       corpusTrialType: stimulus.trialType,
       responseType,
       responseLocation: responseIndex,
+      itemUid: stimulus.itemUid,
     });
 
     // corpusId and itemId fields are used by ROAR but not ROAD
@@ -378,7 +379,7 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
       jsPsych.data.addDataToLastTrial({
         corpusId: taskStore().corpusId,
         corpus: taskStore().corpus, // adding this for ROAR compatibility
-        itemId: stimulus.source + '-' + stimulus.origItemNum,
+        itemId: stimulus.itemId,
       });
     }
 

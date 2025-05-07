@@ -69,6 +69,8 @@ declare global {
     chanceLevel: number;
     itemId: string;
     item_id?: string;
+    itemUid: string;
+    item_uid?: string;
     distractors: Array<string | number>;
     audioFile: string;
     audio_file?: string;
@@ -83,6 +85,7 @@ declare global {
     response_alternatives?: string;
     d?: string;
     randomize?: 'yes' | 'no' | 'at_block_level';
+    trialNumber?: number;
   };
 
   type MediaAssetsType = {
@@ -97,5 +100,8 @@ declare global {
   interface Window {
     Cypress: any; // FIXME: Add explict type
     initJsPsych: JsPsych;
+    cypressData: {
+      correctAnswer: string | Array<number> | number;
+    };
   }
 }
