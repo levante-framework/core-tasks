@@ -40,9 +40,11 @@ type ParsedRowType = {
   assessment_stage: string;
   chance_level: string;
   item_id: string;
+  item_uid: string;
   response_alternatives: string;
   audio_file: string;
   randomize?: string;
+  trial_num: number;
 };
 
 export const sdsPhaseCount = {
@@ -108,6 +110,7 @@ const transformCSV = (
       assessmentStage: row.assessment_stage,
       chanceLevel: _toNumber(row.chance_level),
       itemId: row.item_id,
+      itemUid: row.item_uid,
       distractors: (() => {
         if (row.task === 'roar-inference') {
           return row.response_alternatives.split(',').map((alt) => alt.replace(/"/g, ''));
@@ -125,6 +128,7 @@ const transformCSV = (
           ? parseFloat(row.d || row.difficulty)
           : NaN,
       randomize: row.randomize as 'yes' | 'no' | 'at_block_level',
+      trialNumber: row.trial_num,
     };
 
     if (row.task === 'Mental Rotation') {

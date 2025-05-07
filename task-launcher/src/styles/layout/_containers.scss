@@ -209,6 +209,7 @@
 .lev-instructions-container {
   text-align: center;
   font-size: 1.3rem;
+  width: 100%;
 
   .lev-title {
     text-align: center;
@@ -225,6 +226,11 @@
 
   .lev-footer {
     margin-top: 1.5rem;
+  }
+
+  img {
+    object-fit: contain;
+    width: 100%;
   }
 }
 

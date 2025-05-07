@@ -30,6 +30,7 @@ export const getLayoutConfig = (
     value: stimulus.prompt,
     displayValue: undefined,
   };
+  defaultConfig.classOverrides.stimulusContainerClassList = ['inference-scroll'];
   defaultConfig.disableButtonsWhenAudioPlaying = true;
   if (!defaultConfig.isInstructionTrial) {
     const mappedDistractors = mapDistractorsToString(distractors);
