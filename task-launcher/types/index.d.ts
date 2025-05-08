@@ -84,6 +84,7 @@ declare global {
     timeLimit: string;
     response_alternatives?: string;
     d?: string;
+    randomize?: 'yes' | 'no' | 'at_block_level';
     trialNumber?: number;
   };
 
