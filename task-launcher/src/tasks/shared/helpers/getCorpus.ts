@@ -43,6 +43,7 @@ type ParsedRowType = {
   item_uid: string;
   response_alternatives: string;
   audio_file: string;
+  randomize?: string;
   trial_num: number;
 };
 
@@ -126,6 +127,7 @@ const transformCSV = (
         taskStore().runCat || row.trial_type === 'instructions' || row.assessment_stage === 'practice_response'
           ? parseFloat(row.d || row.difficulty)
           : NaN,
+      randomize: row.randomize as 'yes' | 'no' | 'at_block_level',
       trialNumber: row.trial_num,
     };
 
