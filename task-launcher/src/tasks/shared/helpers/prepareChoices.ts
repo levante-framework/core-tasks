@@ -32,7 +32,7 @@ export const prepareChoices = (
 
       // use previous choices if they match current choices, otherwise set new choice order
       if (
-        previousChoices !== null && 
+        previousChoices !== null && previousChoices !== undefined && 
         JSON.stringify([...choices].sort()) === JSON.stringify([...previousChoices].sort())
       ) {
         choices = previousChoices;
