@@ -13,12 +13,14 @@ import { jsPsych } from '../../taskSetup';
 import Cypress from 'cypress';
 import { taskStore } from '../../../taskStore';
 import { handleStaggeredButtons } from '../../shared/helpers/staggerButtons';
+import { updateTheta } from '../../shared/helpers';
+import { setNextCatTrial } from '../helpers/setNextCatTrial';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 let incorrectPracticeResponses: string[] = [];
 let startTime: number;
 
-const generateImageChoices = (choices: string[]) => {
+export const generateImageChoices = (choices: string[]) => {
   return choices.map((choice) => {
     const imageUrl = mediaAssets.images[camelize(choice)];
     return `<img src=${imageUrl} alt=${choice} />`;
@@ -29,7 +31,7 @@ function enableBtns(btnElements: HTMLButtonElement[]) {
   btnElements.forEach((btn) => btn.removeAttribute('disabled'));
 }
 
-function handleButtonFeedback(
+export function handleButtonFeedback(
   btn: HTMLButtonElement,
   cards: HTMLButtonElement[],
   isKeyBoardResponse: boolean,
@@ -136,7 +138,7 @@ export const stimulus = (trial?: StimulusType) => {
               stim.trialType === 'something-same-1'
                 ? `
               <div style="visibility: hidden;">
-                <button class='image-medium no-pointer-events'>
+                <button class='image no-pointer-events'>
                   <img 
                     src=${mediaAssets.images[camelize(stim.image[0])]} 
                     alt=${stim.image[0]}
@@ -162,31 +164,30 @@ export const stimulus = (trial?: StimulusType) => {
           </div>`
             : ''
         }
-      </div>`;
+      </div>`
     },
     prompt_above_buttons: true,
     button_choices: () => {
       const stim = trial || taskStore().nextStimulus;
-      if (stim.trialType === 'instructions' || stim.trialType == 'something-same-1') {
+      if (stim.trialType === 'instructions' || stim.trialType == "something-same-1") {
         return ['OK'];
       } else {
+        const randomize = !!stim.answer ? 'yes' : 'no'; 
         // Randomize choices if there is an answer
-        const { choices } = prepareChoices(stim.answer, stim.distractors, !!stim.answer);
+        const { choices } = prepareChoices(stim.answer, stim.distractors, randomize);
         return generateImageChoices(choices);
       }
     },
     button_html: () => {
       const stim = trial || taskStore().nextStimulus;
-      const buttonClass =
-        stim.trialType === 'instructions' || stim.trialType === 'something-same-1' ? 'primary' : 'image-medium';
+      const buttonClass = (stim.trialType === 'instructions') || (stim.trialType === "something-same-1")
+        ? 'primary'
+        : 'image-medium';
       return `<button class="${buttonClass}">%choice%</button>`;
     },
     response_ends_trial: () => {
       const stim = trial || taskStore().nextStimulus;
-      return !(
-        stim.trialType === 'test-dimensions' ||
-        (stim.assessmentStage === 'practice_response' && stim.trialType !== 'something-same-1')
-      );
+      return !(stim.trialType === 'test-dimensions' || (stim.assessmentStage === 'practice_response' && stim.trialType !== "something-same-1")); 
     },
     on_load: () => {
       startTime = performance.now();
@@ -238,18 +239,9 @@ export const stimulus = (trial?: StimulusType) => {
           .map((btnDiv) => btnDiv.firstChild)
           .filter((btn) => !!btn) as HTMLButtonElement[];
 
-        let correctAudio;
-        if (stimulus.itemId === 'sds-something-same-1-test-heavy') {
-          correctAudio = 'sdsFeedbackBothBlue';
-        } else if (stimulus.itemId === 'sds-something-same-2-test-heavy') {
-          correctAudio = 'sdsFeedbackBothLarge';
-        } else {
-          correctAudio = 'feedbackGoodJob';
-        }
-
         practiceBtns.forEach((card, i) =>
           card.addEventListener('click', async (e) => {
-            handleButtonFeedback(card, practiceBtns, false, i, correctAudio);
+            handleButtonFeedback(card, practiceBtns, false, i, 'feedbackGoodJob');
           }),
         );
       }
@@ -258,13 +250,12 @@ export const stimulus = (trial?: StimulusType) => {
       const stim = trial || taskStore().nextStimulus;
       const choices = taskStore().choices;
       const endTime = performance.now();
+      const cat = taskStore().runCat;
 
       PageAudioHandler.stopAndDisconnectNode();
-
       jsPsych.data.addDataToLastTrial({
         audioButtonPresses: PageAudioHandler.replayPresses,
       });
-
       // Always need to write correct key because of firekit.
       // TODO: Discuss with ROAR team to remove this check
       if (stim.assessmentStage !== 'instructions') {
@@ -275,18 +266,14 @@ export const stimulus = (trial?: StimulusType) => {
         } else {
           isCorrect = data.button_response === taskStore().correctResponseIdx;
         }
-
         incorrectPracticeResponses = [];
-
         // update task store
         taskStore('isCorrect', isCorrect);
-
         if (isCorrect === false) {
           taskStore.transact('numIncorrect', (oldVal: number) => oldVal + 1);
         } else {
           taskStore('numIncorrect', 0);
         }
-
         jsPsych.data.addDataToLastTrial({
           // specific to this trial
           item: stim.item,
@@ -296,11 +283,17 @@ export const stimulus = (trial?: StimulusType) => {
           corpusTrialType: stim.trialType,
           response: choices[data.button_response],
           responseLocation: data.button_response,
+          itemUid: stim.itemUid,
         });
+
+        if (taskStore().storeItemId) {
+          jsPsych.data.addDataToLastTrial({
+            itemId: stim.itemId,
+          });
+        }
 
         if (stim.trialType === 'test-dimensions' || stim.assessmentStage === 'practice_response') {
           const calculatedRt = Math.round(endTime - startTime);
-
           jsPsych.data.addDataToLastTrial({
             rt: calculatedRt,
           });
@@ -309,11 +302,30 @@ export const stimulus = (trial?: StimulusType) => {
         if (stim.assessmentStage === 'test_response') {
           taskStore.transact('testTrialCount', (oldVal: number) => oldVal + 1);
         }
-
         // if heavy instructions is true, show data quality screen before ending
         if (taskStore().numIncorrect >= taskStore().maxIncorrect && !taskStore().heavyInstructions) {
           finishExperiment();
         }
+
+        if (stim.trialType !== 'something-same-1' && stim.trialType !== 'instructions') {
+          updateTheta(stim, isCorrect);
+        }
+
+        if (cat && !(stim.assessmentStage === 'practice_response')) {
+          setNextCatTrial(stim);
+        }
+      }
+
+      if (stim.trialType === 'test-dimensions' || stim.assessmentStage === 'practice_response') {
+        const calculatedRt = Math.round(endTime - startTime);
+
+        jsPsych.data.addDataToLastTrial({
+          rt: calculatedRt,
+        });
+      }
+
+      if (stim.assessmentStage === 'test_response') {
+        taskStore.transact('testTrialCount', (oldVal: number) => oldVal + 1);
       }
     },
   };

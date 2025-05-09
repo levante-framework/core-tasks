@@ -1,3 +1,4 @@
+import { taskStore } from '../taskStore';
 import { getCorpus, setSharedConfig, getTranslations } from './shared/helpers';
 import mathTimeline from './math/timeline';
 import matrixTimeline from './matrix-reasoning/timeline';
@@ -6,6 +7,7 @@ import mentalRotationTimeline from './mental-rotation/timeline';
 import heartsAndFlowersTimeline from './hearts-and-flowers/timeline';
 import memoryGameTimeline from './memory-game/timeline';
 import sameDifferentSelectionTimeline from './same-different-selection/timeline';
+import sameDifferentSelectionTimelineCat from './same-different-selection/catTimeline';
 import vocabTimeline from './vocab/timeline';
 import tomTimeline from './theory-of-mind/timeline';
 import introTimeline from './intro/timeline';
@@ -61,7 +63,10 @@ export default {
     setConfig: setSharedConfig,
     getCorpus: getCorpus,
     getTranslations: getTranslations,
-    buildTaskTimeline: sameDifferentSelectionTimeline,
+    buildTaskTimeline: (config: Record<string, any>, mediaAssets: MediaAssetsType) =>
+      taskStore().runCat
+        ? sameDifferentSelectionTimelineCat(config, mediaAssets)
+        : sameDifferentSelectionTimeline(config, mediaAssets),
     variants: {},
   },
   trog: {

@@ -30,10 +30,11 @@ export const getLayoutConfig = (
     value: stimulus.prompt,
     displayValue: undefined,
   };
+  defaultConfig.classOverrides.stimulusContainerClassList = ['inference-scroll'];
   defaultConfig.disableButtonsWhenAudioPlaying = true;
   if (!defaultConfig.isInstructionTrial) {
     const mappedDistractors = mapDistractorsToString(distractors);
-    const prepChoices = prepareChoices(answer.toString(), mappedDistractors, true, trialType);
+    const prepChoices = prepareChoices(answer.toString(), mappedDistractors, 'yes', trialType); 
     defaultConfig.isImageButtonResponse = false;
     defaultConfig.classOverrides.buttonClassList = ['roar-inference-btn'];
     defaultConfig.response = {

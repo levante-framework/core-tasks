@@ -66,11 +66,12 @@ export class TaskLauncher {
   }
 
   async run() {
-    const pageSetup = new InitPageSetup(4000);
     showLevanteLogoLoading();
     const { jsPsych, timeline } = await this.init();
     hideLevanteLogoLoading();
     jsPsych.run(timeline);
+    const translations = taskStore().translations;
+    const pageSetup = new InitPageSetup(4000, translations);
     pageSetup.init();
     await isTaskFinished(() => this.firekit?.run?.completed === true && taskStore().taskComplete);
   }

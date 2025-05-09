@@ -31,7 +31,7 @@ export const getLayoutConfig = (
   defaultConfig.inCorrectTrialConfig.onIncorrectTrial = 'skip';
   if (!defaultConfig.isInstructionTrial) {
     const mappedDistractors = mapDistractorsToString(distractors);
-    const prepChoices = prepareChoices(answer.toString(), mappedDistractors, true, trialType);
+    const prepChoices = prepareChoices(answer.toString(), mappedDistractors, 'yes', trialType); 
     defaultConfig.prompt.enabled = false;
     defaultConfig.isImageButtonResponse = false;
     defaultConfig.classOverrides.buttonClassList = ['secondary'];
@@ -49,7 +49,9 @@ export const getLayoutConfig = (
     }
   } else {
     defaultConfig.classOverrides.buttonClassList = ['primary'];
-    defaultConfig.classOverrides.stimulusContainerClassList = ['lev-row-container'];
+    stimulus.trialType === 'instructions'
+      ? (defaultConfig.classOverrides.stimulusContainerClassList = ['lev-instructions-container'])
+      : (defaultConfig.classOverrides.stimulusContainerClassList = ['lev-row-container']);
   }
 
   const messages = validateLayoutConfig(defaultConfig, mediaAssets, translations, stimulus);
