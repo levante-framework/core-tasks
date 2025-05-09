@@ -29,7 +29,7 @@ export const getLayoutConfig = (
   defaultConfig.inCorrectTrialConfig.onIncorrectTrial = 'skip';
   if (!defaultConfig.isInstructionTrial) {
     const mappedDistractors = mapDistractorsToString(distractors);
-    const prepChoices = prepareChoices(answer.toString(), mappedDistractors, 'yes', trialType); 
+    const prepChoices = prepareChoices(answer.toString(), mappedDistractors, 'yes', trialType);
     defaultConfig.prompt.enabled = false;
     defaultConfig.isImageButtonResponse = false;
     defaultConfig.classOverrides.buttonClassList = ['secondary--wide'];

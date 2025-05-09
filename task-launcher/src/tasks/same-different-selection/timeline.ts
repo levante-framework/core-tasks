@@ -46,7 +46,10 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
       const trialType = taskStore().nextStimulus.trialType;
       const assessmentStage = taskStore().nextStimulus.assessmentStage;
 
-      if ((trialType === 'something-same-2' || trialType.includes('match')) && assessmentStage !== 'practice_response') {
+      if (
+        (trialType === 'something-same-2' || trialType.includes('match')) &&
+        assessmentStage !== 'practice_response'
+      ) {
         return true;
       }
       return false;
@@ -93,19 +96,19 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
 
   // functions to add trials to blocks of each type
   function updateTestDimensions() {
-    timeline.push({...setupStimulus, stimulus: ''});
+    timeline.push({ ...setupStimulus, stimulus: '' });
     timeline.push(stimulusBlock);
   }
 
   function updateSomethingSame() {
-    timeline.push({...setupStimulus, stimulus: ''});
+    timeline.push({ ...setupStimulus, stimulus: '' });
     timeline.push(stimulusBlock);
     timeline.push(buttonNoise);
     timeline.push(dataQualityBlock);
   }
 
   function updateMatching() {
-    timeline.push({...setupStimulus, stimulus: ''});
+    timeline.push({ ...setupStimulus, stimulus: '' });
     timeline.push(afcBlock);
     timeline.push(buttonNoise);
     timeline.push(dataQualityBlock);
@@ -135,14 +138,14 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
 
       timeline.push(somethingSameDemo1);
       timeline.push(somethingSameDemo2);
-      timeline.push(somethingSameDemo3); 
+      timeline.push(somethingSameDemo3);
       currentBlockInstructionPractice.forEach((trial) => {
         timeline.push(ipBlock(trial));
       });
       heavyPractice.forEach((trial) => {
         timeline.push(trial);
       });
-      timeline.push({...practiceTransition, conditional_function: () => true});
+      timeline.push({ ...practiceTransition, conditional_function: () => true });
     } else {
       currentBlockInstructionPractice.forEach((trial) => {
         timeline.push(ipBlock(trial));

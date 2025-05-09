@@ -335,7 +335,7 @@ export const slider = (layoutConfigMap: Record<string, LayoutConfigType>, trial?
       if (taskStore().storeItemId) {
         jsPsych.data.addDataToLastTrial({
           itemId: stimulus.itemId,
-        })
+        });
       }
 
       if (stimulus.assessmentStage === 'test_response') {
