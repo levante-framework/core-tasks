@@ -33,8 +33,9 @@ export const getLayoutConfig = (
     const mappedDistractors = mapDistractorsToString(distractors);
     const prepChoices = prepareChoices(answer.toString(), mappedDistractors, 'yes', trialType); 
     defaultConfig.prompt.enabled = false;
-    defaultConfig.isImageButtonResponse = false;
-    defaultConfig.classOverrides.buttonClassList = ['secondary'];
+    defaultConfig.isImageButtonResponse = (trialType === "Non-symbolic Number Identification");
+    defaultConfig.classOverrides.buttonClassList = 
+      trialType === "Non-symbolic Number Identification" ? ['image-medium'] : ['secondary'];
     defaultConfig.response = {
       target: prepChoices.target,
       displayValues: prepChoices.choices,
