@@ -143,7 +143,7 @@ export const afcMatch = {
           const requiredSelections = stim.requiredSelections;
 
           if (selectedCards.length === requiredSelections) {
-            jsPsych.finishTrial();
+            setTimeout(() => jsPsych.finishTrial(), 500);
           }
         }
         setTimeout(() => enableBtns(responseBtns), 500);
