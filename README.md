@@ -7,6 +7,8 @@ Collating item banks for all tasks [here](https://docs.google.com/spreadsheets/d
 
 For local testing during development:
 
+First, you need to have node.js and npm installed.
+
 ```shell
 # the task-launcher directory contains the task apps
 cd task-launcher

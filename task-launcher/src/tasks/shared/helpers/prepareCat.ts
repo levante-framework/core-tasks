@@ -38,13 +38,16 @@ export function prepareCorpus(corpus: StimulusType[]) {
   const possibleStartItems: StimulusType[] = normedTrials.filter(
     (trial) =>
       trial.trialType !== excludedTrialTypes &&
-      ((taskStore().task == 'egma-math' && trial.block_index == '0') || taskStore().task != 'egma-math') &&
+      ((taskStore().task == 'egma-math' && trial.block_index == '0') || taskStore().task !== 'egma-math') &&
       Number(trial.difficulty) <= maxTrialDifficulty,
   );
   const startItems: StimulusType[] = selectNItems(possibleStartItems, 5);
 
   // put cat portion of corpus into taskStore
-  const catCorpus: StimulusType[] = normedTrials.filter((trial) => !startItems.includes(trial));
+  const catCorpus: StimulusType[] =
+    taskStore().task === 'same-different-selection'
+      ? normedTrials
+      : normedTrials.filter((trial) => !startItems.includes(trial));
 
   corpora = {
     ipHeavy: corpusParts.ipHeavy, // heavy instruction/practice trials
@@ -120,7 +123,7 @@ export function updateTheta(item: StimulusType, correct: boolean) {
       d: 1, // max probability of correct response (default 1)
     };
 
-    if (!Number.isNaN(zeta.b) && item.assessmentStage !== 'practice_response') {
+    if (!Number.isNaN(zeta.b) && zeta.b !== null && item.assessmentStage !== 'practice_response') {
       const answer = correct ? 1 : 0;
       cat.updateAbilityEstimate(zeta, answer);
     }

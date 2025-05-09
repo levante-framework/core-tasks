@@ -329,7 +329,14 @@ export const slider = (layoutConfigMap: Record<string, LayoutConfigType>, trial?
         // slider_start: stimulus.item[1] === 1 ? sliderStart / 100 : sliderStart,
         slider_start: sliderStart,
         audioButtonPresses: PageAudioHandler.replayPresses,
+        itemUid: stimulus.itemUid,
       });
+
+      if (taskStore().storeItemId) {
+        jsPsych.data.addDataToLastTrial({
+          itemId: stimulus.itemId,
+        })
+      }
 
       if (stimulus.assessmentStage === 'test_response') {
         taskStore.transact('testTrialCount', (oldVal: number) => oldVal + 1);
