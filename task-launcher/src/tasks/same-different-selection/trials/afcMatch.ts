@@ -45,17 +45,7 @@ export const afcMatch = {
     };
   },
   stimulus: () => {
-    const stim = taskStore().nextStimulus;
-    let audioFile = stim.audioFile;
-    if (
-      taskStore().heavyInstructions &&
-      stim.assessmentStage !== 'practice_response' &&
-      stim.trialType !== 'instructions'
-    ) {
-      audioFile += '-heavy';
-    }
-
-    return mediaAssets.audio[camelize(audioFile)];
+    return mediaAssets.audio.nullAudio;
   },
   prompt: () => {
     const stimulus = taskStore().nextStimulus;
@@ -114,6 +104,14 @@ export const afcMatch = {
       audioFile += '-heavy';
     }
 
+    const audioConfig: AudioConfigType = {
+      restrictRepetition: {
+        enabled: false, 
+        maxRepetitions: 2,
+      }
+    }
+    PageAudioHandler.playAudio(mediaAssets.audio[camelize(audioFile)], audioConfig); 
+
     const pageStateHandler = new PageStateHandler(audioFile, true);
     setupReplayAudio(pageStateHandler);
     const buttonContainer = document.getElementById('jspsych-audio-multi-response-btngroup') as HTMLDivElement;
@@ -145,7 +143,7 @@ export const afcMatch = {
           const requiredSelections = stim.requiredSelections;
 
           if (selectedCards.length === requiredSelections) {
-            jsPsych.finishTrial();
+            setTimeout(() => jsPsych.finishTrial(), 500);
           }
         }
         setTimeout(() => enableBtns(responseBtns), 500);
@@ -159,6 +157,8 @@ export const afcMatch = {
 
     const endTime = performance.now();
     const calculatedRt = endTime - startTime;
+
+    PageAudioHandler.stopAndDisconnectNode();
 
     // save data
     jsPsych.data.addDataToLastTrial({
