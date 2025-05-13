@@ -26,7 +26,6 @@ export const getLayoutConfig = (
     value: stimItem,
     displayValue: undefined,
   };
-  defaultConfig.inCorrectTrialConfig.onIncorrectTrial = 'skip';
   if (!defaultConfig.isInstructionTrial) {
     const mappedDistractors = mapDistractorsToString(distractors);
     const prepChoices = prepareChoices(answer.toString(), mappedDistractors, 'yes', trialType);
