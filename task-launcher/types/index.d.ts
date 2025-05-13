@@ -104,4 +104,8 @@ declare global {
       correctAnswer: string | Array<number> | number;
     };
   }
+  interface LevanteLogger {
+    capture(name: string, properties?: Record<string, any>): void;
+    error(error: Error | unknown, context?: Record<string, any>): void;
+  }
 }
