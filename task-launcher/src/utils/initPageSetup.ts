@@ -81,7 +81,9 @@ export class InitPageSetup {
 
   onOrientationChange() {
     const { screen } = window;
-    const isPortrait = screen.orientation.type.includes('portrait');
+    const isPortrait = screen.orientation?.type 
+      ? screen.orientation.type.includes('portrait')
+      : screen.availHeight > screen.availWidth; // To support old browsers
     const primaryDimension = isPortrait ? screen.availWidth : screen.availHeight;
     if (primaryDimension < 500) {
       this.showOverlay(this.smallDeviceOverlayDiv);
