@@ -52,7 +52,7 @@ function handleInstructions() {
 
 function pickAnswer() {
   // wait for feedback screen to end
-  cy.get('.haf-stimulus-holder').should('exist');
+  cy.get('.lev-stimulus-container').should('exist');
 
   cy.get('.jspsych-content').then((content) => {
     const stimContainer = content.find('.haf-stimulus-container');

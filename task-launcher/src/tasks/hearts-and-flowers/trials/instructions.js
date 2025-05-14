@@ -121,22 +121,6 @@ function buildInstructionTrial(mascotImage, promptAudioKey, promptText, buttonTe
           ${bottomText ? `<div class="lev-row-container header"><p>${bottomText}</p></div>` : ''}
       </div>
     `,
-    // <div class="haf-stimulus-holder">
-    //     <div class="lev-row-container header">
-    //       <p>${promptText}</p>
-    //     </div>
-    //     <button id="${replayButtonHtmlId}" class="replay">
-    //       ${replayButtonSvg}
-    //     </button>
-    //     <div class='haf-image-container'>
-    //       <img
-    //         id='instruction-graphic'
-    //         src=${mascotImage}
-    //         alt='Instruction graphic'
-    //       />
-    //     </div>
-    //     ${bottomText ? `<div class="lev-row-container header"><p>${bottomText}</p></div>` : ''}
-    //   </div>
     prompt_above_buttons: true,
     keyboard_choices: InputKey.NoKeys,
     button_choices: ['Next'],

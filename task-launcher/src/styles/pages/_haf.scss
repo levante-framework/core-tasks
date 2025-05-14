@@ -50,30 +50,6 @@
   }
 }
 
-.haf-image-container {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 16px;
-  margin-top: 8px;
-
-  img {
-    width: 220px;
-    max-width: 40%;
-  }
-
-  @include respond-to('medium') {
-    img {
-      width: 180px;
-    }
-  }
-
-  @include respond-to('small') {
-    img {
-      width: 120px;
-    }
-  }
-}
-
 .haf-fixation-container {
   border: 3px solid $border-accent;
   border-radius: 32px;
