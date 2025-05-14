@@ -35,3 +35,4 @@ export { setSentryContext } from './setSentryContext';
 export { handleStaggeredButtons } from './staggerButtons';
 export { addPracticeButtonListeners } from './handlePracticeButtons';
 export { getRealTrials } from './getRealTrials';
+export { combineMediaAssets } from './combineMediaAssets';
