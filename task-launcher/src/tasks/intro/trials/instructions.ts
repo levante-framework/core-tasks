@@ -41,21 +41,21 @@ export const instructions = instructionData.map((data) => {
     stimulus: () => {
       const t = taskStore().translations;
       return `
-                <div class="lev-stimulus-container">
-                    <button id="replay-btn-revisited" class="replay">
-                        ${replayButtonSvg}
-                    </button>
-                    <div class="lev-row-container instruction-small">
-                        <p>${t[data.prompt]}</p>
-                    </div>
-                    <div class="lev-stim-content-x-3">
-                        <img
-                            src=${mediaAssets.images[data.image]}
-                            alt='Instruction graphic'
-                        />
-                    </div>
-                </div>
-            `;
+        <div class="lev-stimulus-container">
+            <button id="replay-btn-revisited" class="replay">
+                ${replayButtonSvg}
+            </button>
+            <div class="lev-row-container instruction-small">
+                <p>${t[data.prompt]}</p>
+            </div>
+            <div class="lev-stim-content-x-3">
+                <img
+                  src=${mediaAssets.images[data.image]}
+                  alt='Instruction graphic'
+                />
+            </div>
+        </div>
+      `;
     },
     prompt_above_buttons: true,
     button_choices: ['Next'],
