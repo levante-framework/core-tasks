@@ -106,11 +106,11 @@ export const afcMatch = {
 
     const audioConfig: AudioConfigType = {
       restrictRepetition: {
-        enabled: false, 
+        enabled: false,
         maxRepetitions: 2,
-      }
-    }
-    PageAudioHandler.playAudio(mediaAssets.audio[camelize(audioFile)], audioConfig); 
+      },
+    };
+    PageAudioHandler.playAudio(mediaAssets.audio[camelize(audioFile)], audioConfig);
 
     const pageStateHandler = new PageStateHandler(audioFile, true);
     setupReplayAudio(pageStateHandler);
