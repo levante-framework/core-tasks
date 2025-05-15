@@ -23,7 +23,7 @@ export const initializeCat = () => {
 };
 
 export const jsPsych = initJsPsych({
-  on_data_update: function(data: Record<string, any>) {
+  on_data_update: function (data: Record<string, any>) {
     // Removing stimulus from data to avoid sending large html files to Levante
     const { stimulus, task, ...rest } = data;
     const logger = Logger.getInstance();
