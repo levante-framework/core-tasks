@@ -73,7 +73,6 @@ function pickAnswer() {
         // click the correct button
         cy.get('.secondary--green').eq(getCorrectButtonIdx(src, pos)).click();
       });
-
     }
   });
 
