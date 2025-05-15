@@ -23,7 +23,7 @@ export const getLayoutConfig = (
   const stimItem = convertItemToString(stimulus.item);
   defaultConfig.isPracticeTrial = stimulus.assessmentStage === 'practice_response';
   defaultConfig.isInstructionTrial = stimulus.trialType === 'instructions';
-  defaultConfig.showStimImage = stimulus.trialType === 'instructions' || stimulus.trialType === 'Counting';
+  defaultConfig.showStimImage = stimulus.trialType === 'instructions' || stimulus.trialType.includes('Counting');
   defaultConfig.stimText = {
     value: stimItem,
     displayValue: undefined,
@@ -45,7 +45,7 @@ export const getLayoutConfig = (
       values: prepChoices.originalChoices,
       targetIndex: prepChoices.correctResponseIdx,
     };
-    if (!['Number Identification', 'Number Comparison', 'Counting'].includes(stimulus.trialType)) {
+    if (!['Number Identification', 'Number Comparison', 'Counting', 'Counting AFC'].includes(stimulus.trialType)) {
       defaultConfig.stimText = {
         value: stimItem,
         displayValue: stimulus.trialType === 'Fraction' ? fractionToMathML(stimItem) : stimItem,
