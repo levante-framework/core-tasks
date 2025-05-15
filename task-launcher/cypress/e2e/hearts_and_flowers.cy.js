@@ -20,7 +20,6 @@ describe('test hearts and flowers', () => {
 });
 
 function hafLoop() {
-
   // end if the there are no elements inside jspsych content
   cy.get('.jspsych-content').then((content) => {
     if (content.children().length) {
@@ -31,6 +30,8 @@ function hafLoop() {
       } else {
         pickAnswer();
       }
+      cy.wait(1000); // wait for screen to render
+      hafLoop();
     } else {
       // make sure that the game has progressed through major phases before passing
       assert.isTrue(heart_phase && flower_phase && mixed_test);
@@ -43,10 +44,7 @@ function handleInstructions() {
     const okButton = content.find('.primary');
 
     if (okButton.length) {
-      cy.contains('OK').click().then(() => {
-        cy.wait(2000); // wait for screen to render
-        hafLoop();
-      });
+      cy.contains('OK').click();
 
       final_instructions = mixed_practice;
     }
@@ -73,10 +71,7 @@ function pickAnswer() {
       const stim = cy.get('[alt="heart or flower"]');
       stim.invoke('attr', 'src').then((src) => {
         // click the correct button
-        cy.get('.secondary--green').eq(getCorrectButtonIdx(src, pos)).click().then(() => {
-          cy.wait(2000); // wait for screen to render
-          hafLoop();
-        });
+        cy.get('.secondary--green').eq(getCorrectButtonIdx(src, pos)).click();
       });
 
     }

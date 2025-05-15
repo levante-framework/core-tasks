@@ -8,7 +8,6 @@ import { taskStore } from '../../../taskStore';
 // These are the instruction "trials" they are full screen with no stimulus
 
 export function getHeartInstructions() {
-  console.log('mark://mediaAssets', mediaAssets.images);
   return buildInstructionTrial(
     mediaAssets.images.animalBodySq,
     'heartInstruct1',
