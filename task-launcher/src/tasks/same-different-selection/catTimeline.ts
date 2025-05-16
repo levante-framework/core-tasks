@@ -55,7 +55,10 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
       const trialType = taskStore().nextStimulus.trialType;
       const assessmentStage = taskStore().nextStimulus.assessmentStage;
 
-      if ((trialType === 'something-same-2' || trialType.includes('match')) && assessmentStage !== 'practice_response') {
+      if (
+        (trialType === 'something-same-2' || trialType.includes('match')) &&
+        assessmentStage !== 'practice_response'
+      ) {
         return true;
       }
       return false;

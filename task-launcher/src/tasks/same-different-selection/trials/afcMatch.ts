@@ -45,17 +45,7 @@ export const afcMatch = {
     };
   },
   stimulus: () => {
-    const stim = taskStore().nextStimulus;
-    let audioFile = stim.audioFile;
-    if (
-      taskStore().heavyInstructions &&
-      stim.assessmentStage !== 'practice_response' &&
-      stim.trialType !== 'instructions'
-    ) {
-      audioFile += '-heavy';
-    }
-
-    return mediaAssets.audio[camelize(audioFile)];
+    return mediaAssets.audio.nullAudio;
   },
   prompt: () => {
     const stimulus = taskStore().nextStimulus;
@@ -87,7 +77,7 @@ export const afcMatch = {
     if (stim.assessmentStage === 'instructions') {
       return ['OK'];
     } else {
-      const randomize = !!stim.answser ? 'yes' : 'no'; 
+      const randomize = !!stim.answser ? 'yes' : 'no';
       // Randomize choices if there is an answer
       const { choices } = prepareChoices(stim.answer, stim.distractors, randomize);
       return generateImageChoices(choices);
@@ -113,6 +103,14 @@ export const afcMatch = {
     ) {
       audioFile += '-heavy';
     }
+
+    const audioConfig: AudioConfigType = {
+      restrictRepetition: {
+        enabled: false,
+        maxRepetitions: 2,
+      },
+    };
+    PageAudioHandler.playAudio(mediaAssets.audio[camelize(audioFile)], audioConfig);
 
     const pageStateHandler = new PageStateHandler(audioFile, true);
     setupReplayAudio(pageStateHandler);
@@ -145,7 +143,7 @@ export const afcMatch = {
           const requiredSelections = stim.requiredSelections;
 
           if (selectedCards.length === requiredSelections) {
-            jsPsych.finishTrial();
+            setTimeout(() => jsPsych.finishTrial(), 500);
           }
         }
         setTimeout(() => enableBtns(responseBtns), 500);
@@ -159,6 +157,8 @@ export const afcMatch = {
 
     const endTime = performance.now();
     const calculatedRt = endTime - startTime;
+
+    PageAudioHandler.stopAndDisconnectNode();
 
     // save data
     jsPsych.data.addDataToLastTrial({
@@ -176,7 +176,7 @@ export const afcMatch = {
     if (taskStore().storeItemId) {
       jsPsych.data.addDataToLastTrial({
         itemId: stim.itemId,
-      })
+      });
     }
 
     if (stim.audioFile.split('-')[2] === 'prompt1') {

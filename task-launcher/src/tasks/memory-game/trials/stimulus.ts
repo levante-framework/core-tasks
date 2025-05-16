@@ -118,7 +118,7 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false, rese
       const gridSize = taskStore().gridSize;
 
       // save itemUid for data analysis
-      const itemUid = "mg_" + `${reverse ? "backward_" : "forward_"}` + gridSize + "grid_" + "len" + sequenceLength; 
+      const itemUid = 'mg_' + `${reverse ? 'backward_' : 'forward_'}` + gridSize + 'grid_' + 'len' + sequenceLength;
 
       if (mode === 'input') {
         jsPsych.data.addDataToLastTrial({

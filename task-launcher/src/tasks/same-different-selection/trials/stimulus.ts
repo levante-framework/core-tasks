@@ -164,15 +164,15 @@ export const stimulus = (trial?: StimulusType) => {
           </div>`
             : ''
         }
-      </div>`
+      </div>`;
     },
     prompt_above_buttons: true,
     button_choices: () => {
       const stim = trial || taskStore().nextStimulus;
-      if (stim.trialType === 'instructions' || stim.trialType == "something-same-1") {
+      if (stim.trialType === 'instructions' || stim.trialType == 'something-same-1') {
         return ['OK'];
       } else {
-        const randomize = !!stim.answer ? 'yes' : 'no'; 
+        const randomize = !!stim.answer ? 'yes' : 'no';
         // Randomize choices if there is an answer
         const { choices } = prepareChoices(stim.answer, stim.distractors, randomize);
         return generateImageChoices(choices);
@@ -180,14 +180,16 @@ export const stimulus = (trial?: StimulusType) => {
     },
     button_html: () => {
       const stim = trial || taskStore().nextStimulus;
-      const buttonClass = (stim.trialType === 'instructions') || (stim.trialType === "something-same-1")
-        ? 'primary'
-        : 'image-medium';
+      const buttonClass =
+        stim.trialType === 'instructions' || stim.trialType === 'something-same-1' ? 'primary' : 'image-medium';
       return `<button class="${buttonClass}">%choice%</button>`;
     },
     response_ends_trial: () => {
       const stim = trial || taskStore().nextStimulus;
-      return !(stim.trialType === 'test-dimensions' || (stim.assessmentStage === 'practice_response' && stim.trialType !== "something-same-1")); 
+      return !(
+        stim.trialType === 'test-dimensions' ||
+        (stim.assessmentStage === 'practice_response' && stim.trialType !== 'something-same-1')
+      );
     },
     on_load: () => {
       startTime = performance.now();

@@ -8,8 +8,9 @@ export const prepareChoices = (
   randomize: 'yes' | 'no' | 'at_block_level' | undefined,
   trialType?: string,
 ) => {
-  let choices: string[]; 
-  if (!target || distractors.includes(target)) { // If target is not present, don't add to options
+  let choices: string[];
+  if (!target || distractors.includes(target)) {
+    // If target is not present, don't add to options
     choices = [...distractors];
   } else {
     choices = [target, ...distractors]; // add target to options
@@ -17,34 +18,35 @@ export const prepareChoices = (
 
   // set order for yes/no options - yes should always be first
   if (JSON.stringify([...choices].sort()) === JSON.stringify(['yes', 'no'].sort())) {
-    choices = ['yes','no'];
+    choices = ['yes', 'no'];
   }
 
   // apply required randomization
   switch (randomize) {
     case 'yes':
-      choices = _shuffle(choices); 
-      break; 
-    case 'no': 
-      break; 
+      choices = _shuffle(choices);
+      break;
+    case 'no':
+      break;
     case 'at_block_level':
-      const previousChoices = taskStore().previousChoices; 
+      const previousChoices = taskStore().previousChoices;
 
       // use previous choices if they match current choices, otherwise set new choice order
       if (
-        previousChoices !== null && previousChoices !== undefined && 
+        previousChoices !== null &&
+        previousChoices !== undefined &&
         JSON.stringify([...choices].sort()) === JSON.stringify([...previousChoices].sort())
       ) {
         choices = previousChoices;
       } else {
-        choices = _shuffle(choices); 
+        choices = _shuffle(choices);
         taskStore('previousChoices', choices);
       }
-     
+
       break;
     default:
       // randomize by default
-      choices = _shuffle(choices); 
+      choices = _shuffle(choices);
       break;
   }
 
