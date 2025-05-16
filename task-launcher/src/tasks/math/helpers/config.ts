@@ -38,7 +38,7 @@ export const getLayoutConfig = (
     defaultConfig.isImageButtonResponse = (trialType === "Non-symbolic Number Identification");
     defaultConfig.classOverrides.buttonClassList = 
       trialType === "Non-symbolic Number Identification" ? ['image-medium'] : 
-      (trialType === "Counting" ? ['primary'] : ['secondary']); 
+      (trialType === "Counting" ? [] : ['secondary']); 
     defaultConfig.response = {
       target: prepChoices.target,
       displayValues: prepChoices.choices,
