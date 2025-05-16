@@ -282,6 +282,11 @@ export const slider = (layoutConfigMap: Record<string, LayoutConfigType>, trial?
         // overlay response buttons on top of slider
         responseChoices.forEach((choice: any, i: number) => {
           const sliderButton = document.createElement('button');
+
+          if (stim.assessmentStage === 'practice_response') {
+            sliderButton.classList.add('practice-btn');
+          }
+
           sliderButton.classList.add('slider'); 
           sliderButton.style.position = 'absolute'; 
           sliderButton.style.top = '-12px';
