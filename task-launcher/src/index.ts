@@ -10,17 +10,19 @@ import taskConfig from './tasks/taskConfig';
 import { RoarAppkit } from '@bdelab/roar-firekit';
 import { setTaskStore } from './taskStore';
 import { taskStore } from './taskStore';
-import { InitPageSetup } from './utils';
+import { InitPageSetup, Logger } from './utils';
 
 export let mediaAssets: MediaAssetsType;
 export class TaskLauncher {
   gameParams: GameParamsType;
   userParams: UserParamsType;
   firekit: RoarAppkit;
-  constructor(firekit: RoarAppkit, gameParams: GameParamsType, userParams: UserParamsType) {
+  logger?: LevanteLogger;
+  constructor(firekit: RoarAppkit, gameParams: GameParamsType, userParams: UserParamsType, logger?: LevanteLogger) {
     this.gameParams = gameParams;
     this.userParams = userParams;
     this.firekit = firekit;
+    Logger.setInstance(logger, gameParams, userParams);
   }
 
   async init() {
