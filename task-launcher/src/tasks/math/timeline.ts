@@ -61,13 +61,12 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
 
   const { runCat, heavyInstructions } = taskStore();
 
-  if (heavyInstructions) {
-    corpus = corpus.filter(trial => {
-      return trial.block_index === "0";
-    })
+  // block 4 is only for younger kids
+  corpus = corpus.filter(trial => {
+    return heavyInstructions ? trial.block_index === "3" : trial.block_index !== "3";
+  });
 
-    taskStore('totalTrials', corpus.length);
-  }
+  taskStore('totalTrials', corpus.length);
 
   const layoutConfigMap: Record<string, LayoutConfigType> = {};
   let i = 0;
