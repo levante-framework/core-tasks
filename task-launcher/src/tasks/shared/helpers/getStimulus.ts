@@ -30,8 +30,7 @@ export const getStimulus = (corpusType: string, blockNumber?: number) => {
   taskStore('nextStimulus', itemSuggestion.nextStimulus);
 
   if (
-    itemSuggestion.nextStimulus.assessmentStage === 'practice_response' ||
-    itemSuggestion.nextStimulus.trialType === 'instructions'
+    itemSuggestion.nextStimulus.assessmentStage === 'practice_response'
   ) {
     taskStore('testPhase', false);
   }
