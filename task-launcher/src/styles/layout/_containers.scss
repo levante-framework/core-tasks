@@ -55,8 +55,6 @@
     background-color: $bg-bubble-base;
     width: calc(100vw - 2 * ($replay_btn_size + $replay_btn_pos + $lev-spacing-s));
     max-width: max-content;
-    margin-left: auto;
-    margin-right: auto;
 
     p {
       font-size: $font-size-xs-em;
