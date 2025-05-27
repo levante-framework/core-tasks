@@ -1,0 +1,54 @@
+name: Create Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Select the tag to create a release for'
+        required: true
+        type: string
+      additional_notes:
+        description: 'Additional release notes (optional)'
+        required: false
+        type: string
+        default: ''
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: List available tags
+        run: |
+          echo "Available tags:"
+          git tag --sort=-v:refname | head -n 10
+
+      - name: Generate changelog
+        id: generate_changelog
+        run: |
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 ${{ github.event.inputs.tag }}^ 2>/dev/null || echo "")
+          if [ -z "$PREVIOUS_TAG" ]; then
+            CHANGELOG=$(git log --pretty=format:"* %s (%h)" ${{ github.event.inputs.tag }})
+          else
+            CHANGELOG=$(git log --pretty=format:"* %s (%h)" $PREVIOUS_TAG..${{ github.event.inputs.tag }})
+          fi
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.event.inputs.tag }}
+          name: ${{ github.event.inputs.tag }}
+          body: |
+            ${{ github.event.inputs.additional_notes }}
+
+            ## Changeset
+            ${{ steps.generate_changelog.outputs.changelog }}
+          draft: false
+          prerelease: false 
