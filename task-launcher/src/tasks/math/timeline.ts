@@ -62,8 +62,8 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
   const { runCat, heavyInstructions } = taskStore();
 
   // block 4 is only for younger kids
-  corpus = corpus.filter(trial => {
-    return heavyInstructions ? trial.block_index === "3" : trial.block_index !== "3";
+  corpus = corpus.filter((trial) => {
+    return heavyInstructions ? trial.block_index === '3' : trial.block_index !== '3';
   });
 
   taskStore('totalTrials', corpus.length);
