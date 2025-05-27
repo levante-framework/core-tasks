@@ -31,14 +31,18 @@ export const getLayoutConfig = (
   defaultConfig.inCorrectTrialConfig.onIncorrectTrial = 'skip';
   if (!defaultConfig.isInstructionTrial) {
     const mappedDistractors = mapDistractorsToString(distractors);
-    const prepChoices = trialType === "Counting" ? 
-      prepareChoices(answer.toString(), mappedDistractors, 'no', trialType) :
-      prepareChoices(answer.toString(), mappedDistractors, 'yes', trialType); 
+    const prepChoices =
+      trialType === 'Counting'
+        ? prepareChoices(answer.toString(), mappedDistractors, 'no', trialType)
+        : prepareChoices(answer.toString(), mappedDistractors, 'yes', trialType);
     defaultConfig.prompt.enabled = false;
-    defaultConfig.isImageButtonResponse = (trialType === "Non-symbolic Number Identification");
-    defaultConfig.classOverrides.buttonClassList = 
-      trialType === "Non-symbolic Number Identification" ? ['image-medium'] : 
-      (trialType === "Counting" ? [] : ['secondary']); 
+    defaultConfig.isImageButtonResponse = trialType === 'Non-symbolic Number Identification';
+    defaultConfig.classOverrides.buttonClassList =
+      trialType === 'Non-symbolic Number Identification'
+        ? ['image-medium']
+        : trialType === 'Counting'
+        ? []
+        : ['secondary'];
     defaultConfig.response = {
       target: prepChoices.target,
       displayValues: prepChoices.choices,
