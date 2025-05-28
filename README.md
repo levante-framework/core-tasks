@@ -2,6 +2,7 @@ Overview of the core behavioral tasks for LEVANTE. This repo contains details an
 
 Collating item banks for all tasks [here](https://docs.google.com/spreadsheets/d/1MlU4eOd45XVMg7HrnTDGZ3rv1cfNjvjpdc8e_edQqQk/edit?usp=sharing). 
 
+Please note that LEVANTE core tasks are licensed CC-BY-NC-4.0 for non-commercial use with attribution. 
 
 ## Running Locally
 
