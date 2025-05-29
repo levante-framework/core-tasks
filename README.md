@@ -1,8 +1,10 @@
-Overview of the core behavioral tasks for LEVANTE. This repo contains details and implementations (*under construction*) for each of these tasks, as well as the reasoning behind adaptations we make in order to shorten or adjust the difficulty to avoid ceiling/floor effects.
+# core-tasks
 
-Collating item banks for all tasks [here](https://docs.google.com/spreadsheets/d/1MlU4eOd45XVMg7HrnTDGZ3rv1cfNjvjpdc8e_edQqQk/edit?usp=sharing). 
+Core behavioral tasks for LEVANTE. This repo contains details and implementations (*under construction*) for each of these tasks.
 
-Please note that LEVANTE core tasks are licensed CC-BY-NC-4.0 for non-commercial use with attribution. 
+Item banks for all tasks are currently [here](https://docs.google.com/spreadsheets/d/1MlU4eOd45XVMg7HrnTDGZ3rv1cfNjvjpdc8e_edQqQk/edit?usp=sharing). 
+
+Please note that LEVANTE core tasks (including item banks) are licensed CC-BY-NC-4.0 for non-commercial use with attribution. LEVANTE also deploys ROAR tasks (including single word recognition, sentence reading efficiency, and phoneme recognition). These tasks have more restrictive licenses that should be assessed separately. 
 
 ## Running Locally
 
