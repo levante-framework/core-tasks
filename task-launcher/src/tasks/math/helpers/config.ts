@@ -36,9 +36,10 @@ export const getLayoutConfig = (
         ? prepareChoices(answer.toString(), mappedDistractors, 'no', trialType)
         : prepareChoices(answer.toString(), mappedDistractors, 'yes', trialType);
     defaultConfig.prompt.enabled = false;
-    defaultConfig.isImageButtonResponse = trialType === 'Non-symbolic Number Identification';
+    defaultConfig.isImageButtonResponse = 
+      trialType === 'Non-symbolic Number Identification' || trialType === 'Non-symbolic Number Comparison';
     defaultConfig.classOverrides.buttonClassList =
-      trialType === 'Non-symbolic Number Identification'
+      trialType === 'Non-symbolic Number Identification' || trialType === 'Non-symbolic Number Comparison'
         ? ['image-medium']
         : trialType === 'Counting'
         ? []
