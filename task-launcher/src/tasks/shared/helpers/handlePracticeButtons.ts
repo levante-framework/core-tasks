@@ -11,11 +11,15 @@ export function addPracticeButtonListeners(stim: StimulusType, isTouchScreen: bo
   const practiceBtns: NodeListOf<HTMLButtonElement> = document.querySelectorAll('.practice-btn');
   let keyboardFeedbackHandler: (ev: KeyboardEvent) => void;
 
-  practiceBtns.forEach((btn, i) =>
-    btn.addEventListener('click', async (e) => {
-      handlePracticeButtonPress(btn, stim, practiceBtns, false, i, itemConfig);
-    }),
-  );
+  practiceBtns.forEach((btn, i) => {
+    isTouchScreen ? 
+      btn.addEventListener('touchend', async (e) => {
+        handlePracticeButtonPress(btn, stim, practiceBtns, false, i, itemConfig);
+      }) :
+      btn.addEventListener('click', async (e) => {
+        handlePracticeButtonPress(btn, stim, practiceBtns, false, i, itemConfig);
+      })
+  });
 
   if (!isTouchScreen) {
     keyboardFeedbackHandler = (e: KeyboardEvent) => keyboardBtnFeedback(e, practiceBtns, stim, itemConfig);

@@ -9,7 +9,7 @@ import {
   camelize,
 } from '../../shared/helpers';
 import { finishExperiment } from '../../shared/trials';
-import { jsPsych } from '../../taskSetup';
+import { isTouchScreen, jsPsych } from '../../taskSetup';
 import Cypress from 'cypress';
 import { taskStore } from '../../../taskStore';
 import { handleStaggeredButtons } from '../../shared/helpers/staggerButtons';
@@ -241,11 +241,15 @@ export const stimulus = (trial?: StimulusType) => {
           .map((btnDiv) => btnDiv.firstChild)
           .filter((btn) => !!btn) as HTMLButtonElement[];
 
-        practiceBtns.forEach((card, i) =>
-          card.addEventListener('click', async (e) => {
-            handleButtonFeedback(card, practiceBtns, false, i, 'feedbackGoodJob');
-          }),
-        );
+        practiceBtns.forEach((card, i) => {
+          isTouchScreen ?
+            card.addEventListener('touchend', async (e) => {
+              handleButtonFeedback(card, practiceBtns, false, i, 'feedbackGoodJob');
+            }) :
+            card.addEventListener('click', async (e) => {
+              handleButtonFeedback(card, practiceBtns, false, i, 'feedbackGoodJob'); 
+            }); 
+        });
       }
     },
     on_finish: (data: any) => {
