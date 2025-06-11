@@ -496,6 +496,7 @@ export const heavyPractice = practiceData.map((data) => {
           response: choices[data.button_response],
           responseLocation: data.button_response,
           rt: calculatedRt,
+          audioFile: data.audioFile,
         });
       }
     },

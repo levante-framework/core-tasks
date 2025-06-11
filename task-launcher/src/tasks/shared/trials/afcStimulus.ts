@@ -372,6 +372,7 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
       responseType,
       responseLocation: responseIndex,
       itemUid: stimulus.itemUid,
+      audioFile: stimulus.audioFile,
     });
 
     // corpusId and itemId fields are used by ROAR but not ROAD
