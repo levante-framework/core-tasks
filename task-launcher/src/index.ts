@@ -71,6 +71,13 @@ export class TaskLauncher {
     showLevanteLogoLoading();
     const { jsPsych, timeline } = await this.init();
     hideLevanteLogoLoading();
+    const logger = Logger.getInstance();
+    logger.capture('Task Launched', {
+      taskName: this.gameParams.taskName,
+      language: this.gameParams.language,
+      gameParams: this.gameParams,
+      userParams: this.userParams,
+    });
     jsPsych.run(timeline);
     const translations = taskStore().translations;
     const pageSetup = new InitPageSetup(4000, translations);
