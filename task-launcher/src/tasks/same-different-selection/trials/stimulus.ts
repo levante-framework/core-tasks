@@ -242,13 +242,11 @@ export const stimulus = (trial?: StimulusType) => {
           .filter((btn) => !!btn) as HTMLButtonElement[];
 
         practiceBtns.forEach((card, i) => {
-          isTouchScreen ?
-            card.addEventListener('touchend', async (e) => {
+          const eventType = isTouchScreen ? 'touchend' : 'click';
+         
+          card.addEventListener(eventType, (e) => {
               handleButtonFeedback(card, practiceBtns, false, i, 'feedbackGoodJob');
-            }) :
-            card.addEventListener('click', async (e) => {
-              handleButtonFeedback(card, practiceBtns, false, i, 'feedbackGoodJob'); 
-            }); 
+          }); 
         });
       }
     },
