@@ -377,6 +377,7 @@ export const slider = (layoutConfigMap: Record<string, LayoutConfigType>, trial?
         slider_start: sliderStart,
         audioButtonPresses: PageAudioHandler.replayPresses,
         itemUid: stimulus.itemUid,
+        audioFile: stimulus.audioFile,
       });
 
       if (taskStore().storeItemId) {

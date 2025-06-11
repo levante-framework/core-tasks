@@ -171,6 +171,7 @@ export const afcMatch = {
       audioButtonPresses: PageAudioHandler.replayPresses,
       responseLocation: selectedCardIdxs,
       itemUid: stim.itemUid,
+      audioFile: stim.audioFile,
     });
 
     if (taskStore().storeItemId) {
