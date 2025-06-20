@@ -1,4 +1,4 @@
-import { RoarAppkit } from '@bdelab/roar-firekit';
+import { RoarAppkit } from '@levante-framework/firekit';
 
 const roarFirebaseProjects = [
   'gse-yeatmanlab',

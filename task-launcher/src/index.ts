@@ -7,7 +7,7 @@ import {
 } from './tasks/shared/helpers';
 import './styles/index.scss';
 import taskConfig from './tasks/taskConfig';
-import { RoarAppkit } from '@bdelab/roar-firekit';
+import { RoarAppkit } from '@levante-framework/firekit';
 import { setTaskStore } from './taskStore';
 import { taskStore } from './taskStore';
 import { InitPageSetup, Logger } from './utils';
@@ -50,7 +50,7 @@ export class TaskLauncher {
 
     // TODO: make hearts and flowers corpus? make list of tasks that don't need corpora?
     if (taskName !== 'hearts-and-flowers' && taskName !== 'memory-game' && taskName !== 'intro') {
-      await getCorpus(config);
+      await getCorpus(config, isDev);
     }
 
     await getTranslations(config.language);
