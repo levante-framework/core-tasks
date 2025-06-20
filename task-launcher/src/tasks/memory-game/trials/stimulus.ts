@@ -184,6 +184,7 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false, rese
         }
       } else {
         jsPsych.data.addDataToLastTrial({
+          correct: false, // default to false for display trials. Firekit requires this field to be non null.
           audioFile: 'memory-game-display',
         });
       }
