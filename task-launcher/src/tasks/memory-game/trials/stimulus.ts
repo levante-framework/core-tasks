@@ -181,6 +181,10 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false, rese
 
           taskStore.transact('testTrialCount', (oldVal: number) => oldVal + 1);
         }
+      } else {
+        jsPsych.data.addDataToLastTrial({
+          correct: false, // default to false for display trials. Firekit requires this field to be non null.
+        });
       }
     },
   };
