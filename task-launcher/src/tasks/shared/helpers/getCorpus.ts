@@ -11,6 +11,7 @@ import { camelize } from './camelize';
 import { shuffleStimulusTrials } from './randomizeStimulusBlocks';
 import { shuffleStories } from '../../roar-inference/helpers/shuffleRoarInferenceStories';
 import { taskStore } from '../../../taskStore';
+import { getBucketName } from './getBucketName';
 
 type ParsedRowType = {
   source: string;
@@ -196,20 +197,12 @@ const transformCSV = (
   }
 };
 
-export const getCorpus = async (config: Record<string, any>) => {
+export const getCorpus = async (config: Record<string, any>, isDev: boolean) => {
   const { corpus, task, sequentialStimulus, numOfPracticeTrials } = config;
 
-  const corpusLocation = {
-    egmaMath: `https://storage.googleapis.com/${task}/shared/corpora/${corpus}.csv`,
-    matrixReasoning: `https://storage.googleapis.com/${task}/shared/corpora/${corpus}.csv`,
-    mentalRotation: `https://storage.googleapis.com/${task}/shared/corpora/${corpus}.csv`,
-    sameDifferentSelection: `https://storage.googleapis.com/${task}/shared/corpora/${corpus}.csv`,
-    trog: `https://storage.googleapis.com/${task}/shared/corpora/${corpus}.csv`,
-    theoryOfMind: `https://storage.googleapis.com/${task}/shared/corpora/${corpus}.csv`,
-    vocab: `https://storage.googleapis.com/vocab-test/shared/corpora/${corpus}.csv`,
-    roarInference: `https://storage.googleapis.com/roar-inference/en/corpora/${corpus}.csv`,
-    adultReasoning: `https://storage.googleapis.com/egma-math/shared/corpora/${corpus}.csv`,
-  };
+  const bucketName = getBucketName(task, isDev);
+
+  const corpusUrl = `https://storage.googleapis.com/${bucketName}/shared/corpora/${corpus}.csv?alt=media`;
 
   function downloadCSV(url: string) {
     return new Promise((resolve, reject) => {
@@ -234,7 +227,7 @@ export const getCorpus = async (config: Record<string, any>) => {
   }
 
   async function fetchData() {
-    const urls = [corpusLocation[dashToCamelCase(task) as keyof typeof corpusLocation]];
+    const urls = [corpusUrl];
 
     try {
       await parseCSVs(urls);
