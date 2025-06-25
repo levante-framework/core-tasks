@@ -2,6 +2,7 @@ import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-respons
 import { PageAudioHandler } from '../helpers';
 import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
+import { Logger } from '../../../utils';
 
 function endTask() {
   taskStore('taskComplete', true);
@@ -39,6 +40,11 @@ export const taskFinished = (endMessage = 'taskFinished') => {
       if (mediaAssets.audio[endMessage]) {
         PageAudioHandler.playAudio(mediaAssets.audio[endMessage]);
       }
+      const logger = Logger.getInstance();
+      logger.capture('Task Finished', {
+        taskName: taskStore().task,
+        taskFinished: taskStore().taskComplete,
+      });
     },
     // trial_duration: 1000,
   };
