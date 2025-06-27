@@ -20,12 +20,17 @@ describe('test hearts and flowers', () => {
 });
 
 function hafLoop() {
-  pickAnswer();
-  handleInstructions();
-
   // end if the there are no elements inside jspsych content
   cy.get('.jspsych-content').then((content) => {
     if (content.children().length) {
+      const okButton = content.find('.primary');
+      // Make the decision here to handle instructions or pick an answer
+      if (okButton.length) {
+        handleInstructions();
+      } else {
+        pickAnswer();
+      }
+      cy.wait(1000); // wait for screen to render
       hafLoop();
     } else {
       // make sure that the game has progressed through major phases before passing
@@ -42,8 +47,6 @@ function handleInstructions() {
       cy.contains('OK').click();
 
       final_instructions = mixed_practice;
-
-      handleInstructions();
     }
   });
 
@@ -70,8 +73,6 @@ function pickAnswer() {
         // click the correct button
         cy.get('.secondary--green').eq(getCorrectButtonIdx(src, pos)).click();
       });
-
-      pickAnswer();
     }
   });
 

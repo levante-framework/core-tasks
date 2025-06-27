@@ -1,15 +1,15 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
-import { 
-  PageStateHandler, 
-  replayButtonSvg, 
-  setupReplayAudio, 
-  PageAudioHandler, 
-  camelize, 
-  handleStaggeredButtons, 
+import {
+  PageStateHandler,
+  replayButtonSvg,
+  setupReplayAudio,
+  PageAudioHandler,
+  camelize,
+  handleStaggeredButtons,
   prepareChoices,
 } from '../../shared/helpers';
-import { generateImageChoices, handleButtonFeedback } from '../trials/stimulus'
+import { generateImageChoices, handleButtonFeedback } from '../trials/stimulus';
 import { jsPsych } from '../../taskSetup';
 import { taskStore } from '../../../taskStore';
 
@@ -286,52 +286,52 @@ export const somethingSameDemo3 = videoInstructions.pop();
 
 const practiceData = [
   {
-    audioFile: 'sameDifferentSelectionBothTrianglesHeavy', 
-    trialType: 'something-same-1', 
-    image: ['sm-blue-triangle', 'med-red-triangle'], 
-    answer: '', 
+    audioFile: 'sameDifferentSelectionBothTrianglesHeavy',
+    trialType: 'something-same-1',
+    image: ['sm-blue-triangle', 'med-red-triangle'],
+    answer: '',
     distractors: [],
     itemUid: 'sds-something-same-1-instr-heavy',
     itemId: 'sds-something-same-1-instr-heavy',
     correctAudio: '',
-  }, 
+  },
   {
-    audioFile: 'sdsPrompt3Heavy', 
-    trialType: 'something-same-2', 
-    image: ['lg-blue-circle'], 
-    answer: 'sm-blue-triangle', 
+    audioFile: 'sdsPrompt3Heavy',
+    trialType: 'something-same-2',
+    image: ['lg-blue-circle'],
+    answer: 'sm-blue-triangle',
     distractors: ['sm-blue-triangle', 'med-red-triangle'],
     itemUid: 'sds_same_',
     itemId: 'sds-something-same-1-test-heavy',
     correctAudio: 'sdsFeedbackBothBlue',
-  }, 
+  },
   {
-    audioFile: 'sameDifferentSelectionBothRedHeavy', 
-    trialType: 'something-same-1',  
-    image: ['lg-red-square', 'sm-red-triangle'], 
-    answer: '', 
+    audioFile: 'sameDifferentSelectionBothRedHeavy',
+    trialType: 'something-same-1',
+    image: ['lg-red-square', 'sm-red-triangle'],
+    answer: '',
     distractors: [],
     itemUid: 'sds-something-same-2-instr-heavy',
     itemId: 'sds-something-same-2-instr-heavy',
     correctAudio: '',
-  }, 
+  },
   {
-    audioFile: 'sdsPrompt3Heavy', 
-    trialType: 'something-same-2',  
-    image: 'lg-yellow-circle', 
-    answer: 'lg-red-square', 
+    audioFile: 'sdsPrompt3Heavy',
+    trialType: 'something-same-2',
+    image: 'lg-yellow-circle',
+    answer: 'lg-red-square',
     distractors: ['lg-red-square', 'sm-red-triangle'],
     itemUid: 'sds_same_',
-    correctAudio: 'sdsFeedbackBothLarge'
-  }
-]
+    correctAudio: 'sdsFeedbackBothLarge',
+  },
+];
 
-let startTime: number; 
+let startTime: number;
 let incorrectPracticeResponses = [];
 
 export const heavyPractice = practiceData.map((data) => {
   return {
-    type: jsPsychHtmlMultiResponse, 
+    type: jsPsychHtmlMultiResponse,
     data: () => {
       return {
         save_trial: data.trialType === 'something-same-1',
@@ -341,7 +341,7 @@ export const heavyPractice = practiceData.map((data) => {
       };
     },
     stimulus: () => {
-      let prompt = data.audioFile; 
+      let prompt = data.audioFile;
 
       const t = taskStore().translations;
       return `<div class="lev-stimulus-container">
@@ -407,8 +407,9 @@ export const heavyPractice = practiceData.map((data) => {
       if (data.trialType === 'instructions' || data.trialType == 'something-same-1') {
         return ['OK'];
       } else {
+        const randomize = !!data.answer ? 'yes' : 'no';
         // Randomize choices if there is an answer
-        const { choices } = prepareChoices(data.answer, data.distractors, !!data.answer);
+        const { choices } = prepareChoices(data.answer, data.distractors, randomize);
         return generateImageChoices(choices);
       }
     },
@@ -418,10 +419,7 @@ export const heavyPractice = practiceData.map((data) => {
       return `<button class="${buttonClass}">%choice%</button>`;
     },
     response_ends_trial: () => {
-      return !(
-        data.trialType === 'test-dimensions' ||
-        (data.trialType !== 'something-same-1')
-      );
+      return !(data.trialType === 'test-dimensions' || data.trialType !== 'something-same-1');
     },
     on_load: () => {
       startTime = performance.now();
@@ -455,9 +453,7 @@ export const heavyPractice = practiceData.map((data) => {
         ]);
       }
 
-      if (
-        (trialType === 'something-same-2')
-      ) {
+      if (trialType === 'something-same-2') {
         // cards should give feedback during test dimensions block
         const practiceBtns = Array.from(buttonContainer.children)
           .map((btnDiv) => btnDiv.firstChild)
@@ -500,8 +496,9 @@ export const heavyPractice = practiceData.map((data) => {
           response: choices[data.button_response],
           responseLocation: data.button_response,
           rt: calculatedRt,
+          audioFile: data.audioFile,
         });
       }
     },
-  }
-})
+  };
+});

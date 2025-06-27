@@ -19,7 +19,7 @@ function skipBlock() {
 }
 
 export const setSkipCurrentBlock = (skipTrialType: string) => {
-  if (!!store.page.get('failedPrimaryTrials') && taskStore().numIncorrect >= 1) {
+  if (!!store.page.get('failedPrimaryTrials') && taskStore().numIncorrect >= 1 && !taskStore().heavyInstructions) {
     taskStore('numIncorrect', 0);
     store.page.set('skipCurrentBlock', skipTrialType);
     skipBlock();
