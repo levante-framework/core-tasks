@@ -4,6 +4,7 @@ import {
   dashToCamelCase,
   showLevanteLogoLoading,
   hideLevanteLogoLoading,
+  combineMediaAssets
 } from './tasks/shared/helpers';
 import './styles/index.scss';
 import taskConfig from './tasks/taskConfig';
@@ -14,6 +15,8 @@ import { InitPageSetup, Logger } from './utils';
 import { getBucketName } from './tasks/shared/helpers/getBucketName';
 
 export let mediaAssets: MediaAssetsType;
+let sharedMediaAssets: MediaAssetsType;
+
 export class TaskLauncher {
   gameParams: GameParamsType;
   userParams: UserParamsType;
@@ -36,14 +39,18 @@ export class TaskLauncher {
 
     const isDev = this.firekit.firebaseProject?.firebaseApp?.options?.projectId === 'hs-levante-admin-dev';
     const bucketName = getBucketName(taskName, isDev);
+    const sharedBucketName = getBucketName('shared', isDev);
 
     try {
       // will avoid language folder if not provided
       mediaAssets = await getMediaAssets(bucketName, {}, language);
+      sharedMediaAssets = await getMediaAssets(sharedBucketName, {}, language); 
     } catch (error) {
       throw new Error('Error fetching media assets: ' + error);
     }
 
+    mediaAssets = combineMediaAssets(mediaAssets, sharedMediaAssets);
+    
     const config = await setConfig(this.firekit, this.gameParams, this.userParams);
 
     setTaskStore(config);
