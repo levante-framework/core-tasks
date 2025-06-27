@@ -8,10 +8,11 @@ import {
 } from './tasks/shared/helpers';
 import './styles/index.scss';
 import taskConfig from './tasks/taskConfig';
-import { RoarAppkit } from '@bdelab/roar-firekit';
+import { RoarAppkit } from '@levante-framework/firekit';
 import { setTaskStore } from './taskStore';
 import { taskStore } from './taskStore';
-import { InitPageSetup } from './utils';
+import { InitPageSetup, Logger } from './utils';
+import { getBucketName } from './tasks/shared/helpers/getBucketName';
 
 export let mediaAssets: MediaAssetsType;
 let sharedMediaAssets: MediaAssetsType;
@@ -20,10 +21,12 @@ export class TaskLauncher {
   gameParams: GameParamsType;
   userParams: UserParamsType;
   firekit: RoarAppkit;
-  constructor(firekit: RoarAppkit, gameParams: GameParamsType, userParams: UserParamsType) {
+  logger?: LevanteLogger;
+  constructor(firekit: RoarAppkit, gameParams: GameParamsType, userParams: UserParamsType, logger?: LevanteLogger) {
     this.gameParams = gameParams;
     this.userParams = userParams;
     this.firekit = firekit;
+    Logger.setInstance(logger, gameParams, userParams);
   }
 
   async init() {
@@ -34,24 +37,14 @@ export class TaskLauncher {
     const { setConfig, getCorpus, buildTaskTimeline, getTranslations } =
       taskConfig[dashToCamelCase(taskName) as keyof typeof taskConfig];
 
-    // GCP bucket names use a format like egma-math
-    // will avoid language folder if not provided
-    try {
-      if (taskName === 'intro') {
-        mediaAssets = await getMediaAssets('intro-levante', {}, language);
-      } else if (taskName === 'vocab') {
-        mediaAssets = await getMediaAssets('vocab-test', {}, language);
-      } else if (taskName === 'memory-game') {
-        mediaAssets = await getMediaAssets('memory-game-levante', {}, language);
-      } else if (taskName.includes('roar-inference')) {
-        mediaAssets = await getMediaAssets(`roar-inference`, {}, language);
-      } else if (taskName === 'adult-reasoning') {
-        mediaAssets = await getMediaAssets('egma-math', {}, language); // adult reasoning uses the math bucket for assets
-      } else {
-        mediaAssets = await getMediaAssets(taskName, {}, language);
-      }
+    const isDev = this.firekit.firebaseProject?.firebaseApp?.options?.projectId === 'hs-levante-admin-dev';
+    const bucketName = getBucketName(taskName, isDev);
 
-      sharedMediaAssets = await getMediaAssets('tasks-shared', {}, language); 
+    try {
+      // will avoid language folder if not provided
+      mediaAssets = await getMediaAssets(bucketName, {}, language);
+
+      sharedMediaAssets = await getMediaAssets('task-shared', {}, language); 
     } catch (error) {
       throw new Error('Error fetching media assets: ' + error);
     }
@@ -64,7 +57,7 @@ export class TaskLauncher {
 
     // TODO: make hearts and flowers corpus? make list of tasks that don't need corpora?
     if (taskName !== 'hearts-and-flowers' && taskName !== 'memory-game' && taskName !== 'intro') {
-      await getCorpus(config);
+      await getCorpus(config, isDev);
     }
 
     await getTranslations(config.language);
@@ -76,6 +69,13 @@ export class TaskLauncher {
     showLevanteLogoLoading();
     const { jsPsych, timeline } = await this.init();
     hideLevanteLogoLoading();
+    const logger = Logger.getInstance();
+    logger.capture('Task Launched', {
+      taskName: this.gameParams.taskName,
+      language: this.gameParams.language,
+      gameParams: this.gameParams,
+      userParams: this.userParams,
+    });
     jsPsych.run(timeline);
     const translations = taskStore().translations;
     const pageSetup = new InitPageSetup(4000, translations);

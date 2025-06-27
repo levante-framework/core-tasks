@@ -6,7 +6,7 @@ import _toNumber from 'lodash/toNumber';
 import i18next from 'i18next';
 import { isRoarApp } from './isRoarApp';
 import { camelize } from './camelize';
-import { RoarAppkit } from '@bdelab/roar-firekit';
+import { RoarAppkit } from '@levante-framework/firekit';
 import { TaskStoreDataType } from '../../../taskStore';
 import { getAge } from './getAge';
 

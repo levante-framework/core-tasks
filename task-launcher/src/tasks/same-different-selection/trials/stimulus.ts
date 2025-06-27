@@ -9,7 +9,7 @@ import {
   camelize,
 } from '../../shared/helpers';
 import { finishExperiment } from '../../shared/trials';
-import { jsPsych } from '../../taskSetup';
+import { isTouchScreen, jsPsych } from '../../taskSetup';
 import Cypress from 'cypress';
 import { taskStore } from '../../../taskStore';
 import { handleStaggeredButtons } from '../../shared/helpers/staggerButtons';
@@ -172,8 +172,9 @@ export const stimulus = (trial?: StimulusType) => {
       if (stim.trialType === 'instructions' || stim.trialType == 'something-same-1') {
         return ['OK'];
       } else {
+        const randomize = !!stim.answer ? 'yes' : 'no';
         // Randomize choices if there is an answer
-        const { choices } = prepareChoices(stim.answer, stim.distractors, !!stim.answer);
+        const { choices } = prepareChoices(stim.answer, stim.distractors, randomize);
         return generateImageChoices(choices);
       }
     },
@@ -240,11 +241,13 @@ export const stimulus = (trial?: StimulusType) => {
           .map((btnDiv) => btnDiv.firstChild)
           .filter((btn) => !!btn) as HTMLButtonElement[];
 
-        practiceBtns.forEach((card, i) =>
-          card.addEventListener('click', async (e) => {
-            handleButtonFeedback(card, practiceBtns, false, i, 'feedbackGoodJob');
-          }),
-        );
+        practiceBtns.forEach((card, i) => {
+          const eventType = isTouchScreen ? 'touchend' : 'click';
+         
+          card.addEventListener(eventType, (e) => {
+              handleButtonFeedback(card, practiceBtns, false, i, 'feedbackGoodJob');
+          }); 
+        });
       }
     },
     on_finish: (data: any) => {
@@ -254,11 +257,9 @@ export const stimulus = (trial?: StimulusType) => {
       const cat = taskStore().runCat;
 
       PageAudioHandler.stopAndDisconnectNode();
-
       jsPsych.data.addDataToLastTrial({
         audioButtonPresses: PageAudioHandler.replayPresses,
       });
-
       // Always need to write correct key because of firekit.
       // TODO: Discuss with ROAR team to remove this check
       if (stim.assessmentStage !== 'instructions') {
@@ -269,18 +270,14 @@ export const stimulus = (trial?: StimulusType) => {
         } else {
           isCorrect = data.button_response === taskStore().correctResponseIdx;
         }
-
         incorrectPracticeResponses = [];
-
         // update task store
         taskStore('isCorrect', isCorrect);
-
         if (isCorrect === false) {
           taskStore.transact('numIncorrect', (oldVal: number) => oldVal + 1);
         } else {
           taskStore('numIncorrect', 0);
         }
-
         jsPsych.data.addDataToLastTrial({
           // specific to this trial
           item: stim.item,
@@ -291,6 +288,7 @@ export const stimulus = (trial?: StimulusType) => {
           response: choices[data.button_response],
           responseLocation: data.button_response,
           itemUid: stim.itemUid,
+          audioFile: stim.audioFile,
         });
 
         if (taskStore().storeItemId) {
@@ -301,10 +299,17 @@ export const stimulus = (trial?: StimulusType) => {
 
         if (stim.trialType === 'test-dimensions' || stim.assessmentStage === 'practice_response') {
           const calculatedRt = Math.round(endTime - startTime);
-
           jsPsych.data.addDataToLastTrial({
             rt: calculatedRt,
           });
+        }
+
+        if (stim.assessmentStage === 'test_response') {
+          taskStore.transact('testTrialCount', (oldVal: number) => oldVal + 1);
+        }
+        // if heavy instructions is true, show data quality screen before ending
+        if (taskStore().numIncorrect >= taskStore().maxIncorrect && !taskStore().heavyInstructions) {
+          finishExperiment();
         }
 
         if (stim.trialType !== 'something-same-1' && stim.trialType !== 'instructions') {

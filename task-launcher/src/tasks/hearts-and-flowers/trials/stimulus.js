@@ -109,7 +109,8 @@ export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrial
       taskStore('stimulusSide', stimuluSide);
 
       // save item uid for data analysis
-      const itemUid = 'hf_' + `${trialType === 'hearts and flowers' ? 'heartsflowers' : trialType}` + "_" + stimulusType;
+      const itemUid =
+        'hf_' + `${trialType === 'hearts and flowers' ? 'heartsflowers' : trialType}` + '_' + stimulusType;
 
       jsPsych.data.addDataToLastTrial({
         item: stimulusType,

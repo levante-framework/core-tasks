@@ -173,6 +173,18 @@ button {
     }
   }
 
+  &.slider {
+    @extend .button-base;
+    background: $border-accent;
+    border-color: $bg-accent_secondary;
+    box-shadow:
+      $button-secondary-box-shadow $bg-accent_secondary inset,
+      $button-secondary-inner-shadow $bg-button-secondary inset;
+    font-size: $font-size-lm;
+    width: 16px;
+    height: 16x;
+  }
+
   &.replay {
     // This is also used by the Hearts and Flowers task
     position: absolute;

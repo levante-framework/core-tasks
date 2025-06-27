@@ -55,11 +55,18 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
 
   const timeline = [preloadTrials, initialTimeline];
 
-  const corpus: StimulusType[] = taskStore().corpora.stimulus;
+  let corpus: StimulusType[] = taskStore().corpora.stimulus;
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {};
 
-  const { runCat } = taskStore();
+  const { runCat, heavyInstructions } = taskStore();
+
+  // block 4 is only for younger kids
+  corpus = corpus.filter((trial) => {
+    return heavyInstructions ? trial.block_index === '3' : trial.block_index !== '3';
+  });
+
+  taskStore('totalTrials', corpus.length);
 
   const layoutConfigMap: Record<string, LayoutConfigType> = {};
   let i = 0;
@@ -178,7 +185,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
       conditional_function: () => {
         return (
           !taskStore().isCorrect &&
-          taskStore().testPhase === false &&
+          !taskStore().testPhase &&
           (taskStore().nextStimulus.trialType === 'Number Line Slider' || runCat) &&
           taskStore().nextStimulus.assessmentStage === 'test_response'
         );
