@@ -3,6 +3,7 @@ import { mediaAssets } from '../../..';
 import { camelize } from './camelize';
 import { taskStore } from '../../../taskStore';
 import { cat, jsPsych } from '../../taskSetup';
+import { checkEndTaskEarly } from './appTimer';
 
 // This function reads the corpus, calls the adaptive algorithm to select
 // the next item, stores it in a session variable, and removes it from the corpus
@@ -25,6 +26,13 @@ export const getStimulus = (corpusType: string, blockNumber?: number) => {
     // ends the setup timeline
     jsPsych.endCurrentTimeline();
   }
+
+  // end task if there is not enough time to display next stimulus
+  const maxTimeInMilliseconds = taskStore().maxTime * 60000; 
+  const timeElapsed = Date.now()  - taskStore().startTime; 
+  const timeRemaining = maxTimeInMilliseconds - timeElapsed; 
+ 
+  checkEndTaskEarly(timeRemaining, stimAudio); 
 
   // store the item for use in the trial
   taskStore('nextStimulus', itemSuggestion.nextStimulus);
