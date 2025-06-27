@@ -137,6 +137,7 @@ module.exports = async (env, args) => {
       new webpack.ids.HashedModuleIdsPlugin(), // so that file hashes don't change unexpectedly
       new webpack.DefinePlugin({
         ENV: JSON.stringify(dbEnv),
+        EMULATORS: JSON.stringify(env.EMULATORS),
       }),
       new webpack.ProvidePlugin({
         process: 'process/browser',

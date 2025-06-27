@@ -33,7 +33,6 @@ export class TaskLauncher {
     await this.firekit.startRun();
 
     const { taskName, language } = this.gameParams;
-
     const { setConfig, getCorpus, buildTaskTimeline, getTranslations } =
       taskConfig[dashToCamelCase(taskName) as keyof typeof taskConfig];
 

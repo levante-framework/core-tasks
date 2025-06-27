@@ -1,12 +1,15 @@
 import { RoarAppkit, initializeFirebaseProject } from '@levante-framework/firekit';
 import { onAuthStateChanged, signInAnonymously } from 'firebase/auth';
+import * as Sentry from '@sentry/browser';
+import i18next from 'i18next';
 import { TaskLauncher } from '../src';
 import { firebaseConfig } from './firebaseConfig';
-import { stringToBoolean } from '../src/tasks/shared/helpers';
-import i18next from 'i18next';
+import { stringToBoolean } from '../src/tasks/shared/helpers/stringToBoolean';
+import firebaseJSON from '../firebase.json';
+
 // Import necessary in order to use async/await at the top level
 import 'regenerator-runtime/runtime';
-import * as Sentry from '@sentry/browser';
+
 
 /**
  * Initialize Sentry first!
@@ -55,10 +58,11 @@ const storeItemId = stringToBoolean(urlParams.get('storeItemId'), false);
 const cat = stringToBoolean(urlParams.get('cat'), false);
 const heavyInstructions = stringToBoolean(urlParams.get('heavyInstructions'), false);
 
-async function startWebApp() {
-  const appKit = await initializeFirebaseProject(firebaseConfig, 'admin', 'none');
 
-  console.log('appKit: ', appKit);
+const emulatorConfig  = EMULATORS ? firebaseJSON.emulators : undefined;
+
+async function startWebApp() {
+  const appKit = await initializeFirebaseProject(firebaseConfig, 'admin', emulatorConfig, 'none');
 
   onAuthStateChanged(appKit.auth, (user) => {
     if (user) {

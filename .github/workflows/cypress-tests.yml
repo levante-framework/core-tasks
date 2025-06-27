@@ -39,4 +39,4 @@ jobs:
         with:
           browser: chrome
           working-directory: ./task-launcher
-          start: npm run dev
+          start: npm run dev:db
