@@ -39,12 +39,12 @@ export class TaskLauncher {
 
     const isDev = this.firekit.firebaseProject?.firebaseApp?.options?.projectId === 'hs-levante-admin-dev';
     const bucketName = getBucketName(taskName, isDev);
+    const sharedBucketName = getBucketName('shared', isDev);
 
     try {
       // will avoid language folder if not provided
       mediaAssets = await getMediaAssets(bucketName, {}, language);
-
-      sharedMediaAssets = await getMediaAssets('task-shared', {}, language); 
+      sharedMediaAssets = await getMediaAssets(sharedBucketName, {}, language); 
     } catch (error) {
       throw new Error('Error fetching media assets: ' + error);
     }
