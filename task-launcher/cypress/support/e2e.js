@@ -21,6 +21,11 @@ import './commands';
 
 import 'cypress-real-events';
 
+// Screenshot Feature:
+// To enable automatic screenshots on page visits, set the environment variable:
+// Cypress.env('takeScreenshots', true) or run with --env takeScreenshots=true
+// Screenshots will be saved to cypress/screenshots/ folder
+
 // prevent firestore error from failing test
 Cypress.on('uncaught:exception', (err, runnable) => {
   if (err.message.includes('user not in Firestore')) {

@@ -1,3 +1,5 @@
+import { testAfc } from './helpers.cy.js';
+
 const same_different_url = 'http://localhost:8080/?task=same-different-selection';
 
 let matchedDimensions = []; // stores dimensions that have already been matched
@@ -28,13 +30,18 @@ function cleanDimensions(dimensions) {
   return dimensions;
 }
 
-describe('test same different selection', () => {
-  it('visits SDS and plays game', () => {
+describe('test same different', () => {
+  it('visits same different and plays game', () => {
     cy.visit(same_different_url);
-    // wait for OK button to be visible
-    cy.contains('OK', { timeout: 600000 }).should('be.visible');
-    cy.contains('OK').realClick(); // real click mimics user gesture so that fullscreen can start
-    sdsLoop();
+    
+    // Take screenshot of initial same different page
+    cy.wait(3000); // Wait for content to load
+    cy.takePageScreenshot('same_different_initial_page');
+    
+    testAfc('class', '.image');
+    
+    // Take screenshot after test completion
+    cy.takePageScreenshot('same_different_after_test');
   });
 });
 

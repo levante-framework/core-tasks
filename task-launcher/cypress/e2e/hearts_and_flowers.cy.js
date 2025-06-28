@@ -1,3 +1,5 @@
+import { testAfc } from './helpers.cy.js';
+
 const hearts_and_flowers_url = 'http://localhost:8080/?task=hearts-and-flowers';
 
 // keep track of game phase (true means it has started)
@@ -10,6 +12,15 @@ var mixed_test = false;
 describe('test hearts and flowers', () => {
   it('visits hearts and flowers and plays game', () => {
     cy.visit(hearts_and_flowers_url);
+    
+    // Take screenshot of initial hearts and flowers page
+    cy.wait(3000); // Wait for content to load
+    cy.takePageScreenshot('hearts_and_flowers_initial_page');
+    
+    testAfc('alt', '.secondary');
+    
+    // Take screenshot after test completion
+    cy.takePageScreenshot('hearts_and_flowers_after_test');
 
     // wait for OK button to appear
     cy.contains('OK', { timeout: 300000 }).should('be.visible');
