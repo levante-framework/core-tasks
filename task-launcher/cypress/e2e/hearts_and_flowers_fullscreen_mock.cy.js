@@ -1,10 +1,10 @@
-describe('Hearts and Flowers Test with Fullscreen Mock and Screenshots', () => {
+describe('Hearts and Flowers Test with Fullscreen Mock and Many Screenshots', () => {
   let screenshotCounter = 0;
 
   function takeScreenshot(name) {
     if (Cypress.env('takeScreenshots')) {
       screenshotCounter++;
-      const paddedCounter = screenshotCounter.toString().padStart(4, '0');
+      const paddedCounter = screenshotCounter.toString().padStart(3, '0');
       cy.screenshot(`${paddedCounter}_hearts_flowers_${name}`, { 
         capture: 'viewport',
         overwrite: true 
@@ -12,167 +12,149 @@ describe('Hearts and Flowers Test with Fullscreen Mock and Screenshots', () => {
     }
   }
 
-  beforeEach(() => {
-    // Mock fullscreen API
+  function reapplyFullscreenMocks() {
     cy.window().then((win) => {
-      // Mock fullscreen methods
-      win.document.requestFullscreen = cy.stub().resolves();
-      win.document.exitFullscreen = cy.stub().resolves();
-      win.document.webkitRequestFullscreen = cy.stub().resolves();
-      win.document.mozRequestFullScreen = cy.stub().resolves();
-      win.document.msRequestFullscreen = cy.stub().resolves();
+      // Set multiple test environment flags
+      win.Cypress = true;
+      win.cypress = true;
+      win.__cypress = true;
+      win.cy = true;
+      win.__test__ = true;
+      win.__TEST__ = true;
       
-      // Mock fullscreen properties
+      // Replace fscreen with a complete mock
+      win.fscreen = {
+        fullscreenElement: win.document.documentElement,
+        requestFullscreen: () => Promise.resolve(),
+        exitFullscreen: () => Promise.resolve(),
+        fullscreenEnabled: true,
+        fullscreenchange: 'fullscreenchange',
+        fullscreenerror: 'fullscreenerror'
+      };
+      
+      // Mock fullscreen API properties
       Object.defineProperty(win.document, 'fullscreenElement', {
-        value: win.document.documentElement,
-        writable: true
+        get: () => win.document.documentElement,
+        configurable: true
       });
-      Object.defineProperty(win.document, 'webkitFullscreenElement', {
-        value: win.document.documentElement,
-        writable: true
-      });
-      Object.defineProperty(win.document, 'mozFullScreenElement', {
-        value: win.document.documentElement,
-        writable: true
-      });
-      
-      // Mock element fullscreen methods
-      win.document.documentElement.requestFullscreen = cy.stub().resolves();
-      win.document.documentElement.webkitRequestFullscreen = cy.stub().resolves();
-      win.document.documentElement.mozRequestFullScreen = cy.stub().resolves();
-      
-      // Dispatch fullscreen change event
-      const fullscreenEvent = new Event('fullscreenchange');
-      win.document.dispatchEvent(fullscreenEvent);
     });
-  });
+  }
 
-  it('Hearts and Flowers test with fullscreen mocking and comprehensive screenshots', () => {
-    const heartsFlowersUrl = 'http://localhost:8080/?task=hearts-and-flowers';
-    
-    cy.visit(heartsFlowersUrl);
+  function isInFullscreenMode() {
+    return cy.window().then((win) => {
+      return !!(win.document.fullscreenElement || 
+                win.document.webkitFullscreenElement || 
+                win.document.mozFullScreenElement || 
+                win.document.msFullscreenElement);
+    });
+  }
+
+  function detectGamePhase() {
+    return cy.get('body').then(($body) => {
+      const text = $body.text().toLowerCase();
+      const html = $body.html();
+      
+      if (html.includes('jspsych-btn') || text.includes('continue')) {
+        return 'instruction_phase';
+      } else if (html.includes('stimulus') || html.includes('heart') || html.includes('flower')) {
+        return 'game_active';
+      } else if (text.includes('loading') || text.includes('please wait')) {
+        return 'loading';
+      } else if (text.includes('fullscreen')) {
+        return 'fullscreen_prompt';
+      } else {
+        return 'unknown';
+      }
+    });
+  }
+
+  it('should bypass fullscreen and take comprehensive screenshots of hearts and flowers task', () => {
+    // Visit with fullscreen mocks applied before page load
+    cy.visit('http://localhost:8084/?task=hearts-and-flowers&cypress=true&test=true', {
+      onBeforeLoad: (win) => {
+        // Apply mocks before any app code runs
+        win.Cypress = true;
+        win.cypress = true;
+        win.__cypress = true;
+        win.cy = true;
+        win.__test__ = true;
+        win.__TEST__ = true;
+        
+        // Mock fscreen completely
+        win.fscreen = {
+          fullscreenElement: win.document.documentElement,
+          requestFullscreen: () => Promise.resolve(),
+          exitFullscreen: () => Promise.resolve(),
+          fullscreenEnabled: true,
+          fullscreenchange: 'fullscreenchange',
+          fullscreenerror: 'fullscreenerror'
+        };
+        
+        // Mock fullscreen API
+        Object.defineProperty(win.document, 'fullscreenElement', {
+          get: () => win.document.documentElement,
+          configurable: true
+        });
+      }
+    });
+
+    // Initial screenshot
     takeScreenshot('initial_visit');
     
     // Wait for page to load
-    cy.wait(3000);
+    cy.wait(2000);
     takeScreenshot('page_loaded');
     
-    // Mock fullscreen API after page load
-    cy.window().then((win) => {
-      win.document.fullscreenElement = win.document.documentElement;
-      takeScreenshot('fullscreen_api_mocked');
-    });
-    
-    // Start monitoring and automatic interaction
-    let monitoringActive = true;
-    let interactionCount = 0;
-    
-    function performAutomaticInteractions() {
-      if (!monitoringActive || interactionCount > 200) return;
+    // Phase 1: Monitor initial loading and instructions (reduced frequency - every 1.25 seconds for 15 seconds)
+    for (let i = 0; i < 12; i++) {
+      cy.wait(1250); // 1.25 seconds instead of 250ms
+      reapplyFullscreenMocks();
       
-      interactionCount++;
-      
-      // Take periodic screenshots
-      if (interactionCount % 5 === 0) {
-        takeScreenshot(`monitoring_${interactionCount}`);
-      }
-      
-      cy.get('body').then(($body) => {
-        // Look for various interactive elements
-        const selectors = [
-          'button:visible',
-          '.primary:visible',
-          '.secondary:visible', 
-          '.secondary--green:visible',
-          '[role="button"]:visible',
-          '.jspsych-btn:visible',
-          'input[type="button"]:visible',
-          '.continue-btn:visible',
-          '.next-btn:visible',
-          '.ok-btn:visible'
-        ];
+      detectGamePhase().then((phase) => {
+        takeScreenshot(`phase_${phase}_${i + 1}`);
         
-        let foundElement = false;
-        
-        for (const selector of selectors) {
-          const elements = $body.find(selector);
-          if (elements.length > 0) {
-            const element = elements.first();
-            if (element.is(':visible')) {
-              takeScreenshot(`clicking_${selector.replace(/[^a-zA-Z0-9]/g, '_')}_${interactionCount}`);
-              element.click();
-              foundElement = true;
-              break;
-            }
+        // Click any continue buttons that appear
+        cy.get('body').then(($body) => {
+          if ($body.find('button:contains("Continue"), .jspsych-btn, button[id*="continue"]').length > 0) {
+            cy.get('button:contains("Continue"), .jspsych-btn, button[id*="continue"]').first().click({ force: true });
+            cy.wait(500);
+            takeScreenshot(`after_button_click_${i + 1}`);
           }
-        }
-        
-        // Look for hearts and flowers specific elements
-        if (!foundElement) {
-          // Look for stimulus images (hearts or flowers)
-          const stimImages = $body.find('[alt="heart or flower"]:visible');
-          if (stimImages.length > 0) {
-            takeScreenshot(`found_stimulus_image_${interactionCount}`);
-            
-            // Get the stimulus image source to determine correct response
-            const stimImg = stimImages.first();
-            const src = stimImg.attr('src');
-            
-            if (src) {
-              const shape = src.split('/').pop();
-              takeScreenshot(`stimulus_is_${shape}_${interactionCount}`);
-              
-              // Find response buttons
-              const responseButtons = $body.find('.secondary--green:visible');
-              if (responseButtons.length >= 2) {
-                // Check if stimulus is on left or right
-                const stimContainer = stimImg.closest('.haf-stimulus-container');
-                const isOnLeft = stimContainer.find('.stimulus-left').length > 0;
-                
-                let buttonIndex = 0; // default to left button
-                
-                if (shape === 'heart.png') {
-                  // Hearts: same side (left stimulus -> left button, right stimulus -> right button)
-                  buttonIndex = isOnLeft ? 0 : 1;
-                } else if (shape === 'flower.png') {
-                  // Flowers: opposite side (left stimulus -> right button, right stimulus -> left button)
-                  buttonIndex = isOnLeft ? 1 : 0;
-                }
-                
-                takeScreenshot(`clicking_button_${buttonIndex}_for_${shape}_${interactionCount}`);
-                responseButtons.eq(buttonIndex).click();
-                foundElement = true;
-              }
-            }
-          }
-        }
-        
-        // Look for text that might indicate completion
-        const completionTexts = ['Thank you', 'Complete', 'Finished', 'Done', 'Exit'];
-        for (const text of completionTexts) {
-          if ($body.text().includes(text)) {
-            takeScreenshot(`completion_detected_${text}_${interactionCount}`);
-            monitoringActive = false;
-            return;
-          }
-        }
-        
-        // Continue monitoring
-        if (monitoringActive && interactionCount < 200) {
-          cy.wait(500).then(() => {
-            performAutomaticInteractions();
-          });
-        }
+        });
       });
     }
     
-    // Start automatic interaction
-    cy.wait(2000).then(() => {
-      performAutomaticInteractions();
-    });
+    // Phase 2: Game monitoring (reduced frequency - every 1.25 seconds for 25 seconds)
+    for (let i = 0; i < 20; i++) {
+      cy.wait(1250); // 1.25 seconds instead of 250ms
+      reapplyFullscreenMocks();
+      
+      detectGamePhase().then((phase) => {
+        takeScreenshot(`game_monitoring_${phase}_${i + 1}`);
+        
+        // Interact with game elements if present
+        cy.get('body').then(($body) => {
+          if ($body.find('.stimulus, [data-choice], button:not([disabled])').length > 0) {
+            // Try to interact with game elements
+            cy.get('.stimulus, [data-choice], button:not([disabled])').first().click({ force: true });
+            cy.wait(300);
+            takeScreenshot(`after_game_interaction_${i + 1}`);
+          }
+        });
+      });
+    }
     
-    // Wait for completion or timeout
-    cy.wait(40000); // Hearts and flowers might take longer
+    // Phase 3: Extended monitoring (reduced frequency - every 2.5 seconds for 25 seconds)  
+    for (let i = 0; i < 10; i++) {
+      cy.wait(2500); // 2.5 seconds
+      reapplyFullscreenMocks();
+      
+      detectGamePhase().then((phase) => {
+        takeScreenshot(`extended_monitoring_${phase}_${i + 1}`);
+      });
+    }
+    
+    // Final screenshot
     takeScreenshot('final_state');
   });
 }); 

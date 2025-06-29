@@ -13,14 +13,31 @@ describe('test hearts and flowers', () => {
   it('visits hearts and flowers and plays game', () => {
     cy.visit(hearts_and_flowers_url);
     
-    // Take screenshot of initial hearts and flowers page
-    cy.wait(3000); // Wait for content to load
-    cy.takePageScreenshot('hearts_and_flowers_initial_page');
+    // Wait for page to load
+    cy.wait(3000);
+    
+    // Take initial screenshot
+    cy.takeGameScreenshot('initial_page_load');
+    
+    // Handle the fullscreen mode if present
+    cy.get('body').then(($body) => {
+      if ($body.text().includes('Switch to Full Screen mode')) {
+        cy.takeGameScreenshot('fullscreen_prompt');
+        
+        // Wait for OK button and click it to start fullscreen
+        cy.contains('OK', { timeout: 10000 }).should('be.visible');
+        cy.contains('OK').click();
+        
+        // Wait for fullscreen transition
+        cy.wait(2000);
+        cy.takeGameScreenshot('after_fullscreen_click');
+      }
+    });
     
     testAfc('alt', '.secondary');
     
     // Take screenshot after test completion
-    cy.takePageScreenshot('hearts_and_flowers_after_test');
+    cy.takeGameScreenshot('after_test_completion');
 
     // wait for OK button to appear
     cy.contains('OK', { timeout: 300000 }).should('be.visible');
