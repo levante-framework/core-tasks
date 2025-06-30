@@ -1,2 +1,13 @@
 
-*.DS_Store
+node_modules
+dist
+**/.Rhistory
+**/.Rproj.user
+**/.ipynb_checkpoints
+.idea
+.DS_Store.firebase/*.cache
+**/.DS_Store
+test-results/
+lib/
+.env
+.idea/
