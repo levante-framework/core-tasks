@@ -5,9 +5,24 @@ export default defineConfig({
     setupNodeEvents(on, config) {
       // implement node event listeners here
     },
+    // Video recording settings
+    video: true,
+    videoCompression: 32,
+    videosFolder: 'cypress/videos',
+    screenshotsFolder: 'cypress/screenshots',
+    viewportWidth: 1000,
+    viewportHeight: 660,
+    defaultCommandTimeout: 30000,
+    requestTimeout: 30000,
+    responseTimeout: 30000,
+    pageLoadTimeout: 60000,
+    // Reduce video frame rate for smaller files
+    env: {
+      videoFrameRate: 5  // Lower frame rate for more compact videos
+    }
   },
   retries: {
-    runMode: 2,
+    runMode: 0,
     openMode: 0,
   },
 });
