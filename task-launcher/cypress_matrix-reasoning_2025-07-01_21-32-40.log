@@ -1,0 +1,86 @@
+
+DevTools listening on ws://127.0.0.1:35587/devtools/browser/a2e48b30-c2e9-46ca-ad22-5989edcd4e4f
+(node:30170) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///home/david/.cache/Cypress/13.13.3/Cypress/resources/app/node_modules/ts-node/esm/transpile-only.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:30170) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+
+=======================================
+
+  (Run Starting)
+
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ Cypress:        13.13.3                                                                        │
+  │ Browser:        Electron 118 (headless)                                                        │
+  │ Node Version:   v22.14.0 (/home/david/.nvm/versions/node/v22.14.0/bin/node)                    │
+  │ Specs:          1 found (temp_single_task.cy.js)                                               │
+  │ Searched:       cypress/e2e/temp_single_task.cy.js                                             │
+  │ Experiments:    experimentalMemoryManagement=true                                              │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                                                    
+  Running:  temp_single_task.cy.js                                                          (1 of 1)
+
+
+  Single Task Capture - matrix-reasoning
+    1) captures complete matrix-reasoning task until completion
+
+
+  0 passing (1m)
+  1 failing
+
+  1) Single Task Capture - matrix-reasoning
+       captures complete matrix-reasoning task until completion:
+     AssertionError: Timed out retrying after 60000ms: Expected to find content: 'OK' but never did.
+      at Context.eval (webpack://@levante-framework/core-tasks/./cypress/e2e/temp_single_task.cy.js:35:42)
+
+
+
+
+  (Results)
+
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ Tests:        1                                                                                │
+  │ Passing:      0                                                                                │
+  │ Failing:      1                                                                                │
+  │ Pending:      0                                                                                │
+  │ Skipped:      0                                                                                │
+  │ Screenshots:  2                                                                                │
+  │ Video:        true                                                                             │
+  │ Duration:     1 minute, 5 seconds                                                              │
+  │ Spec Ran:     temp_single_task.cy.js                                                           │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+  (Screenshots)
+
+  -  /home/david/levante/core-tasks/task-launcher/cypress/screenshots/temp_single_tas     (1000x660)
+     k.cy.js/2025-07-02T04-32-47-matrix-reasoning-001-initial-load.png                              
+  -  /home/david/levante/core-tasks/task-launcher/cypress/screenshots/temp_single_tas     (1280x720)
+     k.cy.js/Single Task Capture - matrix-reasoning -- captures complete matrix-reaso               
+     ning task until completion (failed).png                                                        
+
+
+  (Video)
+
+  -  Started compressing: Compressing to 32 CRF                                                     
+  -  Finished compressing: 2 seconds                                                 
+
+  -  Video output: /home/david/levante/core-tasks/task-launcher/cypress/videos/temp_single_task.cy.js.mp4
+
+
+resize: unknown character 0xa, exiting.
+================================================================================
+
+  (Run Finished)
+
+
+       Spec                                              Tests  Passing  Failing  Pending  Skipped  
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ ✖  temp_single_task.cy.js                   01:05        1        -        1        -        - │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+    ✖  1 of 1 failed (100%)                     01:05        1        -        1        -        -  
+
