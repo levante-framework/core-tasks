@@ -27,6 +27,7 @@ declare global {
     isInstructionTrial: boolean;
     randomizeChoiceOrder: boolean;
     isStaggered: boolean;
+    heavyPracticeStaggered?: boolean,
     isImageButtonResponse: boolean;
     showStimImage: boolean;
     response: {
