@@ -1,2 +1,4 @@
 
 *.DS_Store
+cypress/videos/*.mp4
+*.mp4
