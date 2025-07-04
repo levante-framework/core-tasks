@@ -22,7 +22,7 @@ echo "✅ Server running"
 
 # Capture memory-game as test
 echo "📸 Testing with memory-game..."
-cat > ../cypress/e2e/memory_game_test.cy.js << 'CYPRESS_EOF'
+cat > ../cypress/e2e-screenshot-scripts/memory_game_test.cy.js << 'CYPRESS_EOF'
 describe('Memory Game Test', () => {
   it('captures memory game screenshots', () => {
     cy.visit('http://localhost:8080/?task=memory-game');
@@ -50,6 +50,6 @@ describe('Memory Game Test', () => {
 CYPRESS_EOF
 
 # Run test
-timeout 180 npx cypress run --spec "../cypress/e2e/memory_game_test.cy.js" --browser electron --headless
+timeout 180 npx cypress run --spec "../cypress/e2e-screenshot-scripts/memory_game_test.cy.js" --browser electron --headless
 
 echo "✅ Test complete!"

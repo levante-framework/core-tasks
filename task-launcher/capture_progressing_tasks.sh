@@ -29,7 +29,7 @@ error() {
 # Function to generate a working Cypress test
 generate_progressing_test() {
     local task_name="$1"
-    local test_file="cypress/e2e/${task_name}_progressing.cy.js"
+    local test_file="cypress/e2e-screenshot-scripts/${task_name}_progressing.cy.js"
     
     log "Generating progressing test for $task_name..."
     
@@ -177,7 +177,7 @@ for task in $TASKS; do
     
     # Run Cypress test
     log "Running Cypress test for $task..."
-    if timeout $((TASK_DURATION + 60)) npx cypress run --spec "cypress/e2e/${task}_progressing.cy.js" --browser electron; then
+    if timeout $((TASK_DURATION + 60)) npx cypress run --spec "cypress/e2e-screenshot-scripts/${task}_progressing.cy.js" --browser electron; then
         success "Cypress test completed for $task"
         
         # Count screenshots

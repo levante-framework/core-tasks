@@ -13,7 +13,7 @@ for task in "${TASKS[@]}"; do
     
     # Run Cypress test
     echo "Running Cypress test for $task..."
-    npx cypress run --spec "cypress/e2e/${task}_quick.cy.js" --browser chrome --headless
+    npx cypress run --spec "cypress/e2e-screenshot-scripts/${task}_quick.cy.js" --browser chrome --headless
     
     # Backup screenshots immediately
     if [ -d "cypress/screenshots/${task}_quick.cy.js" ]; then

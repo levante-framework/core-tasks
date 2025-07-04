@@ -52,7 +52,7 @@ start_server() {
 # Function to create task-specific test
 create_task_test() {
     local task_name=$1
-    local test_file="cypress/e2e/${task_name}_capture.cy.js"
+    local test_file="cypress/e2e-screenshot-scripts/${task_name}_capture.cy.js"
     
     cat > "${test_file}" << EOF
 describe('${task_name} Screenshot Capture', () => {
@@ -148,7 +148,7 @@ run_task_capture() {
     
     # Run Cypress test
     echo "🚀 Running Cypress test..."
-    if npx cypress run --spec "cypress/e2e/${task_name}_capture.cy.js" --headless --config defaultCommandTimeout=60000,requestTimeout=60000,responseTimeout=60000; then
+    if npx cypress run --spec "cypress/e2e-screenshot-scripts/${task_name}_capture.cy.js" --headless --config defaultCommandTimeout=60000,requestTimeout=60000,responseTimeout=60000; then
         echo "✅ ${task_name} capture completed successfully"
         
         # Check screenshot results
@@ -173,7 +173,7 @@ run_task_capture() {
     fi
     
     # Clean up test file
-    rm -f "cypress/e2e/${task_name}_capture.cy.js"
+    rm -f "cypress/e2e-screenshot-scripts/${task_name}_capture.cy.js"
 }
 
 # Main execution

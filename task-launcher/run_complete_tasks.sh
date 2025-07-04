@@ -39,7 +39,7 @@ test_single_task() {
     echo ""
     echo "🎯 Testing: $task"
     
-    cat > "cypress/e2e/test_${task}.cy.js" << 'EOF'
+    cat > "cypress/e2e-screenshot-scripts/test_${task}.cy.js" << 'EOF'
 describe('TASK_PLACEHOLDER Complete Run', () => {
   it('runs complete task with screenshots', () => {
     cy.visit('http://localhost:8080/?task=TASK_PLACEHOLDER', { timeout: 60000 });
@@ -103,11 +103,11 @@ describe('TASK_PLACEHOLDER Complete Run', () => {
 EOF
     
     # Replace placeholder with actual task name
-    sed -i "s/TASK_PLACEHOLDER/$task/g" "cypress/e2e/test_${task}.cy.js"
+    sed -i "s/TASK_PLACEHOLDER/$task/g" "cypress/e2e-screenshot-scripts/test_${task}.cy.js"
     
     # Run test
     echo "🚀 Running $task test..."
-    if npx cypress run --spec "cypress/e2e/test_${task}.cy.js" --headless --config defaultCommandTimeout=30000; then
+    if npx cypress run --spec "cypress/e2e-screenshot-scripts/test_${task}.cy.js" --headless --config defaultCommandTimeout=30000; then
         echo "✅ $task completed"
         
         # Check results
@@ -129,7 +129,7 @@ EOF
     fi
     
     # Cleanup test file
-    rm -f "cypress/e2e/test_${task}.cy.js"
+    rm -f "cypress/e2e-screenshot-scripts/test_${task}.cy.js"
 }
 
 # Main execution

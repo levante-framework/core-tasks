@@ -39,7 +39,7 @@ run_task() {
     echo "   🔄 Loading screen handling enabled"
     
     # Run Cypress test with longer timeout for loading screens
-    if timeout 600 npx cypress run --spec "cypress/e2e/${task}_complete.cy.js" --browser chrome --headless; then
+    if timeout 600 npx cypress run --spec "cypress/e2e-screenshot-scripts/${task}_complete.cy.js" --browser chrome --headless; then
         echo "   ✅ Task $task completed successfully"
         
         # Run enhanced OCR cleanup with both text and image similarity

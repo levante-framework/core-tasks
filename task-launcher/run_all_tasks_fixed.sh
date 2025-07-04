@@ -89,7 +89,7 @@ stop_webpack_server() {
 generate_task_test() {
     local task_name="$1"
     local interaction_strategy="$2"
-    local test_file="cypress/e2e/${task_name}_smart_capture.cy.js"
+    local test_file="cypress/e2e-screenshot-scripts/${task_name}_smart_capture.cy.js"
     
     log "Generating smart test for $task_name with $interaction_strategy strategy..."
     
@@ -393,7 +393,7 @@ capture_task() {
     
     # Run Cypress test
     log "Running Cypress test for $task_name..."
-    if timeout $MAX_TIMEOUT npx cypress run --spec "cypress/e2e/${task_name}_smart_capture.cy.js" --browser chrome --headless; then
+    if timeout $MAX_TIMEOUT npx cypress run --spec "cypress/e2e-screenshot-scripts/${task_name}_smart_capture.cy.js" --browser chrome --headless; then
         success "Cypress test completed for $task_name"
         
         # Run OCR cleanup
@@ -414,7 +414,7 @@ capture_task() {
     fi
     
     # Cleanup test file
-    rm -f "cypress/e2e/${task_name}_smart_capture.cy.js"
+    rm -f "cypress/e2e-screenshot-scripts/${task_name}_smart_capture.cy.js"
     
     return 0
 }

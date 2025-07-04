@@ -74,7 +74,7 @@ ensure_webpack_server() {
 # Function to generate Cypress test for a task
 generate_task_test() {
     local task_name="$1"
-    local test_file="cypress/e2e/${task_name}_complete.cy.js"
+    local test_file="cypress/e2e-screenshot-scripts/${task_name}_complete.cy.js"
     
     cat > "$test_file" << 'EOF'
 describe('TASK_NAME Complete Task Capture', () => {
@@ -144,7 +144,7 @@ EOF
 # Function to run Cypress test for a task
 run_task_capture() {
     local task_name="$1"
-    local test_file="cypress/e2e/${task_name}_complete.cy.js"
+    local test_file="cypress/e2e-screenshot-scripts/${task_name}_complete.cy.js"
     
     log "Running Cypress test for $task_name..."
     

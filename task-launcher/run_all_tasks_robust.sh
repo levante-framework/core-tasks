@@ -86,7 +86,7 @@ check_server() {
 # Function to create and run test for a task
 run_task_test() {
     local task_name=$1
-    local test_file="cypress/e2e/${task_name//-/_}_complete.cy.js"
+    local test_file="cypress/e2e-screenshot-scripts/${task_name//-/_}_complete.cy.js"
     
     echo ""
     echo "==================== ${task_name^^} ===================="

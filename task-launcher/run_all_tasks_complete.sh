@@ -74,7 +74,7 @@ ensure_webpack_server() {
 # Function to generate improved Cypress test
 generate_complete_test() {
     local task_name="$1"
-    local test_file="cypress/e2e/${task_name}_complete.cy.js"
+    local test_file="cypress/e2e-screenshot-scripts/${task_name}_complete.cy.js"
     
     log "Generating complete test for $task_name..."
     
@@ -270,7 +270,7 @@ for task in $TASKS; do
     
     # Run Cypress test with timeout
     log "Running Cypress test for $task..."
-    if timeout $MAX_TIMEOUT npx cypress run --spec "cypress/e2e/${task}_complete.cy.js" --browser electron --config video=false; then
+    if timeout $MAX_TIMEOUT npx cypress run --spec "cypress/e2e-screenshot-scripts/${task}_complete.cy.js" --browser electron --config video=false; then
         success "Cypress test completed for $task"
         
         # Check screenshots
@@ -297,7 +297,7 @@ for task in $TASKS; do
     fi
     
     # Clean up test file
-    rm -f "cypress/e2e/${task}_complete.cy.js"
+    rm -f "cypress/e2e-screenshot-scripts/${task}_complete.cy.js"
     
     log "Completed task $task ($task_count/$total_tasks)"
     echo "----------------------------------------"

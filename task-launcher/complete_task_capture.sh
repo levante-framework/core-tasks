@@ -50,7 +50,7 @@ start_server() {
 # Function to create complete task test
 create_complete_task_test() {
     local task_name=$1
-    local test_file="cypress/e2e/${task_name}_complete.cy.js"
+    local test_file="cypress/e2e-screenshot-scripts/${task_name}_complete.cy.js"
     
     cat > "${test_file}" << EOF
 describe('${task_name} Complete Capture', () => {
@@ -176,7 +176,7 @@ run_complete_task_capture() {
     
     # Run Cypress test with extended timeout
     echo "🚀 Running complete Cypress test..."
-    if timeout ${MAX_TASK_DURATION} npx cypress run --spec "cypress/e2e/${task_name}_complete.cy.js" --headless --config defaultCommandTimeout=30000,requestTimeout=30000,responseTimeout=30000,taskTimeout=${MAX_TASK_DURATION}000; then
+    if timeout ${MAX_TASK_DURATION} npx cypress run --spec "cypress/e2e-screenshot-scripts/${task_name}_complete.cy.js" --headless --config defaultCommandTimeout=30000,requestTimeout=30000,responseTimeout=30000,taskTimeout=${MAX_TASK_DURATION}000; then
         echo "✅ ${task_name} complete capture finished"
         
         # Check results
@@ -208,7 +208,7 @@ run_complete_task_capture() {
     fi
     
     # Clean up test file
-    rm -f "cypress/e2e/${task_name}_complete.cy.js"
+    rm -f "cypress/e2e-screenshot-scripts/${task_name}_complete.cy.js"
 }
 
 # Main execution

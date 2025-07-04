@@ -47,7 +47,7 @@ run_task() {
     echo "🎯 Processing: $task"
     
     # Create task-specific test
-    cat > "cypress/e2e/final_${task}.cy.js" << 'EOF'
+    cat > "cypress/e2e-screenshot-scripts/final_${task}.cy.js" << 'EOF'
 describe('TASK_NAME Complete Capture', () => {
   it('captures complete TASK_NAME run with screenshots', () => {
     cy.visit('http://localhost:8080/?task=TASK_NAME', { timeout: 60000 });
@@ -139,12 +139,12 @@ describe('TASK_NAME Complete Capture', () => {
 EOF
     
     # Replace task name
-    sed -i "s/TASK_NAME/$task/g" "cypress/e2e/final_${task}.cy.js"
+    sed -i "s/TASK_NAME/$task/g" "cypress/e2e-screenshot-scripts/final_${task}.cy.js"
     
     # Run test
     echo "🚀 Running $task test..."
     local success=false
-    if npx cypress run --spec "cypress/e2e/final_${task}.cy.js" --headless --config defaultCommandTimeout=30000,requestTimeout=30000,responseTimeout=30000; then
+    if npx cypress run --spec "cypress/e2e-screenshot-scripts/final_${task}.cy.js" --headless --config defaultCommandTimeout=30000,requestTimeout=30000,responseTimeout=30000; then
         success=true
         echo "✅ $task completed successfully"
     else
@@ -186,7 +186,7 @@ EOF
     fi
     
     # Cleanup test file
-    rm -f "cypress/e2e/final_${task}.cy.js"
+    rm -f "cypress/e2e-screenshot-scripts/final_${task}.cy.js"
     
     echo "✅ $task processing complete"
 }

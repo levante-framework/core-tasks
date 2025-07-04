@@ -36,7 +36,7 @@ echo "📸 Screenshots will be timestamped and saved"
 echo ""
 
 # Create a temporary test file with the specific task
-cat > cypress/e2e/temp_single_task.cy.js << EOF
+cat > cypress/e2e-screenshot-scripts/temp_single_task.cy.js << EOF
 // Temporary single task capture for: $TASK_NAME
 const TASK_NAME = '$TASK_NAME';
 
@@ -328,10 +328,10 @@ echo "💡 Press Ctrl+C to stop the test at any time"
 echo ""
 
 # Run the test and capture output
-npx cypress run --spec "cypress/e2e/temp_single_task.cy.js" --headless 2>&1 | tee "$LOG_FILE"
+npx cypress run --spec "cypress/e2e-screenshot-scripts/temp_single_task.cy.js" --headless 2>&1 | tee "$LOG_FILE"
 
 # Clean up temporary file
-rm -f cypress/e2e/temp_single_task.cy.js
+rm -f cypress/e2e-screenshot-scripts/temp_single_task.cy.js
 
 echo ""
 echo "✅ Test completed!"

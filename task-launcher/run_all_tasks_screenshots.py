@@ -132,7 +132,7 @@ def run_task_test(task_url_param: str, task_name: str) -> bool:
     print(f"\n📸 Running screenshots for: {task_name}")
     
     # Create test file
-    test_filename = f"cypress/e2e/{task_name.replace('-', '_')}_complete.cy.js"
+    test_filename = f"cypress/e2e-screenshot-scripts/{task_name.replace('-', '_')}_complete.cy.js"
     test_content = create_task_test(task_url_param, task_name)
     
     with open(test_filename, 'w') as f:

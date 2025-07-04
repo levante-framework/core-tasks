@@ -24,7 +24,7 @@ create_enhanced_test() {
     local task_name=$1
     local task_kebab=$2
     
-    cat > "cypress/e2e/${task_kebab}_enhanced.cy.js" << 'EOL'
+    cat > "cypress/e2e-screenshot-scripts/${task_kebab}_enhanced.cy.js" << 'EOL'
 describe('TASK_NAME Enhanced - Anti-Loop Logic', () => {
   it('should capture screenshots with intelligent progression', () => {
     let lastScreenState = '';
@@ -320,8 +320,8 @@ describe('TASK_NAME Enhanced - Anti-Loop Logic', () => {
 EOL
 
     # Replace placeholders
-    sed -i "s/TASK_NAME/${task_name}/g" "cypress/e2e/${task_kebab}_enhanced.cy.js"
-    sed -i "s/TASK_KEBAB/${task_kebab}/g" "cypress/e2e/${task_kebab}_enhanced.cy.js"
+    sed -i "s/TASK_NAME/${task_name}/g" "cypress/e2e-screenshot-scripts/${task_kebab}_enhanced.cy.js"
+    sed -i "s/TASK_KEBAB/${task_kebab}/g" "cypress/e2e-screenshot-scripts/${task_kebab}_enhanced.cy.js"
     
     echo "✅ Created enhanced test for ${task_name}"
 }
@@ -344,4 +344,4 @@ echo "   • Intelligent escalation when stuck"
 echo "   • Enhanced logging and debugging"
 echo ""
 echo "🚀 To test the enhanced EGMA version:"
-echo "   npx cypress run --spec \"cypress/e2e/egma-math_enhanced.cy.js\" --browser chrome --headless" 
+echo "   npx cypress run --spec \"cypress/e2e-screenshot-scripts/egma-math_enhanced.cy.js\" --browser chrome --headless" 

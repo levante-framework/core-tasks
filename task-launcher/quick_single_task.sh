@@ -29,7 +29,7 @@ fi
 echo "✅ Server is running"
 
 # Create simple Cypress test
-TEST_FILE="cypress/e2e/quick_test.cy.js"
+TEST_FILE="cypress/e2e-screenshot-scripts/quick_test.cy.js"
 mkdir -p cypress/e2e
 
 cat > "$TEST_FILE" << 'EOF'

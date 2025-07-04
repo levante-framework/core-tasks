@@ -22,7 +22,12 @@ export default defineConfig({
     // Reduce video frame rate for smaller files
     env: {
       videoFrameRate: 5  // Lower frame rate for more compact videos
-    }
+    },
+    // Add specPattern to include both e2e and e2e-screenshot-scripts
+    specPattern: [
+      'cypress/e2e/**/*.cy.{js,jsx,ts,tsx}',
+      'cypress/e2e-screenshot-scripts/**/*.cy.{js,jsx,ts,tsx}'
+    ]
   },
   retries: {
     runMode: 0,

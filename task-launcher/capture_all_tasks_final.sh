@@ -60,7 +60,7 @@ start_server() {
 # Function to capture screenshots for a task
 capture_task() {
     local task_name=$1
-    local test_file="cypress/e2e/${task_name//-/_}_capture.cy.js"
+    local test_file="cypress/e2e-screenshot-scripts/${task_name//-/_}_capture.cy.js"
     
     echo ""
     echo "==================== ${task_name^^} ===================="
