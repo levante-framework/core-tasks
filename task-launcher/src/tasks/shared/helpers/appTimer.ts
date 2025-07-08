@@ -8,6 +8,8 @@ import { PageStateHandler} from './PageStateHandler';
 
 // define timerId here so that it can be cleared if task ends early
 let timerId: any;
+// buffer in milliseconds after presentation of stimulus to allow some time to answer
+const RESPONSE_BUFFER = 2000;  
 
 export const startAppTimer = (maxTimeInMinutes: number, finishExperiment: () => void) => {
   // Minimum time is 1 minute
@@ -25,7 +27,7 @@ export const startAppTimer = (maxTimeInMinutes: number, finishExperiment: () => 
 // function for ending the task if the next trial
 export async function checkEndTaskEarly(timeRemaining: number, stimAudio: string) {
     const pageStateHandler = new PageStateHandler(stimAudio, false); 
-    const minTrialDuration = await pageStateHandler.getStimulusDurationMs() + 2000; 
+    const minTrialDuration = await pageStateHandler.getStimulusDurationMs() + RESPONSE_BUFFER; 
 
     if (timeRemaining < minTrialDuration) {
       clearTimeout(timerId);
