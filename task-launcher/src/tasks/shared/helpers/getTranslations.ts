@@ -25,7 +25,7 @@ function parseTranslations(translationData: Record<string, string>[], configLang
   taskStore('translations', translations);
 }
 
-export const getTranslations = async (configLanguage?: string) => {
+export const getTranslations = async (isDev: boolean, configLanguage?: string) => {
   if (!configLanguage) {
     return;
   }
@@ -53,11 +53,10 @@ export const getTranslations = async (configLanguage?: string) => {
   }
 
   async function fetchData() {
+    // This will eventually be split into separate files
     const urls = [
-      // This will eventually be split into separate files
-      `https://storage.googleapis.com/road-dashboard/item-bank-translations.csv`,
-    ];
-
+      `https://storage.googleapis.com/levante-dashboard-${isDev ? 'dev' : 'prod'}/item-bank-translations.csv`
+    ]
     try {
       await parseCSVs(urls);
     } catch (error) {
