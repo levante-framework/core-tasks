@@ -42,7 +42,7 @@ export const getLayoutConfig = (
       trialType === 'Non-symbolic Number Identification' || trialType === 'Non-symbolic Number Comparison'
         ? ['image-medium']
         : trialType === 'Counting'
-        ? []
+        ? ['primary']
         : ['secondary'];
     defaultConfig.response = {
       target: prepChoices.target,
