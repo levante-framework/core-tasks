@@ -28,11 +28,11 @@ export const getStimulus = (corpusType: string, blockNumber?: number) => {
   }
 
   // end task if there is not enough time to display next stimulus
-  const maxTimeInMilliseconds = taskStore().maxTime * 60000; 
-  const timeElapsed = Date.now()  - taskStore().startTime; 
-  const timeRemaining = maxTimeInMilliseconds - timeElapsed; 
- 
-  checkEndTaskEarly(timeRemaining, stimAudio); 
+  const maxTimeInMilliseconds = taskStore().maxTime * 60000;
+  const timeElapsed = Date.now() - taskStore().startTime;
+  const timeRemaining = maxTimeInMilliseconds - timeElapsed;
+
+  checkEndTaskEarly(timeRemaining, stimAudio);
 
   // store the item for use in the trial
   taskStore('nextStimulus', itemSuggestion.nextStimulus);

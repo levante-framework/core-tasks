@@ -11,19 +11,19 @@ describe('Memory Game Production Video Capture', () => {
 
     // Wait for the page to load completely
     cy.get('body').should('be.visible');
-    
+
     // Wait for OK button to appear
     cy.contains('OK', { timeout: 30000 }).should('be.visible');
     cy.contains('OK').click({ force: true });
 
     // Wait for game to initialize
     cy.wait(5000);
-    
+
     // Play a simplified version of the memory game
     for (let round = 0; round < 3; round++) {
       // Wait for any sequence to play
       cy.wait(3000);
-      
+
       // Try to interact with the game
       cy.get('body').then(($body) => {
         const blocks = $body.find('.jspsych-corsi-block');
@@ -35,24 +35,24 @@ describe('Memory Game Production Video Capture', () => {
             cy.wrap(blocks[1]).click({ force: true });
           }
         }
-        
+
         // Try to find and click OK or Submit buttons
         const okBtn = $body.find('button:contains("OK")');
         const submitBtn = $body.find('button:contains("Submit")');
-        
+
         if (submitBtn.length > 0) {
           cy.wrap(submitBtn.first()).click({ force: true });
         } else if (okBtn.length > 0) {
           cy.wrap(okBtn.first()).click({ force: true });
         }
       });
-      
+
       cy.wait(2000);
     }
-    
+
     // Let the game run a bit longer to capture more content
     cy.wait(10000);
-    
+
     // Try to exit gracefully
     cy.get('body').then(($body) => {
       const exitBtn = $body.find('button:contains("Exit")');
@@ -61,4 +61,4 @@ describe('Memory Game Production Video Capture', () => {
       }
     });
   });
-}); 
+});

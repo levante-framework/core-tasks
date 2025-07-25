@@ -21,7 +21,7 @@ import store from 'store2';
  * @property {boolean} isRoarApp - Whether the app is running in ROAR mode, default is false.
  * @property {boolean} maxTimeReached - Whether the max time has been reached, default is false.
  * @property {number} maxTime - Time limit set for the task.
- * @property {number} startTime - Time at which the task started. 
+ * @property {number} startTime - Time at which the task started.
  * @property {boolean} taskComplete - Whether the task has ended - if true, the user should return to dashboard.
  * ------- Added after config is parsed -------
  * @property {number} totalTrials - Total number trials, including practice and instructions.
@@ -77,7 +77,7 @@ export type TaskStoreDataType = {
   semThreshold: number;
   startingTheta: number;
   language?: string;
-  maxTime?: number
+  maxTime?: number;
 };
 
 /**

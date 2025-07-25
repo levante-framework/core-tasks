@@ -13,10 +13,10 @@ export function addPracticeButtonListeners(stim: StimulusType, isTouchScreen: bo
 
   practiceBtns.forEach((btn, i) => {
     const eventType = isTouchScreen ? 'touchend' : 'click';
-      
+
     btn.addEventListener(eventType, (e) => {
-        handlePracticeButtonPress(btn, stim, practiceBtns, false, i, itemConfig);
-    }); 
+      handlePracticeButtonPress(btn, stim, practiceBtns, false, i, itemConfig);
+    });
   });
 
   if (!isTouchScreen) {

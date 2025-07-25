@@ -7,6 +7,6 @@ $lev-spacing-xs: 16px;
 $lev-spacing-xxs: 12px;
 $lev-spacing-xxxs: 8px;
 
-$adjusted-viewport: min(90vw, 90vh); 
+$adjusted-viewport: min(90vw, 90vh);
 
-$lev-resized-buttons-2: calc(($adjusted-viewport * 0.70) / 2 - 10px);
+$lev-resized-buttons-2: calc(($adjusted-viewport * 0.7) / 2 - 10px);

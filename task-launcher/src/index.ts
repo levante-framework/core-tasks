@@ -4,7 +4,7 @@ import {
   dashToCamelCase,
   showLevanteLogoLoading,
   hideLevanteLogoLoading,
-  combineMediaAssets
+  combineMediaAssets,
 } from './tasks/shared/helpers';
 import './styles/index.scss';
 import taskConfig from './tasks/taskConfig';
@@ -43,13 +43,13 @@ export class TaskLauncher {
     try {
       // will avoid language folder if not provided
       mediaAssets = await getMediaAssets(bucketName, {}, language);
-      sharedMediaAssets = await getMediaAssets(sharedBucketName, {}, language); 
+      sharedMediaAssets = await getMediaAssets(sharedBucketName, {}, language);
     } catch (error) {
       throw new Error('Error fetching media assets: ' + error);
     }
 
     mediaAssets = combineMediaAssets(mediaAssets, sharedMediaAssets);
-    
+
     const config = await setConfig(this.firekit, this.gameParams, this.userParams);
 
     setTaskStore(config);

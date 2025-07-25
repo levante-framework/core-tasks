@@ -19,13 +19,13 @@ describe('Memory Game Complete Run Fixed', () => {
         win.document.exitFullscreen = cy.stub().resolves();
         Object.defineProperty(win.document, 'fullscreenElement', {
           get: () => win.document.documentElement,
-          configurable: true
+          configurable: true,
         });
         Object.defineProperty(win.document, 'fullscreenEnabled', {
           get: () => true,
-          configurable: true
+          configurable: true,
         });
-      }
+      },
     });
 
     takeScreenshot('01-initial-load');
@@ -41,7 +41,7 @@ describe('Memory Game Complete Run Fixed', () => {
 
   function playCompleteMemoryGame() {
     gameLoopCount++;
-    
+
     if (gameLoopCount > maxGameLoops) {
       takeScreenshot('99-max-loops-reached');
       return;
@@ -50,12 +50,14 @@ describe('Memory Game Complete Run Fixed', () => {
     cy.get('body', { timeout: 30000 }).then(($body) => {
       // Check for end screen
       const bodyText = $body.text();
-      if (bodyText.includes('Thank you!') || 
-          bodyText.includes('complete') ||
-          bodyText.includes('finished') ||
-          bodyText.includes('Exit')) {
+      if (
+        bodyText.includes('Thank you!') ||
+        bodyText.includes('complete') ||
+        bodyText.includes('finished') ||
+        bodyText.includes('Exit')
+      ) {
         takeScreenshot('98-game-complete');
-        
+
         // Click Exit if available
         if ($body.find('button:contains("Exit")').length > 0) {
           cy.contains('Exit').click({ force: true });
@@ -70,34 +72,36 @@ describe('Memory Game Complete Run Fixed', () => {
           .should('exist')
           .then((content) => {
             const corsiBlocks = content.find('.jspsych-corsi-block');
-            
+
             if (corsiBlocks.length === 0) {
               // Instructions screen - take screenshot every few instructions
               if (gameLoopCount % 5 === 0) {
                 takeScreenshot(`03-instructions-${Math.floor(gameLoopCount / 5)}`);
               }
-              
+
               // Click OK or continue buttons
               cy.get('body').then(($body) => {
                 const okButton = $body.find('button:contains("OK")');
                 const continueButton = $body.find('button:contains("Continue"), button:contains("Next")');
-                
+
                 if (okButton.length > 0) {
                   cy.contains('OK').click({ force: true });
                 } else if (continueButton.length > 0) {
-                  cy.get('button').contains(/Continue|Next/).first().click({ force: true });
+                  cy.get('button')
+                    .contains(/Continue|Next/)
+                    .first()
+                    .click({ force: true });
                 }
-                
+
                 cy.wait(3000);
                 playCompleteMemoryGame();
               });
-              
             } else {
               // Actual memory game trial
               if (gameLoopCount % 3 === 0) {
                 takeScreenshot(`04-memory-trial-${Math.floor(gameLoopCount / 3)}`);
               }
-              
+
               // Play the memory trial with fixed DOM handling
               playMemoryTrialFixed();
             }
@@ -113,34 +117,34 @@ describe('Memory Game Complete Run Fixed', () => {
         cy.get('p', { timeout: 30000 }).should('not.exist');
       }
     });
-    
+
     // Wait for response phase (when p element appears again)
     cy.get('p', { timeout: 15000 }).should('exist');
-    
+
     // Take screenshot of response phase
     if (gameLoopCount % 3 === 0) {
       takeScreenshot(`05-response-phase-${Math.floor(gameLoopCount / 3)}`);
     }
-    
+
     // Check if blocks exist and click them
     cy.get('body').then(($body) => {
       const blocks = $body.find('.jspsych-corsi-block');
-      
+
       if (blocks.length > 0) {
         // Click first few blocks
         const numClicks = Math.min(2, blocks.length);
-        
+
         for (let i = 0; i < numClicks; i++) {
           cy.get('.jspsych-corsi-block').eq(i).click({ force: true });
           cy.wait(800);
         }
       }
-      
+
       // Wait for trial to process
       cy.wait(4000);
-      
+
       // Continue the game
       playCompleteMemoryGame();
     });
   }
-}); 
+});

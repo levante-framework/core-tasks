@@ -27,12 +27,12 @@ describe('Memory Game Video Capture', () => {
 
 function playMemoryRounds(maxRounds) {
   let roundCount = 0;
-  
+
   function playRound() {
     if (roundCount >= maxRounds) {
       return; // Stop after max rounds
     }
-    
+
     cy.get('.jspsych-content').then((content) => {
       const corsiBlocks = content.find('.jspsych-corsi-block');
 
@@ -42,14 +42,14 @@ function playMemoryRounds(maxRounds) {
       } else {
         // Game screen - wait for sequence to play then respond
         cy.wait(3000); // Wait for sequence to finish
-        
+
         // Click some blocks (not necessarily correct, just for demo)
         cy.wrap(corsiBlocks[0]).click({ force: true });
         if (corsiBlocks.length > 1) {
           cy.wait(500);
           cy.wrap(corsiBlocks[1]).click({ force: true });
         }
-        
+
         roundCount++;
       }
     });
@@ -65,6 +65,6 @@ function playMemoryRounds(maxRounds) {
       }
     });
   }
-  
+
   playRound();
-} 
+}

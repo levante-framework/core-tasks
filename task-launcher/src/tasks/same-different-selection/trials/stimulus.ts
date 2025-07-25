@@ -243,10 +243,10 @@ export const stimulus = (trial?: StimulusType) => {
 
         practiceBtns.forEach((card, i) => {
           const eventType = isTouchScreen ? 'touchend' : 'click';
-         
+
           card.addEventListener(eventType, (e) => {
-              handleButtonFeedback(card, practiceBtns, false, i, 'feedbackGoodJob');
-          }); 
+            handleButtonFeedback(card, practiceBtns, false, i, 'feedbackGoodJob');
+          });
         });
       }
     },

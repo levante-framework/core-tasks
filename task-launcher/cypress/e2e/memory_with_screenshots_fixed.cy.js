@@ -26,7 +26,7 @@ describe('test memory game with screenshots (fixed)', () => {
       const currentContent = $body.html();
       const currentHash = btoa(currentContent).slice(0, 20);
       const currentTime = Date.now();
-      
+
       // Take screenshot if content changed OR if 5 seconds have passed
       if (currentHash !== lastContentHash) {
         cy.screenshot(getScreenshotName(description + '_content_changed'));
@@ -41,14 +41,14 @@ describe('test memory game with screenshots (fixed)', () => {
 
   it('visits memory game and plays it with screenshots', () => {
     lastScreenshotTime = Date.now();
-    
+
     cy.visit(memory_game_url);
     cy.screenshot(getScreenshotName('initial_visit'));
 
     // wait for OK button to appear
     cy.contains('OK', { timeout: 300000 }).should('be.visible');
     cy.screenshot(getScreenshotName('ok_button_visible'));
-    
+
     // Use regular click instead of realClick to avoid fullscreen issues
     cy.contains('OK').click({ force: true });
     cy.screenshot(getScreenshotName('after_ok_click'));
@@ -66,7 +66,7 @@ describe('test memory game with screenshots (fixed)', () => {
 
   function handleInstructionsWithScreenshots() {
     takeSmartScreenshot('handle_instructions_start');
-    
+
     cy.get('body').then(() => {
       // Check if we have corsi blocks or instructions
       cy.get('.jspsych-content').then((content) => {
@@ -84,7 +84,7 @@ describe('test memory game with screenshots (fixed)', () => {
         }
       });
     });
-    
+
     // Add delay and check for time-based screenshot
     cy.wait(1000);
     takeSmartScreenshot('instructions_end');
@@ -93,7 +93,7 @@ describe('test memory game with screenshots (fixed)', () => {
 
   function answerTrialWithScreenshots() {
     cy.screenshot(getScreenshotName('answer_trial_start'));
-    
+
     // Wait for any display phase to complete
     cy.wait(2000);
     cy.screenshot(getScreenshotName('after_display_wait'));
@@ -103,19 +103,19 @@ describe('test memory game with screenshots (fixed)', () => {
 
       if (blocks.length > 0) {
         cy.screenshot(getScreenshotName('blocks_visible_for_response'));
-        
+
         // Try to get sequence information, but continue even if not available
         cy.window().then((window) => {
           if (window.cypressData && window.cypressData.correctAnswer) {
             const sequence = window.cypressData.correctAnswer;
             cy.screenshot(getScreenshotName(`sequence_length_${sequence.length}`));
-            
+
             sequence.forEach((number, index) => {
               if (blocks[number]) {
                 cy.screenshot(getScreenshotName(`before_click_block_${number}_step_${index + 1}`));
                 cy.wrap(blocks[number]).click({ force: true });
                 cy.screenshot(getScreenshotName(`after_click_block_${number}_step_${index + 1}`));
-                
+
                 // Small delay between clicks
                 cy.wait(500);
                 takeSmartScreenshot(`during_sequence_step_${index + 1}`);
@@ -130,14 +130,14 @@ describe('test memory game with screenshots (fixed)', () => {
               cy.screenshot(getScreenshotName(`fallback_click_${i + 1}`));
             }
           }
-          
+
           cy.screenshot(getScreenshotName('trial_completed'));
         });
       } else {
         cy.screenshot(getScreenshotName('no_blocks_found'));
       }
     });
-    
+
     // Check for time-based screenshot after trial
     cy.wait(1000);
     takeSmartScreenshot('trial_end');
@@ -146,7 +146,7 @@ describe('test memory game with screenshots (fixed)', () => {
 
   function memoryLoopWithScreenshots() {
     takeSmartScreenshot('memory_loop_start');
-    
+
     cy.get('body').then(() => {
       cy.get('.jspsych-content').then((content) => {
         const corsiBlocks = content.find('.jspsych-corsi-block');
@@ -170,7 +170,7 @@ describe('test memory game with screenshots (fixed)', () => {
         const bodyText = $body.text();
         if (bodyText.includes('Thank you!') || bodyText.includes('Exit') || bodyText.includes('Complete')) {
           cy.screenshot(getScreenshotName('end_condition_detected'));
-          
+
           // Try to click Exit if available
           cy.get('body').then(() => {
             if ($body.find('button:contains("Exit")').length > 0) {
@@ -188,4 +188,4 @@ describe('test memory game with screenshots (fixed)', () => {
       });
     });
   }
-}); 
+});

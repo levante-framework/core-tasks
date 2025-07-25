@@ -11,14 +11,14 @@ describe('Memory Game Passive Video Capture', () => {
 
     // Wait for the page to load completely
     cy.get('body').should('be.visible');
-    
+
     // Wait a bit for any initial loading
     cy.wait(3000);
-    
+
     // Just let the game run for 60 seconds without any interactions
     // This should capture whatever the game shows naturally
     cy.wait(60000);
-    
+
     // The test ends here - we've captured 60 seconds of whatever the game displays
   });
-}); 
+});

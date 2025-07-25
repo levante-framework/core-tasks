@@ -33,13 +33,15 @@ describe('Memory Game Comprehensive Screenshots', () => {
       // Look for buttons and take screenshots
       if ($body.find('button').length > 0) {
         takeScreenshot('04-buttons-found');
-        
+
         // Try to click any visible buttons
-        cy.get('button:visible').first().then(($btn) => {
-          takeScreenshot('05-before-button-click');
-          cy.wrap($btn).click({ force: true });
-          takeScreenshot('06-after-button-click');
-        });
+        cy.get('button:visible')
+          .first()
+          .then(($btn) => {
+            takeScreenshot('05-before-button-click');
+            cy.wrap($btn).click({ force: true });
+            takeScreenshot('06-after-button-click');
+          });
       }
 
       // Wait and take more screenshots to capture any animations or state changes
@@ -55,17 +57,19 @@ describe('Memory Game Comprehensive Screenshots', () => {
       }
 
       // Try to interact with any clickable elements
-      cy.get('body').find('*').each(($el) => {
-        if ($el.is(':visible') && ($el.is('button') || $el.is('[onclick]') || $el.css('cursor') === 'pointer')) {
-          cy.wrap($el).click({ force: true });
-          takeScreenshot(`10-clicked-element-${$el.prop('tagName')}`);
-          cy.wait(1000);
-        }
-      });
+      cy.get('body')
+        .find('*')
+        .each(($el) => {
+          if ($el.is(':visible') && ($el.is('button') || $el.is('[onclick]') || $el.css('cursor') === 'pointer')) {
+            cy.wrap($el).click({ force: true });
+            takeScreenshot(`10-clicked-element-${$el.prop('tagName')}`);
+            cy.wait(1000);
+          }
+        });
 
       // Take final screenshots
       cy.wait(5000);
       takeScreenshot('11-final-state');
     });
   });
-}); 
+});

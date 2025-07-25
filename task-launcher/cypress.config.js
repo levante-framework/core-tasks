@@ -18,8 +18,8 @@ export default defineConfig({
     pageLoadTimeout: 60000,
     // Reduce video frame rate for smaller files
     env: {
-      videoFrameRate: 5  // Lower frame rate for more compact videos
-    }
+      videoFrameRate: 5, // Lower frame rate for more compact videos
+    },
   },
   retries: {
     runMode: 0,

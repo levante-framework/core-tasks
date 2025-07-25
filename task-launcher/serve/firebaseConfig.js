@@ -7,7 +7,7 @@ const devFirebaseConfig = {
   projectId: 'hs-levante-admin-dev',
   storageBucket: 'hs-levante-admin-dev.firebasestorage.app',
   messagingSenderId: '41590333418',
-  appId: '1:41590333418:web:3468a7caadab802d6e5c93'
+  appId: '1:41590333418:web:3468a7caadab802d6e5c93',
 };
 
 const productionFirebaseConfig = {
@@ -16,7 +16,7 @@ const productionFirebaseConfig = {
   projectId: 'hs-levante-admin-prod',
   storageBucket: 'hs-levante-admin-prod.firebasestorage.app',
   messagingSenderId: '348449903279',
-  appId: '1:348449903279:web:a1b9dad734e2237c7ffa5a'
+  appId: '1:348449903279:web:a1b9dad734e2237c7ffa5a',
 };
 
 export const firebaseConfig = ENV === 'production' ? productionFirebaseConfig : devFirebaseConfig;

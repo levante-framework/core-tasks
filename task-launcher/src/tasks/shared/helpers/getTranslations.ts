@@ -55,8 +55,8 @@ export const getTranslations = async (isDev: boolean, configLanguage?: string) =
   async function fetchData() {
     // This will eventually be split into separate files
     const urls = [
-      `https://storage.googleapis.com/levante-dashboard-${isDev ? 'dev' : 'prod'}/item-bank-translations.csv`
-    ]
+      `https://storage.googleapis.com/levante-dashboard-${isDev ? 'dev' : 'prod'}/item-bank-translations.csv`,
+    ];
     try {
       await parseCSVs(urls);
     } catch (error) {

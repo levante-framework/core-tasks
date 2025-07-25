@@ -16,23 +16,23 @@ describe('Memory Game Bypass Fullscreen', () => {
         // Mock the fullscreen API to always succeed
         win.document.documentElement.requestFullscreen = cy.stub().resolves();
         win.document.exitFullscreen = cy.stub().resolves();
-        
+
         // Mock fullscreen properties
         Object.defineProperty(win.document, 'fullscreenElement', {
           get: () => win.document.documentElement,
-          configurable: true
+          configurable: true,
         });
-        
+
         Object.defineProperty(win.document, 'fullscreenEnabled', {
           get: () => true,
-          configurable: true
+          configurable: true,
         });
 
         // Mock permissions API to always allow fullscreen
         if (win.navigator.permissions) {
           win.navigator.permissions.query = cy.stub().resolves({ state: 'granted' });
         }
-      }
+      },
     });
 
     takeScreenshot('01-initial-load-with-mocked-fullscreen');
@@ -56,7 +56,7 @@ describe('Memory Game Bypass Fullscreen', () => {
     for (let i = 0; i < 10; i++) {
       cy.wait(3000);
       takeScreenshot(`06-game-state-${i + 1}`);
-      
+
       // Try to interact with any visible game elements
       cy.get('body').then(($body) => {
         const clickableElements = $body.find('button:visible, [onclick]:visible, canvas:visible');
@@ -69,4 +69,4 @@ describe('Memory Game Bypass Fullscreen', () => {
 
     takeScreenshot('08-final-state');
   });
-}); 
+});

@@ -6,9 +6,11 @@ describe('Memory Game Final Screenshots', () => {
   // Handle fullscreen permission errors
   Cypress.on('uncaught:exception', (err, runnable) => {
     // Ignore fullscreen permission errors
-    if (err.message.includes('Permissions check failed') || 
-        err.message.includes('fullscreen') ||
-        err.message.includes('enterFullScreen')) {
+    if (
+      err.message.includes('Permissions check failed') ||
+      err.message.includes('fullscreen') ||
+      err.message.includes('enterFullScreen')
+    ) {
       return false;
     }
     // Let other errors fail the test
@@ -27,7 +29,7 @@ describe('Memory Game Final Screenshots', () => {
     // wait for OK button to appear
     cy.contains('OK', { timeout: 300000 }).should('be.visible');
     takeScreenshot('ok-button-visible');
-    
+
     // Try to click OK, but handle fullscreen errors gracefully
     cy.contains('OK').click({ force: true });
     takeScreenshot('after-ok-click');
@@ -54,7 +56,7 @@ describe('Memory Game Final Screenshots', () => {
 
   function handleInstructions() {
     takeScreenshot('instructions-screen');
-    
+
     cy.get('.jspsych-content').then((content) => {
       const corsiBlocks = content.find('.jspsych-corsi-block');
 
@@ -76,11 +78,11 @@ describe('Memory Game Final Screenshots', () => {
 
   function answerTrial() {
     takeScreenshot('trial-start');
-    
+
     // wait for gap after display phase
     cy.get('p', { timeout: 20000 }).should('not.exist');
     cy.get('p').should('exist');
-    
+
     takeScreenshot('after-sequence-display');
 
     cy.get('.jspsych-content').then((content) => {
@@ -88,19 +90,19 @@ describe('Memory Game Final Screenshots', () => {
 
       if (blocks.length > 0) {
         takeScreenshot('blocks-visible-for-input');
-        
+
         // wait for window to contain sequence information
         cy.window().its('cypressData').should('have.property', 'correctAnswer');
 
         cy.window().then((window) => {
           const sequence = window.cypressData.correctAnswer;
-          
+
           sequence.forEach((number, index) => {
             blocks[number].click();
             takeScreenshot(`clicking-block-${index + 1}-of-${sequence.length}`);
             cy.wait(500); // Small delay between clicks
           });
-          
+
           cy.get('p').should('not.exist', { timeout: 5000 });
           takeScreenshot('trial-completed');
         });
@@ -135,4 +137,4 @@ describe('Memory Game Final Screenshots', () => {
       }
     });
   }
-}); 
+});

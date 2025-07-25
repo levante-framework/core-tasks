@@ -17,13 +17,13 @@ describe('Memory Game Simple Complete Run', () => {
         win.document.exitFullscreen = cy.stub().resolves();
         Object.defineProperty(win.document, 'fullscreenElement', {
           get: () => win.document.documentElement,
-          configurable: true
+          configurable: true,
         });
         Object.defineProperty(win.document, 'fullscreenEnabled', {
           get: () => true,
-          configurable: true
+          configurable: true,
         });
-      }
+      },
     });
 
     takeScreenshot('01-initial-load');
@@ -39,11 +39,12 @@ describe('Memory Game Simple Complete Run', () => {
 
   function runGameLoop() {
     // Take screenshot every 10 seconds and interact with game
-    for (let i = 0; i < 12; i++) { // 12 * 10 seconds = 2 minutes
+    for (let i = 0; i < 12; i++) {
+      // 12 * 10 seconds = 2 minutes
       cy.wait(10000); // Wait 10 seconds
-      
+
       takeScreenshot(`${(i + 3).toString().padStart(2, '0')}-game-state-${i + 1}`);
-      
+
       // Try to interact with any visible buttons or elements
       cy.get('body').then(($body) => {
         // Click OK buttons if present
@@ -51,13 +52,16 @@ describe('Memory Game Simple Complete Run', () => {
         if (okButton.length > 0) {
           cy.contains('OK').first().click({ force: true });
         }
-        
+
         // Click Continue/Next buttons if present
         const continueButton = $body.find('button:contains("Continue"), button:contains("Next")');
         if (continueButton.length > 0) {
-          cy.get('button').contains(/Continue|Next/).first().click({ force: true });
+          cy.get('button')
+            .contains(/Continue|Next/)
+            .first()
+            .click({ force: true });
         }
-        
+
         // Click memory blocks if present
         const corsiBlocks = $body.find('.jspsych-corsi-block');
         if (corsiBlocks.length > 0) {
@@ -70,7 +74,7 @@ describe('Memory Game Simple Complete Run', () => {
         }
       });
     }
-    
+
     takeScreenshot('99-final-state');
   }
-}); 
+});

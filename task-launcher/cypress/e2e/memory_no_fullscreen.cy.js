@@ -32,12 +32,12 @@ describe('Memory Game Without Fullscreen', () => {
       // Look for any game-related elements
       const gameSelectors = [
         '[class*="memory"]',
-        '[class*="card"]', 
+        '[class*="card"]',
         '[class*="game"]',
         '[id*="memory"]',
         '[id*="game"]',
         'canvas',
-        'svg'
+        'svg',
       ];
 
       gameSelectors.forEach((selector, index) => {
@@ -53,7 +53,7 @@ describe('Memory Game Without Fullscreen', () => {
         // Try to find and trigger the memory game without fullscreen
         if (win.document.querySelector('button')) {
           takeScreenshot('05-buttons-available');
-          
+
           // Look for non-fullscreen buttons
           cy.get('button').each(($btn) => {
             const btnText = $btn.text().toLowerCase();
@@ -66,16 +66,22 @@ describe('Memory Game Without Fullscreen', () => {
         }
 
         // Try to trigger memory game initialization directly
-        cy.window().its('jsPsych').then((jsPsych) => {
-          if (jsPsych) {
-            takeScreenshot('07-jspsych-available');
-            // Try to access the memory game without fullscreen
-          }
-        }).then(() => {
-          takeScreenshot('08-after-jspsych-check');
-        }, () => {
-          takeScreenshot('08-no-jspsych');
-        });
+        cy.window()
+          .its('jsPsych')
+          .then((jsPsych) => {
+            if (jsPsych) {
+              takeScreenshot('07-jspsych-available');
+              // Try to access the memory game without fullscreen
+            }
+          })
+          .then(
+            () => {
+              takeScreenshot('08-after-jspsych-check');
+            },
+            () => {
+              takeScreenshot('08-no-jspsych');
+            },
+          );
 
         // Wait and take more screenshots to see if anything loads
         cy.wait(5000);
@@ -91,4 +97,4 @@ describe('Memory Game Without Fullscreen', () => {
       });
     });
   });
-}); 
+});

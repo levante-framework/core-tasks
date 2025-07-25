@@ -10,7 +10,6 @@ import firebaseJSON from '../firebase.json';
 // Import necessary in order to use async/await at the top level
 import 'regenerator-runtime/runtime';
 
-
 /**
  * Initialize Sentry first!
  */
@@ -58,8 +57,7 @@ const storeItemId = stringToBoolean(urlParams.get('storeItemId'), false);
 const cat = stringToBoolean(urlParams.get('cat'), false);
 const heavyInstructions = stringToBoolean(urlParams.get('heavyInstructions'), false);
 
-
-const emulatorConfig  = EMULATORS ? firebaseJSON.emulators : undefined;
+const emulatorConfig = EMULATORS ? firebaseJSON.emulators : undefined;
 
 async function startWebApp() {
   const appKit = await initializeFirebaseProject(firebaseConfig, 'admin', emulatorConfig, 'none');

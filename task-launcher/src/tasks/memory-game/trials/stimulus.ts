@@ -127,7 +127,7 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false, rese
           corpusTrialType: getMemoryGameType(mode, reverse, gridSize),
           responseLocation: data.response,
           itemUid: itemUid,
-          audioFile: reverse ? 'memory-game-backward-prompt' : 'memory-game-input', 
+          audioFile: reverse ? 'memory-game-backward-prompt' : 'memory-game-input',
         });
         taskStore('isCorrect', data.correct);
 
