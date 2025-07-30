@@ -1,1 +1,0 @@
-bash: ./capture_all_tasks_complete.sh: No such file or directory
