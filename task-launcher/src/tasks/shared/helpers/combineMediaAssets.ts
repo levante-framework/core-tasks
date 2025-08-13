@@ -1,19 +1,28 @@
 function combineMediaType(
-  mediaAssets: MediaAssetsType,
-  sharedMediaAssets: MediaAssetsType,
+  sources: MediaAssetsType[],
   mediaType: 'audio' | 'images' | 'video',
 ) {
-  Object.keys(sharedMediaAssets[mediaType]).forEach((key) => {
-    mediaAssets[mediaType][key] = sharedMediaAssets[mediaType][key];
-  });
+  const singleTypeMedia: Record<string, string> = {}
 
-  return mediaAssets[mediaType];
+  for (let i = 0; i < sources.length; i++) {
+    Object.keys(sources[i][mediaType]).forEach((key) => {
+      singleTypeMedia[key] = sources[i][mediaType][key];
+    });
+  }
+  
+  return singleTypeMedia;
 }
 
-export function combineMediaAssets(mediaAssets: MediaAssetsType, sharedMediaAssets: MediaAssetsType) {
-  mediaAssets.audio = combineMediaType(mediaAssets, sharedMediaAssets, 'audio');
-  mediaAssets.images = combineMediaType(mediaAssets, sharedMediaAssets, 'images');
-  mediaAssets.video = combineMediaType(mediaAssets, sharedMediaAssets, 'video');
+export function combineMediaAssets(sources: MediaAssetsType[]) {
+  const combinedMediaAssets: MediaAssetsType = {
+    images: {}, 
+    audio: {}, 
+    video: {},
+  }
 
-  return mediaAssets;
+  combinedMediaAssets.audio = combineMediaType(sources,'audio');
+  combinedMediaAssets.images = combineMediaType(sources, 'images');
+  combinedMediaAssets.video = combineMediaType(sources, 'video');
+
+  return combinedMediaAssets;
 }

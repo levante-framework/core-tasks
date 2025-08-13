@@ -200,9 +200,9 @@ const transformCSV = (
 export const getCorpus = async (config: Record<string, any>, isDev: boolean) => {
   const { corpus, task, sequentialStimulus, numOfPracticeTrials } = config;
 
-  const bucketName = getBucketName(task, isDev);
+  const bucketName = getBucketName(task, isDev, 'corpus');
 
-  const corpusUrl = `https://storage.googleapis.com/${bucketName}/shared/corpora/${corpus}.csv?alt=media`;
+  const corpusUrl = `https://storage.googleapis.com/${bucketName}/${corpus}.csv?alt=media`;
 
   function downloadCSV(url: string) {
     return new Promise((resolve, reject) => {
@@ -228,7 +228,7 @@ export const getCorpus = async (config: Record<string, any>, isDev: boolean) => 
 
   async function fetchData() {
     const urls = [corpusUrl];
-
+    console.log(corpusUrl);
     try {
       await parseCSVs(urls);
       taskStore('totalTrials', totalTrials);
