@@ -1,6 +1,7 @@
 import _shuffle from 'lodash/shuffle';
 import { taskStore } from '../../../taskStore';
 import { cat } from '../../taskSetup';
+import { jsPsych } from '../../taskSetup';
 
 // separates trials from corpus into blocks depending on for heavy/light instructions and CAT
 export function prepareCorpus(corpus: StimulusType[]) {
@@ -128,4 +129,8 @@ export function updateTheta(item: StimulusType, correct: boolean) {
       cat.updateAbilityEstimate(zeta, answer);
     }
   }
+
+  jsPsych.data.addDataToLastTrial({
+    thetaEstimate: cat.theta,
+  })
 }
