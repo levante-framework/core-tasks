@@ -6,12 +6,13 @@
     "hs-levante-admin-dev": {
       "hosting": {
         "core-tasks": [
-          "core-tasks"
+          "levante-tasks-demo"
         ],
         "test": [
           "core-tasks-testing"
         ]
       }
     }
-  }
+  },
+  "etags": {}
 }
