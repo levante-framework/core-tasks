@@ -228,7 +228,6 @@ export const getCorpus = async (config: Record<string, any>, isDev: boolean) => 
 
   async function fetchData() {
     const urls = [corpusUrl];
-    console.log(corpusUrl);
     try {
       await parseCSVs(urls);
       taskStore('totalTrials', totalTrials);

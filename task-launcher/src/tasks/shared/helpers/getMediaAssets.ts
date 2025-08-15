@@ -36,7 +36,7 @@ export async function getMediaAssets(
   if (nextPageToken) {
     url += `&pageToken=${nextPageToken}`;
   }
-  console.log(url);
+  
   const response = await fetch(url);
   const data: ResponseDataType = await response.json();
 
