@@ -35,7 +35,14 @@ export class TaskLauncher {
   async init() {
     await this.firekit.startRun();
 
-    const { taskName, language } = this.gameParams;
+    const { taskName } = this.gameParams;
+    let { language } = this.gameParams;
+
+    // adding this to handle old 'es' variant language param values
+    if (language === "es") {
+      language = "es-CO"; 
+    }
+
     const { setConfig, getCorpus, buildTaskTimeline, getTranslations } =
       taskConfig[dashToCamelCase(taskName) as keyof typeof taskConfig];
 

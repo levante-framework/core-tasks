@@ -30,7 +30,7 @@ export async function getMediaAssets(
   const bucket = parts[0]; 
   const folder = parts.slice(1).join("/")
   
-  const baseUrl = `https://storage.googleapis.com/storage/v1/b/${bucket}/o?prefix=${folder}`;
+  const baseUrl = `https://storage.googleapis.com/storage/v1/b/${bucket}/o?prefix=${folder}/`;
   
   let url = baseUrl;
   if (nextPageToken) {
