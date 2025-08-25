@@ -319,7 +319,7 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
   // note: nextStimulus is actually the current stimulus
   const stimulus = trial || taskStore().nextStimulus;
   const itemLayoutConfig = layoutConfigMap?.[stimulus.itemId];
-  const { runCat } = taskStore();
+  const { runCat, corpus} = taskStore();
   let responseValue = null;
   let target = null;
   let responseIndex = null;
@@ -373,13 +373,13 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
       responseLocation: responseIndex,
       itemUid: stimulus.itemUid,
       audioFile: stimulus.audioFile,
+      corpus: corpus,
     });
 
     // corpusId and itemId fields are used by ROAR but not ROAD
     if (taskStore().storeItemId) {
       jsPsych.data.addDataToLastTrial({
         corpusId: taskStore().corpusId,
-        corpus: taskStore().corpus, // adding this for ROAR compatibility
         itemId: stimulus.itemId,
       });
     }
