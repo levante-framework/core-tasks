@@ -48,9 +48,9 @@ export class TaskLauncher {
     try {
       // will avoid language folder if not provided
       languageAudioAssets = await getMediaAssets(languageAudioBucket, {}, taskName, language);
-      sharedAudioAssets = await getMediaAssets(sharedAudioBucket, {}, taskName, language);
+      sharedAudioAssets = await getMediaAssets(sharedAudioBucket, {}, taskName, 'shared');
       taskVisualAssets = await getMediaAssets(taskVisualBucket, {}, taskName, language);
-      sharedVisualAssets = await getMediaAssets(sharedVisualBucket, {}, taskName, language);
+      sharedVisualAssets = await getMediaAssets(sharedVisualBucket, {}, 'shared', language);
     } catch (error) {
       throw new Error('Error fetching media assets: ' + error);
     }
