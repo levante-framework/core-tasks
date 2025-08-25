@@ -1,0 +1,50 @@
+# Example workflow for levante_translations repo
+name: Deploy with core-tasks validation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  deploy-and-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Deploy translations to staging
+        if: github.event_name == 'pull_request'
+        run: |
+          # Deploy to dev bucket for testing
+          gsutil cp itembank_translations.csv gs://levante-dashboard-dev/
+      
+      - name: Trigger core-tasks tests
+        id: trigger-tests
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.REPO_DISPATCH_TOKEN }}
+          repository: levante-framework/core-tasks
+          event-type: translations-updated
+          client-payload: |
+            {
+              "ref": "${{ github.ref }}",
+              "sha": "${{ github.sha }}",
+              "pr_number": "${{ github.event.number }}",
+              "callback_repo": "${{ github.repository }}"
+            }
+      
+      - name: Wait for core-tasks tests
+        uses: lewagon/wait-on-check-action@v1.3.1
+        with:
+          ref: main
+          repo-token: ${{ secrets.REPO_DISPATCH_TOKEN }}
+          running-workflow-name: 'Test after translations update'
+          repo: levante-framework/core-tasks
+          wait-interval: 30
+          
+      - name: Deploy to production
+        if: github.ref == 'refs/heads/main' && success()
+        run: |
+          # Only deploy to prod if tests pass
+          gsutil cp itembank_translations.csv gs://levante-dashboard-prod/
