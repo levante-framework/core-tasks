@@ -1,4 +1,4 @@
-const hearts_and_flowers_url = 'http://localhost:8080/?task=hearts-and-flowers';
+const hearts_and_flowers_url = 'http://localhost:8080/?task=hearts-and-flowers&language=en';
 
 // keep track of game phase (true means it has started)
 var heart_phase = false;
@@ -9,11 +9,34 @@ var mixed_test = false;
 
 describe('test hearts and flowers', () => {
   it('visits hearts and flowers and plays game', () => {
-    cy.visit(hearts_and_flowers_url);
+    // Stub translations CSV so required keys exist
+    cy.intercept(
+      { method: 'GET', url: /levante-assets-(dev|prod)\/translations\/itembank\/item-bank-translations\.csv.*/ },
+      (req) => {
+        req.reply({ fixture: 'item-bank-translations.csv', headers: { 'content-type': 'text/csv' } });
+      },
+    );
 
-    // wait for OK button to appear
-    cy.contains('OK', { timeout: 300000 }).should('be.visible');
-    cy.contains('OK').realClick(); // start fullscreen
+    cy.visit(hearts_and_flowers_url, {
+      timeout: 60000,
+      onBeforeLoad(win) {
+        // Mock fullscreen API to avoid permission errors in headless browsers
+        win.document.documentElement.requestFullscreen = cy.stub().resolves();
+        win.document.exitFullscreen = cy.stub().resolves();
+        Object.defineProperty(win.document, 'fullscreenElement', {
+          get: () => win.document.documentElement,
+          configurable: true,
+        });
+        Object.defineProperty(win.document, 'fullscreenEnabled', {
+          get: () => true,
+          configurable: true,
+        });
+      },
+    });
+
+    // wait for primary button to appear (continue/ok) and click it
+    cy.get('.primary', { timeout: 300000 }).should('be.visible');
+    cy.get('.primary').first().click({ force: true }); // start fullscreen
 
     hafLoop();
   });
@@ -44,7 +67,7 @@ function handleInstructions() {
     const okButton = content.find('.primary');
 
     if (okButton.length) {
-      cy.contains('OK').click();
+      cy.get('.primary').first().click({ force: true });
 
       final_instructions = mixed_practice;
     }
