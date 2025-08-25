@@ -17,7 +17,7 @@ jobs:
         if: github.event_name == 'pull_request'
         run: |
           # Deploy to dev bucket for testing
-          #gsutil cp itembank_translations.csv gs://levante-dashboard-dev/
+          #gsutil cp itembank_translations.csv gs://levante-assets-dev/translations/itembank
       
       - name: Trigger core-tasks tests
         id: trigger-tests
@@ -47,4 +47,4 @@ jobs:
         if: github.ref == 'refs/heads/main' && success()
         run: |
           # Only deploy to prod if tests pass
-          # gsutil cp itembank_translations.csv gs://levante-dashboard-prod/
+          # gsutil cp itembank_translations.csv gs://levante-assets-prod/translations/itembank
