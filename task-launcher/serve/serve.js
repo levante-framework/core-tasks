@@ -3,6 +3,8 @@ import { onAuthStateChanged, signInAnonymously } from 'firebase/auth';
 import * as Sentry from '@sentry/browser';
 import i18next from 'i18next';
 import { TaskLauncher } from '../src';
+import { createApp } from 'vue';
+import { router } from './router';
 import { firebaseConfig } from './firebaseConfig';
 import { stringToBoolean } from '../src/tasks/shared/helpers/stringToBoolean';
 import firebaseJSON from '../firebase.json';
@@ -60,6 +62,13 @@ const heavyInstructions = stringToBoolean(urlParams.get('heavyInstructions'), fa
 const emulatorConfig = EMULATORS ? firebaseJSON.emulators : undefined;
 
 async function startWebApp() {
+  // If the test route is requested, mount a minimal Vue shell and return
+  if (location.pathname === '/test-insufficient-resources') {
+    const app = createApp({ template: '<router-view />' });
+    app.use(router);
+    app.mount('body');
+    return;
+  }
   const appKit = await initializeFirebaseProject(firebaseConfig, 'admin', emulatorConfig, 'none');
 
   onAuthStateChanged(appKit.auth, (user) => {
