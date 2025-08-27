@@ -1,6 +1,7 @@
 import { testAfc } from './helpers.cy.js';
 
-const math_url = 'http://localhost:8080/?task=egma-math';
+const PORT = Cypress.env('DEV_PORT') || 8083;
+const math_url = `http://localhost:${PORT}/?task=egma-math`;
 
 describe('test math', () => {
   it('visits math and plays game', () => {
