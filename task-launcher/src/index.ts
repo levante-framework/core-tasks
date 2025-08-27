@@ -65,6 +65,10 @@ export class TaskLauncher {
     mediaAssets = combineMediaAssets(
       [languageAudioAssets, sharedAudioAssets, taskVisualAssets, sharedVisualAssets]
     );
+    // Expose resolved media assets for e2e validation (dev/test only)
+    if (typeof window !== 'undefined') {
+      (window as any).__mediaAssets = mediaAssets;
+    }
     const config = await setConfig(this.firekit, this.gameParams, this.userParams);
 
     setTaskStore(config);
