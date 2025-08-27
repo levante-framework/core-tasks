@@ -1,0 +1,16 @@
+item_id,en
+continue-button-text,Continue
+general-fullscreen,Switch to full screen mode
+heart-instruct1,This is the heart game. Here's how you play it.
+flower-instruct1,This is the flower game. Here's how you play.
+hearts-and-flowers-practice-time,Time to practice!
+hearts-and-flowers-instruct1,This time the game will go faster. It won't tell you if you are right or wrong.
+hearts-and-flowers-instruct2,Try to answer as fast as you can without making mistakes.
+hearts-and-flowers-instruct3,Now, we're going to play a game with hearts and flowers.
+hearts-and-flowers-end,Great job! You've completed the game.
+heart-instruct2,When you see a HEART, press the button on the SAME side.
+flower-instruct2,When you see a FLOWER, press the button on the OPPOSITE side.
+heart-practice-feedback1,The heart is on the right side. Press the right button.
+flower-practice-feedback1,The flower is on the left side. Press the right button.
+feedback-good-job,Good job!
+

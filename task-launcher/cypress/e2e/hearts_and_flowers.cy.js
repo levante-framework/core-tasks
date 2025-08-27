@@ -1,4 +1,4 @@
-const PORT = Cypress.env('DEV_PORT') || 8083;
+const PORT = Cypress.env('DEV_PORT') || 8080;
 const hearts_and_flowers_url = `http://localhost:${PORT}/?task=hearts-and-flowers`;
 
 // keep track of game phase (true means it has started)
