@@ -4,6 +4,14 @@ export default defineConfig({
   e2e: {
     setupNodeEvents(on, config) {
       // implement node event listeners here
+      on('task', {
+        progress(message) {
+          // immediate progress to STDOUT for long runs
+          // eslint-disable-next-line no-console
+          console.log(String(message));
+          return null;
+        },
+      });
     },
     // Video recording settings
     video: true,
