@@ -57,7 +57,8 @@
     "lodash": "^4.17.21",
     "papaparse": "^5.4.1",
     "regenerator-runtime": "^0.13.9",
-    "store2": "^2.13.2"
+    "store2": "^2.13.2",
+    "vue-router": "^4.5.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.22.5",

@@ -1,0 +1,1 @@
+CHROME_BIN="/mnt/c/Program Files/Google/Chrome/Application/chrome.exe" ./run_stress.sh

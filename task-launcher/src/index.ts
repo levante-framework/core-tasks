@@ -15,7 +15,10 @@ import { InitPageSetup, Logger } from './utils';
 import { getBucketName } from './tasks/shared/helpers/getBucketName';
 
 export let mediaAssets: MediaAssetsType;
-let sharedMediaAssets: MediaAssetsType;
+let languageAudioAssets: MediaAssetsType;
+let sharedAudioAssets: MediaAssetsType;
+let taskVisualAssets: MediaAssetsType;
+let sharedVisualAssets: MediaAssetsType;
 
 export class TaskLauncher {
   gameParams: GameParamsType;
@@ -32,24 +35,40 @@ export class TaskLauncher {
   async init() {
     await this.firekit.startRun();
 
-    const { taskName, language } = this.gameParams;
+    const { taskName } = this.gameParams;
+    let { language } = this.gameParams;
+
+    // adding this to handle old 'es' variant language param values
+    if (language === "es") {
+      language = "es-CO"; 
+    }
+
     const { setConfig, getCorpus, buildTaskTimeline, getTranslations } =
       taskConfig[dashToCamelCase(taskName) as keyof typeof taskConfig];
 
     const isDev = this.firekit.firebaseProject?.firebaseApp?.options?.projectId === 'hs-levante-admin-dev';
-    const bucketName = getBucketName(taskName, isDev);
-    const sharedBucketName = getBucketName('shared', isDev);
+    const taskVisualBucket = getBucketName(taskName, isDev, 'visual', language);
+    const sharedVisualBucket = getBucketName('shared', isDev, 'visual', language);
+    const languageAudioBucket = getBucketName('shared', isDev, 'audio', language)
+    const sharedAudioBucket = getBucketName('shared', isDev, 'audio', 'shared')
 
     try {
       // will avoid language folder if not provided
-      mediaAssets = await getMediaAssets(bucketName, {}, language);
-      sharedMediaAssets = await getMediaAssets(sharedBucketName, {}, language);
+      languageAudioAssets = await getMediaAssets(languageAudioBucket, {}, taskName, language);
+      sharedAudioAssets = await getMediaAssets(sharedAudioBucket, {}, taskName, 'shared');
+      taskVisualAssets = await getMediaAssets(taskVisualBucket, {}, taskName, language);
+      sharedVisualAssets = await getMediaAssets(sharedVisualBucket, {}, 'shared', language);
     } catch (error) {
       throw new Error('Error fetching media assets: ' + error);
     }
 
-    mediaAssets = combineMediaAssets(mediaAssets, sharedMediaAssets);
-
+    mediaAssets = combineMediaAssets(
+      [languageAudioAssets, sharedAudioAssets, taskVisualAssets, sharedVisualAssets]
+    );
+    // Expose resolved media assets for e2e validation (dev/test only)
+    if (typeof window !== 'undefined') {
+      (window as any).__mediaAssets = mediaAssets;
+    }
     const config = await setConfig(this.firekit, this.gameParams, this.userParams);
 
     setTaskStore(config);

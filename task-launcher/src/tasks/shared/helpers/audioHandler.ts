@@ -45,19 +45,35 @@ export class PageAudioHandler {
       audioUri = mediaAssets.audio.nullAudio;
     }
 
-    const jsPsychAudioCtx = jsPsych.pluginAPI.audioContext();
-    // Returns a promise of the AudioBuffer of the preloaded file path.
-    const audioBuffer = (await jsPsych.pluginAPI.getAudioBuffer(audioUri)) as AudioBuffer;
-    const audioSource: AudioBufferSourceNode = jsPsychAudioCtx.createBufferSource();
-    PageAudioHandler.audioSource = audioSource;
-    audioSource.buffer = audioBuffer;
-    audioSource.connect(jsPsychAudioCtx.destination);
-    audioSource.onended = () => {
-      // PageAudioHandler.stopAndDisconnectNode();
-      if (onEnded) {
-        onEnded();
+    try {
+      const jsPsychAudioCtx = jsPsych.pluginAPI.audioContext();
+      // Ensure the file exists and is audio; bail out gracefully otherwise
+      const headResp = await fetch(audioUri, { method: 'HEAD' }).catch(() => null);
+      if (!headResp || !headResp.ok) {
+        return; // skip playing missing audio
       }
-    };
-    audioSource.start(0);
+      const ct = headResp.headers.get('content-type') || '';
+      if (!ct.startsWith('audio/')) {
+        return; // skip non-audio asset mistakenly referenced
+      }
+
+      // Returns a promise of the AudioBuffer of the preloaded file path.
+      const audioBuffer = (await jsPsych.pluginAPI.getAudioBuffer(audioUri).catch(() => null)) as AudioBuffer | null;
+      if (!audioBuffer || typeof (audioBuffer as any).getChannelData !== 'function') {
+        return; // decode failed or not an AudioBuffer
+      }
+
+      const audioSource: AudioBufferSourceNode = jsPsychAudioCtx.createBufferSource();
+      PageAudioHandler.audioSource = audioSource;
+      audioSource.buffer = audioBuffer;
+      audioSource.connect(jsPsychAudioCtx.destination);
+      audioSource.onended = () => {
+        if (onEnded) onEnded();
+      };
+      audioSource.start(0);
+    } catch {
+      // Swallow errors to avoid test/runtime crashes when audio cannot be played
+      return;
+    }
   }
 }

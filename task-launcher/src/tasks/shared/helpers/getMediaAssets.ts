@@ -22,25 +22,29 @@ export async function getMediaAssets(
   bucketName: string,
   whitelist: Record<string, any> = {},
   language: string,
+  taskName: string,
   nextPageToken = '',
   categorizedObjects: CategorizedObjectsType = { images: {}, audio: {}, video: {} },
 ) {
-  const device = getDevice();
-
-  const baseUrl = `https://storage.googleapis.com/storage/v1/b/${bucketName}/o`;
+  const parts = bucketName.split("/"); 
+  const bucket = parts[0]; 
+  const folder = parts.slice(1).join("/")
+  
+  const baseUrl = `https://storage.googleapis.com/storage/v1/b/${bucket}/o?prefix=${folder}/`;
+  
   let url = baseUrl;
   if (nextPageToken) {
-    url += `?pageToken=${nextPageToken}`;
+    url += `&pageToken=${nextPageToken}`;
   }
-
+  
   const response = await fetch(url);
   const data: ResponseDataType = await response.json();
 
   data.items.forEach((item) => {
-    if (isLanguageAndDeviceValid(item.name, language, device) && isWhitelisted(item.name, whitelist)) {
+    if (isLanguageAndDeviceValid(item.name, taskName, language) && isWhitelisted(item.name, whitelist)) {
       const contentType = item.contentType;
       const id = item.name;
-      const path = `https://storage.googleapis.com/${bucketName}/${id}`;
+      const path = `https://storage.googleapis.com/${bucket}/${id}`;
       const fileName = id.split('/').pop()?.split('.')[0] || '';
       const camelCaseFileName = camelize(fileName);
 
@@ -55,21 +59,23 @@ export async function getMediaAssets(
   });
 
   if (data.nextPageToken) {
-    return getMediaAssets(bucketName, whitelist, language, data.nextPageToken, categorizedObjects);
+    return getMediaAssets(bucketName, whitelist, taskName, language, data.nextPageToken, categorizedObjects);
   } else {
-    // console.log({categorizedObjects})
     return categorizedObjects;
   }
 }
 
-function isLanguageAndDeviceValid(filePath: string, languageCode: string, device: string) {
+function isLanguageAndDeviceValid(filePath: string, languageCode: string, taskName: string) {
   const parts = filePath.split('/');
-  if (parts[0] === 'shared') {
-    return true; // Shared folder is always valid
+  
+  if (parts.length !== 3) {
+    return false
   }
-
-  if (parts[0] === languageCode) {
-    return parts.length > 1 && (parts[1] === device || parts[1] === 'shared');
+  else if (parts[0] === 'visual') { // visual assets have task prefix
+    return parts[1] === taskName && parts[2].length !== 0;
+  }
+  else if (parts[0] === 'audio') { // audio assets have language prefix
+    return parts[1] == languageCode && parts[2].length !== 0;
   }
 
   return false; // Not a valid path

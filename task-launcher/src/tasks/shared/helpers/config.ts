@@ -49,7 +49,7 @@ const defaultCorpus: Record<string, string> = {
   egmaMath: 'math-item-bank',
   matrixReasoning: 'matrix-reasoning-item-bank',
   mentalRotation: 'mental-rotation-item-bank',
-  sameDifferentSelection: 'same-different-selection-item-bank-v5',
+  sameDifferentSelection: 'same-different-selection-item-bank',
   trog: 'trog-item-bank',
   theoryOfMind: 'theory-of-mind-item-bank',
   vocab: 'vocab-item-bank',
