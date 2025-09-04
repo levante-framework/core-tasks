@@ -1,8 +1,8 @@
 // setup
 import 'regenerator-runtime/runtime';
 import { jsPsych } from '../taskSetup';
-import { initTrialSaving, initTimeline, createPreloadTrials } from '../shared/helpers';
-import { prepareCorpus } from '../shared/helpers/prepareCat';
+import { initTrialSaving, initTimeline, createPreloadTrials, filterMedia, batchMediaAssets } from '../shared/helpers';
+import { prepareCorpus, prepareMultiBlockCat } from '../shared/helpers/prepareCat';
 import { initializeCat } from '../taskSetup';
 // trials
 import { dataQualityScreen } from '../shared/trials/dataQuality';
@@ -29,15 +29,34 @@ import {
 } from './trials/heavyInstructions';
 import { setTrialBlock } from './helpers/setTrialBlock';
 
-export default function buildSameDifferentTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
-  const preloadTrials = createPreloadTrials(mediaAssets).default;
+export default function buildSameDifferentTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) { 
   const heavy: boolean = taskStore().heavyInstructions;
 
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
   const preparedCorpus = prepareCorpus(corpus);
 
+   // create list of trials in each block
+  const blockList = prepareMultiBlockCat(corpus);
+  
+  const {batchedMediaAssets, batchedAssetNames} = batchMediaAssets(mediaAssets, blockList); 
+
+  // get any remaining assets from first block or that aren't specified as part of a block to be preloaded first
+  const initialAudio = Object.keys(mediaAssets.audio).filter((key: string) => {
+    return (
+      !batchedAssetNames.audio.includes(key) || 
+      Object.keys(batchedMediaAssets[0].audio).includes(key)
+    );
+  })
+  const initialImages = Object.keys(batchedMediaAssets[0].images); 
+  const initialVideo = Object.keys(mediaAssets.video);
+
+  const initialMediaAssets = filterMedia(mediaAssets, initialImages, initialAudio, initialVideo); 
+  const initialPreload = createPreloadTrials(initialMediaAssets).default;
+
   initTrialSaving(config);
+
   const initialTimeline = initTimeline(config, enterFullscreen, finishExperiment);
+  const timeline = [initialTimeline, initialPreload];
 
   const buttonNoise = {
     timeline: [getAudioResponse(mediaAssets)],
@@ -78,8 +97,6 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
     },
   };
 
-  const timeline = [preloadTrials, initialTimeline];
-
   // all instructions + practice trials
   const instructionPractice: StimulusType[] = heavy ? preparedCorpus.ipHeavy : preparedCorpus.ipLight;
 
@@ -93,6 +110,15 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
 
   const totalRealTrials = blockCountList.reduce((acc, total) => acc + total, 0);
   taskStore('totalTestTrials', totalRealTrials);
+
+  // counter for the next block to preload
+  let currPreloadBatch = 1;
+
+  // function to preload assets in batches at the beginning of each task block 
+  function preloadBlock() {
+    timeline.push(createPreloadTrials(batchedMediaAssets[currPreloadBatch]).default)
+    currPreloadBatch ++; 
+  };
 
   // functions to add trials to blocks of each type
   function updateTestDimensions() {
@@ -124,8 +150,15 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
     updateMatching,
   ];
 
+  // preload next batch of assets at these blocks
+  const preloadBlockIndexes = [1, 2];
+
   // add trials to timeline according to block structure defined in blockOperations
   blockCountList.forEach((count, index) => {
+    if (preloadBlockIndexes.includes(index)) {
+      preloadBlock();
+    }
+
     const currentBlockInstructionPractice = getPracticeInstructions(index);
 
     // push in instruction + practice trials

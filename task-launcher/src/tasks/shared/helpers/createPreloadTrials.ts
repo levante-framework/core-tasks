@@ -10,7 +10,7 @@ function createJsPsychPreloadObject() {
     show_detailed_errors: true,
     max_load_time: null,
     // Limit concurrent asset loads to prevent browser resource exhaustion
-    max_load_concurrent: 6,
+    //max_load_concurrent: 6,
     on_error: null,
     on_success: null,
     images: [],
@@ -21,7 +21,7 @@ function createJsPsychPreloadObject() {
 
 // TODO: Handle shared files when using blocks.
 export function createPreloadTrials(categorizedObjects: MediaAssetsType, blocks: string[] = []) {
-  const CHUNK_SIZE = Number((window as any)?.PRELOAD_CHUNK_SIZE) || 50; // cap initial preload per category
+  //const CHUNK_SIZE = Number((window as any)?.PRELOAD_CHUNK_SIZE) || 50; // cap initial preload per category
   // Initialize jsPsychPreload trial objects for each block
   const trials =
     blocks.length > 0
@@ -57,6 +57,7 @@ export function createPreloadTrials(categorizedObjects: MediaAssetsType, blocks:
     });
   });
 
+  /*
   // Cap the number of assets enqueued per category to avoid flooding the browser
   Object.values(trials).forEach((trialObj: any) => {
     ['images', 'audio', 'video'].forEach((cat) => {
@@ -65,6 +66,10 @@ export function createPreloadTrials(categorizedObjects: MediaAssetsType, blocks:
       }
     });
   });
+  */
+  
+  
+  console.log(trials.default);
 
   return trials;
 }
