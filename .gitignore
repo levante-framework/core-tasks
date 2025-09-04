@@ -11,7 +11,3 @@ test-results/
 lib/
 .env
 .idea/
-
-# don't commit cypress screenshots and videos
-cypress/screenshots/
-cypress/videos/
