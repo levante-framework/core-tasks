@@ -4,7 +4,7 @@ import { PageStateHandler, PageAudioHandler, replayButtonSvg, setupReplayAudio }
 import { jsPsych } from '../../taskSetup';
 import { taskStore } from '../../../taskStore';
 
-const instructionData = [
+export const instructionData = [
   {
     prompt: 'matrixReasoningInstruct1',
     image: 'matrixExample', // GIF?

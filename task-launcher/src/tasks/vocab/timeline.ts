@@ -127,7 +127,7 @@ export default function buildVocabTimeline(config: Record<string, any>, mediaAss
     const numOfTrials = taskStore().totalTrials;
     taskStore('totalTestTrials', getRealTrials(corpus));
     for (let i = 0; i < numOfTrials; i++) {
-      if (i > 0 && i % 25 === 0) {
+      if (i > 0 && i % batchSize === 0) {
         preloadBatch(); 
       }
 

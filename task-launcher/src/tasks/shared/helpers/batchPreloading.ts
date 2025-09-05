@@ -27,7 +27,7 @@ export function batchMediaAssets(mediaAssets: MediaAssetsType, batchList: Stimul
 
     let blockImages: string[] = []; 
     currBatchTrials.forEach(trial => {
-      ['image', 'distractors'].forEach((string) => {
+      ['image', 'distractors', 'answer'].forEach((string) => {
         const trialField = trial[string as 'image' | 'distractors'] as any;
 
         if (trialField !== undefined && trialField.length !== 0) {

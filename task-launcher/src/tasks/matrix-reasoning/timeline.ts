@@ -1,7 +1,16 @@
 import 'regenerator-runtime/runtime';
 // setup
-import { initTrialSaving, initTimeline, createPreloadTrials, getRealTrials } from '../shared/helpers';
-import { instructions } from './trials/instructions';
+import { 
+  initTrialSaving, 
+  initTimeline, 
+  createPreloadTrials, 
+  getRealTrials, 
+  batchTrials, 
+  batchMediaAssets, 
+  filterMedia,
+  combineMediaAssets
+} from '../shared/helpers';
+import { instructions, instructionData } from './trials/instructions';
 import { jsPsych, initializeCat, cat } from '../taskSetup';
 // trials
 import {
@@ -41,7 +50,6 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
     },
   };
 
-  const timeline = [preloadTrials, initialTimeline, ...instructions];
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {};
@@ -64,6 +72,21 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
     console.table(validationErrorMap);
     throw new Error('Something went wrong. Please look in the console for error details');
   }
+
+  // organize media assets into batches for preloading
+    const batchSize = 25;
+    const batchedCorpus = batchTrials(corpus, batchSize); 
+    const {batchedMediaAssets, batchedAssetNames} = batchMediaAssets(mediaAssets, batchedCorpus);
+  
+    // counter for next batch to preload (skipping the initial preload)
+    let currPreloadBatch = 1; 
+
+    const instructionsMedia = filterMedia(mediaAssets, [instructionData[0].image], [instructionData[0].prompt], []);
+    const initialMedia = combineMediaAssets([instructionsMedia, batchedMediaAssets[0]]); 
+  
+    const initialPreload = createPreloadTrials(initialMedia).default;
+  
+    const timeline = [initialPreload, initialTimeline, ...instructions];
 
   const trialConfig = {
     trialType: 'audio',
@@ -98,6 +121,11 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
     conditional_function: () => {
       return taskStore().numIncorrect >= 2;
     },
+  };
+
+  function preloadBatch() {
+    timeline.push(createPreloadTrials(batchedMediaAssets[currPreloadBatch]).default)
+    currPreloadBatch ++; 
   };
 
   if (runCat) {
@@ -141,6 +169,9 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
     const numOfTrials = taskStore().totalTrials;
     taskStore('totalTestTrials', getRealTrials(corpus));
     for (let i = 0; i < numOfTrials; i += 1) {
+      if (i > 0 && i % batchSize === 0) {
+        preloadBatch(); 
+      }
       if (i === 4) {
         timeline.push(repeatInstructions);
       }
