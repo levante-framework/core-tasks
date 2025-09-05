@@ -18,6 +18,13 @@ type ResponseDataType = {
   nextPageToken: string;
 };
 
+type HeavyResourcesType = {
+  images: Record<string, string>;
+  audio: Record<string, string>;
+  video: Record<string, string>;
+};
+
+
 export async function getMediaAssets(
   bucketName: string,
   whitelist: Record<string, any> = {},
@@ -28,7 +35,12 @@ export async function getMediaAssets(
 ) {
   const parts = bucketName.split("/"); 
   const bucket = parts[0]; 
-  const folder = parts.slice(1).join("/")
+  const folder = parts.slice(1).join("/");
+  const heavyResources: HeavyResourcesType = {
+    images: {},
+    audio: {},
+    video: {},
+  };
   
   const baseUrl = `https://storage.googleapis.com/storage/v1/b/${bucket}/o?prefix=${folder}/`;
   
@@ -49,7 +61,23 @@ export async function getMediaAssets(
       const camelCaseFileName = camelize(fileName);
 
       if (contentType.startsWith('image/')) {
-        categorizedObjects.images[camelCaseFileName] = path;
+        // We want to check if the file is a png or webp
+        // If the file is webp and another file of png exists, we want to prioritize the webp file
+        if (contentType.includes('png')) {
+          if (!categorizedObjects.images[camelCaseFileName]) {
+            // No other choice until now, so we add it to the heavy resources
+            heavyResources.images[camelCaseFileName] = path;
+            categorizedObjects.images[camelCaseFileName] = path;
+          }
+          // do not add since key already exists
+        } else {
+          // add or replace lighter resource to the path
+          categorizedObjects.images[camelCaseFileName] = path;
+          // remove the heavy resource if it exists
+          if (heavyResources.images[camelCaseFileName]) {
+            delete heavyResources.images[camelCaseFileName];
+          }
+        }
       } else if (contentType.startsWith('audio/')) {
         categorizedObjects.audio[camelCaseFileName] = path;
       } else if (contentType.startsWith('video/')) {
@@ -61,6 +89,10 @@ export async function getMediaAssets(
   if (data.nextPageToken) {
     return getMediaAssets(bucketName, whitelist, taskName, language, data.nextPageToken, categorizedObjects);
   } else {
+    if (Object.keys(heavyResources.images).length > 0) {
+      console.log('mark://heavyResources', heavyResources);
+      
+    }
     return categorizedObjects;
   }
 }
