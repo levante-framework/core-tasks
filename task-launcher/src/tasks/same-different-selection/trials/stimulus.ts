@@ -10,7 +10,6 @@ import {
 } from '../../shared/helpers';
 import { finishExperiment } from '../../shared/trials';
 import { isTouchScreen, jsPsych } from '../../taskSetup';
-import Cypress from 'cypress';
 import { taskStore } from '../../../taskStore';
 import { handleStaggeredButtons } from '../../shared/helpers/staggerButtons';
 import { updateTheta } from '../../shared/helpers';
