@@ -28,7 +28,7 @@ export const practiceTransition = {
                 </div>
                 <div class="lev-stim-content-x-3">
                     <img
-                        src=${mediaAssets.images.rocket}
+                        src=${mediaAssets.images['rocket@2x']}
                         alt='Instruction graphic'
                     />
                 </div>

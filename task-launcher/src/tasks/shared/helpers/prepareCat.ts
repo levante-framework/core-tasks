@@ -98,14 +98,17 @@ export function selectNItems(corpus: StimulusType[], n: number) {
 export function prepareMultiBlockCat(corpus: StimulusType[]) {
   const blockList: StimulusType[][] = []; // a list of blocks, each containing trials
 
-  corpus.forEach((trial: StimulusType) => {
-    const block: number = Number(trial.block_index);
+  let currBlock = -1; // start at -1 so it is guaranteed to be less than first block
 
-    if (block != undefined) {
-      if (block >= blockList.length) {
+  corpus.forEach((trial: StimulusType) => {
+    const prevBlock = currBlock; 
+    currBlock = Number(trial.block_index);
+
+    if (currBlock != undefined) {
+      if (currBlock > prevBlock) {
         blockList.push([trial]);
       } else {
-        blockList[block].push(trial);
+        blockList[blockList.length - 1].push(trial);
       }
     }
   });

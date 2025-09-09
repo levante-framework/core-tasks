@@ -30,10 +30,9 @@ import { prepareCorpus, selectNItems } from '../shared/helpers/prepareCat';
 import { taskStore } from '../../taskStore';
 
 export default function buildMatrixTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
-  const preloadTrials = createPreloadTrials(mediaAssets).default;
-
   initTrialSaving(config);
   const initialTimeline = initTimeline(config, enterFullscreen, finishExperiment);
+  console.log(taskStore().assetsPerTask);
 
   const ifRealTrialResponse = {
     timeline: [getAudioResponse(mediaAssets)],
@@ -74,19 +73,21 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
   }
 
   // organize media assets into batches for preloading
-    const batchSize = 25;
-    const batchedCorpus = batchTrials(corpus, batchSize); 
-    const {batchedMediaAssets, batchedAssetNames} = batchMediaAssets(mediaAssets, batchedCorpus);
-  
-    // counter for next batch to preload (skipping the initial preload)
-    let currPreloadBatch = 1; 
+  const batchSize = 25;
+  const batchedCorpus = batchTrials(corpus, batchSize); 
+  const {batchedMediaAssets, batchedAssetNames} = batchMediaAssets(
+    mediaAssets, 
+    batchedCorpus, 
+    ['item', 'answer', 'response_alternatives']
+  );
 
-    const instructionsMedia = filterMedia(mediaAssets, [instructionData[0].image], [instructionData[0].prompt], []);
-    const initialMedia = combineMediaAssets([instructionsMedia, batchedMediaAssets[0]]); 
+  // counter for next batch to preload (skipping the initial preload)
+  let currPreloadBatch = 1; 
+  const instructionsMedia = filterMedia(mediaAssets, [instructionData[0].image], [instructionData[0].prompt], []);
+  const initialMedia = combineMediaAssets([instructionsMedia, batchedMediaAssets[0]]); 
+  const initialPreload = createPreloadTrials(initialMedia).default;
   
-    const initialPreload = createPreloadTrials(initialMedia).default;
-  
-    const timeline = [initialPreload, initialTimeline, ...instructions];
+  const timeline = [initialPreload, initialTimeline, ...instructions];
 
   const trialConfig = {
     trialType: 'audio',

@@ -23,6 +23,7 @@ import {
 } from '../shared/trials';
 import { getLayoutConfig } from './helpers/config';
 import { taskStore } from '../../taskStore';
+import { preloadSharedAudio } from '../shared/helpers/preloadSharedAudio';
 
 export default function buildVocabTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   initTrialSaving(config);
@@ -51,12 +52,16 @@ export default function buildVocabTimeline(config: Record<string, any>, mediaAss
   // organize media assets into batches for preloading
   const batchSize = 25;
   const batchedCorpus = batchTrials(corpus, batchSize); 
-  const {batchedMediaAssets, batchedAssetNames} = batchMediaAssets(mediaAssets, batchedCorpus);
+  const {batchedMediaAssets, batchedAssetNames} = batchMediaAssets(
+    mediaAssets, 
+    batchedCorpus, 
+    ['answer', 'distractors']
+  );
 
-  // counter for next batch to preload (skipping the initial preload)
-  let currPreloadBatch = 1; 
+  // counter for next batch to preload
+  let currPreloadBatch = 0; 
 
-  const initialPreload = createPreloadTrials(batchedMediaAssets[0]).default; 
+  const initialPreload = preloadSharedAudio(); 
 
   // does not matter if trial has properties that don't belong to that type
   const trialConfig = {
@@ -127,7 +132,7 @@ export default function buildVocabTimeline(config: Record<string, any>, mediaAss
     const numOfTrials = taskStore().totalTrials;
     taskStore('totalTestTrials', getRealTrials(corpus));
     for (let i = 0; i < numOfTrials; i++) {
-      if (i > 0 && i % batchSize === 0) {
+      if (i % batchSize === 0) {
         preloadBatch(); 
       }
 

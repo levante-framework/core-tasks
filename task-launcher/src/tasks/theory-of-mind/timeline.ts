@@ -1,6 +1,13 @@
 import 'regenerator-runtime/runtime';
 // setup
-import { initTrialSaving, initTimeline, createPreloadTrials, getRealTrials } from '../shared/helpers';
+import { 
+  initTrialSaving, 
+  initTimeline, 
+  createPreloadTrials, 
+  getRealTrials, 
+  prepareMultiBlockCat, 
+  batchMediaAssets, 
+} from '../shared/helpers';
 import { jsPsych, initializeCat } from '../taskSetup';
 // trials
 import {
@@ -13,14 +20,11 @@ import {
 } from '../shared/trials';
 import { getLayoutConfig } from './helpers/config';
 import { taskStore } from '../../taskStore';
+import { preloadSharedAudio } from '../shared/helpers/preloadSharedAudio';
 
 export default function buildTOMTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
-  const preloadTrials = createPreloadTrials(mediaAssets).default;
-
   initTrialSaving(config);
   const initialTimeline = initTimeline(config, enterFullscreen, finishExperiment);
-
-  const timeline = [preloadTrials, initialTimeline];
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {};
@@ -49,6 +53,27 @@ export default function buildTOMTimeline(config: Record<string, any>, mediaAsset
     layoutConfigMap,
   };
 
+  const initialPreload = preloadSharedAudio();
+  const timeline = [initialPreload, initialTimeline];
+
+  const blockList = prepareMultiBlockCat(corpus);
+  const {batchedMediaAssets, batchedAssetNames} = batchMediaAssets(
+    mediaAssets, 
+    blockList,
+    ['item', 'answer', 'distractors'], 
+    ['audioFile', 'distractors']
+  );
+
+  let currPreloadBatch = 0;
+
+  console.log("BATCHED MEDIA: ", batchedMediaAssets);
+ 
+  // function to preload assets in batches at the beginning of each task block 
+  function preloadBlock() {
+    timeline.push(createPreloadTrials(batchedMediaAssets[currPreloadBatch]).default)
+    currPreloadBatch ++; 
+  };
+
   const stimulusBlock = {
     timeline: [afcStimulusTemplate(trialConfig)],
     // true = execute normally, false = skip
@@ -62,12 +87,15 @@ export default function buildTOMTimeline(config: Record<string, any>, mediaAsset
     },
   };
 
-  const numOfTrials = taskStore().totalTrials;
   taskStore('totalTestTrials', getRealTrials(corpus));
-  for (let i = 0; i < numOfTrials; i++) {
-    timeline.push({ ...setupStimulus, stimulus: '' });
-    timeline.push(stimulusBlock);
-  }
+  blockList.forEach((block: StimulusType[]) => {
+    preloadBlock();
+
+    for (let i = 0; i < block.length; i++) {
+      timeline.push({ ...setupStimulus, stimulus: '' });
+      timeline.push(stimulusBlock);
+    }
+  });
 
   initializeCat();
 

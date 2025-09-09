@@ -5,6 +5,7 @@ import {
   showLevanteLogoLoading,
   hideLevanteLogoLoading,
   combineMediaAssets,
+  getAssetsPerTask,
 } from './tasks/shared/helpers';
 import './styles/index.scss';
 import taskConfig from './tasks/taskConfig';
@@ -79,6 +80,7 @@ export class TaskLauncher {
     }
 
     await getTranslations(isDev, config.language);
+    await getAssetsPerTask();
 
     return buildTaskTimeline(config, mediaAssets);
   }

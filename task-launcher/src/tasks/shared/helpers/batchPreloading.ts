@@ -1,7 +1,12 @@
 import { camelize } from './camelize'; 
 import { filterMedia } from './filterMedia';
 
-export function batchMediaAssets(mediaAssets: MediaAssetsType, batchList: StimulusType[][]) {
+export function batchMediaAssets(
+  mediaAssets: MediaAssetsType, 
+  batchList: StimulusType[][], 
+  imageFields: string[], // fields of corpus where image assets are specified (varies by task)
+  audioFields: string[] = ['audioFile'],
+) {
   // organize media assets by block
   const batchedMediaAssets: MediaAssetsType[] = []; 
   
@@ -18,23 +23,30 @@ export function batchMediaAssets(mediaAssets: MediaAssetsType, batchList: Stimul
   batchList.forEach((currBatchTrials) => {
     let blockAudio: string[] = [];
     currBatchTrials.forEach(trial => {
-      const asset = trial.audioFile; 
+      audioFields.forEach((string: string) => {
+        const trialField = trial[string as 'audioFile' |'distractors'];
 
-      if (!blockAudio.includes(asset))  [
-        blockAudio.push(camelize(trial.audioFile))
-      ]
+        if (trialField !== undefined && trialField.length !== 0) {
+          if ((typeof trialField) === "string")  {
+            blockAudio.push(camelize(trialField));
+          } else {
+            blockAudio.push(...(trialField as string[]).map((audioFile: string) => camelize(audioFile)));
+          }
+        }
+
+      });
     })
 
     let blockImages: string[] = []; 
     currBatchTrials.forEach(trial => {
-      ['image', 'distractors', 'answer'].forEach((string) => {
-        const trialField = trial[string as 'image' | 'distractors'] as any;
+      imageFields.forEach((string) => {
+        const trialField = trial[string as 'image' | 'distractors'| 'answer' | 'item'] as any;
 
         if (trialField !== undefined && trialField.length !== 0) {
           if ((typeof trialField) === "string")  {
             blockImages.push(camelize(trialField));
           } else {
-            blockImages.push(...trialField.map((image: string) => camelize(image)));
+            blockImages.push(...(trialField as string[]).map((image: string) => camelize(image)));
           }
         }
       })

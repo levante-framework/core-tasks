@@ -23,6 +23,7 @@ import store from 'store2';
  * @property {number} maxTime - Time limit set for the task.
  * @property {number} startTime - Time at which the task started.
  * @property {boolean} taskComplete - Whether the task has ended - if true, the user should return to dashboard.
+ * @property {Object} assetsPerTask - Object containing list of assets belonging to each task.
  * ------- Added after config is parsed -------
  * @property {number} totalTrials - Total number trials, including practice and instructions.
  * @property {number} totalTestTrials - Total number of test trials in the experiment timeline.

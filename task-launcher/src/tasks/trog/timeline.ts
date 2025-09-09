@@ -16,6 +16,7 @@ import {
 import { getLayoutConfig } from './helpers/config';
 import { prepareCorpus, selectNItems } from '../shared/helpers/prepareCat';
 import { taskStore } from '../../taskStore';
+import { preloadSharedAudio } from '../shared/helpers/preloadSharedAudio';
 
 export default function buildTROGTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
@@ -46,12 +47,16 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
   // organize media assets into batches for preloading
   const batchSize = 25;
   const batchedCorpus = batchTrials(corpus, batchSize); 
-  const {batchedMediaAssets, batchedAssetNames} = batchMediaAssets(mediaAssets, batchedCorpus);
+  const {batchedMediaAssets, batchedAssetNames} = batchMediaAssets(
+    mediaAssets, 
+    batchedCorpus,
+    ['answer', 'distractors']
+  );
 
   // counter for next batch to preload (skipping the initial preload)
-  let currPreloadBatch = 1; 
+  let currPreloadBatch = 0; 
 
-  const initialPreload = createPreloadTrials(batchedMediaAssets[0]).default;
+  const initialPreload = preloadSharedAudio();
 
   const timeline = [initialPreload, initialTimeline];
 
@@ -128,7 +133,7 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
     const numOfTrials = taskStore().totalTrials;
     taskStore('totalTestTrials', getRealTrials(corpus));
     for (let i = 0; i < numOfTrials; i++) {
-      if (i > 0 && i % batchSize === 0) {
+      if (i % batchSize === 0) {
         preloadBatch(); 
       }
       timeline.push({ ...setupStimulus, stimulus: '' });

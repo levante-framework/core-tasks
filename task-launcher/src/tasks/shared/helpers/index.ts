@@ -39,3 +39,4 @@ export { combineMediaAssets } from './combineMediaAssets';
 export { filterMedia } from './filterMedia'; 
 export { batchMediaAssets } from './batchPreloading';
 export { batchTrials } from './batchPreloading';
+export { getAssetsPerTask } from './getAssetsPerTask';

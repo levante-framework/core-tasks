@@ -1,7 +1,15 @@
 import 'regenerator-runtime/runtime';
 // setup
 import { jsPsych, initializeCat, cat } from '../taskSetup';
-import { createPreloadTrials, initTrialSaving, initTimeline, getRealTrials } from '../shared/helpers';
+import { 
+  createPreloadTrials, 
+  initTrialSaving, 
+  initTimeline, 
+  getRealTrials, 
+  batchTrials, 
+  batchMediaAssets,
+  combineMediaAssets,
+} from '../shared/helpers';
 // trials
 import {
   imageInstructions,
@@ -50,7 +58,6 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
     },
   };
 
-  const timeline = [preloadTrials, initialTimeline, imageInstructions, videoInstructionsMisfit, videoInstructionsFit];
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {};
@@ -69,6 +76,25 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
     console.table(validationErrorMap);
     throw new Error('Something went wrong. Please look in the console for error details');
   }
+
+  // organize media assets into batches for preloading
+  const batchSize = 25;
+  const batchedCorpus = batchTrials(corpus, batchSize); 
+  const {batchedMediaAssets, batchedAssetNames} = batchMediaAssets(
+    mediaAssets, 
+    batchedCorpus, 
+    ['item', 'answer', 'distractors']
+  );
+
+  // counter for next batch to preload (skipping the initial preload)
+  let currPreloadBatch = 1; 
+  //const mediaNotInCorpus: any = [];
+  const initialMedia = batchedMediaAssets[0]; 
+  console.log(batchedMediaAssets);
+  console.log(corpus);
+  const initialPreload = createPreloadTrials(initialMedia).default;
+  
+  const timeline = [initialPreload, initialTimeline, imageInstructions, videoInstructionsMisfit, videoInstructionsFit];
 
   const trialConfig = {
     trialType: 'audio',
@@ -116,6 +142,11 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
     },
   };
 
+  function preloadBatch() {
+    timeline.push(createPreloadTrials(batchedMediaAssets[currPreloadBatch]).default)
+    currPreloadBatch ++; 
+  };
+
   if (runCat) {
     // seperate out corpus to get cat/non-cat blocks
     const corpora = prepareCorpus(corpus);
@@ -158,6 +189,9 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
     const numOfTrials = taskStore().totalTrials;
     taskStore('totalTestTrials', getRealTrials(corpus));
     for (let i = 0; i < numOfTrials; i++) {
+      if (i > 0 && i % batchSize === 0) {
+        preloadBatch(); 
+      }
       if (i === 4) {
         timeline.push(repeatInstructions);
       }

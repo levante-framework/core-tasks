@@ -38,7 +38,11 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
    // create list of trials in each block
   const blockList = prepareMultiBlockCat(corpus);
   
-  const {batchedMediaAssets, batchedAssetNames} = batchMediaAssets(mediaAssets, blockList); 
+  const {batchedMediaAssets, batchedAssetNames} = batchMediaAssets(
+    mediaAssets, 
+    blockList,
+    ['image', 'answer', 'distractors']
+  ); 
 
   // get any remaining assets from first block or that aren't specified as part of a block to be preloaded first
   const initialAudio = Object.keys(mediaAssets.audio).filter((key: string) => {
