@@ -5,7 +5,7 @@ export function filterMedia(
   startingAssets: MediaAssetsType, 
   images: string[], 
   audio: string[], 
-  video: string[]
+  video: string[],
 ) {
   const finalAssets: MediaAssetsType = {
     images: {},

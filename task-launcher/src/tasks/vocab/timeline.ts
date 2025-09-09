@@ -52,7 +52,7 @@ export default function buildVocabTimeline(config: Record<string, any>, mediaAss
   // organize media assets into batches for preloading
   const batchSize = 25;
   const batchedCorpus = batchTrials(corpus, batchSize); 
-  const {batchedMediaAssets, batchedAssetNames} = batchMediaAssets(
+  const batchedMediaAssets = batchMediaAssets(
     mediaAssets, 
     batchedCorpus, 
     ['answer', 'distractors']

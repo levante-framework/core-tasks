@@ -57,16 +57,14 @@ export default function buildTOMTimeline(config: Record<string, any>, mediaAsset
   const timeline = [initialPreload, initialTimeline];
 
   const blockList = prepareMultiBlockCat(corpus);
-  const {batchedMediaAssets, batchedAssetNames} = batchMediaAssets(
+  const batchedMediaAssets = batchMediaAssets(
     mediaAssets, 
     blockList,
     ['item', 'answer', 'distractors'], 
-    ['audioFile', 'distractors']
+    ['audioFile', 'distractors'] // we need to preload audio for the staggered buttons
   );
 
   let currPreloadBatch = 0;
-
-  console.log("BATCHED MEDIA: ", batchedMediaAssets);
  
   // function to preload assets in batches at the beginning of each task block 
   function preloadBlock() {

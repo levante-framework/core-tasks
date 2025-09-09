@@ -1,4 +1,5 @@
 import { camelize } from './camelize'; 
+import { combineMediaAssets } from './combineMediaAssets';
 import { filterMedia } from './filterMedia';
 
 export function batchMediaAssets(
@@ -23,14 +24,15 @@ export function batchMediaAssets(
   batchList.forEach((currBatchTrials) => {
     let blockAudio: string[] = [];
     currBatchTrials.forEach(trial => {
-      audioFields.forEach((string: string) => {
-        const trialField = trial[string as 'audioFile' |'distractors'];
+      audioFields.forEach((string) => {
+        const trialField = trial[string as 'audioFile' |'distractors'] as any;
 
         if (trialField !== undefined && trialField.length !== 0) {
           if ((typeof trialField) === "string")  {
             blockAudio.push(camelize(trialField));
           } else {
-            blockAudio.push(...(trialField as string[]).map((audioFile: string) => camelize(audioFile)));
+            const trialFieldCamelized = (trialField as string[]).map((key: string) => camelize(key))
+            blockAudio.push(...trialFieldCamelized);
           }
         }
 
@@ -46,7 +48,8 @@ export function batchMediaAssets(
           if ((typeof trialField) === "string")  {
             blockImages.push(camelize(trialField));
           } else {
-            blockImages.push(...(trialField as string[]).map((image: string) => camelize(image)));
+            const trialFieldCamelized = (trialField as string[]).map((key: string) => camelize(key));
+            blockImages.push(...trialFieldCamelized);
           }
         }
       })
@@ -70,7 +73,7 @@ export function batchMediaAssets(
     batchedMediaAssets.push(blockAssets);
   });
 
-  return {batchedMediaAssets, batchedAssetNames}
+  return batchedMediaAssets;
 }
 
 // separates a corpus into batches of a certain size for asset preloading
@@ -95,8 +98,29 @@ export function batchTrials(corpus: StimulusType[], batchSize: number) {
   })
 
   return finalBatchList; 
+}  
+
+// function to gather all media assets that were not specified in the corpus
+export function getLeftoverAssets(batchedMediaAssets: MediaAssetsType[], mediaAssets: MediaAssetsType) {
+  const allBatchedMedia: MediaAssetsType = combineMediaAssets(batchedMediaAssets);
+
+  const leftoverImageKeys = Object.keys(mediaAssets.images).filter((key) => {
+    return !Object.keys(allBatchedMedia.images).includes(key); 
+  });
+  const leftoverAudioKeys = Object.keys(mediaAssets.audio).filter((key) => {
+    return !Object.keys(allBatchedMedia.audio).includes(key); 
+  });
+  const leftoverVideoKeys = Object.keys(mediaAssets.video).filter((key) => {
+    return !Object.keys(allBatchedMedia.video).includes(key); 
+  });
+ 
+  const leftoverMedia = filterMedia(
+    mediaAssets, 
+    leftoverImageKeys, 
+    leftoverAudioKeys, 
+    leftoverVideoKeys,
+  )
+
+  return leftoverMedia; 
 }
-  
-
-
 

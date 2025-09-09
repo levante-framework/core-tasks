@@ -53,7 +53,6 @@ export function createPreloadTrials(categorizedObjects: MediaAssetsType, blocks:
       }
     });
   });
-
-  console.log(trials);
+  
   return trials;
 }

@@ -28,6 +28,7 @@ import {
   heavyPractice,
 } from './trials/heavyInstructions';
 import { setTrialBlock } from './helpers/setTrialBlock';
+import { getLeftoverAssets } from '../shared/helpers/batchPreloading';
 
 export default function buildSameDifferentTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) { 
   const heavy: boolean = taskStore().heavyInstructions;
@@ -38,29 +39,21 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
    // create list of trials in each block
   const blockList = prepareMultiBlockCat(corpus);
   
-  const {batchedMediaAssets, batchedAssetNames} = batchMediaAssets(
+  const batchedMediaAssets = batchMediaAssets(
     mediaAssets, 
     blockList,
     ['image', 'answer', 'distractors']
   ); 
 
-  // get any remaining assets from first block or that aren't specified as part of a block to be preloaded first
-  const initialAudio = Object.keys(mediaAssets.audio).filter((key: string) => {
-    return (
-      !batchedAssetNames.audio.includes(key) || 
-      Object.keys(batchedMediaAssets[0].audio).includes(key)
-    );
-  })
-  const initialImages = Object.keys(batchedMediaAssets[0].images); 
-  const initialVideo = Object.keys(mediaAssets.video);
+  const initialMediaAssets = getLeftoverAssets(batchedMediaAssets, mediaAssets); 
+  initialMediaAssets.images = {}; // all sds images used in the task are specifed in corpus
 
-  const initialMediaAssets = filterMedia(mediaAssets, initialImages, initialAudio, initialVideo); 
   const initialPreload = createPreloadTrials(initialMediaAssets).default;
 
   initTrialSaving(config);
 
   const initialTimeline = initTimeline(config, enterFullscreen, finishExperiment);
-  const timeline = [initialTimeline, initialPreload];
+  const timeline = [initialPreload, initialTimeline];
 
   const buttonNoise = {
     timeline: [getAudioResponse(mediaAssets)],
@@ -116,7 +109,7 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
   taskStore('totalTestTrials', totalRealTrials);
 
   // counter for the next block to preload
-  let currPreloadBatch = 1;
+  let currPreloadBatch = 0;
 
   // function to preload assets in batches at the beginning of each task block 
   function preloadBlock() {
@@ -155,7 +148,7 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
   ];
 
   // preload next batch of assets at these blocks
-  const preloadBlockIndexes = [1, 2];
+  const preloadBlockIndexes = [0, 1, 2];
 
   // add trials to timeline according to block structure defined in blockOperations
   blockCountList.forEach((count, index) => {

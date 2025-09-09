@@ -6,6 +6,7 @@ import {
   hideLevanteLogoLoading,
   combineMediaAssets,
   getAssetsPerTask,
+  filterMedia,
 } from './tasks/shared/helpers';
 import './styles/index.scss';
 import taskConfig from './tasks/taskConfig';
@@ -63,13 +64,6 @@ export class TaskLauncher {
       throw new Error('Error fetching media assets: ' + error);
     }
 
-    mediaAssets = combineMediaAssets(
-      [languageAudioAssets, sharedAudioAssets, taskVisualAssets, sharedVisualAssets]
-    );
-    // Expose resolved media assets for e2e validation (dev/test only)
-    if (typeof window !== 'undefined') {
-      (window as any).__mediaAssets = mediaAssets;
-    }
     const config = await setConfig(this.firekit, this.gameParams, this.userParams);
 
     setTaskStore(config);
@@ -81,6 +75,23 @@ export class TaskLauncher {
 
     await getTranslations(isDev, config.language);
     await getAssetsPerTask();
+
+    const taskAudioAssetNames = [
+      ...taskStore().assetsPerTask[taskName].audio, 
+      ...taskStore().assetsPerTask.shared.audio
+    ];
+    
+    // filter out language audio not relevant to current task
+    languageAudioAssets = filterMedia(languageAudioAssets, [], taskAudioAssetNames, []);
+
+    mediaAssets = combineMediaAssets(
+      [languageAudioAssets, sharedAudioAssets, taskVisualAssets, sharedVisualAssets]
+    );
+    
+    // Expose resolved media assets for e2e validation (dev/test only)
+    if (typeof window !== 'undefined') {
+      (window as any).__mediaAssets = mediaAssets;
+    }
 
     return buildTaskTimeline(config, mediaAssets);
   }

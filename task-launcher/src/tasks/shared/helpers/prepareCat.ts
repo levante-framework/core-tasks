@@ -97,6 +97,11 @@ export function selectNItems(corpus: StimulusType[], n: number) {
 // separates cat corpus into blocks
 export function prepareMultiBlockCat(corpus: StimulusType[]) {
   const blockList: StimulusType[][] = []; // a list of blocks, each containing trials
+  
+  // sort by block index before batching
+  corpus.sort((a, b) => {
+    return Number(a.block_index) - Number(b.block_index); 
+  });
 
   let currBlock = -1; // start at -1 so it is guaranteed to be less than first block
 

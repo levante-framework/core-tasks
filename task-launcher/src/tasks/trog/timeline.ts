@@ -47,7 +47,7 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
   // organize media assets into batches for preloading
   const batchSize = 25;
   const batchedCorpus = batchTrials(corpus, batchSize); 
-  const {batchedMediaAssets, batchedAssetNames} = batchMediaAssets(
+  const batchedMediaAssets = batchMediaAssets(
     mediaAssets, 
     batchedCorpus,
     ['answer', 'distractors']
