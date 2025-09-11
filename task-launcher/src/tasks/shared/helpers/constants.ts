@@ -1,7 +1,7 @@
 export const TASK_BUCKET_NAMES_DEV = {
   audio: 'levante-assets-dev/audio',
-  visual: 'levante-assets-dev/visual', 
-  corpus: 'levante-assets-dev/corpus', 
+  visual: 'levante-assets-dev/visual',
+  corpus: 'levante-assets-dev/corpus',
   translations: 'levante-assets-dev/translations',
 };
 

@@ -21,26 +21,28 @@ describe('test hearts and flowers', () => {
     cy.visit(hearts_and_flowers_url);
 
     // Verify ALL audio assets exist via HEAD requests (no body fetch)
-    cy.window().its('__mediaAssets.audio').then((audioMap) => {
-      if (!audioMap) return;
-      const urls = Object.values(audioMap);
-      const total = urls.length;
-      cy.log(`[audio-head] starting HEAD checks for ${total} audio files`);
-      cy.wrap(urls).each((url, index) => {
-        cy.request({ url, method: 'HEAD', retryOnStatusCodeFailure: true }).then((resp) => {
-          expect(resp.status, `HEAD ${url}`).to.be.oneOf([200, 204]);
-          const ct = resp.headers['content-type'] || '';
-          expect(ct.includes('audio') || ct === 'application/octet-stream', `content-type for ${url}`).to.be.true;
-          const processed = index + 1;
-          if (processed % 100 === 0 || processed === total) {
-            const msg = `[audio-head] checked ${processed}/${total}`;
-            cy.task('progress', msg);
-            cy.log(msg);
-            lastProgressAt = Date.now();
-          }
+    cy.window()
+      .its('__mediaAssets.audio')
+      .then((audioMap) => {
+        if (!audioMap) return;
+        const urls = Object.values(audioMap);
+        const total = urls.length;
+        cy.log(`[audio-head] starting HEAD checks for ${total} audio files`);
+        cy.wrap(urls).each((url, index) => {
+          cy.request({ url, method: 'HEAD', retryOnStatusCodeFailure: true }).then((resp) => {
+            expect(resp.status, `HEAD ${url}`).to.be.oneOf([200, 204]);
+            const ct = resp.headers['content-type'] || '';
+            expect(ct.includes('audio') || ct === 'application/octet-stream', `content-type for ${url}`).to.be.true;
+            const processed = index + 1;
+            if (processed % 100 === 0 || processed === total) {
+              const msg = `[audio-head] checked ${processed}/${total}`;
+              cy.task('progress', msg);
+              cy.log(msg);
+              lastProgressAt = Date.now();
+            }
+          });
         });
       });
-    });
 
     // wait for primary button to appear and click to advance
     cy.get('.primary', { timeout: 300000 }).should('be.visible').click({ force: true });

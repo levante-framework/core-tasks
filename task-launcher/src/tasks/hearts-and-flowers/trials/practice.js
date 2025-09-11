@@ -243,7 +243,8 @@ function buildPracticeFeedback(
           setTimeout(() => {
             try {
               // If feedback is still on screen, advance to avoid hanging on e.g. "Good job!"
-              const stillOnFeedback = !!document.querySelector('.haf-cr-container') || !!document.querySelector('.haf-stimulus-container');
+              const stillOnFeedback =
+                !!document.querySelector('.haf-cr-container') || !!document.querySelector('.haf-stimulus-container');
               if (stillOnFeedback) {
                 jsPsych.finishTrial();
               }

@@ -1,14 +1,14 @@
 import 'regenerator-runtime/runtime';
 // setup
-import { 
-  initTrialSaving, 
-  initTimeline, 
-  createPreloadTrials, 
-  getRealTrials, 
-  batchTrials, 
-  batchMediaAssets, 
+import {
+  initTrialSaving,
+  initTimeline,
+  createPreloadTrials,
+  getRealTrials,
+  batchTrials,
+  batchMediaAssets,
   filterMedia,
-  combineMediaAssets
+  combineMediaAssets,
 } from '../shared/helpers';
 import { instructions, instructionData } from './trials/instructions';
 import { jsPsych, initializeCat, cat } from '../taskSetup';
@@ -74,19 +74,15 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
 
   // organize media assets into batches for preloading
   const batchSize = 25;
-  const batchedCorpus = batchTrials(corpus, batchSize); 
-  const batchedMediaAssets = batchMediaAssets(
-    mediaAssets, 
-    batchedCorpus, 
-    ['item', 'answer', 'distractors']
-  );
+  const batchedCorpus = batchTrials(corpus, batchSize);
+  const batchedMediaAssets = batchMediaAssets(mediaAssets, batchedCorpus, ['item', 'answer', 'distractors']);
 
   // counter for next batch to preload (skipping the initial preload)
-  let currPreloadBatch = 0; 
-  
-  const initialMedia = getLeftoverAssets(batchedMediaAssets, mediaAssets); 
+  let currPreloadBatch = 0;
+
+  const initialMedia = getLeftoverAssets(batchedMediaAssets, mediaAssets);
   const initialPreload = createPreloadTrials(initialMedia).default;
-  
+
   const timeline = [initialPreload, initialTimeline, ...instructions];
 
   const trialConfig = {
@@ -125,9 +121,9 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
   };
 
   function preloadBatch() {
-    timeline.push(createPreloadTrials(batchedMediaAssets[currPreloadBatch]).default)
-    currPreloadBatch ++; 
-  };
+    timeline.push(createPreloadTrials(batchedMediaAssets[currPreloadBatch]).default);
+    currPreloadBatch++;
+  }
 
   if (runCat) {
     // seperate out corpus to get cat/non-cat blocks
@@ -171,7 +167,7 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
     taskStore('totalTestTrials', getRealTrials(corpus));
     for (let i = 0; i < numOfTrials; i += 1) {
       if (i % batchSize === 0) {
-        preloadBatch(); 
+        preloadBatch();
       }
       if (i === 4) {
         timeline.push(repeatInstructions);

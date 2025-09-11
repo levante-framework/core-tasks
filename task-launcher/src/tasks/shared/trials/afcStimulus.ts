@@ -319,7 +319,7 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
   // note: nextStimulus is actually the current stimulus
   const stimulus = trial || taskStore().nextStimulus;
   const itemLayoutConfig = layoutConfigMap?.[stimulus.itemId];
-  const { runCat, corpus} = taskStore();
+  const { runCat, corpus } = taskStore();
   let responseValue = null;
   let target = null;
   let responseIndex = null;

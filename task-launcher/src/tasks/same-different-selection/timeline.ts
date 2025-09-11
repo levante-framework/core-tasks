@@ -30,22 +30,18 @@ import {
 import { setTrialBlock } from './helpers/setTrialBlock';
 import { getLeftoverAssets } from '../shared/helpers/batchPreloading';
 
-export default function buildSameDifferentTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) { 
+export default function buildSameDifferentTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const heavy: boolean = taskStore().heavyInstructions;
 
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
   const preparedCorpus = prepareCorpus(corpus);
 
-   // create list of trials in each block
+  // create list of trials in each block
   const blockList = prepareMultiBlockCat(corpus);
-  
-  const batchedMediaAssets = batchMediaAssets(
-    mediaAssets, 
-    blockList,
-    ['image', 'answer', 'distractors']
-  ); 
 
-  const initialMediaAssets = getLeftoverAssets(batchedMediaAssets, mediaAssets); 
+  const batchedMediaAssets = batchMediaAssets(mediaAssets, blockList, ['image', 'answer', 'distractors']);
+
+  const initialMediaAssets = getLeftoverAssets(batchedMediaAssets, mediaAssets);
   initialMediaAssets.images = {}; // all sds images used in the task are specifed in corpus
 
   const initialPreload = createPreloadTrials(initialMediaAssets).default;
@@ -111,11 +107,11 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
   // counter for the next block to preload
   let currPreloadBatch = 0;
 
-  // function to preload assets in batches at the beginning of each task block 
+  // function to preload assets in batches at the beginning of each task block
   function preloadBlock() {
-    timeline.push(createPreloadTrials(batchedMediaAssets[currPreloadBatch]).default)
-    currPreloadBatch ++; 
-  };
+    timeline.push(createPreloadTrials(batchedMediaAssets[currPreloadBatch]).default);
+    currPreloadBatch++;
+  }
 
   // functions to add trials to blocks of each type
   function updateTestDimensions() {

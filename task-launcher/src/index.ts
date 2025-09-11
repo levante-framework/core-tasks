@@ -41,8 +41,8 @@ export class TaskLauncher {
     let { language } = this.gameParams;
 
     // adding this to handle old 'es' variant language param values
-    if (language === "es") {
-      language = "es-CO"; 
+    if (language === 'es') {
+      language = 'es-CO';
     }
 
     const { setConfig, getCorpus, buildTaskTimeline, getTranslations } =
@@ -51,8 +51,8 @@ export class TaskLauncher {
     const isDev = this.firekit.firebaseProject?.firebaseApp?.options?.projectId === 'hs-levante-admin-dev';
     const taskVisualBucket = getBucketName(taskName, isDev, 'visual', language);
     const sharedVisualBucket = getBucketName('shared', isDev, 'visual', language);
-    const languageAudioBucket = getBucketName('shared', isDev, 'audio', language)
-    const sharedAudioBucket = getBucketName('shared', isDev, 'audio', 'shared')
+    const languageAudioBucket = getBucketName('shared', isDev, 'audio', language);
+    const sharedAudioBucket = getBucketName('shared', isDev, 'audio', 'shared');
 
     try {
       // will avoid language folder if not provided
@@ -77,17 +77,15 @@ export class TaskLauncher {
     await getAssetsPerTask();
 
     const taskAudioAssetNames = [
-      ...taskStore().assetsPerTask[taskName].audio, 
-      ...taskStore().assetsPerTask.shared.audio
+      ...taskStore().assetsPerTask[taskName].audio,
+      ...taskStore().assetsPerTask.shared.audio,
     ];
-    
+
     // filter out language audio not relevant to current task
     languageAudioAssets = filterMedia(languageAudioAssets, [], taskAudioAssetNames, []);
 
-    mediaAssets = combineMediaAssets(
-      [languageAudioAssets, sharedAudioAssets, taskVisualAssets, sharedVisualAssets]
-    );
-    
+    mediaAssets = combineMediaAssets([languageAudioAssets, sharedAudioAssets, taskVisualAssets, sharedVisualAssets]);
+
     // Expose resolved media assets for e2e validation (dev/test only)
     if (typeof window !== 'undefined') {
       (window as any).__mediaAssets = mediaAssets;

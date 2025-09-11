@@ -1,4 +1,4 @@
-import { taskStore } from "../../../taskStore";
+import { taskStore } from '../../../taskStore';
 
 export async function getAssetsPerTask() {
   try {
@@ -9,7 +9,7 @@ export async function getAssetsPerTask() {
     }
 
     const assetsPerTask = await response.json();
-    taskStore('assetsPerTask', assetsPerTask)
+    taskStore('assetsPerTask', assetsPerTask);
   } catch (error) {
     console.error('Error fetching JSON:', error);
   }

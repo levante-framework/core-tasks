@@ -51,17 +51,13 @@ export default function buildVocabTimeline(config: Record<string, any>, mediaAss
 
   // organize media assets into batches for preloading
   const batchSize = 25;
-  const batchedCorpus = batchTrials(corpus, batchSize); 
-  const batchedMediaAssets = batchMediaAssets(
-    mediaAssets, 
-    batchedCorpus, 
-    ['answer', 'distractors']
-  );
+  const batchedCorpus = batchTrials(corpus, batchSize);
+  const batchedMediaAssets = batchMediaAssets(mediaAssets, batchedCorpus, ['answer', 'distractors']);
 
   // counter for next batch to preload
-  let currPreloadBatch = 0; 
+  let currPreloadBatch = 0;
 
-  const initialPreload = preloadSharedAudio(); 
+  const initialPreload = preloadSharedAudio();
 
   // does not matter if trial has properties that don't belong to that type
   const trialConfig = {
@@ -76,9 +72,9 @@ export default function buildVocabTimeline(config: Record<string, any>, mediaAss
   };
 
   function preloadBatch() {
-    timeline.push(createPreloadTrials(batchedMediaAssets[currPreloadBatch]).default)
-    currPreloadBatch ++; 
-  };
+    timeline.push(createPreloadTrials(batchedMediaAssets[currPreloadBatch]).default);
+    currPreloadBatch++;
+  }
 
   const stimulusBlock = {
     timeline: [{ ...setupStimulus, stimulus: '' }, afcStimulusTemplate(trialConfig)],
@@ -133,7 +129,7 @@ export default function buildVocabTimeline(config: Record<string, any>, mediaAss
     taskStore('totalTestTrials', getRealTrials(corpus));
     for (let i = 0; i < numOfTrials; i++) {
       if (i % batchSize === 0) {
-        preloadBatch(); 
+        preloadBatch();
       }
 
       timeline.push(stimulusBlock);

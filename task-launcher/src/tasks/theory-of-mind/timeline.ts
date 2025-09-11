@@ -1,12 +1,12 @@
 import 'regenerator-runtime/runtime';
 // setup
-import { 
-  initTrialSaving, 
-  initTimeline, 
-  createPreloadTrials, 
-  getRealTrials, 
-  prepareMultiBlockCat, 
-  batchMediaAssets, 
+import {
+  initTrialSaving,
+  initTimeline,
+  createPreloadTrials,
+  getRealTrials,
+  prepareMultiBlockCat,
+  batchMediaAssets,
 } from '../shared/helpers';
 import { jsPsych, initializeCat } from '../taskSetup';
 // trials
@@ -58,19 +58,19 @@ export default function buildTOMTimeline(config: Record<string, any>, mediaAsset
 
   const blockList = prepareMultiBlockCat(corpus);
   const batchedMediaAssets = batchMediaAssets(
-    mediaAssets, 
+    mediaAssets,
     blockList,
-    ['item', 'answer', 'distractors'], 
-    ['audioFile', 'distractors'] // we need to preload audio for the staggered buttons
+    ['item', 'answer', 'distractors'],
+    ['audioFile', 'distractors'], // we need to preload audio for the staggered buttons
   );
 
   let currPreloadBatch = 0;
- 
-  // function to preload assets in batches at the beginning of each task block 
+
+  // function to preload assets in batches at the beginning of each task block
   function preloadBlock() {
-    timeline.push(createPreloadTrials(batchedMediaAssets[currPreloadBatch]).default)
-    currPreloadBatch ++; 
-  };
+    timeline.push(createPreloadTrials(batchedMediaAssets[currPreloadBatch]).default);
+    currPreloadBatch++;
+  }
 
   const stimulusBlock = {
     timeline: [afcStimulusTemplate(trialConfig)],
