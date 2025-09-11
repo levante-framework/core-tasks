@@ -7,6 +7,8 @@ import {
   prepareCorpus,
   selectNItems,
   getRealTrials,
+  batchTrials,
+  batchMediaAssets,
 } from '../shared/helpers';
 import { jsPsych, initializeCat, cat } from '../taskSetup';
 // trials
@@ -21,10 +23,9 @@ import {
 } from '../shared/trials';
 import { getLayoutConfig } from './helpers/config';
 import { taskStore } from '../../taskStore';
+import { preloadSharedAudio } from '../shared/helpers/preloadSharedAudio';
 
 export default function buildVocabTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
-  const preloadTrials = createPreloadTrials(mediaAssets).default;
-
   initTrialSaving(config);
   const initialTimeline = initTimeline(config, enterFullscreen, finishExperiment);
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
@@ -48,6 +49,20 @@ export default function buildVocabTimeline(config: Record<string, any>, mediaAss
     throw new Error('Something went wrong. Please look in the console for error details');
   }
 
+  // organize media assets into batches for preloading
+  const batchSize = 25;
+  const batchedCorpus = batchTrials(corpus, batchSize); 
+  const batchedMediaAssets = batchMediaAssets(
+    mediaAssets, 
+    batchedCorpus, 
+    ['answer', 'distractors']
+  );
+
+  // counter for next batch to preload
+  let currPreloadBatch = 0; 
+
+  const initialPreload = preloadSharedAudio(); 
+
   // does not matter if trial has properties that don't belong to that type
   const trialConfig = {
     trialType: 'audio',
@@ -58,6 +73,11 @@ export default function buildVocabTimeline(config: Record<string, any>, mediaAss
       showPrompt: false,
     },
     layoutConfigMap,
+  };
+
+  function preloadBatch() {
+    timeline.push(createPreloadTrials(batchedMediaAssets[currPreloadBatch]).default)
+    currPreloadBatch ++; 
   };
 
   const stimulusBlock = {
@@ -75,7 +95,7 @@ export default function buildVocabTimeline(config: Record<string, any>, mediaAss
     },
   };
 
-  const timeline = [preloadTrials, initialTimeline];
+  const timeline = [initialPreload, initialTimeline];
 
   if (runCat) {
     // seperate out corpus to get cat/non-cat blocks
@@ -112,6 +132,10 @@ export default function buildVocabTimeline(config: Record<string, any>, mediaAss
     const numOfTrials = taskStore().totalTrials;
     taskStore('totalTestTrials', getRealTrials(corpus));
     for (let i = 0; i < numOfTrials; i++) {
+      if (i % batchSize === 0) {
+        preloadBatch(); 
+      }
+
       timeline.push(stimulusBlock);
     }
   }
