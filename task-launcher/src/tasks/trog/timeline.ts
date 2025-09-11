@@ -59,7 +59,7 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
   // counter for next batch to preload (skipping the initial preload)
   let currPreloadBatch = 0;
 
-  const initialPreload = preloadSharedAudio();
+  const initialPreload = runCat ? createPreloadTrials(mediaAssets).default : preloadSharedAudio();
 
   const timeline = [initialPreload, initialTimeline];
 

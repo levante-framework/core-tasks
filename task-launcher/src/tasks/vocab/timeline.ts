@@ -57,7 +57,8 @@ export default function buildVocabTimeline(config: Record<string, any>, mediaAss
   // counter for next batch to preload
   let currPreloadBatch = 0;
 
-  const initialPreload = preloadSharedAudio();
+  const initialPreload = runCat ? createPreloadTrials(mediaAssets).default : preloadSharedAudio();
+  console.log(initialPreload);
 
   // does not matter if trial has properties that don't belong to that type
   const trialConfig = {
