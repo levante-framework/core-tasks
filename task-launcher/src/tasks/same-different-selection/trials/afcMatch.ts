@@ -172,6 +172,7 @@ export const afcMatch = {
       responseLocation: selectedCardIdxs,
       itemUid: stim.itemUid,
       audioFile: stim.audioFile,
+      corpus: taskStore().corpus,
     });
 
     if (taskStore().storeItemId) {

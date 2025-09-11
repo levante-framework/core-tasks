@@ -288,6 +288,7 @@ export const stimulus = (trial?: StimulusType) => {
           responseLocation: data.button_response,
           itemUid: stim.itemUid,
           audioFile: stim.audioFile,
+          corpus: taskStore().corpus,
         });
 
         if (taskStore().storeItemId) {
