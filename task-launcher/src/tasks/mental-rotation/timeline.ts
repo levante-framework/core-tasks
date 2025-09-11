@@ -87,7 +87,7 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
   let currPreloadBatch = 0;
   const initialMedia = getLeftoverAssets(batchedMediaAssets, mediaAssets);
 
-  const initialPreload = createPreloadTrials(initialMedia).default;
+  const initialPreload = createPreloadTrials((runCat ? mediaAssets : initialMedia)).default;
 
   const timeline = [initialPreload, initialTimeline, imageInstructions, videoInstructionsMisfit, videoInstructionsFit];
 

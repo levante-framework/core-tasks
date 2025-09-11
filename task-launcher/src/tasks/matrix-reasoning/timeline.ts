@@ -81,7 +81,7 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
   let currPreloadBatch = 0;
 
   const initialMedia = getLeftoverAssets(batchedMediaAssets, mediaAssets);
-  const initialPreload = createPreloadTrials(initialMedia).default;
+  const initialPreload = createPreloadTrials(runCat ? mediaAssets : initialMedia).default;
 
   const timeline = [initialPreload, initialTimeline, ...instructions];
 
