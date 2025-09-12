@@ -34,6 +34,8 @@ export function prepareCorpus(corpus: StimulusType[]) {
     (trial) => trial.difficulty == null || isNaN(Number(trial.difficulty)),
   );
   const normedTrials: StimulusType[] = corpusParts.test.filter((trial) => !unnormedTrials.includes(trial));
+  console.log('normed trials', normedTrials);
+  console.log('unnormed trials', unnormedTrials);
 
   // determine start items
   const possibleStartItems: StimulusType[] = normedTrials.filter(

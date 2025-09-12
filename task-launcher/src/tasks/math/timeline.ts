@@ -61,10 +61,12 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
 
   const { runCat, heavyInstructions } = taskStore();
 
-  // block 4 is only for younger kids
-  corpus = corpus.filter((trial) => {
-    return heavyInstructions ? trial.block_index === '3' : trial.block_index !== '3';
-  });
+  // block 3 is only for younger kids
+  if (!runCat) {
+    corpus = corpus.filter((trial) => {
+      return heavyInstructions ? trial.block_index === '3' : trial.block_index !== '3';
+    });
+  }
 
   taskStore('totalTrials', corpus.length);
 
@@ -220,31 +222,39 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
     const instructions = allInstructionPractice.filter((trial) => trial.trialType == 'instructions');
     const practice = allInstructionPractice.filter((trial) => trial.assessmentStage == 'practice_response');
 
-    const allBlocks: StimulusType[][] = prepareMultiBlockCat(taskStore().corpora.stimulus);
-
+    let allBlocks: StimulusType[][] = prepareMultiBlockCat(taskStore().corpora.stimulus);
+    const downexBlock = allBlocks[3]; 
+    // move downex block to the beginning
+    allBlocks = [downexBlock, ...allBlocks.slice(0,3)];
+    
     const newCorpora = {
       practice: taskStore().corpora.practice,
       stimulus: allBlocks,
     };
     taskStore('corpora', newCorpora); // puts all blocks into taskStore
+    console.log(taskStore().corpora.stimulus);
     taskStore('totalTestTrials', 0); // add to this while building out each block
 
     const numOfBlocks = allBlocks.length;
-    const trialProportionsPerBlock = [2, 3, 3]; // divide by these numbers to get trials per block
-    for (let i = 0; i < numOfBlocks; i++) {
+    const trialProportionsPerBlock = [2, 2, 3, 3]; // divide by these numbers to get trials per block
+    for (let i = (heavyInstructions ? 0 : 1); i < numOfBlocks; i++) { // skip first block if not heavyInstructions
       // push in block-specific instructions
       let usedIDs: string[] = [];
       const blockInstructions = instructions.filter((trial) => {
+        const trialBlock = trial.block_index === "3" ? 0 : Number(trial.block_index) + 1; 
         let allowedIDs: string[]; // CAT only uses particular instructions from corpus
 
         switch (i) {
           case 0:
-            allowedIDs = ['math-instructions1', 'math-intro1'];
+            allowedIDs = ['math-instructions1-heavy'];
             break;
           case 1:
-            allowedIDs = ['math-intro2'];
+            allowedIDs = heavyInstructions ? ['math-intro2'] : ['math-instructions1', 'math-intro1'];
             break;
           case 2:
+            allowedIDs = ['math-intro2'];
+            break;
+          case 3:
             allowedIDs = ['math-intro2', 'number-line-instruct1'];
             break;
           default:
@@ -252,7 +262,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
         }
 
         const include =
-          trial.block_index === i.toString() && allowedIDs.includes(trial.itemId) && !usedIDs.includes(trial.itemId);
+          trialBlock === i && allowedIDs.includes(trial.itemId) && !usedIDs.includes(trial.itemId);
 
         if (include) {
           usedIDs.push(trial.itemId);
@@ -268,7 +278,8 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
 
       // push in block-specific practice trials
       const blockPractice = practice.filter((trial) => {
-        return trial.block_index === i.toString();
+        const trialBlock = trial.block_index === "3" ? 0 : Number(trial.block_index) + 1;
+        return trialBlock === i;
       });
       blockPractice.forEach((trial) => {
         timeline.push({ ...fixationOnly, stimulus: '' });
@@ -280,7 +291,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
       });
 
       // final slider block
-      if (i === 2) {
+      if (i === 3) {
         timeline.push(repeatSliderPracticeBlock());
       }
 
@@ -288,7 +299,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
       timeline.push(practiceTransition);
 
       // push in random items at start of first block (after practice trials)
-      if (i === 0) {
+      if (i === 1) {
         fullCorpus.start.forEach((trial) => timeline.push(stimulusBlock(trial)));
       }
 
