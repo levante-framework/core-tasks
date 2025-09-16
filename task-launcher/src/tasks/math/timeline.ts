@@ -246,7 +246,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
 
         switch (i) {
           case 0:
-            allowedIDs = ['math-instructions1-heavy'];
+            allowedIDs = ['math-instructions1-heavy', 'math-intro1-heavy'];
             break;
           case 1:
             allowedIDs = heavyInstructions ? ['math-intro2'] : ['math-instructions1', 'math-intro1'];
