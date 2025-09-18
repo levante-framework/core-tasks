@@ -228,7 +228,6 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
     // remove items from first block that are already in subsequent blocks
     const nonDownexIds: string[] = []; 
     allBlocks.slice(0,-1).flat().map(trial => nonDownexIds.push(trial.itemId as string));
-    console.log("nondownex ids: ", nonDownexIds);
 
     downexBlock = downexBlock.filter((trial: StimulusType) => {
       return !nonDownexIds.includes(trial.itemId as string); 
@@ -254,7 +253,6 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
       stimulus: allBlocks,
     };
     taskStore('corpora', newCorpora); // puts all blocks into taskStore
-    console.log(taskStore().corpora.stimulus);
     taskStore('totalTestTrials', 0); // add to this while building out each block
 
     const numOfBlocks = allBlocks.length;
@@ -333,8 +331,11 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
       }
 
       fullCorpus.unnormed.forEach((trial) => {
-        timeline.push({ ...fixationOnly, stimulus: '' });
-        timeline.push(stimulusBlock(trial));
+        const trialBlock = trial.block_index === "3" ? 0 : Number(trial.block_index) + 1; 
+        if (trialBlock === i) {
+          timeline.push({ ...fixationOnly, stimulus: '' });
+          timeline.push(stimulusBlock(trial));
+        }
       });
     }
   } else {
