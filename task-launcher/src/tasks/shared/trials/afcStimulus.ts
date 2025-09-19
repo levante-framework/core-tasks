@@ -223,7 +223,6 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
   taskStore('incorrectPracticeResponses', incorrectPracticeResponses);
 
   const stim = trial || (taskStore().nextStimulus as StimulusType);
-  console.log(stim.block_index);
   const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
   const playAudioOnLoad = itemLayoutConfig?.playAudioOnLoad;
   const pageStateHandler = new PageStateHandler(stim.audioFile, playAudioOnLoad);
