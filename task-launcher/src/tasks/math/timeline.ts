@@ -223,31 +223,34 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
     let practice = allInstructionPractice.filter((trial) => trial.assessmentStage == 'practice_response');
 
     let allBlocks: StimulusType[][] = prepareMultiBlockCat(taskStore().corpora.stimulus);
-    let downexBlock = allBlocks[3]; 
-    
+    let downexBlock = allBlocks[3];
+
     // remove items from first block that are already in subsequent blocks
-    const nonDownexIds: string[] = []; 
-    allBlocks.slice(0,-1).flat().map(trial => nonDownexIds.push(trial.itemId as string));
+    const nonDownexIds: string[] = [];
+    allBlocks
+      .slice(0, -1)
+      .flat()
+      .map((trial) => nonDownexIds.push(trial.itemId as string));
 
     downexBlock = downexBlock.filter((trial: StimulusType) => {
-      return !nonDownexIds.includes(trial.itemId as string); 
+      return !nonDownexIds.includes(trial.itemId as string);
     });
 
     // filter practice trials to only include appropriate trial types if downward extension
     const excludedDownexPracticeTypes = [
-      "Addition", 
-      "Number Comparison", 
-      "Number Identification", 
-      "Counting", 
-      "Counting AFC",
+      'Addition',
+      'Number Comparison',
+      'Number Identification',
+      'Counting',
+      'Counting AFC',
     ];
-    practice = practice.filter(trial => 
-      !(trial.block_index === "3" && excludedDownexPracticeTypes.includes(trial.trialType))
-    )
+    practice = practice.filter(
+      (trial) => !(trial.block_index === '3' && excludedDownexPracticeTypes.includes(trial.trialType)),
+    );
 
     // move downex block to the beginning
-    allBlocks = [downexBlock, ...allBlocks.slice(0,3)];
-    
+    allBlocks = [downexBlock, ...allBlocks.slice(0, 3)];
+
     const newCorpora = {
       practice: taskStore().corpora.practice,
       stimulus: allBlocks,
@@ -257,11 +260,12 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
 
     const numOfBlocks = allBlocks.length;
     const trialProportionsPerBlock = [2, 2, 3, 3]; // divide by these numbers to get trials per block
-    for (let i = (heavyInstructions ? 0 : 1); i < numOfBlocks; i++) { // skip first block if not heavyInstructions
+    for (let i = heavyInstructions ? 0 : 1; i < numOfBlocks; i++) {
+      // skip first block if not heavyInstructions
       // push in block-specific instructions
       let usedIDs: string[] = [];
       const blockInstructions = instructions.filter((trial) => {
-        const trialBlock = trial.block_index === "3" ? 0 : Number(trial.block_index) + 1; 
+        const trialBlock = trial.block_index === '3' ? 0 : Number(trial.block_index) + 1;
         let allowedIDs: string[]; // CAT only uses particular instructions from corpus
 
         switch (i) {
@@ -281,8 +285,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
             allowedIDs = [];
         }
 
-        const include =
-          trialBlock === i && allowedIDs.includes(trial.itemId) && !usedIDs.includes(trial.itemId);
+        const include = trialBlock === i && allowedIDs.includes(trial.itemId) && !usedIDs.includes(trial.itemId);
 
         if (include) {
           usedIDs.push(trial.itemId);
@@ -298,7 +301,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
 
       // push in block-specific practice trials
       const blockPractice = practice.filter((trial) => {
-        const trialBlock = trial.block_index === "3" ? 0 : Number(trial.block_index) + 1;
+        const trialBlock = trial.block_index === '3' ? 0 : Number(trial.block_index) + 1;
         return trialBlock === i;
       });
       blockPractice.forEach((trial) => {
@@ -331,7 +334,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
       }
 
       fullCorpus.unnormed.forEach((trial) => {
-        const trialBlock = trial.block_index === "3" ? 0 : Number(trial.block_index) + 1; 
+        const trialBlock = trial.block_index === '3' ? 0 : Number(trial.block_index) + 1;
         if (trialBlock === i) {
           timeline.push({ ...fixationOnly, stimulus: '' });
           timeline.push(stimulusBlock(trial));
