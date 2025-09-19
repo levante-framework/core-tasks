@@ -56,7 +56,7 @@ export default function buildTOMTimeline(config: Record<string, any>, mediaAsset
   const initialPreload = preloadSharedAudio();
   const timeline = [initialPreload, initialTimeline];
 
-  const blockList = prepareMultiBlockCat(corpus);
+  const blockList = prepareMultiBlockCat(corpus, false);
   const batchedMediaAssets = batchMediaAssets(
     mediaAssets,
     blockList,
