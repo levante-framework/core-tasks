@@ -76,6 +76,11 @@ export const feedback = (
           };
 
           PageAudioHandler.playAudio(stimulusPath || mediaAssets.audio.nullAudio, audioConfig);
+
+          const okBtnContainer = document.getElementById("jspsych-html-multi-response-button-0")
+          if (okBtnContainer) {
+            okBtnContainer.style.margin = "8px";
+          }
         },
         on_finish: () => {
           PageAudioHandler.stopAndDisconnectNode();
