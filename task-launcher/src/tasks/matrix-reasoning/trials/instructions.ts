@@ -31,7 +31,7 @@ export const instructions = instructionData.map((data) => {
 
                  
                         <img
-                            src=${mediaAssets.images[data.image]}
+                            src=${mediaAssets.images[data.image] || mediaAssets.images.imageNotFoundFallback}
                             alt='Instruction graphic'
                         />
                     </div>`;

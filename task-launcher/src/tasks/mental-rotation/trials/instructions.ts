@@ -36,10 +36,14 @@ export const videoInstructionsFit = {
         <button id="${replayButtonHtmlId}" class="replay">
           ${replayButtonSvg}
         </button>
-        <video class="instruction-video" autoplay>
-          <source src=${mediaAssets.video.mentalRotationExampleFit} type="video/mp4"/>
-          Your browser does not support the video tag.
-        </video>
+        ${
+          mediaAssets.video.mentalRotationExampleFit ? 
+          `<video class="instruction-video" autoplay>
+            <source src=${mediaAssets.video.mentalRotationExampleFit} type="video/mp4"/>
+            Your browser does not support the video tag.
+          </video>` :
+          `<img src=${mediaAssets.images.imageNotFoundFallback} class="instruction-video" />`
+        }
       </div>
     `;
   },
@@ -81,10 +85,14 @@ export const videoInstructionsMisfit = {
         <button id="${replayButtonHtmlId}" class="replay">
           ${replayButtonSvg}
         </button>
-        <video class="instruction-video" autoplay>
-          <source src=${mediaAssets.video.mentalRotationExampleMisfit} type="video/mp4"/>
-          Your browser does not support the video tag.
-        </video>
+        ${
+          mediaAssets.video.mentalRotationExampleMisfit ? 
+          `<video class="instruction-video" autoplay>
+            <source src=${mediaAssets.video.mentalRotationExampleMisfit} type="video/mp4"/>
+            Your browser does not support the video tag.
+          </video>` :
+          `<img src=${mediaAssets.images.imageNotFoundFallback} class="instruction-video" />`
+        }
       </div>
     `;
   },
@@ -123,7 +131,7 @@ export const imageInstructions = {
         <button id="${replayButtonHtmlId}" class="replay">
           ${replayButtonSvg}
         </button>
-        <img src=${mediaAssets.images.mentalRotationExample} class="instruction-video" />
+        <img src=${mediaAssets.images.mentalRotationExample || mediaAssets.images.imageNotFoundFallback} class="instruction-video" />
       </div>
     `;
   },

@@ -61,12 +61,12 @@ export const instructions = instructionData.map((data) => {
                         </div>
                         <div class="lev-stim-content-x-3">
                             ${
-                              data.video
+                              data.video && mediaAssets.video[data.video]
                                 ? `<video class='instruction-video-small' autoplay loop>
                                     <source src=${mediaAssets.video[data.video]} type='video/mp4'>
                                 </video>`
                                 : `<img
-                                    src=${mediaAssets.images[data.image as string]}
+                                    src=${mediaAssets.images[data.image as string] || mediaAssets.images.imageNotFoundFallback}
                                     alt='Instruction graphic'
                                 />`
                             }
