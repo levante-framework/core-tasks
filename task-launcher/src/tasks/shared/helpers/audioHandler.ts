@@ -49,7 +49,7 @@ export class PageAudioHandler {
       const jsPsychAudioCtx = jsPsych.pluginAPI.audioContext();
 
       // Returns a promise of the AudioBuffer of the preloaded file path.
-      const audioBuffer = await jsPsych.pluginAPI.getAudioBuffer(audioUri) as AudioBuffer | null;
+      const audioBuffer = (await jsPsych.pluginAPI.getAudioBuffer(audioUri)) as AudioBuffer | null;
 
       const audioSource: AudioBufferSourceNode = jsPsychAudioCtx.createBufferSource();
       PageAudioHandler.audioSource = audioSource;
