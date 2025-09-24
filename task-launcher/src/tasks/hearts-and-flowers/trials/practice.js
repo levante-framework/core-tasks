@@ -235,27 +235,6 @@ function buildPracticeFeedback(
       PageAudioHandler.playAudio(mediaAssets.audio[audioAssetKey], audioConfig);
       const pageStateHandler = new PageStateHandler(audioAssetKey);
       setupReplayAudio(pageStateHandler);
-
-      // In Cypress, audio may be stubbed or not play; add a fast fallback to advance
-      try {
-        const isCypress = typeof window !== 'undefined' && !!window.Cypress;
-        if (isCypress) {
-          setTimeout(() => {
-            try {
-              // If feedback is still on screen, advance to avoid hanging on e.g. "Good job!"
-              const stillOnFeedback =
-                !!document.querySelector('.haf-cr-container') || !!document.querySelector('.haf-stimulus-container');
-              if (stillOnFeedback) {
-                jsPsych.finishTrial();
-              }
-            } catch (e) {
-              // no-op
-            }
-          }, 300);
-        }
-      } catch (e) {
-        // no-op
-      }
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
     keyboard_choices: 'NO_KEYS',
