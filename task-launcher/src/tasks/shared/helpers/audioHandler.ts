@@ -47,21 +47,9 @@ export class PageAudioHandler {
 
     try {
       const jsPsychAudioCtx = jsPsych.pluginAPI.audioContext();
-      // Ensure the file exists and is audio; bail out gracefully otherwise
-      const headResp = await fetch(audioUri, { method: 'HEAD' }).catch(() => null);
-      if (!headResp || !headResp.ok) {
-        return; // skip playing missing audio
-      }
-      const ct = headResp.headers.get('content-type') || '';
-      if (!ct.startsWith('audio/')) {
-        return; // skip non-audio asset mistakenly referenced
-      }
 
       // Returns a promise of the AudioBuffer of the preloaded file path.
-      const audioBuffer = (await jsPsych.pluginAPI.getAudioBuffer(audioUri).catch(() => null)) as AudioBuffer | null;
-      if (!audioBuffer || typeof (audioBuffer as any).getChannelData !== 'function') {
-        return; // decode failed or not an AudioBuffer
-      }
+      const audioBuffer = await jsPsych.pluginAPI.getAudioBuffer(audioUri) as AudioBuffer | null;
 
       const audioSource: AudioBufferSourceNode = jsPsychAudioCtx.createBufferSource();
       PageAudioHandler.audioSource = audioSource;
