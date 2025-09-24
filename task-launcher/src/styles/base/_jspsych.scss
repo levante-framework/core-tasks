@@ -18,6 +18,16 @@
   background-color: $bg-workspace-base;
   background-image: url('https://storage.googleapis.com/tasks-shared/levante-background.png');
   background-size: cover;
+  
+  /* Prevent scroll-to-refresh and overscroll behavior */
+  overscroll-behavior: none;
+  overscroll-behavior-y: none;
+  -webkit-overflow-scrolling: touch;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 
   .jspsych-content-wrapper {
     height: 100%;
