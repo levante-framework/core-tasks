@@ -32,7 +32,7 @@ export const instructions = instructionData.map((data) => {
                  
                         <img
                             src=${mediaAssets.images[data.image]}
-                            alt='Instruction graphic'
+                            alt="Image not loading. Please continue the task."
                         />
                     </div>`;
     },

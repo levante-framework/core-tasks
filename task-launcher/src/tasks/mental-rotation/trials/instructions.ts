@@ -38,7 +38,7 @@ export const videoInstructionsFit = {
         </button>
         <video class="instruction-video" autoplay>
           <source src=${mediaAssets.video.mentalRotationExampleFit} type="video/mp4"/>
-          Your browser does not support the video tag.
+          Video not loading. Please continue the task.
         </video>
       </div>
     `;
@@ -83,7 +83,7 @@ export const videoInstructionsMisfit = {
         </button>
         <video class="instruction-video" autoplay>
           <source src=${mediaAssets.video.mentalRotationExampleMisfit} type="video/mp4"/>
-          Your browser does not support the video tag.
+          Video not loading. Please continue the task.
         </video>
       </div>
     `;
@@ -123,7 +123,11 @@ export const imageInstructions = {
         <button id="${replayButtonHtmlId}" class="replay">
           ${replayButtonSvg}
         </button>
-        <img src=${mediaAssets.images.mentalRotationExample} class="instruction-video" />
+        <img 
+          src=${mediaAssets.images.mentalRotationExample} 
+          class="instruction-video" 
+          alt="Image not loading. Please continue the task."
+        />
       </div>
     `;
   },

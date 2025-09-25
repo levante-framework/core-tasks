@@ -29,7 +29,7 @@ export const practiceTransition = {
                 <div class="lev-stim-content-x-3">
                     <img
                         src=${mediaAssets.images['rocket@2x']}
-                        alt='Instruction graphic'
+                        alt="Image not found. Please continue the task."
                     />
                 </div>
               </div>`;
