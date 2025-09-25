@@ -26,25 +26,4 @@ Cypress.on('uncaught:exception', (err, runnable) => {
   if (err.message.includes('user not in Firestore')) {
     return false;
   }
-  if (/Permissions check failed/i.test(err.message)) {
-    return false;
-  }
-});
-
-// Mock fullscreen API so plugins don't throw inside Cypress iframe
-Cypress.on('window:before:load', (win) => {
-  try {
-    Object.defineProperty(win.document, 'fullscreenEnabled', { value: false, configurable: true });
-  } catch {}
-  try {
-    Object.defineProperty(win.document, 'webkitFullscreenEnabled', { value: false, configurable: true });
-  } catch {}
-  if (win.document && win.document.documentElement) {
-    win.document.documentElement.requestFullscreen = () => Promise.resolve();
-    // @ts-ignore
-    win.document.documentElement.webkitRequestFullscreen = () => Promise.resolve();
-  }
-  win.document.exitFullscreen = () => Promise.resolve();
-  // @ts-ignore
-  win.document.webkitExitFullscreen = () => Promise.resolve();
 });
