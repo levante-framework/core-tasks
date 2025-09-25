@@ -90,6 +90,11 @@ export const instructions = instructionData.map((data) => {
       const pageStateHandler = new PageStateHandler(data.prompt, true);
       setupReplayAudio(pageStateHandler);
 
+      const okBtnContainer = document.getElementById("jspsych-html-multi-response-button-0")
+      if (okBtnContainer) {
+        okBtnContainer.style.margin = "8px";
+      }
+
       // hide toast if it is there
       const toast = document.getElementById('lev-toast-default');
       if (toast) {
