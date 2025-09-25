@@ -9,7 +9,6 @@ let mixed_test = false;
 
 describe('test hearts and flowers', () => {
   it('visits hearts and flowers and plays game', () => {
-    cy.intercept({ resourceType: /xhr|fetch/ }, { log: false });
     cy.visit(hearts_and_flowers_url);
 
     // wait for OK button to appear
