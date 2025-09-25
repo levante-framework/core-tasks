@@ -67,7 +67,7 @@ export const instructions = instructionData.map((data) => {
                                 </video>`
                                 : `<img
                                     src=${mediaAssets.images[data.image as string]}
-                                    alt='Instruction graphic'
+                                    alt=alt="Image not loading. Please continue the task."
                                 />`
                             }
                         </div>                    
