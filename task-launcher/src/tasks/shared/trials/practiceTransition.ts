@@ -16,6 +16,8 @@ export const practiceTransition = {
       },
       stimulus: () => {
         const t = taskStore().translations;
+        const imageSrc = mediaAssets.images['rocket@2x'];
+
         return `<div class="lev-stimulus-container">
                 <button
                   id="${replayButtonHtmlId}"
@@ -28,8 +30,8 @@ export const practiceTransition = {
                 </div>
                 <div class="lev-stim-content-x-3">
                     <img
-                        src=${mediaAssets.images['rocket@2x']}
-                        alt="Image not found. Please continue the task."
+                        src=${imageSrc}
+                        alt="Image not loading: ${imageSrc}. Please continue the task."
                     />
                 </div>
               </div>`;

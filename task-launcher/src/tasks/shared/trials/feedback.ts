@@ -43,7 +43,7 @@ export const feedback = (
                                 <p>${isCorrect ? t.feedbackCorrect : t.feedbackNotQuiteRight}</p>
                             </div>
                             <div class="lev-stim-content">
-                                <img src=${imageUrl} alt="Image not found. Please continue the task."'/>
+                                <img src=${imageUrl} alt="Image not loading: ${imageUrl}. Please continue the task."'/>
                             </div>
                     
                             ${

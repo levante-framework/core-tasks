@@ -49,6 +49,7 @@ export const instructions = instructionData.map((data) => {
     type: jsPsychHtmlMultiResponse,
     stimulus: () => {
       const t = taskStore().translations;
+      const mediaSrc = data.video ? mediaAssets.video[data.video] : mediaAssets.images[data.image as string];
       return `<div class="lev-stimulus-container">
                         <button
                             id="${replayButtonHtmlId}"
@@ -63,11 +64,11 @@ export const instructions = instructionData.map((data) => {
                             ${
                               data.video
                                 ? `<video class='instruction-video-small' autoplay loop>
-                                    <source src=${mediaAssets.video[data.video]} type='video/mp4'>
+                                    <source src=${mediaSrc} type='video/mp4'>
                                 </video>`
                                 : `<img
-                                    src=${mediaAssets.images[data.image as string]}
-                                    alt=alt="Image not loading. Please continue the task."
+                                    src=${mediaSrc}
+                                    alt="Image not loading ${mediaSrc}. Please continue the task."
                                 />`
                             }
                         </div>                    
