@@ -133,7 +133,7 @@ function getPrompt(layoutConfigMap: Record<string, LayoutConfigType>, trial?: St
       : null;
     const prompt = promptEnabled ? t[camelize(stim.audioFile)] : null;
     const mediaSrc = showStimImage ? mediaAsset : null;
-    const mediaAlt = stimulusTextConfig?.value || 'Stimulus';
+    const mediaAlt = stimulusTextConfig?.value || `Image not loading: ${mediaSrc}. Please continue the task.`;
     const stimText = stimulusTextConfig ? stimulusTextConfig.displayValue : null;
     return getPromptTemplate(
       prompt,
