@@ -326,8 +326,8 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
         fullCorpus.start.forEach((trial) => timeline.push(stimulusBlock(trial)));
       }
 
-      const numOfTrials = allBlocks[i].length / trialProportionsPerBlock[i];
-      taskStore.transact('numOfTrials', (oldVal: number) => (oldVal += numOfTrials));
+      const numOfTrials = Math.floor(allBlocks[i].length / trialProportionsPerBlock[i]);
+      taskStore.transact('totalTestTrials', (oldVal: number) => (oldVal += numOfTrials));
       for (let j = 0; j < numOfTrials; j++) {
         timeline.push({ ...setupStimulusFromBlock(i), stimulus: '' }); // select only from the current block
         timeline.push(stimulusBlock());
