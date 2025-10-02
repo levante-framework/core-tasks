@@ -74,7 +74,7 @@ export class TaskLauncher {
     }
 
     await getTranslations(isDev, config.language);
-    await getAssetsPerTask();
+    await getAssetsPerTask(isDev);
 
     const taskAudioAssetNames = [
       ...taskStore().assetsPerTask[taskName].audio,
