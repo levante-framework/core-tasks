@@ -115,4 +115,11 @@ export default {
     buildTaskTimeline: adultReasoningTimeline,
     variants: {},
   },
+  hostileAttribution: {
+    setConfig: setSharedConfig, 
+    getCorpus: getCorpus, 
+    getTranslations: getTranslations,
+    buildTaskTimeline: tomTimeline,
+    variants: {},
+  }
 };
