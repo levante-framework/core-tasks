@@ -26,7 +26,7 @@ function hafLoop() {
       // wait for feedback screen to go away
       cy.get('.haf-cr-container').should('not.exist');
       const okButton = content.find('.primary');
-      
+
       // Make the decision here to handle instructions or pick an answer
       if (okButton.length) {
         handleInstructions();
@@ -84,7 +84,7 @@ function pickAnswer() {
 // uses image src and image position to get the right button index
 function getCorrectButtonIdx(src, pos) {
   const shape = src.split('/').pop().split('.')[0];
-  
+
   if (shape === 'heart') {
     heart_phase = true;
     mixed_practice = flower_phase;

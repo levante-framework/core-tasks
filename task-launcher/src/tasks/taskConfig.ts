@@ -116,10 +116,10 @@ export default {
     variants: {},
   },
   hostileAttribution: {
-    setConfig: setSharedConfig, 
-    getCorpus: getCorpus, 
+    setConfig: setSharedConfig,
+    getCorpus: getCorpus,
     getTranslations: getTranslations,
     buildTaskTimeline: tomTimeline,
     variants: {},
-  }
+  },
 };
