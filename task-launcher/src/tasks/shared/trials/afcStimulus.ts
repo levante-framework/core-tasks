@@ -14,6 +14,7 @@ import {
   handleStaggeredButtons,
   updateTheta,
   addPracticeButtonListeners,
+  equalizeButtonSizes,
 } from '../helpers';
 import { mediaAssets } from '../../..';
 import { finishExperiment } from '.';
@@ -301,6 +302,14 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
       }
     }
 
+    if (itemLayoutConfig.equalizeButtonSizes) {
+      const buttonClass = itemLayoutConfig.classOverrides.buttonClassList[0]; 
+      const responseButtonChildren = document.querySelectorAll(`button.${buttonClass}`)
+      const minFontSize = 10;
+
+      equalizeButtonSizes(responseButtonChildren as NodeListOf<HTMLButtonElement>, minFontSize);
+    }
+
     Array.from(responseButtons).forEach((el, i) => {
       const keyIndex = totalResponseButtons === 2 ? i + 1 : i;
       addKeyHelpers(el, keyIndex);
@@ -326,8 +335,9 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
 
   if (stimulus.trialType !== 'instructions') {
     if (itemLayoutConfig) {
-      const { response } = itemLayoutConfig;
-      if (!response) {
+      const { response, checkCorrectAnswer } = itemLayoutConfig;
+     
+      if (!response || checkCorrectAnswer === undefined) {
         throw new Error('Choices not defined in the config');
       }
       const keyboardChoices = getKeyboardChoices(itemLayoutConfig);
@@ -346,22 +356,26 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
     // check response and record it
     const responseType = data.button_response ? 'mouse' : 'keyboard';
 
-    // update running score and answer lists
-    if (data.correct) {
-      if (stimulus.assessmentStage !== 'practice_response') {
-        // practice trials don't count toward total
-        taskStore.transact('totalCorrect', (oldVal: number) => oldVal + 1);
-        taskStore('numIncorrect', 0); // reset incorrect trial count
-      }
-      practiceResponses = [];
-    } else {
-      // Only increase incorrect trials if response is incorrect not a practice trial
-      if (stimulus.assessmentStage !== 'practice_response') {
-        taskStore.transact('numIncorrect', (oldVal: number) => oldVal + 1);
-      }
+    const { checkCorrectAnswer } = itemLayoutConfig;
+    if (checkCorrectAnswer) {
+      // update running score and answer lists
+      if (data.correct) {
+        if (stimulus.assessmentStage !== 'practice_response') {
+          // practice trials don't count toward total
+          taskStore.transact('totalCorrect', (oldVal: number) => oldVal + 1);
+          taskStore('numIncorrect', 0); // reset incorrect trial count
+        }
+        practiceResponses = [];
+      } else {
+        // Only increase incorrect trials if response is incorrect not a practice trial
+        if (stimulus.assessmentStage !== 'practice_response') {
+          taskStore.transact('numIncorrect', (oldVal: number) => oldVal + 1);
+        }
 
-      practiceResponses.push(responseValue);
+        practiceResponses.push(responseValue);
+      }
     }
+    
 
     jsPsych.data.addDataToLastTrial({
       // specific to this trial

@@ -43,6 +43,8 @@ declare global {
       onIncorrectTrial: 'skip' | 'end';
       // Other config can be placed here
     };
+    checkCorrectAnswer: boolean; // false for tasks that don't have correct answers
+    equalizeButtonSizes: boolean; 
   };
 
   type AudioConfigType = {

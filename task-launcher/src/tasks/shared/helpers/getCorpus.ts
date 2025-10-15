@@ -12,6 +12,7 @@ import { shuffleStimulusTrials } from './randomizeStimulusBlocks';
 import { shuffleStories } from '../../roar-inference/helpers/shuffleRoarInferenceStories';
 import { taskStore } from '../../../taskStore';
 import { getBucketName } from './getBucketName';
+import { getChildSurveyResponses } from './childSurveyResponses';
 
 type ParsedRowType = {
   source: string;
@@ -115,7 +116,10 @@ const transformCSV = (
       distractors: (() => {
         if (row.task === 'roar-inference') {
           return row.response_alternatives.split(',').map((alt) => alt.replace(/"/g, ''));
-        } else {
+        } else if (row.task === 'child-survey') {
+          return getChildSurveyResponses();
+        }
+        else {
           return containsLettersOrSlash(row.response_alternatives) ||
             (row.task === 'adult-reasoning' && row.response_alternatives.includes(';'))
             ? row.response_alternatives.split(',')
