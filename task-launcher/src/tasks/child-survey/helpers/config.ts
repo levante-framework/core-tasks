@@ -41,6 +41,13 @@ export const getLayoutConfig = (
       targetIndex: 0,
     };
     defaultConfig.equalizeButtonSizes = true; 
+    defaultConfig.isStaggered = true;
+    defaultConfig.buttonAudioKeys = [
+      'child-survey-response1', 
+      'child-survey-response2', 
+      'child-survey-response3', 
+      'child-survey-response4',
+    ];
   } else {
     defaultConfig.classOverrides.buttonClassList = ['primary'];
     stimulus.trialType === 'instructions'

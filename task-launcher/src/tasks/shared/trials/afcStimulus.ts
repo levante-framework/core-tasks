@@ -235,10 +235,14 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
     const buttonContainer = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
     const imgButtons = Array.from(buttonContainer.children as HTMLCollectionOf<HTMLButtonElement>);
     let audioKeys: string[] = [];
-    for (let i = 0; i < imgButtons.length; i++) {
-      const img = imgButtons[i].children[0].getElementsByTagName('img')[0];
-      const audioKey = camelize(img?.alt ?? '');
-      audioKeys.push(audioKey);
+    if (itemLayoutConfig.buttonAudioKeys) {
+      audioKeys = itemLayoutConfig.buttonAudioKeys;
+    } else {
+      for (let i = 0; i < imgButtons.length; i++) {
+        const img = imgButtons[i].children[0].getElementsByTagName('img')[0];
+        const audioKey = camelize(img?.alt ?? '');
+        audioKeys.push(audioKey);
+      }
     }
 
     handleStaggeredButtons(pageStateHandler, buttonContainer, audioKeys);

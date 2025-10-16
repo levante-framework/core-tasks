@@ -44,7 +44,7 @@ export const DEFAULT_LAYOUT_CONFIG: LayoutConfigType = {
     onIncorrectTrial: 'end',
   },
   checkCorrectAnswer: true, 
-  equalizeButtonSizes: false,
+  equalizeButtonSizes: false
 };
 
 const defaultCorpus: Record<string, string> = {

@@ -43,8 +43,9 @@ declare global {
       onIncorrectTrial: 'skip' | 'end';
       // Other config can be placed here
     };
-    checkCorrectAnswer: boolean; // false for tasks that don't have correct answers
-    equalizeButtonSizes: boolean; 
+    checkCorrectAnswer?: boolean; // false for tasks that don't have correct answers
+    equalizeButtonSizes?: boolean; 
+    buttonAudioKeys?: string[]; // specify audio files to play for staggered buttons
   };
 
   type AudioConfigType = {
