@@ -149,9 +149,6 @@ button {
     font-size: $font-size-xs;
     font-weight: $font-weight-dark;
     color: $txt-white;
-    display: flex; 
-    align-items: center;
-    justify-content: center;
 
     @include respond-to('small') {
       font-size: $font-size-xxs;

@@ -1,41 +1,32 @@
-function resizeButtonText(button: HTMLButtonElement, minFontSize: number) {
-  const maxWidth = button.clientWidth;
-  const maxHeight = button.clientHeight;
-  let fontSize = parseInt(window.getComputedStyle(button).fontSize);
-
-  // Decrease font size until text fits inside the button
-  while ((button.scrollWidth > maxWidth || button.scrollHeight > maxHeight) && fontSize > minFontSize) {
-    fontSize--;
-    button.style.fontSize = fontSize + 'px';
-  }
-
-  return fontSize;
-}
-
-export function equalizeButtonSizes(buttons: NodeListOf<HTMLButtonElement>, minFontSize: number) {
+export function equalizeButtonSizes(buttons: NodeListOf<HTMLButtonElement>) {
     const buttonWidths = [];
     const buttonHeights = [];
-    const buttonFontSizes = [];
     
-    // get starting button sizes
+    // get starting button widths
     for (let i = 0; i < buttons.length; i++) {
       const rect = buttons[i].getBoundingClientRect();
       
       buttonWidths.push(rect.width);
-      buttonHeights.push(rect.height);
     }
-    
-    // resize all buttons to small button size and shrink text to fit
+          
+    // resize all buttons to smallest width
     for (let i = 0; i < buttons.length; i++) {
       buttons[i].style.width = Math.min(...buttonWidths).toString() + 'px';
-      buttons[i].style.height = Math.min(...buttonHeights).toString() + 'px';
-
-      buttonFontSizes.push(resizeButtonText(buttons[i], minFontSize)); 
     }
 
-    // resize all text to smallest size
-    const smallestFont = Math.min(...buttonFontSizes); 
+    // get new button heights (after automatically adjusted to accomdate different text)
     for (let i = 0; i < buttons.length; i++) {
-        buttons[i].style.fontSize = smallestFont + 'px';
+      const rect = buttons[i].getBoundingClientRect();
+      buttonHeights.push(rect.height);
+    }
+  
+    // resize all buttons to max height and align with top of container
+    for (let i = 0; i < buttons.length; i++) {
+      buttons[i].style.height = Math.max(...buttonHeights).toString() + 'px';
+
+      const parentElement = buttons[i].parentElement;
+      if (parentElement) {
+        parentElement.style.verticalAlign = 'top';
+      }
     }
 }

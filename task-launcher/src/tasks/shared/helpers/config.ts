@@ -43,8 +43,6 @@ export const DEFAULT_LAYOUT_CONFIG: LayoutConfigType = {
   inCorrectTrialConfig: {
     onIncorrectTrial: 'end',
   },
-  checkCorrectAnswer: true, 
-  equalizeButtonSizes: false
 };
 
 const defaultCorpus: Record<string, string> = {

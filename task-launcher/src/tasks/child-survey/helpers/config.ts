@@ -28,7 +28,6 @@ export const getLayoutConfig = (
     value: stimItem,
     displayValue: undefined,
   };
-  defaultConfig.checkCorrectAnswer = false;
   if (!defaultConfig.isInstructionTrial) {
     const mappedDistractors = mapDistractorsToString(distractors);
     defaultConfig.prompt.enabled = true;
@@ -39,15 +38,8 @@ export const getLayoutConfig = (
       displayValues: mappedDistractors,
       values: mappedDistractors,
       targetIndex: 0,
-    };
-    defaultConfig.equalizeButtonSizes = true; 
+    }; 
     defaultConfig.isStaggered = true;
-    defaultConfig.buttonAudioKeys = [
-      'child-survey-response1', 
-      'child-survey-response2', 
-      'child-survey-response3', 
-      'child-survey-response4',
-    ];
   } else {
     defaultConfig.classOverrides.buttonClassList = ['primary'];
     stimulus.trialType === 'instructions'
