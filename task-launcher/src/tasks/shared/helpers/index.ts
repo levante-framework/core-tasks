@@ -40,3 +40,5 @@ export { filterMedia } from './filterMedia';
 export { batchMediaAssets } from './batchPreloading';
 export { batchTrials } from './batchPreloading';
 export { getAssetsPerTask } from './getAssetsPerTask';
+export { getChildSurveyResponses } from './childSurveyResponses';
+export { equalizeButtonSizes } from './equalizeButtonSizes'; 

@@ -68,12 +68,13 @@ export class TaskLauncher {
 
     setTaskStore(config);
 
+    await getTranslations(isDev, config.language);
+
     // TODO: make hearts and flowers corpus? make list of tasks that don't need corpora?
     if (taskName !== 'hearts-and-flowers' && taskName !== 'memory-game' && taskName !== 'intro') {
       await getCorpus(config, isDev);
     }
-
-    await getTranslations(isDev, config.language);
+    
     await getAssetsPerTask(isDev);
 
     const taskAudioAssetNames = [

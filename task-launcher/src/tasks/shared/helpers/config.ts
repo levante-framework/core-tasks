@@ -56,6 +56,7 @@ const defaultCorpus: Record<string, string> = {
   roarInference: 'type_inference-demo-2024-11-11v3',
   adultReasoning: 'adult-reasoning-item-bank',
   hostileAttribution: 'hostile-attribution-item-bank',
+  childSurvey: 'child-survey-item-bank',
 };
 
 export const setSharedConfig = async (
