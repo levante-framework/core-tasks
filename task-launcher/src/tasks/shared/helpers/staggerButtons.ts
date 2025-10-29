@@ -27,14 +27,18 @@ export const handleStaggeredButtons = async (
       'lev-staggered-opacity',
     );
   }
-  setTimeout(() => {
-    showStaggeredBtnAndPlaySound(
-      0,
-      Array.from(parentResponseDiv?.children as HTMLCollectionOf<HTMLButtonElement>),
-      audioList,
-      pageState,
-    );
-  }, intialDelay);
+  // Return a Promise that resolves when the staggered animation is complete
+  return new Promise<void>((resolve) => {
+    setTimeout(() => {
+      showStaggeredBtnAndPlaySound(
+        0,
+        Array.from(parentResponseDiv?.children as HTMLCollectionOf<HTMLButtonElement>),
+        audioList,
+        pageState,
+        resolve, // Pass the resolve function to be called when animation completes
+      );
+    }, intialDelay);
+  });
 };
 
 const showStaggeredBtnAndPlaySound = (
@@ -42,6 +46,7 @@ const showStaggeredBtnAndPlaySound = (
   btnList: HTMLButtonElement[],
   audioList: string[],
   pageState: PageStateHandler,
+  onComplete?: () => void,
 ) => {
   const btn = btnList[index];
   btn.classList.remove('lev-staggered-grayscale', 'lev-staggered-opacity');
@@ -64,9 +69,10 @@ const showStaggeredBtnAndPlaySound = (
           jsResponseEl.classList.remove('lev-staggered-disabled');
         }
         pageState.enableReplayBtn();
+        onComplete?.();
       } else {
         //recurse
-        showStaggeredBtnAndPlaySound(index + 1, btnList, audioList, pageState);
+        showStaggeredBtnAndPlaySound(index + 1, btnList, audioList, pageState, onComplete);
       }
     },
   };
