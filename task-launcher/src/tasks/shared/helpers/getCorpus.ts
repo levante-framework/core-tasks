@@ -31,7 +31,7 @@ type ParsedRowType = {
   chanceLevel: number;
   itemId: string;
   distractors: number[] | string[];
-  audioFile: string;
+  audioFile: string | string[];
   // difficulty must be undefined to avoid running cat
   difficulty: string;
   d: string;
@@ -44,9 +44,10 @@ type ParsedRowType = {
   item_id: string;
   item_uid: string;
   response_alternatives: string;
-  audio_file: string;
+  audio_file: string | string[];
   randomize?: string;
   trial_num: number;
+  downex?: string;
 };
 
 export const sdsPhaseCount = {
@@ -59,6 +60,7 @@ export const sdsPhaseCount = {
 };
 
 let totalTrials = 0;
+let totalDownexTrials = 0;
 
 let stimulusData: StimulusType[] = [];
 
@@ -126,7 +128,7 @@ const transformCSV = (
             : stringToNumberArray(row.response_alternatives);
         }
       })(),
-      audioFile: row.audio_file,
+      audioFile: row.audio_file?.includes(',') ? (row.audio_file as string).split(',') : row.audio_file as string,
       // difficulty must be undefined for non-instruction/practice trials to avoid running cat
       difficulty:
         taskStore().runCat || row.trial_type === 'instructions' || row.assessment_stage === 'practice_response'
@@ -134,6 +136,7 @@ const transformCSV = (
           : NaN,
       randomize: row.randomize as 'yes' | 'no' | 'at_block_level',
       trialNumber: row.trial_num,
+      downex: row.downex?.toUpperCase() === 'TRUE',
     };
 
     if (row.task === 'Mental Rotation') {
@@ -181,6 +184,11 @@ const transformCSV = (
         stimulusData.push(newRow);
         totalTrials += 1;
       } // else skip extra practice
+    } else if (newRow.downex) {
+      if (taskStore().heavyInstructions) {
+        stimulusData.push(newRow);
+        totalDownexTrials += 1;
+      }
     } else {
       // instruction and stimulus
       stimulusData.push(newRow);
@@ -206,7 +214,7 @@ export const getCorpus = async (config: Record<string, any>, isDev: boolean) => 
 
   const bucketName = getBucketName(task, isDev, 'corpus');
 
-  const corpusUrl = `https://storage.googleapis.com/${bucketName}/${corpus}.csv?alt=media`;
+  const corpusUrl = `https://storage.googleapis.com/${bucketName}/${corpus}.csv?alt=media&v=2`;
 
   function downloadCSV(url: string) {
     return new Promise((resolve, reject) => {
@@ -235,6 +243,7 @@ export const getCorpus = async (config: Record<string, any>, isDev: boolean) => 
     try {
       await parseCSVs(urls);
       taskStore('totalTrials', totalTrials);
+      taskStore('totalDownexTrials', totalDownexTrials);
     } catch (error) {
       console.error('Error:', error);
     }

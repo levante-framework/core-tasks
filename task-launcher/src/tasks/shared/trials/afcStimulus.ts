@@ -225,7 +225,13 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
   const stim = trial || (taskStore().nextStimulus as StimulusType);
   const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
   const playAudioOnLoad = itemLayoutConfig?.playAudioOnLoad;
-  const pageStateHandler = new PageStateHandler(stim.audioFile, playAudioOnLoad);
+
+  let pageStateHandler;
+  if (typeof stim.audioFile === 'string') { // no need to handle array case since it's not supported yet
+    pageStateHandler = new PageStateHandler(stim.audioFile, playAudioOnLoad);
+  } else {
+    throw new Error('Multiple audio files are not supported in this trial type');
+  }
   const isPracticeTrial = stim.assessmentStage === 'practice_response';
   const isInstructionTrial = stim.trialType === 'instructions';
 

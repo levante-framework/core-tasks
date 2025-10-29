@@ -7,7 +7,13 @@ function enableBtns(btnElements: NodeListOf<HTMLButtonElement>) {
   btnElements.forEach((btn) => (btn.disabled = false));
 }
 
-export function addPracticeButtonListeners(stim: StimulusType, isTouchScreen: boolean, itemConfig: LayoutConfigType) {
+export function addPracticeButtonListeners(
+  stim: StimulusType, 
+  isTouchScreen: boolean, 
+  itemConfig: LayoutConfigType,
+  onCorrect?: () => void,
+  onIncorrect?: () => void,
+) {
   const practiceBtns: NodeListOf<HTMLButtonElement> = document.querySelectorAll('.practice-btn');
   let keyboardFeedbackHandler: (ev: KeyboardEvent) => void;
 
@@ -15,7 +21,7 @@ export function addPracticeButtonListeners(stim: StimulusType, isTouchScreen: bo
     const eventType = isTouchScreen ? 'touchend' : 'click';
 
     btn.addEventListener(eventType, (e) => {
-      handlePracticeButtonPress(btn, stim, practiceBtns, false, i, itemConfig);
+      handlePracticeButtonPress(btn, stim, practiceBtns, false, i, itemConfig, onCorrect, onIncorrect);
     });
   });
 
@@ -34,16 +40,16 @@ function handlePracticeButtonPress(
   isKeyBoardResponse: boolean,
   responsevalue: string | number,
   itemConfig: LayoutConfigType,
+  onCorrect?: () => void,
+  onIncorrect?: () => void,
 ) {
   const index = Array.prototype.indexOf.call(practiceBtns, btn);
   const choices = itemConfig.response?.values || [];
   const choice = choices[index];
   const isCorrectChoice = choice?.toString() === stim.answer?.toString();
-  let feedbackAudio;
 
   if (isCorrectChoice) {
     btn.classList.add('success-shadow');
-    feedbackAudio = mediaAssets.audio.feedbackGoodJob;
     setTimeout(
       () =>
         jsPsych.finishTrial({
@@ -52,21 +58,24 @@ function handlePracticeButtonPress(
           button_response: !isKeyBoardResponse ? responsevalue : null,
           keyboard_response: isKeyBoardResponse ? responsevalue : null,
         }),
-      1000,
+      onCorrect ? 3000 : 1000, // if callback is provided, give more time for callback to finish before ending trial
     );
+    
+    // if there is audio playing, stop it first before playing feedback audio to prevent overlap between trials
+    PageAudioHandler.stopAndDisconnectNode();
+    onCorrect ? onCorrect() : PageAudioHandler.playAudio(mediaAssets.audio.feedbackGoodJob);
   } else {
     btn.classList.add('error-shadow');
-    feedbackAudio = mediaAssets.audio.feedbackTryAgain;
     // jspysch disables the buttons for some reason, so re-enable them
     setTimeout(() => enableBtns(practiceBtns), 500);
 
     let incorrectPracticeResponses = taskStore().incorrectPracticeResponses;
     incorrectPracticeResponses.push(choice);
     taskStore('incorrectPracticeResponses', incorrectPracticeResponses);
+
+    PageAudioHandler.stopAndDisconnectNode();
+    onIncorrect ? onIncorrect() : PageAudioHandler.playAudio(mediaAssets.audio.feedbackTryAgain);
   }
-  // if there is audio playing, stop it first before playing feedback audio to prevent overlap between trials
-  PageAudioHandler.stopAndDisconnectNode();
-  PageAudioHandler.playAudio(feedbackAudio);
 }
 
 const getKeyboardChoices = (itemConfig: LayoutConfigType) => {

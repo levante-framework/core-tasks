@@ -6,11 +6,10 @@ import {
   createPreloadTrials,
   getRealTrials,
   batchTrials,
-  batchMediaAssets,
-  filterMedia,
-  combineMediaAssets,
+  batchMediaAssets, 
 } from '../shared/helpers';
-import { instructions, instructionData } from './trials/instructions';
+import { downexInstructions, instructions } from './trials/instructions';
+import { downexStimulus } from './trials/downexStimulus';
 import { jsPsych, initializeCat, cat } from '../taskSetup';
 // trials
 import {
@@ -52,8 +51,7 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {};
-  const { runCat } = taskStore();
-  const { semThreshold } = taskStore();
+  const { semThreshold, heavyInstructions, runCat } = taskStore();
 
   const layoutConfigMap: Record<string, LayoutConfigType> = {};
   let i = 0;
@@ -83,7 +81,11 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
   const initialMedia = getLeftoverAssets(batchedMediaAssets, mediaAssets);
   const initialPreload = createPreloadTrials(runCat ? mediaAssets : initialMedia).default;
 
-  const timeline = [initialPreload, initialTimeline, ...instructions];
+  const timeline = [
+    initialPreload, 
+    initialTimeline, 
+    ...(heavyInstructions ? [downexInstructions] : instructions)
+  ];
 
   const trialConfig = {
     trialType: 'audio',
@@ -112,6 +114,14 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
       return true;
     },
   };
+
+  const downexBlock = {
+    timeline: [
+      { ...setupStimulus, stimulus: '' },
+      downexStimulus(layoutConfigMap),
+      ifRealTrialResponse
+    ]
+  }
 
   const repeatInstructions = {
     timeline: [repeatInstructionsMessage, ...instructions],
@@ -163,6 +173,18 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
 
     timeline.push(unnormedBlock);
   } else {
+    if (heavyInstructions) {
+      const numOfDownexTrials = taskStore().totalDownexTrials;
+      
+      for (let i = 0; i < numOfDownexTrials; i++) {
+        if (i % batchSize === 0) {
+          preloadBatch();
+        }
+        timeline.push(downexBlock);
+      }
+    } 
+    
+    /*
     const numOfTrials = taskStore().totalTrials;
     taskStore('totalTestTrials', getRealTrials(corpus));
     for (let i = 0; i < numOfTrials; i += 1) {
@@ -174,7 +196,9 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
       }
       timeline.push(stimulusBlock);
     }
+    */
   }
+  
 
   initializeCat();
 
