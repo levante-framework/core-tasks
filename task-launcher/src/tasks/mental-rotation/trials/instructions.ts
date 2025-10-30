@@ -1,24 +1,17 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
-import { replayButtonSvg, PageStateHandler, PageAudioHandler, setupReplayAudio } from '../../shared/helpers';
+import { replayButtonSvg, PageStateHandler, PageAudioHandler, setupReplayAudio, enableOkButton } from '../../shared/helpers';
 import { jsPsych } from '../../taskSetup';
 import { taskStore } from '../../../taskStore';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
-
-function enableOkBtn() {
-  const okButton: HTMLButtonElement | null = document.querySelector('.primary');
-  if (okButton != null) {
-    okButton.disabled = false;
-  }
-}
 
 const audioConfig: AudioConfigType = {
   restrictRepetition: {
     enabled: true,
     maxRepetitions: 2,
   },
-  onEnded: enableOkBtn,
+  onEnded: enableOkButton,
 };
 
 // Switch to HTMLMultiResponse when we have video with audio
