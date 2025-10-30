@@ -64,9 +64,17 @@ function handlePracticeButtonPress(
     incorrectPracticeResponses.push(choice);
     taskStore('incorrectPracticeResponses', incorrectPracticeResponses);
   }
+
+  const feedbackAudioConfig: AudioConfigType = {
+    restrictRepetition: {
+      enabled: false,
+      maxRepetitions: 2,
+    },
+  };
+
   // if there is audio playing, stop it first before playing feedback audio to prevent overlap between trials
   PageAudioHandler.stopAndDisconnectNode();
-  PageAudioHandler.playAudio(feedbackAudio);
+  PageAudioHandler.playAudio(feedbackAudio, feedbackAudioConfig);
 }
 
 const getKeyboardChoices = (itemConfig: LayoutConfigType) => {
