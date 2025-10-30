@@ -14,6 +14,7 @@ import {
   handleStaggeredButtons,
   updateTheta,
   addPracticeButtonListeners,
+  enableOkButton,
 } from '../helpers';
 import { mediaAssets } from '../../..';
 import { finishExperiment } from '.';
@@ -188,12 +189,13 @@ function getButtonHtml(layoutConfigMap: Record<string, LayoutConfigType>, trial?
   const itemLayoutConfig = layoutConfigMap?.[stimulus.itemId];
   if (itemLayoutConfig) {
     const classList = [...itemLayoutConfig.classOverrides.buttonClassList];
+    const disableOkButton = itemLayoutConfig.disableOkButton;
     // TODO: Remove once we have a way to handle practive btns
     if (isPracticeTrial) {
       classList.push('practice-btn');
     }
     return `
-      <button class='${classList.join(' ')}'>%choice%</button>
+      <button class='${classList.join(' ')}' ${disableOkButton ? 'disabled' : ''}>%choice%</button>
     `;
   }
 }
@@ -214,8 +216,18 @@ function addKeyHelpers(el: HTMLElement, keyIndex: number) {
 }
 
 function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: StimulusType) {
+  const audioConfig: AudioConfigType = {
+    restrictRepetition: {
+      enabled: false,
+      maxRepetitions: 1,
+    },
+    onEnded: () => {
+      enableOkButton();
+    },
+  };
+
   // play trial audio
-  PageAudioHandler.playAudio(getStimulus(layoutConfigMap, trial) || '');
+  PageAudioHandler.playAudio(getStimulus(layoutConfigMap, trial) || '', audioConfig);
 
   startTime = performance.now();
 

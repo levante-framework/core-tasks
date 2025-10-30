@@ -43,6 +43,7 @@ declare global {
       onIncorrectTrial: 'skip' | 'end';
       // Other config can be placed here
     };
+    disableOkButton?: boolean; // disable the OK button until the instruction prompt ends
   };
 
   type AudioConfigType = {
