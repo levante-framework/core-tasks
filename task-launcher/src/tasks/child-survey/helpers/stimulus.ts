@@ -1,9 +1,10 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { taskStore } from '../../../taskStore';
-import { camelize, equalizeButtonSizes, getChildSurveyResponses, handleStaggeredButtons, PageAudioHandler, PageStateHandler, replayButtonSvg, setSentryContext } from '../../shared/helpers';
+import { camelize, equalizeButtonSizes, getChildSurveyResponses, handleStaggeredButtons, PageAudioHandler, PageStateHandler, replayButtonSvg, setSentryContext, setupReplayAudio } from '../../shared/helpers';
 import { mediaAssets } from '../../..';
 import { jsPsych } from '../../taskSetup';
 import { updateProgressBar } from '../../shared/helpers/updateProgressBar';
+import { disableStagger } from '../../shared/helpers/staggerButtons';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 let startTime: number;
@@ -62,19 +63,40 @@ export const surveyItem = (
         const stim = taskStore().nextStimulus;
         const itemLayoutConfig: LayoutConfigType = layoutConfigMap?.[stim.itemId];
 
-        return `<button class='${itemLayoutConfig.classOverrides.buttonClassList.join(' ')}'>%choice%</button>`
+        return `<button 
+                  class='${itemLayoutConfig.classOverrides.buttonClassList.join(' ')}' 
+                  ${stim.assessmentStage === 'test_response' ? 'disabled' : ''}>
+                  %choice%
+                </button>`
     }, 
     on_load: async () => {
-        const stim = taskStore().nextStimulus;
-
-        // play trial audio
-        PageAudioHandler.playAudio(mediaAssets.audio[camelize(stim.audioFile)]);
-      
         startTime = performance.now();
-        
+      
+        const stim = taskStore().nextStimulus;
         const itemLayoutConfig: LayoutConfigType = layoutConfigMap?.[stim.itemId];
         const playAudioOnLoad = itemLayoutConfig?.playAudioOnLoad;
         const pageStateHandler = new PageStateHandler(stim.audioFile, playAudioOnLoad);
+        const buttonClass = itemLayoutConfig.classOverrides.buttonClassList[0]; 
+        const responseButtonChildren = document.querySelectorAll(`button.${buttonClass}`)
+
+        // set up replay button
+        setupReplayAudio(pageStateHandler);
+
+        // enable response buttons immediately after prompt audio finishes so stagger effect can be interrupted
+        const audioConfig: AudioConfigType = {
+          restrictRepetition: {
+            enabled: false,
+            maxRepetitions: 1,
+          },
+          onEnded: () => {
+            responseButtonChildren.forEach((button) => {
+              (button as HTMLButtonElement).disabled = false;
+            });
+          },
+        };
+
+        // play trial audio
+        PageAudioHandler.playAudio(mediaAssets.audio[camelize(stim.audioFile)], audioConfig);
       
         // Setup Sentry Context
         setSentryContext({
@@ -82,9 +104,6 @@ export const surveyItem = (
           taskName: stim.task,
           pageContext: 'stimulus',
         });
-      
-        const buttonClass = itemLayoutConfig.classOverrides.buttonClassList[0]; 
-        const responseButtonChildren = document.querySelectorAll(`button.${buttonClass}`)
   
         equalizeButtonSizes(responseButtonChildren as NodeListOf<HTMLButtonElement>);
 
@@ -102,13 +121,12 @@ export const surveyItem = (
             'child-survey-response4',
           ];
         
-          await handleStaggeredButtons(pageStateHandler, buttonContainer, audioKeys);
+          await handleStaggeredButtons(pageStateHandler, buttonContainer, audioKeys, stim.assessmentStage === 'instructions');
 
+          // disable demo buttons
           if (stim.assessmentStage === 'instructions') {
             responseButtonChildren.forEach((button) => {
               (button as HTMLButtonElement).disabled = true;
-              (button as HTMLButtonElement).style.filter = 'grayscale(100%)';
-              (button as HTMLButtonElement).style.opacity = '0.6';
             });
 
             // Add primary OK button under the other buttons
@@ -128,6 +146,7 @@ export const surveyItem = (
         taskStore.transact('trialNumSubtask', (oldVal: number) => oldVal + 1);
     },
     on_finish: (data: any) => {
+      disableStagger();
       PageAudioHandler.stopAndDisconnectNode();
 
       let responseValue = null;
