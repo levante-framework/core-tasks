@@ -3,6 +3,7 @@ import { taskStore } from '../../../taskStore';
 import { camelize, equalizeButtonSizes, getChildSurveyResponses, handleStaggeredButtons, PageAudioHandler, PageStateHandler, replayButtonSvg, setSentryContext } from '../../shared/helpers';
 import { mediaAssets } from '../../..';
 import { jsPsych } from '../../taskSetup';
+import { updateProgressBar } from '../../shared/helpers/updateProgressBar';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 let startTime: number;
@@ -36,6 +37,9 @@ export const surveyItem = (
       const prompt = stim.audioFile; 
 
       return `<div class="lev-stimulus-container">
+        <div class="lev-progress-bar">
+          <div id="progress-fill" class="progress-fill"></div>
+        </div>
         <button
           id="${replayButtonHtmlId}"
           class="replay"
@@ -83,6 +87,11 @@ export const surveyItem = (
         const responseButtonChildren = document.querySelectorAll(`button.${buttonClass}`)
   
         equalizeButtonSizes(responseButtonChildren as NodeListOf<HTMLButtonElement>);
+
+        // update progress bar
+        const progress = taskStore().testTrialCount / taskStore().totalTrials * 100;
+        updateProgressBar(progress);
+
         if (itemLayoutConfig.isStaggered) {
           // Handle the staggered buttons
           const buttonContainer = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
@@ -95,22 +104,24 @@ export const surveyItem = (
         
           await handleStaggeredButtons(pageStateHandler, buttonContainer, audioKeys);
 
-          responseButtonChildren.forEach((button) => {
-            (button as HTMLButtonElement).disabled = true;
-            (button as HTMLButtonElement).style.filter = 'grayscale(100%)';
-            (button as HTMLButtonElement).style.opacity = '0.6';
-          });
+          if (stim.assessmentStage === 'instructions') {
+            responseButtonChildren.forEach((button) => {
+              (button as HTMLButtonElement).disabled = true;
+              (button as HTMLButtonElement).style.filter = 'grayscale(100%)';
+              (button as HTMLButtonElement).style.opacity = '0.6';
+            });
 
-          // Add primary OK button under the other buttons
-          const okButton = document.createElement('button');
-          okButton.className = 'primary';
-          okButton.textContent = 'OK';
-          okButton.style.marginTop = '16px';
-          okButton.addEventListener('click', () => {
-            jsPsych.finishTrial();
-          });
+            // Add primary OK button under the other buttons
+            const okButton = document.createElement('button');
+            okButton.className = 'primary';
+            okButton.textContent = 'OK';
+            okButton.style.marginTop = '16px';
+            okButton.addEventListener('click', () => {
+              jsPsych.finishTrial();
+            });
 
-          buttonContainer.parentNode?.insertBefore(okButton, buttonContainer.nextSibling);
+            buttonContainer.parentNode?.insertBefore(okButton, buttonContainer.nextSibling);
+          }
 
         }
         // update the trial number
@@ -125,7 +136,6 @@ export const surveyItem = (
       const corpus = taskStore().corpus;
       const stim = taskStore().nextStimulus;
       const itemLayoutConfig: LayoutConfigType = layoutConfigMap?.[stim.itemId];
-      
       
       if (stim.trialType !== 'instructions') {
         if (itemLayoutConfig) {

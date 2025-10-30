@@ -25,3 +25,8 @@ $response-size-m: min($response-size-m-width, $response-size-m-height);
 // replay btn
 $replay_btn_size: min(64px, 8vh);
 $replay_btn_pos: min(8px, 1vh);
+
+// progress bar
+$progress_bar_pos: min(8px, 1vh);
+$progress_bar_width: 70vw;
+$progress_bar_height: min(10px, 1.5vh);
