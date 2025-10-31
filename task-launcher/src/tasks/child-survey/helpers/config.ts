@@ -28,24 +28,17 @@ export const getLayoutConfig = (
     value: stimItem,
     displayValue: undefined,
   };
-  if (!defaultConfig.isInstructionTrial) {
-    const mappedDistractors = mapDistractorsToString(distractors);
-    defaultConfig.prompt.enabled = true;
-    defaultConfig.isImageButtonResponse = false;
-    defaultConfig.classOverrides.buttonClassList = ['secondary--wide']
-    defaultConfig.response = {
-      target: '',
-      displayValues: mappedDistractors,
-      values: mappedDistractors,
-      targetIndex: 0,
-    }; 
-    defaultConfig.isStaggered = true;
-  } else {
-    defaultConfig.classOverrides.buttonClassList = ['primary'];
-    stimulus.trialType === 'instructions'
-      ? (defaultConfig.classOverrides.stimulusContainerClassList = ['lev-instructions-container'])
-      : (defaultConfig.classOverrides.stimulusContainerClassList = ['lev-row-container']);
-  }
+  defaultConfig.classOverrides.buttonClassList = ['secondary--wide'];
+  defaultConfig.isStaggered = true;
+  const mappedDistractors = mapDistractorsToString(distractors);
+  defaultConfig.prompt.enabled = true;
+  defaultConfig.isImageButtonResponse = false;
+  defaultConfig.response = {
+    target: '',
+    displayValues: mappedDistractors,
+    values: mappedDistractors,
+    targetIndex: 0,
+  }; 
 
   const messages = validateLayoutConfig(defaultConfig, mediaAssets, translations, stimulus);
 

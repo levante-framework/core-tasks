@@ -1,9 +1,8 @@
 import { taskStore } from "../../../taskStore";
 
-const responsesId = "childSurveyRespoonses";
-
 export function getChildSurveyResponses() {
     const t = taskStore().translations;
+    const responses = t.childSurveyRespoonses || t.childSurveyResponses;
 
-    return t[responsesId].split(';');
+    return responses.split(';');
 }
