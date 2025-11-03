@@ -22,6 +22,7 @@ import {
   enterFullscreen,
   finishExperiment,
   practiceTransition,
+  setupDownex,
 } from '../shared/trials';
 import { getLayoutConfig } from './helpers/config';
 import { repeatInstructionsMessage } from '../shared/trials/repeatInstructions';
@@ -48,14 +49,16 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
     },
   };
 
-  const corpus: StimulusType[] = taskStore().corpora.stimulus;
+  const defaultCorpus: StimulusType[] = taskStore().corpora.stimulus;
+  const downexCorpus: StimulusType[] = taskStore().corpora.downex;
+  const fullCorpus: StimulusType[] = [...downexCorpus, ...defaultCorpus];
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {};
   const { semThreshold, heavyInstructions, runCat } = taskStore();
 
   const layoutConfigMap: Record<string, LayoutConfigType> = {};
   let i = 0;
-  for (const c of corpus) {
+  for (const c of fullCorpus) {
     const { itemConfig, errorMessages } = getLayoutConfig(c, translations, mediaAssets, i);
     layoutConfigMap[c.itemId] = itemConfig;
     if (errorMessages.length) {
@@ -72,13 +75,14 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
 
   // organize media assets into batches for preloading
   const batchSize = 25;
-  const batchedCorpus = batchTrials(corpus, batchSize);
+  const batchedCorpus = batchTrials(defaultCorpus, batchSize);
   const batchedMediaAssets = batchMediaAssets(mediaAssets, batchedCorpus, ['item', 'answer', 'distractors']);
 
   // counter for next batch to preload (skipping the initial preload)
   let currPreloadBatch = 0;
 
   const initialMedia = getLeftoverAssets(batchedMediaAssets, mediaAssets);
+  console.log('initialMedia', initialMedia);
   const initialPreload = createPreloadTrials(runCat ? mediaAssets : initialMedia).default;
 
   const timeline = [
@@ -117,7 +121,7 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
 
   const downexBlock = {
     timeline: [
-      { ...setupStimulus, stimulus: '' },
+      { ...setupDownex, stimulus: '' },
       downexStimulus(layoutConfigMap),
       ifRealTrialResponse
     ]
@@ -137,7 +141,7 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
 
   if (runCat) {
     // seperate out corpus to get cat/non-cat blocks
-    const corpora = prepareCorpus(corpus);
+    const corpora = prepareCorpus(defaultCorpus);
 
     // push in instruction block
     corpora.ipLight.forEach((trial: StimulusType) => {
@@ -173,24 +177,20 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
 
     timeline.push(unnormedBlock);
   } else {
-    let numOfDownexTrials;
+    const numOfDownexTrials = taskStore().totalDownexTrials;
 
     if (heavyInstructions) {
-      numOfDownexTrials = taskStore().totalDownexTrials;
-      
-      //for (let i = 0; i < numOfDownexTrials; i++) {
-        //if (i % batchSize === 0) {
-          //preloadBatch();
-        //}
-        //timeline.push(downexBlock);
-      //}
+      for (let i = 0; i < numOfDownexTrials; i++) {
+        timeline.push(downexBlock);
+      }
 
-      //timeline.push(downexInstructions2);
-    } 
+      timeline.push(downexInstructions2);
+    }
     
     const numOfTrials = taskStore().totalTrials;
-    taskStore('totalTestTrials', getRealTrials(corpus));
-    for (let i = numOfDownexTrials - 1; i < numOfTrials + numOfDownexTrials; i += 1) {
+    taskStore('totalTestTrials', heavyInstructions ? getRealTrials(defaultCorpus) + getRealTrials(downexCorpus) : getRealTrials(defaultCorpus));
+
+    for (let i = 0; i < numOfTrials; i += 1) {
       if (i % batchSize === 0) {
         preloadBatch();
       }
@@ -206,6 +206,6 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
 
   timeline.push(taskFinished());
   timeline.push(exitFullscreen);
-
+  console.log('timeline', timeline);
   return { jsPsych, timeline };
 }

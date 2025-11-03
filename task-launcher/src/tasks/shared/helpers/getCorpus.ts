@@ -63,6 +63,7 @@ let totalTrials = 0;
 let totalDownexTrials = 0;
 
 let stimulusData: StimulusType[] = [];
+let downexData: StimulusType[] = [];
 
 function writeItem(row: ParsedRowType) {
   if (row.task === 'math' && row.trial_type.includes('Number Line')) {
@@ -177,22 +178,34 @@ const transformCSV = (
       currPracticeAmount = 0;
     }
 
-    if (newRow.assessmentStage === 'practice_response') {
-      if (currPracticeAmount < numOfPracticeTrials) {
-        // Only push in the specified amount of practice trials
-        currPracticeAmount += 1;
-        stimulusData.push(newRow);
-        totalTrials += 1;
-      } // else skip extra practice
-    } else if (newRow.downex) {
-      if (taskStore().heavyInstructions) {
-        stimulusData.push(newRow);
+    if (newRow.downex) {
+      // Add to downex corpus
+      if (newRow.assessmentStage === 'practice_response') {
+        if (currPracticeAmount < numOfPracticeTrials) {
+          // Only push in the specified amount of practice trials
+          currPracticeAmount += 1;
+          downexData.push(newRow);
+          totalDownexTrials += 1;
+        } // else skip extra practice
+      } else {
+        // instruction and stimulus
+        downexData.push(newRow);
         totalDownexTrials += 1;
       }
     } else {
-      // instruction and stimulus
-      stimulusData.push(newRow);
-      totalTrials += 1;
+      // Add to stimulus corpus
+      if (newRow.assessmentStage === 'practice_response') {
+        if (currPracticeAmount < numOfPracticeTrials) {
+          // Only push in the specified amount of practice trials
+          currPracticeAmount += 1;
+          stimulusData.push(newRow);
+          totalTrials += 1;
+        } // else skip extra practice
+      } else {
+        // instruction and stimulus
+        stimulusData.push(newRow);
+        totalTrials += 1;
+      }
     }
   });
 
@@ -206,6 +219,9 @@ const transformCSV = (
 
   if (!sequentialStimulus) {
     stimulusData = shuffleStimulusTrials(stimulusData);
+    if (downexData.length > 0) {
+      downexData = shuffleStimulusTrials(downexData);
+    }
   }
 };
 
@@ -214,7 +230,7 @@ export const getCorpus = async (config: Record<string, any>, isDev: boolean) => 
 
   const bucketName = getBucketName(task, isDev, 'corpus');
 
-  const corpusUrl = `https://storage.googleapis.com/${bucketName}/${corpus}.csv?alt=media&v=2`;
+  const corpusUrl = `https://storage.googleapis.com/${bucketName}/${corpus}.csv?alt=media`;
 
   function downloadCSV(url: string) {
     return new Promise((resolve, reject) => {
@@ -253,6 +269,7 @@ export const getCorpus = async (config: Record<string, any>, isDev: boolean) => 
 
   const csvTransformed = {
     stimulus: stimulusData, // previously shuffled by shuffleStimulusTrials
+    downex: downexData,
   };
 
   taskStore('corpora', csvTransformed);
