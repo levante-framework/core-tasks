@@ -8,7 +8,7 @@ import {
   batchTrials,
   batchMediaAssets, 
 } from '../shared/helpers';
-import { downexInstructions, instructions } from './trials/instructions';
+import { downexInstructions1, downexInstructions2, instructions } from './trials/instructions';
 import { downexStimulus } from './trials/downexStimulus';
 import { jsPsych, initializeCat, cat } from '../taskSetup';
 // trials
@@ -84,7 +84,7 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
   const timeline = [
     initialPreload, 
     initialTimeline, 
-    ...(heavyInstructions ? [downexInstructions] : instructions)
+    ...(heavyInstructions ? [downexInstructions1] : instructions)
   ];
 
   const trialConfig = {
@@ -173,21 +173,24 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
 
     timeline.push(unnormedBlock);
   } else {
+    let numOfDownexTrials;
+
     if (heavyInstructions) {
-      const numOfDownexTrials = taskStore().totalDownexTrials;
+      numOfDownexTrials = taskStore().totalDownexTrials;
       
-      for (let i = 0; i < numOfDownexTrials; i++) {
-        if (i % batchSize === 0) {
-          preloadBatch();
-        }
-        timeline.push(downexBlock);
-      }
+      //for (let i = 0; i < numOfDownexTrials; i++) {
+        //if (i % batchSize === 0) {
+          //preloadBatch();
+        //}
+        //timeline.push(downexBlock);
+      //}
+
+      //timeline.push(downexInstructions2);
     } 
     
-    /*
     const numOfTrials = taskStore().totalTrials;
     taskStore('totalTestTrials', getRealTrials(corpus));
-    for (let i = 0; i < numOfTrials; i += 1) {
+    for (let i = numOfDownexTrials - 1; i < numOfTrials + numOfDownexTrials; i += 1) {
       if (i % batchSize === 0) {
         preloadBatch();
       }
@@ -196,7 +199,6 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
       }
       timeline.push(stimulusBlock);
     }
-    */
   }
   
 

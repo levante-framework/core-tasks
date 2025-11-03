@@ -8,9 +8,9 @@ function enableBtns(btnElements: NodeListOf<HTMLButtonElement>) {
 }
 
 export function addPracticeButtonListeners(
-  stim: StimulusType, 
+  answer: string, 
   isTouchScreen: boolean, 
-  itemConfig: LayoutConfigType,
+  choices: string[],
   onCorrect?: () => void,
   onIncorrect?: () => void,
 ) {
@@ -21,12 +21,12 @@ export function addPracticeButtonListeners(
     const eventType = isTouchScreen ? 'touchend' : 'click';
 
     btn.addEventListener(eventType, (e) => {
-      handlePracticeButtonPress(btn, stim, practiceBtns, false, i, itemConfig, onCorrect, onIncorrect);
+      handlePracticeButtonPress(btn, answer, practiceBtns, false, i, choices, onCorrect, onIncorrect);
     });
   });
 
   if (!isTouchScreen) {
-    keyboardFeedbackHandler = (e: KeyboardEvent) => keyboardBtnFeedback(e, practiceBtns, stim, itemConfig);
+    keyboardFeedbackHandler = (e: KeyboardEvent) => keyboardBtnFeedback(e, practiceBtns, answer, choices);
     document.addEventListener('keydown', keyboardFeedbackHandler);
 
     return keyboardFeedbackHandler;
@@ -35,18 +35,17 @@ export function addPracticeButtonListeners(
 
 function handlePracticeButtonPress(
   btn: HTMLButtonElement,
-  stim: StimulusType,
+  answer: string,
   practiceBtns: NodeListOf<HTMLButtonElement>,
   isKeyBoardResponse: boolean,
   responsevalue: string | number,
-  itemConfig: LayoutConfigType,
+  choices: string[],
   onCorrect?: () => void,
   onIncorrect?: () => void,
 ) {
   const index = Array.prototype.indexOf.call(practiceBtns, btn);
-  const choices = itemConfig.response?.values || [];
   const choice = choices[index];
-  const isCorrectChoice = choice?.toString() === stim.answer?.toString();
+  const isCorrectChoice = choice?.toString() === answer;
 
   if (isCorrectChoice) {
     btn.classList.add('success-shadow');
@@ -78,8 +77,8 @@ function handlePracticeButtonPress(
   }
 }
 
-const getKeyboardChoices = (itemConfig: LayoutConfigType) => {
-  const buttonLength = itemConfig.response.values.length;
+const getKeyboardChoices = (choices: string[]) => {
+  const buttonLength = choices.length;
   if (buttonLength === 1) {
     // instruction trial
     return ['Enter'];
@@ -99,17 +98,17 @@ const getKeyboardChoices = (itemConfig: LayoutConfigType) => {
 async function keyboardBtnFeedback(
   e: KeyboardEvent,
   practiceBtns: NodeListOf<HTMLButtonElement>,
-  stim: StimulusType,
-  itemConfig: LayoutConfigType,
+  answer: string,
+  choices: string[],
 ) {
-  const allowedKeys = getKeyboardChoices(itemConfig);
+  const allowedKeys = getKeyboardChoices(choices);
   const index = allowedKeys.findIndex((f) => f.toLowerCase() === e.key.toLowerCase());
 
   if (allowedKeys.includes(e.key)) {
     const btnClicked = practiceBtns[index];
 
     if (btnClicked) {
-      handlePracticeButtonPress(btnClicked, stim, practiceBtns, true, e.key.toLowerCase(), itemConfig);
+      handlePracticeButtonPress(btnClicked, answer, practiceBtns, true, e.key.toLowerCase(), choices);
     }
   }
 }

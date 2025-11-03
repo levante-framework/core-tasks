@@ -117,7 +117,7 @@ export const downexStimulus = (layoutConfigMap: Record<string, LayoutConfigType>
                 PageAudioHandler.playAudio(mediaAssets.audio.matrixReasoningFeedbackIncorrectDownex);
             }
 
-            addPracticeButtonListeners(stim, false, itemLayoutConfig, onCorrect, onIncorrect);
+            addPracticeButtonListeners(stim.answer.toString(), false, itemLayoutConfig.response.values, onCorrect, onIncorrect);
 
             // set up animation
             let itemsToAnimate = [buttons, stimImage];
