@@ -40,9 +40,9 @@ export class PageAudioHandler {
 
     PageAudioHandler.audioUri = audioUri;
 
-    // mute audio if it has already been played twice
+    // replace audio with ding if it has already been played twice
     if (PageAudioHandler.replays >= maxRepetitions) {
-      audioUri = mediaAssets.audio.nullAudio;
+      audioUri = mediaAssets.audio.inputAudioCue;
     }
 
     try {
