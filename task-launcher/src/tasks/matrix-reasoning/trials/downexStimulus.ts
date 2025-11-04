@@ -8,6 +8,7 @@ import { triggerAnimation } from '../helpers/animateImages';
 const replayButtonHtmlId = 'replay-btn-revisited';
 let practiceResponses = []
 let startTime: number;
+let currentTrialId: string; // used to prevent audio from overlapping between trials
 
 export const downexStimulus = (layoutConfigMap: Record<string, LayoutConfigType>) => {
     return {
@@ -81,6 +82,7 @@ export const downexStimulus = (layoutConfigMap: Record<string, LayoutConfigType>
             startTime = performance.now();
 
             const stim = taskStore().nextStimulus;
+            currentTrialId = stim.itemId;
 
             // set up replay audio
             const trialAudio = stim.audioFile;
@@ -133,8 +135,15 @@ export const downexStimulus = (layoutConfigMap: Record<string, LayoutConfigType>
                 const audioUri = mediaAssets.audio[camelize(trialAudio)] || mediaAssets.audio.nullAudio;
                 PageAudioHandler.playAudio(audioUri);
             } else {
+                let thisTrialId = stim.itemId;
+
                 for (const audioFile of trialAudio) {
                     const audioUri = mediaAssets.audio[camelize(audioFile)] || mediaAssets.audio.nullAudio;
+
+                    // make sure the trial has not changed since the loop started
+                    if (thisTrialId !== currentTrialId) {
+                        break;
+                    }
 
                     await new Promise<void>((resolve) => {
                         const configWithCallback = {
@@ -155,6 +164,7 @@ export const downexStimulus = (layoutConfigMap: Record<string, LayoutConfigType>
         },
         on_finish: (data: any) => {
             PageAudioHandler.stopAndDisconnectNode();
+            currentTrialId = '';
 
             const stimulus = taskStore().nextStimulus;
             const itemLayoutConfig = layoutConfigMap?.[stimulus.itemId];
