@@ -31,14 +31,16 @@ export const videoInstructionsFit = {
     };
   },
   stimulus: () => {
+    const videoSrc = mediaAssets.video.mentalRotationExampleFit;
+
     return `
       <div class="lev-stimulus-container">
         <button id="${replayButtonHtmlId}" class="replay">
           ${replayButtonSvg}
         </button>
         <video class="instruction-video" autoplay>
-          <source src=${mediaAssets.video.mentalRotationExampleFit} type="video/mp4"/>
-          Your browser does not support the video tag.
+          <source src=${videoSrc} type="video/mp4"/>
+          Video not loading: ${videoSrc}. Please continue the task.
         </video>
       </div>
     `;
@@ -76,14 +78,16 @@ export const videoInstructionsMisfit = {
     };
   },
   stimulus: () => {
+    const videoSrc = mediaAssets.video.mentalRotationExampleMisfit;
+
     return `
       <div class="lev-stimulus-container">
         <button id="${replayButtonHtmlId}" class="replay">
           ${replayButtonSvg}
         </button>
         <video class="instruction-video" autoplay>
-          <source src=${mediaAssets.video.mentalRotationExampleMisfit} type="video/mp4"/>
-          Your browser does not support the video tag.
+          <source src=${videoSrc} type="video/mp4"/>
+          Video not loading: ${videoSrc}. Please continue the task.
         </video>
       </div>
     `;
@@ -118,12 +122,18 @@ export const imageInstructions = {
     };
   },
   stimulus: () => {
+    const imageSrc = mediaAssets.images.mentalRotationExample;
+
     return `
       <div class="lev-stimulus-container">
         <button id="${replayButtonHtmlId}" class="replay">
           ${replayButtonSvg}
         </button>
-        <img src=${mediaAssets.images.mentalRotationExample} class="instruction-video" />
+        <img 
+          src=${imageSrc} 
+          class="instruction-video" 
+          alt="Image not loading: ${imageSrc}. Please continue the task."
+        />
       </div>
     `;
   },

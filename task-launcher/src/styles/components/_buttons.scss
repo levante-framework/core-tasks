@@ -10,7 +10,7 @@ button {
     font-weight: $button-default-font-weight;
     color: $txt-white;
     min-width: 60px;
-    min-height: 60px;
+    min-height: 50px;
     cursor: pointer;
   }
   &.primary {
@@ -173,6 +173,18 @@ button {
     }
   }
 
+  &.slider {
+    @extend .button-base;
+    background: $border-accent;
+    border-color: $bg-accent_secondary;
+    box-shadow:
+      $button-secondary-box-shadow $bg-accent_secondary inset,
+      $button-secondary-inner-shadow $bg-button-secondary inset;
+    font-size: $font-size-lm;
+    width: 16px;
+    height: 16x;
+  }
+
   &.replay {
     // This is also used by the Hearts and Flowers task
     position: absolute;
@@ -190,9 +202,9 @@ button {
     border: 2px solid $border-button-accent;
 
     @include respond-to('small') {
-      width: 48px;
-      height: 48px;
-      padding: 12px;
+      width: 36px;
+      height: 36px;
+      padding: 9px;
     }
 
     &:hover {

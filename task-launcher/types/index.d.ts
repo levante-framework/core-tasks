@@ -69,6 +69,8 @@ declare global {
     chanceLevel: number;
     itemId: string;
     item_id?: string;
+    itemUid: string;
+    item_uid?: string;
     distractors: Array<string | number>;
     audioFile: string;
     audio_file?: string;
@@ -82,6 +84,7 @@ declare global {
     timeLimit: string;
     response_alternatives?: string;
     d?: string;
+    randomize?: 'yes' | 'no' | 'at_block_level';
     trialNumber?: number;
   };
 
@@ -100,5 +103,10 @@ declare global {
     cypressData: {
       correctAnswer: string | Array<number> | number;
     };
+    __mediaAssets?: MediaAssetsType;
+  }
+  interface LevanteLogger {
+    capture(name: string, properties?: Record<string, any>): void;
+    error(error: Error | unknown, context?: Record<string, any>): void;
   }
 }

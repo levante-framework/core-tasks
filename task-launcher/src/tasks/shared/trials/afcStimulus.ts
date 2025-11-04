@@ -133,7 +133,7 @@ function getPrompt(layoutConfigMap: Record<string, LayoutConfigType>, trial?: St
       : null;
     const prompt = promptEnabled ? t[camelize(stim.audioFile)] : null;
     const mediaSrc = showStimImage ? mediaAsset : null;
-    const mediaAlt = stimulusTextConfig?.value || 'Stimulus';
+    const mediaAlt = stimulusTextConfig?.value || `Image not loading: ${mediaSrc}. Please continue the task.`;
     const stimText = stimulusTextConfig ? stimulusTextConfig.displayValue : null;
     return getPromptTemplate(
       prompt,
@@ -319,7 +319,7 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
   // note: nextStimulus is actually the current stimulus
   const stimulus = trial || taskStore().nextStimulus;
   const itemLayoutConfig = layoutConfigMap?.[stimulus.itemId];
-  const { runCat } = taskStore();
+  const { runCat, corpus } = taskStore();
   let responseValue = null;
   let target = null;
   let responseIndex = null;
@@ -371,14 +371,16 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
       corpusTrialType: stimulus.trialType,
       responseType,
       responseLocation: responseIndex,
+      itemUid: stimulus.itemUid,
+      audioFile: stimulus.audioFile,
+      corpus: corpus,
     });
 
     // corpusId and itemId fields are used by ROAR but not ROAD
     if (taskStore().storeItemId) {
       jsPsych.data.addDataToLastTrial({
         corpusId: taskStore().corpusId,
-        corpus: taskStore().corpus, // adding this for ROAR compatibility
-        itemId: stimulus.source + '-' + stimulus.origItemNum,
+        itemId: stimulus.itemId,
       });
     }
 

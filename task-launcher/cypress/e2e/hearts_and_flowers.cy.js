@@ -1,11 +1,11 @@
 const hearts_and_flowers_url = 'http://localhost:8080/?task=hearts-and-flowers';
 
 // keep track of game phase (true means it has started)
-var heart_phase = false;
-var flower_phase = false;
-var mixed_practice = false;
-var final_instructions = false; // instructions before final mixed test phase
-var mixed_test = false;
+let heart_phase = false;
+let flower_phase = false;
+let mixed_practice = false;
+let final_instructions = false; // instructions before final mixed test phase
+let mixed_test = false;
 
 describe('test hearts and flowers', () => {
   it('visits hearts and flowers and plays game', () => {
@@ -20,12 +20,19 @@ describe('test hearts and flowers', () => {
 });
 
 function hafLoop() {
-  pickAnswer();
-  handleInstructions();
-
   // end if the there are no elements inside jspsych content
   cy.get('.jspsych-content').then((content) => {
     if (content.children().length) {
+      // wait for feedback screen to go away
+      cy.get('.haf-cr-container').should('not.exist');
+      const okButton = content.find('.primary');
+
+      // Make the decision here to handle instructions or pick an answer
+      if (okButton.length) {
+        handleInstructions();
+      } else {
+        pickAnswer();
+      }
       hafLoop();
     } else {
       // make sure that the game has progressed through major phases before passing
@@ -39,11 +46,9 @@ function handleInstructions() {
     const okButton = content.find('.primary');
 
     if (okButton.length) {
-      cy.contains('OK').click();
+      cy.contains('OK').realClick();
 
       final_instructions = mixed_practice;
-
-      handleInstructions();
     }
   });
 
@@ -68,10 +73,8 @@ function pickAnswer() {
       const stim = cy.get('[alt="heart or flower"]');
       stim.invoke('attr', 'src').then((src) => {
         // click the correct button
-        cy.get('.secondary--green').eq(getCorrectButtonIdx(src, pos)).click();
+        cy.get('.secondary--green').eq(getCorrectButtonIdx(src, pos)).realClick();
       });
-
-      pickAnswer();
     }
   });
 
@@ -80,15 +83,15 @@ function pickAnswer() {
 
 // uses image src and image position to get the right button index
 function getCorrectButtonIdx(src, pos) {
-  const shape = src.split('/').pop();
+  const shape = src.split('/').pop().split('.')[0];
 
-  if (shape === 'heart.png') {
+  if (shape === 'heart') {
     heart_phase = true;
     mixed_practice = flower_phase;
     mixed_test = final_instructions;
 
     return pos;
-  } else if (shape === 'flower.png') {
+  } else if (shape === 'flower') {
     flower_phase = true;
 
     if (pos === 1) {

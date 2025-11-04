@@ -1,6 +1,7 @@
 import HTMLSliderResponse from '@jspsych/plugin-html-slider-response';
 import _shuffle from 'lodash/shuffle';
 import _toNumber from 'lodash/toNumber';
+import _range from 'lodash/range';
 import { jsPsych, isTouchScreen, cat } from '../../taskSetup';
 //@ts-ignore
 import { camelize } from '@bdelab/roar-utils';
@@ -41,9 +42,8 @@ function addKeyHelpers(el: HTMLElement, keyIndex: number) {
   }
 }
 
-function setUpAudio(responseType: string) {
-  const cue = responseType === 'button' ? 'numberLinePrompt1' : 'numberLineSliderPrompt1';
-  const audioFile = mediaAssets.audio[cue] || '';
+function setUpAudio(cue: string) {
+  const audioFile = mediaAssets.audio[camelize(cue)] || '';
 
   const audioConfig: AudioConfigType = {
     restrictRepetition: {
@@ -67,11 +67,12 @@ function captureValue(
   event: Event & { key?: string },
   i: number,
   isPractice: boolean,
+  choice?: string,
 ) {
   if (event?.key) {
     chosenAnswer = _toNumber(keyboardResponseMap[event.key.toLowerCase()]);
   } else {
-    chosenAnswer = _toNumber(btnElement?.textContent);
+    chosenAnswer = choice ? _toNumber(choice) : _toNumber(btnElement?.textContent);
   }
 
   responseIdx = i;
@@ -119,12 +120,16 @@ export const slider = (layoutConfigMap: Record<string, LayoutConfigType>, trial?
         <button id="replay-btn-revisited" class="replay">
           ${replayButtonSvg}
         </button>
-        <div class="lev-row-container instruction">
-          <p>
-            ${t[camelize(stim.audioFile)]}
-            ${isSlider ? '<br /> ' + stim.answer : ''}
-          </p>
-        </div>
+          ${
+            stim.trialType !== 'Number Line Buttons'
+              ? `<div class="lev-row-container instruction">
+                <p>
+                  ${t[camelize(stim.audioFile)]}
+                  ${isSlider ? '<br /> ' + stim.answer : ''}
+                </p> 
+              </div>`
+              : ''
+          }
       </div>
     `;
     },
@@ -142,9 +147,10 @@ export const slider = (layoutConfigMap: Record<string, LayoutConfigType>, trial?
         // const max = stim.item[1] === 1 ? 100 : stim.item[1];
         const max = stim.item[1];
         sliderStart = getRandomValue(max, stim.answer);
-      } else {
-        // sliderStart = stim.answer < 1 ? stim.answer * 100 : stim.answer;
+      } else if (stim.trialType === 'Number Line 4afc') {
         sliderStart = stim.answer;
+      } else {
+        sliderStart = stim.item[1];
       }
 
       return sliderStart;
@@ -192,6 +198,9 @@ export const slider = (layoutConfigMap: Record<string, LayoutConfigType>, trial?
       responseRow.style.justifyContent = 'center';
       responseRow.style.alignItems = 'center';
       const buttonContainer = document.createElement('div');
+      const sliderContainer = document.getElementsByClassName(
+        'jspsych-html-slider-response-container',
+      )[0] as HTMLDivElement;
 
       if (buttonLayout === 'diamond' && response.values.length === 4) {
         // have to do it in the runtime
@@ -245,7 +254,7 @@ export const slider = (layoutConfigMap: Record<string, LayoutConfigType>, trial?
 
           buttonContainer.appendChild(btnWrapper);
         }
-      } else {
+      } else if (stim.trialType === 'Number Line Slider') {
         const continueBtn = document.getElementById('jspsych-html-slider-response-next');
         if (continueBtn) {
           continueBtn.classList.add('primary');
@@ -254,15 +263,49 @@ export const slider = (layoutConfigMap: Record<string, LayoutConfigType>, trial?
         const slider = document.getElementById('jspsych-html-slider-response-response') as HTMLButtonElement;
 
         slider.addEventListener('input', () => (chosenAnswer = Number(slider.value)));
+      } else {
+        // disable continue button and make invisible
+        const continueBtn = document.getElementById('jspsych-html-slider-response-next') as HTMLButtonElement;
+        continueBtn.disabled = true;
+        continueBtn.style.visibility = 'hidden';
+
+        // lower labels to give room for slider buttons
+        const labels = sliderContainer.children[1].children as any as HTMLDivElement[];
+        for (let i = 0; i < labels.length; i++) {
+          labels[i].style.top = '50px';
+        }
+
+        // add slider styling
+        const progress = (Number(slider.value) * 100) / (Number(slider.max) - Number(slider.min));
+        slider.disabled = true;
+        slider.style.background = `linear-gradient(to right, #275BDD ${progress}%, #edf0ed ${progress}%)`;
+        slider.classList.add('number-line-buttons');
+
+        // overlay response buttons on top of slider
+        responseChoices.forEach((choice: any, i: number) => {
+          const sliderButton = document.createElement('button');
+
+          if (stim.assessmentStage === 'practice_response') {
+            sliderButton.classList.add('practice-btn');
+          }
+
+          sliderButton.classList.add('slider');
+          sliderButton.style.position = 'absolute';
+          sliderButton.style.top = '-12px';
+
+          const stepPercent = 100 / Number(slider.max);
+          sliderButton.style.left = `calc(${stepPercent * Number(choice)}% - ${stepPercent / 2}%)`;
+
+          sliderButton.addEventListener('click', (e) => captureValue(sliderButton, e, i, isPractice, choice));
+
+          sliderContainer.appendChild(sliderButton);
+        });
       }
 
       responseRow.appendChild(buttonContainer);
       wrapper.appendChild(responseRow);
 
-      const stimulus = trial || taskStore().nextStimulus;
-      const responseType = stimulus.trialType.includes('4afc') ? 'button' : 'slider';
-
-      setUpAudio(responseType);
+      setUpAudio(stim.audioFile);
 
       if (isPractice) {
         let feedbackHandler;
@@ -289,7 +332,7 @@ export const slider = (layoutConfigMap: Record<string, LayoutConfigType>, trial?
       const runCat = taskStore().runCat;
 
       const sliderScoringThreshold = 0.05; // proportion of maximum slider value that response must fall within to be scored correct
-      if (stimulus.trialType === 'Number Line 4afc') {
+      if (stimulus.trialType === 'Number Line 4afc' || stimulus.trialType === 'Number Line Buttons') {
         if (isPractice) {
           data.correct = taskStore().incorrectPracticeResponses.length === 0;
         } else {
@@ -316,7 +359,11 @@ export const slider = (layoutConfigMap: Record<string, LayoutConfigType>, trial?
       }
 
       const response = chosenAnswer;
-      const responseType = stimulus.trialType.includes('4afc') ? 'button' : 'slider';
+      const responseType = stimulus.trialType.includes('Slider')
+        ? 'slider'
+        : stimulus.trialType.includes('4afc')
+        ? 'button'
+        : 'slider-button';
       const answer = stimulus.answer;
 
       jsPsych.data.addDataToLastTrial({
@@ -329,13 +376,22 @@ export const slider = (layoutConfigMap: Record<string, LayoutConfigType>, trial?
         // slider_start: stimulus.item[1] === 1 ? sliderStart / 100 : sliderStart,
         slider_start: sliderStart,
         audioButtonPresses: PageAudioHandler.replayPresses,
+        itemUid: stimulus.itemUid,
+        audioFile: stimulus.audioFile,
+        corpus: taskStore().corpus,
       });
+
+      if (taskStore().storeItemId) {
+        jsPsych.data.addDataToLastTrial({
+          itemId: stimulus.itemId,
+        });
+      }
 
       if (stimulus.assessmentStage === 'test_response') {
         taskStore.transact('testTrialCount', (oldVal: number) => oldVal + 1);
       }
 
-      if (responseType === 'button') {
+      if (responseType === 'button' || responseType === 'slider-button') {
         const calculatedRt = Math.round(endTime - startTime);
 
         jsPsych.data.addDataToLastTrial({

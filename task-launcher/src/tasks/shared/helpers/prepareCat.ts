@@ -1,6 +1,7 @@
 import _shuffle from 'lodash/shuffle';
 import { taskStore } from '../../../taskStore';
 import { cat } from '../../taskSetup';
+import { jsPsych } from '../../taskSetup';
 
 // separates trials from corpus into blocks depending on for heavy/light instructions and CAT
 export function prepareCorpus(corpus: StimulusType[], randomStartBlock = true) {
@@ -38,7 +39,7 @@ export function prepareCorpus(corpus: StimulusType[], randomStartBlock = true) {
   const possibleStartItems: StimulusType[] = normedTrials.filter(
     (trial) =>
       trial.trialType !== excludedTrialTypes &&
-      ((taskStore().task == 'egma-math' && trial.block_index == '0') || taskStore().task != 'egma-math') &&
+      ((taskStore().task == 'egma-math' && trial.block_index == '0') || taskStore().task !== 'egma-math') &&
       Number(trial.difficulty) <= maxTrialDifficulty,
   );
   const startItems: StimulusType[] = selectNItems(possibleStartItems, 5);
@@ -93,17 +94,27 @@ export function selectNItems(corpus: StimulusType[], n: number) {
 }
 
 // separates cat corpus into blocks
-export function prepareMultiBlockCat(corpus: StimulusType[]) {
+export function prepareMultiBlockCat(corpus: StimulusType[], sequentialBlocks = true) {
   const blockList: StimulusType[][] = []; // a list of blocks, each containing trials
 
-  corpus.forEach((trial: StimulusType) => {
-    const block: number = Number(trial.block_index);
+  if (sequentialBlocks) {
+    // sort by block index before batching
+    corpus.sort((a, b) => {
+      return Number(a.block_index) - Number(b.block_index);
+    });
+  }
 
-    if (block != undefined) {
-      if (block >= blockList.length) {
+  let currBlock = -1; // start at -1 so it is guaranteed to be less than first block
+
+  corpus.forEach((trial: StimulusType) => {
+    const prevBlock = currBlock;
+    currBlock = Number(trial.block_index);
+
+    if (currBlock != undefined) {
+      if (currBlock !== prevBlock) {
         blockList.push([trial]);
       } else {
-        blockList[block].push(trial);
+        blockList[blockList.length - 1].push(trial);
       }
     }
   });
@@ -127,4 +138,8 @@ export function updateTheta(item: StimulusType, correct: boolean) {
       cat.updateAbilityEstimate(zeta, answer);
     }
   }
+
+  jsPsych.data.addDataToLastTrial({
+    thetaEstimate: cat.theta,
+  });
 }

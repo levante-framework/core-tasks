@@ -16,6 +16,8 @@ export const practiceTransition = {
       },
       stimulus: () => {
         const t = taskStore().translations;
+        const imageSrc = mediaAssets.images['rocket@2x'];
+
         return `<div class="lev-stimulus-container">
                 <button
                   id="${replayButtonHtmlId}"
@@ -28,8 +30,8 @@ export const practiceTransition = {
                 </div>
                 <div class="lev-stim-content-x-3">
                     <img
-                        src=${mediaAssets.images.rocket}
-                        alt='Instruction graphic'
+                        src=${imageSrc}
+                        alt="Image not loading: ${imageSrc}. Please continue the task."
                     />
                 </div>
               </div>`;
@@ -60,8 +62,8 @@ export const practiceTransition = {
 
     // only run this if coming out a practice phase into a test phase
     const runTrial: boolean =
-      taskStore().nextStimulus.trialType != 'instructions' &&
-      taskStore().nextStimulus.assessmentStage != 'practice_response' &&
+      taskStore().nextStimulus.trialType !== 'instructions' &&
+      taskStore().nextStimulus.assessmentStage !== 'practice_response' &&
       !taskStore().testPhase;
 
     if (runTrial) {

@@ -11,11 +11,13 @@ export function addPracticeButtonListeners(stim: StimulusType, isTouchScreen: bo
   const practiceBtns: NodeListOf<HTMLButtonElement> = document.querySelectorAll('.practice-btn');
   let keyboardFeedbackHandler: (ev: KeyboardEvent) => void;
 
-  practiceBtns.forEach((btn, i) =>
-    btn.addEventListener('click', async (e) => {
+  practiceBtns.forEach((btn, i) => {
+    const eventType = isTouchScreen ? 'touchend' : 'click';
+
+    btn.addEventListener(eventType, (e) => {
       handlePracticeButtonPress(btn, stim, practiceBtns, false, i, itemConfig);
-    }),
-  );
+    });
+  });
 
   if (!isTouchScreen) {
     keyboardFeedbackHandler = (e: KeyboardEvent) => keyboardBtnFeedback(e, practiceBtns, stim, itemConfig);
@@ -62,9 +64,17 @@ function handlePracticeButtonPress(
     incorrectPracticeResponses.push(choice);
     taskStore('incorrectPracticeResponses', incorrectPracticeResponses);
   }
+
+  const feedbackAudioConfig: AudioConfigType = {
+    restrictRepetition: {
+      enabled: false,
+      maxRepetitions: 2,
+    },
+  };
+
   // if there is audio playing, stop it first before playing feedback audio to prevent overlap between trials
   PageAudioHandler.stopAndDisconnectNode();
-  PageAudioHandler.playAudio(feedbackAudio);
+  PageAudioHandler.playAudio(feedbackAudio, feedbackAudioConfig);
 }
 
 const getKeyboardChoices = (itemConfig: LayoutConfigType) => {

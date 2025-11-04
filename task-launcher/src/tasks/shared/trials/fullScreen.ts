@@ -2,9 +2,11 @@ import jsPsychFullScreen from '@jspsych/plugin-fullscreen';
 import fscreen from 'fscreen';
 import { taskStore } from '../../../taskStore';
 
+const isCypress = typeof window !== 'undefined' && (window as any).Cypress;
+
 export const enterFullscreen = {
   type: jsPsychFullScreen,
-  fullscreen_mode: true,
+  fullscreen_mode: !isCypress && !!fscreen.fullscreenEnabled,
   message: () => {
     const t = taskStore().translations;
     return `<div class="lev-row-container header">
@@ -28,7 +30,7 @@ export const enterFullscreen = {
 
 export const ifNotFullscreen = {
   timeline: [enterFullscreen],
-  conditional_function: () => fscreen.fullscreenElement === null,
+  conditional_function: () => !isCypress && fscreen.fullscreenElement === null,
 };
 
 export const exitFullscreen = {

@@ -23,7 +23,7 @@ export const getLayoutConfig = (
   const stimItem = convertItemToString(stimulus.item);
   defaultConfig.isPracticeTrial = stimulus.assessmentStage === 'practice_response';
   defaultConfig.isInstructionTrial = stimulus.trialType === 'instructions';
-  defaultConfig.showStimImage = stimulus.trialType === 'instructions';
+  defaultConfig.showStimImage = stimulus.trialType === 'instructions' || stimulus.trialType.includes('Counting');
   defaultConfig.stimText = {
     value: stimItem,
     displayValue: undefined,
@@ -31,17 +31,26 @@ export const getLayoutConfig = (
   defaultConfig.inCorrectTrialConfig.onIncorrectTrial = 'skip';
   if (!defaultConfig.isInstructionTrial) {
     const mappedDistractors = mapDistractorsToString(distractors);
-    const prepChoices = prepareChoices(answer.toString(), mappedDistractors, true, trialType);
+    const prepChoices =
+      trialType === 'Counting'
+        ? prepareChoices(answer.toString(), mappedDistractors, 'no', trialType)
+        : prepareChoices(answer.toString(), mappedDistractors, 'yes', trialType);
     defaultConfig.prompt.enabled = false;
-    defaultConfig.isImageButtonResponse = false;
-    defaultConfig.classOverrides.buttonClassList = ['secondary'];
+    defaultConfig.isImageButtonResponse =
+      trialType === 'Non-symbolic Number Identification' || trialType === 'Non-symbolic Number Comparison';
+    defaultConfig.classOverrides.buttonClassList =
+      trialType === 'Non-symbolic Number Identification' || trialType === 'Non-symbolic Number Comparison'
+        ? ['image-medium']
+        : trialType === 'Counting'
+        ? ['primary']
+        : ['secondary'];
     defaultConfig.response = {
       target: prepChoices.target,
       displayValues: prepChoices.choices,
       values: prepChoices.originalChoices,
       targetIndex: prepChoices.correctResponseIdx,
     };
-    if (!['Number Identification', 'Number Comparison'].includes(stimulus.trialType)) {
+    if (!['Number Identification', 'Number Comparison', 'Counting', 'Counting AFC'].includes(stimulus.trialType)) {
       defaultConfig.stimText = {
         value: stimItem,
         displayValue: stimulus.trialType === 'Fraction' ? fractionToMathML(stimItem) : stimItem,
@@ -49,7 +58,9 @@ export const getLayoutConfig = (
     }
   } else {
     defaultConfig.classOverrides.buttonClassList = ['primary'];
-    defaultConfig.classOverrides.stimulusContainerClassList = ['lev-row-container'];
+    stimulus.trialType === 'instructions'
+      ? (defaultConfig.classOverrides.stimulusContainerClassList = ['lev-instructions-container'])
+      : (defaultConfig.classOverrides.stimulusContainerClassList = ['lev-row-container']);
   }
 
   const messages = validateLayoutConfig(defaultConfig, mediaAssets, translations, stimulus);

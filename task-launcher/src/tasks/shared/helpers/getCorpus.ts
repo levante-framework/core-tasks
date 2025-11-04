@@ -11,6 +11,8 @@ import { camelize } from './camelize';
 import { shuffleStimulusTrials } from './randomizeStimulusBlocks';
 import { shuffleStories } from '../../roar-inference/helpers/shuffleRoarInferenceStories';
 import { taskStore } from '../../../taskStore';
+import { getBucketName } from './getBucketName';
+import { getChildSurveyResponses } from './childSurveyResponses';
 
 type ParsedRowType = {
   source: string;
@@ -40,8 +42,10 @@ type ParsedRowType = {
   assessment_stage: string;
   chance_level: string;
   item_id: string;
+  item_uid: string;
   response_alternatives: string;
   audio_file: string;
+  randomize?: string;
   trial_num: number;
 };
 
@@ -108,10 +112,14 @@ const transformCSV = (
       assessmentStage: row.assessment_stage,
       chanceLevel: _toNumber(row.chance_level),
       itemId: row.item_id,
+      itemUid: row.item_uid,
       distractors: (() => {
         if (row.task === 'roar-inference') {
           return row.response_alternatives.split(',').map((alt) => alt.replace(/"/g, ''));
-        } else {
+        } else if (row.task === 'child-survey') {
+          return getChildSurveyResponses();
+        }
+        else {
           return containsLettersOrSlash(row.response_alternatives) ||
             (row.task === 'adult-reasoning' && row.response_alternatives.includes(';'))
             ? row.response_alternatives.split(',')
@@ -131,6 +139,7 @@ const transformCSV = (
         )
           ? parseFloat(row.d || row.difficulty)
           : NaN,
+      randomize: row.randomize as 'yes' | 'no' | 'at_block_level',
       trialNumber: row.trial_num,
     };
 
@@ -199,20 +208,12 @@ const transformCSV = (
   }
 };
 
-export const getCorpus = async (config: Record<string, any>) => {
+export const getCorpus = async (config: Record<string, any>, isDev: boolean) => {
   const { corpus, task, sequentialStimulus, numOfPracticeTrials } = config;
 
-  const corpusLocation = {
-    egmaMath: `https://storage.googleapis.com/${task}/shared/corpora/${corpus}.csv`,
-    matrixReasoning: `https://storage.googleapis.com/${task}/shared/corpora/${corpus}.csv`,
-    mentalRotation: `https://storage.googleapis.com/${task}/shared/corpora/${corpus}.csv`,
-    sameDifferentSelection: `https://storage.googleapis.com/${task}/shared/corpora/${corpus}.csv`,
-    trog: `https://storage.googleapis.com/${task}/shared/corpora/${corpus}.csv`,
-    theoryOfMind: `https://storage.googleapis.com/${task}/shared/corpora/${corpus}.csv`,
-    vocab: `https://storage.googleapis.com/vocab-test/shared/corpora/${corpus}.csv`,
-    roarInference: `https://storage.googleapis.com/roar-inference/en/corpora/${corpus}.csv`,
-    adultReasoning: `https://storage.googleapis.com/egma-math/shared/corpora/${corpus}.csv`,
-  };
+  const bucketName = getBucketName(task, isDev, 'corpus');
+
+  const corpusUrl = `https://storage.googleapis.com/${bucketName}/${corpus}.csv?alt=media`;
 
   function downloadCSV(url: string) {
     return new Promise((resolve, reject) => {
@@ -237,8 +238,7 @@ export const getCorpus = async (config: Record<string, any>) => {
   }
 
   async function fetchData() {
-    const urls = [corpusLocation[dashToCamelCase(task) as keyof typeof corpusLocation]];
-
+    const urls = [corpusUrl];
     try {
       await parseCSVs(urls);
       taskStore('totalTrials', totalTrials);
