@@ -38,6 +38,7 @@ export const getLayoutConfig = (
     };
   } else {
     defaultConfig.classOverrides.buttonClassList = ['primary'];
+    defaultConfig.disableOkButton = true;
   }
 
   const messages = validateLayoutConfig(defaultConfig, mediaAssets, translations, stimulus);
