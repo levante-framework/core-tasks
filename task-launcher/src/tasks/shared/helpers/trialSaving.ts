@@ -3,6 +3,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import _mapValues from 'lodash/mapValues';
 import { taskStore } from '../../../taskStore';
 import { recordCompletion } from './recordCompletion';
+import { finishExperiment } from '../trials';
 
 /**
  * This function calculates computed scores given raw scores for each subtask.
@@ -136,6 +137,11 @@ export const initTrialSaving = (config: Record<string, any>) => {
 
   // @ts-ignore
   jsPsych.opts.on_trial_finish = extend(jsPsych.opts.on_trial_finish, () => {
+
+    if (taskStore().maxTimeReached) {
+      finishExperiment();
+    }
+    
     // record completion at 80%
     if (taskStore().testTrialCount >= taskStore().totalTestTrials * 0.8) {
       recordCompletion(config);

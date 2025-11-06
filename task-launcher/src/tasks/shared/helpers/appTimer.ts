@@ -19,7 +19,6 @@ export const startAppTimer = (maxTimeInMinutes: number, finishExperiment: () => 
 
   timerId = setTimeout(() => {
     taskStore('maxTimeReached', true);
-    finishExperiment();
     clearTimeout(timerId);
   }, maxTimeInMilliseconds);
 };
