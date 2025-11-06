@@ -11,10 +11,12 @@ export class InitPageSetup {
   warningDuration: number;
   rotateOverlayDiv: HTMLDivElement;
   smallDeviceOverlayDiv: HTMLDivElement;
+  #translations: Record<string, string>;
   #overlayShown: boolean;
   #timeout?: number;
 
-  constructor(warningDuration: number) {
+  constructor(warningDuration: number, translations: Record<string, string>) {
+    this.#translations = translations;
     this.warningDuration = warningDuration;
     this.rotateOverlayDiv = this.createRotateOverlayDiv();
     this.smallDeviceOverlayDiv = this.createSmallDeviceOverlayDiv();
@@ -33,7 +35,7 @@ export class InitPageSetup {
   createRotateOverlayDiv() {
     const rotateOverlayDiv = document.createElement('div');
     rotateOverlayDiv.classList.add('lev-overlay-default');
-    const text = 'Please rotate your device for optimal experience';
+    const text = this.#translations.generalRotateDevice || 'Please rotate your device for optimal experience';
     const textHolder = document.createElement('div');
     textHolder.classList.add(...['lev-row-container', 'header']);
     const textElement = document.createElement('p');
@@ -50,7 +52,9 @@ export class InitPageSetup {
   createSmallDeviceOverlayDiv() {
     const smallDeviceOverlayDiv = document.createElement('div');
     smallDeviceOverlayDiv.classList.add('lev-overlay-default');
-    const text = 'Please use a tablet or a desktop in landscape mode for optimal experience';
+    const text =
+      this.#translations.generalDeviceType ||
+      'Please use a tablet or a desktop in landscape mode for optimal experience';
     const textHolder = document.createElement('div');
     textHolder.classList.add(...['lev-row-container', 'header']);
     const textElement = document.createElement('p');
@@ -77,7 +81,9 @@ export class InitPageSetup {
 
   onOrientationChange() {
     const { screen } = window;
-    const isPortrait = screen.orientation.type.includes('portrait');
+    const isPortrait = screen?.orientation?.type
+      ? screen.orientation.type.includes('portrait')
+      : screen.availHeight > screen.availWidth; // To support old browsers
     const primaryDimension = isPortrait ? screen.availWidth : screen.availHeight;
     if (primaryDimension < 500) {
       this.showOverlay(this.smallDeviceOverlayDiv);

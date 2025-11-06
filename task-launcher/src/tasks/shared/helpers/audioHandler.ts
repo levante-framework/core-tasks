@@ -40,24 +40,28 @@ export class PageAudioHandler {
 
     PageAudioHandler.audioUri = audioUri;
 
-    // mute audio if it has already been played twice
+    // replace audio with ding if it has already been played twice
     if (PageAudioHandler.replays >= maxRepetitions) {
-      audioUri = mediaAssets.audio.nullAudio;
+      audioUri = mediaAssets.audio.inputAudioCue;
     }
 
-    const jsPsychAudioCtx = jsPsych.pluginAPI.audioContext();
-    // Returns a promise of the AudioBuffer of the preloaded file path.
-    const audioBuffer = (await jsPsych.pluginAPI.getAudioBuffer(audioUri)) as AudioBuffer;
-    const audioSource: AudioBufferSourceNode = jsPsychAudioCtx.createBufferSource();
-    PageAudioHandler.audioSource = audioSource;
-    audioSource.buffer = audioBuffer;
-    audioSource.connect(jsPsychAudioCtx.destination);
-    audioSource.onended = () => {
-      // PageAudioHandler.stopAndDisconnectNode();
-      if (onEnded) {
-        onEnded();
-      }
-    };
-    audioSource.start(0);
+    try {
+      const jsPsychAudioCtx = jsPsych.pluginAPI.audioContext();
+
+      // Returns a promise of the AudioBuffer of the preloaded file path.
+      const audioBuffer = (await jsPsych.pluginAPI.getAudioBuffer(audioUri)) as AudioBuffer | null;
+
+      const audioSource: AudioBufferSourceNode = jsPsychAudioCtx.createBufferSource();
+      PageAudioHandler.audioSource = audioSource;
+      audioSource.buffer = audioBuffer;
+      audioSource.connect(jsPsychAudioCtx.destination);
+      audioSource.onended = () => {
+        if (onEnded) onEnded();
+      };
+      audioSource.start(0);
+    } catch {
+      // Swallow errors to avoid test/runtime crashes when audio cannot be played
+      return;
+    }
   }
 }

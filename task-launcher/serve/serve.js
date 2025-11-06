@@ -1,12 +1,14 @@
-import { RoarAppkit, initializeFirebaseProject } from '@bdelab/roar-firekit';
+import { RoarAppkit, initializeFirebaseProject } from '@levante-framework/firekit';
 import { onAuthStateChanged, signInAnonymously } from 'firebase/auth';
+import * as Sentry from '@sentry/browser';
+import i18next from 'i18next';
 import { TaskLauncher } from '../src';
 import { firebaseConfig } from './firebaseConfig';
-import { stringToBoolean } from '../src/tasks/shared/helpers';
-import i18next from 'i18next';
+import { stringToBoolean } from '../src/tasks/shared/helpers/stringToBoolean';
+import firebaseJSON from '../firebase.json';
+
 // Import necessary in order to use async/await at the top level
 import 'regenerator-runtime/runtime';
-import * as Sentry from '@sentry/browser';
 
 /**
  * Initialize Sentry first!
@@ -20,7 +22,7 @@ Sentry.init({
 
   // TODO spyne Remove this. For testing sentry. Use this to enable localhost monitoring
   // tracePropagationTargets: ["localhost", /^https:\/\/yourserver\.io\/api/],
-  tracePropagationTargets: ['https://hs-levante-assessment-dev.web.app'],
+  tracePropagationTargets: ['https://hs-levante-admin-dev.web.app'],
 
   // Session Replay
   replaysSessionSampleRate: 0.1, // This sets the sample rate at 10%. You may want to change it to 100% while in development and then sample at a lower rate in production.
@@ -55,8 +57,10 @@ const storeItemId = stringToBoolean(urlParams.get('storeItemId'), false);
 const cat = stringToBoolean(urlParams.get('cat'), false);
 const heavyInstructions = stringToBoolean(urlParams.get('heavyInstructions'), false);
 
+const emulatorConfig = EMULATORS ? firebaseJSON.emulators : undefined;
+
 async function startWebApp() {
-  const appKit = await initializeFirebaseProject(firebaseConfig, 'assessmentApp', 'none');
+  const appKit = await initializeFirebaseProject(firebaseConfig, 'admin', emulatorConfig, 'none');
 
   onAuthStateChanged(appKit.auth, (user) => {
     if (user) {

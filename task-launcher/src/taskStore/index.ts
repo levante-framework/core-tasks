@@ -20,7 +20,10 @@ import store from 'store2';
  * @property {boolean} storeItemId - Whether to store the item ID, default is false.
  * @property {boolean} isRoarApp - Whether the app is running in ROAR mode, default is false.
  * @property {boolean} maxTimeReached - Whether the max time has been reached, default is false.
+ * @property {number} maxTime - Time limit set for the task.
+ * @property {number} startTime - Time at which the task started.
  * @property {boolean} taskComplete - Whether the task has ended - if true, the user should return to dashboard.
+ * @property {Object} assetsPerTask - Object containing list of assets belonging to each task.
  * ------- Added after config is parsed -------
  * @property {number} totalTrials - Total number trials, including practice and instructions.
  * @property {number} totalTestTrials - Total number of test trials in the experiment timeline.
@@ -48,6 +51,10 @@ import store from 'store2';
  * @property {number} gridSize - Size of the grid in the memory game, default is 2x2.
  * ------- H&F & Memory Game only -------
  * @property {boolean} isCorrect - Whether the response to the previous trial was correct, default is false.
+ * --------- ToM only ---------
+ * @property {Array} previousChoices - Array containing previously randomized order of choices for the current block.
+ * ------- SDS only -------
+ * @property {StimulusType[]} sequentialTrials - Should be run sequentially in blocks by trial number in an SDS CAT.
  */
 
 export type TaskStoreDataType = {
@@ -71,6 +78,7 @@ export type TaskStoreDataType = {
   semThreshold: number;
   startingTheta: number;
   language?: string;
+  maxTime?: number;
 };
 
 /**
@@ -99,7 +107,7 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     maxIncorrect: config.maxIncorrect,
     keyHelpers: config.keyHelpers,
     runCat: config.cat,
-    heavyInstructions: config.heavyInstructions || config.userMetadata.age < 6,
+    heavyInstructions: config.heavyInstructions || config.userMetadata.age <= 4,
     semThreshold: config.semThreshold,
     startingTheta: config.startingTheta,
     storeItemId: config.storeItemId,
@@ -116,6 +124,7 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     isCorrect: false,
     inferenceNumStories: config.inferenceNumStories,
     testPhase: false,
+    maxTime: config.maxTime,
   });
 };
 

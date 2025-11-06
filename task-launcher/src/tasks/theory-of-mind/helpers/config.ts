@@ -27,7 +27,7 @@ export const getLayoutConfig = (
   defaultConfig.classOverrides.promptClassList = ['lev-row-container', 'instruction-small'];
   if (!defaultConfig.isInstructionTrial) {
     const mappedDistractors = mapDistractorsToString(distractors);
-    const prepChoices = prepareChoices(answer.toString(), mappedDistractors, true, trialType);
+    const prepChoices = prepareChoices(answer.toString(), mappedDistractors, stimulus.randomize, trialType);
     defaultConfig.isStaggered = true;
     defaultConfig.isImageButtonResponse = true;
     defaultConfig.response = {
@@ -38,6 +38,7 @@ export const getLayoutConfig = (
     };
   } else {
     defaultConfig.classOverrides.buttonClassList = ['primary'];
+    defaultConfig.disableOkButton = true;
   }
 
   const messages = validateLayoutConfig(defaultConfig, mediaAssets, translations, stimulus);

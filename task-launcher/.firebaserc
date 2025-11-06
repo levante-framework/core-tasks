@@ -1,17 +1,18 @@
 {
   "projects": {
-    "default": "hs-levante-assessment-dev"
+    "default": "hs-levante-admin-dev"
   },
   "targets": {
-    "hs-levante-assessment-dev": {
+    "hs-levante-admin-dev": {
       "hosting": {
         "core-tasks": [
-          "core-tasks"
+          "levante-tasks-demo"
         ],
         "test": [
           "core-tasks-testing"
         ]
       }
     }
-  }
+  },
+  "etags": {}
 }

@@ -14,6 +14,7 @@ import {
   handleStaggeredButtons,
   updateTheta,
   addPracticeButtonListeners,
+  enableOkButton,
 } from '../helpers';
 import { mediaAssets } from '../../..';
 import { finishExperiment } from '.';
@@ -133,7 +134,7 @@ function getPrompt(layoutConfigMap: Record<string, LayoutConfigType>, trial?: St
       : null;
     const prompt = promptEnabled ? t[camelize(stim.audioFile)] : null;
     const mediaSrc = showStimImage ? mediaAsset : null;
-    const mediaAlt = stimulusTextConfig?.value || 'Stimulus';
+    const mediaAlt = stimulusTextConfig?.value || `Image not loading: ${mediaSrc}. Please continue the task.`;
     const stimText = stimulusTextConfig ? stimulusTextConfig.displayValue : null;
     return getPromptTemplate(
       prompt,
@@ -189,12 +190,13 @@ function getButtonHtml(layoutConfigMap: Record<string, LayoutConfigType>, trial?
   const itemLayoutConfig = layoutConfigMap?.[stimulus.itemId];
   if (itemLayoutConfig) {
     const classList = [...itemLayoutConfig.classOverrides.buttonClassList];
+    const disableOkButton = itemLayoutConfig.disableOkButton;
     // TODO: Remove once we have a way to handle practive btns
     if (isPracticeTrial) {
       classList.push('practice-btn');
     }
     return `
-      <button class='${classList.join(' ')}'>%choice%</button>
+      <button class='${classList.join(' ')}' ${disableOkButton ? 'disabled' : ''}>%choice%</button>
     `;
   }
 }
@@ -215,8 +217,18 @@ function addKeyHelpers(el: HTMLElement, keyIndex: number) {
 }
 
 function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: StimulusType) {
+  const audioConfig: AudioConfigType = {
+    restrictRepetition: {
+      enabled: false,
+      maxRepetitions: 1,
+    },
+    onEnded: () => {
+      enableOkButton();
+    },
+  };
+
   // play trial audio
-  PageAudioHandler.playAudio(getStimulus(layoutConfigMap, trial) || '');
+  PageAudioHandler.playAudio(getStimulus(layoutConfigMap, trial) || '', audioConfig);
 
   startTime = performance.now();
 
@@ -324,7 +336,7 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
   // note: nextStimulus is actually the current stimulus
   const stimulus = trial || taskStore().nextStimulus;
   const itemLayoutConfig = layoutConfigMap?.[stimulus.itemId];
-  const { runCat } = taskStore();
+  const { runCat, corpus } = taskStore();
   let responseValue = null;
   let target = null;
   let responseIndex = null;
@@ -376,14 +388,16 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
       corpusTrialType: stimulus.trialType,
       responseType,
       responseLocation: responseIndex,
+      itemUid: stimulus.itemUid,
+      audioFile: stimulus.audioFile,
+      corpus: corpus,
     });
 
     // corpusId and itemId fields are used by ROAR but not ROAD
     if (taskStore().storeItemId) {
       jsPsych.data.addDataToLastTrial({
         corpusId: taskStore().corpusId,
-        corpus: taskStore().corpus, // adding this for ROAR compatibility
-        itemId: stimulus.source + '-' + stimulus.origItemNum,
+        itemId: stimulus.itemId,
       });
     }
 

@@ -1,24 +1,17 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
-import { replayButtonSvg, PageStateHandler, PageAudioHandler, setupReplayAudio } from '../../shared/helpers';
+import { replayButtonSvg, PageStateHandler, PageAudioHandler, setupReplayAudio, enableOkButton } from '../../shared/helpers';
 import { jsPsych } from '../../taskSetup';
 import { taskStore } from '../../../taskStore';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
-
-function enableOkBtn() {
-  const okButton: HTMLButtonElement | null = document.querySelector('.primary');
-  if (okButton != null) {
-    okButton.disabled = false;
-  }
-}
 
 const audioConfig: AudioConfigType = {
   restrictRepetition: {
     enabled: true,
     maxRepetitions: 2,
   },
-  onEnded: enableOkBtn,
+  onEnded: enableOkButton,
 };
 
 const videoInstructionsData = [
@@ -61,7 +54,7 @@ const videoInstructions = videoInstructionsData.map((data) => {
           </button>
           <video class="instruction-video" autoplay ${data.loop ? 'loop' : ''}>
             <source src=${mediaAssets.video[data.stimulus]} type="video/mp4"/>
-            Your browser does not support the video tag.
+            Video not loading: ${mediaAssets.video[data.stimulus]}. Please continue the task.
           </video>
         </div>
       `;
@@ -102,12 +95,18 @@ export const imageInstructions = {
     };
   },
   stimulus: () => {
+    const imageSrc = mediaAssets.images.mentalRotationExample;
+
     return `
       <div class="lev-stimulus-container">
         <button id="${replayButtonHtmlId}" class="replay">
           ${replayButtonSvg}
         </button>
-        <img src=${mediaAssets.images.mentalRotationExample} class="instruction-video" />
+        <img 
+          src=${imageSrc} 
+          class="instruction-video" 
+          alt="Image not loading: ${imageSrc}. Please continue the task."
+        />
       </div>
     `;
   },

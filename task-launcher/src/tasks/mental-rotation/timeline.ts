@@ -1,7 +1,16 @@
 import 'regenerator-runtime/runtime';
 // setup
 import { jsPsych, initializeCat, cat } from '../taskSetup';
-import { createPreloadTrials, initTrialSaving, initTimeline, getRealTrials } from '../shared/helpers';
+import {
+  createPreloadTrials,
+  initTrialSaving,
+  initTimeline,
+  getRealTrials,
+  batchTrials,
+  batchMediaAssets,
+  combineMediaAssets,
+  filterMedia,
+} from '../shared/helpers';
 // trials
 import {
   imageInstructions,
@@ -27,10 +36,11 @@ import {
 import { getLayoutConfig } from './helpers/config';
 import { prepareCorpus, selectNItems } from '../shared/helpers/prepareCat';
 import { taskStore } from '../../taskStore';
+import { getLeftoverAssets } from '../shared/helpers/batchPreloading';
 
 export default function buildMentalRotationTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
-  const preloadTrials = createPreloadTrials(mediaAssets).default;
   const { runCat, semThreshold, heavyInstructions } = taskStore();
+
   let playedThreeDimInstructions = false;
   let encouragementCounter = 0; // only used for younger kid version (heavy instructions)
 
@@ -53,17 +63,6 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
     },
   };
 
-  const timeline = [
-    preloadTrials, 
-    initialTimeline, 
-    imageInstructions, 
-    videoInstructionsMisfit, 
-    videoInstructionsFit,
-  ];
-
-  if (heavyInstructions) {
-    timeline.push(demo1);
-  }
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {};
@@ -81,6 +80,23 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
     console.error('The following errors were found');
     console.table(validationErrorMap);
     throw new Error('Something went wrong. Please look in the console for error details');
+  }
+
+  // organize media assets into batches for preloading
+  const batchSize = 25;
+  const batchedCorpus = batchTrials(corpus, batchSize);
+  const batchedMediaAssets = batchMediaAssets(mediaAssets, batchedCorpus, ['item', 'answer', 'distractors']);
+
+  // counter for next batch to preload (skipping the initial preload)
+  let currPreloadBatch = 0;
+  const initialMedia = getLeftoverAssets(batchedMediaAssets, mediaAssets);
+
+  const initialPreload = createPreloadTrials(runCat ? mediaAssets : initialMedia).default;
+
+  const timeline = [initialPreload, initialTimeline, imageInstructions, videoInstructionsMisfit, videoInstructionsFit];
+
+  if (heavyInstructions) {
+    timeline.push(demo1);
   }
 
   const trialConfig = {
@@ -130,6 +146,11 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
       return false;
     },
   };
+
+  function preloadBatch() {
+    timeline.push(createPreloadTrials(batchedMediaAssets[currPreloadBatch]).default);
+    currPreloadBatch++;
+  }
 
   if (runCat) {
     // seperate out corpus to get cat/non-cat blocks
@@ -187,6 +208,10 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
         encouragementCounter ++
       };
 
+      if (i % batchSize === 0) {
+        preloadBatch();
+      }
+      
       if (i === 4) {
         timeline.push(repeatInstructions);
       }

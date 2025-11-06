@@ -31,7 +31,10 @@ function selectAnswers(correctFlag, buttonClass) {
           .should('be.visible')
           .and('not.be.disabled')
           .click({ force: true, timeout: 30000 }); // add timeout to handle staggered buttons
-      } else {
+      } else if (correctFlag === 'none') { // for tasks that don't have correct answers
+        cy.get(buttonClass).first().click({ force: true, timeout: 30000 });
+      }
+      else {
         // use correct class by default
         cy.get('.correct').click({ timeout: 60000 }); // add timeout to handle staggered buttons
       }

@@ -6,7 +6,7 @@ import _toNumber from 'lodash/toNumber';
 import i18next from 'i18next';
 import { isRoarApp } from './isRoarApp';
 import { camelize } from './camelize';
-import { RoarAppkit } from '@bdelab/roar-firekit';
+import { RoarAppkit } from '@levante-framework/firekit';
 import { TaskStoreDataType } from '../../../taskStore';
 import { getAge } from './getAge';
 
@@ -44,18 +44,21 @@ export const DEFAULT_LAYOUT_CONFIG: LayoutConfigType = {
   inCorrectTrialConfig: {
     onIncorrectTrial: 'end',
   },
+  disableOkButton: false,
 };
 
 const defaultCorpus: Record<string, string> = {
   egmaMath: 'math-item-bank',
   matrixReasoning: 'matrix-reasoning-item-bank',
   mentalRotation: 'mental-rotation-item-bank',
-  sameDifferentSelection: 'same-different-selection-item-bank-v4',
+  sameDifferentSelection: 'same-different-selection-item-bank',
   trog: 'trog-item-bank',
   theoryOfMind: 'theory-of-mind-item-bank',
   vocab: 'vocab-item-bank',
   roarInference: 'type_inference-demo-2024-11-11v3',
   adultReasoning: 'adult-reasoning-item-bank',
+  hostileAttribution: 'hostile-attribution-item-bank',
+  childSurvey: 'child-survey-item-bank',
 };
 
 export const setSharedConfig = async (

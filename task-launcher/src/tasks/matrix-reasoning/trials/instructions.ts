@@ -4,7 +4,7 @@ import { PageStateHandler, PageAudioHandler, replayButtonSvg, setupReplayAudio }
 import { jsPsych } from '../../taskSetup';
 import { taskStore } from '../../../taskStore';
 
-const instructionData = [
+export const instructionData = [
   {
     prompt: 'matrixReasoningInstruct1',
     image: 'matrixExample', // GIF?
@@ -18,6 +18,7 @@ export const instructions = instructionData.map((data) => {
     type: jsPsychHtmlMultiResponse,
     stimulus: () => {
       const t = taskStore().translations;
+      const imageSrc = mediaAssets.images[data.image];
       return `<div class="lev-stimulus-container">
                         <button
                             id="${replayButtonHtmlId}"
@@ -31,8 +32,8 @@ export const instructions = instructionData.map((data) => {
 
                  
                         <img
-                            src=${mediaAssets.images[data.image]}
-                            alt='Instruction graphic'
+                            src=${imageSrc}
+                            alt="Image not loading: ${imageSrc}. Please continue the task."
                         />
                     </div>`;
     },

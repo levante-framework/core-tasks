@@ -6,7 +6,9 @@
 }
 
 .haf-stimulus-holder {
-  margin-top: $lev-spacing-l;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
 }
 
 .haf-stimulus-container {
@@ -16,7 +18,10 @@
   justify-content: space-between;
   background-color: #fff;
   height: 40vh;
-  margin-top: 16px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: $lev-spacing-xs + $lev-spacing-s;
 
   .stimulus-left {
     margin-top: auto;
@@ -50,30 +55,6 @@
   }
 }
 
-.haf-image-container {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 16px;
-  margin-top: 8px;
-
-  img {
-    width: 220px;
-    max-width: 40%;
-  }
-
-  @include respond-to('medium') {
-    img {
-      width: 180px;
-    }
-  }
-
-  @include respond-to('small') {
-    img {
-      width: 120px;
-    }
-  }
-}
-
 .haf-fixation-container {
   border: 3px solid $border-accent;
   border-radius: 32px;
@@ -82,7 +63,10 @@
   justify-content: center;
   align-items: center;
   height: 40vh;
+  margin-left: auto;
+  margin-right: auto;
   margin-top: $lev-spacing-xs + $lev-spacing-s;
+  width: 100%;
 
   .fixation {
     font-size: 7vh;

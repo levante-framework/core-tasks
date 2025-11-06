@@ -117,12 +117,17 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false, rese
 
       const gridSize = taskStore().gridSize;
 
+      // save itemUid for data analysis
+      const itemUid = 'mg_' + `${reverse ? 'backward_' : 'forward_'}` + gridSize + 'grid_' + 'len' + sequenceLength;
+
       if (mode === 'input') {
         jsPsych.data.addDataToLastTrial({
           correct: _isEqual(data.response, data.sequence),
           selectedCoordinates: selectedCoordinates,
           corpusTrialType: getMemoryGameType(mode, reverse, gridSize),
           responseLocation: data.response,
+          itemUid: itemUid,
+          audioFile: reverse ? 'memory-game-backward-prompt' : 'memory-game-input',
         });
         taskStore('isCorrect', data.correct);
 
@@ -177,6 +182,11 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false, rese
 
           taskStore.transact('testTrialCount', (oldVal: number) => oldVal + 1);
         }
+      } else {
+        jsPsych.data.addDataToLastTrial({
+          correct: false, // default to false for display trials. Firekit requires this field to be non null.
+          audioFile: 'memory-game-display',
+        });
       }
     },
   };
@@ -250,6 +260,14 @@ function doOnLoad(mode: 'display' | 'input', isPractice: boolean, reverse: boole
           timeoutIDs.push(hideToast);
         }
       });
+
+      if (window.Cypress && generatedSequence !== null) {
+        const cypressData = {
+          correctAnswer: generatedSequence,
+        };
+
+        window.cypressData = cypressData;
+      }
     }
   });
 

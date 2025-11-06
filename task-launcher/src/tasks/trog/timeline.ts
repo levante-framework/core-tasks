@@ -1,6 +1,13 @@
 import 'regenerator-runtime/runtime';
 // setup
-import { initTrialSaving, initTimeline, createPreloadTrials, getRealTrials } from '../shared/helpers';
+import {
+  initTrialSaving,
+  initTimeline,
+  createPreloadTrials,
+  getRealTrials,
+  batchTrials,
+  batchMediaAssets,
+} from '../shared/helpers';
 import { jsPsych, initializeCat, cat } from '../taskSetup';
 // trials
 import {
@@ -16,13 +23,13 @@ import {
 import { getLayoutConfig } from './helpers/config';
 import { prepareCorpus, selectNItems } from '../shared/helpers/prepareCat';
 import { taskStore } from '../../taskStore';
+import { preloadSharedAudio } from '../shared/helpers/preloadSharedAudio';
 
 export default function buildTROGTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
 
   initTrialSaving(config);
   const initialTimeline = initTimeline(config, enterFullscreen, finishExperiment);
-  const timeline = [preloadTrials, initialTimeline];
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {};
@@ -43,6 +50,18 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
     console.table(validationErrorMap);
     throw new Error('Something went wrong. Please look in the console for error details');
   }
+
+  // organize media assets into batches for preloading
+  const batchSize = 25;
+  const batchedCorpus = batchTrials(corpus, batchSize);
+  const batchedMediaAssets = batchMediaAssets(mediaAssets, batchedCorpus, ['answer', 'distractors']);
+
+  // counter for next batch to preload (skipping the initial preload)
+  let currPreloadBatch = 0;
+
+  const initialPreload = runCat ? createPreloadTrials(mediaAssets).default : preloadSharedAudio();
+
+  const timeline = [initialPreload, initialTimeline];
 
   // does not matter if trial has properties that don't belong to that type
   const trialConfig = {
@@ -70,6 +89,11 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
       return true;
     },
   };
+
+  function preloadBatch() {
+    timeline.push(createPreloadTrials(batchedMediaAssets[currPreloadBatch]).default);
+    currPreloadBatch++;
+  }
 
   if (runCat) {
     // seperate out corpus to get cat/non-cat blocks
@@ -112,8 +136,10 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
     const numOfTrials = taskStore().totalTrials;
     taskStore('totalTestTrials', getRealTrials(corpus));
     for (let i = 0; i < numOfTrials; i++) {
+      if (i % batchSize === 0) {
+        preloadBatch();
+      }
       timeline.push({ ...setupStimulus, stimulus: '' });
-      timeline.push(practiceTransition);
       timeline.push(stimulusBlock);
     }
   }

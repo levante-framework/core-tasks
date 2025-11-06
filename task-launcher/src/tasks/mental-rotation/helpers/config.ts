@@ -27,7 +27,7 @@ export const getLayoutConfig = (
   };
   if (!defaultConfig.isInstructionTrial) {
     const mappedDistractors = mapDistractorsToString(distractors);
-    const prepChoices = prepareChoices(answer.toString(), mappedDistractors, false, trialType);
+    const prepChoices = prepareChoices(answer.toString(), mappedDistractors, 'no', trialType);
     defaultConfig.isImageButtonResponse = true;
     defaultConfig.classOverrides.stimulusContainerClassList = ['lev-stim-content'];
     defaultConfig.classOverrides.buttonClassList = ['image-large'];

@@ -9,7 +9,7 @@ import { taskStore } from '../../../taskStore';
 
 export function getHeartInstructions() {
   return buildInstructionTrial(
-    mediaAssets.images.animalWhole,
+    mediaAssets.images.animalBodySq,
     'heartInstruct1',
     taskStore().translations.heartInstruct1, // heart-instruct1, "This is the heart game. Here's how you play it."
     taskStore().translations.continueButtonText,
@@ -19,7 +19,7 @@ export function getHeartInstructions() {
 
 export function getFlowerInstructions() {
   return buildInstructionTrial(
-    mediaAssets.images.animalWhole,
+    mediaAssets.images.animalBodySq,
     'flowerInstruct1',
     taskStore().translations.flowerInstruct1, // flower-instruct1, "This is the flower game. Here's how you play."
     taskStore().translations.continueButtonText,
@@ -29,7 +29,7 @@ export function getFlowerInstructions() {
 
 export function getTimeToPractice() {
   return buildInstructionTrial(
-    mediaAssets.images.animalWhole,
+    mediaAssets.images.animalBodySq,
     'heartsAndFlowersPracticeTime',
     taskStore().translations.heartsAndFlowersPracticeTime, // hearts-and-flowers-practice-time: "Time to practice!"
     taskStore().translations.continueButtonText,
@@ -39,7 +39,7 @@ export function getTimeToPractice() {
 
 export function getKeepUp() {
   return buildInstructionTrial(
-    mediaAssets.images.keepup,
+    mediaAssets.images.keepupSq,
     'heartsAndFlowersInstruct1',
     taskStore().translations.heartsAndFlowersInstruct1, // hearts-and-flowers-instruct1:	"This time the game will go faster. It won't tell you if you are right or wrong."
     taskStore().translations.continueButtonText,
@@ -49,7 +49,7 @@ export function getKeepUp() {
 
 export function getKeepGoing() {
   return buildInstructionTrial(
-    mediaAssets.images.rocket,
+    mediaAssets.images.rocketSq,
     'heartsAndFlowersInstruct2',
     taskStore().translations.heartsAndFlowersInstruct2, //hearts-and-flowers-instruct2: "Try to answer as fast as you can without making mistakes."
     taskStore().translations.continueButtonText,
@@ -59,7 +59,7 @@ export function getKeepGoing() {
 
 export function getTimeToPlay() {
   return buildInstructionTrial(
-    mediaAssets.images.animalWhole,
+    mediaAssets.images.animalBodySq,
     'heartsAndFlowersPlayTime',
     taskStore().translations.heartsAndFlowersPlayTime, // hearts-and-flowers-play-time: "Time to play!"
     taskStore().translations.continueButtonText,
@@ -69,7 +69,7 @@ export function getTimeToPlay() {
 
 export function getMixedInstructions() {
   return buildInstructionTrial(
-    mediaAssets.images.animalWhole,
+    mediaAssets.images.animalBodySq,
     'heartsAndFlowersInstruct3',
     taskStore().translations.heartsAndFlowersInstruct3, // hearts-and-flowers-instruct3: "Now, we're going to play a game with hearts and flowers."
     taskStore().translations.continueButtonText,
@@ -79,7 +79,7 @@ export function getMixedInstructions() {
 
 export function getEndGame() {
   return buildInstructionTrial(
-    mediaAssets.images.animalWhole,
+    mediaAssets.images.animalBodySq,
     'heartsAndFlowersEnd',
     taskStore().translations.heartsAndFlowersEnd, // hearts-and-flowers-end: "Great job! You've completed the game."
     taskStore().translations.continueButtonText,
@@ -103,22 +103,23 @@ function buildInstructionTrial(mascotImage, promptAudioKey, promptText, buttonTe
   const replayButtonHtmlId = 'replay-btn-revisited';
   const trial = {
     type: jsPsychHtmlMultiResponse,
-    stimulus: `<div class="haf-stimulus-holder">
-        <div class="lev-row-container header">
-          <p>${promptText}</p>
-        </div>
-        <button id="${replayButtonHtmlId}" class="replay">
-          ${replayButtonSvg}
-        </button>
-        <div class='haf-image-container'>
-          <img
-            id='instruction-graphic'
-            src=${mascotImage}
-            alt='Instruction graphic'
-          />
-        </div>
-        ${bottomText ? `<div class="lev-row-container header"><p>${bottomText}</p></div>` : ''}
-      </div>`,
+    stimulus: `
+      <div class="lev-stimulus-container">
+          <button id="replay-btn-revisited" class="replay">
+            ${replayButtonSvg}
+          </button>
+          <div class="lev-row-container instruction-small">
+            <p>${promptText}</p>
+          </div>
+          <div class="lev-stim-content-x-3">
+            <img
+                src=${mascotImage}
+                alt='Instruction graphic'
+            />
+          </div>
+          ${bottomText ? `<div class="lev-row-container header"><p>${bottomText}</p></div>` : ''}
+      </div>
+    `,
     prompt_above_buttons: true,
     keyboard_choices: InputKey.NoKeys,
     button_choices: ['Next'],
