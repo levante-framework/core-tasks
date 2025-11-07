@@ -10,6 +10,27 @@ import firebaseJSON from '../firebase.json';
 // Import necessary in order to use async/await at the top level
 import 'regenerator-runtime/runtime';
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+async function signInWithRetry(auth, retries = 5) {
+  let lastError;
+  const backoffBase = 500;
+  for (let attempt = 0; attempt < retries; attempt += 1) {
+    try {
+      await signInAnonymously(auth);
+      return;
+    } catch (error) {
+      lastError = error;
+      const code = error?.code || '';
+      const transient = code === 'auth/network-request-failed' || code === 'auth/internal-error';
+      if (!transient) break;
+      const backoff = Math.min(5000, backoffBase * (attempt + 1));
+      await sleep(backoff);
+    }
+  }
+  throw lastError;
+}
+
 /**
  * Initialize Sentry first!
  */
@@ -112,7 +133,7 @@ async function startWebApp() {
     }
   });
 
-  await signInAnonymously(appKit.auth);
+  await signInWithRetry(appKit.auth);
 }
 
 await startWebApp();
