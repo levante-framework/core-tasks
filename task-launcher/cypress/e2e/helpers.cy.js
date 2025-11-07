@@ -12,7 +12,7 @@ export function instructions() {
           taskCompleted = true;
           return;
         } else {
-          cy.get('.primary').click({ timeout: 60000 });
+          cy.get('.primary').click({ timeout: 60000, force: true });
           instructions();
         }
       });
@@ -36,7 +36,7 @@ function selectAnswers(correctFlag, buttonClass) {
       }
       else {
         // use correct class by default
-        cy.get('.correct').click({ timeout: 60000 }); // add timeout to handle staggered buttons
+        cy.get('.correct').click({ timeout: 60000, force: true }); // add timeout to handle staggered buttons
       }
     } else {
       return;
