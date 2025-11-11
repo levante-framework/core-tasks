@@ -1,3 +1,5 @@
+import { mediaAssets } from "../../..";
+
 type CreateGridArgs = {
   x: number;
   y: number;
@@ -53,4 +55,67 @@ export function generateRandomSequence({ numOfBlocks, sequenceLength, previousSe
   }
 
   return sequence;
+}
+
+function addAnimation(element: HTMLDivElement, animation?: 'pulse' | 'cursor') {
+  if (animation === 'cursor') {
+    const cursorImageSrc = mediaAssets.images.cursor;
+
+    // Ensure element has position relative for absolute positioning of cursor image
+    if (element.style.position !== 'relative' && element.style.position !== 'absolute' && element.style.position !== 'fixed') {
+      element.style.position = 'relative';
+    }
+
+    // Remove existing cursor image if it exists
+    removeCursorImage(element);
+    
+    // Create and add cursor image
+    const cursorImg = document.createElement('img');
+    cursorImg.src = cursorImageSrc;
+    cursorImg.className = 'corsi-cursor-image';
+    cursorImg.style.position = 'absolute';
+    cursorImg.style.top = '50%';
+    cursorImg.style.left = '50%';
+    cursorImg.style.transform = 'translate(-50%, -50%)';
+    cursorImg.style.pointerEvents = 'none';
+    cursorImg.style.zIndex = '10';
+
+    cursorImg.style.animation = 'pulse 2s infinite';
+
+    element.appendChild(cursorImg);
+  } else if (animation === 'pulse') {
+    element.style.animation = 'pulse 2s infinite';
+    element.style.backgroundColor = '#275BDD';
+  }
+}
+
+// removes the cursor image from a corsi block element if it exists
+function removeCursorImage(element: HTMLDivElement) {
+  const existingCursor = element.querySelector('.corsi-cursor-image') as HTMLImageElement;
+  if (existingCursor) {
+    existingCursor.remove();
+  }
+}
+
+// enables a corsi block element, making it clickable and fully visible - adds the cursor image for downward extension
+export function enableBlock(element: HTMLDivElement, animation?: 'pulse' | 'cursor') {
+  element.style.pointerEvents = 'auto';
+  element.style.opacity = '1';
+  element.style.cursor = 'pointer';
+
+  if (animation) {
+    addAnimation(element, animation);
+  }
+}
+ 
+// disables a corsi block element, making it non-clickable and visually dimmed
+export function disableBlock(element: HTMLDivElement) {
+  element.style.pointerEvents = 'none';
+  element.style.opacity = '0.5';
+  element.style.cursor = 'not-allowed';
+  element.style.backgroundColor = 'rgba(215, 215, 215, 0.93)'
+  
+  // disable any ongoing animations
+  removeCursorImage(element);
+  element.style.animation = 'none';
 }

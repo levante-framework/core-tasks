@@ -1,5 +1,5 @@
 import jsPsychCorsiBlocks from '@jspsych-contrib/plugin-corsi-blocks';
-import { createGrid, generateRandomSequence } from '../helpers/grid';
+import { createGrid, generateRandomSequence, enableBlock, disableBlock } from '../helpers/grid';
 import { jsPsych } from '../../taskSetup';
 import _isEqual from 'lodash/isEqual';
 import { finishExperiment } from '../../shared/trials';
@@ -13,6 +13,8 @@ type CorsiBlocksArgs = {
   reverse?: boolean;
   isPractice?: boolean;
   resetSeq?: boolean;
+  customSeqLength?: number;
+  animation?: 'pulse' | 'cursor';
 };
 
 const x = 20;
@@ -24,12 +26,20 @@ let generatedSequence: number[] | null;
 let selectedCoordinates: [number, number][] = [];
 let numCorrect = 0;
 
+const downexPracticeAudioCues = [
+  'memoryGameInstruct9Downex',
+  'memoryGameInstruct8Downex',
+  'memoryGameInstruct7Downex',
+  'memoryGameInstruct5Downex',
+  'memoryGameInstruct3Downex',
+  'memoryGameInstruct2Downex',
+]
+
 // play audio cue
-function setUpAudio(
+export function setUpAudio(
   contentWrapper: HTMLDivElement,
   prompt: HTMLParagraphElement,
-  reverse: boolean,
-  mode: 'display' | 'input',
+  cue: string,
 ) {
   // add replay button
   const replayButton = document.createElement('button');
@@ -39,10 +49,7 @@ function setUpAudio(
   replayButton.disabled = true;
   contentWrapper.insertBefore(replayButton, prompt);
 
-  const inputAudioPrompt = reverse ? 'memoryGameBackwardPrompt' : 'memoryGameInput';
-  const cue = mode === 'display' ? 'memoryGameDisplay' : inputAudioPrompt;
-
-  const audioFile = mediaAssets.audio[cue] || '';
+  const audioFile = mediaAssets.audio[cue] || mediaAssets.audio.nullAudio;
   const audioConfig: AudioConfigType = {
     restrictRepetition: {
       enabled: true,
@@ -61,14 +68,25 @@ function setUpAudio(
 }
 
 // This function produces both the display and input trials for the corsi blocks
-export function getCorsiBlocks({ mode, reverse = false, isPractice = false, resetSeq = false }: CorsiBlocksArgs) {
+export function getCorsiBlocks(
+  { mode, 
+    reverse = false, 
+    isPractice = false, 
+    resetSeq = false, 
+    customSeqLength, 
+    animation,
+  }: CorsiBlocksArgs
+) {
+  // Use customSeqLength if provided, otherwise fall back to global sequenceLength
+  const effectiveSeqLength = customSeqLength ?? sequenceLength;
+  
   return {
     type: jsPsychCorsiBlocks,
     sequence: () => {
       // On very first trial, generate initial sequence
       if (!generatedSequence) {
         const numOfBlocks: number = Number(taskStore().numOfBlocks);
-        generatedSequence = generateRandomSequence({ numOfBlocks, sequenceLength, previousSequence: null });
+        generatedSequence = generateRandomSequence({ numOfBlocks, sequenceLength: effectiveSeqLength, previousSequence: null });
       }
 
       if (mode === 'input' && reverse) {
@@ -103,7 +121,7 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false, rese
       isPracticeTrial: isPractice,
       trialMode: mode,
     },
-    on_load: () => doOnLoad(mode, isPractice, reverse),
+    on_load: () => doOnLoad(mode, isPractice, reverse, animation),
     on_finish: (data: any) => {
       PageAudioHandler.stopAndDisconnectNode();
 
@@ -116,9 +134,10 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false, rese
       }
 
       const gridSize = taskStore().gridSize;
+      const heavyInstructions = taskStore().heavyInstructions;
 
       // save itemUid for data analysis
-      const itemUid = 'mg_' + `${reverse ? 'backward_' : 'forward_'}` + gridSize + 'grid_' + 'len' + sequenceLength;
+      const itemUid = 'mg_' + `${reverse ? 'backward_' : 'forward_'}` + gridSize + 'grid_' + 'len' + effectiveSeqLength;
 
       if (mode === 'input') {
         jsPsych.data.addDataToLastTrial({
@@ -134,7 +153,7 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false, rese
         if (data.correct && !isPractice) {
           numCorrect++;
 
-          if (numCorrect === 3) {
+          if (numCorrect === 3 && !customSeqLength) {
             sequenceLength++;
             numCorrect = 0;
           }
@@ -159,22 +178,27 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false, rese
 
         const numOfBlocks = taskStore().numOfBlocks;
 
-        // Avoid generating the same sequence twice in a row
-        let newSequence = generateRandomSequence({
-          numOfBlocks,
-          sequenceLength,
-          previousSequence: generatedSequence,
-        });
-
-        while (_isEqual(newSequence, generatedSequence)) {
-          newSequence = generateRandomSequence({
+        // resuse the same sequence for incorrect downward extension trials
+        if (data.correct || !isPractice || !heavyInstructions) {
+          // Avoid generating the same sequence twice in a row
+          let newSequence = generateRandomSequence({
             numOfBlocks,
-            sequenceLength,
+            sequenceLength: effectiveSeqLength,
             previousSequence: generatedSequence,
           });
+
+          while (_isEqual(newSequence, generatedSequence)) {
+            newSequence = generateRandomSequence({
+              numOfBlocks,
+              sequenceLength: effectiveSeqLength,
+              previousSequence: generatedSequence,
+            });
+          }
+
+          generatedSequence = newSequence;
         }
 
-        generatedSequence = newSequence;
+        
 
         if (!isPractice) {
           timeoutIDs.forEach((id) => clearTimeout(id));
@@ -194,7 +218,12 @@ export function getCorsiBlocks({ mode, reverse = false, isPractice = false, rese
 
 let timeoutIDs: Array<NodeJS.Timeout | number> = [];
 
-function doOnLoad(mode: 'display' | 'input', isPractice: boolean, reverse: boolean) {
+function doOnLoad(
+    mode: 'display' | 'input', 
+    isPractice: boolean, 
+    reverse: boolean, 
+    animation?: 'pulse' | 'cursor',
+  ) {
   const container = document.getElementById('jspsych-corsi-stimulus') as HTMLDivElement;
   container.id = '';
   container.classList.add('lev-corsi-override');
@@ -222,6 +251,42 @@ function doOnLoad(mode: 'display' | 'input', isPractice: boolean, reverse: boole
 
   const blocks = document.getElementsByClassName('jspsych-corsi-block') as HTMLCollectionOf<HTMLDivElement>;
 
+  let inputSequence: number[] | null;
+  if (mode === 'input' && generatedSequence) {
+    inputSequence = reverse ? generatedSequence.reverse() : generatedSequence;
+  }
+
+  // Track the number of blocks clicked for animation functionality
+  let clickCount = 0;
+
+  // Function to update which blocks are disabled based on current response
+  const updateBlockStates = () => {
+    if (!animation || mode !== 'input' || !inputSequence) {
+      return;
+    }
+
+    // Determine which block should be selected next based on click count
+    if (clickCount < inputSequence.length) {
+      const nextBlockIndex = inputSequence[clickCount];
+
+      // Disable all blocks except the correct next one
+      Array.from(blocks).forEach((element, i) => {
+        if (i === nextBlockIndex) {
+          // Enable the correct block
+          enableBlock(element, animation);
+        } else {
+          // Disable incorrect blocks
+          disableBlock(element);
+        }
+      });
+    } else {
+      // All blocks have been selected, disable all
+      Array.from(blocks).forEach((element) => {
+        disableBlock(element);
+      });
+    }
+  };
+
   Array.from(blocks).forEach((element, i) => {
     // Cannot just remove the id because the trial code uses that under the hood
     // so must remove css properties manually
@@ -235,8 +300,27 @@ function doOnLoad(mode: 'display' | 'input', isPractice: boolean, reverse: boole
     element.classList.add('lev-corsi-block-override');
 
     if (mode === 'input') {
+      // Set up initial block states if animation is enabled
+      if (animation && inputSequence && inputSequence.length > 0) {
+        const firstBlockIndex = inputSequence[0];
+        if (i === firstBlockIndex) {
+          enableBlock(element, animation);
+        } else {
+          disableBlock(element);
+        }
+      }
+
       element.addEventListener('click', (event) => {
         selectedCoordinates.push([event.clientX, event.clientY]);
+
+        // Update click count and block states for animation
+        if (animation) {
+          clickCount++;
+          // Update block states after a short delay to allow the click to process
+          setTimeout(() => {
+            updateBlockStates();
+          }, 50);
+        }
 
         if (!isPractice) {
           // Avoid stacking timeouts
@@ -276,12 +360,25 @@ function doOnLoad(mode: 'display' | 'input', isPractice: boolean, reverse: boole
   const promptContainer = document.createElement('div');
   promptContainer.classList.add('lev-row-container', 'instruction');
   const prompt = document.createElement('p');
-  const inputTextPrompt = reverse ? t.memoryGameBackwardPrompt : t.memoryGameInput;
-  prompt.textContent = mode === 'display' ? t.memoryGameDisplay : inputTextPrompt;
+
+  const inputAudioPrompt = reverse ? 'memoryGameBackwardPrompt' : 'memoryGameInput';
+  const defaultCue = mode === 'display' ? 'memoryGameDisplay' : inputAudioPrompt;
+
+  let cue;
+
+  // downex practice trials have custom audio cues
+  if (taskStore().heavyInstructions && !reverse && isPractice) {
+    cue = downexPracticeAudioCues.pop() || defaultCue;
+  } else {
+    cue = defaultCue;
+  }
+
+  prompt.textContent = t.cue;
+  
   promptContainer.appendChild(prompt);
   // Inserting element at the second child position rather than
   // changing the jspsych-content styles to avoid potential issues in the future
   contentWrapper.insertBefore(promptContainer, corsiBlocksHTML);
 
-  setUpAudio(contentWrapper, promptContainer, reverse, mode);
+  setUpAudio(contentWrapper, promptContainer, cue);
 }

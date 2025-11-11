@@ -5,7 +5,7 @@ import { initializeCat } from '../taskSetup';
 // trials
 import { enterFullscreen, exitFullscreen, feedback, finishExperiment, taskFinished } from '../shared/trials';
 import { getCorsiBlocks } from './trials/stimulus';
-import { instructions, readyToPlay, reverseOrderPrompt, reverseOrderInstructions } from './trials/instructions';
+import { readyToPlay, reverseOrderPrompt, reverseOrderInstructions, defaultInstructions, downexInstructions } from './trials/instructions';
 import { taskStore } from '../../taskStore';
 import { mediaAssets } from '../..';
 
@@ -43,6 +43,9 @@ const getSecondRoundPracticeTrials = (reverse: boolean, tryAgainText: string) =>
 };
 
 export default function buildMemoryTimeline(config: Record<string, any>) {
+
+  const { heavyInstructions } = taskStore();
+
   initTrialSaving(config);
   const preloadTrials = createPreloadTrials(mediaAssets).default;
   const initialTimeline = initTimeline(config, enterFullscreen, finishExperiment);
@@ -83,13 +86,65 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
   const totalRealTrials = corsiBlocksStimulus.repetitions + corsiBlocksReverse.repetitions;
   taskStore('totalTestTrials', totalRealTrials);
 
+  const downexFeedbackCorrect = {
+    timeline: [
+      feedback(true, 'feedbackCorrect', 'memoryGameForwardTryAgain', true),
+    ], 
+    conditional_function: () => {
+      return taskStore().isCorrect;
+    },
+  }
+
+  const downexFeedbackIncorrect = (seqlength: number) => {
+    return {
+      timeline: [
+        getCorsiBlocks({ mode: 'input', isPractice: true, customSeqLength: seqlength, animation: 'pulse' }),
+      ], 
+      conditional_function: () => {
+        return !taskStore().isCorrect;
+      },
+    }
+  }
+
+  const downexPracticeTrial = (currentSeqlength: number, setNextSeqLength: number, animation?: 'pulse' | 'cursor') => {
+    return {
+      timeline: [
+        getCorsiBlocks({ mode: 'display', isPractice: true, customSeqLength: currentSeqlength }),
+        getCorsiBlocks({ mode: 'input', isPractice: true, customSeqLength: setNextSeqLength, animation}),
+        downexFeedbackCorrect,
+        downexFeedbackIncorrect(setNextSeqLength),
+      ]
+    }
+  }
+
+  const downexInstructionsTimeline = {
+    timeline: [
+      downexInstructions[0],
+      downexPracticeTrial(1, 1, 'cursor'),
+      downexPracticeTrial(1, 2),
+      downexInstructions[1],
+      downexPracticeTrial(2, 2, 'cursor'),
+      downexPracticeTrial(2, 2),
+      downexPracticeTrial(2, 2),
+      downexInstructions[2],
+      downexInstructions[3],
+      downexInstructions[4],
+    ]
+  }
+
+  const defaultInstructionsTimeline = {
+    timeline: [
+      ...defaultInstructions,
+      corsiBlocksPractice,
+      getSecondRoundPracticeTrials(false, 'memoryGameForwardTryAgain'),
+      readyToPlay,
+    ]
+  }
+
   const timeline: any[] = [
     preloadTrials,
     initialTimeline,
-    ...instructions,
-    corsiBlocksPractice,
-    getSecondRoundPracticeTrials(false, 'memoryGameForwardTryAgain'),
-    readyToPlay,
+    heavyInstructions ? downexInstructionsTimeline : defaultInstructionsTimeline,
     corsiBlocksStimulus,
     forwardTrialResetSeq,
     reverseOrderInstructions,
