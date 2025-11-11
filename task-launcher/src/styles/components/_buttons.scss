@@ -181,6 +181,19 @@ button {
       filter: gray; /* IE6-9 */
       -webkit-filter: grayscale(100%); /* Chrome 19+, Safari 6+, Safari 6+ iOS */
       opacity: 0.6;
+      cursor: no-drop;
+    }
+
+    &:disabled:hover {
+      background: $bg-button-primary;
+      border-color: $bg-accent_secondary;
+      box-shadow: $button-default-box-shadow rgba($bg-accent_secondary, 0.5) inset;
+    }
+
+    &:disabled:active {
+      background: $bg-button-primary;
+      border-color: $bg-accent_secondary;
+      box-shadow: $button-default-box-shadow rgba($bg-accent_secondary, 0.5) inset;
     }
   }
 
