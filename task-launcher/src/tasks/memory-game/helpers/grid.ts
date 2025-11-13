@@ -97,11 +97,12 @@ function removeCursorImage(element: HTMLDivElement) {
   }
 }
 
-// enables a corsi block element, making it clickable and fully visible - adds the cursor image for downward extension
+// enables a corsi block element, making it clickable and fully visible, and also adds an animation
 export function enableBlock(element: HTMLDivElement, animation?: 'pulse' | 'cursor') {
   element.style.pointerEvents = 'auto';
   element.style.opacity = '1';
   element.style.cursor = 'pointer';
+  element.style.backgroundColor = ' #ffffffcc';
 
   if (animation) {
     addAnimation(element, animation);

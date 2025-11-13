@@ -12,6 +12,14 @@ const instructionData = [
     buttonText: 'continueButtonText',
   },
   {
+    prompt: "memoryGameInstruct2Downex", 
+    image: 'catAvatar',
+  },
+  {
+    prompt: "memoryGameInstruct4Downex", 
+    image: 'catAvatar',
+  },
+  {
     prompt: "memoryGameInstruct6Downex", 
     image: 'catAvatar',
     buttonText: 'continueButtonText',
@@ -102,19 +110,34 @@ const instructions = instructionData.map((data) => {
                     </div>`;
     },
     prompt_above_buttons: true,
-    button_choices: ['Next'],
+    button_choices: data.buttonText ? ['Next'] : [],
     button_html: () => {
       const t = taskStore().translations;
-      return [
-        `<button class="primary">
-                ${t[data.buttonText]}
-            </button>`,
-      ];
+
+      if (data.buttonText) {
+        return [
+          `<button class="primary">
+                  ${t[data.buttonText]}
+          </button>`,
+        ];
+      }
     },
     keyboard_choices: 'NO_KEYS',
     post_trial_gap: 500,
     on_load: () => {
-      PageAudioHandler.playAudio(mediaAssets.audio[data.prompt] || mediaAssets.audio.nullAudio);
+      const audioConfig: AudioConfigType = {
+        restrictRepetition: {
+          enabled: false,
+          maxRepetitions: 1,
+        },
+        onEnded: () => {
+          if (!data.buttonText) {
+            jsPsych.finishTrial();
+          }
+        },
+      };
+      
+      PageAudioHandler.playAudio(mediaAssets.audio[data.prompt], audioConfig);
       const pageStateHandler = new PageStateHandler(data.prompt, true);
       setupReplayAudio(pageStateHandler);
 
@@ -142,5 +165,5 @@ export const reverseOrderPrompt = instructions.pop();
 export const reverseOrderInstructions = instructions.pop();
 export const readyToPlay = instructions.pop();
 
-export const defaultInstructions = instructions.slice(5,9)
-export const downexInstructions = instructions.slice(0,5)
+export const defaultInstructions = instructions.slice(7,9)
+export const downexInstructions = instructions.slice(0,7)

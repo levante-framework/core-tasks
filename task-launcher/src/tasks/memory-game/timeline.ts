@@ -98,7 +98,9 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
   const downexFeedbackIncorrect = (seqlength: number) => {
     return {
       timeline: [
-        getCorsiBlocks({ mode: 'input', isPractice: true, customSeqLength: seqlength, animation: 'pulse' }),
+        getCorsiBlocks(
+          { mode: 'input', isPractice: true, customSeqLength: seqlength, animation: 'pulse', prompt: 'memoryGameFeedbackIncorrectDownex' }
+        ),
       ], 
       conditional_function: () => {
         return !taskStore().isCorrect;
@@ -106,10 +108,10 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
     }
   }
 
-  const downexPracticeTrial = (currentSeqlength: number, setNextSeqLength: number, animation?: 'pulse' | 'cursor') => {
+  const downexPracticeTrial = (currentSeqlength: number, setNextSeqLength: number, displayPrompt: boolean, animation?: 'pulse' | 'cursor') => {
     return {
       timeline: [
-        getCorsiBlocks({ mode: 'display', isPractice: true, customSeqLength: currentSeqlength }),
+        getCorsiBlocks({ mode: 'display', isPractice: true, customSeqLength: currentSeqlength, displayPrompt }),
         getCorsiBlocks({ mode: 'input', isPractice: true, customSeqLength: setNextSeqLength, animation}),
         downexFeedbackCorrect,
         downexFeedbackIncorrect(setNextSeqLength),
@@ -120,15 +122,17 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
   const downexInstructionsTimeline = {
     timeline: [
       downexInstructions[0],
-      downexPracticeTrial(1, 1, 'cursor'),
-      downexPracticeTrial(1, 2),
       downexInstructions[1],
-      downexPracticeTrial(2, 2, 'cursor'),
-      downexPracticeTrial(2, 2),
-      downexPracticeTrial(2, 2),
+      downexPracticeTrial(1, 1, false, 'cursor'),
       downexInstructions[2],
+      downexPracticeTrial(1, 2, false),
       downexInstructions[3],
+      downexPracticeTrial(2, 2, true, 'cursor'),
+      downexPracticeTrial(2, 2, true),
+      downexPracticeTrial(2, 2, true),
       downexInstructions[4],
+      downexInstructions[5],
+      downexInstructions[6],
     ]
   }
 
