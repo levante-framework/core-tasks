@@ -1,6 +1,12 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
-import { replayButtonSvg, PageStateHandler, PageAudioHandler, setupReplayAudio, enableOkButton } from '../../shared/helpers';
+import {
+  replayButtonSvg,
+  PageStateHandler,
+  PageAudioHandler,
+  setupReplayAudio,
+  enableOkButton,
+} from '../../shared/helpers';
 import { jsPsych } from '../../taskSetup';
 import { taskStore } from '../../../taskStore';
 

@@ -118,8 +118,7 @@ const transformCSV = (
           return row.response_alternatives.split(',').map((alt) => alt.replace(/"/g, ''));
         } else if (row.task === 'child-survey') {
           return getChildSurveyResponses();
-        }
-        else {
+        } else {
           return containsLettersOrSlash(row.response_alternatives) ||
             (row.task === 'adult-reasoning' && row.response_alternatives.includes(';'))
             ? row.response_alternatives.split(',')

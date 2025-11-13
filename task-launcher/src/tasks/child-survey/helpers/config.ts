@@ -38,7 +38,7 @@ export const getLayoutConfig = (
     displayValues: mappedDistractors,
     values: mappedDistractors,
     targetIndex: 0,
-  }; 
+  };
 
   const messages = validateLayoutConfig(defaultConfig, mediaAssets, translations, stimulus);
 

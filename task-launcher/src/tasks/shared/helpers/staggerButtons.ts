@@ -71,7 +71,8 @@ const showStaggeredBtnAndPlaySound = (
       maxRepetitions: 2,
     },
     onEnded: () => {
-      if (index + 1 === btnList?.length || !staggerEnabled) { // don't recurse if stagger is disabled
+      if (index + 1 === btnList?.length || !staggerEnabled) {
+        // don't recurse if stagger is disabled
         // Last Element
         for (const jsResponseEl of btnList) {
           jsResponseEl.classList.remove('lev-staggered-disabled');

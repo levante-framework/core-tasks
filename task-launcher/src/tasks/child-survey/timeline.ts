@@ -1,9 +1,9 @@
-import { taskStore } from "../../taskStore";
-import { getLayoutConfig } from "../child-survey/helpers/config";
-import { createPreloadTrials, getRealTrials, initTimeline, initTrialSaving } from "../shared/helpers";
-import { enterFullscreen, exitFullscreen, finishExperiment, setupStimulus, taskFinished } from "../shared/trials";
-import { initializeCat, jsPsych } from "../taskSetup";
-import { surveyItem } from "./helpers/stimulus";
+import { taskStore } from '../../taskStore';
+import { getLayoutConfig } from '../child-survey/helpers/config';
+import { createPreloadTrials, getRealTrials, initTimeline, initTrialSaving } from '../shared/helpers';
+import { enterFullscreen, exitFullscreen, finishExperiment, setupStimulus, taskFinished } from '../shared/trials';
+import { initializeCat, jsPsych } from '../taskSetup';
+import { surveyItem } from './helpers/stimulus';
 
 export default function buildChildSurveyTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
@@ -45,23 +45,20 @@ export default function buildChildSurveyTimeline(config: Record<string, any>, me
   };
 
   const stimulusBlock = {
-    timeline: [
-        { ...setupStimulus, stimulus: '' },
-        surveyItem(trialConfig)
-    ]
-  }
+    timeline: [{ ...setupStimulus, stimulus: '' }, surveyItem(trialConfig)],
+  };
 
   taskStore('totalTestTrials', getRealTrials(corpus));
-    
+
   const numOfTrials = taskStore().totalTrials;
   for (let i = 0; i < numOfTrials; i++) {
     timeline.push(stimulusBlock);
   }
 
   initializeCat();
-  
+
   timeline.push(taskFinished());
   timeline.push(exitFullscreen);
-  
+
   return { jsPsych, timeline };
 }
