@@ -1,9 +1,8 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
-import { PageStateHandler, PageAudioHandler, replayButtonSvg, setupReplayAudio, camelize, addPracticeButtonListeners } from '../../shared/helpers';
+import { PageStateHandler, PageAudioHandler, replayButtonSvg, setupReplayAudio, camelize, addPracticeButtonListeners, matrixDragAnimation, triggerAnimation } from '../../shared/helpers';
 import { jsPsych } from '../../taskSetup';
 import { taskStore } from '../../../taskStore';
-import { matrixDragAnimation, triggerAnimation } from '../helpers/animateImages';
 
 let startTime: number;
 
@@ -209,7 +208,7 @@ export const downexInstructions1 = {
 
       // animate the target button to the center of stimImage
       if (stimImage && target) {
-        matrixDragAnimation(stimImage, target);
+        matrixDragAnimation(stimImage, target, 0.5, 0.5);
 
         const lastAudioConfig: AudioConfigType = {
           restrictRepetition: {

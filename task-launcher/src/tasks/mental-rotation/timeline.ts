@@ -34,9 +34,10 @@ import { getLayoutConfig } from './helpers/config';
 import { prepareCorpus, selectNItems } from '../shared/helpers/prepareCat';
 import { taskStore } from '../../taskStore';
 import { getLeftoverAssets } from '../shared/helpers/batchPreloading';
+import { downexInstructions } from './trials/downexInstructions';
 
 export default function buildMentalRotationTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
-  const { runCat } = taskStore();
+  const { runCat, heavyInstructions } = taskStore();
   const { semThreshold } = taskStore();
   let playedThreeDimInstructions = false;
 
@@ -88,8 +89,11 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
   const initialMedia = getLeftoverAssets(batchedMediaAssets, mediaAssets);
 
   const initialPreload = createPreloadTrials(runCat ? mediaAssets : initialMedia).default;
+  const instructions = heavyInstructions ? 
+    downexInstructions : 
+    [imageInstructions, videoInstructionsMisfit, videoInstructionsFit];
 
-  const timeline = [initialPreload, initialTimeline, imageInstructions, videoInstructionsMisfit, videoInstructionsFit];
+  const timeline = [initialPreload, initialTimeline, ...instructions];
 
   const trialConfig = {
     trialType: 'audio',
