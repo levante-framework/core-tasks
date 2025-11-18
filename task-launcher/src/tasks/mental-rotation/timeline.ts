@@ -14,6 +14,7 @@ import {
 // trials
 import {
   imageInstructions,
+  polygonInstructions,
   threeDimInstructions,
   videoInstructionsFit,
   videoInstructionsMisfit,
@@ -40,6 +41,7 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
   const { runCat, heavyInstructions } = taskStore();
   const { semThreshold } = taskStore();
   let playedThreeDimInstructions = false;
+  let playedPolygonInstructions = false;
 
   initTrialSaving(config);
   const initialTimeline = initTimeline(config, enterFullscreen, finishExperiment);
@@ -141,6 +143,20 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
     },
   };
 
+  const polygonInstructBlock = {
+    timeline: [polygonInstructions],
+    conditional_function: () => {
+      if (
+        taskStore().nextStimulus.trialType === 'polygon' && 
+        heavyInstructions &&
+        !playedPolygonInstructions
+      ) {
+        playedPolygonInstructions = true;
+        return true;
+      }
+    },
+  };
+
   function preloadBatch() {
     timeline.push(createPreloadTrials(batchedMediaAssets[currPreloadBatch]).default);
     currPreloadBatch++;
@@ -174,6 +190,7 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
       }
       timeline.push({ ...setupStimulus, stimulus: '' });
       timeline.push(threeDimInstructBlock);
+      timeline.push(polygonInstructBlock);
       timeline.push(stimulusBlock);
     }
 
@@ -197,6 +214,7 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
       timeline.push({ ...setupStimulus, stimulus: '' });
       timeline.push(practiceTransition);
       timeline.push(threeDimInstructBlock);
+      timeline.push(polygonInstructBlock);
       timeline.push(stimulusBlock);
     }
   }

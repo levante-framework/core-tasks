@@ -165,13 +165,13 @@ export const downexInstructions = downexData.map((data: any) => {
             animate(data.animations[0].animation, data.animations[0].item);
           }
 
-          PageAudioHandler.playAudio(mediaAssets.audio[camelize(data.audio[1])] || mediaAssets.audio.inputAudioCue, secondAudioConfig);
+          PageAudioHandler.playAudio(mediaAssets.audio[camelize(data.audio[1])], secondAudioConfig);
         }  
       }
 
       
       // play the first audio
-      PageAudioHandler.playAudio(mediaAssets.audio[camelize(data.audio[0])] || mediaAssets.audio.inputAudioCue, firstAudioConfig);
+      PageAudioHandler.playAudio(mediaAssets.audio[camelize(data.audio[0])], firstAudioConfig);
 
       // if there are two animations, start the first animation while the first audio is playing
       if (data.animations.length > 1) {
