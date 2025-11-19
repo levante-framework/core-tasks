@@ -63,6 +63,20 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
   };
 
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
+
+  // modify prompts if downex
+  if (heavyInstructions) {
+    corpus.forEach((trial) => {
+      trial.audioFile = trial.audioFile + '-downex';
+    });
+
+    const newCorpus = {
+      practice: taskStore().corpora.practice,
+      stimulus: corpus,
+    };
+    taskStore('corpora', newCorpus);
+  }
+
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {};
 
@@ -147,13 +161,14 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
     timeline: [polygonInstructions],
     conditional_function: () => {
       if (
-        taskStore().nextStimulus.trialType === 'polygon' && 
-        heavyInstructions &&
+        taskStore().nextStimulus.trialType === 'polygon' &&
         !playedPolygonInstructions
       ) {
         playedPolygonInstructions = true;
         return true;
       }
+
+      return false;
     },
   };
 
@@ -161,6 +176,8 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
     timeline.push(createPreloadTrials(batchedMediaAssets[currPreloadBatch]).default);
     currPreloadBatch++;
   }
+
+  const practiceTransitionPrompt = heavyInstructions ? 'mentalRotationInstruct5Downex' : 'generalYourTurn';
 
   if (runCat) {
     // seperate out corpus to get cat/non-cat blocks
@@ -173,7 +190,7 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
     });
 
     // push in practice transition
-    timeline.push(practiceTransition);
+    timeline.push(practiceTransition(practiceTransitionPrompt));
 
     // push in starting block
     corpora.start.forEach((trial: StimulusType) => {
@@ -212,7 +229,7 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
         timeline.push(repeatInstructions);
       }
       timeline.push({ ...setupStimulus, stimulus: '' });
-      timeline.push(practiceTransition);
+      timeline.push(practiceTransition(practiceTransitionPrompt));
       timeline.push(threeDimInstructBlock);
       timeline.push(polygonInstructBlock);
       timeline.push(stimulusBlock);

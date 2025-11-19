@@ -84,11 +84,9 @@ export const downexInstructions = downexData.map((data: any) => {
         stimulus: () => {
             const t = taskStore().translations;
             const stimImage = mediaAssets.images[camelize(data.image)];
-            console.log(stimImage);
             const itemText = data.audio.map((file: string) => t[camelize(file)]).join(' ');
             
-
-      return `<div class="lev-stimulus-container">
+            return `<div class="lev-stimulus-container">
                   <button
                       id="${replayButtonHtmlId}"
                       class="replay"
@@ -165,10 +163,13 @@ export const downexInstructions = downexData.map((data: any) => {
             animate(data.animations[0].animation, data.animations[0].item);
           }
 
-          PageAudioHandler.playAudio(mediaAssets.audio[camelize(data.audio[1])], secondAudioConfig);
+          const animationDuration = 2000; 
+
+          setTimeout(() => {
+            PageAudioHandler.playAudio(mediaAssets.audio[camelize(data.audio[1])], secondAudioConfig);
+          }, animationDuration);
         }  
       }
-
       
       // play the first audio
       PageAudioHandler.playAudio(mediaAssets.audio[camelize(data.audio[0])], firstAudioConfig);
