@@ -9,6 +9,8 @@ import { readyToPlay, reverseOrderPrompt, reverseOrderInstructions, defaultInstr
 import { taskStore } from '../../taskStore';
 import { mediaAssets } from '../..';
 
+let forwardBlockSkipped = false;
+
 const generatePracticeTrialTimeline = (reverse: boolean, tryAgainText: string, repetitions: number) => {
   const basicBlock = [
     getCorsiBlocks({ mode: 'display', isPractice: true, reverse }),
@@ -61,7 +63,13 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
   const forwardTrial = {
     timeline: [getCorsiBlocks({ mode: 'display' }), getCorsiBlocks({ mode: 'input' })],
     conditional_function: () => {
-      return taskStore().numIncorrect < taskStore().maxIncorrect;
+      const result = taskStore().numIncorrect < taskStore().maxIncorrect;
+      if (!(result || forwardBlockSkipped)) {
+        forwardBlockSkipped = true;
+        taskStore('numIncorrect', 0);
+      }
+
+      return result;
     },
   };
 
@@ -74,7 +82,13 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
   const forwardTrialResetSeq = {
     timeline: [getCorsiBlocks({ mode: 'display' }), getCorsiBlocks({ mode: 'input', resetSeq: true })],
     conditional_function: () => {
-      return taskStore().numIncorrect < taskStore().maxIncorrect;
+      const result = taskStore().numIncorrect < taskStore().maxIncorrect;
+      if (!(result || forwardBlockSkipped)) {
+        forwardBlockSkipped = true;
+        taskStore('numIncorrect', 0);
+      }
+
+      return result;
     },
   };
 
@@ -95,11 +109,11 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
     },
   }
 
-  const downexFeedbackIncorrect = (seqlength: number) => {
+  const downexFeedbackIncorrect = (seqlength: number, prompt: string) => {
     return {
       timeline: [
         getCorsiBlocks(
-          { mode: 'input', isPractice: true, customSeqLength: seqlength, animation: 'pulse', prompt: 'memoryGameFeedbackIncorrectDownex' }
+          { mode: 'input', isPractice: true, customSeqLength: seqlength, animation: 'pulse', prompt }
         ),
       ], 
       conditional_function: () => {
@@ -108,13 +122,20 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
     }
   }
 
-  const downexPracticeTrial = (currentSeqlength: number, setNextSeqLength: number, displayPrompt: boolean, animation?: 'pulse' | 'cursor') => {
+  const downexPracticeTrial = (
+    reverse: boolean, 
+    currentSeqlength: number, 
+    setNextSeqLength: number, 
+    displayPrompt: boolean, 
+    preventAutoFinish = false,
+    animation?: 'pulse' | 'cursor',
+  ) => {
     return {
       timeline: [
-        getCorsiBlocks({ mode: 'display', isPractice: true, customSeqLength: currentSeqlength, displayPrompt }),
-        getCorsiBlocks({ mode: 'input', isPractice: true, customSeqLength: setNextSeqLength, animation}),
+        getCorsiBlocks({ reverse, mode: 'display', isPractice: true, customSeqLength: currentSeqlength, displayPrompt, preventAutoFinish }),
+        getCorsiBlocks({ reverse, mode: 'input', isPractice: true, customSeqLength: setNextSeqLength, animation }),
         downexFeedbackCorrect,
-        downexFeedbackIncorrect(setNextSeqLength),
+        downexFeedbackIncorrect(setNextSeqLength, reverse ? 'memoryGameInstruct11Downex' : 'memoryGameFeedbackIncorrectDownex'),
       ]
     }
   }
@@ -122,17 +143,25 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
   const downexInstructionsTimeline = {
     timeline: [
       downexInstructions[0],
-      downexInstructions[1],
-      downexPracticeTrial(1, 1, false, 'cursor'),
-      downexInstructions[2],
-      downexPracticeTrial(1, 2, false),
+      //downexInstructions[1],
+      downexPracticeTrial(false, 1, 1, true, true, 'cursor'),
+      //downexInstructions[2],
+      downexPracticeTrial(false, 1, 2, true, true, 'cursor'),
       downexInstructions[3],
-      downexPracticeTrial(2, 2, true, 'cursor'),
-      downexPracticeTrial(2, 2, true),
-      downexPracticeTrial(2, 2, true),
+      downexPracticeTrial(false,2, 2, true, false, 'cursor'),
+      downexPracticeTrial(false, 2, 2, true),
+      downexPracticeTrial(false, 2, 2, true),
       downexInstructions[4],
       downexInstructions[5],
       downexInstructions[6],
+    ]
+  }
+
+  const downexCorsiBlocksPracticeReverse = {
+    timeline: [
+      downexPracticeTrial(true,2, 2, true, false, 'cursor'),
+      downexPracticeTrial(true, 2, 2, true),
+      downexPracticeTrial(true, 2, 2, true),
     ]
   }
 
@@ -152,9 +181,8 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
     corsiBlocksStimulus,
     forwardTrialResetSeq,
     reverseOrderInstructions,
-    reverseOrderPrompt,
-    corsiBlocksPracticeReverse,
-    getSecondRoundPracticeTrials(true, 'memoryGameBackwardTryAgain'),
+    heavyInstructions ? downexCorsiBlocksPracticeReverse : 
+    [reverseOrderPrompt, corsiBlocksPracticeReverse, getSecondRoundPracticeTrials(true, 'memoryGameBackwardTryAgain')],
     readyToPlay,
     corsiBlocksReverse,
     taskFinished(),

@@ -7,7 +7,7 @@ import { taskStore } from '../../../taskStore';
 const instructionData = [
   // downex instructions
   {
-    prompt: "memoryGameInstruct1Downex", 
+    prompt: "memoryGameInstruct1", 
     image: 'catAvatar',
     buttonText: 'continueButtonText',
   },
@@ -153,10 +153,6 @@ const instructions = instructionData.map((data) => {
         audioButtonPresses: PageAudioHandler.replayPresses,
         assessment_stage: 'instructions',
       });
-
-      if (data.prompt === 'memoryGameBackwardPrompt') {
-        taskStore('numIncorrect', 0);
-      }
     },
   };
 });

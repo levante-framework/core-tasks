@@ -17,6 +17,7 @@ type CorsiBlocksArgs = {
   animation?: 'pulse' | 'cursor';
   displayPrompt?: boolean; // whether to show the prompt
   prompt?: string; // a custom audio cue/text prompt for the trial
+  preventAutoFinish?: boolean; // if true, prevents the trial from auto-finishing when sequence completes
 };
 
 const x = 20;
@@ -28,7 +29,19 @@ let generatedSequence: number[] | null;
 let selectedCoordinates: [number, number][] = [];
 let numCorrect = 0;
 
-// edit this list to change the audio cues/prompts for downex practice trials
+// store the finish trial function here (we have to override it later to prevent auto-finish on display trials)
+const originalFinishTrial = jsPsych.finishTrial;
+
+// function to finish display trials manually
+const finishDisplayTrial = () => {
+  if (originalFinishTrial) {
+    originalFinishTrial();
+    
+    jsPsych.finishTrial = originalFinishTrial; // restore original function
+  }
+};
+
+// edit this list to change the audio cues/prompts for downex practice trials (in reverse order)
 const downexPracticeAudioCues = [
   'memoryGameInstruct9Downex',
   'memoryGameInstruct7Downex',
@@ -37,7 +50,9 @@ const downexPracticeAudioCues = [
   'memoryGameInstruct8Downex',
   'memoryGameInstruct7Downex',
   'memoryGameInstruct5Downex',
+  "memoryGameInstruct4Downex",
   'memoryGameInstruct3Downex',
+  'memoryGameInstruct2Downex',
 ]
 
 // play audio cue
@@ -45,6 +60,8 @@ export function setUpAudio(
   contentWrapper: HTMLDivElement,
   prompt: HTMLParagraphElement,
   cue: string,
+  mode?: 'display' | 'input',
+  preventAutoFinish: boolean = false,
 ) {
   // add replay button
   const replayButton = document.createElement('button');
@@ -66,6 +83,11 @@ export function setUpAudio(
         const pageStateHandler = new PageStateHandler(cue, true);
         setupReplayAudio(pageStateHandler);
       }
+      
+      // if this is a display trial with preventAutoFinish, finish it after audio ends
+      if (mode === 'display' && preventAutoFinish) {
+        finishDisplayTrial();
+      }
     },
   };
 
@@ -82,6 +104,7 @@ export function getCorsiBlocks(
     animation,
     displayPrompt = true,
     prompt,
+    preventAutoFinish = false,
   }: CorsiBlocksArgs
 ) {
   return {
@@ -127,7 +150,14 @@ export function getCorsiBlocks(
       isPracticeTrial: isPractice,
       trialMode: mode,
     },
-    on_load: () => doOnLoad(mode, isPractice, reverse, animation, displayPrompt, prompt),
+    on_load: () => {
+      if (preventAutoFinish && mode === 'display') {
+        // override finishTrial to prevent auto-finish
+        jsPsych.finishTrial = function() {};
+      }
+      
+      doOnLoad(mode, isPractice, reverse, animation, displayPrompt, prompt, preventAutoFinish);
+    },
     on_finish: (data: any) => {
       PageAudioHandler.stopAndDisconnectNode();
 
@@ -204,8 +234,6 @@ export function getCorsiBlocks(
           generatedSequence = newSequence;
         }
 
-        
-
         if (!isPractice) {
           timeoutIDs.forEach((id) => clearTimeout(id));
           timeoutIDs = [];
@@ -231,6 +259,7 @@ function doOnLoad(
     animation?: 'pulse' | 'cursor',
     displayPrompt: boolean = true,
     prompt?: string,
+    preventAutoFinish: boolean = false,
   ) {
   const container = document.getElementById('jspsych-corsi-stimulus') as HTMLDivElement;
   container.id = '';
@@ -371,8 +400,12 @@ function doOnLoad(
     promptContainer.classList.add('lev-row-container', 'instruction');
     const promptElement = document.createElement('p');
 
-    const inputAudioPrompt = reverse ? 'memoryGameBackwardPrompt' : 'memoryGameInput';
-    const defaultCue = mode === 'display' ? 'memoryGameDisplay' : inputAudioPrompt;
+    const inputAudioPrompt = reverse ? 
+      taskStore().heavyInstructions ? 'memoryGameInstruct11Downex' : 'memoryGameBackwardPrompt' : 
+      taskStore().heavyInstructions ? 'memoryGameInstruct8Downex' : 'memoryGameInput';
+    const displayAudioPrompt = taskStore().heavyInstructions ? 'memoryGameInstruct7Downex' : 'memoryGameDisplay';
+
+    const defaultCue = mode === 'display' ? displayAudioPrompt : inputAudioPrompt;
 
     let cue;
 
@@ -390,6 +423,6 @@ function doOnLoad(
     // changing the jspsych-content styles to avoid potential issues in the future
     contentWrapper.insertBefore(promptContainer, corsiBlocksHTML);
 
-    setUpAudio(contentWrapper, promptContainer, cue);
+    setUpAudio(contentWrapper, promptContainer, cue, mode, preventAutoFinish);
   }
 }
