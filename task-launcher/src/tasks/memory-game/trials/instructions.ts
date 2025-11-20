@@ -12,14 +12,6 @@ const instructionData = [
     buttonText: 'continueButtonText',
   },
   {
-    prompt: "memoryGameInstruct2Downex", 
-    image: 'catAvatar',
-  },
-  {
-    prompt: "memoryGameInstruct4Downex", 
-    image: 'catAvatar',
-  },
-  {
     prompt: "memoryGameInstruct6Downex", 
     image: 'catAvatar',
     buttonText: 'continueButtonText',
@@ -161,5 +153,5 @@ export const reverseOrderPrompt = instructions.pop();
 export const reverseOrderInstructions = instructions.pop();
 export const readyToPlay = instructions.pop();
 
-export const defaultInstructions = instructions.slice(7,9)
-export const downexInstructions = instructions.slice(0,7)
+export const defaultInstructions = instructions.slice(5,9)
+export const downexInstructions = instructions.slice(0,5)

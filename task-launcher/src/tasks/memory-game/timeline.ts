@@ -9,8 +9,6 @@ import { readyToPlay, reverseOrderPrompt, reverseOrderInstructions, defaultInstr
 import { taskStore } from '../../taskStore';
 import { mediaAssets } from '../..';
 
-let forwardBlockSkipped = false;
-
 const generatePracticeTrialTimeline = (reverse: boolean, tryAgainText: string, repetitions: number) => {
   const basicBlock = [
     getCorsiBlocks({ mode: 'display', isPractice: true, reverse }),
@@ -63,13 +61,7 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
   const forwardTrial = {
     timeline: [getCorsiBlocks({ mode: 'display' }), getCorsiBlocks({ mode: 'input' })],
     conditional_function: () => {
-      const result = taskStore().numIncorrect < taskStore().maxIncorrect;
-      if (!(result || forwardBlockSkipped)) {
-        forwardBlockSkipped = true;
-        taskStore('numIncorrect', 0);
-      }
-
-      return result;
+      return taskStore().numIncorrect < taskStore().maxIncorrect;
     },
   };
 
@@ -83,11 +75,9 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
     timeline: [getCorsiBlocks({ mode: 'display' }), getCorsiBlocks({ mode: 'input', resetSeq: true })],
     conditional_function: () => {
       const result = taskStore().numIncorrect < taskStore().maxIncorrect;
-      if (!(result || forwardBlockSkipped)) {
-        forwardBlockSkipped = true;
-        taskStore('numIncorrect', 0);
-      }
-
+    
+      taskStore('numIncorrect', 0); // reset to 0 here so that reverse block isn't skipped
+      
       return result;
     },
   };
@@ -143,17 +133,15 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
   const downexInstructionsTimeline = {
     timeline: [
       downexInstructions[0],
-      //downexInstructions[1],
       downexPracticeTrial(false, 1, 1, true, true, 'cursor'),
-      //downexInstructions[2],
-      downexPracticeTrial(false, 1, 2, true, true, 'cursor'),
-      downexInstructions[3],
+      downexPracticeTrial(false, 1, 2, true, true),
+      downexInstructions[1],
       downexPracticeTrial(false,2, 2, true, false, 'cursor'),
       downexPracticeTrial(false, 2, 2, true),
       downexPracticeTrial(false, 2, 2, true),
+      downexInstructions[2],
+      downexInstructions[3],
       downexInstructions[4],
-      downexInstructions[5],
-      downexInstructions[6],
     ]
   }
 
