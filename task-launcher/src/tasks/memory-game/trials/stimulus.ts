@@ -96,7 +96,7 @@ export function getCorsiBlocks(
       }
 
       if (mode === 'input' && reverse) {
-        return generatedSequence.reverse();
+        return [...generatedSequence].reverse(); // Create a copy before reversing
       } else {
         return generatedSequence;
       }
@@ -261,7 +261,7 @@ function doOnLoad(
 
   let inputSequence: number[] | null;
   if (mode === 'input' && generatedSequence) {
-    inputSequence = reverse ? generatedSequence.reverse() : generatedSequence;
+    inputSequence = reverse ? [...generatedSequence].reverse() : generatedSequence; // Create a copy before reversing
   }
 
   // Track the number of blocks clicked for animation functionality
