@@ -1,6 +1,6 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
-import { PageStateHandler, PageAudioHandler, replayButtonSvg, setupReplayAudio, camelize, addPracticeButtonListeners, matrixDragAnimation, triggerAnimation } from '../../shared/helpers';
+import { PageStateHandler, PageAudioHandler, replayButtonSvg, setupReplayAudio, camelize, addPracticeButtonListeners, matrixDragAnimation, popAnimation } from '../../shared/helpers';
 import { jsPsych } from '../../taskSetup';
 import { taskStore } from '../../../taskStore';
 
@@ -196,7 +196,7 @@ export const downexInstructions1 = {
             const configWithCallback = {
               ...audioConfig,
               onEnded: () => {
-                itemsToAnimate = triggerAnimation(itemsToAnimate, `pulse 2s 0s ${repetitions}`) as any;
+                itemsToAnimate = popAnimation(itemsToAnimate, `pulse 2s 0s ${repetitions}`) as any;
                 setTimeout(() => resolve(), 3000);
               }
             };
