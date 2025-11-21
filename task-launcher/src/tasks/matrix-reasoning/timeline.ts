@@ -82,7 +82,6 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
   let currPreloadBatch = 0;
 
   const initialMedia = getLeftoverAssets(batchedMediaAssets, mediaAssets);
-  console.log('initialMedia', initialMedia);
   const initialPreload = createPreloadTrials(runCat ? mediaAssets : initialMedia).default;
 
   const timeline = [
@@ -206,6 +205,5 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
 
   timeline.push(taskFinished());
   timeline.push(exitFullscreen);
-  console.log('timeline', timeline);
   return { jsPsych, timeline };
 }

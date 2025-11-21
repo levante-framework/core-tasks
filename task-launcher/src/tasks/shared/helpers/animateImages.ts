@@ -1,3 +1,5 @@
+import { mediaAssets } from "../../..";
+
 export function popAnimation(itemsToAnimate: any, animation: string) {
     const item = itemsToAnimate.pop();
     
@@ -26,7 +28,7 @@ export function triggerAnimation(item: any, animation: string) {
 
 
 // drags the target element to fill in the missing space in the stimulus image
-export function matrixDragAnimation(stimImage: HTMLElement, target: HTMLElement, offSetX: number = 0, offSetY: number = 0) {
+export function matrixDragAnimation(stimImage: HTMLElement, target: HTMLElement, offSetX: number = 0, offSetY: number = 0, blackOutImage = false) {
     // Calculate the center of stimImage
     const rect = stimImage.getBoundingClientRect();
     const targetPositionX = rect.left + (rect.width * offSetX);
@@ -62,6 +64,10 @@ export function matrixDragAnimation(stimImage: HTMLElement, target: HTMLElement,
 
       if (progress < 1) {
         requestAnimationFrame(animate);
+      } else if (blackOutImage) {
+        // replace the target image with a black background to give the illusion that the bunny fits perfectly for mental rotation
+        (stimImage.children[0] as HTMLImageElement).src = mediaAssets.images.blackBackground;
+        target.style.zIndex = '10';
       }
     };
 

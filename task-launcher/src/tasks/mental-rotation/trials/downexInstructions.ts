@@ -20,7 +20,7 @@ const downexData = [
         image: 'Rp-000-gray',
         animations: [
             {
-                item: ['stim-image'],
+                item: 'stim-image',
                 animation: 'pulse',
             }
         ], 
@@ -38,11 +38,11 @@ const downexData = [
         image: 'Rp-000-gray',
         animations: [
             {
-                item: ['distractor'],
+                item: 'distractor',
                 animation: 'pulse',
             },
             {
-                item: ['distractor'],
+                item: 'distractor',
                 animation: 'drag',
             }
         ], 
@@ -60,11 +60,11 @@ const downexData = [
         image: 'Rp-000-gray',
         animations: [
             {
-                item: ['target'],
+                item: 'target',
                 animation: 'pulse',
             },
             {
-                item: ['target'],
+                item: 'target',
                 animation: 'drag',
             }
         ], 
@@ -154,7 +154,6 @@ export const downexInstructions = downexData.map((data: any) => {
       };
 
       function triggerNextEvent() {
-        console.log('triggerNextEvent', data.eventOrder);
         if (data.eventOrder.length === 0) {
           enableOkBtn();
           return;
@@ -165,7 +164,6 @@ export const downexInstructions = downexData.map((data: any) => {
           PageAudioHandler.playAudio(mediaAssets.audio[camelize(data.audio.shift())], audioConfig);
         } else if (event === 'animation') {
           const animationObject = data.animations.shift();
-          console.log('animationObject', animationObject);
           animate(animationObject.animation, animationObject.item);
           setTimeout(() => {
             triggerNextEvent();
