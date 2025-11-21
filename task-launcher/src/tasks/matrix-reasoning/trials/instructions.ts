@@ -191,16 +191,16 @@ export const downexInstructions1 = {
   
       for (const [index, audioFile] of trialAudio.slice(0, -1).entries()) {
         const audioUri = mediaAssets.audio[camelize(audioFile)] || mediaAssets.audio.nullAudio;
-        const repetitions = index === 2 ? 1 : 2;
+        const delay = index === 2 ? 2 : 0;
 
         await new Promise<void>((resolve) => {
             const configWithCallback = {
               ...audioConfig,
               onEnded: () => {
-                itemsToAnimate = triggerAnimation(itemsToAnimate, `pulse 2s 0s ${repetitions}`) as any;
-                setTimeout(() => resolve(), 3000);
+                setTimeout(() => resolve(), 2000);
               }
             };
+            itemsToAnimate = triggerAnimation(itemsToAnimate, `pulse 2s ${delay}s 2`) as any;
             PageAudioHandler.playAudio(audioUri, configWithCallback);
         });
       }
