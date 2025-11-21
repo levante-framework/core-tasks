@@ -82,7 +82,6 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
   let currPreloadBatch = 0;
 
   const initialMedia = getLeftoverAssets(batchedMediaAssets, mediaAssets);
-  console.log('initialMedia', initialMedia);
   const initialPreload = createPreloadTrials(runCat ? mediaAssets : initialMedia).default;
 
   const timeline = [
@@ -119,12 +118,15 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
     },
   };
 
-  const downexBlock = {
-    timeline: [
-      { ...setupDownex, stimulus: '' },
-      downexStimulus(layoutConfigMap),
-      ifRealTrialResponse
-    ]
+  const downexBlock = (animate: boolean) => {
+    return {
+      timeline: [
+        { ...setupDownex, stimulus: '' },
+        practiceTransition,
+        downexStimulus(layoutConfigMap, animate),
+        ifRealTrialResponse
+      ]
+    }
   }
 
   const repeatInstructions = {
@@ -178,10 +180,13 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
     timeline.push(unnormedBlock);
   } else {
     const numOfDownexTrials = taskStore().totalDownexTrials;
+    const stopAnimateIndex = 5; // stop animation after 5 trials
 
     if (heavyInstructions) {
       for (let i = 0; i < numOfDownexTrials; i++) {
-        timeline.push(downexBlock);
+        const animate = i < stopAnimateIndex;
+
+        timeline.push(downexBlock(animate));
       }
 
       timeline.push(downexInstructions2);
@@ -206,6 +211,5 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
 
   timeline.push(taskFinished());
   timeline.push(exitFullscreen);
-  console.log('timeline', timeline);
   return { jsPsych, timeline };
 }

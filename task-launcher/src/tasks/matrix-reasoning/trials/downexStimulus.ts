@@ -10,7 +10,7 @@ let practiceResponses = []
 let startTime: number;
 let currentTrialId: string; // used to prevent audio from overlapping between trials
 
-export const downexStimulus = (layoutConfigMap: Record<string, LayoutConfigType>) => {
+export const downexStimulus = (layoutConfigMap: Record<string, LayoutConfigType>, animate: boolean) => {
     return {
         type: jsPsychHtmlMultiResponse,
         data: () => {
@@ -149,7 +149,7 @@ export const downexStimulus = (layoutConfigMap: Record<string, LayoutConfigType>
                         const configWithCallback = {
                           ...audioConfig,
                           onEnded: () => {
-                            if (!(camelize(audioFile) === 'sdsYourTurn')) {
+                            if (!(camelize(audioFile) === 'sdsYourTurn') && animate) {
                                 itemsToAnimate = triggerAnimation(itemsToAnimate, 'pulse 2s 0s') as any;
                                 setTimeout(() => resolve(), 2000);
                             } else {
