@@ -63,20 +63,6 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
   };
 
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
-
-  // modify prompts if downex
-  if (heavyInstructions) {
-    corpus.forEach((trial) => {
-      trial.audioFile = trial.audioFile + '-downex';
-    });
-
-    const newCorpus = {
-      practice: taskStore().corpora.practice,
-      stimulus: corpus,
-    };
-    taskStore('corpora', newCorpus);
-  }
-
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {};
 

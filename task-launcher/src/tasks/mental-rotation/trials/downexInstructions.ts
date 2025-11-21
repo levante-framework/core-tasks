@@ -20,10 +20,11 @@ const downexData = [
         image: 'Rp-000-gray',
         animations: [
             {
-                item: ['target', 'distractor'],
+                item: ['stim-image'],
                 animation: 'pulse',
             }
-        ]
+        ], 
+        eventOrder: ['audio', 'animation', 'audio']
     }, 
     {
         audio: [
@@ -41,10 +42,11 @@ const downexData = [
                 animation: 'pulse',
             },
             {
-                item: ['stim-image'],
+                item: ['distractor'],
                 animation: 'drag',
             }
-        ]
+        ], 
+        eventOrder: ['audio', 'animation', 'animation', 'audio']
     },
     {
         audio: [
@@ -62,10 +64,11 @@ const downexData = [
                 animation: 'pulse',
             },
             {
-                item: ['stim-image'],
+                item: ['target'],
                 animation: 'drag',
             }
-        ]
+        ], 
+        eventOrder: ['audio', 'animation', 'animation', 'audio']
     }
 ]
 
@@ -140,44 +143,38 @@ export const downexInstructions = downexData.map((data: any) => {
       const pageStateHandler = new PageStateHandler(trialAudio, true);
       setupReplayAudio(pageStateHandler);
 
-      const secondAudioConfig: AudioConfigType = {
-        restrictRepetition: {
-          enabled: false,
-          maxRepetitions: 1,
-        },
-        onEnded: () => {
-          enableOkBtn();
-        }
-      }
-
-      const firstAudioConfig: AudioConfigType = {
+      const audioConfig: AudioConfigType = {
         restrictRepetition: {
           enabled: false,
           maxRepetitions: 2,
         },
         onEnded: () => {
-          // trigger the second animation (or the only animation)
-          if (data.animations.length > 1) {
-            animate(data.animations[1].animation, data.animations[1].item, data.animations[0].item);
-          } else {
-            animate(data.animations[0].animation, data.animations[0].item);
-          }
+          triggerNextEvent();
+        }
+      };
 
-          const animationDuration = 2000; 
+      function triggerNextEvent() {
+        console.log('triggerNextEvent', data.eventOrder);
+        if (data.eventOrder.length === 0) {
+          enableOkBtn();
+          return;
+        }
 
+        const event = data.eventOrder.shift();
+        if (event === 'audio') {
+          PageAudioHandler.playAudio(mediaAssets.audio[camelize(data.audio.shift())], audioConfig);
+        } else if (event === 'animation') {
+          const animationObject = data.animations.shift();
+          console.log('animationObject', animationObject);
+          animate(animationObject.animation, animationObject.item);
           setTimeout(() => {
-            PageAudioHandler.playAudio(mediaAssets.audio[camelize(data.audio[1])], secondAudioConfig);
-          }, animationDuration);
-        }  
+            triggerNextEvent();
+          }, 2000);
+        }
       }
-      
-      // play the first audio
-      PageAudioHandler.playAudio(mediaAssets.audio[camelize(data.audio[0])], firstAudioConfig);
 
-      // if there are two animations, start the first animation while the first audio is playing
-      if (data.animations.length > 1) {
-        animate(data.animations[0].animation, data.animations[0].item);
-      }
+      triggerNextEvent();
+
     }, 
     on_finish: () => {
       PageAudioHandler.stopAndDisconnectNode();

@@ -29,7 +29,6 @@ export function triggerAnimation(item: any, animation: string) {
 export function matrixDragAnimation(stimImage: HTMLElement, target: HTMLElement, offSetX: number = 0, offSetY: number = 0) {
     // Calculate the center of stimImage
     const rect = stimImage.getBoundingClientRect();
-    console.log('rect', rect.left, rect.top);
     const targetPositionX = rect.left + (rect.width * offSetX);
     const targetPositionY = rect.top + (rect.height * offSetY);
 
