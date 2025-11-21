@@ -171,7 +171,7 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
       heavyPractice.forEach((trial) => {
         timeline.push(trial);
       });
-      timeline.push({ ...practiceTransition, conditional_function: () => true });
+      timeline.push({ ...practiceTransition(), conditional_function: () => true });
     } else {
       currentBlockInstructionPractice.forEach((trial) => {
         timeline.push(ipBlock(trial));

@@ -319,7 +319,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
       }
 
       // practice transition screen
-      timeline.push(practiceTransition);
+      timeline.push(practiceTransition());
 
       // push in random items at start of first block (after practice trials)
       if (i === 1) {
@@ -357,7 +357,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
     for (let i = 0; i < numOfTrials; i++) {
       timeline.push(setupBlock);
       timeline.push(repeatSliderPracticeBlock());
-      timeline.push(practiceTransition);
+      timeline.push(practiceTransition());
       timeline.push(interBlockGap);
       timeline.push(stimulusBlock());
     }
