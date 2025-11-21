@@ -28,7 +28,27 @@ export async function setupReplayAudio(pageStateHandler: PageStateHandler) {
     async function replayAudio() {
       PageAudioHandler.replayPresses++;
       pageStateHandler.disableReplayBtn();
-      PageAudioHandler.playAudio(pageStateHandler.audioUri, audioConfig);
+      if (typeof pageStateHandler.audioUri === 'string') {
+        PageAudioHandler.playAudio(pageStateHandler.audioUri, audioConfig);
+      } else { // multiple audio files
+        for (let i = 0; i < pageStateHandler.audioUri.length; i++) {
+          const audioUri = pageStateHandler.audioUri[i];
+          const isLastAudio = i === pageStateHandler.audioUri.length - 1;
+          
+          await new Promise<void>((resolve) => {
+            const configWithCallback = {
+              ...audioConfig,
+              onEnded: () => {
+                if (isLastAudio) { // replay button only enabled after the last audio has played
+                  audioConfig.onEnded?.();
+                }
+                resolve();
+              }
+            };
+            PageAudioHandler.playAudio(audioUri, configWithCallback);
+          });
+        }
+      }
     }
 
     pageStateHandler.replayBtn.addEventListener('click', replayAudio);

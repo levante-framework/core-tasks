@@ -305,11 +305,18 @@ export const slider = (layoutConfigMap: Record<string, LayoutConfigType>, trial?
       responseRow.appendChild(buttonContainer);
       wrapper.appendChild(responseRow);
 
-      setUpAudio(stim.audioFile);
+      if (typeof stim.audioFile === 'string') {
+        setUpAudio(stim.audioFile);
+      } else {
+        throw new Error('Multiple audio files are not supported in this trial type');
+      }
 
       if (isPractice) {
         let feedbackHandler;
-        feedbackHandler = addPracticeButtonListeners(stim, isTouchScreen, layoutConfigMap?.[stim.itemId]);
+        const answer = stim.answer.toString();
+        const choices = layoutConfigMap?.[stim.itemId].response.values;
+        
+        feedbackHandler = addPracticeButtonListeners(answer, isTouchScreen, choices);
 
         if (feedbackHandler !== undefined) {
           keyboardFeedbackHandler = feedbackHandler;

@@ -59,17 +59,17 @@ export const practiceTransition = {
     if (taskStore().runCat) {
       return true;
     }
-
+  
     // only run this if coming out a practice phase into a test phase
     const runTrial: boolean =
       taskStore().nextStimulus.trialType !== 'instructions' &&
       taskStore().nextStimulus.assessmentStage !== 'practice_response' &&
       !taskStore().testPhase;
-
+  
     if (runTrial) {
       taskStore('testPhase', true);
     }
-
+  
     return runTrial;
   },
 };

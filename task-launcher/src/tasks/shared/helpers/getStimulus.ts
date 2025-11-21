@@ -20,11 +20,21 @@ export const getStimulus = (corpusType: string, blockNumber?: number) => {
     : (itemSuggestion = cat.findNextItem(corpus[corpusType]));
 
   const stimAudio = itemSuggestion.nextStimulus.audioFile;
-  if (stimAudio && !mediaAssets.audio[camelize(stimAudio)]) {
-    console.warn('Trial skipped. Audio file not found:', stimAudio);
-    taskStore('skipCurrentTrial', true);
-    // ends the setup timeline
-    jsPsych.endCurrentTimeline();
+  if (typeof stimAudio === 'string') {
+    if (stimAudio && !mediaAssets.audio[camelize(stimAudio)]) {
+      console.warn('Trial skipped. Audio file not found:', stimAudio);
+      taskStore('skipCurrentTrial', true);
+      // ends the setup timeline
+      jsPsych.endCurrentTimeline();
+    }
+  } else {
+    const audioAssets = stimAudio.map((audio: string) => camelize(audio));
+    if (audioAssets.some((audioAsset: string) => !mediaAssets.audio[audioAsset])) {
+      console.warn('Trial skipped. Audio file(s) not found:', audioAssets);
+      taskStore('skipCurrentTrial', true);
+      // ends the setup timeline
+      jsPsych.endCurrentTimeline();
+    }
   }
 
   // end task if there is not enough time to display next stimulus
