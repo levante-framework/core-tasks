@@ -99,11 +99,11 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
     },
   }
 
-  const downexFeedbackIncorrect = (seqlength: number, prompt: string) => {
+  const downexFeedbackIncorrect = (reverse: boolean, seqlength: number, prompt: string) => {
     return {
       timeline: [
         getCorsiBlocks(
-          { mode: 'input', isPractice: true, customSeqLength: seqlength, animation: 'pulse', prompt }
+          { reverse,mode: 'input', isPractice: true, customSeqLength: seqlength, animation: 'pulse', prompt }
         ),
       ], 
       conditional_function: () => {
@@ -125,7 +125,7 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
         getCorsiBlocks({ reverse, mode: 'display', isPractice: true, customSeqLength: currentSeqlength, displayPrompt, preventAutoFinish }),
         getCorsiBlocks({ reverse, mode: 'input', isPractice: true, customSeqLength: setNextSeqLength, animation }),
         downexFeedbackCorrect,
-        downexFeedbackIncorrect(setNextSeqLength, reverse ? 'memoryGameInstruct11Downex' : 'memoryGameFeedbackIncorrectDownex'),
+        downexFeedbackIncorrect(reverse, setNextSeqLength, reverse ? 'memoryGameInstruct11Downex' : 'memoryGameFeedbackIncorrectDownex'),
       ]
     }
   }
@@ -147,9 +147,17 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
 
   const downexCorsiBlocksPracticeReverse = {
     timeline: [
-      downexPracticeTrial(true,2, 2, true, false, 'cursor'),
+      downexPracticeTrial(true, 2, 2, true, false, 'cursor'),
       downexPracticeTrial(true, 2, 2, true),
       downexPracticeTrial(true, 2, 2, true),
+    ]
+  }
+
+  const defaultCorsiBlocksPracticeReverse = {
+    timeline: [
+      reverseOrderPrompt, 
+      corsiBlocksPracticeReverse, 
+      getSecondRoundPracticeTrials(true, 'memoryGameBackwardTryAgain')
     ]
   }
 
@@ -169,8 +177,7 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
     corsiBlocksStimulus,
     forwardTrialResetSeq,
     reverseOrderInstructions,
-    heavyInstructions ? downexCorsiBlocksPracticeReverse : 
-    [reverseOrderPrompt, corsiBlocksPracticeReverse, getSecondRoundPracticeTrials(true, 'memoryGameBackwardTryAgain')],
+    heavyInstructions ? downexCorsiBlocksPracticeReverse : defaultCorsiBlocksPracticeReverse,
     readyToPlay,
     corsiBlocksReverse,
     taskFinished(),
