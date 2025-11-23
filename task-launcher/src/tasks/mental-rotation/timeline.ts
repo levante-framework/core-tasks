@@ -148,7 +148,8 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
     conditional_function: () => {
       if (
         taskStore().nextStimulus.trialType === 'polygon' &&
-        !playedPolygonInstructions
+        !playedPolygonInstructions &&
+        heavyInstructions
       ) {
         playedPolygonInstructions = true;
         return true;
@@ -163,7 +164,9 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
     currPreloadBatch++;
   }
 
-  const practiceTransitionPrompt = heavyInstructions ? 'mentalRotationInstruct5Downex' : 'generalYourTurn';
+  function getPracticeTransitionPrompt() {
+    return heavyInstructions && taskStore().nextStimulus.trialType === '2D' ? 'mentalRotationInstruct5Downex' : 'generalYourTurn';
+  }
 
   if (runCat) {
     // seperate out corpus to get cat/non-cat blocks
@@ -176,7 +179,7 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
     });
 
     // push in practice transition
-    timeline.push(practiceTransition(practiceTransitionPrompt));
+    timeline.push(practiceTransition(getPracticeTransitionPrompt));
 
     // push in starting block
     corpora.start.forEach((trial: StimulusType) => {
@@ -215,7 +218,7 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
         timeline.push(repeatInstructions);
       }
       timeline.push({ ...setupStimulus, stimulus: '' });
-      timeline.push(practiceTransition(practiceTransitionPrompt));
+      timeline.push(practiceTransition(getPracticeTransitionPrompt));
       timeline.push(threeDimInstructBlock);
       timeline.push(polygonInstructBlock);
       timeline.push(stimulusBlock);

@@ -5,7 +5,7 @@ import { taskStore } from '../../../taskStore';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 
-export const practiceTransition = (prompt?: string) => {
+export const practiceTransition = (getPrompt?: () => string) => {
   return {
     timeline: [
       {
@@ -18,7 +18,12 @@ export const practiceTransition = (prompt?: string) => {
         stimulus: () => {
           const imageSrc = mediaAssets.images['rocket@2x'];
           const t = taskStore().translations;
-          const textKey = prompt || 'generalYourTurn';
+          let textKey = 'generalYourTurn';
+
+          if (getPrompt) {
+            textKey = getPrompt();
+          }
+
           const promptText = t[camelize(textKey)];
 
           return `<div class="lev-stimulus-container">
@@ -48,7 +53,10 @@ export const practiceTransition = (prompt?: string) => {
         keyboard_choices: 'NO_KEYS',
         post_trial_gap: 350,
         on_load: () => {
-          const audioKey = prompt || 'generalYourTurn';
+          let audioKey = 'generalYourTurn';
+          if (getPrompt) {
+            audioKey = getPrompt();
+          }
           
           PageAudioHandler.playAudio(mediaAssets.audio[camelize(audioKey)]);
 

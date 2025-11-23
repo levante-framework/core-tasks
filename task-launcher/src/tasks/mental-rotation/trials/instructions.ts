@@ -213,7 +213,7 @@ export const polygonInstructions = {
   },
   stimulus: () => {
     const t = taskStore().translations;
-    const prompt = taskStore().heavyInstructions ? t.mentalRotationInstructPolygonDownex : t.mentalRotationInstructPolygon;
+    const prompt = t.mentalRotationInstructPolygonDownex;
     
     return `
       <div class="lev-stimulus-container">
@@ -237,7 +237,7 @@ export const polygonInstructions = {
   trial_ends_after_audio: false,
   response_allowed_while_playing: false,
   on_load: () => {
-    const prompt = taskStore().heavyInstructions ? 'mentalRotationInstructPolygonDownex' : 'mentalRotationInstructPolygon';
+    const prompt = 'mentalRotationInstructPolygonDownex';
 
     PageAudioHandler.playAudio(mediaAssets.audio[prompt]);
     const pageStateHandler = new PageStateHandler(prompt, true);
