@@ -5,6 +5,33 @@ import { PageStateHandler, PageAudioHandler, replayButtonSvg, setupReplayAudio }
 import { taskStore } from '../../../taskStore';
 
 const instructionData = [
+  // downex instructions
+  {
+    prompt: "memoryGameInstruct1", 
+    image: 'catAvatar',
+    buttonText: 'continueButtonText',
+  },
+  {
+    prompt: "memoryGameInstruct6Downex", 
+    image: 'catAvatar',
+    buttonText: 'continueButtonText',
+  },
+  {
+    prompt: "memoryGameInstruct10Downex", 
+    image: 'catAvatar',
+    buttonText: 'continueButtonText',
+  },
+  {
+    prompt: "heartsAndFlowersEncourage2", 
+    image: 'rocket@2x',
+    buttonText: 'continueButtonText',
+  },
+  {
+    prompt: "heartsAndFlowersPlayTime", 
+    image: 'catAvatar',
+    buttonText: 'continueButtonText',
+  },
+  // older kid instructions
   {
     prompt: 'memoryGameInstruct1',
     image: 'catAvatar',
@@ -44,7 +71,7 @@ const instructionData = [
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 
-export const instructions = instructionData.map((data) => {
+const instructions = instructionData.map((data) => {
   return {
     type: jsPsychHtmlMultiResponse,
     stimulus: () => {
@@ -75,19 +102,34 @@ export const instructions = instructionData.map((data) => {
                     </div>`;
     },
     prompt_above_buttons: true,
-    button_choices: ['Next'],
+    button_choices: data.buttonText ? ['Next'] : [],
     button_html: () => {
       const t = taskStore().translations;
-      return [
-        `<button class="primary">
-                ${t[data.buttonText]}
-            </button>`,
-      ];
+
+      if (data.buttonText) {
+        return [
+          `<button class="primary">
+                  ${t[data.buttonText]}
+          </button>`,
+        ];
+      }
     },
     keyboard_choices: 'NO_KEYS',
     post_trial_gap: 500,
     on_load: () => {
-      PageAudioHandler.playAudio(mediaAssets.audio[data.prompt]);
+      const audioConfig: AudioConfigType = {
+        restrictRepetition: {
+          enabled: false,
+          maxRepetitions: 1,
+        },
+        onEnded: () => {
+          if (!data.buttonText) {
+            jsPsych.finishTrial();
+          }
+        },
+      };
+      
+      PageAudioHandler.playAudio(mediaAssets.audio[data.prompt], audioConfig);
       const pageStateHandler = new PageStateHandler(data.prompt, true);
       setupReplayAudio(pageStateHandler);
 
@@ -103,10 +145,6 @@ export const instructions = instructionData.map((data) => {
         audioButtonPresses: PageAudioHandler.replayPresses,
         assessment_stage: 'instructions',
       });
-
-      if (data.prompt === 'memoryGameBackwardPrompt') {
-        taskStore('numIncorrect', 0);
-      }
     },
   };
 });
@@ -114,3 +152,6 @@ export const instructions = instructionData.map((data) => {
 export const reverseOrderPrompt = instructions.pop();
 export const reverseOrderInstructions = instructions.pop();
 export const readyToPlay = instructions.pop();
+
+export const defaultInstructions = instructions.slice(5,9)
+export const downexInstructions = instructions.slice(0,5)
