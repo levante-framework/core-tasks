@@ -29,5 +29,6 @@ const fixationTrial = (corpusType?: string, blockNum?: number) => {
 
 export const setupPractice = fixationTrial('practice');
 export const setupStimulus = fixationTrial('stimulus');
+export const setupDownex = fixationTrial('downex');
 export const setupStimulusFromBlock = (blockNum: number) => fixationTrial('stimulus', blockNum);
 export const fixationOnly = fixationTrial();
