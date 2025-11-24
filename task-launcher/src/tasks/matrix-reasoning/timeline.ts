@@ -122,7 +122,7 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
     return {
       timeline: [
         { ...setupDownex, stimulus: '' },
-        practiceTransition,
+        practiceTransition(),
         downexStimulus(layoutConfigMap, animate),
         ifRealTrialResponse
       ]
