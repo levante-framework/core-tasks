@@ -101,7 +101,7 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
   const stimulusBlock = {
     timeline: [
       { ...setupStimulus, stimulus: '' },
-      practiceTransition,
+      practiceTransition(),
       afcStimulusTemplate(trialConfig),
       ifRealTrialResponse,
     ],
@@ -122,7 +122,7 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
     return {
       timeline: [
         { ...setupDownex, stimulus: '' },
-        practiceTransition,
+        practiceTransition(),
         downexStimulus(layoutConfigMap, animate),
         ifRealTrialResponse
       ]
@@ -153,7 +153,7 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
 
     // push in practice transition
     if (corpora.ipLight.filter((trial) => trial.assessmentStage === 'practice_response').length > 0) {
-      timeline.push(practiceTransition);
+      timeline.push(practiceTransition());
     }
 
     // push in starting block

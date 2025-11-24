@@ -3,7 +3,7 @@ import { mediaAssets } from '../../..';
 import { PageStateHandler, PageAudioHandler, replayButtonSvg, setupReplayAudio, camelize, addPracticeButtonListeners } from '../../shared/helpers';
 import { jsPsych } from '../../taskSetup';
 import { taskStore } from '../../../taskStore';
-import { matrixDragAnimation, triggerAnimation } from '../helpers/animateImages';
+import { matrixDragAnimation, popAnimation } from '../../shared/helpers';
 
 let startTime: number;
 
@@ -200,7 +200,7 @@ export const downexInstructions1 = {
                 setTimeout(() => resolve(), 2000);
               }
             };
-            itemsToAnimate = triggerAnimation(itemsToAnimate, `pulse 2s ${delay}s 2`) as any;
+            itemsToAnimate = popAnimation(itemsToAnimate, `pulse 2s ${delay}s 2`) as any;
             PageAudioHandler.playAudio(audioUri, configWithCallback);
         });
       }
@@ -209,7 +209,7 @@ export const downexInstructions1 = {
 
       // animate the target button to the center of stimImage
       if (stimImage && target) {
-        matrixDragAnimation(stimImage, target);
+        matrixDragAnimation(stimImage, target, 0.5, 0.5);
 
         const lastAudioConfig: AudioConfigType = {
           restrictRepetition: {

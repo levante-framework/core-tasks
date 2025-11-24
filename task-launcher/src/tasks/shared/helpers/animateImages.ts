@@ -1,10 +1,18 @@
-export function triggerAnimation(itemsToAnimate: any[], animation: string) {
+import { mediaAssets } from "../../..";
+
+export function popAnimation(itemsToAnimate: any, animation: string) {
     const item = itemsToAnimate.pop();
     
     if (!item) {
         return; // Exit early if no item to animate
     }
 
+    triggerAnimation(item, animation);
+
+    return itemsToAnimate;
+}
+
+export function triggerAnimation(item: any, animation: string) {
     if (item instanceof Array) {
         item.forEach((item) => {
             item.style.animation = 'none';
@@ -16,16 +24,15 @@ export function triggerAnimation(itemsToAnimate: any[], animation: string) {
         item.offsetHeight; // Force reflow
         item.style.animation = animation;
     }
-
-    return itemsToAnimate;
 }
 
+
 // drags the target element to fill in the missing space in the stimulus image
-export function matrixDragAnimation(stimImage: HTMLElement, target: HTMLElement) {
+export function matrixDragAnimation(stimImage: HTMLElement, target: HTMLElement, offSetX: number = 0, offSetY: number = 0, blackOutImage = false) {
     // Calculate the center of stimImage
     const rect = stimImage.getBoundingClientRect();
-    const targetPositionX = rect.left + (rect.width * 0.5);
-    const targetPositionY = rect.top + (rect.height * 0.5); 
+    const targetPositionX = rect.left + (rect.width * offSetX);
+    const targetPositionY = rect.top + (rect.height * offSetY);
 
     // Get current position of the target button
     const currentRect = target.getBoundingClientRect();
@@ -57,8 +64,13 @@ export function matrixDragAnimation(stimImage: HTMLElement, target: HTMLElement)
 
       if (progress < 1) {
         requestAnimationFrame(animate);
+      } else if (blackOutImage) {
+        // replace the target image with a black background to give the illusion that the bunny fits perfectly for mental rotation
+        (stimImage.children[0] as HTMLImageElement).src = mediaAssets.images.blackBackground;
+        target.style.zIndex = '10';
       }
     };
 
     requestAnimationFrame(animate);
 }
+

@@ -47,6 +47,12 @@ function handlePracticeButtonPress(
   const choice = choices[index];
   const isCorrectChoice = choice?.toString() === answer;
 
+  // custom incorrect prompts by task
+  const incorrectPromptKey = 
+  (taskStore().task === 'mental-rotation' && taskStore().heavyInstructions) ? 
+  'mentalRotationFeedbackIncorrectDownex' :
+  'feedbackTryAgain'
+
   if (isCorrectChoice) {
     btn.classList.add('success-shadow');
     setTimeout(
@@ -73,7 +79,7 @@ function handlePracticeButtonPress(
     taskStore('incorrectPracticeResponses', incorrectPracticeResponses);
 
     PageAudioHandler.stopAndDisconnectNode();
-    onIncorrect ? onIncorrect() : PageAudioHandler.playAudio(mediaAssets.audio.feedbackTryAgain);
+    onIncorrect ? onIncorrect() : PageAudioHandler.playAudio(mediaAssets.audio[incorrectPromptKey]);
   }
 }
 

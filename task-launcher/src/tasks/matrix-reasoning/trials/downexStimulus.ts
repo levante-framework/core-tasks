@@ -1,9 +1,8 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { taskStore } from '../../../taskStore';
 import { mediaAssets } from '../../..';
-import { addPracticeButtonListeners, camelize, PageAudioHandler, PageStateHandler, replayButtonSvg, setupReplayAudio } from '../../shared/helpers';
+import { addPracticeButtonListeners, camelize, PageAudioHandler, PageStateHandler, replayButtonSvg, setupReplayAudio, popAnimation } from '../../shared/helpers';
 import { jsPsych } from '../../taskSetup';
-import { triggerAnimation } from '../helpers/animateImages';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 let practiceResponses = []
@@ -150,7 +149,7 @@ export const downexStimulus = (layoutConfigMap: Record<string, LayoutConfigType>
                           ...audioConfig,
                           onEnded: () => {
                             if (!(camelize(audioFile) === 'sdsYourTurn') && animate) {
-                                itemsToAnimate = triggerAnimation(itemsToAnimate, 'pulse 2s 0s') as any;
+                                itemsToAnimate = popAnimation(itemsToAnimate, 'pulse 2s 0s') as any;
                                 setTimeout(() => resolve(), 2000);
                             } else {
                                 resolve();
