@@ -118,12 +118,15 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
     },
   };
 
-  const downexBlock = {
-    timeline: [
-      { ...setupDownex, stimulus: '' },
-      downexStimulus(layoutConfigMap),
-      ifRealTrialResponse
-    ]
+  const downexBlock = (animate: boolean) => {
+    return {
+      timeline: [
+        { ...setupDownex, stimulus: '' },
+        practiceTransition,
+        downexStimulus(layoutConfigMap, animate),
+        ifRealTrialResponse
+      ]
+    }
   }
 
   const repeatInstructions = {
@@ -177,10 +180,13 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
     timeline.push(unnormedBlock);
   } else {
     const numOfDownexTrials = taskStore().totalDownexTrials;
+    const stopAnimateIndex = 5; // stop animation after 5 trials
 
     if (heavyInstructions) {
       for (let i = 0; i < numOfDownexTrials; i++) {
-        timeline.push(downexBlock);
+        const animate = i < stopAnimateIndex;
+
+        timeline.push(downexBlock(animate));
       }
 
       timeline.push(downexInstructions2);
