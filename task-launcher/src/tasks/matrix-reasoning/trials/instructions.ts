@@ -170,8 +170,13 @@ export const downexInstructions1 = {
 
       // set up replay audio
       const trialAudio = downexData1.audio;
-      const pageStateHandler = new PageStateHandler(trialAudio, true);
-      setupReplayAudio(pageStateHandler);
+
+      const replayButton = document.getElementById(replayButtonHtmlId);
+      if (replayButton) {
+        replayButton.addEventListener('click', () => {
+          animateAndPlayAudio();
+        });
+      }
 
       const stimContainer = document.getElementById('stim-container');
       const stimImage = stimContainer?.querySelector('img');
@@ -179,50 +184,80 @@ export const downexInstructions1 = {
       const buttons = Array.from(buttonContainer?.querySelectorAll('button') || []); 
       const target = document.getElementById('target');
 
-      // set up animations
-      let itemsToAnimate = [target, buttons, stimImage];
+      async function animateAndPlayAudio() {
+        // replay button should be disabled while animations are happening
+        if (replayButton) {
+          (replayButton as HTMLButtonElement).disabled = true;
+        }
 
-      const audioConfig: AudioConfigType = {
-          restrictRepetition: {
-            enabled: false,
-            maxRepetitions: 2,
+        // reset target button to its original position
+        if (target) {
+          target.style.position = '';
+          target.style.left = '';
+          target.style.top = '';
+          target.style.zIndex = '';
+        }
+
+        // disable ok button
+        const okButton: HTMLButtonElement | null = document.querySelector('.primary');
+        if (okButton) {
+          okButton.disabled = true;
+        }
+
+        // set up animations
+        let itemsToAnimate = [target, buttons, stimImage];
+
+        const audioConfig: AudioConfigType = {
+            restrictRepetition: {
+              enabled: false,
+              maxRepetitions: 2,
+            }
+          }
+    
+        for (const [index, audioFile] of trialAudio.slice(0, -1).entries()) {
+          const audioUri = mediaAssets.audio[camelize(audioFile)] || mediaAssets.audio.nullAudio;
+          const delay = index === 2 ? 2 : 0;
+
+          await new Promise<void>((resolve) => {
+              const configWithCallback = {
+                ...audioConfig,
+                onEnded: () => {
+                  setTimeout(() => resolve(), 2000);
+                }
+              };
+              itemsToAnimate = popAnimation(itemsToAnimate, `pulse 2s ${delay}s 2`) as any;
+              PageAudioHandler.playAudio(audioUri, configWithCallback);
+          });
+        }
+
+        const lastAudioUri = mediaAssets.audio[camelize(trialAudio[trialAudio.length - 1])] || mediaAssets.audio.nullAudio;
+
+        // animate the target button to the center of stimImage
+        if (stimImage && target) {
+          matrixDragAnimation(stimImage, target, 0.5, 0.5);
+
+          const lastAudioConfig: AudioConfigType = {
+            restrictRepetition: {
+              enabled: false,
+              maxRepetitions: 1,
+            },
+            onEnded: () => {
+              enableOkBtn();
+              if (replayButton) {
+                (replayButton as HTMLButtonElement).disabled = false;
+              }
+            }
+          };
+
+          setTimeout(() => PageAudioHandler.playAudio(lastAudioUri, lastAudioConfig), 3000);
+        } else {
+          if (replayButton) {
+            (replayButton as HTMLButtonElement).disabled = false;
           }
         }
-  
-      for (const [index, audioFile] of trialAudio.slice(0, -1).entries()) {
-        const audioUri = mediaAssets.audio[camelize(audioFile)] || mediaAssets.audio.nullAudio;
-        const delay = index === 2 ? 2 : 0;
-
-        await new Promise<void>((resolve) => {
-            const configWithCallback = {
-              ...audioConfig,
-              onEnded: () => {
-                setTimeout(() => resolve(), 2000);
-              }
-            };
-            itemsToAnimate = popAnimation(itemsToAnimate, `pulse 2s ${delay}s 2`) as any;
-            PageAudioHandler.playAudio(audioUri, configWithCallback);
-        });
       }
 
-      const lastAudioUri = mediaAssets.audio[camelize(trialAudio[trialAudio.length - 1])] || mediaAssets.audio.nullAudio;
-
-      // animate the target button to the center of stimImage
-      if (stimImage && target) {
-        matrixDragAnimation(stimImage, target, 0.5, 0.5);
-
-        const lastAudioConfig: AudioConfigType = {
-          restrictRepetition: {
-            enabled: false,
-            maxRepetitions: 1,
-          },
-          onEnded: () => {
-            enableOkBtn();
-          }
-        };
-
-        setTimeout(() => PageAudioHandler.playAudio(lastAudioUri, lastAudioConfig), 3000);
-      }
+      animateAndPlayAudio();
     },
     on_finish: () => {
       PageAudioHandler.stopAndDisconnectNode();
@@ -277,8 +312,13 @@ export const downexInstructions2 = {
 
       // set up replay audio
       const trialAudio = downexData2.audio;
-      const pageStateHandler = new PageStateHandler(trialAudio, true);
-      setupReplayAudio(pageStateHandler);
+
+      const replayButton = document.getElementById(replayButtonHtmlId);
+      if (replayButton) {
+        replayButton.addEventListener('click', () => {
+          animateAndPlayAudio();
+        });
+      }
 
       const stimContainer = document.getElementById('stim-container');
 
@@ -310,39 +350,52 @@ export const downexInstructions2 = {
 
       addPracticeButtonListeners(downexData2.choices[2], false, downexData2.choices, onCorrect, onIncorrect);
 
-      const audioConfig: AudioConfigType = {
-        restrictRepetition: {
-          enabled: false,
-          maxRepetitions: 2,
+      async function animateAndPlayAudio() {
+        // replay button should be disabled while animations are happening
+        if (replayButton) {
+          (replayButton as HTMLButtonElement).disabled = true;
+        }
+
+        const audioConfig: AudioConfigType = {
+          restrictRepetition: {
+            enabled: false,
+            maxRepetitions: 2,
+          }
+        }
+
+        // switch the stim image after each audio file to highlight each set of items
+        for (const [index, audioFile] of trialAudio.entries()) {
+          const audioUri = mediaAssets.audio[camelize(audioFile)] || mediaAssets.audio.nullAudio;
+          const image = index >= 3 ? downexData2.image[0] : downexData2.image[index + 1]; // keep the image after the third audio file
+
+          await new Promise<void>((resolve) => {
+              const configWithCallback = {
+                ...audioConfig,
+                onEnded: () => {
+                  if (index === 3) {
+                    buttons.forEach(button => button.style.animation = 'pulse 2s 0s 3');
+                  }
+
+                  if (stimContainer) {
+                    stimContainer.innerHTML = 
+                      `<img 
+                          src=${mediaAssets.images[image]} 
+                          alt="Image not loading: ${mediaAssets.images[image]}. Please continue the task." 
+                        />`;
+                  }
+                  setTimeout(() => resolve(), 2000);
+                }
+              };
+              PageAudioHandler.playAudio(audioUri, configWithCallback);
+            });
+        }
+
+        if (replayButton) {
+          (replayButton as HTMLButtonElement).disabled = false;
         }
       }
 
-      // switch the stim image after each audio file to highlight each set of items
-      for (const [index, audioFile] of trialAudio.entries()) {
-        const audioUri = mediaAssets.audio[camelize(audioFile)] || mediaAssets.audio.nullAudio;
-        const image = index >= 3 ? downexData2.image[0] : downexData2.image[index + 1]; // keep the image after the third audio file
-
-        await new Promise<void>((resolve) => {
-            const configWithCallback = {
-              ...audioConfig,
-              onEnded: () => {
-                if (index === 3) {
-                  buttons.forEach(button => button.style.animation = 'pulse 2s 0s 3');
-                }
-
-                if (stimContainer) {
-                  stimContainer.innerHTML = 
-                    `<img 
-                        src=${mediaAssets.images[image]} 
-                        alt="Image not loading: ${mediaAssets.images[image]}. Please continue the task." 
-                      />`;
-                }
-                setTimeout(() => resolve(), 2000);
-              }
-            };
-            PageAudioHandler.playAudio(audioUri, configWithCallback);
-          });
-    }
+      animateAndPlayAudio();
     },
     response_ends_trial: false,
     on_finish: () => {
