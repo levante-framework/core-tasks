@@ -62,7 +62,7 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
     },
   };
 
-  const corpus: StimulusType[] = taskStore().corpora.stimulus;
+  let corpus: StimulusType[] = taskStore().corpora.stimulus;
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {};
 
@@ -131,8 +131,30 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
     },
   };
 
+  // put polygon and 3D practice in their own blocks so they run at the right time
+  const polygonPractice: StimulusType[] = corpus.filter((trial) => 
+    trial.trialType === 'polygon' && trial.assessmentStage === 'practice_response'
+  );
+
+  const threeDimPractice: StimulusType[] = corpus.filter((trial) => 
+    trial.trialType === '3D' && trial.assessmentStage === 'practice_response'
+  );
+
+  corpus = corpus.filter((trial) => 
+    !(polygonPractice.includes(trial)) && !(threeDimPractice.includes(trial))
+  );
+
+  taskStore('corpora', {
+    practice: taskStore().corpora.practice,
+    stimulus: corpus,
+  });
+
   const threeDimInstructBlock = {
-    timeline: [threeDimInstructions],
+    timeline: [
+      threeDimInstructions, 
+      ...threeDimPractice.map((trial) => afcStimulusTemplate(trialConfig, trial)), 
+      { ...fixationOnly, stimulus: '' },
+    ],
     conditional_function: () => {
       if (taskStore().nextStimulus.trialType === '3D' && !playedThreeDimInstructions) {
         playedThreeDimInstructions = true;
@@ -144,7 +166,10 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
   };
 
   const polygonInstructBlock = {
-    timeline: [polygonInstructions],
+    timeline: [polygonInstructions, 
+      ...polygonPractice.map((trial) => afcStimulusTemplate(trialConfig, trial)), 
+      { ...fixationOnly, stimulus: '' },
+    ],
     conditional_function: () => {
       if (
         taskStore().nextStimulus.trialType === 'polygon' &&
@@ -179,7 +204,7 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
     });
 
     // push in practice transition
-    timeline.push(practiceTransition(getPracticeTransitionPrompt));
+    timeline.push(practiceTransition());
 
     // push in starting block
     corpora.start.forEach((trial: StimulusType) => {
@@ -191,9 +216,6 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
     const numOfCatTrials = corpora.cat.length;
     taskStore('totalTestTrials', numOfCatTrials);
     for (let i = 0; i < numOfCatTrials; i++) {
-      if (i === 2) {
-        timeline.push(repeatInstructions);
-      }
       timeline.push({ ...setupStimulus, stimulus: '' });
       timeline.push(threeDimInstructBlock);
       timeline.push(polygonInstructBlock);

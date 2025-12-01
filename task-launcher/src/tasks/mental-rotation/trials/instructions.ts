@@ -198,6 +198,8 @@ export const threeDimInstructions = {
     setupReplayAudio(pageStateHandler);
   },
   on_finish: () => {
+    PageAudioHandler.stopAndDisconnectNode();
+
     jsPsych.data.addDataToLastTrial({
       audioButtonPresses: PageAudioHandler.replayPresses,
     });
@@ -244,6 +246,8 @@ export const polygonInstructions = {
     setupReplayAudio(pageStateHandler);
   },
   on_finish: () => {
+    PageAudioHandler.stopAndDisconnectNode();
+
     jsPsych.data.addDataToLastTrial({
       audioButtonPresses: PageAudioHandler.replayPresses,
     });
