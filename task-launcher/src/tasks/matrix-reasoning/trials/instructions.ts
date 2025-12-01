@@ -366,26 +366,27 @@ export const downexInstructions2 = {
         // switch the stim image after each audio file to highlight each set of items
         for (const [index, audioFile] of trialAudio.entries()) {
           const audioUri = mediaAssets.audio[camelize(audioFile)] || mediaAssets.audio.nullAudio;
-          const image = index >= 3 ? downexData2.image[0] : downexData2.image[index + 1]; // keep the image after the third audio file
+          const image = index > 3 ? downexData2.image[0] : downexData2.image[index]; // keep the image after the fourth audio file
 
           await new Promise<void>((resolve) => {
               const configWithCallback = {
                 ...audioConfig,
                 onEnded: () => {
-                  if (index === 3) {
-                    buttons.forEach(button => button.style.animation = 'pulse 2s 0s 3');
-                  }
-
-                  if (stimContainer) {
-                    stimContainer.innerHTML = 
-                      `<img 
-                          src=${mediaAssets.images[image]} 
-                          alt="Image not loading: ${mediaAssets.images[image]}. Please continue the task." 
-                        />`;
-                  }
-                  setTimeout(() => resolve(), 2000);
+                  setTimeout(() => resolve());
                 }
               };
+              if (index === 4) {
+                buttons.forEach(button => button.style.animation = 'pulse 2s 0s 3');
+              }
+     
+              if (stimContainer) {
+                stimContainer.innerHTML = 
+                  `<img 
+                      src=${mediaAssets.images[image]} 
+                      alt="Image not loading: ${mediaAssets.images[image]}. Please continue the task." 
+                    />`;
+              }
+
               PageAudioHandler.playAudio(audioUri, configWithCallback);
             });
         }
