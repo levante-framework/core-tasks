@@ -111,10 +111,13 @@ export const downexStimulus = (layoutConfigMap: Record<string, LayoutConfigType>
             taskStore('incorrectPracticeResponses', incorrectPracticeResponses);
 
             function onCorrect() {
+                PageAudioHandler.stopAndDisconnectNode();
                 PageAudioHandler.playAudio(mediaAssets.audio.feedbackRightOne);
             }
 
             function onIncorrect() {
+                PageAudioHandler.stopAndDisconnectNode();
+                
                 const rspImages = buttons.map(button => button.querySelector('img'));
                 const targetImageIdx = rspImages.findIndex(image => image?.alt === stim.answer);
 
