@@ -8,6 +8,7 @@ import { disableStagger } from '../../shared/helpers/staggerButtons';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 let startTime: number;
+let selectedButtonIndex: number;
 
 export const surveyItem = (
     {
@@ -52,6 +53,7 @@ export const surveyItem = (
         </div>
       </div>`;
     },
+    response_ends_trial: false,
     prompt_above_buttons: promptAboveButtons,
     button_choices: () => {
         const stim = taskStore().nextStimulus;
@@ -77,7 +79,8 @@ export const surveyItem = (
         const playAudioOnLoad = itemLayoutConfig?.playAudioOnLoad;
         const pageStateHandler = new PageStateHandler(stim.audioFile, playAudioOnLoad);
         const buttonClass = itemLayoutConfig.classOverrides.buttonClassList[0]; 
-        const responseButtonChildren = document.querySelectorAll(`button.${buttonClass}`)
+        const responseButtonChildren = document.querySelectorAll(`button.${buttonClass}`);
+        const buttonContainer = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
 
         // set up replay button
         setupReplayAudio(pageStateHandler);
@@ -111,9 +114,37 @@ export const surveyItem = (
         const progress = taskStore().testTrialCount / taskStore().totalTrials * 100;
         updateProgressBar(progress);
 
+        responseButtonChildren.forEach((button) => {
+          (button as HTMLButtonElement).addEventListener('click', (event: MouseEvent) => {
+            const okButton = document.querySelector('.primary');
+
+            if (!okButton) {
+              const okButton = document.createElement('button');
+              okButton.className = 'primary';
+              okButton.textContent = 'OK';
+              okButton.style.marginTop = '16px';
+              okButton.addEventListener('click', () => {
+                jsPsych.finishTrial();
+              });
+
+              buttonContainer.parentNode?.insertBefore(okButton, buttonContainer.nextSibling);
+            }
+
+            responseButtonChildren.forEach((button) => {
+              setTimeout(() => {
+                (button as HTMLButtonElement).disabled = false;
+              }, 10);
+              (button as HTMLButtonElement).classList.remove('success-shadow');
+            });
+            
+            (event.target as HTMLButtonElement).classList.add('success-shadow');
+
+            selectedButtonIndex = Array.prototype.indexOf.call(responseButtonChildren, event.target as HTMLButtonElement);
+          });
+        });
+
         if (itemLayoutConfig.isStaggered) {
           // Handle the staggered buttons
-          const buttonContainer = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
           let audioKeys: string[] = [
             'child-survey-response1', 
             'child-survey-response2', 
@@ -178,7 +209,7 @@ export const surveyItem = (
           item: stim.item,
           distractors: stim.distractors,
           corpusTrialType: stim.trialType,
-          responseLocation: responseIndex,
+          responseLocation: selectedButtonIndex,
           itemUid: stim.itemUid,
           audioFile: stim.audioFile,
           corpus: corpus,
@@ -204,6 +235,5 @@ export const surveyItem = (
         taskStore.transact('testTrialCount', (oldVal: number) => oldVal + 1);
       }
     },
-    response_ends_trial: true
   };
 };
