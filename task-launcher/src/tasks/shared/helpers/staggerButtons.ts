@@ -2,6 +2,7 @@ import { PageStateHandler } from './PageStateHandler';
 import { PageAudioHandler } from './audioHandler';
 import { mediaAssets } from '../../..';
 import { camelize } from './camelize';
+import { taskStore } from '../../../taskStore';
 
 let staggerEnabled = true;
 
@@ -9,6 +10,7 @@ export const handleStaggeredButtons = async (
   pageState: PageStateHandler,
   buttonContainer: HTMLDivElement,
   audioList: string[],
+  currentTrialId?: string, 
   disableButtons = true,
 ) => {
   const parentResponseDiv = buttonContainer;
@@ -44,6 +46,7 @@ export const handleStaggeredButtons = async (
         audioList,
         pageState,
         resolve, // Pass the resolve function to be called when animation completes
+        currentTrialId,
       );
     }, intialDelay);
   });
@@ -55,7 +58,14 @@ const showStaggeredBtnAndPlaySound = (
   audioList: string[],
   pageState: PageStateHandler,
   onComplete?: () => void,
+  currentTrialId?: string,
 ) => {
+  // check if the trial id has changed - we don't want overlap between trials
+  const actualTrialId = taskStore().nextStimulus?.itemId;
+  if (!staggerEnabled || (currentTrialId && currentTrialId !== actualTrialId)) {
+    return;
+  }
+  
   const btn = btnList[index];
   btn.classList.remove('lev-staggered-grayscale', 'lev-staggered-opacity');
 
@@ -71,7 +81,12 @@ const showStaggeredBtnAndPlaySound = (
       maxRepetitions: 2,
     },
     onEnded: () => {
-      if (index + 1 === btnList?.length || !staggerEnabled) { // don't recurse if stagger is disabled
+      const actualTrialId = taskStore().nextStimulus?.itemId;
+      if (!staggerEnabled || (currentTrialId && currentTrialId !== actualTrialId)) {
+        return;
+      }
+
+      if (index + 1 === btnList?.length) { 
         // Last Element
         for (const jsResponseEl of btnList) {
           jsResponseEl.classList.remove('lev-staggered-disabled');
@@ -80,7 +95,7 @@ const showStaggeredBtnAndPlaySound = (
         onComplete?.();
       } else {
         //recurse
-        showStaggeredBtnAndPlaySound(index + 1, btnList, audioList, pageState, onComplete);
+        showStaggeredBtnAndPlaySound(index + 1, btnList, audioList, pageState, onComplete, currentTrialId);
       }
     },
   };

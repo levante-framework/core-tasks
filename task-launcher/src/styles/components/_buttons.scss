@@ -181,6 +181,13 @@ button {
       filter: gray; /* IE6-9 */
       -webkit-filter: grayscale(100%); /* Chrome 19+, Safari 6+, Safari 6+ iOS */
       opacity: 0.6;
+      cursor: not-allowed;
+    }
+    // override the active state for disabled buttons
+    &:disabled:active {
+      background: $bg-button-primary;
+      border-color: $bg-accent_secondary;
+      box-shadow: $button-default-box-shadow rgba($bg-accent_secondary, 0.5) inset;
     }
   }
 

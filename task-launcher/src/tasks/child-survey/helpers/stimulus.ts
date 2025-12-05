@@ -120,8 +120,14 @@ export const surveyItem = (
             'child-survey-response3', 
             'child-survey-response4',
           ];
-        
-          await handleStaggeredButtons(pageStateHandler, buttonContainer, audioKeys, stim.assessmentStage === 'instructions');
+
+          await handleStaggeredButtons(
+            pageStateHandler, 
+            buttonContainer, 
+            audioKeys, 
+            stim.itemId, 
+            stim.assessmentStage === 'instructions'
+          );
 
           // disable demo buttons
           if (stim.assessmentStage === 'instructions') {
