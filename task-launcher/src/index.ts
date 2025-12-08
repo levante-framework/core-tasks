@@ -74,7 +74,7 @@ export class TaskLauncher {
     if (taskName !== 'hearts-and-flowers' && taskName !== 'memory-game' && taskName !== 'intro') {
       await getCorpus(config, isDev);
     }
-    
+
     await getAssetsPerTask(isDev);
 
     const taskAudioAssetNames = [

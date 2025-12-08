@@ -12,13 +12,22 @@ export const validateLayoutConfig = (
     if (!stimulus.audioFile) {
       messages.push('Missing audioFile string');
     } else {
-      const audioAsset = camelize(stimulus.audioFile);
-      if (!mediaAssets.audio[audioAsset]) {
-        messages.push(`Missing audio asset: ${audioAsset}`);
-      }
-      if (layoutConfig.prompt.enabled && !translations[audioAsset]) {
-        // check if prompt with translation is present
-        messages.push(`Missing prompt for: ${audioAsset}`);
+      if (typeof stimulus.audioFile === 'string') {
+        const audioAsset = camelize(stimulus.audioFile);
+        if (!mediaAssets.audio[audioAsset]) {
+          messages.push(`Missing audio asset: ${audioAsset}`);
+        }
+        if (layoutConfig.prompt.enabled && !translations[audioAsset]) {
+          // check if prompt with translation is present
+          messages.push(`Missing prompt for: ${audioAsset}`);
+        }
+      } else {
+        const audioAssets = stimulus.audioFile.map((audio) => camelize(audio));
+        audioAssets.forEach((audioAsset) => {
+          if (!mediaAssets.audio[audioAsset]) {
+            messages.push(`Missing audio asset: ${audioAsset}`);
+          }
+        });
       }
     }
   }

@@ -1,6 +1,12 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
-import { replayButtonSvg, PageStateHandler, PageAudioHandler, setupReplayAudio, enableOkButton } from '../../shared/helpers';
+import {
+  replayButtonSvg,
+  PageStateHandler,
+  PageAudioHandler,
+  setupReplayAudio,
+  enableOkButton,
+} from '../../shared/helpers';
 import { jsPsych } from '../../taskSetup';
 import { taskStore } from '../../../taskStore';
 
@@ -161,10 +167,12 @@ export const threeDimInstructions = {
   },
   stimulus: () => {
     const t = taskStore().translations;
+    const prompt = taskStore().heavyInstructions ? t.mentalRotationInstruct3DDownex : t.mentalRotationInstruct3D;
+    
     return `
       <div class="lev-stimulus-container">
         <div class="lev-row-container instruction">
-          <p>${t.mentalRotationInstruct3D}</p>
+          <p>${prompt}</p>
         </div>
         <button id="${replayButtonHtmlId}" class="replay">
           ${replayButtonSvg}
@@ -183,11 +191,63 @@ export const threeDimInstructions = {
   trial_ends_after_audio: false,
   response_allowed_while_playing: false,
   on_load: () => {
-    PageAudioHandler.playAudio(mediaAssets.audio.mentalRotationInstruct3D);
-    const pageStateHandler = new PageStateHandler('mental-rotation-instruct-3D', true);
+    const prompt = taskStore().heavyInstructions ? 'mentalRotationInstruct3DDownex' : 'mentalRotationInstruct3D';
+
+    PageAudioHandler.playAudio(mediaAssets.audio[prompt]);
+    const pageStateHandler = new PageStateHandler(prompt, true);
     setupReplayAudio(pageStateHandler);
   },
   on_finish: () => {
+    PageAudioHandler.stopAndDisconnectNode();
+
+    jsPsych.data.addDataToLastTrial({
+      audioButtonPresses: PageAudioHandler.replayPresses,
+    });
+  },
+};
+
+export const polygonInstructions = {
+  type: jsPsychHtmlMultiResponse,
+  data: () => {
+    return {
+      assessment_stage: 'instructions',
+    };
+  },
+  stimulus: () => {
+    const t = taskStore().translations;
+    const prompt = t.mentalRotationInstructPolygonDownex;
+    
+    return `
+      <div class="lev-stimulus-container">
+        <div class="lev-row-container instruction">
+          <p>${prompt}</p>
+        </div>
+        <button id="${replayButtonHtmlId}" class="replay">
+          ${replayButtonSvg}
+        </button>
+      </div>
+    `;
+  },
+  prompt_above_buttons: true,
+  button_choices: ['Continue'],
+  post_trial_gap: 350,
+  button_html: () => {
+    const t = taskStore().translations;
+    return `<button class="primary">${t.continueButtonText}</button>`;
+  },
+  keyboard_choices: 'NO_KEYS',
+  trial_ends_after_audio: false,
+  response_allowed_while_playing: false,
+  on_load: () => {
+    const prompt = 'mentalRotationInstructPolygonDownex';
+
+    PageAudioHandler.playAudio(mediaAssets.audio[prompt]);
+    const pageStateHandler = new PageStateHandler(prompt, true);
+    setupReplayAudio(pageStateHandler);
+  },
+  on_finish: () => {
+    PageAudioHandler.stopAndDisconnectNode();
+
     jsPsych.data.addDataToLastTrial({
       audioButtonPresses: PageAudioHandler.replayPresses,
     });
