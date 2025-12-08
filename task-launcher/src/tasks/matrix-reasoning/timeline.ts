@@ -8,7 +8,7 @@ import {
   batchTrials,
   batchMediaAssets, 
 } from '../shared/helpers';
-import { downexInstructions1, downexInstructions2, instructions } from './trials/instructions';
+import { downexInstructions1, downexInstructions2, downexInstructions3, downexInstructions4, downexInstructions5, instructions } from './trials/instructions';
 import { downexStimulus } from './trials/downexStimulus';
 import { jsPsych, initializeCat, cat } from '../taskSetup';
 // trials
@@ -180,16 +180,23 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
     timeline.push(unnormedBlock);
   } else {
     const numOfDownexTrials = taskStore().totalDownexTrials;
-    const stopAnimateIndex = 5; // stop animation after 5 trials
+    const secondPhaseIndex = 5; // stop animation after 5 trials
 
     if (heavyInstructions) {
       for (let i = 0; i < numOfDownexTrials; i++) {
-        const animate = i < stopAnimateIndex;
+        const animate = i < secondPhaseIndex;
+
+        if (i === secondPhaseIndex) {
+          timeline.push(downexInstructions2);
+          timeline.push(downexInstructions3);
+          timeline.push(practiceTransition(undefined, true));
+        }
 
         timeline.push(downexBlock(animate));
       }
 
-      timeline.push(downexInstructions2);
+      timeline.push(downexInstructions4);
+      timeline.push(downexInstructions5);
     }
     
     const numOfTrials = taskStore().totalTrials;

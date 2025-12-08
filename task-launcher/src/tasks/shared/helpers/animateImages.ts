@@ -29,11 +29,6 @@ export function triggerAnimation(item: any, animation: string) {
 
 // drags the target element to fill in the missing space in the stimulus image
 export function matrixDragAnimation(stimImage: HTMLElement, target: HTMLElement, offSetX: number = 0, offSetY: number = 0, blackOutImage = false) {
-    // Calculate the center of stimImage
-    const rect = stimImage.getBoundingClientRect();
-    const targetPositionX = rect.left + (rect.width * offSetX);
-    const targetPositionY = rect.top + (rect.height * offSetY);
-
     // Get current position of the target button
     const currentRect = target.getBoundingClientRect();
     const startX = currentRect.left;
@@ -47,12 +42,26 @@ export function matrixDragAnimation(stimImage: HTMLElement, target: HTMLElement,
     const duration = 2000; 
     const startTime = performance.now();
 
+    // Function to update position based on stimImage
+    const updatePosition = () => {
+        const rect = stimImage.getBoundingClientRect();
+        const targetPositionX = rect.left + (rect.width * offSetX);
+        const targetPositionY = rect.top + (rect.height * offSetY);
+        target.style.left = `${targetPositionX}px`;
+        target.style.top = `${targetPositionY}px`;
+    };
+
     const animate = (currentTime: number) => {
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / duration, 1);
 
       // creates gradual easing effect to make the animation more natural
       const easeOut = 1 - Math.pow(1 - progress, 3);
+
+      // Calculate the center of stimImage
+      const rect = stimImage.getBoundingClientRect();
+      const targetPositionX = rect.left + (rect.width * offSetX);
+      const targetPositionY = rect.top + (rect.height * offSetY);
 
       // Calculate current position
       const currentX = startX + (targetPositionX - startX) * easeOut;
@@ -64,10 +73,16 @@ export function matrixDragAnimation(stimImage: HTMLElement, target: HTMLElement,
 
       if (progress < 1) {
         requestAnimationFrame(animate);
-      } else if (blackOutImage) {
-        // replace the target image with a black background to give the illusion that the bunny fits perfectly for mental rotation
-        (stimImage.children[0] as HTMLImageElement).src = mediaAssets.images.blackBackground;
-        target.style.zIndex = '10';
+      } else {
+        // Animation complete - set up resize listener
+        updatePosition(); // Ensure final position is correct
+        window.addEventListener('resize', updatePosition);
+        
+        if (blackOutImage) {
+          // replace the target image with a black background to give the illusion that the bunny fits perfectly for mental rotation
+          (stimImage.children[0] as HTMLImageElement).src = mediaAssets.images.blackBackground;
+          target.style.zIndex = '10';
+        }
       }
     };
 

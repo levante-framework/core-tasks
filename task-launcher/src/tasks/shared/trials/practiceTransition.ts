@@ -5,7 +5,7 @@ import { taskStore } from '../../../taskStore';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 
-export const practiceTransition = (getPrompt?: () => string) => {
+export const practiceTransition = (getPrompt?: () => string, forceRun = false) => {
   return {
     timeline: [
       {
@@ -69,7 +69,7 @@ export const practiceTransition = (getPrompt?: () => string) => {
       },
     ],
     conditional_function: () => {
-      if (taskStore().runCat) {
+      if (taskStore().runCat || forceRun) {
         return true;
       }
 

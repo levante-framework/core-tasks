@@ -40,6 +40,7 @@ export const downexStimulus = (layoutConfigMap: Record<string, LayoutConfigType>
                         <button
                             id="${replayButtonHtmlId}"
                             class="replay"
+                            disabled
                         >
                             ${replayButtonSvg}
                         </button>
@@ -83,10 +84,20 @@ export const downexStimulus = (layoutConfigMap: Record<string, LayoutConfigType>
             const stim = taskStore().nextStimulus;
             currentTrialId = stim.itemId;
 
-            // set up replay audio
+            // set up replay audio with animations
             const trialAudio = stim.audioFile;
-            const pageStateHandler = new PageStateHandler(trialAudio, true);
-            setupReplayAudio(pageStateHandler);
+
+            const replayButton = document.getElementById('replay-btn-revisited');
+            if (animate) {
+              if (replayButton) {
+                replayButton.addEventListener('click', () => {
+                  animateAndPlayAudio();
+                });
+              }
+            } else {
+              const pageStateHandler = new PageStateHandler(trialAudio, true);
+              setupReplayAudio(pageStateHandler);
+            }
 
             const stimContainer = document.querySelector('.lev-stim-content-x-2');
             const stimImage = stimContainer?.querySelector('img');
@@ -100,10 +111,13 @@ export const downexStimulus = (layoutConfigMap: Record<string, LayoutConfigType>
             taskStore('incorrectPracticeResponses', incorrectPracticeResponses);
 
             function onCorrect() {
+                PageAudioHandler.stopAndDisconnectNode();
                 PageAudioHandler.playAudio(mediaAssets.audio.feedbackRightOne);
             }
 
             function onIncorrect() {
+                PageAudioHandler.stopAndDisconnectNode();
+                
                 const rspImages = buttons.map(button => button.querySelector('img'));
                 const targetImageIdx = rspImages.findIndex(image => image?.alt === stim.answer);
 
@@ -120,46 +134,58 @@ export const downexStimulus = (layoutConfigMap: Record<string, LayoutConfigType>
 
             addPracticeButtonListeners(stim.answer.toString(), false, itemLayoutConfig.response.values, onCorrect, onIncorrect);
 
-            // set up animation
-            let itemsToAnimate = [buttons, stimImage];
-
-            const audioConfig: AudioConfigType = {
-                restrictRepetition: {
-                  enabled: false,
-                  maxRepetitions: 2,
-                }
+            async function animateAndPlayAudio() {
+              // replay button should be disabled while animations are happening
+              if (replayButton) {
+                (replayButton as HTMLButtonElement).disabled = true;
               }
 
-            if (typeof trialAudio === 'string') {
-                const audioUri = mediaAssets.audio[camelize(trialAudio)] || mediaAssets.audio.nullAudio;
-                PageAudioHandler.playAudio(audioUri);
-            } else {
-                let thisTrialId = stim.itemId;
+              // set up animation
+              let itemsToAnimate = [buttons, stimImage];
 
-                for (const audioFile of trialAudio) {
-                    const audioUri = mediaAssets.audio[camelize(audioFile)] || mediaAssets.audio.nullAudio;
-
-                    // make sure the trial has not changed since the loop started
-                    if (thisTrialId !== currentTrialId) {
-                        break;
-                    }
-
-                    await new Promise<void>((resolve) => {
-                        const configWithCallback = {
-                          ...audioConfig,
-                          onEnded: () => {
-                            if (!(camelize(audioFile) === 'sdsYourTurn') && animate) {
-                                itemsToAnimate = popAnimation(itemsToAnimate, 'pulse 2s 0s') as any;
-                                setTimeout(() => resolve(), 2000);
-                            } else {
-                                resolve();
-                            }
-                          }
-                        };
-                        PageAudioHandler.playAudio(audioUri, configWithCallback);
-                      });
+              const audioConfig: AudioConfigType = {
+                  restrictRepetition: {
+                    enabled: false,
+                    maxRepetitions: 2,
+                  }
                 }
+              
+              if (typeof trialAudio === 'string') {
+                  const audioUri = mediaAssets.audio[camelize(trialAudio)] || mediaAssets.audio.nullAudio;
+                  PageAudioHandler.playAudio(audioUri);
+              } else {
+                  let thisTrialId = stim.itemId;
+              
+                  for (const audioFile of trialAudio) {
+                      const audioUri = mediaAssets.audio[camelize(audioFile)] || mediaAssets.audio.nullAudio;
+                  
+                      // make sure the trial has not changed since the loop started
+                      if (thisTrialId !== currentTrialId) {
+                          break;
+                      }
+                    
+                      await new Promise<void>((resolve) => {
+                          const configWithCallback = {
+                            ...audioConfig,
+                            onEnded: () => {
+                              setTimeout(() => resolve(), 1000);
+                            }
+                          };
+                        
+                          if (animate && camelize(audioFile) !== 'sdsYourTurn') {
+                            itemsToAnimate = popAnimation(itemsToAnimate, 'pulse 2s 0s') as any;
+                          }
+                          PageAudioHandler.playAudio(audioUri, configWithCallback);
+                        });
+                  }
+              }
+
+              if (replayButton) {
+                (replayButton as HTMLButtonElement).disabled = false;
+              }
             }
+
+            animateAndPlayAudio();
         },
         on_finish: (data: any) => {
             PageAudioHandler.stopAndDisconnectNode();
