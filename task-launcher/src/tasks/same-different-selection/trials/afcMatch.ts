@@ -8,6 +8,8 @@ import {
   PageStateHandler,
   PageAudioHandler,
   camelize,
+  enableOkButton,
+  disableOkButton,
 } from '../../shared/helpers';
 import { finishExperiment } from '../../shared/trials';
 import { taskStore } from '../../../taskStore';
@@ -49,14 +51,7 @@ export const afcMatch = {
   },
   prompt: () => {
     const stimulus = taskStore().nextStimulus;
-    let prompt = camelize(stimulus.audioFile);
-    if (
-      taskStore().heavyInstructions &&
-      stimulus.assessmentStage !== 'practice_response' &&
-      stimulus.trialType !== 'instructions'
-    ) {
-      prompt += 'Heavy';
-    }
+    const prompt = camelize(stimulus.audioFile);
 
     const t = taskStore().translations;
     return `<div class="lev-stimulus-container">
@@ -94,15 +89,7 @@ export const afcMatch = {
     // can select multiple cards and deselect them
     startTime = performance.now();
     const stim = taskStore().nextStimulus;
-
-    let audioFile = stim.audioFile;
-    if (
-      taskStore().heavyInstructions &&
-      stim.assessmentStage !== 'practice_response' &&
-      stim.trialType !== 'instructions'
-    ) {
-      audioFile += '-heavy';
-    }
+    const audioFile = stim.audioFile;
 
     const audioConfig: AudioConfigType = {
       restrictRepetition: {
@@ -114,7 +101,20 @@ export const afcMatch = {
 
     const pageStateHandler = new PageStateHandler(audioFile, true);
     setupReplayAudio(pageStateHandler);
+
     const buttonContainer = document.getElementById('jspsych-audio-multi-response-btngroup') as HTMLDivElement;
+
+    // Add primary OK button under the other buttons
+    const okButton = document.createElement('button');
+    okButton.className = 'primary';
+    okButton.textContent = 'OK';
+    okButton.style.marginTop = '16px';
+    okButton.disabled = true;
+    okButton.addEventListener('click', () => {
+      jsPsych.finishTrial();
+    });
+    buttonContainer.parentNode?.insertBefore(okButton, buttonContainer.nextSibling);
+
     const responseBtns = Array.from(buttonContainer.children)
       .map((btnDiv) => btnDiv.firstChild as HTMLButtonElement)
       .filter((btn) => !!btn);
@@ -127,10 +127,12 @@ export const afcMatch = {
     }
     responseBtns.forEach((card, i) =>
       card.addEventListener('click', async (e) => {
-        const answer = (card?.firstChild as HTMLImageElement)?.alt;
+        const answer = ((card as HTMLButtonElement)?.firstChild as HTMLImageElement)?.alt;
+
         if (!card) {
           return;
         }
+    
         if (card.classList.contains(SELECT_CLASS_NAME)) {
           card.classList.remove(SELECT_CLASS_NAME);
           selectedCards.splice(selectedCards.indexOf(answer), 1);
@@ -139,13 +141,14 @@ export const afcMatch = {
           card.classList.add(SELECT_CLASS_NAME);
           selectedCards.push(answer);
           selectedCardIdxs.push(i);
-          // afcMatch trial types look like n-match / n-unique
-          const requiredSelections = stim.requiredSelections;
-
-          if (selectedCards.length === requiredSelections) {
-            setTimeout(() => jsPsych.finishTrial(), 500);
-          }
         }
+      
+        if (selectedCards.length === stim.requiredSelections) {
+          enableOkButton();
+        } else {
+          disableOkButton();
+        }
+
         setTimeout(() => enableBtns(responseBtns), 500);
       }),
     );

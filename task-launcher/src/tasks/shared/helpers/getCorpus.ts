@@ -50,15 +50,6 @@ type ParsedRowType = {
   downex?: string;
 };
 
-export const sdsPhaseCount = {
-  block1: 0,
-  block2: 0,
-  block3: 0,
-  block4: 0,
-  block5: 0,
-  block6: 0,
-};
-
 let totalTrials = 0;
 let totalDownexTrials = 0;
 
@@ -80,21 +71,11 @@ function containsLettersOrSlash(str: string) {
 
 const transformCSV = (
   csvInput: ParsedRowType[],
-  numOfPracticeTrials: number,
   sequentialStimulus: boolean,
   task: string,
 ) => {
   let currTrialTypeBlock = '';
   let currPracticeAmount = 0;
-
-  // Phase 1 is test-dimensions and something-same
-  // Phase 2 is match and unique - subphases are either matching or test-dimensions
-  let sdsBlock1Count = 0;
-  let sdsBlock2Count = 0;
-  let sdsBlock3Count = 0;
-  let sdsBlock4Count = 0;
-  let sdsBlock5Count = 0;
-  let sdsBlock6Count = 0;
 
   csvInput.forEach((row) => {
     // Leaving this here for quick testing of a certain type of trial
@@ -147,28 +128,6 @@ const transformCSV = (
 
     if (row.task === 'same-different-selection') {
       newRow.requiredSelections = parseInt(row.required_selections);
-      newRow.blockIndex = parseInt(row.block_index || '');
-      // all instructions are part of phase 1
-      if (newRow.blockIndex == 1) {
-        sdsBlock1Count += 1;
-      } else if (newRow.blockIndex == 2) {
-        sdsBlock2Count += 1;
-      } else if (newRow.blockIndex == 3) {
-        sdsBlock3Count += 1;
-      } else if (newRow.blockIndex == 4) {
-        sdsBlock4Count += 1;
-      } else if (newRow.blockIndex == 5) {
-        sdsBlock5Count += 1;
-      } else {
-        sdsBlock6Count += 1;
-      }
-
-      sdsPhaseCount.block1 = sdsBlock1Count;
-      sdsPhaseCount.block2 = sdsBlock2Count;
-      sdsPhaseCount.block3 = sdsBlock3Count;
-      sdsPhaseCount.block4 = sdsBlock4Count;
-      sdsPhaseCount.block5 = sdsBlock5Count;
-      sdsPhaseCount.block6 = sdsBlock6Count;
     }
 
     let currentTrialType = newRow.trialType;
@@ -179,32 +138,12 @@ const transformCSV = (
 
     if (newRow.downex) {
       // Add to downex corpus
-      if (newRow.assessmentStage === 'practice_response') {
-        if (currPracticeAmount < numOfPracticeTrials) {
-          // Only push in the specified amount of practice trials
-          currPracticeAmount += 1;
-          downexData.push(newRow);
-          totalDownexTrials += 1;
-        } // else skip extra practice
-      } else {
-        // instruction and stimulus
-        downexData.push(newRow);
-        totalDownexTrials += 1;
-      }
+      downexData.push(newRow);
+      totalDownexTrials += 1;
     } else {
       // Add to stimulus corpus
-      if (newRow.assessmentStage === 'practice_response') {
-        if (currPracticeAmount < numOfPracticeTrials) {
-          // Only push in the specified amount of practice trials
-          currPracticeAmount += 1;
-          stimulusData.push(newRow);
-          totalTrials += 1;
-        } // else skip extra practice
-      } else {
-        // instruction and stimulus
-        stimulusData.push(newRow);
-        totalTrials += 1;
-      }
+      stimulusData.push(newRow);
+      totalTrials += 1;
     }
   });
 
@@ -225,7 +164,7 @@ const transformCSV = (
 };
 
 export const getCorpus = async (config: Record<string, any>, isDev: boolean) => {
-  const { corpus, task, sequentialStimulus, numOfPracticeTrials } = config;
+  const { corpus, task, sequentialStimulus } = config;
 
   const bucketName = getBucketName(task, isDev, 'corpus');
 
@@ -238,7 +177,7 @@ export const getCorpus = async (config: Record<string, any>, isDev: boolean) => 
         header: true,
         skipEmptyLines: true,
         complete: function (results) {
-          transformCSV(results.data, numOfPracticeTrials, sequentialStimulus, task);
+          transformCSV(results.data, sequentialStimulus, task);
           resolve(results.data);
         },
         error: function (error) {

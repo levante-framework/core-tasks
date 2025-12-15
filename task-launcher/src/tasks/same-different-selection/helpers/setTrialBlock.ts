@@ -1,46 +1,50 @@
 import { taskStore } from '../../../taskStore';
 
+function compareTrialTypes(trialType1: string, trialType2: string) {
+  return (
+    trialType1 === trialType2 || 
+    (trialType1.includes('match') && trialType2.includes('match')) ||
+    (trialType1.includes('something-same') && trialType2.includes('something-same'))
+  );
+}
+
+function getBlockOperations(trialType: string) {
+  if (trialType.includes('match')) {
+    return 'updateMatching';
+  } else if (trialType.includes('something-same')) {
+    return 'updateSomethingSame';
+  } else {
+    return 'updateTestDimensions';
+  }
+}
+
 export function setTrialBlock(cat: boolean) {
   // create list of numbers of trials per block
   const blockCountList: number[] = [];
-  let testDimPhase2: boolean = false;
+  const blockOperations: string[] = [];
+  let currentTrialType = "test-dimensions";
+  let currentBlockCount = 0;
 
-  cat
-    ? taskStore().corpora.stimulus.forEach((block: StimulusType[]) => {
-        blockCountList.push(block.length);
-      })
-    : taskStore().corpora.stimulus.forEach((trial: StimulusType) => {
-        // if not running a CAT, trials are blocked by their type
-        let trialBlock: number;
-        switch (trial.trialType) {
-          case 'test-dimensions':
-            trialBlock = testDimPhase2 ? 3 : 0;
-            break;
-          case 'something-same-1':
-            testDimPhase2 = true;
-            trialBlock = 1;
-            break;
-          case 'something-same-2':
-            trialBlock = 1;
-            break;
-          case '2-match':
-            trialBlock = 2;
-            break;
-          case '3-match':
-            trialBlock = 4;
-            break;
-          case '4-match':
-            trialBlock = 5;
-            break;
-          default:
-            trialBlock = NaN;
-            break;
-        }
+  if (cat) {
+    taskStore().corpora.stimulus.forEach((block: StimulusType[]) => {
+      blockCountList.push(block.length);
+    });
+  } else {
+    taskStore().corpora.stimulus.forEach((trial: StimulusType) => {
+      if (!compareTrialTypes(trial.trialType, currentTrialType) && trial.trialType !== "instructions") {
+        blockCountList.push(currentBlockCount);
+        blockOperations.push(getBlockOperations(currentTrialType));
+        
+        currentTrialType = trial.trialType;
+        currentBlockCount = 0;
+      }
 
-        if (!Number.isNaN(trialBlock)) {
-          blockCountList[trialBlock] = (blockCountList[trialBlock] || 0) + 1;
-        }
-      });
+      currentBlockCount++;
+    });
 
-  return blockCountList;
+    blockCountList.push(currentBlockCount);
+    blockOperations.push(getBlockOperations(currentTrialType));
+  }
+
+  return {blockCountList, blockOperations};
 }

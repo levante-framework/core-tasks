@@ -35,7 +35,6 @@ const urlParams = new URLSearchParams(queryString);
 const taskName = urlParams.get('task') ?? 'egma-math';
 const corpus = urlParams.get('corpus');
 const buttonLayout = urlParams.get('buttonLayout');
-const numOfPracticeTrials = urlParams.get('practiceTrials');
 const numberOfTrials = urlParams.get('trials') === null ? null : parseInt(urlParams.get('trials'), 10);
 const maxIncorrect = urlParams.get('maxIncorrect') === null ? null : parseInt(urlParams.get('maxIncorrect'), 10);
 const stimulusBlocks = urlParams.get('blocks') === null ? null : parseInt(urlParams.get('blocks'), 10);
@@ -80,7 +79,6 @@ async function startWebApp() {
         sequentialStimulus,
         corpus,
         buttonLayout,
-        numOfPracticeTrials,
         numberOfTrials,
         maxIncorrect,
         stimulusBlocks,

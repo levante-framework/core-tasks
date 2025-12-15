@@ -95,6 +95,11 @@
     }
   }
 
+  &.instruction-half-screen {
+    @extend .lev-row-container, .instruction;
+    max-width: 40vw !important;
+  }
+
   &.instruction-small {
     display: flex;
     padding: min($lev-spacing-s, 3.5vh);
@@ -161,6 +166,11 @@
     width: calc(3 * $response-size-default);
     height: calc(3 * $response-size-default);
   }
+}
+
+.lev-stimulus-container-wide {
+  @extend .lev-stimulus-container;
+  max-width: 90vw;
 }
 
 .lev-stim-content {
@@ -282,4 +292,13 @@
   align-items: center;
   color: black;
   font-size: 4rem;
+}
+
+.horizontal-wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  gap: 16px;
 }
