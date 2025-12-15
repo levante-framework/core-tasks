@@ -1,7 +1,7 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from "../../..";
 import { taskStore } from "../../../taskStore";
-import { camelize, PageAudioHandler, PageStateHandler, replayButtonSvg, setupReplayAudio } from "../../shared/helpers";
+import { camelize, PageAudioHandler, replayButtonSvg } from "../../shared/helpers";
 import { animate } from "../helpers/animate";
 import { jsPsych } from "../../taskSetup";
 
@@ -130,49 +130,83 @@ export const downexInstructions = downexData.map((data: any) => {
     on_load: async () => {
       startTime = performance.now();
 
-      // Preserve stim-container height before animation
-      const stimContainer = document.getElementById('stim-container');
-      const stimImage = document.getElementById('stim-image');
-      if (stimContainer && stimImage) {
-        const imageHeight = stimImage.offsetHeight;
-        stimContainer.style.minHeight = `${imageHeight}px`;
+      const replayButton = document.getElementById(replayButtonHtmlId);
+      if (replayButton) {
+        replayButton.addEventListener('click', () => {
+          animateAndPlayAudio();
+        });
       }
 
-      // set up replay audio
-      const trialAudio = data.audio;
-      const pageStateHandler = new PageStateHandler(trialAudio, true);
-      setupReplayAudio(pageStateHandler);
-
-      const audioConfig: AudioConfigType = {
-        restrictRepetition: {
-          enabled: false,
-          maxRepetitions: 2,
-        },
-        onEnded: () => {
-          triggerNextEvent();
+      function animateAndPlayAudio() {
+        // replay button and ok button should be disabled while animations are happening
+        if (replayButton) {
+          (replayButton as HTMLButtonElement).disabled = true;
         }
-      };
-
-      function triggerNextEvent() {
-        if (data.eventOrder.length === 0) {
-          enableOkBtn();
-          return;
+        const okButton: HTMLButtonElement | null = document.querySelector('.primary');
+        if (okButton) {
+          okButton.disabled = true;
         }
 
-        const event = data.eventOrder.shift();
-        if (event === 'audio') {
-          PageAudioHandler.playAudio(mediaAssets.audio[camelize(data.audio.shift())], audioConfig);
-        } else if (event === 'animation') {
-          const animationObject = data.animations.shift();
-          animate(animationObject.animation, animationObject.item);
-          setTimeout(() => {
+        // Preserve stim-container height before animation
+        const stimContainer = document.getElementById('stim-container');
+        const stimImage = document.getElementById('stim-image');
+        if (stimContainer && stimImage) {
+          const imageHeight = stimImage.offsetHeight;
+          stimContainer.style.minHeight = `${imageHeight}px`;
+        }
+
+        // create copies of the trial data to avoid mutating the original data
+        const trialAudio = [...data.audio];
+        const trialAnimations = [...data.animations];
+        const trialEventOrder = [...data.eventOrder];
+
+        // reset stim image to its original position
+        if (stimImage) {
+          stimImage.style.position = '';
+          stimImage.style.left = '';
+          stimImage.style.top = '';
+          stimImage.style.zIndex = '';
+        }
+
+        // reset target source
+        const target: HTMLImageElement | null = document.getElementById('target')?.children[0] as HTMLImageElement;
+        if (target) {
+          target.src = mediaAssets.images[camelize(data.choices[0])];
+        }
+
+        const audioConfig: AudioConfigType = {
+          restrictRepetition: {
+            enabled: false,
+            maxRepetitions: 2,
+          },
+          onEnded: () => {
             triggerNextEvent();
-          }, 2000);
+          }
+        };
+
+        function triggerNextEvent() {
+          if (trialEventOrder.length === 0) {
+            enableOkBtn();
+            if (replayButton) {
+              (replayButton as HTMLButtonElement).disabled = false;
+            }
+            return;
+          }
+
+          const event = trialEventOrder.shift();
+          if (event === 'audio') {
+            PageAudioHandler.playAudio(mediaAssets.audio[camelize(trialAudio.shift())], audioConfig);
+          } else if (event === 'animation') {
+            const animationObject = trialAnimations.shift();
+            animate(animationObject.animation, animationObject.item);
+            setTimeout(triggerNextEvent, 2000);
+          }
         }
+
+        triggerNextEvent();
       }
 
-      triggerNextEvent();
-
+      animateAndPlayAudio();
     }, 
     on_finish: () => {
       PageAudioHandler.stopAndDisconnectNode();

@@ -15,6 +15,7 @@ export const instructionData = [
   },
 ];
 const replayButtonHtmlId = 'replay-btn-revisited';
+let audioEnabled = false; // disable audio if the trial has changed since the loop started - prevent overlapping audio
 
 export const instructions = instructionData.map((data) => {
   return {
@@ -247,6 +248,14 @@ export const downexInstructions1 = {
           const audioUri = mediaAssets.audio[camelize(audioFile)] || mediaAssets.audio.nullAudio;
           const delay = index === 2 ? 2 : 0;
 
+          if (index === 0) {
+            audioEnabled = true;
+          }
+
+          if (!audioEnabled) {
+            break;
+          }
+
           await new Promise<void>((resolve) => {
               const configWithCallback = {
                 ...audioConfig,
@@ -289,7 +298,8 @@ export const downexInstructions1 = {
       animateAndPlayAudio();
     },
     on_finish: () => {
-      PageAudioHandler.stopAndDisconnectNode();
+      PageAudioHandler.stopAndDisconnectNode(); // stop ongoing audio
+      audioEnabled = false; // stop queued audio
 
       jsPsych.data.addDataToLastTrial({
         audioButtonPresses: PageAudioHandler.replayPresses,
@@ -425,10 +435,16 @@ export const downexInstructions3 = {
       }
 
       function onCorrect() {
-          PageAudioHandler.playAudio(mediaAssets.audio.feedbackRightOne);
+        PageAudioHandler.stopAndDisconnectNode();
+        audioEnabled = false;
+
+        PageAudioHandler.playAudio(mediaAssets.audio.feedbackRightOne);
       }
 
       function onIncorrect() {
+        PageAudioHandler.stopAndDisconnectNode();
+        audioEnabled = false;
+
         if (targetButton) {
           targetButton.style.animation = 'none';
           targetButton.offsetHeight; // Force reflow
@@ -438,7 +454,7 @@ export const downexInstructions3 = {
         PageAudioHandler.playAudio(mediaAssets.audio.matrixReasoningFeedbackIncorrectDownex);
       }
 
-      addPracticeButtonListeners(downexData3.choices[1], false, downexData3.choices, onCorrect, onIncorrect);
+      addPracticeButtonListeners(downexData3.choices[1], true, downexData3.choices, onCorrect, onIncorrect);
 
       async function animateAndPlayAudio() {
         // replay button should be disabled while animations are happening
@@ -457,6 +473,14 @@ export const downexInstructions3 = {
         for (const [index, audioFile] of trialAudio.entries()) {
           const audioUri = mediaAssets.audio[camelize(audioFile)];
           const image = index > 2 ? downexData3.image[0] : downexData3.image[index]; // keep the image after the fourth audio file
+
+          if (index === 0) {
+            audioEnabled = true;
+          }
+
+          if (!audioEnabled) {
+            break;
+          }
 
           await new Promise<void>((resolve) => {
               const configWithCallback = {
@@ -505,6 +529,7 @@ export const downexInstructions3 = {
     response_ends_trial: false,
     on_finish: () => {
       PageAudioHandler.stopAndDisconnectNode();
+      audioEnabled = false;
 
       jsPsych.data.addDataToLastTrial({
         audioButtonPresses: PageAudioHandler.replayPresses,
@@ -579,10 +604,16 @@ export const downexInstructions4 = {
       }
 
       function onCorrect() {
-          PageAudioHandler.playAudio(mediaAssets.audio.feedbackRightOne);
+        PageAudioHandler.stopAndDisconnectNode();
+        audioEnabled = false;
+
+        PageAudioHandler.playAudio(mediaAssets.audio.feedbackRightOne);
       }
 
       function onIncorrect() {
+        PageAudioHandler.stopAndDisconnectNode();
+        audioEnabled = false;
+
         if (targetButton) {
           targetButton.style.animation = 'none';
           targetButton.offsetHeight; // Force reflow
@@ -592,7 +623,7 @@ export const downexInstructions4 = {
         PageAudioHandler.playAudio(mediaAssets.audio.matrixReasoningFeedbackSmBlueDownex);
       }
 
-      addPracticeButtonListeners(downexData4.choices[2], false, downexData4.choices, onCorrect, onIncorrect);
+      addPracticeButtonListeners(downexData4.choices[2], true, downexData4.choices, onCorrect, onIncorrect);
 
       async function animateAndPlayAudio() {
         // replay button should be disabled while animations are happening
@@ -611,6 +642,14 @@ export const downexInstructions4 = {
         for (const [index, audioFile] of trialAudio.entries()) {
           const audioUri = mediaAssets.audio[camelize(audioFile)];
           const image = index > 3 ? downexData4.image[0] : downexData4.image[index]; // keep the image after the fourth audio file
+
+          if (index === 0) {
+            audioEnabled = true;
+          }
+
+          if (!audioEnabled) {
+            break;
+          }
 
           await new Promise<void>((resolve) => {
               const configWithCallback = {
@@ -645,6 +684,7 @@ export const downexInstructions4 = {
     response_ends_trial: false,
     on_finish: () => {
       PageAudioHandler.stopAndDisconnectNode();
+      audioEnabled = false;
 
       jsPsych.data.addDataToLastTrial({
         audioButtonPresses: PageAudioHandler.replayPresses,
