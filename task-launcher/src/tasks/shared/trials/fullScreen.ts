@@ -1,12 +1,14 @@
 import jsPsychFullScreen from '@jspsych/plugin-fullscreen';
 import fscreen from 'fscreen';
 import { taskStore } from '../../../taskStore';
+import { isTouchScreen } from '../../taskSetup';
 
 const isCypress = typeof window !== 'undefined' && (window as any).Cypress;
 
 export const enterFullscreen = {
   type: jsPsychFullScreen,
-  fullscreen_mode: !isCypress && !!fscreen.fullscreenEnabled,
+  // on a touchscreen, fullscreen trial is necessary to allow audio to play (which requires user interaction)
+  fullscreen_mode: (!isCypress && !!fscreen.fullscreenEnabled) || isTouchScreen,
   message: () => {
     const t = taskStore().translations;
     return `<div class="lev-row-container header">
