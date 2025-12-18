@@ -2,12 +2,13 @@ import jsPsychFullScreen from '@jspsych/plugin-fullscreen';
 import fscreen from 'fscreen';
 import { taskStore } from '../../../taskStore';
 import { isTouchScreen } from '../../taskSetup';
+import { PageAudioHandler } from '../helpers/audioHandler';
 
 const isCypress = typeof window !== 'undefined' && (window as any).Cypress;
 
 export const enterFullscreen = {
   type: jsPsychFullScreen,
-  // on a touchscreen, fullscreen trial is necessary to allow audio to play (which requires user interaction)
+  // force fullscreen on a touchscreen so that audio context can be unlocked
   fullscreen_mode: (!isCypress && !!fscreen.fullscreenEnabled) || isTouchScreen,
   message: () => {
     const t = taskStore().translations;
@@ -23,6 +24,15 @@ export const enterFullscreen = {
     if (continueButton) {
       continueButton.id = 'dummy';
       continueButton.classList.add('primary');
+    }
+
+    if (isTouchScreen) {
+      continueButton?.addEventListener('click', () => {
+        PageAudioHandler.unlockAudioContext();
+      }), { once: true };
+      continueButton?.addEventListener('touchend', () => {
+        PageAudioHandler.unlockAudioContext();
+      }), { once: true };
     }
   },
   on_start: () => {
