@@ -46,6 +46,7 @@ export default function buildAdultReasoningTimeline(config: Record<string, any>,
     promptAboveButtons: true,
     task: config.task,
     layoutConfigMap,
+    catStopping: false,
   };
 
   const stimulusBlock = {

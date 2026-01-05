@@ -44,3 +44,4 @@ export { getChildSurveyResponses } from './childSurveyResponses';
 export { equalizeButtonSizes } from './equalizeButtonSizes';
 export { enableOkButton } from './enableOkButton';
 export { popAnimation, triggerAnimation, matrixDragAnimation } from './animateImages';
+export { checkCatStopping } from './checkCatStopping';
