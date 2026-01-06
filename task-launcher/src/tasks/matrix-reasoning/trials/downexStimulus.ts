@@ -2,7 +2,7 @@ import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-respons
 import { taskStore } from '../../../taskStore';
 import { mediaAssets } from '../../..';
 import { addPracticeButtonListeners, camelize, PageAudioHandler, PageStateHandler, replayButtonSvg, setupReplayAudio, popAnimation } from '../../shared/helpers';
-import { jsPsych } from '../../taskSetup';
+import { isTouchScreen, jsPsych } from '../../taskSetup';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 let practiceResponses = []
@@ -133,7 +133,7 @@ export const downexStimulus = (layoutConfigMap: Record<string, LayoutConfigType>
                 PageAudioHandler.playAudio(mediaAssets.audio.matrixReasoningFeedbackIncorrectDownex);
             }
 
-            addPracticeButtonListeners(stim.answer.toString(), true, itemLayoutConfig.response.values, onCorrect, onIncorrect);
+            addPracticeButtonListeners(stim.answer.toString(), isTouchScreen, itemLayoutConfig.response.values, onCorrect, onIncorrect);
 
             async function animateAndPlayAudio() {
               // replay button should be disabled while animations are happening

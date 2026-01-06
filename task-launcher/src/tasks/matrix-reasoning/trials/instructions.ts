@@ -1,7 +1,7 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
 import { PageStateHandler, PageAudioHandler, replayButtonSvg, setupReplayAudio, camelize, addPracticeButtonListeners } from '../../shared/helpers';
-import { jsPsych } from '../../taskSetup';
+import { isTouchScreen, jsPsych } from '../../taskSetup';
 import { taskStore } from '../../../taskStore';
 import { matrixDragAnimation, popAnimation } from '../../shared/helpers';
 
@@ -454,7 +454,7 @@ export const downexInstructions3 = {
         PageAudioHandler.playAudio(mediaAssets.audio.matrixReasoningFeedbackIncorrectDownex);
       }
 
-      addPracticeButtonListeners(downexData3.choices[1], true, downexData3.choices, onCorrect, onIncorrect);
+      addPracticeButtonListeners(downexData3.choices[1], isTouchScreen, downexData3.choices, onCorrect, onIncorrect);
 
       async function animateAndPlayAudio() {
         // replay button should be disabled while animations are happening
@@ -623,7 +623,7 @@ export const downexInstructions4 = {
         PageAudioHandler.playAudio(mediaAssets.audio.matrixReasoningFeedbackSmBlueDownex);
       }
 
-      addPracticeButtonListeners(downexData4.choices[2], true, downexData4.choices, onCorrect, onIncorrect);
+      addPracticeButtonListeners(downexData4.choices[2], isTouchScreen, downexData4.choices, onCorrect, onIncorrect);
 
       async function animateAndPlayAudio() {
         // replay button should be disabled while animations are happening
