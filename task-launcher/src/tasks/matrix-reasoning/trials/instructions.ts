@@ -171,16 +171,16 @@ export const downexInstructions1 = {
                   </div>
 
                   <div id="choices-container" class="lev-response-row multi-4" style="gap: 16px; margin-top: 16px">
-                    <button id="target" class="image no-pointer-events" disabled>
+                    <button id="target" class="image-matrix no-pointer-events" disabled>
                       <img src=${mediaAssets.images[camelize(downexData1.choices[0])]} alt=${downexData1.choices[0]} />
                     </button>
-                    <button class="image no-pointer-events" disabled>
+                    <button class="image-matrix no-pointer-events" disabled>
                       <img src=${mediaAssets.images[camelize(downexData1.choices[1])]} alt=${downexData1.choices[1]} />
                     </button>
-                    <button class="image no-pointer-events" disabled>
+                    <button class="image-matrix no-pointer-events" disabled>
                       <img src=${mediaAssets.images[camelize(downexData1.choices[2])]} alt=${downexData1.choices[2]} />
                     </button>
-                    <button class="image no-pointer-events" disabled>
+                    <button class="image-matrix no-pointer-events" disabled>
                       <img src=${mediaAssets.images[camelize(downexData1.choices[3])]} alt=${downexData1.choices[3]} />
                     </button>
                   </div>
@@ -405,7 +405,7 @@ export const downexInstructions3 = {
           return `<img src=${imageUrl} alt=${choice} />`;
       });
     },
-    button_html: () => '<button class="image practice-btn">%choice%</button>',
+    button_html: () => '<button class="image-matrix practice-btn">%choice%</button>',
     keyboard_choices: () => 'NO_KEYS',
     on_load: async () => {
       startTime = performance.now();
@@ -574,7 +574,7 @@ export const downexInstructions4 = {
           return `<img src=${imageUrl} alt=${choice} />`;
       });
     },
-    button_html: () => '<button class="image practice-btn">%choice%</button>',
+    button_html: () => '<button class="image-matrix practice-btn">%choice%</button>',
     keyboard_choices: () => 'NO_KEYS',
     on_load: async () => {
       startTime = performance.now();

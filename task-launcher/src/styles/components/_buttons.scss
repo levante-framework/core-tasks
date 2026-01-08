@@ -285,6 +285,53 @@ button {
     }
   }
 
+  // no border radius for matrix reasoning buttons
+  &.image-matrix {
+    @extend .button-base;
+    padding: 0;
+    box-sizing: border-box;
+    border-color: $bg-button-primary;
+    min-width: unset !important;
+    min-height: unset !important;
+    border-radius: 0;
+
+    img {
+      border: none;
+      width: $response-size-default;
+      height: $response-size-default;
+      padding: 0;
+      margin: 0;
+      border-radius: 0;
+      float: left;
+    }
+
+    @include respond-to('small-medium') {
+      border-radius: 0;
+      img {
+        width: $response-size-sm;
+        height: $response-size-sm;
+        border-radius: 0;
+      }
+    }
+
+    @include respond-to('small') {
+      border-radius: 0;
+      img {
+        width: $response-size-s;
+        height: $response-size-s;
+        border-radius: 0;
+      }
+    }
+
+    &:hover {
+      border-color: $bg-accent_secondary;
+    }
+
+    &:active {
+      border-color: $border-button-primary-clicked;
+    }
+  }
+
   &.image-large {
     @extend .button-base;
     padding: 0;
