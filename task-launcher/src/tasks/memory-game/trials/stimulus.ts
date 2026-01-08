@@ -64,12 +64,14 @@ export function setUpAudio(
   preventAutoFinish: boolean = false,
 ) {
   // add replay button
-  const replayButton = document.createElement('button');
-  replayButton.innerHTML = replayButtonSvg;
-  replayButton.id = 'replay-btn-revisited';
-  replayButton.classList.add('replay');
-  replayButton.disabled = true;
-  contentWrapper.insertBefore(replayButton, prompt);
+  if (mode === 'input') {
+    const replayButton = document.createElement('button');
+    replayButton.innerHTML = replayButtonSvg;
+    replayButton.id = 'replay-btn-revisited';
+    replayButton.classList.add('replay');
+    replayButton.disabled = true;
+    contentWrapper.insertBefore(replayButton, prompt);
+  }
 
   const audioFile = mediaAssets.audio[cue];
   const audioConfig: AudioConfigType = {
@@ -141,7 +143,7 @@ export function getCorsiBlocks(
     // Show feedback only for practice
     correct_color: () => '#8CAEDF',
     incorrect_color: () => (isPractice ? '#f00' : '#8CAEDF'),
-    post_trial_gap: 1000,
+    post_trial_gap: customSeqLength === 1 ? 2000 : 1000,
     data: {
       // not camelCase because firekit
       save_trial: true,
@@ -150,6 +152,8 @@ export function getCorsiBlocks(
       isPracticeTrial: isPractice,
       trialMode: mode,
     },
+    sequence_block_duration: customSeqLength === 1 ? 2000 : 1000,
+    disable_animation: mode === 'input',
     on_load: () => {
       if (preventAutoFinish && mode === 'display') {
         // override finishTrial to prevent auto-finish
@@ -306,6 +310,7 @@ function doOnLoad(
     if (clickCount < inputSequence.length) {
       const nextBlockIndex = inputSequence[clickCount];
 
+      setTimeout(() => {
       // Disable all blocks except the correct next one
       Array.from(blocks).forEach((element, i) => {
         if (i === nextBlockIndex) {
@@ -313,14 +318,17 @@ function doOnLoad(
           enableBlock(element, animation);
         } else {
           // Disable incorrect blocks
-          disableBlock(element);
-        }
-      });
+            disableBlock(element);
+          }
+        });
+      }, 1000);
     } else {
-      // All blocks have been selected, disable all
-      Array.from(blocks).forEach((element) => {
-        disableBlock(element);
-      });
+      setTimeout(() => {
+        // All blocks have been selected, disable all
+        Array.from(blocks).forEach((element) => {
+          disableBlock(element);
+        });
+      }, 1000);
     }
   };
 
@@ -381,6 +389,17 @@ function doOnLoad(
           timeoutIDs.push(toastTimer);
           timeoutIDs.push(hideToast);
         }
+
+        (event.target as HTMLDivElement).style.backgroundColor = '#8CAEDF';
+        Array.from(blocks).forEach((element, j) => {
+          if (i !== j) {
+            element.style.backgroundColor = '#ffffffcc';
+          }
+        });
+
+        setTimeout(() => {
+          (event.target as HTMLDivElement).style.backgroundColor = '#ffffffcc';
+        }, 1000);
       });
 
       if (window.Cypress && generatedSequence !== null) {
