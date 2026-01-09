@@ -163,7 +163,7 @@ export const downexInstructions1 = {
                       <p>${itemText}</p>
                   </div>
 
-                  <div id="stim-container" class="lev-stim-content-x-2">
+                  <div id="stim-container" class="lev-stim-content-x-2-matrix">
                     <img
                         src=${stimImage}
                         alt="Image not loading: ${stimImage}. Please continue the task."
@@ -386,7 +386,7 @@ export const downexInstructions3 = {
                       <p>${itemText}</p>
                   </div>
 
-                  <div id="stim-container" class="lev-stim-content-x-2">
+                  <div id="stim-container" class="lev-stim-content-x-2-matrix">
                     <img
                         id="stim-image"
                         src=${mediaAssets.images[downexData3.image[0]]}
@@ -556,7 +556,7 @@ export const downexInstructions4 = {
                       <p>${itemText}</p>
                   </div>
 
-                  <div id="stim-container" class="lev-stim-content-x-3">
+                  <div id="stim-container" class="lev-stim-content-x-3-matrix">
                     <img
                         src=${mediaAssets.images[downexData4.image[0]]}
                         alt="Image not loading: ${mediaAssets.images[downexData4.image[0]]}. Please continue the task."
