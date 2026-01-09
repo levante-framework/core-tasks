@@ -96,7 +96,7 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
     promptAboveButtons: true,
     task: config.task,
     layoutConfigMap,
-    catStopping: runCat, // if running cat, stop if 4 of last 10 trials have been incorrect
+    terminateCat: runCat, // if running cat, stop if 4 of last 10 trials have been incorrect
   };
 
   const stimulusBlock = {

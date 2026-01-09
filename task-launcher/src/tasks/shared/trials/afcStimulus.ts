@@ -15,7 +15,7 @@ import {
   updateTheta,
   addPracticeButtonListeners,
   enableOkButton,
-  checkCatStopping,
+  shouldTerminateCat,
 } from '../helpers';
 import { mediaAssets } from '../../..';
 import { finishExperiment } from '.';
@@ -335,7 +335,7 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
   setupReplayAudio(pageStateHandler);
 }
 
-function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, LayoutConfigType>, catStopping: boolean, trial?: StimulusType) {
+function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, LayoutConfigType>, terminateCat: boolean, trial?: StimulusType) {
   PageAudioHandler.stopAndDisconnectNode();
 
   // note: nextStimulus is actually the current stimulus
@@ -455,8 +455,8 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
     finishExperiment();
   }
 
-  if (catStopping) {
-    checkCatStopping();
+  if (terminateCat) {
+    shouldTerminateCat();
   }
 }
 
@@ -466,13 +466,13 @@ export const afcStimulusTemplate = (
     promptAboveButtons,
     task,
     layoutConfigMap,
-    catStopping,
+    terminateCat,
   }: {
     responseAllowed: boolean;
     promptAboveButtons: boolean;
     task: string;
     layoutConfigMap: Record<string, LayoutConfigType>;
-    catStopping: boolean;
+    terminateCat: boolean;
   },
   trial?: StimulusType,
 ) => {
@@ -501,7 +501,7 @@ export const afcStimulusTemplate = (
     button_choices: () => getButtonChoices(layoutConfigMap, trial),
     button_html: () => getButtonHtml(layoutConfigMap, trial),
     on_load: () => doOnLoad(layoutConfigMap, trial),
-    on_finish: (data: any) => doOnFinish(data, task, layoutConfigMap, catStopping, trial),
+    on_finish: (data: any) => doOnFinish(data, task, layoutConfigMap, terminateCat, trial),
     response_ends_trial: () => {
       const stim = trial || taskStore().nextStimulus;
 

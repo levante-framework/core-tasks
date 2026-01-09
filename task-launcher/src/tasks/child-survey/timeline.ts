@@ -42,7 +42,7 @@ export default function buildChildSurveyTimeline(config: Record<string, any>, me
     promptAboveButtons: true,
     task: config.task,
     layoutConfigMap,
-    catStopping: false,
+    terminateCat: false,
   };
 
   const stimulusBlock = {

@@ -73,7 +73,7 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
       showPrompt: false,
     },
     layoutConfigMap,
-    catStopping: false,
+    terminateCat: false,
   };
 
   const stimulusBlock = {

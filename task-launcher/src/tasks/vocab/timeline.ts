@@ -69,7 +69,7 @@ export default function buildVocabTimeline(config: Record<string, any>, mediaAss
       showPrompt: false,
     },
     layoutConfigMap,
-    catStopping: false,
+    terminateCat: false,
   };
 
   function preloadBatch() {

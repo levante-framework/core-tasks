@@ -93,7 +93,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
     promptAboveButtons: true,
     task: config.task,
     layoutConfigMap,
-    catStopping: false,
+    terminateCat: false,
   };
 
   const feedbackBlock = (trial?: StimulusType) => {

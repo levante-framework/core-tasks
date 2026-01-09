@@ -51,7 +51,7 @@ export default function buildTOMTimeline(config: Record<string, any>, mediaAsset
     promptAboveButtons: true,
     task: config.task,
     layoutConfigMap,
-    catStopping: false,
+    terminateCat: false,
   };
 
   const initialPreload = preloadSharedAudio();
