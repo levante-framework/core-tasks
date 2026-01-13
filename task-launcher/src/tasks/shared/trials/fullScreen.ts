@@ -4,12 +4,10 @@ import { taskStore } from '../../../taskStore';
 import { isTouchScreen } from '../../taskSetup';
 import { PageAudioHandler } from '../helpers/audioHandler';
 
-const isCypress = typeof window !== 'undefined' && (window as any).Cypress;
-
 export const enterFullscreen = {
   type: jsPsychFullScreen,
   // force fullscreen on a touchscreen so that audio context can be unlocked
-  fullscreen_mode: (!isCypress && !!fscreen.fullscreenEnabled) || isTouchScreen,
+  fullscreen_mode: (!!fscreen.fullscreenEnabled) || isTouchScreen,
   message: () => {
     const t = taskStore().translations;
     return `<div class="lev-row-container header">
@@ -42,7 +40,7 @@ export const enterFullscreen = {
 
 export const ifNotFullscreen = {
   timeline: [enterFullscreen],
-  conditional_function: () => !isCypress && fscreen.fullscreenElement === null,
+  conditional_function: () => fscreen.fullscreenElement === null,
 };
 
 export const exitFullscreen = {
