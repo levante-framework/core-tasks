@@ -34,11 +34,12 @@ export const instructions = instructionData.map((data) => {
                             <p>${t[data.prompt]}</p>
                         </div>
 
-                 
-                        <img
-                            src=${imageSrc}
-                            alt="Image not loading: ${imageSrc}. Please continue the task."
-                        />
+                         <div class="lev-stim-content-x-3">
+                          <img
+                              src=${imageSrc}
+                              alt="Image not loading: ${imageSrc}. Please continue the task."
+                          />
+                        </div>
                     </div>`;
     },
     prompt_above_buttons: true,
@@ -163,7 +164,7 @@ export const downexInstructions1 = {
                       <p>${itemText}</p>
                   </div>
 
-                  <div id="stim-container" class="lev-stim-content-x-2-matrix">
+                  <div id="stim-container" class="lev-stim-content-x-2">
                     <img
                         src=${stimImage}
                         alt="Image not loading: ${stimImage}. Please continue the task."
@@ -171,16 +172,16 @@ export const downexInstructions1 = {
                   </div>
 
                   <div id="choices-container" class="lev-response-row multi-4" style="gap: 16px; margin-top: 16px">
-                    <button id="target" class="image-matrix no-pointer-events" disabled>
+                    <button id="target" class="image no-pointer-events" disabled>
                       <img src=${mediaAssets.images[camelize(downexData1.choices[0])]} alt=${downexData1.choices[0]} />
                     </button>
-                    <button class="image-matrix no-pointer-events" disabled>
+                    <button class="image no-pointer-events" disabled>
                       <img src=${mediaAssets.images[camelize(downexData1.choices[1])]} alt=${downexData1.choices[1]} />
                     </button>
-                    <button class="image-matrix no-pointer-events" disabled>
+                    <button class="image no-pointer-events" disabled>
                       <img src=${mediaAssets.images[camelize(downexData1.choices[2])]} alt=${downexData1.choices[2]} />
                     </button>
-                    <button class="image-matrix no-pointer-events" disabled>
+                    <button class="image no-pointer-events" disabled>
                       <img src=${mediaAssets.images[camelize(downexData1.choices[3])]} alt=${downexData1.choices[3]} />
                     </button>
                   </div>
@@ -386,7 +387,7 @@ export const downexInstructions3 = {
                       <p>${itemText}</p>
                   </div>
 
-                  <div id="stim-container" class="lev-stim-content-x-2-matrix">
+                  <div id="stim-container" class="lev-stim-content-x-2">
                     <img
                         id="stim-image"
                         src=${mediaAssets.images[downexData3.image[0]]}
@@ -556,7 +557,7 @@ export const downexInstructions4 = {
                       <p>${itemText}</p>
                   </div>
 
-                  <div id="stim-container" class="lev-stim-content-x-3-matrix">
+                  <div id="stim-container" class="lev-stim-content-x-3">
                     <img
                         src=${mediaAssets.images[downexData4.image[0]]}
                         alt="Image not loading: ${mediaAssets.images[downexData4.image[0]]}. Please continue the task."

@@ -37,7 +37,6 @@ export const getLayoutConfig = (
       values: prepChoices.originalChoices,
       targetIndex: prepChoices.correctResponseIdx,
     };
-    defaultConfig.classOverrides.stimulusContainerClassList = ['lev-stim-content-x-3-matrix'];
   } else {
     defaultConfig.classOverrides.buttonClassList = ['primary'];
   }

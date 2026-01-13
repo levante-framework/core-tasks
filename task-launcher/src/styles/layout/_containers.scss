@@ -205,32 +205,6 @@
   }
 }
 
-.lev-stim-content-x-3-matrix {
-  @extend .lev-stim-content;
-
-  img {
-    border-radius: 0;
-    width: calc(3 * $response-size-default);
-    height: calc(3 * $response-size-default);
-  }
-
-  @include respond-to('small-medium') {
-    img {
-      border-radius: 0;
-      width: calc(3 * $response-size-sm);
-      height: calc(3 * $response-size-sm);
-    }
-  }
-
-  @include respond-to('small') {
-    img {
-      border-radius: 0;
-      width: 3 * $response-size-s;
-      height: 3 * $response-size-s;
-    }
-  }
-}
-
 .lev-stim-content-x-2 {
   @extend .lev-stim-content;
 
@@ -248,32 +222,6 @@
 
   @include respond-to('small') {
     img {
-      width: 2 * $response-size-s;
-      height: 2 * $response-size-s;
-    }
-  }
-}
-
-.lev-stim-content-x-2-matrix {
-  @extend .lev-stim-content;
-
-  img {
-    border-radius: 0;
-    width: calc(2 * $response-size-default);
-    height: calc(2 * $response-size-default);
-  }
-
-  @include respond-to('small-medium') {
-    img {
-      border-radius: 0;
-      width: calc(2 * $response-size-sm);
-      height: calc(2 * $response-size-sm);
-    }
-  }
-
-  @include respond-to('small') {
-    img {
-      border-radius: 0;
       width: 2 * $response-size-s;
       height: 2 * $response-size-s;
     }

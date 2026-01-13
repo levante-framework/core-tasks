@@ -47,7 +47,7 @@ export const downexStimulus = (layoutConfigMap: Record<string, LayoutConfigType>
                         <div class="lev-row-container instruction-small">
                             <p>${itemText}</p>
                         </div>
-                        <div class="lev-stim-content-x-2-matrix">
+                        <div class="lev-stim-content-x-2">
                         <img
                             src=${imageSrc}
                             alt="Image not loading: ${imageSrc}. Please continue the task."
@@ -98,7 +98,7 @@ export const downexStimulus = (layoutConfigMap: Record<string, LayoutConfigType>
               setupReplayAudio(pageStateHandler);
             }
 
-            const stimContainer = document.querySelector('.lev-stim-content-x-2-matrix');
+            const stimContainer = document.querySelector('.lev-stim-content-x-2');
             const stimImage = stimContainer?.querySelector('img');
             const buttonContainer = document.getElementById('jspsych-html-multi-response-btngroup');
             const buttons = Array.from(buttonContainer?.querySelectorAll('button') || []); 
