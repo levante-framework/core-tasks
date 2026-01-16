@@ -15,6 +15,7 @@ import { setTaskStore } from './taskStore';
 import { taskStore } from './taskStore';
 import { InitPageSetup, Logger } from './utils';
 import { getBucketName } from './tasks/shared/helpers/getBucketName';
+import { initScrollRefreshPrevention } from './utils/scrollRefreshPrevention';
 
 export let mediaAssets: MediaAssetsType;
 let languageAudioAssets: MediaAssetsType;
@@ -96,6 +97,9 @@ export class TaskLauncher {
   }
 
   async run() {
+    // Initialize scroll-to-refresh prevention for tablets
+    initScrollRefreshPrevention();
+    
     showLevanteLogoLoading();
     const { jsPsych, timeline } = await this.init();
     hideLevanteLogoLoading();
