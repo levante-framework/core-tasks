@@ -106,6 +106,7 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
       showPrompt: true,
     },
     layoutConfigMap,
+    terminateCat: runCat, // if running cat, stop if 4 of last 10 trials have been incorrect
   };
 
   // runs with adaptive algorithm if cat enabled
