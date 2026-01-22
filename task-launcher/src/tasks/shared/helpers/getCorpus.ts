@@ -131,7 +131,14 @@ const transformCSV = (
       audioFile: row.audio_file?.includes(',') ? (row.audio_file as string).split(',') : row.audio_file as string,
       // difficulty must be undefined for non-instruction/practice trials to avoid running cat
       difficulty:
-        taskStore().runCat || row.trial_type === 'instructions' || row.assessment_stage === 'practice_response'
+        taskStore().runCat || 
+        (
+          (
+            row.trial_type === 'instructions' || 
+            row.assessment_stage === 'practice_response'
+          ) && 
+          taskStore().heavyInstructions
+        )
           ? parseFloat(row.d || row.difficulty)
           : NaN,
       randomize: row.randomize as 'yes' | 'no' | 'at_block_level',

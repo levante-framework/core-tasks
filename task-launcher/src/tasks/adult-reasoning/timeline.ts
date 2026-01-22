@@ -1,5 +1,5 @@
 // setup
-import { initTrialSaving, initTimeline, createPreloadTrials, getRealTrials } from '../shared/helpers';
+import { initTrialSaving, initTimeline, createPreloadTrials, getRealTrials, prepareCorpus } from '../shared/helpers';
 import { jsPsych, initializeCat } from '../taskSetup';
 import { taskStore } from '../../taskStore';
 // trials
@@ -10,6 +10,7 @@ import {
   taskFinished,
   enterFullscreen,
   finishExperiment,
+  fixationOnly,
 } from '../shared/trials';
 import { getLayoutConfig } from './helpers/config';
 
@@ -22,6 +23,8 @@ export default function buildAdultReasoningTimeline(config: Record<string, any>,
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {};
+
+  const cat = taskStore().runCat;
 
   taskStore('totalTestTrials', getRealTrials(corpus));
 
@@ -49,14 +52,30 @@ export default function buildAdultReasoningTimeline(config: Record<string, any>,
     terminateCat: false,
   };
 
-  const stimulusBlock = {
-    timeline: [afcStimulusTemplate(trialConfig)],
+  const stimulusBlock = (trial?: StimulusType) => {
+    return {
+      timeline: [afcStimulusTemplate(trialConfig, trial)]
+    }
   };
 
-  const numOfTrials = taskStore().totalTrials;
+  let numOfTrials; 
+
+  if (cat) {
+    const fullCorpus = prepareCorpus(corpus, false);
+    const practice = [...fullCorpus.ipLight, ...fullCorpus.ipHeavy]; 
+    numOfTrials = 8;
+
+    practice.forEach(trial => {
+      timeline.push({ ...fixationOnly, stimulus: `` });
+      timeline.push(stimulusBlock(trial));
+    });
+  } else {
+    numOfTrials = taskStore().totalTrials;
+  }
+  
   for (let i = 0; i < numOfTrials; i++) {
     timeline.push({ ...setupStimulus, stimulus: `` });
-    timeline.push(stimulusBlock);
+    timeline.push(stimulusBlock());
   }
 
   initializeCat();
