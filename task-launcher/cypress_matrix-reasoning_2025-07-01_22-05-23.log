@@ -1,0 +1,44 @@
+
+DevTools listening on ws://127.0.0.1:44725/devtools/browser/7cdde9f6-a3a6-459e-b088-8a1e0ca1484f
+(node:15960) ExperimentalWarning: `--experimental-loader` may be removed in the future; instead use `register()`:
+--import 'data:text/javascript,import { register } from "node:module"; import { pathToFileURL } from "node:url"; register("file%3A///home/david/.cache/Cypress/13.13.3/Cypress/resources/app/node_modules/ts-node/esm/transpile-only.mjs", pathToFileURL("./"));'
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15960) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+
+==================================
+
+  (Run Starting)
+
+  ┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+  │ Cypress:        13.13.3                                                                        │
+  │ Browser:        Electron 118 (headless)                                                        │
+  │ Node Version:   v22.14.0 (/home/david/.nvm/versions/node/v22.14.0/bin/node)                    │
+  │ Specs:          1 found (temp_single_task.cy.js)                                               │
+  │ Searched:       cypress/e2e/temp_single_task.cy.js                                             │
+  │ Experiments:    experimentalMemoryManagement=true                                              │
+  └────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+
+────────────────────────────────────────────────────────────────────────────────────────────────────
+                                                                                                    
+  Running:  temp_single_task.cy.js                                                          (1 of 1)
+
+
+  Single Task Capture - matrix-reasoning
+The Test Runner unexpectedly exited via a exit event with signal SIGKILL
+
+Please search Cypress documentation for possible solutions:
+
+https://on.cypress.io
+
+Check if there is a GitHub issue describing this crash:
+
+https://github.com/cypress-io/cypress/issues
+
+Consider opening a new issue.
+
+----------
+
+Platform: linux-x64 (Ubuntu - 24.04)
+Cypress Version: 13.13.3

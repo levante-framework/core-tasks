@@ -1,17 +1,9 @@
-import { defineConfig } from 'cypress';
+const { defineConfig } = require('cypress');
 
-export default defineConfig({
+module.exports = defineConfig({
   e2e: {
     setupNodeEvents(on, config) {
       // implement node event listeners here
-      on('task', {
-        progress(message) {
-          // Print immediate progress to STDOUT so long runs show liveness
-          // eslint-disable-next-line no-console
-          console.log(`[progress] ${message}`);
-          return null;
-        },
-      });
     },
     // Video recording settings
     video: true,
@@ -29,8 +21,8 @@ export default defineConfig({
     numTestsKeptInMemory: 1,
     // Reduce video frame rate for smaller files
     env: {
-      videoFrameRate: 5, // Lower frame rate for more compact videos
-    },
+      videoFrameRate: 5  // Lower frame rate for more compact videos
+    }
   },
   retries: {
     runMode: 0,
