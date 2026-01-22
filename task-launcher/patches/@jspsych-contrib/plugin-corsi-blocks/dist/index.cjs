@@ -140,6 +140,13 @@ const info = {
             type: jspsych.ParameterType.STRING,
             default: "#ff0000",
         },
+        /**
+         * If true, disables the animation of the blocksn so that the styling can be manually controlled.
+         */
+        disable_animation: {
+            type: jspsych.ParameterType.BOOL,
+            default: false,
+        },
     },
 };
 /**
@@ -271,12 +278,12 @@ class CorsiBlocksPlugin {
                 trial_data.response.push(parseInt(id));
                 trial_data.rt.push(rt);
                 const correct = parseInt(id) == trial.sequence[trial_data.response.length - 1];
-                if (correct) {
+                if (correct && !trial.disable_animation) {
                     display_element
                         .querySelector(`.jspsych-corsi-block[data-id="${id}"]`)
                         .animate(correct_animation, animation_timing);
                 }
-                else {
+                else if (!correct) {
                     display_element
                         .querySelector(`.jspsych-corsi-block[data-id="${id}"]`)
                         .animate(incorrect_animation, animation_timing);

@@ -64,4 +64,20 @@ export class PageAudioHandler {
       return;
     }
   }
+
+  // required on iOS to prevent autoplay blocking
+  static unlockAudioContext() {
+    const ctx = jsPsych.pluginAPI.audioContext();
+
+    // safari requires resuming audio context on user interaction, then it can be used freely later
+    if (ctx.state === 'suspended') {
+      ctx.resume(); 
+    }
+  
+    const buffer = ctx.createBuffer(1, 1, ctx.sampleRate);
+    const source = ctx.createBufferSource();
+    source.buffer = buffer;
+    source.connect(ctx.destination);
+    source.start(0);
+  }
 }

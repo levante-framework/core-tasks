@@ -28,6 +28,9 @@ let sequenceLength = 2;
 let generatedSequence: number[] | null;
 let selectedCoordinates: [number, number][] = [];
 let numCorrect = 0;
+const HIGHLIGHT_COLOR = '#8CAEDF';
+const INCORRECT_COLOR = '#f00';
+
 
 // store the finish trial function here (we have to override it later to prevent auto-finish on display trials)
 const originalFinishTrial = jsPsych.finishTrial;
@@ -64,12 +67,14 @@ export function setUpAudio(
   preventAutoFinish: boolean = false,
 ) {
   // add replay button
-  const replayButton = document.createElement('button');
-  replayButton.innerHTML = replayButtonSvg;
-  replayButton.id = 'replay-btn-revisited';
-  replayButton.classList.add('replay');
-  replayButton.disabled = true;
-  contentWrapper.insertBefore(replayButton, prompt);
+  if (mode === 'input') {
+    const replayButton = document.createElement('button');
+    replayButton.innerHTML = replayButtonSvg;
+    replayButton.id = 'replay-btn-revisited';
+    replayButton.classList.add('replay');
+    replayButton.disabled = true;
+    contentWrapper.insertBefore(replayButton, prompt);
+  }
 
   const audioFile = mediaAssets.audio[cue];
   const audioConfig: AudioConfigType = {
@@ -139,9 +144,9 @@ export function getCorsiBlocks(
     block_color: mode === 'display' ? 'rgba(215, 215, 215, 0.93)' : ' #ffffffcc',
     highlight_color: '#275BDD',
     // Show feedback only for practice
-    correct_color: () => '#8CAEDF',
-    incorrect_color: () => (isPractice ? '#f00' : '#8CAEDF'),
-    post_trial_gap: 1000,
+    correct_color: () => HIGHLIGHT_COLOR,
+    incorrect_color: () => (isPractice ? INCORRECT_COLOR : HIGHLIGHT_COLOR),
+    post_trial_gap: customSeqLength === 1 ? 2000 : 1000,
     data: {
       // not camelCase because firekit
       save_trial: true,
@@ -150,6 +155,8 @@ export function getCorsiBlocks(
       isPracticeTrial: isPractice,
       trialMode: mode,
     },
+    sequence_block_duration: customSeqLength === 1 ? 2000 : 1000,
+    disable_animation: mode === 'input',
     on_load: () => {
       if (preventAutoFinish && mode === 'display') {
         // override finishTrial to prevent auto-finish
@@ -306,6 +313,7 @@ function doOnLoad(
     if (clickCount < inputSequence.length) {
       const nextBlockIndex = inputSequence[clickCount];
 
+      setTimeout(() => {
       // Disable all blocks except the correct next one
       Array.from(blocks).forEach((element, i) => {
         if (i === nextBlockIndex) {
@@ -313,14 +321,17 @@ function doOnLoad(
           enableBlock(element, animation);
         } else {
           // Disable incorrect blocks
-          disableBlock(element);
-        }
-      });
+            disableBlock(element);
+          }
+        });
+      }, 1000);
     } else {
-      // All blocks have been selected, disable all
-      Array.from(blocks).forEach((element) => {
-        disableBlock(element);
-      });
+      setTimeout(() => {
+        // All blocks have been selected, disable all
+        Array.from(blocks).forEach((element) => {
+          disableBlock(element);
+        });
+      }, 1000);
     }
   };
 
@@ -351,9 +362,28 @@ function doOnLoad(
       element.addEventListener('click', (event) => {
         selectedCoordinates.push([event.clientX, event.clientY]);
 
+        if (inputSequence !== null) {
+          const nextBlockIndex = inputSequence[clickCount];
+
+          if (i === nextBlockIndex) {
+            (event.target as HTMLDivElement).style.backgroundColor = HIGHLIGHT_COLOR
+          }
+          
+          Array.from(blocks).forEach((element, j) => {
+            if (i !== j) {
+              element.style.backgroundColor = '#ffffffcc';
+            }
+          });
+
+          setTimeout(() => {
+            (event.target as HTMLDivElement).style.backgroundColor = '#ffffffcc';
+          },  1000);
+        }
+
+        clickCount++;
+
         // Update click count and block states for animation
         if (animation) {
-          clickCount++;
           // Update block states after a short delay to allow the click to process
           setTimeout(() => {
             updateBlockStates();

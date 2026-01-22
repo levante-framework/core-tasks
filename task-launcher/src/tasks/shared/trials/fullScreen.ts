@@ -1,12 +1,13 @@
 import jsPsychFullScreen from '@jspsych/plugin-fullscreen';
 import fscreen from 'fscreen';
 import { taskStore } from '../../../taskStore';
-
-const isCypress = typeof window !== 'undefined' && (window as any).Cypress;
+import { isTouchScreen } from '../../taskSetup';
+import { PageAudioHandler } from '../helpers/audioHandler';
 
 export const enterFullscreen = {
   type: jsPsychFullScreen,
-  fullscreen_mode: !isCypress && !!fscreen.fullscreenEnabled,
+  // force fullscreen on a touchscreen so that audio context can be unlocked
+  fullscreen_mode: (!!fscreen.fullscreenEnabled) || isTouchScreen,
   message: () => {
     const t = taskStore().translations;
     return `<div class="lev-row-container header">
@@ -22,6 +23,15 @@ export const enterFullscreen = {
       continueButton.id = 'dummy';
       continueButton.classList.add('primary');
     }
+
+    if (isTouchScreen) {
+      continueButton?.addEventListener('click', () => {
+        PageAudioHandler.unlockAudioContext();
+      }), { once: true };
+      continueButton?.addEventListener('touchend', () => {
+        PageAudioHandler.unlockAudioContext();
+      }), { once: true };
+    }
   },
   on_start: () => {
     document.body.style.cursor = 'default';
@@ -30,7 +40,7 @@ export const enterFullscreen = {
 
 export const ifNotFullscreen = {
   timeline: [enterFullscreen],
-  conditional_function: () => !isCypress && fscreen.fullscreenElement === null,
+  conditional_function: () => fscreen.fullscreenElement === null,
 };
 
 export const exitFullscreen = {
