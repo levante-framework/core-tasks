@@ -58,6 +58,8 @@ const cat = stringToBoolean(urlParams.get('cat'), false);
 const heavyInstructions = stringToBoolean(urlParams.get('heavyInstructions'), false);
 
 const emulatorConfig = EMULATORS ? firebaseJSON.emulators : undefined;
+// if running in demo mode, no data will be saved to Firestore
+const demoMode = DEMO;
 
 async function startWebApp() {
   const appKit = await initializeFirebaseProject(firebaseConfig, 'admin', emulatorConfig, 'none');
@@ -94,6 +96,7 @@ async function startWebApp() {
         semThreshold,
         startingTheta,
         heavyInstructions,
+        demoMode,
       };
 
       const taskInfo = {
