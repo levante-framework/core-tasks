@@ -27,11 +27,9 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
 
   let corpus: StimulusType[] = taskStore().corpora.stimulus;
 
-  console.log(corpus.filter((trial) => trial.assessmentStage === 'practice_response'));
   // organize corpus into batches for preloading
   const batchSize = 25;
   const batchedCorpus = batchTrials(corpus, batchSize);
-  console.log(batchedCorpus);
   const batchedMediaAssets = batchMediaAssets(mediaAssets, batchedCorpus, ['image', 'answer', 'distractors']);
 
   const initialMediaAssets = getLeftoverAssets(batchedMediaAssets, mediaAssets);
@@ -87,7 +85,6 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
 
   // function to preload assets in batches at the beginning of each task block
   function preloadBlock() {
-    console.log(createPreloadTrials(batchedMediaAssets[currPreloadBatch]).default);
     timeline.push(createPreloadTrials(batchedMediaAssets[currPreloadBatch]).default);
     currPreloadBatch++;
   }

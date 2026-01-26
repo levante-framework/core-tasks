@@ -21,6 +21,7 @@ let incorrectPracticeResponses: string[] = [];
 let startTime: number;
 let selection: string | null = null;
 let selectionIdx: number | null = null;
+let currentTrialId: string = ''; // used to prevent audio from overlapping between trials
 
 const SELECT_CLASS_NAME = 'info-shadow';
 
@@ -65,11 +66,9 @@ function getSomethingSameHtml(stim: StimulusType) {
   const rightPromptHtml = stim.trialType === "something-same-2" ? `<p>${t[camelize(stim.audioFile[1])]}</p>` : `<p>${t[camelize(stim.audioFile as string)]}</p>`;
 
   const leftImageHtml = `
-    ${stim.trialType == "something-same-1" ? `<div style="visibility: hidden;">` : `<div>`}
-      <button class='image-medium no-pointer-events'>
-        <img src=${mediaAssets.images[camelize(leftImageSrc)]} alt=${leftImageSrc} />
-      </button>
-    </div>
+    <button class='image-medium no-pointer-events' style="${stim.trialType == "something-same-1" ? "visibility: hidden;" : ""}">
+      <img src=${mediaAssets.images[camelize(leftImageSrc)]} alt=${leftImageSrc} />
+    </button>
   `;
 
   // randomize choices if there is an answer
@@ -101,11 +100,11 @@ function getSomethingSameHtml(stim: StimulusType) {
       </button>
       <div class="horizontal-wrapper">
         ${stim.trialType === "something-same-2" ? 
-          `<div class="lev-row-container instruction-half-screen">` : 
+          `<div class="lev-row-container instruction-half-screen" id="left-prompt">` : 
           `<div class="lev-row-container instruction-half-screen" style="visibility: hidden;">`}
           ${leftPromptHtml}
         </div>
-        <div class="lev-row-container instruction-half-screen">
+        <div class="lev-row-container instruction-half-screen" id="right-prompt">
           <p>${rightPromptHtml}</p>
         </div>
       </div>
@@ -226,7 +225,32 @@ export const stimulus = (trial?: StimulusType) => {
       const audioFile = stimulus.audioFile;
       const trialType = stimulus.trialType;
 
-      PageAudioHandler.playAudio(mediaAssets.audio[camelize(audioFile)]);
+      currentTrialId = stimulus.itemId;
+
+      if (trialType === 'something-same-2') {
+        // something-same-2 trials have multiple audio files
+        const audioFiles = audioFile as string[];
+
+        const audioConfig: AudioConfigType = {
+          restrictRepetition: {
+            enabled: false,
+            maxRepetitions: 2,
+          },
+          onEnded: () => {
+            if (currentTrialId !== stimulus.itemId) {
+              return;
+            }
+
+            if (audioFiles.length) {
+              PageAudioHandler.playAudio(mediaAssets.audio[camelize(audioFiles.shift() as string)], audioConfig);
+            }
+          },
+        }
+
+        PageAudioHandler.playAudio(mediaAssets.audio[camelize(audioFiles.shift() as string)], audioConfig);
+      } else {
+        PageAudioHandler.playAudio(mediaAssets.audio[camelize(audioFile)]);
+      }
 
       const pageStateHandler = new PageStateHandler(audioFile, true);
       setupReplayAudio(pageStateHandler);
@@ -246,6 +270,18 @@ export const stimulus = (trial?: StimulusType) => {
       }
 
       if (trialType === 'something-same-2') {
+        const leftPrompt = document.getElementById('left-prompt') as HTMLParagraphElement;
+        const rightPrompt = document.getElementById('right-prompt') as HTMLParagraphElement;
+
+        // equalize prompt box heights
+        if (leftPrompt && rightPrompt) {
+          const styles = getComputedStyle(rightPrompt);
+          const paddingY = parseFloat(styles.paddingTop) + parseFloat(styles.paddingBottom);
+
+          const contentBoxHeight = rightPrompt.clientHeight - paddingY;
+          leftPrompt.style.height = `${contentBoxHeight}px`;
+        }
+
         const okButton = document.querySelector('.primary') as HTMLButtonElement;
         okButton.disabled = true;
 
@@ -281,7 +317,6 @@ export const stimulus = (trial?: StimulusType) => {
             }
 
             setTimeout(() => enableBtns(responseBtns), 500);
-            console.log(selection, selectionIdx);
           });
         });
       }
@@ -313,12 +348,15 @@ export const stimulus = (trial?: StimulusType) => {
       }
     },
     on_finish: (data: any) => {
+      PageAudioHandler.stopAndDisconnectNode();
+      currentTrialId = '';
+
       const stim = trial || taskStore().nextStimulus;
       const choices = taskStore().choices;
       const endTime = performance.now();
       const cat = taskStore().runCat;
 
-      PageAudioHandler.stopAndDisconnectNode();
+      
       jsPsych.data.addDataToLastTrial({
         audioButtonPresses: PageAudioHandler.replayPresses,
       });
@@ -326,20 +364,26 @@ export const stimulus = (trial?: StimulusType) => {
       // TODO: Discuss with ROAR team to remove this check
       if (stim.assessmentStage !== 'instructions') {
         let isCorrect;
-        if (stim.trialType === 'test-dimensions' || stim.assessmentStage === 'practice_response') {
+        if (stim.trialType === 'test-dimensions') {
           // if no incorrect answers were clicked, that trial is correct
           isCorrect = incorrectPracticeResponses.length === 0;
         } else {
-          isCorrect = data.button_response === taskStore().correctResponseIdx;
+          isCorrect = selectionIdx === taskStore().correctResponseIdx;
         }
+       
         incorrectPracticeResponses = [];
-        // update task store
-        taskStore('isCorrect', isCorrect);
-        if (isCorrect === false) {
-          taskStore.transact('numIncorrect', (oldVal: number) => oldVal + 1);
-        } else {
-          taskStore('numIncorrect', 0);
+
+        // don't update task store for something-same-1 trials
+        if (stim.trialType !== 'something-same-1') {
+          // update task store
+          taskStore('isCorrect', isCorrect);
+          if (isCorrect === false) {
+            taskStore.transact('numIncorrect', (oldVal: number) => oldVal + 1);
+          } else {
+            taskStore('numIncorrect', 0);
+          }
         }
+
         jsPsych.data.addDataToLastTrial({
           // specific to this trial
           item: stim.item,
@@ -371,7 +415,7 @@ export const stimulus = (trial?: StimulusType) => {
           taskStore.transact('testTrialCount', (oldVal: number) => oldVal + 1);
         }
         // if heavy instructions is true, show data quality screen before ending
-        if (taskStore().numIncorrect >= taskStore().maxIncorrect && !taskStore().heavyInstructions) {
+        if (taskStore().numIncorrect >= taskStore().maxIncorrect && !taskStore().heavyInstructions && !cat) {
           finishExperiment();
         }
 

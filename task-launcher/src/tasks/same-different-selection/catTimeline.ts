@@ -12,6 +12,7 @@ import { afcMatch } from './trials/afcMatch';
 import {
   enterFullscreen,
   exitFullscreen,
+  feedback,
   finishExperiment,
   fixationOnly,
   getAudioResponse,
@@ -67,9 +68,19 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
 
   // used for instruction and practice trials
   const ipBlock = (trial: StimulusType) => {
+    const trialGenerator = trial.trialType.includes('match') ? afcMatch : stimulus;
+    const practice = trial.assessmentStage === 'practice_response';
+    const timeline = practice && !trial.trialType.includes('something-same-1') ? 
+      [{ ...fixationOnly, stimulus: '' }, trialGenerator(trial), feedbackBlock] :
+      [{ ...fixationOnly, stimulus: '' }, trialGenerator(trial)];
+
     return {
-      timeline: [{ ...fixationOnly, stimulus: '' }, stimulus(trial)],
+      timeline: timeline,
     };
+  };
+
+  const feedbackBlock = {
+    timeline: [feedback(true, 'feedbackCorrect', 'feedbackNotQuiteRight')]
   };
 
   // returns timeline object containing the appropriate trials - only runs if they match what is in taskStore
@@ -80,7 +91,7 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
         timeline.push(stimulus());
         timeline.push(buttonNoise);
       } else {
-        timeline.push(afcMatch);
+        timeline.push(afcMatch());
         timeline.push(buttonNoise);
       }
 
@@ -113,11 +124,15 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
 
   // returns practice + instruction trials for a given block
   function getPracticeInstructions(blockNum: number): StimulusType[] {
-    return instructionPractice.filter((trial) => trial.blockIndex == blockNum);
+    return instructionPractice.filter((trial) => {
+      if (trial.block_index == undefined) return;
+
+      return parseInt(trial.block_index) == blockNum;
+    });
   }
 
   // create list of numbers of trials per block
-  const blockCountList = setTrialBlock(true);
+  const blockCountList = setTrialBlock(true).blockCountList;
 
   const totalRealTrials = blockCountList.reduce((acc, total) => acc + total, 0);
   taskStore('totalTestTrials', totalRealTrials);
