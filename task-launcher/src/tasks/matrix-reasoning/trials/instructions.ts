@@ -4,6 +4,7 @@ import { PageStateHandler, PageAudioHandler, replayButtonSvg, setupReplayAudio, 
 import { isTouchScreen, jsPsych } from '../../taskSetup';
 import { taskStore } from '../../../taskStore';
 import { matrixDragAnimation, popAnimation } from '../../shared/helpers';
+import { pulseOkButton } from '../../shared/helpers/pulseOkButton';
 
 let startTime: number;
 
@@ -285,6 +286,7 @@ export const downexInstructions1 = {
               if (replayButton) {
                 (replayButton as HTMLButtonElement).disabled = false;
               }
+              setTimeout(() => pulseOkButton(), 3000);
             }
           };
 
@@ -347,6 +349,7 @@ const textOnlyDownexInstruction = textOnlyDownexInstructionData.map((data) => {
         },
         onEnded: () => {
           enableOkBtn();
+          setTimeout(() => pulseOkButton(), 3000);
         }
       };
       

@@ -4,6 +4,7 @@ import { taskStore } from "../../../taskStore";
 import { camelize, PageAudioHandler, replayButtonSvg } from "../../shared/helpers";
 import { animate } from "../helpers/animate";
 import { jsPsych } from "../../taskSetup";
+import { pulseOkButton } from '../../shared/helpers/pulseOkButton';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 
@@ -187,6 +188,7 @@ export const downexInstructions = downexData.map((data: any) => {
         function triggerNextEvent() {
           if (trialEventOrder.length === 0) {
             enableOkBtn();
+            setTimeout(() => pulseOkButton(), 3000);
             if (replayButton) {
               (replayButton as HTMLButtonElement).disabled = false;
             }
