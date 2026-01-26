@@ -27,21 +27,23 @@ export class PageAudioHandler {
     }
   }
 
-  static async playAudio(audioUri: string, config: AudioConfigType = this.defaultAudioConfig) {
+  static async playAudio(audioUri: string, config: AudioConfigType = this.defaultAudioConfig, setClassAudioField: boolean = true) {
     const { enabled, maxRepetitions } = config.restrictRepetition;
     const { onEnded } = config;
 
     // check for repeat audio
     if (PageAudioHandler.audioUri === audioUri && enabled) {
       PageAudioHandler.replays++;
-    } else {
+    } else if (enabled) {
       PageAudioHandler.replays = 0;
     }
 
-    PageAudioHandler.audioUri = audioUri;
+    if (setClassAudioField) {
+      PageAudioHandler.audioUri = audioUri;
+    }
 
     // replace audio with ding if it has already been played twice
-    if (PageAudioHandler.replays >= maxRepetitions) {
+    if (PageAudioHandler.replays > maxRepetitions && enabled) {
       audioUri = mediaAssets.audio.inputAudioCue;
     }
 
@@ -56,7 +58,21 @@ export class PageAudioHandler {
       audioSource.buffer = audioBuffer;
       audioSource.connect(jsPsychAudioCtx.destination);
       audioSource.onended = () => {
-        if (onEnded) onEnded();
+        if (PageAudioHandler.replays === maxRepetitions && enabled) {
+          const audioConfig: AudioConfigType = {
+            restrictRepetition: {
+              enabled: false,
+              maxRepetitions: 2,
+            },
+            onEnded: () => {
+              if (onEnded) onEnded();
+            },
+          };
+
+          PageAudioHandler.playAudio(mediaAssets.audio.inputAudioCue, audioConfig, false);
+        } else {
+          if (onEnded) onEnded();
+        }
       };
       audioSource.start(0);
     } catch {

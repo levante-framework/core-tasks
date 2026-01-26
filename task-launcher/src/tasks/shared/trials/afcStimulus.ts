@@ -219,8 +219,8 @@ function addKeyHelpers(el: HTMLElement, keyIndex: number) {
 function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: StimulusType) {
   const audioConfig: AudioConfigType = {
     restrictRepetition: {
-      enabled: false,
-      maxRepetitions: 1,
+      enabled: true,
+      maxRepetitions: 2,
     },
     onEnded: () => {
       enableOkButton();

@@ -279,7 +279,7 @@ export const downexInstructions1 = {
           const lastAudioConfig: AudioConfigType = {
             restrictRepetition: {
               enabled: false,
-              maxRepetitions: 1,
+              maxRepetitions: 2,
             },
             onEnded: () => {
               enableOkBtn();
@@ -345,7 +345,7 @@ const textOnlyDownexInstruction = textOnlyDownexInstructionData.map((data) => {
       const audioConfig: AudioConfigType = {
         restrictRepetition: {
           enabled: false,
-          maxRepetitions: 1,
+          maxRepetitions: 2,
         },
         onEnded: () => {
           enableOkBtn();

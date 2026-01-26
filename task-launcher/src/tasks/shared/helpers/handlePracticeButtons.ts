@@ -47,6 +47,13 @@ function handlePracticeButtonPress(
   const choice = choices[index];
   const isCorrectChoice = choice?.toString() === answer;
 
+  const audioConfig: AudioConfigType = {
+    restrictRepetition: {
+      enabled: false,
+      maxRepetitions: 2,
+    }
+  }
+
   // custom incorrect prompts by task
   const incorrectPromptKey = 
   (taskStore().task === 'mental-rotation' && taskStore().heavyInstructions) && taskStore().nextStimulus?.trialType == "2D" ? 
@@ -68,7 +75,7 @@ function handlePracticeButtonPress(
     
     // if there is audio playing, stop it first before playing feedback audio to prevent overlap between trials
     PageAudioHandler.stopAndDisconnectNode();
-    onCorrect ? onCorrect() : PageAudioHandler.playAudio(mediaAssets.audio.feedbackGoodJob);
+    onCorrect ? onCorrect() : PageAudioHandler.playAudio(mediaAssets.audio.feedbackGoodJob, audioConfig);
   } else {
     btn.classList.add('error-shadow');
     // jspysch disables the buttons for some reason, so re-enable them
@@ -79,7 +86,8 @@ function handlePracticeButtonPress(
     taskStore('incorrectPracticeResponses', incorrectPracticeResponses);
 
     PageAudioHandler.stopAndDisconnectNode();
-    onIncorrect ? onIncorrect() : PageAudioHandler.playAudio(mediaAssets.audio[incorrectPromptKey]);
+
+    onIncorrect ? onIncorrect() : PageAudioHandler.playAudio(mediaAssets.audio[incorrectPromptKey], audioConfig);
   }
 }
 

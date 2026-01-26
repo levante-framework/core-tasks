@@ -129,8 +129,15 @@ export const downexStimulus = (layoutConfigMap: Record<string, LayoutConfigType>
                     targetButton.offsetHeight; // Force reflow
                     targetButton.style.animation = 'pulse 2s 0s 2';
                 }
+
+                const audioConfig: AudioConfigType = {
+                  restrictRepetition: {
+                    enabled: true,
+                    maxRepetitions: 2,
+                  }
+                }
                 
-                PageAudioHandler.playAudio(mediaAssets.audio.matrixReasoningFeedbackIncorrectDownex);
+                PageAudioHandler.playAudio(mediaAssets.audio.matrixReasoningFeedbackIncorrectDownex, audioConfig);
             }
 
             addPracticeButtonListeners(stim.answer.toString(), isTouchScreen, itemLayoutConfig.response.values, onCorrect, onIncorrect);

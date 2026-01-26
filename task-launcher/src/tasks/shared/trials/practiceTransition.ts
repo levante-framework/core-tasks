@@ -62,7 +62,7 @@ export const practiceTransition = (getPrompt?: () => string, forceRun = false) =
           const audioConfig: AudioConfigType = {
             restrictRepetition: {
               enabled: false,
-              maxRepetitions: 1,
+              maxRepetitions: 2,
             },
             onEnded: () => {
               setTimeout(() => pulseOkButton(), 3000);

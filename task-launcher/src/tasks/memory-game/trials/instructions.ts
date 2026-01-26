@@ -120,7 +120,7 @@ const instructions = instructionData.map((data) => {
       const audioConfig: AudioConfigType = {
         restrictRepetition: {
           enabled: false,
-          maxRepetitions: 1,
+          maxRepetitions: 2,
         },
         onEnded: () => {
           if (!data.buttonText) {
