@@ -50,6 +50,7 @@ import store from 'store2';
  * @property {number} numOfBlocks - Number of blocks in the memory game, default is 4.
  * @property {number} blockSize - Size of each block in the memory game, default is 50.
  * @property {number} gridSize - Size of the grid in the memory game, default is 2x2.
+ * @property {Object} displayPromptDurations - The durations of the display prompts, default is an empty object.
  * ------- H&F & Memory Game only -------
  * @property {boolean} isCorrect - Whether the response to the previous trial was correct, default is false.
  * --------- ToM only ---------
@@ -81,6 +82,7 @@ export type TaskStoreDataType = {
   language?: string;
   maxTime?: number;
   demoMode: boolean;
+  displayPromptDurations: Record<string, number>;
 };
 
 /**

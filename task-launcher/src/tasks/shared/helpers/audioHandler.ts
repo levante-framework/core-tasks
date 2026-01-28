@@ -27,6 +27,11 @@ export class PageAudioHandler {
     }
   }
 
+  static async getAudioDuration(audioUri: string) {
+    const audioBuffer = (await jsPsych.pluginAPI.getAudioBuffer(audioUri)) as AudioBuffer | null;
+    return audioBuffer?.duration;
+  }
+
   static async playAudio(audioUri: string, config: AudioConfigType = this.defaultAudioConfig, setClassAudioField: boolean = true) {
     const { enabled, maxRepetitions } = config.restrictRepetition;
     const { onEnded } = config;
