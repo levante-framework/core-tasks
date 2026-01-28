@@ -140,27 +140,13 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
   blockCountList.forEach((count, index) => {
     const currentBlockInstructionPractice = getPracticeInstructions(index);
 
-    // push in instruction + practice trials
-    if (index === 1 && heavy) {
-      // something's the same block has demo trials in between instructions
-      const firstInstruction = currentBlockInstructionPractice.shift();
-      if (firstInstruction != undefined) {
-        timeline.push(ipBlock(firstInstruction));
-      }
-
-      timeline.push(somethingSameDemo1);
-      timeline.push(somethingSameDemo2);
-      timeline.push(somethingSameDemo3);
-    }
-
     currentBlockInstructionPractice.forEach((trial) => {
       timeline.push(ipBlock(trial));
     });
 
-    if (index === 2 && heavy) {
-      // 2-match has demo trials after instructions
-      timeline.push(matchDemo1);
-      timeline.push(matchDemo2);
+    // only younger kids get something-same blocks
+    if (!heavy && index === 1) {
+      return;
     }
 
     const numOfTrials = index === 0 ? count : count / 2; // change this based on simulation results?

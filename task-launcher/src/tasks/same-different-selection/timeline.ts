@@ -1,20 +1,19 @@
 // setup
 import 'regenerator-runtime/runtime';
 import { jsPsych } from '../taskSetup';
-import { initTrialSaving, initTimeline, createPreloadTrials, filterMedia, batchMediaAssets } from '../shared/helpers';
-import { prepareMultiBlockCat } from '../shared/helpers/prepareCat';
+import { initTrialSaving, initTimeline, createPreloadTrials, batchMediaAssets } from '../shared/helpers';
 import { initializeCat } from '../taskSetup';
 // trials
 import { dataQualityScreen } from '../shared/trials/dataQuality';
 import {
   setupStimulus,
-  fixationOnly,
   exitFullscreen,
   taskFinished,
   getAudioResponse,
   enterFullscreen,
   finishExperiment,
   practiceTransition,
+  feedback,
 } from '../shared/trials';
 import { afcMatch } from './trials/afcMatch';
 import { stimulus } from './trials/stimulus';
@@ -26,6 +25,17 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
   const heavy: boolean = taskStore().heavyInstructions;
 
   let corpus: StimulusType[] = taskStore().corpora.stimulus;
+
+  if (!heavy) {
+    corpus = corpus.filter((trial) => {
+      return !(trial.trialType.includes('something-same') && !(trial.assessmentStage === 'practice_response'));
+    });
+  }
+
+  taskStore('corpora', {
+    practice: taskStore().corpora.practice,
+    stimulus: corpus,
+  });
 
   // organize corpus into batches for preloading
   const batchSize = 25;
@@ -59,12 +69,22 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
     },
   };
 
+  const feedbackBlock = {
+    timeline: [feedback(true, 'feedbackCorrect', 'feedbackNotQuiteRight')], 
+    conditional_function: () => {
+      return (
+        taskStore().nextStimulus.assessmentStage === 'practice_response' &&
+        !taskStore().nextStimulus.trialType.includes('something-same-1')
+      );
+    },
+  };
+
   const stimulusBlock = {
-    timeline: [stimulus()],
+    timeline: [stimulus(), feedbackBlock],
   };
 
   const afcBlock = {
-    timeline: [afcMatch],
+    timeline: [afcMatch(), feedbackBlock],
   };
 
   const dataQualityBlock = {
