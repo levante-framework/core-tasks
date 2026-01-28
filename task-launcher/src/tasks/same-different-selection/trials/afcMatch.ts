@@ -8,6 +8,8 @@ import {
   PageStateHandler,
   PageAudioHandler,
   camelize,
+  enableOkButton,
+  disableOkButton,
 } from '../../shared/helpers';
 import { finishExperiment } from '../../shared/trials';
 import { taskStore } from '../../../taskStore';
@@ -32,10 +34,11 @@ function enableBtns(btnElements: HTMLButtonElement[]) {
   btnElements.forEach((btn) => btn.removeAttribute('disabled'));
 }
 
-export const afcMatch = {
+export const afcMatch = (trial?: StimulusType) => {
+  return {
   type: jsPsychAudioMultiResponse,
   data: () => {
-    const stim = taskStore().nextStimulus;
+    const stim = trial || taskStore().nextStimulus;
     let isPracticeTrial = stim.assessmentStage === 'practice_response';
     return {
       save_trial: stim.trialType !== 'instructions',
@@ -48,15 +51,8 @@ export const afcMatch = {
     return mediaAssets.audio.nullAudio;
   },
   prompt: () => {
-    const stimulus = taskStore().nextStimulus;
-    let prompt = camelize(stimulus.audioFile);
-    if (
-      taskStore().heavyInstructions &&
-      stimulus.assessmentStage !== 'practice_response' &&
-      stimulus.trialType !== 'instructions'
-    ) {
-      prompt += 'Heavy';
-    }
+    const stimulus = trial || taskStore().nextStimulus;
+    const prompt = camelize(stimulus.audioFile);
 
     const t = taskStore().translations;
     return `<div class="lev-stimulus-container">
@@ -73,7 +69,7 @@ export const afcMatch = {
   },
   prompt_above_buttons: true,
   button_choices: () => {
-    const stim = taskStore().nextStimulus;
+    const stim = trial || taskStore().nextStimulus;
     if (stim.assessmentStage === 'instructions') {
       return ['OK'];
     } else {
@@ -84,7 +80,7 @@ export const afcMatch = {
     }
   },
   button_html: () => {
-    const stim = taskStore().nextStimulus;
+    const stim = trial || taskStore().nextStimulus;
     const buttonClass = stim.assessmentStage === 'instructions' ? 'primary' : 'image-medium';
     return `<button class="${buttonClass}">%choice%</button>`;
   },
@@ -93,16 +89,8 @@ export const afcMatch = {
     // on click they will be selected
     // can select multiple cards and deselect them
     startTime = performance.now();
-    const stim = taskStore().nextStimulus;
-
-    let audioFile = stim.audioFile;
-    if (
-      taskStore().heavyInstructions &&
-      stim.assessmentStage !== 'practice_response' &&
-      stim.trialType !== 'instructions'
-    ) {
-      audioFile += '-heavy';
-    }
+    const stim = trial || taskStore().nextStimulus;
+    const audioFile = stim.audioFile;
 
     const audioConfig: AudioConfigType = {
       restrictRepetition: {
@@ -114,8 +102,22 @@ export const afcMatch = {
 
     const pageStateHandler = new PageStateHandler(audioFile, true);
     setupReplayAudio(pageStateHandler);
+
     const buttonContainer = document.getElementById('jspsych-audio-multi-response-btngroup') as HTMLDivElement;
-    const responseBtns = Array.from(buttonContainer.children)
+
+    // Add primary OK button under the other buttons
+    if (stim.trialType !== 'instructions') {
+      const okButton = document.createElement('button');
+      okButton.className = 'primary';
+      okButton.textContent = 'OK';
+      okButton.style.marginTop = '16px';
+      okButton.disabled = true;
+      okButton.addEventListener('click', () => {
+        jsPsych.finishTrial();
+      });
+      buttonContainer.parentNode?.insertBefore(okButton, buttonContainer.nextSibling);
+
+      const responseBtns = Array.from(buttonContainer.children)
       .map((btnDiv) => btnDiv.firstChild as HTMLButtonElement)
       .filter((btn) => !!btn);
     if (responseBtns.length === 5) {
@@ -127,10 +129,12 @@ export const afcMatch = {
     }
     responseBtns.forEach((card, i) =>
       card.addEventListener('click', async (e) => {
-        const answer = (card?.firstChild as HTMLImageElement)?.alt;
+        const answer = ((card as HTMLButtonElement)?.firstChild as HTMLImageElement)?.alt;
+
         if (!card) {
           return;
         }
+    
         if (card.classList.contains(SELECT_CLASS_NAME)) {
           card.classList.remove(SELECT_CLASS_NAME);
           selectedCards.splice(selectedCards.indexOf(answer), 1);
@@ -139,20 +143,24 @@ export const afcMatch = {
           card.classList.add(SELECT_CLASS_NAME);
           selectedCards.push(answer);
           selectedCardIdxs.push(i);
-          // afcMatch trial types look like n-match / n-unique
-          const requiredSelections = stim.requiredSelections;
-
-          if (selectedCards.length === requiredSelections) {
-            setTimeout(() => jsPsych.finishTrial(), 500);
-          }
         }
+      
+        if (selectedCards.length === stim.requiredSelections) {
+          enableOkButton();
+        } else {
+          disableOkButton();
+        }
+
         setTimeout(() => enableBtns(responseBtns), 500);
       }),
     );
+    }
   },
-  response_ends_trial: false,
+  response_ends_trial: () => {
+    return (trial || taskStore().nextStimulus).trialType === 'instructions';
+  },
   on_finish: () => {
-    const stim = taskStore().nextStimulus;
+    const stim = trial || taskStore().nextStimulus;
     const cat = taskStore().runCat;
 
     const endTime = performance.now();
@@ -320,5 +328,6 @@ export const afcMatch = {
         taskStore('sequentialTrials', newSequentialTrials);
       }
     }
-  },
+    },
+  };
 };

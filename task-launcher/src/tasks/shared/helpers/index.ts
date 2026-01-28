@@ -43,5 +43,6 @@ export { getAssetsPerTask } from './getAssetsPerTask';
 export { getChildSurveyResponses } from './childSurveyResponses';
 export { equalizeButtonSizes } from './equalizeButtonSizes';
 export { enableOkButton } from './enableOkButton';
+export { disableOkButton } from './disableOkButton';
 export { popAnimation, triggerAnimation, matrixDragAnimation } from './animateImages';
 export { shouldTerminateCat } from './shouldTerminateCat';

@@ -1,45 +1,46 @@
 // setup
 import 'regenerator-runtime/runtime';
 import { jsPsych } from '../taskSetup';
-import { initTrialSaving, initTimeline, createPreloadTrials, filterMedia, batchMediaAssets } from '../shared/helpers';
-import { prepareCorpus, prepareMultiBlockCat } from '../shared/helpers/prepareCat';
+import { initTrialSaving, initTimeline, createPreloadTrials, batchMediaAssets } from '../shared/helpers';
 import { initializeCat } from '../taskSetup';
 // trials
 import { dataQualityScreen } from '../shared/trials/dataQuality';
 import {
   setupStimulus,
-  fixationOnly,
   exitFullscreen,
   taskFinished,
   getAudioResponse,
   enterFullscreen,
   finishExperiment,
   practiceTransition,
+  feedback,
 } from '../shared/trials';
 import { afcMatch } from './trials/afcMatch';
 import { stimulus } from './trials/stimulus';
 import { taskStore } from '../../taskStore';
-import {
-  somethingSameDemo1,
-  somethingSameDemo2,
-  somethingSameDemo3,
-  matchDemo1,
-  matchDemo2,
-  heavyPractice,
-} from './trials/heavyInstructions';
 import { setTrialBlock } from './helpers/setTrialBlock';
-import { getLeftoverAssets } from '../shared/helpers/batchPreloading';
+import { batchTrials, getLeftoverAssets } from '../shared/helpers/batchPreloading';
 
 export default function buildSameDifferentTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const heavy: boolean = taskStore().heavyInstructions;
 
-  const corpus: StimulusType[] = taskStore().corpora.stimulus;
-  const preparedCorpus = prepareCorpus(corpus);
+  let corpus: StimulusType[] = taskStore().corpora.stimulus;
 
-  // create list of trials in each block
-  const blockList = prepareMultiBlockCat(corpus);
+  if (!heavy) {
+    corpus = corpus.filter((trial) => {
+      return !(trial.trialType.includes('something-same') && !(trial.assessmentStage === 'practice_response'));
+    });
+  }
 
-  const batchedMediaAssets = batchMediaAssets(mediaAssets, blockList, ['image', 'answer', 'distractors']);
+  taskStore('corpora', {
+    practice: taskStore().corpora.practice,
+    stimulus: corpus,
+  });
+
+  // organize corpus into batches for preloading
+  const batchSize = 25;
+  const batchedCorpus = batchTrials(corpus, batchSize);
+  const batchedMediaAssets = batchMediaAssets(mediaAssets, batchedCorpus, ['image', 'answer', 'distractors']);
 
   const initialMediaAssets = getLeftoverAssets(batchedMediaAssets, mediaAssets);
   initialMediaAssets.images = {}; // all sds images used in the task are specifed in corpus
@@ -68,19 +69,22 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
     },
   };
 
-  // used for instruction and practice trials
-  const ipBlock = (trial: StimulusType) => {
-    return {
-      timeline: [{ ...fixationOnly, stimulus: '' }, stimulus(trial)],
-    };
+  const feedbackBlock = {
+    timeline: [feedback(true, 'feedbackCorrect', 'feedbackNotQuiteRight')], 
+    conditional_function: () => {
+      return (
+        taskStore().nextStimulus.assessmentStage === 'practice_response' &&
+        !taskStore().nextStimulus.trialType.includes('something-same-1')
+      );
+    },
   };
 
   const stimulusBlock = {
-    timeline: [stimulus()],
+    timeline: [stimulus(), feedbackBlock],
   };
 
   const afcBlock = {
-    timeline: [afcMatch],
+    timeline: [afcMatch(), feedbackBlock],
   };
 
   const dataQualityBlock = {
@@ -90,16 +94,8 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
     },
   };
 
-  // all instructions + practice trials
-  const instructionPractice: StimulusType[] = heavy ? preparedCorpus.ipHeavy : preparedCorpus.ipLight;
-
-  // returns practice + instruction trials for a given block
-  function getPracticeInstructions(blockNum: number): StimulusType[] {
-    return instructionPractice.filter((trial) => trial.blockIndex == blockNum);
-  }
-
   // create list of numbers of trials per block
-  const blockCountList = setTrialBlock(false);
+  const {blockCountList, blockOperations} = setTrialBlock(false);
 
   const totalRealTrials = blockCountList.reduce((acc, total) => acc + total, 0);
   taskStore('totalTestTrials', totalRealTrials);
@@ -114,78 +110,45 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
   }
 
   // functions to add trials to blocks of each type
-  function updateTestDimensions() {
+  const updateTestDimensions = () => {
     timeline.push({ ...setupStimulus, stimulus: '' });
     timeline.push(stimulusBlock);
   }
 
-  function updateSomethingSame() {
+  const updateSomethingSame = () => {
     timeline.push({ ...setupStimulus, stimulus: '' });
     timeline.push(stimulusBlock);
     timeline.push(buttonNoise);
     timeline.push(dataQualityBlock);
   }
 
-  function updateMatching() {
+  const updateMatching = () => {
     timeline.push({ ...setupStimulus, stimulus: '' });
     timeline.push(afcBlock);
     timeline.push(buttonNoise);
     timeline.push(dataQualityBlock);
   }
 
-  // add to this list with any additional blocks
-  const blockOperations = [
+  // map of block operation functions
+  const blockFunctions = {
     updateTestDimensions,
     updateSomethingSame,
     updateMatching,
-    updateTestDimensions,
-    updateMatching,
-    updateMatching,
-  ];
+  };
 
-  // preload next batch of assets at these blocks
-  const preloadBlockIndexes = [0, 1, 2];
+  let trialCount = 0;
 
   // add trials to timeline according to block structure defined in blockOperations
   blockCountList.forEach((count, index) => {
-    if (preloadBlockIndexes.includes(index)) {
-      preloadBlock();
-    }
-
-    const currentBlockInstructionPractice = getPracticeInstructions(index);
-
-    // push in instruction + practice trials
-    if (index === 1 && heavy) {
-      // something's the same block has demo trials in between instructions
-      const firstInstruction = currentBlockInstructionPractice.shift();
-      if (firstInstruction != undefined) {
-        timeline.push(ipBlock(firstInstruction));
-      }
-
-      timeline.push(somethingSameDemo1);
-      timeline.push(somethingSameDemo2);
-      timeline.push(somethingSameDemo3);
-      currentBlockInstructionPractice.forEach((trial) => {
-        timeline.push(ipBlock(trial));
-      });
-      heavyPractice.forEach((trial) => {
-        timeline.push(trial);
-      });
-      timeline.push({ ...practiceTransition(), conditional_function: () => true });
-    } else {
-      currentBlockInstructionPractice.forEach((trial) => {
-        timeline.push(ipBlock(trial));
-      });
-    }
-
-    if (index === 2 && heavy) {
-      // 2-match has demo trials after instructions
-      timeline.push(matchDemo1);
-      timeline.push(matchDemo2);
-    }
-
+    // push in trials
     for (let i = 0; i < count; i += 1) {
-      blockOperations[index]();
+       // preload assets
+       if (trialCount % batchSize === 0) {
+        preloadBlock();
+      }
+      
+      blockFunctions[blockOperations[index] as keyof typeof blockFunctions]();
+      trialCount++;
     }
   });
 
