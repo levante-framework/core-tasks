@@ -1,7 +1,16 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { taskStore } from '../../../taskStore';
 import { mediaAssets } from '../../..';
-import { addPracticeButtonListeners, camelize, PageAudioHandler, PageStateHandler, replayButtonSvg, setupReplayAudio, popAnimation } from '../../shared/helpers';
+import { 
+  addPracticeButtonListeners, 
+  camelize, 
+  PageAudioHandler, 
+  PageStateHandler, 
+  replayButtonSvg, 
+  setupReplayAudio, 
+  popAnimation,
+  enableAllButtons
+} from '../../shared/helpers';
 import { isTouchScreen, jsPsych } from '../../taskSetup';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
@@ -76,7 +85,9 @@ export const downexStimulus = (layoutConfigMap: Record<string, LayoutConfigType>
                 classList.push('practice-btn');
             }
 
-            return `<button class='${classList.join(' ')}'>%choice%</button>`;
+            return `<button class='${classList.join(' ')}'; '${stim.assessmentStage === 'practice_response' ? 'disabled' : ''}'>
+                      %choice%
+                    </button>`;
         }, 
         on_load: async () => {
             startTime = performance.now();
@@ -193,6 +204,8 @@ export const downexStimulus = (layoutConfigMap: Record<string, LayoutConfigType>
               if (replayButton) {
                 (replayButton as HTMLButtonElement).disabled = false;
               }
+
+              enableAllButtons();
             }
 
             animateAndPlayAudio();

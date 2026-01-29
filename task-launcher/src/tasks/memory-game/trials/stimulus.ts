@@ -150,6 +150,7 @@ export function getCorsiBlocks(
         cue = defaultCue;
       }
 
+      // get the pre-assigned prompt duration values from task store
       const displayPromptDurations = taskStore().displayPromptDurations;
 
       return displayPromptDurations[cue as keyof typeof displayPromptDurations] * 1000;

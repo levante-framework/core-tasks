@@ -3,7 +3,7 @@ import { mediaAssets } from '../../..';
 import { PageStateHandler, PageAudioHandler, replayButtonSvg, setupReplayAudio, camelize, addPracticeButtonListeners } from '../../shared/helpers';
 import { isTouchScreen, jsPsych } from '../../taskSetup';
 import { taskStore } from '../../../taskStore';
-import { matrixDragAnimation, popAnimation } from '../../shared/helpers';
+import { displaceAnimation, enableAllButtons, popAnimation } from '../../shared/helpers';
 import { pulseOkButton } from '../../shared/helpers/pulseOkButton';
 
 let startTime: number;
@@ -274,7 +274,7 @@ export const downexInstructions1 = {
 
         // animate the target button to the center of stimImage
         if (stimImage && target) {
-          matrixDragAnimation(stimImage, target, 0.5, 0.5);
+          displaceAnimation(stimImage, target, 'origin', 0.5, 0.5, true);
 
           const lastAudioConfig: AudioConfigType = {
             restrictRepetition: {
@@ -286,11 +286,11 @@ export const downexInstructions1 = {
               if (replayButton) {
                 (replayButton as HTMLButtonElement).disabled = false;
               }
-              setTimeout(() => pulseOkButton(), 3000);
+              setTimeout(() => pulseOkButton(), 6000);
             }
           };
 
-          setTimeout(() => PageAudioHandler.playAudio(lastAudioUri, lastAudioConfig), 3000);
+          setTimeout(() => PageAudioHandler.playAudio(lastAudioUri, lastAudioConfig), 5000);
         } else {
           if (replayButton) {
             (replayButton as HTMLButtonElement).disabled = false;
@@ -409,7 +409,7 @@ export const downexInstructions3 = {
           return `<img src=${imageUrl} alt=${choice} />`;
       });
     },
-    button_html: () => '<button class="image-matrix practice-btn">%choice%</button>',
+    button_html: () => '<button class="image-matrix practice-btn"; disabled>%choice%</button>',
     keyboard_choices: () => 'NO_KEYS',
     on_load: async () => {
       startTime = performance.now();
@@ -526,6 +526,8 @@ export const downexInstructions3 = {
         if (replayButton) {
           (replayButton as HTMLButtonElement).disabled = false;
         }
+
+        enableAllButtons();
       }
 
       animateAndPlayAudio();
@@ -578,7 +580,7 @@ export const downexInstructions4 = {
           return `<img src=${imageUrl} alt=${choice} />`;
       });
     },
-    button_html: () => '<button class="image-matrix practice-btn">%choice%</button>',
+    button_html: () => '<button class="image-matrix practice-btn" disabled>%choice%</button>',
     keyboard_choices: () => 'NO_KEYS',
     on_load: async () => {
       startTime = performance.now();
@@ -681,6 +683,8 @@ export const downexInstructions4 = {
         if (replayButton) {
           (replayButton as HTMLButtonElement).disabled = false;
         }
+
+        enableAllButtons();
       }
 
       animateAndPlayAudio();

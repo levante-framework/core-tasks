@@ -336,6 +336,17 @@ button {
     }
   }
 
+  // for applying grayed-out styling independent of the disabled button state
+  &.image-grayed-out {
+    filter: grayscale(100%);
+    -moz-filter: grayscale(100%);
+    -ms-filter: grayscale(100%);
+    -o-filter: grayscale(100%);
+    filter: gray; /* IE6-9 */
+    -webkit-filter: grayscale(100%); /* Chrome 19+, Safari 6+, Safari 6+ iOS */
+    opacity: 0.6;
+  }
+
   &.image-large {
     @extend .button-base;
     padding: 0;
