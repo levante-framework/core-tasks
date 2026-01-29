@@ -188,7 +188,7 @@ export const downexInstructions = downexData.map((data: any) => {
         function triggerNextEvent() {
           if (trialEventOrder.length === 0) {
             enableOkBtn();
-            setTimeout(() => pulseOkButton(), 3000);
+            pulseOkButton(3000, taskStore().totalTrialCount);
             if (replayButton) {
               (replayButton as HTMLButtonElement).disabled = false;
             }

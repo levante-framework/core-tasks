@@ -286,7 +286,7 @@ export const downexInstructions1 = {
               if (replayButton) {
                 (replayButton as HTMLButtonElement).disabled = false;
               }
-              setTimeout(() => pulseOkButton(), 6000);
+              pulseOkButton(6000, taskStore().totalTrialCount);
             }
           };
 
@@ -349,7 +349,7 @@ const textOnlyDownexInstruction = textOnlyDownexInstructionData.map((data) => {
         },
         onEnded: () => {
           enableOkBtn();
-          setTimeout(() => pulseOkButton(), 3000);
+          pulseOkButton(3000, taskStore().totalTrialCount);
         }
       };
       

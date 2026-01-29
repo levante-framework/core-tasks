@@ -65,7 +65,7 @@ export const practiceTransition = (getPrompt?: () => string, forceRun = false) =
               maxRepetitions: 2,
             },
             onEnded: () => {
-              setTimeout(() => pulseOkButton(), 3000);
+              pulseOkButton(3000, taskStore().totalTrialCount);
             },
           };
           
