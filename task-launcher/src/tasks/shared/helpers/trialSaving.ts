@@ -132,7 +132,9 @@ export const initTrialSaving = (config: Record<string, any>) => {
 
     // config.firekit.finishRun(finishingMetadata);
 
-    config.firekit.finishRun();
+    if (!taskStore().demoMode) {
+      config.firekit.finishRun();
+    }
   });
 
   // @ts-ignore
@@ -149,7 +151,7 @@ export const initTrialSaving = (config: Record<string, any>) => {
 
   // @ts-ignore
   jsPsych.opts.on_data_update = extend(jsPsych.opts.on_data_update, (data) => {
-    if (data.save_trial) {
+    if (data.save_trial && !taskStore().demoMode) {
       // save_trial is a flag that indicates whether the trial should
       // be saved to Firestore. No point in writing it to the db.
       // creating a deep copy to prevent modifying of original data

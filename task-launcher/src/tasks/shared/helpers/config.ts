@@ -92,6 +92,7 @@ export const setSharedConfig = async (
     inferenceNumStories,
     semThreshold,
     startingTheta,
+    demoMode,
   } = cleanParams;
 
   const config = {
@@ -121,6 +122,7 @@ export const setSharedConfig = async (
     inferenceNumStories: Number(inferenceNumStories) || undefined,
     semThreshold: Number(semThreshold),
     startingTheta: Number(startingTheta),
+    demoMode: !!demoMode,
   };
 
   // default corpus if nothing is passed in
@@ -132,7 +134,9 @@ export const setSharedConfig = async (
     Object.entries(gameParams).map(([key, value]) => [key, config[key as keyof typeof config] ?? value]),
   );
 
-  await config.firekit.updateTaskParams(updatedGameParams);
+  if (!config.demoMode) {
+    await config.firekit.updateTaskParams(updatedGameParams);
+  }
 
   return config;
 };
