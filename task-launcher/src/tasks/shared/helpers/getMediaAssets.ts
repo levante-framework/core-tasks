@@ -1,5 +1,3 @@
-//@ts-ignore
-import { getDevice } from '@bdelab/roar-utils';
 import { camelize } from './camelize';
 
 type CategorizedObjectsType = {
@@ -30,18 +28,23 @@ export async function getMediaAssets(
   const bucket = parts[0];
   const folder = parts.slice(1).join('/');
 
-  const baseUrl = `https://storage.googleapis.com/storage/v1/b/${bucket}/o?prefix=${folder}/`;
+  const prefix = folder ? `${folder}/` : '';
+  const baseUrl = `https://storage.googleapis.com/storage/v1/b/${bucket}/o`;
+  const params = new URLSearchParams({ prefix });
 
   let url = baseUrl;
   if (nextPageToken) {
-    url += `&pageToken=${nextPageToken}`;
+    params.set('pageToken', nextPageToken);
+  }
+  if (params.toString()) {
+    url += `?${params.toString()}`;
   }
 
   const response = await fetch(url);
   const data: ResponseDataType = await response.json();
 
   data.items.forEach((item) => {
-    if (isLanguageAndDeviceValid(item.name, taskName, language) && isWhitelisted(item.name, whitelist)) {
+    if (isLanguageAndTaskValid(item.name, language, taskName) && isWhitelisted(item.name, whitelist)) {
       const contentType = item.contentType;
       const id = item.name;
       const path = `https://storage.googleapis.com/${bucket}/${id}`;
@@ -59,26 +62,28 @@ export async function getMediaAssets(
   });
 
   if (data.nextPageToken) {
-    return getMediaAssets(bucketName, whitelist, taskName, language, data.nextPageToken, categorizedObjects);
+    return getMediaAssets(bucketName, whitelist, language, taskName, data.nextPageToken, categorizedObjects);
   } else {
     return categorizedObjects;
   }
 }
 
-function isLanguageAndDeviceValid(filePath: string, languageCode: string, taskName: string) {
+function isLanguageAndTaskValid(filePath: string, languageCode: string, taskName: string) {
   const parts = filePath.split('/');
-
-  if (parts.length !== 3) {
+  if (parts.length < 3) {
     return false;
-  } else if (parts[0] === 'visual') {
-    // visual assets have task prefix
-    return parts[1] === taskName && parts[2].length !== 0;
-  } else if (parts[0] === 'audio') {
-    // audio assets have language prefix
-    return parts[1] == languageCode && parts[2].length !== 0;
   }
 
-  return false; // Not a valid path
+  const assetType = parts[0];
+  if (assetType === 'audio') {
+    return parts[1] === languageCode && parts[2].length !== 0;
+  }
+
+  if (assetType === 'visual') {
+    return parts[1] === taskName && parts[2].length !== 0;
+  }
+
+  return false;
 }
 
 // TODO: allow nested whitelisting (whitelisting within an already whitelisted folder)
