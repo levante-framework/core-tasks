@@ -16,8 +16,7 @@ import { getChildSurveyResponses } from './childSurveyResponses';
 
 type ParsedRowType = {
   source: string;
-  block_index?: string;
-  blockIndex?: number;
+  block_index: number
   task: string;
   prompt: string;
   item: string | number[];
@@ -48,15 +47,7 @@ type ParsedRowType = {
   randomize?: string;
   trial_num: number;
   downex?: string;
-};
-
-export const sdsPhaseCount = {
-  block1: 0,
-  block2: 0,
-  block3: 0,
-  block4: 0,
-  block5: 0,
-  block6: 0,
+  block_threshold?: number;
 };
 
 let totalTrials = 0;
@@ -96,13 +87,19 @@ const transformCSV = (
   let sdsBlock5Count = 0;
   let sdsBlock6Count = 0;
 
+  const blockThresholds: number[] = [];
+
   csvInput.forEach((row) => {
     // Leaving this here for quick testing of a certain type of trial
     // if (!row.trial_type.includes('Number Line')) return;
 
+    if (row.block_threshold && !blockThresholds.includes(row.block_threshold)) {
+      blockThresholds.push(row.block_threshold);
+    }
+
     const newRow: StimulusType = {
       source: row.source,
-      block_index: row.block_index,
+      block_index: _toNumber(row.block_index),
       task: row.task,
       // for testing, will be removed
       prompt: row.prompt,
@@ -145,32 +142,6 @@ const transformCSV = (
       newRow.distractors = (newRow.distractors as string[]).map((choice) => camelize(choice));
     }
 
-    if (row.task === 'same-different-selection') {
-      newRow.requiredSelections = parseInt(row.required_selections);
-      newRow.blockIndex = parseInt(row.block_index || '');
-      // all instructions are part of phase 1
-      if (newRow.blockIndex == 1) {
-        sdsBlock1Count += 1;
-      } else if (newRow.blockIndex == 2) {
-        sdsBlock2Count += 1;
-      } else if (newRow.blockIndex == 3) {
-        sdsBlock3Count += 1;
-      } else if (newRow.blockIndex == 4) {
-        sdsBlock4Count += 1;
-      } else if (newRow.blockIndex == 5) {
-        sdsBlock5Count += 1;
-      } else {
-        sdsBlock6Count += 1;
-      }
-
-      sdsPhaseCount.block1 = sdsBlock1Count;
-      sdsPhaseCount.block2 = sdsBlock2Count;
-      sdsPhaseCount.block3 = sdsBlock3Count;
-      sdsPhaseCount.block4 = sdsBlock4Count;
-      sdsPhaseCount.block5 = sdsBlock5Count;
-      sdsPhaseCount.block6 = sdsBlock6Count;
-    }
-
     let currentTrialType = newRow.trialType;
     if (currentTrialType !== currTrialTypeBlock) {
       currTrialTypeBlock = currentTrialType;
@@ -208,6 +179,8 @@ const transformCSV = (
     }
   });
 
+  taskStore('blockThresholds', blockThresholds.sort((a, b) => a - b));
+
   if (task === 'roar-inference') {
     const inferenceNumStories = taskStore().inferenceNumStories;
     const numItemsPerStory = taskStore().stimulusBlocks;
@@ -229,7 +202,7 @@ export const getCorpus = async (config: Record<string, any>, isDev: boolean) => 
 
   const bucketName = getBucketName(task, isDev, 'corpus');
 
-  const corpusUrl = `https://storage.googleapis.com/${bucketName}/${corpus}.csv?alt=media`;
+  const corpusUrl = `https://storage.googleapis.com/${bucketName}/${corpus}.csv?alt=media&v=3`;
 
   function downloadCSV(url: string) {
     return new Promise((resolve, reject) => {
