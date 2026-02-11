@@ -45,3 +45,4 @@ export { equalizeButtonSizes } from './equalizeButtonSizes';
 export { enableOkButton } from './enableOkButton';
 export { popAnimation, triggerAnimation, matrixDragAnimation } from './animateImages';
 export { shouldTerminateCat } from './shouldTerminateCat';
+export { checkFallbackCriteria } from './checkFallbackCriteria';
