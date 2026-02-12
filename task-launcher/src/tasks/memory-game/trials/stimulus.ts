@@ -5,7 +5,7 @@ import _isEqual from 'lodash/isEqual';
 import { finishExperiment } from '../../shared/trials';
 import { mediaAssets } from '../../..';
 import { getMemoryGameType } from '../helpers/getMemoryGameType';
-import { setupReplayAudio, PageAudioHandler, replayButtonSvg, PageStateHandler } from '../../shared/helpers';
+import { setupReplayAudio, PageAudioHandler, replayButtonSvg, PageStateHandler, checkFallbackCriteria } from '../../shared/helpers';
 import { taskStore } from '../../../taskStore';
 
 type CorsiBlocksArgs = {
@@ -116,21 +116,34 @@ export function getCorsiBlocks(
     type: jsPsychCorsiBlocks,
     sequence: () => {
       // On very first trial, generate initial sequence
-      if (!generatedSequence) {
+      if (mode === 'display') {
         const numOfBlocks: number = Number(taskStore().numOfBlocks);
-        generatedSequence = generateRandomSequence(
-          { numOfBlocks, sequenceLength: customSeqLength || sequenceLength, previousSequence: null }
-        );
+        // Avoid generating the same sequence twice in a row
+        let newSequence = generateRandomSequence({
+          numOfBlocks,
+          sequenceLength: customSeqLength || sequenceLength,
+          previousSequence: generatedSequence,
+        });
+
+        while (_isEqual(newSequence, generatedSequence)) {
+          newSequence = generateRandomSequence({
+            numOfBlocks,
+            sequenceLength: customSeqLength || sequenceLength,
+            previousSequence: generatedSequence,
+          });
+        }
+
+        generatedSequence = newSequence;
       }
 
-      if (mode === 'input' && reverse) {
+      if (generatedSequence && mode === 'input' && reverse) {
         return [...generatedSequence].reverse(); // Create a copy before reversing
       } else {
         return generatedSequence;
       }
     },
     blocks: () => {
-      if (!grid) {
+      if (mode === 'display') {
         const { numOfBlocks, blockSize, gridSize } = taskStore();
         grid = createGrid({ x, y, numOfBlocks, blockSize, gridSize, blockSpacing });
       }
@@ -220,26 +233,6 @@ export function getCorsiBlocks(
         selectedCoordinates = [];
 
         const numOfBlocks = taskStore().numOfBlocks;
-
-        // resuse the same sequence for incorrect downward extension trials
-        if (data.correct || !isPractice || !heavyInstructions) {
-          // Avoid generating the same sequence twice in a row
-          let newSequence = generateRandomSequence({
-            numOfBlocks,
-            sequenceLength: customSeqLength || sequenceLength,
-            previousSequence: generatedSequence,
-          });
-
-          while (_isEqual(newSequence, generatedSequence)) {
-            newSequence = generateRandomSequence({
-              numOfBlocks,
-              sequenceLength: customSeqLength || sequenceLength,
-              previousSequence: generatedSequence,
-            });
-          }
-
-          generatedSequence = newSequence;
-        }
 
         if (!isPractice) {
           timeoutIDs.forEach((id) => clearTimeout(id));

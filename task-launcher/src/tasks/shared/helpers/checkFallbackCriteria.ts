@@ -1,8 +1,14 @@
 import { jsPsych } from "../../taskSetup";
 
-export const checkFallbackCriteria = () => {
+export const checkFallbackCriteria = (filterInputTrials: boolean = false) => {
     const data = jsPsych.data.get().filter({assessment_stage: 'test_response'}).last(4);
-    const incorrectTrials = data.filter({correct: false}).count();
+ 
+    let incorrectTrials = data.filter({correct: false});
+    if (filterInputTrials) {
+      incorrectTrials = incorrectTrials.filter({trialMode: 'input'});
+    }
 
-    return incorrectTrials >= 2;
+    const numIncorrect = incorrectTrials.count();
+
+    return numIncorrect >= 2;
 };
