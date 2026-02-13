@@ -358,9 +358,8 @@ function doOnLoad(
         if (inputSequence !== null) {
           const nextBlockIndex = inputSequence[clickCount];
 
-          if (i === nextBlockIndex) {
-            (event.target as HTMLDivElement).style.backgroundColor = HIGHLIGHT_COLOR
-          }
+          const color = isPractice && i !== nextBlockIndex ? INCORRECT_COLOR : HIGHLIGHT_COLOR;
+          (event.target as HTMLDivElement).style.backgroundColor = color;
           
           Array.from(blocks).forEach((element, j) => {
             if (i !== j) {
