@@ -15,29 +15,20 @@ export function addPracticeButtonListeners(
   onIncorrect?: () => void,
 ) {
   const practiceBtns: NodeListOf<HTMLButtonElement> = document.querySelectorAll('.practice-btn');
-  let keyboardFeedbackHandler: (ev: KeyboardEvent) => void;
 
   practiceBtns.forEach((btn, i) => {
     const eventType = isTouchScreen ? 'touchend' : 'click';
 
     btn.addEventListener(eventType, (e) => {
-      handlePracticeButtonPress(btn, answer, practiceBtns, false, i, choices, onCorrect, onIncorrect);
+      handlePracticeButtonPress(btn, answer, practiceBtns, i, choices, onCorrect, onIncorrect);
     });
   });
-
-  if (!isTouchScreen) {
-    keyboardFeedbackHandler = (e: KeyboardEvent) => keyboardBtnFeedback(e, practiceBtns, answer, choices);
-    document.addEventListener('keydown', keyboardFeedbackHandler);
-
-    return keyboardFeedbackHandler;
-  }
 }
 
 function handlePracticeButtonPress(
   btn: HTMLButtonElement,
   answer: string,
   practiceBtns: NodeListOf<HTMLButtonElement>,
-  isKeyBoardResponse: boolean,
   responsevalue: string | number,
   choices: string[],
   onCorrect?: () => void,
@@ -60,8 +51,7 @@ function handlePracticeButtonPress(
         jsPsych.finishTrial({
           response: choice,
           incorrectPracticeResponses: taskStore().incorrectPracticeResponses,
-          button_response: !isKeyBoardResponse ? responsevalue : null,
-          keyboard_response: isKeyBoardResponse ? responsevalue : null,
+          button_response: responsevalue,
         }),
       onCorrect ? 3000 : 1000, // if callback is provided, give more time for callback to finish before ending trial
     );
@@ -80,41 +70,5 @@ function handlePracticeButtonPress(
 
     PageAudioHandler.stopAndDisconnectNode();
     onIncorrect ? onIncorrect() : PageAudioHandler.playAudio(mediaAssets.audio[incorrectPromptKey]);
-  }
-}
-
-const getKeyboardChoices = (choices: string[]) => {
-  const buttonLength = choices.length;
-  if (buttonLength === 1) {
-    // instruction trial
-    return ['Enter'];
-  }
-  if (buttonLength === 2) {
-    return ['ArrowLeft', 'ArrowRight'];
-  }
-  if (buttonLength === 3) {
-    return ['ArrowUp', 'ArrowLeft', 'ArrowRight'];
-  }
-  if (buttonLength === 4) {
-    return ['ArrowUp', 'ArrowLeft', 'ArrowRight', 'ArrowDown'];
-  }
-  throw new Error('More than 4 buttons are not supported yet');
-};
-
-async function keyboardBtnFeedback(
-  e: KeyboardEvent,
-  practiceBtns: NodeListOf<HTMLButtonElement>,
-  answer: string,
-  choices: string[],
-) {
-  const allowedKeys = getKeyboardChoices(choices);
-  const index = allowedKeys.findIndex((f) => f.toLowerCase() === e.key.toLowerCase());
-
-  if (allowedKeys.includes(e.key)) {
-    const btnClicked = practiceBtns[index];
-
-    if (btnClicked) {
-      handlePracticeButtonPress(btnClicked, answer, practiceBtns, true, e.key.toLowerCase(), choices);
-    }
   }
 }
