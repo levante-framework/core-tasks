@@ -131,6 +131,7 @@ const developmentConfig = merge(webConfig, {
 
 module.exports = async (env, args) => {
   const dbEnv = env.dbmode === 'production' ? 'production' : 'development';
+  const demoMode = env.demo === 'true';
 
   const envDependentConfig = {
     plugins: [
@@ -138,6 +139,7 @@ module.exports = async (env, args) => {
       new webpack.DefinePlugin({
         ENV: JSON.stringify(dbEnv),
         EMULATORS: JSON.stringify(env.EMULATORS),
+        DEMO: JSON.stringify(demoMode),
       }),
       new webpack.ProvidePlugin({
         process: 'process/browser',

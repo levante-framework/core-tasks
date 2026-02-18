@@ -2,12 +2,12 @@ import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-respons
 import { taskStore } from '../../../taskStore';
 import { mediaAssets } from '../../..';
 import { addPracticeButtonListeners, camelize, PageAudioHandler, PageStateHandler, replayButtonSvg, setupReplayAudio, popAnimation } from '../../shared/helpers';
-import { jsPsych } from '../../taskSetup';
+import { isTouchScreen, jsPsych } from '../../taskSetup';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 let practiceResponses = []
 let startTime: number;
-let currentTrialId: string; // used to prevent audio from overlapping between trials
+let audioEnabled = false; // disable audio if the trial has changed since the loop started - prevent overlapping audio
 
 export const downexStimulus = (layoutConfigMap: Record<string, LayoutConfigType>, animate: boolean) => {
     return {
@@ -82,7 +82,6 @@ export const downexStimulus = (layoutConfigMap: Record<string, LayoutConfigType>
             startTime = performance.now();
 
             const stim = taskStore().nextStimulus;
-            currentTrialId = stim.itemId;
 
             // set up replay audio with animations
             const trialAudio = stim.audioFile;
@@ -112,12 +111,14 @@ export const downexStimulus = (layoutConfigMap: Record<string, LayoutConfigType>
 
             function onCorrect() {
                 PageAudioHandler.stopAndDisconnectNode();
+                audioEnabled = false;
                 PageAudioHandler.playAudio(mediaAssets.audio.feedbackRightOne);
             }
 
             function onIncorrect() {
                 PageAudioHandler.stopAndDisconnectNode();
-                
+                audioEnabled = false;
+
                 const rspImages = buttons.map(button => button.querySelector('img'));
                 const targetImageIdx = rspImages.findIndex(image => image?.alt === stim.answer);
 
@@ -132,7 +133,7 @@ export const downexStimulus = (layoutConfigMap: Record<string, LayoutConfigType>
                 PageAudioHandler.playAudio(mediaAssets.audio.matrixReasoningFeedbackIncorrectDownex);
             }
 
-            addPracticeButtonListeners(stim.answer.toString(), false, itemLayoutConfig.response.values, onCorrect, onIncorrect);
+            addPracticeButtonListeners(stim.answer.toString(), isTouchScreen, itemLayoutConfig.response.values, onCorrect, onIncorrect);
 
             async function animateAndPlayAudio() {
               // replay button should be disabled while animations are happening
@@ -154,13 +155,15 @@ export const downexStimulus = (layoutConfigMap: Record<string, LayoutConfigType>
                   const audioUri = mediaAssets.audio[camelize(trialAudio)] || mediaAssets.audio.nullAudio;
                   PageAudioHandler.playAudio(audioUri);
               } else {
-                  let thisTrialId = stim.itemId;
-              
-                  for (const audioFile of trialAudio) {
+                  for (const [index, audioFile] of trialAudio.entries()) {
                       const audioUri = mediaAssets.audio[camelize(audioFile)] || mediaAssets.audio.nullAudio;
+
+                      if (index === 0) {
+                        audioEnabled = true;
+                      }
                   
                       // make sure the trial has not changed since the loop started
-                      if (thisTrialId !== currentTrialId) {
+                      if (!audioEnabled) {
                           break;
                       }
                     
@@ -189,7 +192,7 @@ export const downexStimulus = (layoutConfigMap: Record<string, LayoutConfigType>
         },
         on_finish: (data: any) => {
             PageAudioHandler.stopAndDisconnectNode();
-            currentTrialId = '';
+            audioEnabled = false;
 
             const stimulus = taskStore().nextStimulus;
             const itemLayoutConfig = layoutConfigMap?.[stimulus.itemId];

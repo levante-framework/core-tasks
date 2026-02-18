@@ -9,6 +9,8 @@ import { readyToPlay, reverseOrderPrompt, reverseOrderInstructions, defaultInstr
 import { taskStore } from '../../taskStore';
 import { mediaAssets } from '../..';
 
+const preventAutoFinish = taskStore().heavyInstructions;
+
 const generatePracticeTrialTimeline = (reverse: boolean, tryAgainText: string, repetitions: number) => {
   const basicBlock = [
     getCorsiBlocks({ mode: 'display', isPractice: true, reverse }),
@@ -58,21 +60,23 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
     timeline: [...generatePracticeTrialTimeline(true, 'memoryGameBackwardTryAgain', 3)],
   };
 
-  const forwardTrial = {
-    timeline: [getCorsiBlocks({ mode: 'display' }), getCorsiBlocks({ mode: 'input' })],
-    conditional_function: () => {
-      return taskStore().numIncorrect < taskStore().maxIncorrect;
-    },
+  const forwardTrial = () => {
+    return {
+      timeline: [getCorsiBlocks({ mode: 'display' }), getCorsiBlocks({ mode: 'input', preventAutoFinish })],
+        conditional_function: () => {
+          return taskStore().numIncorrect < taskStore().maxIncorrect;
+        },
+      }
   };
 
   const corsiBlocksStimulus = {
-    timeline: [forwardTrial],
+    timeline: [forwardTrial()],
     repetitions: 20,
   };
 
   // last forward trial by itself in order to reset sequence length back to 2 for backward phase
   const forwardTrialResetSeq = {
-    timeline: [getCorsiBlocks({ mode: 'display' }), getCorsiBlocks({ mode: 'input', resetSeq: true })],
+    timeline: [getCorsiBlocks({ mode: 'display' }), getCorsiBlocks({ mode: 'input', resetSeq: true, preventAutoFinish })],
     conditional_function: () => {
       const result = taskStore().numIncorrect < taskStore().maxIncorrect;
     
@@ -83,7 +87,7 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
   };
 
   const corsiBlocksReverse = {
-    timeline: [getCorsiBlocks({ mode: 'display', reverse: true }), getCorsiBlocks({ mode: 'input', reverse: true })],
+    timeline: [getCorsiBlocks({ mode: 'display', reverse: true }), getCorsiBlocks({ mode: 'input', reverse: true, preventAutoFinish })],
     repetitions: 21,
   };
 
@@ -103,7 +107,7 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
     return {
       timeline: [
         getCorsiBlocks(
-          { reverse,mode: 'input', isPractice: true, customSeqLength: seqlength, animation: 'pulse', prompt }
+          { reverse, mode: 'input', isPractice: true, customSeqLength: seqlength, animation: 'pulse', prompt }
         ),
       ], 
       conditional_function: () => {
@@ -117,13 +121,13 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
     currentSeqlength: number, 
     setNextSeqLength: number, 
     displayPrompt: boolean, 
-    preventAutoFinish = false,
+    preventAutoFinishOnDisplay = false,
     animation?: 'pulse' | 'cursor',
   ) => {
     return {
       timeline: [
-        getCorsiBlocks({ reverse, mode: 'display', isPractice: true, customSeqLength: currentSeqlength, displayPrompt, preventAutoFinish }),
-        getCorsiBlocks({ reverse, mode: 'input', isPractice: true, customSeqLength: setNextSeqLength, animation }),
+        getCorsiBlocks({ reverse, mode: 'display', isPractice: true, customSeqLength: currentSeqlength, displayPrompt, preventAutoFinish: preventAutoFinishOnDisplay }),
+        getCorsiBlocks({ reverse, mode: 'input', isPractice: true, customSeqLength: setNextSeqLength, animation, preventAutoFinish: true }),
         downexFeedbackCorrect,
         downexFeedbackIncorrect(reverse, setNextSeqLength, reverse ? 'memoryGameInstruct11Downex' : 'memoryGameFeedbackIncorrectDownex'),
       ]
@@ -136,7 +140,7 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
       downexPracticeTrial(false, 1, 1, true, true, 'cursor'),
       downexPracticeTrial(false, 1, 2, true, true),
       downexInstructions[1],
-      downexPracticeTrial(false,2, 2, true, false, 'cursor'),
+      downexPracticeTrial(false, 2, 2, true, false, 'cursor'),
       downexPracticeTrial(false, 2, 2, true),
       downexPracticeTrial(false, 2, 2, true),
       downexInstructions[2],

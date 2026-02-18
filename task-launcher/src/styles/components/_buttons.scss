@@ -292,6 +292,50 @@ button {
     }
   }
 
+  // add padding for matrix reasoning buttons so that the image is not cut off
+  &.image-matrix {
+    @extend .button-base;
+    padding: 0;
+    box-sizing: border-box;
+    border-color: $bg-button-primary;
+    min-width: unset !important;
+    min-height: unset !important;
+    background-color: $bg-bubble-base;
+
+    img {
+      border: none;
+      width: $response-size-default;
+      height: $response-size-default;
+      padding: 1vh;
+      margin: 0;
+      float: left;
+    }
+
+    @include respond-to('small-medium') {
+      img {
+        width: $response-size-sm;
+        height: $response-size-sm;
+        padding: 1vh;
+      }
+    }
+
+    @include respond-to('small') {
+      img {
+        width: $response-size-s;
+        height: $response-size-s;
+        padding: 1vh;
+      }
+    }
+
+    &:hover {
+      border-color: $bg-accent_secondary;
+    }
+
+    &:active {
+      border-color: $border-button-primary-clicked;
+    }
+  }
+
   &.image-large {
     @extend .button-base;
     padding: 0;
