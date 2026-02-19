@@ -85,7 +85,7 @@ export const downexStimulus = (layoutConfigMap: Record<string, LayoutConfigType>
                 classList.push('practice-btn');
             }
 
-            return `<button class='${classList.join(' ')}'; '${stim.assessmentStage === 'practice_response' ? 'disabled' : ''}'>
+            return `<button class="${classList.join(' ')}" ${stim.assessmentStage === 'practice_response' ? 'disabled' : ''}>
                       %choice%
                     </button>`;
         }, 
