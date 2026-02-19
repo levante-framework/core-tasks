@@ -20,22 +20,16 @@ import {
   taskFinished,
 } from '../shared/trials';
 import { setTrialBlock } from './helpers/setTrialBlock';
-import {
-  matchDemo1,
-  matchDemo2,
-  somethingSameDemo1,
-  somethingSameDemo2,
-  somethingSameDemo3,
-} from './trials/heavyInstructions';
 import { dataQualityScreen } from '../shared/trials/dataQuality';
 import { initializeCat, jsPsych } from '../taskSetup';
+import { legacyStimulus } from './trials/legacyStimulus';
 
 export default function buildSameDifferentTimelineCat(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
   const heavy: boolean = taskStore().heavyInstructions;
 
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
-  const preparedCorpus = prepareCorpus(corpus);
+  const preparedCorpus = prepareCorpus(corpus, true);
 
   const catCorpus = setupSds(taskStore().corpora.stimulus);
   const allBlocks = prepareMultiBlockCat(catCorpus);
@@ -68,7 +62,15 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
 
   // used for instruction and practice trials
   const ipBlock = (trial: StimulusType) => {
-    const trialGenerator = trial.trialType.includes('match') ? afcMatch : stimulus;
+    let trialGenerator;
+    if (trial.trialType.includes('match')) {
+      trialGenerator = afcMatch;
+    } else if (taskStore().newSds) {
+      trialGenerator = stimulus;
+    } else {
+      trialGenerator = legacyStimulus;
+    }
+
     const practice = trial.assessmentStage === 'practice_response';
     const timeline = practice && !trial.trialType.includes('something-same-1') ? 
       [{ ...fixationOnly, stimulus: '' }, trialGenerator(trial), feedbackBlock] :
@@ -80,7 +82,10 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
   };
 
   const feedbackBlock = {
-    timeline: [feedback(true, 'feedbackCorrect', 'feedbackNotQuiteRight')]
+    timeline: [feedback(true, 'feedbackCorrect', 'feedbackNotQuiteRight')], 
+    conditional_function: () => {
+      return taskStore().newSds;
+    },
   };
 
   // returns timeline object containing the appropriate trials - only runs if they match what is in taskStore
@@ -88,7 +93,7 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
     const timeline = [];
     for (let i = 0; i < trialNum; i++) {
       if (trialType === 'stimulus') {
-        timeline.push(stimulus());
+        timeline.push(taskStore().newSds ? stimulus() : legacyStimulus());
         timeline.push(buttonNoise);
       } else {
         timeline.push(afcMatch());
@@ -145,7 +150,7 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
     });
 
     // only younger kids get something-same blocks
-    if (!heavy && index === 1) {
+    if (!heavy && index === 1 && taskStore().newSds) {
       return;
     }
 

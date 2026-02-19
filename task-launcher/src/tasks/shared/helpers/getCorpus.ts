@@ -90,7 +90,7 @@ const transformCSV = (
       item: writeItem(row),
       origItemNum: row.orig_item_num,
       trialType: row.trial_type,
-      image: row?.image?.includes(',') ? (row.image as string).split(',') : row?.image,
+      image: row?.image?.includes(',') ? (row.image as string).replace(" ", "").split(',') : row?.image,
       timeLimit: row.time_limit,
       answer: _toNumber(row.answer) || row.answer,
       assessmentStage: row.assessment_stage,
@@ -110,11 +110,8 @@ const transformCSV = (
         }
       })(),
       audioFile: row.audio_file?.includes(',') ? (row.audio_file as string).split(',') : row.audio_file as string,
-      // difficulty must be undefined for non-instruction/practice trials to avoid running cat
-      difficulty:
-        taskStore().runCat || row.trial_type === 'instructions' || row.assessment_stage === 'practice_response'
-          ? parseFloat(row.d || row.difficulty)
-          : NaN,
+      // difficulty must be undefined to avoid running cat
+      difficulty: taskStore().runCat ? parseFloat(row.d || row.difficulty) : NaN,
       randomize: row.randomize as 'yes' | 'no' | 'at_block_level',
       trialNumber: row.trial_num,
       downex: row.downex?.toUpperCase() === 'TRUE',
@@ -168,7 +165,7 @@ export const getCorpus = async (config: Record<string, any>, isDev: boolean) => 
 
   const bucketName = getBucketName(task, isDev, 'corpus');
 
-  const corpusUrl = `https://storage.googleapis.com/${bucketName}/${corpus}.csv?alt=media`;
+  const corpusUrl = `https://storage.googleapis.com/${bucketName}/${corpus}.csv?alt=media?v=2`;
 
   function downloadCSV(url: string) {
     return new Promise((resolve, reject) => {

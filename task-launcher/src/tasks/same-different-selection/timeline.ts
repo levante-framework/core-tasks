@@ -17,6 +17,7 @@ import {
 } from '../shared/trials';
 import { afcMatch } from './trials/afcMatch';
 import { stimulus } from './trials/stimulus';
+import { legacyStimulus } from './trials/legacyStimulus';
 import { taskStore } from '../../taskStore';
 import { setTrialBlock } from './helpers/setTrialBlock';
 import { batchTrials, getLeftoverAssets } from '../shared/helpers/batchPreloading';
@@ -26,16 +27,16 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
 
   let corpus: StimulusType[] = taskStore().corpora.stimulus;
 
-  if (!heavy) {
+  if (!heavy && taskStore().newSds) {
     corpus = corpus.filter((trial) => {
       return !(trial.trialType.includes('something-same') && !(trial.assessmentStage === 'practice_response'));
     });
-  }
 
-  taskStore('corpora', {
-    practice: taskStore().corpora.practice,
-    stimulus: corpus,
-  });
+    taskStore('corpora', {
+      practice: taskStore().corpora.practice,
+      stimulus: corpus,
+    });
+  }
 
   // organize corpus into batches for preloading
   const batchSize = 25;
@@ -74,13 +75,14 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
     conditional_function: () => {
       return (
         taskStore().nextStimulus.assessmentStage === 'practice_response' &&
-        !taskStore().nextStimulus.trialType.includes('something-same-1')
+        !taskStore().nextStimulus.trialType.includes('something-same-1') &&
+        taskStore().newSds
       );
     },
   };
 
   const stimulusBlock = {
-    timeline: [stimulus(), feedbackBlock],
+    timeline: [(taskStore().newSds ? stimulus() : legacyStimulus()), feedbackBlock],
   };
 
   const afcBlock = {
@@ -94,8 +96,9 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
     },
   };
 
+
   // create list of numbers of trials per block
-  const {blockCountList, blockOperations} = setTrialBlock(false);
+  const {blockCountList, blockOperations} = setTrialBlock(false); 
 
   const totalRealTrials = blockCountList.reduce((acc, total) => acc + total, 0);
   taskStore('totalTestTrials', totalRealTrials);

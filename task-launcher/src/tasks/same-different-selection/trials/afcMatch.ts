@@ -107,15 +107,17 @@ export const afcMatch = (trial?: StimulusType) => {
 
     // Add primary OK button under the other buttons
     if (stim.trialType !== 'instructions') {
-      const okButton = document.createElement('button');
-      okButton.className = 'primary';
-      okButton.textContent = 'OK';
-      okButton.style.marginTop = '16px';
-      okButton.disabled = true;
-      okButton.addEventListener('click', () => {
-        jsPsych.finishTrial();
-      });
-      buttonContainer.parentNode?.insertBefore(okButton, buttonContainer.nextSibling);
+      if (taskStore().newSds) {
+        const okButton = document.createElement('button');
+        okButton.className = 'primary';
+        okButton.textContent = 'OK';
+        okButton.style.marginTop = '16px';
+        okButton.disabled = true;
+        okButton.addEventListener('click', () => {
+          jsPsych.finishTrial();
+        });
+        buttonContainer.parentNode?.insertBefore(okButton, buttonContainer.nextSibling);
+      }
 
       const responseBtns = Array.from(buttonContainer.children)
       .map((btnDiv) => btnDiv.firstChild as HTMLButtonElement)
@@ -145,11 +147,20 @@ export const afcMatch = (trial?: StimulusType) => {
           selectedCardIdxs.push(i);
         }
       
-        if (selectedCards.length === stim.requiredSelections) {
-          enableOkButton();
+        if (taskStore().newSds) {
+          if (selectedCards.length === stim.requiredSelections) {
+            enableOkButton();
+          } else {
+            disableOkButton();
+          }
         } else {
-          disableOkButton();
+          const requiredSelections = stim.requiredSelections;
+
+          if (selectedCards.length === requiredSelections) {
+            setTimeout(() => jsPsych.finishTrial(), 500);
+          }
         }
+        
 
         setTimeout(() => enableBtns(responseBtns), 500);
       }),
@@ -157,7 +168,7 @@ export const afcMatch = (trial?: StimulusType) => {
     }
   },
   response_ends_trial: () => {
-    return (trial || taskStore().nextStimulus).trialType === 'instructions';
+    return (trial || taskStore().nextStimulus).trialType === 'instructions' && taskStore().newSds;
   },
   on_finish: () => {
     const stim = trial || taskStore().nextStimulus;

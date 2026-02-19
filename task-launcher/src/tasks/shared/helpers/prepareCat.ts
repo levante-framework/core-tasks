@@ -4,7 +4,7 @@ import { cat } from '../../taskSetup';
 import { jsPsych } from '../../taskSetup';
 
 // separates trials from corpus into blocks depending on for heavy/light instructions and CAT
-export function prepareCorpus(corpus: StimulusType[]) {
+export function prepareCorpus(corpus: StimulusType[], fillInSdsDifficulty: boolean = false) {
   const excludedTrialTypes = '3D';
   // limit random starting items so that their difficulty is less than 0
   const maxTrialDifficulty = 0;
@@ -28,6 +28,18 @@ export function prepareCorpus(corpus: StimulusType[]) {
     ipLight: lightInstructionPracticeTrials,
     test: corpus.filter((trial) => !instructionPracticeTrials.includes(trial)),
   };
+
+  // something same 1 trials inherit difficulty from the corresponding something same 2 trial
+  if (fillInSdsDifficulty) {
+    corpusParts.test.forEach((trial, index) => {
+      if (trial.trialType === 'something-same-1') {
+        const nextTrial = corpusParts.test[index + 1];
+        if (nextTrial.trialType === 'something-same-2') {
+          trial.difficulty = nextTrial.difficulty;
+        }
+      }
+    });
+  }
 
   // separate out normed/unnormed trials
   const unnormedTrials: StimulusType[] = corpusParts.test.filter(
