@@ -78,15 +78,6 @@ const transformCSV = (
   let currTrialTypeBlock = '';
   let currPracticeAmount = 0;
 
-  // Phase 1 is test-dimensions and something-same
-  // Phase 2 is match and unique - subphases are either matching or test-dimensions
-  let sdsBlock1Count = 0;
-  let sdsBlock2Count = 0;
-  let sdsBlock3Count = 0;
-  let sdsBlock4Count = 0;
-  let sdsBlock5Count = 0;
-  let sdsBlock6Count = 0;
-
   const blockThresholds: number[] = [];
 
   csvInput.forEach((row) => {
@@ -135,6 +126,10 @@ const transformCSV = (
       trialNumber: row.trial_num,
       downex: row.downex?.toUpperCase() === 'TRUE',
     };
+
+    if (row.task === 'same-different-selection') {
+      newRow.requiredSelections = _toNumber(row.required_selections);
+    }
 
     if (row.task === 'Mental Rotation') {
       newRow.item = camelize(newRow.item as string);
@@ -202,7 +197,7 @@ export const getCorpus = async (config: Record<string, any>, isDev: boolean) => 
 
   const bucketName = getBucketName(task, isDev, 'corpus');
 
-  const corpusUrl = `https://storage.googleapis.com/${bucketName}/${corpus}.csv?alt=media&v=3`;
+  const corpusUrl = `https://storage.googleapis.com/${bucketName}/${corpus}.csv?alt=media`;
 
   function downloadCSV(url: string) {
     return new Promise((resolve, reject) => {
