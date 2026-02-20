@@ -218,6 +218,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
     let olderKidPractice: StimulusType[] = olderKidInstructionPractice.filter((trial: StimulusType) => trial.assessmentStage == 'practice_response');
     
     let olderKidBlocks: StimulusType[][] = prepareMultiBlockCat(taskStore().corpora.stimulus);
+    taskStore('corpora', { stimulus: olderKidBlocks, downex: taskStore().corpora.downex });
 
     taskStore('totalTestTrials', 0); // add to this while building out each block
 
