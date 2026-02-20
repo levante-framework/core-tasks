@@ -26,7 +26,6 @@ import {
   somethingSameDemo2,
   somethingSameDemo3,
 } from './trials/heavyInstructions';
-import { dataQualityScreen } from '../shared/trials/dataQuality';
 import { initializeCat, jsPsych } from '../taskSetup';
 
 export default function buildSameDifferentTimelineCat(config: Record<string, any>, mediaAssets: MediaAssetsType) {
@@ -34,13 +33,13 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
   const heavy: boolean = taskStore().heavyInstructions;
 
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
-  const preparedCorpus = prepareCorpus(corpus, false);
+  const preparedCorpus = prepareCorpus(corpus, false, undefined, true);
 
   const catCorpus = setupSds(taskStore().corpora.stimulus);
   const allBlocks = prepareMultiBlockCat(catCorpus);
 
   const newCorpora = {
-    practice: taskStore().corpora.practice,
+    downex: taskStore().corpora.downex,
     stimulus: allBlocks,
   };
   taskStore('corpora', newCorpora); // puts all blocks into taskStore
@@ -168,9 +167,6 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
 
   initializeCat();
 
-  if (heavy) {
-    timeline.push(dataQualityScreen);
-  }
   timeline.push(taskFinished());
   timeline.push(exitFullscreen);
   return { jsPsych, timeline };
