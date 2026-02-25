@@ -47,6 +47,7 @@ const inferenceNumStories =
   urlParams.get('inferenceNumStories') === null ? null : parseInt(urlParams.get('inferenceNumStories'), 10);
 const semThreshold = Number(urlParams.get('semThreshold') || '0');
 const startingTheta = Number(urlParams.get('theta') || '0');
+const taskVersion = urlParams.get('taskVersion') === null ? null : parseInt(urlParams.get('taskVersion'), 10);
 
 // Boolean parameters
 const keyHelpers = stringToBoolean(urlParams.get('keyHelpers'));
@@ -56,7 +57,7 @@ const sequentialStimulus = stringToBoolean(urlParams.get('sequentialStimulus'), 
 const storeItemId = stringToBoolean(urlParams.get('storeItemId'), false);
 const cat = stringToBoolean(urlParams.get('cat'), false);
 const heavyInstructions = stringToBoolean(urlParams.get('heavyInstructions'), false);
-const newSds = stringToBoolean(urlParams.get('newSds'), false);
+
 
 const emulatorConfig = EMULATORS ? firebaseJSON.emulators : undefined;
 // if running in demo mode, no data will be saved to Firestore
@@ -98,7 +99,7 @@ async function startWebApp() {
         startingTheta,
         heavyInstructions,
         demoMode,
-        newSds,
+        taskVersion,
       };
 
       const taskInfo = {

@@ -93,7 +93,7 @@ export const setSharedConfig = async (
     semThreshold,
     startingTheta,
     demoMode,
-    newSds,
+    taskVersion,
   } = cleanParams;
 
   const config = {
@@ -124,7 +124,7 @@ export const setSharedConfig = async (
     semThreshold: Number(semThreshold),
     startingTheta: Number(startingTheta),
     demoMode: !!demoMode,
-    newSds: !!newSds,
+    taskVersion: Number(taskVersion || 1),
   };
 
   // default corpus if nothing is passed in

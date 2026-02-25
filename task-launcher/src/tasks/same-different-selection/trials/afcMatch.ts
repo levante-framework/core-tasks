@@ -107,7 +107,7 @@ export const afcMatch = (trial?: StimulusType) => {
 
     // Add primary OK button under the other buttons
     if (stim.trialType !== 'instructions') {
-      if (taskStore().newSds) {
+      if (taskStore().taskVersion === 2) {
         const okButton = document.createElement('button');
         okButton.className = 'primary';
         okButton.textContent = 'OK';
@@ -147,7 +147,7 @@ export const afcMatch = (trial?: StimulusType) => {
           selectedCardIdxs.push(i);
         }
       
-        if (taskStore().newSds) {
+        if (taskStore().taskVersion === 2) {
           if (selectedCards.length === stim.requiredSelections) {
             enableOkButton();
           } else {
@@ -168,7 +168,7 @@ export const afcMatch = (trial?: StimulusType) => {
     }
   },
   response_ends_trial: () => {
-    return (trial || taskStore().nextStimulus).trialType === 'instructions' && taskStore().newSds;
+    return (trial || taskStore().nextStimulus).trialType === 'instructions' && taskStore().taskVersion === 2;
   },
   on_finish: () => {
     const stim = trial || taskStore().nextStimulus;

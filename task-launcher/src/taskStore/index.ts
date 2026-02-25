@@ -56,7 +56,7 @@ import store from 'store2';
  * @property {Array} previousChoices - Array containing previously randomized order of choices for the current block.
  * ------- SDS only -------
  * @property {StimulusType[]} sequentialTrials - Should be run sequentially in blocks by trial number in an SDS CAT.
- * @property {boolean} newSds - Temporary parameter to use the new version SDS, default is false.
+ * @property {boolean} taskVersion - A version number for the task, default is 1. Can be used as a feature flag.
  */
 
 export type TaskStoreDataType = {
@@ -82,7 +82,7 @@ export type TaskStoreDataType = {
   language?: string;
   maxTime?: number;
   demoMode: boolean;
-  newSds: boolean;
+  taskVersion: number;
 };
 
 /**
@@ -130,7 +130,7 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     testPhase: false,
     maxTime: config.maxTime,
     demoMode: config.demoMode,
-    newSds: config.newSds,
+    taskVersion: config.taskVersion || 1,
   });
 };
 

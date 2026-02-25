@@ -65,7 +65,7 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
     let trialGenerator;
     if (trial.trialType.includes('match')) {
       trialGenerator = afcMatch;
-    } else if (taskStore().newSds) {
+    } else if (taskStore().taskVersion === 2) {
       trialGenerator = stimulus;
     } else {
       trialGenerator = legacyStimulus;
@@ -84,7 +84,7 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
   const feedbackBlock = {
     timeline: [feedback(true, 'feedbackCorrect', 'feedbackNotQuiteRight')], 
     conditional_function: () => {
-      return taskStore().newSds;
+      return taskStore().taskVersion === 2;
     },
   };
 
@@ -93,7 +93,7 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
     const timeline = [];
     for (let i = 0; i < trialNum; i++) {
       if (trialType === 'stimulus') {
-        timeline.push(taskStore().newSds ? stimulus() : legacyStimulus());
+        timeline.push(taskStore().taskVersion === 2 ? stimulus() : legacyStimulus());
         timeline.push(buttonNoise);
       } else {
         timeline.push(afcMatch());
@@ -150,7 +150,7 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
     });
 
     // only younger kids get something-same blocks
-    if (!heavy && index === 1 && taskStore().newSds) {
+    if (!heavy && index === 1 && taskStore().taskVersion === 2) {
       return;
     }
 

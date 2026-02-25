@@ -27,7 +27,7 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
 
   let corpus: StimulusType[] = taskStore().corpora.stimulus;
 
-  if (!heavy && taskStore().newSds) {
+  if (!heavy && taskStore().taskVersion === 2) {
     corpus = corpus.filter((trial) => {
       return !(trial.trialType.includes('something-same') && !(trial.assessmentStage === 'practice_response'));
     });
@@ -76,13 +76,13 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
       return (
         taskStore().nextStimulus.assessmentStage === 'practice_response' &&
         !taskStore().nextStimulus.trialType.includes('something-same-1') &&
-        taskStore().newSds
+        taskStore().taskVersion === 2
       );
     },
   };
 
   const stimulusBlock = {
-    timeline: [(taskStore().newSds ? stimulus() : legacyStimulus()), feedbackBlock],
+    timeline: [(taskStore().taskVersion === 2 ? stimulus() : legacyStimulus()), feedbackBlock],
   };
 
   const afcBlock = {
