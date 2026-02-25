@@ -123,6 +123,7 @@ export const setSharedConfig = async (
     semThreshold: Number(semThreshold),
     startingTheta: Number(startingTheta),
     demoMode: !!demoMode,
+    displayPromptDurations: {},
   };
 
   // default corpus if nothing is passed in
