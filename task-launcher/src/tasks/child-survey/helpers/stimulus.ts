@@ -110,7 +110,7 @@ export const surveyItem = ({
       const audioConfig: AudioConfigType = {
         restrictRepetition: {
           enabled: false,
-          maxRepetitions: 1,
+          maxRepetitions: 2,
         },
         onEnded: () => {
           responseButtonChildren.forEach((button) => {

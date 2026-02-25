@@ -147,6 +147,8 @@ export const initTrialSaving = (config: Record<string, any>) => {
     if (taskStore().testTrialCount >= taskStore().totalTestTrials * 0.8) {
       recordCompletion(config);
     }
+
+    taskStore('totalTrialCount', taskStore().totalTrialCount + 1);
   });
 
   // @ts-ignore
