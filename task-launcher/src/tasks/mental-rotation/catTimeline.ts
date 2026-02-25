@@ -28,13 +28,12 @@ import {
   getAudioResponse,
   enterFullscreen,
   finishExperiment,
-  repeatInstructionsMessage,
   practiceTransition,
   setupStimulusFromCurrentCatBlock,
   setupNextBlock,
 } from '../shared/trials';
 import { getLayoutConfig } from './helpers/config';
-import { prepareCorpus, selectNItems } from '../shared/helpers/prepareCat';
+import { prepareCorpus } from '../shared/helpers/prepareCat';
 import { taskStore } from '../../taskStore';
 import { getLeftoverAssets } from '../shared/helpers/batchPreloading';
 import { downexInstructions } from './trials/downexInstructions';
@@ -128,15 +127,6 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
       return taskStore().currentCatBlock === 2;
     },
   };
-
-  /*
-  const repeatInstructions = {
-    timeline: [repeatInstructionsMessage, imageInstructions, videoInstructionsMisfit, videoInstructionsFit],
-    conditional_function: () => {
-      return taskStore().numIncorrect >= 2;
-    },
-  };
-  */
 
   function preloadBatch() {
     timeline.push(createPreloadTrials(batchedMediaAssets[currPreloadBatch]).default);

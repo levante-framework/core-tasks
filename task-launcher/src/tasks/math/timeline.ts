@@ -221,8 +221,20 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
     // until younger-kid version of math is implemented, combine heavy/light instructions
     const allInstructionPractice = fullCorpus.ipLight.concat(fullCorpus.ipHeavy);
     const instructions = allInstructionPractice.filter((trial) => trial.trialType == 'instructions');
-    let practice = allInstructionPractice.filter((trial) => trial.assessmentStage == 'practice_response');
 
+    // filter practice trials to only include appropriate trial types if downward extension
+    const excludedDownexPracticeTypes = [
+      'Addition',
+      'Number Comparison',
+      'Number Identification',
+      'Counting',
+      'Counting AFC',
+    ];
+
+    const practice = allInstructionPractice.filter((trial) => {
+      return trial.assessmentStage == 'practice_response' && !(trial.block_index === 3 && excludedDownexPracticeTypes.includes(trial.trialType));
+    });
+    
     let allBlocks: StimulusType[][] = prepareMultiBlockCat(taskStore().corpora.stimulus);
     let downexBlock = allBlocks[3];
 
@@ -236,18 +248,6 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
     downexBlock = downexBlock.filter((trial: StimulusType) => {
       return !nonDownexIds.includes(trial.itemId as string);
     });
-
-    // filter practice trials to only include appropriate trial types if downward extension
-    const excludedDownexPracticeTypes = [
-      'Addition',
-      'Number Comparison',
-      'Number Identification',
-      'Counting',
-      'Counting AFC',
-    ];
-    practice = practice.filter(
-      (trial) => !(trial.block_index === 3 && excludedDownexPracticeTypes.includes(trial.trialType)),
-    );
 
     // move downex block to the beginning
     allBlocks = [downexBlock, ...allBlocks.slice(0, 3)];
