@@ -19,56 +19,67 @@ type ResponseDataType = {
 export async function getMediaAssets(
   bucketName: string,
   whitelist: Record<string, any> = {},
-  language: string,
   taskName: string,
+  language: string,
+  requiredAssetNames?: string[],
   nextPageToken = '',
-  categorizedObjects: CategorizedObjectsType = { images: {}, audio: {}, video: {} },
+  categorizedObjects: CategorizedObjectsType = { images: {}, audio: {}, video: {} }
 ) {
   const parts = bucketName.split('/');
   const bucket = parts[0];
   const folder = parts.slice(1).join('/');
-
   const prefix = folder ? `${folder}/` : '';
-  const baseUrl = `https://storage.googleapis.com/storage/v1/b/${bucket}/o`;
-  const params = new URLSearchParams({ prefix });
 
-  let url = baseUrl;
-  if (nextPageToken) {
-    params.set('pageToken', nextPageToken);
-  }
-  if (params.toString()) {
-    url += `?${params.toString()}`;
-  }
+  if (requiredAssetNames) {
+    requiredAssetNames.forEach((assetName) => {
+      const path = `https://storage.googleapis.com/${bucket}/${prefix}${assetName}.mp3`;
 
-  const response = await fetch(url);
-  const data: ResponseDataType = await response.json();
+      categorizedObjects.audio[camelize(assetName)] = path;
+    });
 
-  data.items.forEach((item) => {
-    if (isLanguageAndTaskValid(item.name, language, taskName) && isWhitelisted(item.name, whitelist)) {
-      const contentType = item.contentType;
-      const id = item.name;
-      const path = `https://storage.googleapis.com/${bucket}/${id}`;
-      const fileName = id.split('/').pop()?.split('.')[0] || '';
-      const camelCaseFileName = camelize(fileName);
-
-      if (contentType.startsWith('image/')) {
-        categorizedObjects.images[camelCaseFileName] = path;
-      } else if (contentType.startsWith('audio/')) {
-        categorizedObjects.audio[camelCaseFileName] = path;
-      } else if (contentType.startsWith('video/')) {
-        categorizedObjects.video[camelCaseFileName] = path;
-      }
-    }
-  });
-
-  if (data.nextPageToken) {
-    return getMediaAssets(bucketName, whitelist, language, taskName, data.nextPageToken, categorizedObjects);
-  } else {
     return categorizedObjects;
+  } else {
+    const baseUrl = `https://storage.googleapis.com/storage/v1/b/${bucket}/o`;
+    const params = new URLSearchParams({ prefix, fields: 'items(name,contentType),nextPageToken' });
+
+    let url = baseUrl;
+    if (nextPageToken) {
+      params.set('pageToken', nextPageToken);
+    }
+    if (params.toString()) {
+      url += `?${params.toString()}`;
+    }
+
+    const response = await fetch(url);
+    const data: ResponseDataType = await response.json();
+
+    data.items.forEach((item) => {
+      if (isLanguageAndTaskValid(item.name, taskName, language) && isWhitelisted(item.name, whitelist)) {
+        const contentType = item.contentType;
+        const id = item.name;
+        const path = `https://storage.googleapis.com/${bucket}/${id}`;
+        const fileName = id.split('/').pop()?.split('.')[0] || '';
+        const camelCaseFileName = camelize(fileName);
+
+        if (contentType.startsWith('image/')) {
+          categorizedObjects.images[camelCaseFileName] = path;
+        } else if (contentType.startsWith('audio/')) {
+          categorizedObjects.audio[camelCaseFileName] = path;
+        } else if (contentType.startsWith('video/')) {
+          categorizedObjects.video[camelCaseFileName] = path;
+        }
+      }
+    });
+
+    if (data.nextPageToken) {
+      return getMediaAssets(bucketName, whitelist, taskName, language, requiredAssetNames, data.nextPageToken, categorizedObjects);
+    } else {
+      return categorizedObjects;
+    }
   }
 }
 
-function isLanguageAndTaskValid(filePath: string, languageCode: string, taskName: string) {
+function isLanguageAndTaskValid(filePath: string, taskName: string, languageCode: string) {
   const parts = filePath.split('/');
   if (parts.length < 3) {
     return false;

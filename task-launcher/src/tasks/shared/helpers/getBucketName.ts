@@ -14,9 +14,5 @@ export function getBucketName(
     return language ? `${bucket}/${language}` : bucket;
   }
 
-  if (assetType === 'visual') {
-    return `${bucket}/${taskName}`;
-  }
-
   return `${bucket}/${taskName}`;
 }
