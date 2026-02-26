@@ -113,7 +113,7 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
 
   // returns practice + instruction trials for a given block
   function getPracticeInstructions(blockNum: number): StimulusType[] {
-    return instructionPractice.filter((trial) => trial.blockIndex == blockNum);
+    return instructionPractice.filter((trial) => trial.block_index === blockNum);
   }
 
   // create list of numbers of trials per block

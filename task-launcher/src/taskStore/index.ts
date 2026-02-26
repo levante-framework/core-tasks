@@ -25,6 +25,8 @@ import store from 'store2';
  * @property {boolean} taskComplete - Whether the task has ended - if true, the user should return to dashboard.
  * @property {Object} assetsPerTask - Object containing list of assets belonging to each task.
  * @property {boolean} demoMode - Whether the task is running in demo mode (no interaction with Firestore), default is false.
+ * @property {number} currentCatBlock - The current block number to select trials from in a CAT.
+ * @property {number[]} blockThresholds - Array of theta thresholds.
  * @property {number} totalTrialCount - Total number of trials, including practice and instructions.
  * ------- Added after config is parsed -------
  * @property {number} totalTrials - Total number trials, including practice and instructions.
@@ -83,6 +85,8 @@ export type TaskStoreDataType = {
   language?: string;
   maxTime?: number;
   demoMode: boolean;
+  currentCatBlock?: number;
+  blockThresholds?: number[];
   displayPromptDurations: Record<string, number>;
 };
 

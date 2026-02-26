@@ -16,8 +16,7 @@ import { getChildSurveyResponses } from './childSurveyResponses';
 
 type ParsedRowType = {
   source: string;
-  block_index?: string;
-  blockIndex?: number;
+  block_index: number
   task: string;
   prompt: string;
   item: string | number[];
@@ -48,15 +47,7 @@ type ParsedRowType = {
   randomize?: string;
   trial_num: number;
   downex?: string;
-};
-
-export const sdsPhaseCount = {
-  block1: 0,
-  block2: 0,
-  block3: 0,
-  block4: 0,
-  block5: 0,
-  block6: 0,
+  block_threshold?: number;
 };
 
 let totalTrials = 0;
@@ -87,22 +78,19 @@ const transformCSV = (
   let currTrialTypeBlock = '';
   let currPracticeAmount = 0;
 
-  // Phase 1 is test-dimensions and something-same
-  // Phase 2 is match and unique - subphases are either matching or test-dimensions
-  let sdsBlock1Count = 0;
-  let sdsBlock2Count = 0;
-  let sdsBlock3Count = 0;
-  let sdsBlock4Count = 0;
-  let sdsBlock5Count = 0;
-  let sdsBlock6Count = 0;
+  const blockThresholds: number[] = [];
 
   csvInput.forEach((row) => {
     // Leaving this here for quick testing of a certain type of trial
     // if (!row.trial_type.includes('Number Line')) return;
 
+    if (row.block_threshold && !blockThresholds.includes(row.block_threshold)) {
+      blockThresholds.push(row.block_threshold);
+    }
+
     const newRow: StimulusType = {
       source: row.source,
-      block_index: row.block_index,
+      block_index: _toNumber(row.block_index),
       task: row.task,
       // for testing, will be removed
       prompt: row.prompt,
@@ -140,36 +128,14 @@ const transformCSV = (
       downex: row.downex?.toUpperCase() === 'TRUE',
     };
 
+    if (row.task === 'same-different-selection') {
+      newRow.requiredSelections = _toNumber(row.required_selections);
+    }
+
     if (row.task === 'Mental Rotation') {
       newRow.item = camelize(newRow.item as string);
       newRow.answer = camelize(newRow.answer as string);
       newRow.distractors = (newRow.distractors as string[]).map((choice) => camelize(choice));
-    }
-
-    if (row.task === 'same-different-selection') {
-      newRow.requiredSelections = parseInt(row.required_selections);
-      newRow.blockIndex = parseInt(row.block_index || '');
-      // all instructions are part of phase 1
-      if (newRow.blockIndex == 1) {
-        sdsBlock1Count += 1;
-      } else if (newRow.blockIndex == 2) {
-        sdsBlock2Count += 1;
-      } else if (newRow.blockIndex == 3) {
-        sdsBlock3Count += 1;
-      } else if (newRow.blockIndex == 4) {
-        sdsBlock4Count += 1;
-      } else if (newRow.blockIndex == 5) {
-        sdsBlock5Count += 1;
-      } else {
-        sdsBlock6Count += 1;
-      }
-
-      sdsPhaseCount.block1 = sdsBlock1Count;
-      sdsPhaseCount.block2 = sdsBlock2Count;
-      sdsPhaseCount.block3 = sdsBlock3Count;
-      sdsPhaseCount.block4 = sdsBlock4Count;
-      sdsPhaseCount.block5 = sdsBlock5Count;
-      sdsPhaseCount.block6 = sdsBlock6Count;
     }
 
     let currentTrialType = newRow.trialType;
@@ -208,6 +174,8 @@ const transformCSV = (
       }
     }
   });
+
+  taskStore('blockThresholds', blockThresholds.sort((a, b) => a - b));
 
   if (task === 'roar-inference') {
     const inferenceNumStories = taskStore().inferenceNumStories;
