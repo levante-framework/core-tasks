@@ -64,7 +64,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
   // block 3 is only for younger kids
   if (!runCat) {
     corpus = corpus.filter((trial) => {
-      return heavyInstructions ? trial.block_index === '3' : trial.block_index !== '3';
+      return heavyInstructions ? trial.block_index === 3 : trial.block_index !== 3;
     });
   }
 
@@ -221,8 +221,20 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
     // until younger-kid version of math is implemented, combine heavy/light instructions
     const allInstructionPractice = fullCorpus.ipLight.concat(fullCorpus.ipHeavy);
     const instructions = allInstructionPractice.filter((trial) => trial.trialType == 'instructions');
-    let practice = allInstructionPractice.filter((trial) => trial.assessmentStage == 'practice_response');
 
+    // filter practice trials to only include appropriate trial types if downward extension
+    const excludedDownexPracticeTypes = [
+      'Addition',
+      'Number Comparison',
+      'Number Identification',
+      'Counting',
+      'Counting AFC',
+    ];
+
+    const practice = allInstructionPractice.filter((trial) => {
+      return trial.assessmentStage == 'practice_response' && !(trial.block_index === 3 && excludedDownexPracticeTypes.includes(trial.trialType));
+    });
+    
     let allBlocks: StimulusType[][] = prepareMultiBlockCat(taskStore().corpora.stimulus);
     let downexBlock = allBlocks[3];
 
@@ -236,18 +248,6 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
     downexBlock = downexBlock.filter((trial: StimulusType) => {
       return !nonDownexIds.includes(trial.itemId as string);
     });
-
-    // filter practice trials to only include appropriate trial types if downward extension
-    const excludedDownexPracticeTypes = [
-      'Addition',
-      'Number Comparison',
-      'Number Identification',
-      'Counting',
-      'Counting AFC',
-    ];
-    practice = practice.filter(
-      (trial) => !(trial.block_index === '3' && excludedDownexPracticeTypes.includes(trial.trialType)),
-    );
 
     // move downex block to the beginning
     allBlocks = [downexBlock, ...allBlocks.slice(0, 3)];
@@ -266,7 +266,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
       // push in block-specific instructions
       let usedIDs: string[] = [];
       const blockInstructions = instructions.filter((trial) => {
-        const trialBlock = trial.block_index === '3' ? 0 : Number(trial.block_index) + 1;
+        const trialBlock = trial.block_index === 3 ? 0 : Number(trial.block_index) + 1;
         let allowedIDs: string[]; // CAT only uses particular instructions from corpus
 
         switch (i) {
@@ -302,7 +302,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
 
       // push in block-specific practice trials
       const blockPractice = practice.filter((trial) => {
-        const trialBlock = trial.block_index === '3' ? 0 : Number(trial.block_index) + 1;
+        const trialBlock = trial.block_index === 3 ? 0 : Number(trial.block_index) + 1;
         return trialBlock === i;
       });
       blockPractice.forEach((trial) => {
@@ -335,7 +335,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
       }
 
       fullCorpus.unnormed.forEach((trial) => {
-        const trialBlock = trial.block_index === '3' ? 0 : Number(trial.block_index) + 1;
+        const trialBlock = trial.block_index === 3 ? 0 : trial.block_index + 1;
         if (trialBlock === i) {
           timeline.push({ ...fixationOnly, stimulus: '' });
           timeline.push(stimulusBlock(trial));

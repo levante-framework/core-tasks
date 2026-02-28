@@ -147,6 +147,8 @@ export const initTrialSaving = (config: Record<string, any>) => {
     if (taskStore().testTrialCount >= taskStore().totalTestTrials * 0.8) {
       recordCompletion(config);
     }
+
+    taskStore('totalTrialCount', taskStore().totalTrialCount + 1);
   });
 
   // @ts-ignore
@@ -161,7 +163,6 @@ export const initTrialSaving = (config: Record<string, any>) => {
       delete dataCopy.save_trial;
       delete dataCopy.internal_node_id;
       delete dataCopy.button_response;
-      delete dataCopy.keyboard_response;
       delete dataCopy.response_source;
       dataCopy.responseSource = data.response_source;
       delete dataCopy.trial_type;

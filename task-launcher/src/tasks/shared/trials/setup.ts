@@ -1,5 +1,7 @@
 import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { getStimulus } from '../helpers';
+import { taskStore } from '../../../taskStore';
+import { cat } from '../../taskSetup';
 
 // choosing the next stimulus from the corpus occurs during the fixation trial
 // prior to the actual display of the stimulus, where user response is collected
@@ -27,8 +29,28 @@ const fixationTrial = (corpusType?: string, blockNum?: number) => {
   };
 };
 
+function assignNextBlock() {
+  const thresholds: number[] = taskStore().blockThresholds;
+  const nextBlockThreshold = thresholds.shift();
+
+  let nextBlock = taskStore().currentCatBlock;
+  if (nextBlockThreshold && cat.theta >= nextBlockThreshold) {
+    nextBlock ++;
+  }
+
+  taskStore('currentCatBlock', nextBlock);
+  taskStore('blockThresholds', thresholds);
+}
+
+function selectFromCurrentCatBlock() {
+  const currentCatBlock = taskStore().currentCatBlock;
+  getStimulus('stimulus', currentCatBlock);
+}
+
 export const setupPractice = fixationTrial('practice');
 export const setupStimulus = fixationTrial('stimulus');
 export const setupDownex = fixationTrial('downex');
 export const setupStimulusFromBlock = (blockNum: number) => fixationTrial('stimulus', blockNum);
+export const setupStimulusFromCurrentCatBlock = { ...fixationTrial(), on_finish: selectFromCurrentCatBlock, stimulus: '' };
 export const fixationOnly = fixationTrial();
+export const setupNextBlock = { ...fixationTrial(), on_finish: assignNextBlock, stimulus: '' };

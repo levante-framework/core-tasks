@@ -125,7 +125,7 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
   };
 
   const firstBlockPractice: StimulusType[] = corpus.filter((trial) => 
-    parseInt(trial.block_index || '0') === 1 && trial.assessmentStage === 'practice_response'
+    Number(trial.block_index) === 1 && trial.assessmentStage === 'practice_response'
   );
 
   let fellBack = false;
