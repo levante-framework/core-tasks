@@ -3,6 +3,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import _mapValues from 'lodash/mapValues';
 import { taskStore } from '../../../taskStore';
 import { recordCompletion } from './recordCompletion';
+import { Logger } from '../../../utils/logger';
 import { finishExperiment } from '../trials';
 
 /**
@@ -172,7 +173,10 @@ export const initTrialSaving = (config: Record<string, any>) => {
       if (config.isRoarApp) {
         config.firekit.writeTrial(dataCopy, computedScoreCallback);
       } else {
-        config.firekit.writeTrial(dataCopy);
+        config.firekit.writeTrial(dataCopy).catch((error: any) => {
+          delete dataCopy.stimulus; // remove stimulus from data to avoid logging large html elements
+          Logger.getInstance().capture('Error writing trial to Firestore', { error: error, data: dataCopy });
+        });
       }
     }
   });
