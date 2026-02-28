@@ -4,6 +4,7 @@ import _mapValues from 'lodash/mapValues';
 import { taskStore } from '../../../taskStore';
 import { recordCompletion } from './recordCompletion';
 import { Logger } from '../../../utils/logger';
+import { finishExperiment } from '../trials';
 
 /**
  * This function calculates computed scores given raw scores for each subtask.
@@ -132,20 +133,28 @@ export const initTrialSaving = (config: Record<string, any>) => {
 
     // config.firekit.finishRun(finishingMetadata);
 
-    config.firekit.finishRun();
-  });
-
-  // @ts-ignore
-  jsPsych.opts.on_trial_finish = extend(jsPsych.opts.on_trial_finish, () => {
-    // record completion at 80%
-    if (taskStore().testTrialCount >= taskStore().totalTestTrials * 0.8) {
-      recordCompletion(config);
+    if (!taskStore().demoMode) {
+      config.firekit.finishRun();
     }
   });
 
   // @ts-ignore
+  jsPsych.opts.on_trial_finish = extend(jsPsych.opts.on_trial_finish, () => {
+    if (taskStore().maxTimeReached) {
+      finishExperiment();
+    }
+
+    // record completion at 80%
+    if (taskStore().testTrialCount >= taskStore().totalTestTrials * 0.8) {
+      recordCompletion(config);
+    }
+
+    taskStore('totalTrialCount', taskStore().totalTrialCount + 1);
+  });
+
+  // @ts-ignore
   jsPsych.opts.on_data_update = extend(jsPsych.opts.on_data_update, (data) => {
-    if (data.save_trial) {
+    if (data.save_trial && !taskStore().demoMode) {
       // save_trial is a flag that indicates whether the trial should
       // be saved to Firestore. No point in writing it to the db.
       // creating a deep copy to prevent modifying of original data
@@ -155,7 +164,6 @@ export const initTrialSaving = (config: Record<string, any>) => {
       delete dataCopy.save_trial;
       delete dataCopy.internal_node_id;
       delete dataCopy.button_response;
-      delete dataCopy.keyboard_response;
       delete dataCopy.response_source;
       dataCopy.responseSource = data.response_source;
       delete dataCopy.trial_type;

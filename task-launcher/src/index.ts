@@ -35,8 +35,10 @@ export class TaskLauncher {
   }
 
   async init() {
-    await this.firekit.startRun();
-
+    if (!this.gameParams.demoMode) {
+      await this.firekit.startRun();
+    }
+    
     const { taskName } = this.gameParams;
     let { language } = this.gameParams;
 
@@ -68,12 +70,13 @@ export class TaskLauncher {
 
     setTaskStore(config);
 
+    await getTranslations(isDev, config.language);
+
     // TODO: make hearts and flowers corpus? make list of tasks that don't need corpora?
     if (taskName !== 'hearts-and-flowers' && taskName !== 'memory-game' && taskName !== 'intro') {
       await getCorpus(config, isDev);
     }
 
-    await getTranslations(isDev, config.language);
     await getAssetsPerTask(isDev);
 
     const taskAudioAssetNames = [
@@ -109,6 +112,10 @@ export class TaskLauncher {
     const translations = taskStore().translations;
     const pageSetup = new InitPageSetup(4000, translations);
     pageSetup.init();
-    await isTaskFinished(() => this.firekit?.run?.completed === true && taskStore().taskComplete);
+    const checkTaskFinished = this.gameParams.demoMode ? 
+      () => taskStore().taskComplete :
+      () => this.firekit?.run?.completed === true && taskStore().taskComplete;
+      
+    await isTaskFinished(checkTaskFinished);
   }
 }

@@ -43,6 +43,7 @@ export const DEFAULT_LAYOUT_CONFIG: LayoutConfigType = {
   inCorrectTrialConfig: {
     onIncorrectTrial: 'end',
   },
+  disableOkButton: false,
 };
 
 const defaultCorpus: Record<string, string> = {
@@ -56,6 +57,7 @@ const defaultCorpus: Record<string, string> = {
   roarInference: 'type_inference-demo-2024-11-11v3',
   adultReasoning: 'adult-reasoning-item-bank',
   hostileAttribution: 'hostile-attribution-item-bank',
+  childSurvey: 'child-survey-item-bank',
 };
 
 export const setSharedConfig = async (
@@ -90,6 +92,7 @@ export const setSharedConfig = async (
     inferenceNumStories,
     semThreshold,
     startingTheta,
+    demoMode,
   } = cleanParams;
 
   const config = {
@@ -119,6 +122,8 @@ export const setSharedConfig = async (
     inferenceNumStories: Number(inferenceNumStories) || undefined,
     semThreshold: Number(semThreshold),
     startingTheta: Number(startingTheta),
+    demoMode: !!demoMode,
+    displayPromptDurations: {},
   };
 
   // default corpus if nothing is passed in
@@ -130,7 +135,9 @@ export const setSharedConfig = async (
     Object.entries(gameParams).map(([key, value]) => [key, config[key as keyof typeof config] ?? value]),
   );
 
-  await config.firekit.updateTaskParams(updatedGameParams);
+  if (!config.demoMode) {
+    await config.firekit.updateTaskParams(updatedGameParams);
+  }
 
   return config;
 };

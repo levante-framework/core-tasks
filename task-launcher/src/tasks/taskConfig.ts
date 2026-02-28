@@ -14,6 +14,8 @@ import introTimeline from './intro/timeline';
 import tROGTimeline from './trog/timeline';
 import inferenceTimeline from './roar-inference/timeline';
 import adultReasoningTimeline from './adult-reasoning/timeline';
+import childSurveyTimeline from './child-survey/timeline';
+import buildMentalRotationCatTimeline from './mental-rotation/catTimeline';
 
 // TODO: Abstract to import config from specifc task folder
 // Will allow for multiple devs to work on the repo without merge conflicts
@@ -42,7 +44,10 @@ export default {
     setConfig: setSharedConfig,
     getCorpus: getCorpus,
     getTranslations: getTranslations,
-    buildTaskTimeline: mentalRotationTimeline,
+    buildTaskTimeline: (config: Record<string, any>, mediaAssets: MediaAssetsType) =>
+      taskStore().runCat
+        ? buildMentalRotationCatTimeline(config, mediaAssets)
+        : mentalRotationTimeline(config, mediaAssets),
     variants: {},
   },
   heartsAndFlowers: {
@@ -120,6 +125,13 @@ export default {
     getCorpus: getCorpus,
     getTranslations: getTranslations,
     buildTaskTimeline: tomTimeline,
+    variants: {},
+  },
+  childSurvey: {
+    setConfig: setSharedConfig,
+    getCorpus: getCorpus,
+    getTranslations: getTranslations,
+    buildTaskTimeline: childSurveyTimeline,
     variants: {},
   },
 };

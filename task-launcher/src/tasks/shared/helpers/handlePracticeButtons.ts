@@ -7,100 +7,76 @@ function enableBtns(btnElements: NodeListOf<HTMLButtonElement>) {
   btnElements.forEach((btn) => (btn.disabled = false));
 }
 
-export function addPracticeButtonListeners(stim: StimulusType, isTouchScreen: boolean, itemConfig: LayoutConfigType) {
+export function addPracticeButtonListeners(
+  answer: string, 
+  isTouchScreen: boolean, 
+  choices: string[],
+  onCorrect?: () => void,
+  onIncorrect?: () => void,
+) {
   const practiceBtns: NodeListOf<HTMLButtonElement> = document.querySelectorAll('.practice-btn');
-  let keyboardFeedbackHandler: (ev: KeyboardEvent) => void;
 
   practiceBtns.forEach((btn, i) => {
     const eventType = isTouchScreen ? 'touchend' : 'click';
 
     btn.addEventListener(eventType, (e) => {
-      handlePracticeButtonPress(btn, stim, practiceBtns, false, i, itemConfig);
+      handlePracticeButtonPress(btn, answer, practiceBtns, i, choices, onCorrect, onIncorrect);
     });
   });
-
-  if (!isTouchScreen) {
-    keyboardFeedbackHandler = (e: KeyboardEvent) => keyboardBtnFeedback(e, practiceBtns, stim, itemConfig);
-    document.addEventListener('keydown', keyboardFeedbackHandler);
-
-    return keyboardFeedbackHandler;
-  }
 }
 
 function handlePracticeButtonPress(
   btn: HTMLButtonElement,
-  stim: StimulusType,
+  answer: string,
   practiceBtns: NodeListOf<HTMLButtonElement>,
-  isKeyBoardResponse: boolean,
   responsevalue: string | number,
-  itemConfig: LayoutConfigType,
+  choices: string[],
+  onCorrect?: () => void,
+  onIncorrect?: () => void,
 ) {
   const index = Array.prototype.indexOf.call(practiceBtns, btn);
-  const choices = itemConfig.response?.values || [];
   const choice = choices[index];
-  const isCorrectChoice = choice?.toString() === stim.answer?.toString();
-  let feedbackAudio;
+  const isCorrectChoice = choice?.toString() === answer;
+
+  const audioConfig: AudioConfigType = {
+    restrictRepetition: {
+      enabled: false,
+      maxRepetitions: 2,
+    }
+  }
+
+  // custom incorrect prompts by task
+  const incorrectPromptKey = 
+  (taskStore().task === 'mental-rotation' && taskStore().heavyInstructions) && taskStore().nextStimulus?.trialType == "2D" ? 
+  'mentalRotationFeedbackIncorrectDownex' :
+  'feedbackTryAgain'
 
   if (isCorrectChoice) {
     btn.classList.add('success-shadow');
-    feedbackAudio = mediaAssets.audio.feedbackGoodJob;
     setTimeout(
       () =>
         jsPsych.finishTrial({
           response: choice,
           incorrectPracticeResponses: taskStore().incorrectPracticeResponses,
-          button_response: !isKeyBoardResponse ? responsevalue : null,
-          keyboard_response: isKeyBoardResponse ? responsevalue : null,
+          button_response: responsevalue,
         }),
-      1000,
+      onCorrect ? 3000 : 1000, // if callback is provided, give more time for callback to finish before ending trial
     );
+    
+    // if there is audio playing, stop it first before playing feedback audio to prevent overlap between trials
+    PageAudioHandler.stopAndDisconnectNode();
+    onCorrect ? onCorrect() : PageAudioHandler.playAudio(mediaAssets.audio.feedbackGoodJob, audioConfig);
   } else {
     btn.classList.add('error-shadow');
-    feedbackAudio = mediaAssets.audio.feedbackTryAgain;
     // jspysch disables the buttons for some reason, so re-enable them
     setTimeout(() => enableBtns(practiceBtns), 500);
 
     let incorrectPracticeResponses = taskStore().incorrectPracticeResponses;
     incorrectPracticeResponses.push(choice);
     taskStore('incorrectPracticeResponses', incorrectPracticeResponses);
-  }
-  // if there is audio playing, stop it first before playing feedback audio to prevent overlap between trials
-  PageAudioHandler.stopAndDisconnectNode();
-  PageAudioHandler.playAudio(feedbackAudio);
-}
 
-const getKeyboardChoices = (itemConfig: LayoutConfigType) => {
-  const buttonLength = itemConfig.response.values.length;
-  if (buttonLength === 1) {
-    // instruction trial
-    return ['Enter'];
-  }
-  if (buttonLength === 2) {
-    return ['ArrowLeft', 'ArrowRight'];
-  }
-  if (buttonLength === 3) {
-    return ['ArrowUp', 'ArrowLeft', 'ArrowRight'];
-  }
-  if (buttonLength === 4) {
-    return ['ArrowUp', 'ArrowLeft', 'ArrowRight', 'ArrowDown'];
-  }
-  throw new Error('More than 4 buttons are not supported yet');
-};
+    PageAudioHandler.stopAndDisconnectNode();
 
-async function keyboardBtnFeedback(
-  e: KeyboardEvent,
-  practiceBtns: NodeListOf<HTMLButtonElement>,
-  stim: StimulusType,
-  itemConfig: LayoutConfigType,
-) {
-  const allowedKeys = getKeyboardChoices(itemConfig);
-  const index = allowedKeys.findIndex((f) => f.toLowerCase() === e.key.toLowerCase());
-
-  if (allowedKeys.includes(e.key)) {
-    const btnClicked = practiceBtns[index];
-
-    if (btnClicked) {
-      handlePracticeButtonPress(btnClicked, stim, practiceBtns, true, e.key.toLowerCase(), itemConfig);
-    }
+    onIncorrect ? onIncorrect() : PageAudioHandler.playAudio(mediaAssets.audio[incorrectPromptKey], audioConfig);
   }
 }

@@ -4,7 +4,7 @@ import { cat } from '../../taskSetup';
 import { jsPsych } from '../../taskSetup';
 
 // separates trials from corpus into blocks depending on for heavy/light instructions and CAT
-export function prepareCorpus(corpus: StimulusType[]) {
+export function prepareCorpus(corpus: StimulusType[], randomStartBlock = true) {
   const excludedTrialTypes = '3D';
   // limit random starting items so that their difficulty is less than 0
   const maxTrialDifficulty = 0;
@@ -39,16 +39,15 @@ export function prepareCorpus(corpus: StimulusType[]) {
   const possibleStartItems: StimulusType[] = normedTrials.filter(
     (trial) =>
       trial.trialType !== excludedTrialTypes &&
-      ((taskStore().task == 'egma-math' && trial.block_index == '0') || taskStore().task !== 'egma-math') &&
+      ((taskStore().task == 'egma-math' && trial.block_index === 0) || taskStore().task !== 'egma-math') &&
       Number(trial.difficulty) <= maxTrialDifficulty,
   );
   const startItems: StimulusType[] = selectNItems(possibleStartItems, 5);
 
   // put cat portion of corpus into taskStore
-  const catCorpus: StimulusType[] =
-    taskStore().task === 'same-different-selection'
-      ? normedTrials
-      : normedTrials.filter((trial) => !startItems.includes(trial));
+  const catCorpus: StimulusType[] = 
+    randomStartBlock ? 
+    normedTrials.filter((trial) => !startItems.includes(trial)) : normedTrials;
 
   corpora = {
     ipHeavy: corpusParts.ipHeavy, // heavy instruction/practice trials

@@ -27,6 +27,7 @@ export const getLayoutConfig = (
   };
   defaultConfig.classOverrides.promptClassList = ['lev-row-container', 'instruction-small'];
   if (!defaultConfig.isInstructionTrial) {
+    defaultConfig.classOverrides.buttonClassList = ['image-matrix'];
     const mappedDistractors = mapDistractorsToString(distractors);
     const prepChoices = prepareChoices(answer.toString(), mappedDistractors, 'yes', trialType);
     defaultConfig.isImageButtonResponse = true;

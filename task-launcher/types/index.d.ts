@@ -43,6 +43,7 @@ declare global {
       onIncorrectTrial: 'skip' | 'end';
       // Other config can be placed here
     };
+    disableOkButton?: boolean; // disable the OK button until the instruction prompt ends
   };
 
   type AudioConfigType = {
@@ -55,8 +56,7 @@ declare global {
 
   type StimulusType = {
     source: string;
-    block_index?: string;
-    blockIndex?: number;
+    block_index: number
     task: string; // TODO: define all task types here
     item: string | number[];
     trial_type?: string;
@@ -72,8 +72,8 @@ declare global {
     itemUid: string;
     item_uid?: string;
     distractors: Array<string | number>;
-    audioFile: string;
-    audio_file?: string;
+    audioFile: string | string[];
+    audio_file?: string | string[];
     requiredSelections?: number;
     required_selections?: string;
     prompt: string;
@@ -86,6 +86,7 @@ declare global {
     d?: string;
     randomize?: 'yes' | 'no' | 'at_block_level';
     trialNumber?: number;
+    downex?: boolean;
   };
 
   type MediaAssetsType = {

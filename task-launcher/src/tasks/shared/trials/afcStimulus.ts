@@ -14,6 +14,8 @@ import {
   handleStaggeredButtons,
   updateTheta,
   addPracticeButtonListeners,
+  enableOkButton,
+  shouldTerminateCat,
 } from '../helpers';
 import { mediaAssets } from '../../..';
 import { finishExperiment } from '.';
@@ -24,26 +26,7 @@ const replayButtonHtmlId = 'replay-btn-revisited';
 let practiceResponses = [];
 let trialsOfCurrentType = 0;
 let startTime: number;
-let keyboardFeedbackHandler: (ev: KeyboardEvent) => void;
 const incorrectPracticeResponses: Array<string | null> = [];
-
-const getKeyboardChoices = (itemLayoutConfig: LayoutConfigType) => {
-  const buttonLength = itemLayoutConfig.response.values.length;
-  if (buttonLength === 1) {
-    // instruction trial
-    return ['Enter'];
-  }
-  if (buttonLength === 2) {
-    return ['ArrowLeft', 'ArrowRight'];
-  }
-  if (buttonLength === 3) {
-    return ['ArrowUp', 'ArrowLeft', 'ArrowRight'];
-  }
-  if (buttonLength === 4) {
-    return ['ArrowUp', 'ArrowLeft', 'ArrowRight', 'ArrowDown'];
-  }
-  throw new Error('More than 4 buttons are not supported yet');
-};
 
 function getStimulus(layoutConfigMap: Record<string, LayoutConfigType>, trial?: StimulusType) {
   const stim = trial || taskStore().nextStimulus;
@@ -188,34 +171,30 @@ function getButtonHtml(layoutConfigMap: Record<string, LayoutConfigType>, trial?
   const itemLayoutConfig = layoutConfigMap?.[stimulus.itemId];
   if (itemLayoutConfig) {
     const classList = [...itemLayoutConfig.classOverrides.buttonClassList];
+    const disableOkButton = itemLayoutConfig.disableOkButton;
     // TODO: Remove once we have a way to handle practive btns
     if (isPracticeTrial) {
       classList.push('practice-btn');
     }
     return `
-      <button class='${classList.join(' ')}'>%choice%</button>
+      <button class='${classList.join(' ')}' ${disableOkButton ? 'disabled' : ''}>%choice%</button>
     `;
   }
 }
 
-function addKeyHelpers(el: HTMLElement, keyIndex: number) {
-  const { keyHelpers } = taskStore();
-  if (keyHelpers && !isTouchScreen) {
-    const arrowKeyBorder = document.createElement('div');
-    arrowKeyBorder.classList.add('arrow-key-border');
-
-    const arrowKey = document.createElement('p');
-    arrowKey.innerHTML = arrowKeyEmojis[keyIndex][1];
-    arrowKey.style.textAlign = 'center';
-    arrowKey.style.margin = '0';
-    arrowKeyBorder.appendChild(arrowKey);
-    el.appendChild(arrowKeyBorder);
-  }
-}
-
 function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: StimulusType) {
+  const audioConfig: AudioConfigType = {
+    restrictRepetition: {
+      enabled: true,
+      maxRepetitions: 2,
+    },
+    onEnded: () => {
+      enableOkButton();
+    },
+  };
+
   // play trial audio
-  PageAudioHandler.playAudio(getStimulus(layoutConfigMap, trial) || '');
+  PageAudioHandler.playAudio(getStimulus(layoutConfigMap, trial) || '', audioConfig);
 
   startTime = performance.now();
 
@@ -225,7 +204,13 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
   const stim = trial || (taskStore().nextStimulus as StimulusType);
   const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
   const playAudioOnLoad = itemLayoutConfig?.playAudioOnLoad;
-  const pageStateHandler = new PageStateHandler(stim.audioFile, playAudioOnLoad);
+
+  let pageStateHandler;
+  if (typeof stim.audioFile === 'string') { // no need to handle array case since it's not supported yet
+    pageStateHandler = new PageStateHandler(stim.audioFile, playAudioOnLoad);
+  } else {
+    throw new Error('Multiple audio files are not supported in this trial type');
+  }
   const isPracticeTrial = stim.assessmentStage === 'practice_response';
   const isInstructionTrial = stim.trialType === 'instructions';
 
@@ -265,12 +250,10 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
   const twoTrialsAgoStimulus = jsPsych.data.get().filter({ trial_index: twoTrialsAgoIndex }).values();
 
   if (isPracticeTrial) {
-    let feedbackHandler;
-    feedbackHandler = addPracticeButtonListeners(stim, isTouchScreen, layoutConfigMap?.[stim.itemId]);
+    const answer = stim.answer.toString();
+    const choices = layoutConfigMap?.[stim.itemId].response.values;
 
-    if (feedbackHandler !== undefined) {
-      keyboardFeedbackHandler = feedbackHandler;
-    }
+    addPracticeButtonListeners(answer, isTouchScreen, choices);
   }
 
   // should log trialsOfCurrentType - race condition
@@ -301,11 +284,6 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
       }
     }
 
-    Array.from(responseButtons).forEach((el, i) => {
-      const keyIndex = totalResponseButtons === 2 ? i + 1 : i;
-      addKeyHelpers(el, keyIndex);
-    });
-
     // update the trial number
     taskStore.transact('trialNumSubtask', (oldVal: number) => oldVal + 1);
   }
@@ -313,7 +291,7 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
   setupReplayAudio(pageStateHandler);
 }
 
-function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, LayoutConfigType>, trial?: StimulusType) {
+function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, LayoutConfigType>, terminateCat: boolean, trial?: StimulusType) {
   PageAudioHandler.stopAndDisconnectNode();
 
   // note: nextStimulus is actually the current stimulus
@@ -330,11 +308,7 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
       if (!response) {
         throw new Error('Choices not defined in the config');
       }
-      const keyboardChoices = getKeyboardChoices(itemLayoutConfig);
-      responseIndex = data.keyboard_response
-        ? keyboardChoices.findIndex((f) => f.toLowerCase() === data.keyboard_response.toLowerCase())
-        : data.button_response;
-      responseValue = response.values[responseIndex];
+      responseValue = response.values[data.button_response];
       target = response.target;
       data.correct = responseValue === target;
     }
@@ -343,8 +317,8 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
       updateTheta(stimulus, data.correct);
     }
 
-    // check response and record it
-    const responseType = data.button_response ? 'mouse' : 'keyboard';
+    // TODO: detect touch input
+    const responseType = 'mouse';
 
     // update running score and answer lists
     if (data.correct) {
@@ -394,21 +368,12 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
 
     // adding manually since trial does not log it properly
     // for keyboard responses
-    if (
-      responseType === 'keyboard' ||
-      data.response_source === 'keyboard' ||
-      stimulus.assessmentStage === 'practice_response'
-    ) {
+    if (stimulus.assessmentStage === 'practice_response') {
       const endTime = performance.now();
       const calculatedRt = Math.round(endTime - startTime);
       jsPsych.data.addDataToLastTrial({
         rt: calculatedRt,
       });
-    }
-
-    // remove listner or it will stack since were adding it on the document itself
-    if (stimulus.assessmentStage === 'practice_response') {
-      document.removeEventListener('keydown', keyboardFeedbackHandler);
     }
   } else {
     // instructions
@@ -432,6 +397,10 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
   } else if (taskStore().numIncorrect >= taskStore().maxIncorrect && !runCat) {
     finishExperiment();
   }
+
+  if (terminateCat) {
+    shouldTerminateCat();
+  }
 }
 
 export const afcStimulusTemplate = (
@@ -440,11 +409,13 @@ export const afcStimulusTemplate = (
     promptAboveButtons,
     task,
     layoutConfigMap,
+    terminateCat,
   }: {
     responseAllowed: boolean;
     promptAboveButtons: boolean;
     task: string;
     layoutConfigMap: Record<string, LayoutConfigType>;
+    terminateCat: boolean;
   },
   trial?: StimulusType,
 ) => {
@@ -464,16 +435,11 @@ export const afcStimulusTemplate = (
     },
     stimulus: () => getPrompt(layoutConfigMap, trial),
     prompt_above_buttons: promptAboveButtons,
-    keyboard_choices: () => {
-      const stim = trial || taskStore().nextStimulus;
-
-      const itemLayoutConfig = layoutConfigMap[stim.itemId];
-      return getKeyboardChoices(itemLayoutConfig);
-    },
+    keyboard_choices: "NO_KEYS",
     button_choices: () => getButtonChoices(layoutConfigMap, trial),
     button_html: () => getButtonHtml(layoutConfigMap, trial),
     on_load: () => doOnLoad(layoutConfigMap, trial),
-    on_finish: (data: any) => doOnFinish(data, task, layoutConfigMap, trial),
+    on_finish: (data: any) => doOnFinish(data, task, layoutConfigMap, terminateCat, trial),
     response_ends_trial: () => {
       const stim = trial || taskStore().nextStimulus;
 

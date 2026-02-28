@@ -73,6 +73,7 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
       showPrompt: false,
     },
     layoutConfigMap,
+    terminateCat: false,
   };
 
   const stimulusBlock = {
@@ -107,7 +108,7 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
 
     // push in practice transition
     if (corpora.ipLight.filter((trial) => trial.assessmentStage === 'practice_response').length > 0) {
-      timeline.push(practiceTransition);
+      timeline.push(practiceTransition());
     }
 
     // push in starting block

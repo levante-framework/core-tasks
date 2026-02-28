@@ -12,7 +12,7 @@ import {
 import shuffle from 'lodash/shuffle';
 import { finishExperiment } from '../../shared/trials';
 import { taskStore } from '../../../taskStore';
-
+import { addKeyHelpers } from '../../shared/helpers';
 /**
  *TODO: we should perhaps allow {@link https://www.jspsych.org/7.2/overview/media-preloading/#automatic-preloading automatic preload}
   of the stimulus image and modify the DOM nodes that jsPsych creates in on_load?
@@ -45,6 +45,11 @@ export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrial
       document.getElementById('jspsych-html-multi-response-btngroup').classList.add('haf-parent-container');
       document.getElementById('jspsych-html-multi-response-btngroup').classList.add('lev-response-row');
       document.getElementById('jspsych-html-multi-response-btngroup').classList.add('linear-4');
+
+      const responseButtons = document.querySelectorAll('.jspsych-html-multi-response-button');
+      responseButtons.forEach((button, i) => {
+        addKeyHelpers(button, i);
+      });
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
     keyboard_choices: isTouchScreen ? InputKey.NoKeys : [InputKey.ArrowLeft, InputKey.ArrowRight],

@@ -95,7 +95,7 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
 
   // returns practice + instruction trials for a given block
   function getPracticeInstructions(blockNum: number): StimulusType[] {
-    return instructionPractice.filter((trial) => trial.blockIndex == blockNum);
+    return instructionPractice.filter((trial) => trial.block_index === blockNum);
   }
 
   // create list of numbers of trials per block
@@ -171,7 +171,7 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
       heavyPractice.forEach((trial) => {
         timeline.push(trial);
       });
-      timeline.push({ ...practiceTransition, conditional_function: () => true });
+      timeline.push({ ...practiceTransition(), conditional_function: () => true });
     } else {
       currentBlockInstructionPractice.forEach((trial) => {
         timeline.push(ipBlock(trial));

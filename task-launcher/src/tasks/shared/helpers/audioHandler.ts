@@ -27,22 +27,29 @@ export class PageAudioHandler {
     }
   }
 
-  static async playAudio(audioUri: string, config: AudioConfigType = this.defaultAudioConfig) {
+  static async getAudioDuration(audioUri: string) {
+    const audioBuffer = (await jsPsych.pluginAPI.getAudioBuffer(audioUri)) as AudioBuffer | null;
+    return audioBuffer?.duration;
+  }
+
+  static async playAudio(audioUri: string, config: AudioConfigType = this.defaultAudioConfig, setClassAudioField: boolean = true) {
     const { enabled, maxRepetitions } = config.restrictRepetition;
     const { onEnded } = config;
 
     // check for repeat audio
     if (PageAudioHandler.audioUri === audioUri && enabled) {
       PageAudioHandler.replays++;
-    } else {
+    } else if (enabled) {
       PageAudioHandler.replays = 0;
     }
 
-    PageAudioHandler.audioUri = audioUri;
+    if (setClassAudioField) {
+      PageAudioHandler.audioUri = audioUri;
+    }
 
-    // mute audio if it has already been played twice
-    if (PageAudioHandler.replays >= maxRepetitions) {
-      audioUri = mediaAssets.audio.nullAudio;
+    // replace audio with ding if it has already been played twice
+    if (PageAudioHandler.replays > maxRepetitions && enabled) {
+      audioUri = mediaAssets.audio.inputAudioCue;
     }
 
     try {
@@ -56,12 +63,42 @@ export class PageAudioHandler {
       audioSource.buffer = audioBuffer;
       audioSource.connect(jsPsychAudioCtx.destination);
       audioSource.onended = () => {
-        if (onEnded) onEnded();
+        if (PageAudioHandler.replays === maxRepetitions && enabled) {
+          const audioConfig: AudioConfigType = {
+            restrictRepetition: {
+              enabled: false,
+              maxRepetitions: 2,
+            },
+            onEnded: () => {
+              if (onEnded) onEnded();
+            },
+          };
+
+          PageAudioHandler.playAudio(mediaAssets.audio.inputAudioCue, audioConfig, false);
+        } else {
+          if (onEnded) onEnded();
+        }
       };
       audioSource.start(0);
     } catch {
       // Swallow errors to avoid test/runtime crashes when audio cannot be played
       return;
     }
+  }
+
+  // required on iOS to prevent autoplay blocking
+  static unlockAudioContext() {
+    const ctx = jsPsych.pluginAPI.audioContext();
+
+    // safari requires resuming audio context on user interaction, then it can be used freely later
+    if (ctx.state === 'suspended') {
+      ctx.resume(); 
+    }
+  
+    const buffer = ctx.createBuffer(1, 1, ctx.sampleRate);
+    const source = ctx.createBufferSource();
+    source.buffer = buffer;
+    source.connect(ctx.destination);
+    source.start(0);
   }
 }
