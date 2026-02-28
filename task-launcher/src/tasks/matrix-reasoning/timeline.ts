@@ -6,7 +6,8 @@ import {
   createPreloadTrials,
   getRealTrials,
   batchTrials,
-  batchMediaAssets, 
+  batchMediaAssets,
+  checkFallbackCriteria, 
 } from '../shared/helpers';
 import { downexInstructions1, downexInstructions2, downexInstructions3, downexInstructions4, downexInstructions5, instructions } from './trials/instructions';
 import { downexStimulus } from './trials/downexStimulus';
@@ -130,12 +131,31 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
     }
   }
 
-  const repeatInstructions = {
-    timeline: [repeatInstructionsMessage, ...instructions],
+  const secondPhaseIndex = 5;
+  let fellBack = false;
+
+  // give older kids the downex items if they meet fall back criteria
+  const fallbackBlock = {
+    timeline: [
+      repeatInstructionsMessage, 
+      downexInstructions1,
+      ...downexCorpus.slice(0, secondPhaseIndex).map((trial) => [{...fixationOnly, stimulus: ''}, downexStimulus(layoutConfigMap, true, trial), ifRealTrialResponse]).flat(),
+      downexInstructions2,
+      downexInstructions3,
+      practiceTransition(undefined, true),
+      ...downexCorpus.slice(secondPhaseIndex).map((trial) => [{...fixationOnly, stimulus: ''}, downexStimulus(layoutConfigMap, false, trial), ifRealTrialResponse]).flat(),
+      downexInstructions4,
+      downexInstructions5,
+    ],
     conditional_function: () => {
-      return taskStore().numIncorrect >= 2;
+      const run = checkFallbackCriteria() && !fellBack && !heavyInstructions;
+      if (run) {
+        fellBack = true;
+      }
+
+      return run;
     },
-  };
+  }
 
   function preloadBatch() {
     timeline.push(createPreloadTrials(batchedMediaAssets[currPreloadBatch]).default);
@@ -181,7 +201,6 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
     timeline.push(unnormedBlock);
   } else {
     const numOfDownexTrials = taskStore().totalDownexTrials;
-    const secondPhaseIndex = 5; // stop animation after 5 trials
 
     if (heavyInstructions) {
       for (let i = 0; i < numOfDownexTrials; i++) {
@@ -203,12 +222,14 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
     const numOfTrials = taskStore().totalTrials;
     taskStore('totalTestTrials', heavyInstructions ? getRealTrials(defaultCorpus) + getRealTrials(downexCorpus) : getRealTrials(defaultCorpus));
 
+    const numOfInitialPracticeTrials = defaultCorpus.filter((trial) => trial.assessmentStage === 'practice_response').length;
+    const fallbackIndex = numOfInitialPracticeTrials + 4;
     for (let i = 0; i < numOfTrials; i += 1) {
       if (i % batchSize === 0) {
         preloadBatch();
       }
-      if (i === 4) {
-        timeline.push(repeatInstructions);
+      if (i <= fallbackIndex) {
+        timeline.push(fallbackBlock);
       }
       timeline.push(stimulusBlock);
     }

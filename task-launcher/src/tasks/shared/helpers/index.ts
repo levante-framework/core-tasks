@@ -45,4 +45,5 @@ export { equalizeButtonSizes } from './equalizeButtonSizes';
 export { enableOkButton, enableAllButtons } from './enableButtons';
 export { popAnimation, triggerAnimation, displaceAnimation } from './animateImages';
 export { shouldTerminateCat } from './shouldTerminateCat';
+export { checkFallbackCriteria } from './checkFallbackCriteria';
 export { addKeyHelpers } from './addKeyHelpers';
