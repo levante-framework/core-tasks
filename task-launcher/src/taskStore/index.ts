@@ -25,6 +25,9 @@ import store from 'store2';
  * @property {boolean} taskComplete - Whether the task has ended - if true, the user should return to dashboard.
  * @property {Object} assetsPerTask - Object containing list of assets belonging to each task.
  * @property {boolean} demoMode - Whether the task is running in demo mode (no interaction with Firestore), default is false.
+ * @property {number} currentCatBlock - The current block number to select trials from in a CAT.
+ * @property {number[]} blockThresholds - Array of theta thresholds.
+ * @property {number} totalTrialCount - Total number of trials, including practice and instructions.
  * ------- Added after config is parsed -------
  * @property {number} totalTrials - Total number trials, including practice and instructions.
  * @property {number} totalTestTrials - Total number of test trials in the experiment timeline.
@@ -50,6 +53,7 @@ import store from 'store2';
  * @property {number} numOfBlocks - Number of blocks in the memory game, default is 4.
  * @property {number} blockSize - Size of each block in the memory game, default is 50.
  * @property {number} gridSize - Size of the grid in the memory game, default is 2x2.
+ * @property {Object} displayPromptDurations - The durations of the display prompts, default is an empty object.
  * ------- H&F & Memory Game only -------
  * @property {boolean} isCorrect - Whether the response to the previous trial was correct, default is false.
  * --------- ToM only ---------
@@ -83,6 +87,9 @@ export type TaskStoreDataType = {
   maxTime?: number;
   demoMode: boolean;
   taskVersion: number;
+  currentCatBlock?: number;
+  blockThresholds?: number[];
+  displayPromptDurations: Record<string, number>;
 };
 
 /**
@@ -97,6 +104,7 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     itemSelect: 'mfi',
     trialNumSubtask: 0,
     testTrialCount: 0,
+    totalTrialCount: 0,
     numIncorrect: 0,
     // For ROAR syntax (TROG)
     totalCorrect: 0,

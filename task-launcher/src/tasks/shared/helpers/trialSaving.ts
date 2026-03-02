@@ -3,6 +3,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import _mapValues from 'lodash/mapValues';
 import { taskStore } from '../../../taskStore';
 import { recordCompletion } from './recordCompletion';
+import { Logger } from '../../../utils/logger';
 import { finishExperiment } from '../trials';
 
 /**
@@ -147,6 +148,8 @@ export const initTrialSaving = (config: Record<string, any>) => {
     if (taskStore().testTrialCount >= taskStore().totalTestTrials * 0.8) {
       recordCompletion(config);
     }
+
+    taskStore('totalTrialCount', taskStore().totalTrialCount + 1);
   });
 
   // @ts-ignore
@@ -161,7 +164,6 @@ export const initTrialSaving = (config: Record<string, any>) => {
       delete dataCopy.save_trial;
       delete dataCopy.internal_node_id;
       delete dataCopy.button_response;
-      delete dataCopy.keyboard_response;
       delete dataCopy.response_source;
       dataCopy.responseSource = data.response_source;
       delete dataCopy.trial_type;
@@ -171,7 +173,10 @@ export const initTrialSaving = (config: Record<string, any>) => {
       if (config.isRoarApp) {
         config.firekit.writeTrial(dataCopy, computedScoreCallback);
       } else {
-        config.firekit.writeTrial(dataCopy);
+        config.firekit.writeTrial(dataCopy).catch((error: any) => {
+          delete dataCopy.stimulus; // remove stimulus from data to avoid logging large html elements
+          Logger.getInstance().capture('Error writing trial to Firestore', { error: error, data: dataCopy });
+        });
       }
     }
   });

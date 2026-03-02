@@ -158,7 +158,7 @@ export function handleButtonFeedback(
 
   const correctAudioConfig: AudioConfigType = {
     restrictRepetition: {
-      enabled: true,
+      enabled: false,
       maxRepetitions: 2,
     },
     onEnded: finishTrial,

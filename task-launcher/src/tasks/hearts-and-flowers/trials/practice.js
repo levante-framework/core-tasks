@@ -5,6 +5,7 @@ import { StimulusType, StimulusSideType, InputKey, getCorrectInputSide, getStimu
 import { PageStateHandler, setupReplayAudio, PageAudioHandler } from '../../shared/helpers';
 import { jsPsych } from '../../taskSetup';
 import { taskStore } from '../../../taskStore';
+import { addKeyHelpers } from '../../shared/helpers';
 
 /**
  * Builds a practice trial for the Instruction sections.
@@ -61,6 +62,11 @@ export function buildInstructionPracticeTrial(
       PageAudioHandler.playAudio(promptAudioAsset);
       const pageStateHandler = new PageStateHandler(audioAssetKey);
       setupReplayAudio(pageStateHandler);
+
+      const buttonContainers = document.querySelectorAll('.jspsych-html-multi-response-button');
+      buttonContainers.forEach((container, i) => {
+        addKeyHelpers(container, i);
+      });
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
     keyboard_choices: isTouchScreen ? InputKey.NoKeys : [InputKey.ArrowLeft, InputKey.ArrowRight],

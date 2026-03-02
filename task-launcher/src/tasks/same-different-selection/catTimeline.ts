@@ -29,8 +29,7 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
   const heavy: boolean = taskStore().heavyInstructions;
 
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
-  const preparedCorpus = prepareCorpus(corpus, true);
-
+  const preparedCorpus = prepareCorpus(corpus, false,true);
   const catCorpus = setupSds(taskStore().corpora.stimulus);
   const allBlocks = prepareMultiBlockCat(catCorpus);
 
@@ -130,9 +129,9 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
   // returns practice + instruction trials for a given block
   function getPracticeInstructions(blockNum: number): StimulusType[] {
     return instructionPractice.filter((trial) => {
-      if (trial.block_index == undefined) return;
+      if (Number.isNaN(trial.block_index)) return;
 
-      return parseInt(trial.block_index) == blockNum;
+      return trial.block_index === blockNum;
     });
   }
 

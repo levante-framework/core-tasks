@@ -16,8 +16,7 @@ import { getChildSurveyResponses } from './childSurveyResponses';
 
 type ParsedRowType = {
   source: string;
-  block_index?: string;
-  blockIndex?: number;
+  block_index: string;
   task: string;
   prompt: string;
   item: string | number[];
@@ -48,6 +47,7 @@ type ParsedRowType = {
   randomize?: string;
   trial_num: number;
   downex?: string;
+  block_threshold?: number;
 };
 
 let totalTrials = 0;
@@ -77,13 +77,19 @@ const transformCSV = (
   let currTrialTypeBlock = '';
   let currPracticeAmount = 0;
 
+  const blockThresholds: number[] = [];
+
   csvInput.forEach((row) => {
     // Leaving this here for quick testing of a certain type of trial
     // if (!row.trial_type.includes('Number Line')) return;
 
+    if (row.block_threshold && !blockThresholds.includes(row.block_threshold)) {
+      blockThresholds.push(row.block_threshold);
+    }
+
     const newRow: StimulusType = {
       source: row.source,
-      block_index: row.block_index,
+      block_index: parseInt(row.block_index),
       task: row.task,
       // for testing, will be removed
       prompt: row.prompt,
@@ -117,6 +123,10 @@ const transformCSV = (
       downex: row.downex?.toUpperCase() === 'TRUE',
     };
 
+    if (row.task === 'same-different-selection') {
+      newRow.requiredSelections = _toNumber(row.required_selections);
+    }
+
     if (row.task === 'Mental Rotation') {
       newRow.item = camelize(newRow.item as string);
       newRow.answer = camelize(newRow.answer as string);
@@ -143,6 +153,8 @@ const transformCSV = (
       totalTrials += 1;
     }
   });
+
+  taskStore('blockThresholds', blockThresholds.sort((a, b) => a - b));
 
   if (task === 'roar-inference') {
     const inferenceNumStories = taskStore().inferenceNumStories;

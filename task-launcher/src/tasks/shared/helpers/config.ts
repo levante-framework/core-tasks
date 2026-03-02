@@ -125,6 +125,7 @@ export const setSharedConfig = async (
     startingTheta: Number(startingTheta),
     demoMode: !!demoMode,
     taskVersion: Number(taskVersion || 1),
+    displayPromptDurations: {},
   };
 
   // default corpus if nothing is passed in

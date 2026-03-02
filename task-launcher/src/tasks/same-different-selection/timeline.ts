@@ -96,7 +96,6 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
     },
   };
 
-
   // create list of numbers of trials per block
   const {blockCountList, blockOperations} = setTrialBlock(false); 
 

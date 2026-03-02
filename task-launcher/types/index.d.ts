@@ -56,8 +56,7 @@ declare global {
 
   type StimulusType = {
     source: string;
-    block_index?: string;
-    blockIndex?: number;
+    block_index: number
     task: string; // TODO: define all task types here
     item: string | number[];
     trial_type?: string;

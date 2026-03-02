@@ -1,4 +1,4 @@
-import { matrixDragAnimation, triggerAnimation } from "../../shared/helpers";
+import { displaceAnimation, triggerAnimation } from "../../shared/helpers";
 
 export function animate(animation: string, itemToAnimate: string) {
     if (animation == 'pulse') {
@@ -10,6 +10,14 @@ export function animate(animation: string, itemToAnimate: string) {
         const dragTargetElement = document.getElementById(itemToAnimate);
         const blackOutImage = itemToAnimate === 'target';
 
-        return matrixDragAnimation(dragTargetElement as HTMLElement, elementToAnimate as HTMLElement, 0,0, blackOutImage);
+        return displaceAnimation(
+            dragTargetElement as HTMLElement, 
+            elementToAnimate as HTMLElement, 
+            'destination',
+            0, 
+            0, 
+            false, 
+            blackOutImage
+        );
     }
 }
