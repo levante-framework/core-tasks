@@ -42,6 +42,7 @@ export { batchTrials } from './batchPreloading';
 export { getAssetsPerTask } from './getAssetsPerTask';
 export { getChildSurveyResponses } from './childSurveyResponses';
 export { equalizeButtonSizes } from './equalizeButtonSizes';
+export { disableOkButton } from './disableOkButton';
 export { enableOkButton, enableAllButtons } from './enableButtons';
 export { popAnimation, triggerAnimation, displaceAnimation } from './animateImages';
 export { shouldTerminateCat } from './shouldTerminateCat';
