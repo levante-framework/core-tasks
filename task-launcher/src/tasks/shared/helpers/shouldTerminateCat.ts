@@ -15,8 +15,6 @@ export function shouldTerminateCat() {
     const lastTenTrials = data.last(10);
     const incorrectTrials = lastTenTrials.filter({correct: false});
     const terminate = incorrectTrials.count() > 6;
-    console.log(incorrectTrials.count());
-    console.log(lastTenTrials.count());
 
     if (terminate) {
         finishExperiment();
