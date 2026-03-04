@@ -87,13 +87,15 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
     throw new Error('Something went wrong. Please look in the console for error details');
   }
 
+  const shouldTerminateCat = runCat;
+
   const trialConfig = {
     trialType: 'audio',
     responseAllowed: true,
     promptAboveButtons: true,
     task: config.task,
     layoutConfigMap,
-    terminateCat: false,
+    terminateCat: shouldTerminateCat,
   };
 
   const feedbackBlock = (trial?: StimulusType) => {
@@ -150,7 +152,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
 
   const sliderBlock = (trial?: StimulusType) => {
     return {
-      timeline: [slider(layoutConfigMap, trial), feedbackBlock(trial)],
+      timeline: [slider(layoutConfigMap, shouldTerminateCat, trial), feedbackBlock(trial)],
       conditional_function: () => {
         const trialsSkipped = taskStore().trialsSkipped;
 
@@ -171,7 +173,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
   const repeatSliderPracticeBlock = () => {
     let trials: any[] = [];
     sliderPractice.forEach((trial, index) => {
-      trials.push(slider(layoutConfigMap, trial));
+      trials.push(slider(layoutConfigMap, shouldTerminateCat, trial));
       if (index < sliderPractice.length - 1) {
         trials.push({
           ...feedback(true, 'feedbackCorrect', 'feedbackNotQuiteRight'),
