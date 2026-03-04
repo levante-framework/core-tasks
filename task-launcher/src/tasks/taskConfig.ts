@@ -15,6 +15,7 @@ import tROGTimeline from './trog/timeline';
 import inferenceTimeline from './roar-inference/timeline';
 import adultReasoningTimeline from './adult-reasoning/timeline';
 import childSurveyTimeline from './child-survey/timeline';
+import locationSelectionTimeline from './location-selection/timeline';
 
 // TODO: Abstract to import config from specifc task folder
 // Will allow for multiple devs to work on the repo without merge conflicts
@@ -128,6 +129,13 @@ export default {
     getCorpus: getCorpus,
     getTranslations: getTranslations,
     buildTaskTimeline: childSurveyTimeline,
+    variants: {},
+  },
+  locationSelection: {
+    setConfig: setSharedConfig,
+    getCorpus: getCorpus,
+    getTranslations: getTranslations,
+    buildTaskTimeline: locationSelectionTimeline,
     variants: {},
   },
 };
