@@ -10,6 +10,7 @@ import {
   camelize,
   enableOkButton,
   disableOkButton,
+  shouldTerminateCat,
 } from '../../shared/helpers';
 import { finishExperiment } from '../../shared/trials';
 import { taskStore } from '../../../taskStore';
@@ -321,6 +322,7 @@ export const afcMatch = (trial?: StimulusType) => {
     }
 
     if (cat) {
+      shouldTerminateCat();
       updateTheta(stim, isCorrect);
 
       const allSequentialTrials = taskStore().sequentialTrials;

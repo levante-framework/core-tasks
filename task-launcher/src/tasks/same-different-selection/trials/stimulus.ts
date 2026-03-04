@@ -15,6 +15,7 @@ import { isTouchScreen, jsPsych } from '../../taskSetup';
 import { taskStore } from '../../../taskStore';
 import { updateTheta } from '../../shared/helpers';
 import { setNextCatTrial } from '../helpers/setNextCatTrial';
+import { shouldTerminateCat } from '../../shared/helpers/shouldTerminateCat';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 let incorrectPracticeResponses: string[] = [];
@@ -420,6 +421,7 @@ export const stimulus = (trial?: StimulusType) => {
         }
 
         if (stim.trialType !== 'something-same-1' && stim.trialType !== 'instructions') {
+          shouldTerminateCat();
           updateTheta(stim, isCorrect);
         }
 
