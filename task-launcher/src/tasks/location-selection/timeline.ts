@@ -10,6 +10,7 @@ import { searchCityPostal } from './trials/searchCityPostal';
 import { reviewAndConfirm } from './trials/reviewAndConfirm';
 import { getLocationSelectionTaskConfig } from './helpers/config';
 import { taskStore } from '../../taskStore';
+import { clearLocationSelectionDraft } from './helpers/state';
 
 export default function buildLocationSelectionTimeline(config: Record<string, any>, _mediaAssets: MediaAssetsType) {
   initTrialSaving(config);
@@ -19,6 +20,7 @@ export default function buildLocationSelectionTimeline(config: Record<string, an
   taskStore('locationSelectionConfig', locationConfig);
   taskStore('locationSelectionMode', null);
   taskStore('locationSelectionLastStep', null);
+  clearLocationSelectionDraft();
 
   const timeline: Record<string, any>[] = [
     initialTimeline,
