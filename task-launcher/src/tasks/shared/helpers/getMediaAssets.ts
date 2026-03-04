@@ -21,8 +21,8 @@ type ResponseDataType = {
 export async function getMediaAssets(
   bucketName: string,
   whitelist: Record<string, any> = {},
-  language: string,
   taskName: string,
+  language: string,
   nextPageToken = '',
   categorizedObjects: CategorizedObjectsType = { images: {}, audio: {}, video: {} },
 ) {
@@ -38,10 +38,15 @@ export async function getMediaAssets(
   }
 
   const response = await fetch(url);
+  if (!response.ok) {
+    // New/scaffold tasks may not have media buckets yet; return empty assets rather than throw.
+    return categorizedObjects;
+  }
   const data: ResponseDataType = await response.json();
+  const items = Array.isArray(data?.items) ? data.items : [];
 
-  data.items.forEach((item) => {
-    if (isLanguageAndDeviceValid(item.name, taskName, language) && isWhitelisted(item.name, whitelist)) {
+  items.forEach((item) => {
+    if (isLanguageAndDeviceValid(item.name, language, taskName) && isWhitelisted(item.name, whitelist)) {
       const contentType = item.contentType;
       const id = item.name;
       const path = `https://storage.googleapis.com/${bucket}/${id}`;
