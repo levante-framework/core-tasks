@@ -1,6 +1,7 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { taskStore } from '../../../taskStore';
 import { getLocationSelectionDraft, setLocationSelectionDraft } from '../helpers/state';
+import { ensureLocationSelectionStyles } from '../helpers/ui';
 
 interface NominatimResult {
   place_id?: number;
@@ -92,19 +93,19 @@ export const searchCityPostal = {
       type: jsPsychHtmlMultiResponse,
       stimulus: `
         <div class="lev-stimulus-container">
-          <div class="lev-row-container instruction">
+          <div class="lev-row-container instruction location-selection-panel location-selection-copy">
             <h2>City / postal search</h2>
             <p>Select a country, then type a city/town or postal code.</p>
-            <div style="margin-top: 1rem; text-align: left;">
+            <div class="location-selection-field">
               <label for="location-country-select"><strong>Country</strong></label>
               <select id="location-country-select" style="display:block; width:100%; min-height: 40px; margin-top: 0.3rem; padding: 0 0.5rem;"></select>
             </div>
-            <div style="margin-top: 0.8rem; text-align: left;">
+            <div class="location-selection-field">
               <label for="location-query-input"><strong>City / Postal code</strong></label>
               <input id="location-query-input" type="text" placeholder="Start typing..." autocomplete="off" style="display:block; width:100%; min-height: 40px; margin-top: 0.3rem; padding: 0 0.7rem;" />
               <div id="location-autocomplete-dropdown" style="border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 8px 8px; display: none; max-height: 260px; overflow-y: auto; background: #fff;"></div>
             </div>
-            <p id="location-search-status" style="margin-top: 0.8rem;">Choose a country to begin.</p>
+            <p id="location-search-status" class="location-selection-status">Choose a country to begin.</p>
           </div>
         </div>
       `,
@@ -117,6 +118,7 @@ export const searchCityPostal = {
         task: 'location-selection',
       },
       on_load: () => {
+        ensureLocationSelectionStyles();
         const continueButton = document.querySelector<HTMLButtonElement>('#jspsych-html-multi-response-button-0');
         const inputEl = document.getElementById('location-query-input') as HTMLInputElement | null;
         const countryEl = document.getElementById('location-country-select') as HTMLSelectElement | null;

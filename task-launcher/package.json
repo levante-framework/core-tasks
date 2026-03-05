@@ -52,6 +52,7 @@
     "@sentry/browser": "^8.7.0",
     "cypress-real-events": "^1.13.0",
     "fscreen": "^1.2.0",
+    "h3-js": "^4.4.0",
     "i18next": "^22.4.15",
     "i18next-browser-languagedetector": "^7.0.1",
     "jspsych": "^7.2.1",

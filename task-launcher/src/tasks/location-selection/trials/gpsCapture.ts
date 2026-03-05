@@ -1,6 +1,7 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { taskStore } from '../../../taskStore';
 import { getLocationSelectionDraft, setLocationSelectionDraft } from '../helpers/state';
+import { ensureLocationSelectionStyles } from '../helpers/ui';
 
 async function reverseGeocode(lat: number, lon: number): Promise<string | null> {
   try {
@@ -26,14 +27,14 @@ export const gpsCapture = {
       type: jsPsychHtmlMultiResponse,
       stimulus: `
         <div class="lev-stimulus-container">
-          <div class="lev-row-container instruction">
+          <div class="lev-row-container instruction location-selection-panel location-selection-copy">
             <h2>GPS location</h2>
             <p>Use your browser location to capture coordinates from this device.</p>
-            <div style="margin-top: 1rem;">
+            <div class="location-selection-field">
               <button id="capture-gps-btn" class="primary">Use Current Location</button>
             </div>
-            <p id="gps-status" style="margin-top: 0.8rem;">Waiting for GPS request…</p>
-            <p id="gps-value" style="font-size: 0.95rem; opacity: 0.85;"></p>
+            <p id="gps-status" class="location-selection-status">Waiting for GPS request…</p>
+            <p id="gps-value" style="font-size: 0.95rem; opacity: 0.85; line-height: 1.4;"></p>
           </div>
         </div>
       `,
@@ -46,6 +47,7 @@ export const gpsCapture = {
         task: 'location-selection',
       },
       on_load: () => {
+        ensureLocationSelectionStyles();
         const continueButton = document.querySelector<HTMLButtonElement>('#jspsych-html-multi-response-button-0');
         const gpsButton = document.getElementById('capture-gps-btn') as HTMLButtonElement | null;
         const statusEl = document.getElementById('gps-status');

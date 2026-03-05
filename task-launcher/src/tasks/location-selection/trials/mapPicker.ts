@@ -1,6 +1,7 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { taskStore } from '../../../taskStore';
 import { getLocationSelectionDraft, setLocationSelectionDraft } from '../helpers/state';
+import { ensureLocationSelectionStyles } from '../helpers/ui';
 
 declare global {
   interface Window {
@@ -50,6 +51,9 @@ const US_STATE_LABEL_POINTS: Array<{ abbr: string; lat: number; lon: number }> =
   { abbr: 'WA', lat: 47.7511, lon: -120.7401 }, { abbr: 'WV', lat: 38.5976, lon: -80.4549 },
   { abbr: 'WI', lat: 43.7844, lon: -88.7879 }, { abbr: 'WY', lat: 43.0759, lon: -107.2903 },
 ];
+const US_STATE_LABEL_PRIORITY: string[] = [
+  'CA', 'TX', 'FL', 'NY', 'WA', 'CO', 'AZ', 'IL', 'GA', 'NC', 'PA', 'MI', 'OH', 'TN', 'MN', 'MA', 'VA', 'MO', 'NJ', 'WI',
+];
 
 function ensureMapLabelStyles() {
   const styleId = 'location-selection-map-label-styles';
@@ -76,6 +80,17 @@ function ensureMapLabelStyles() {
     }
   `;
   document.head.appendChild(style);
+}
+
+function shouldKeepLabel(candidate: { x: number; y: number }, used: Array<{ x: number; y: number }>, minPxDistance: number) {
+  for (let i = 0; i < used.length; i += 1) {
+    const dx = candidate.x - used[i].x;
+    const dy = candidate.y - used[i].y;
+    if ((dx * dx) + (dy * dy) < (minPxDistance * minPxDistance)) {
+      return false;
+    }
+  }
+  return true;
 }
 
 function loadLeaflet(): Promise<any> {
@@ -122,11 +137,11 @@ export const mapPicker = {
       type: jsPsychHtmlMultiResponse,
       stimulus: `
         <div class="lev-stimulus-container">
-          <div class="lev-row-container instruction">
+          <div class="lev-row-container instruction location-selection-panel location-selection-copy">
             <h2>Pick on map (United States)</h2>
             <p>Click your approximate location on the US map. The map is limited to the contiguous US.</p>
-            <div id="location-map-picker" style="height: 360px; width: 100%; border-radius: 8px; margin-top: 1rem;"></div>
-            <p id="map-picker-status" style="margin-top: 0.8rem;">Pick a point on the map.</p>
+            <div id="location-map-picker" style="height: 360px; width: 100%; border-radius: 8px; margin-top: 0.8rem;"></div>
+            <p id="map-picker-status" class="location-selection-status">Pick a point on the map.</p>
           </div>
         </div>
       `,
@@ -139,6 +154,7 @@ export const mapPicker = {
         task: 'location-selection',
       },
       on_load: async () => {
+        ensureLocationSelectionStyles();
         const continueButton = document.querySelector<HTMLButtonElement>('#jspsych-html-multi-response-button-0');
         const statusEl = document.getElementById('map-picker-status');
         if (continueButton) continueButton.disabled = true;
@@ -170,9 +186,28 @@ export const mapPicker = {
             const zoom = Number(map.getZoom?.() || 4);
             cityLabelsLayer.clearLayers();
             stateLabelsLayer.clearLayers();
+            const usedScreenPoints: Array<{ x: number; y: number }> = [];
+            const mapBounds = map.getBounds?.();
+            const stateRank = new Map(US_STATE_LABEL_PRIORITY.map((abbr, idx) => [abbr, idx]));
 
             if (zoom <= 6) {
-              US_STATE_LABEL_POINTS.forEach((point) => {
+              const maxLabels = zoom <= 4 ? 10 : zoom === 5 ? 16 : 28;
+              const minPxDistance = zoom <= 4 ? 52 : zoom === 5 ? 42 : 34;
+              const rankedStates = US_STATE_LABEL_POINTS
+                .slice()
+                .sort((a, b) => {
+                  const aRank = stateRank.has(a.abbr) ? Number(stateRank.get(a.abbr)) : 999;
+                  const bRank = stateRank.has(b.abbr) ? Number(stateRank.get(b.abbr)) : 999;
+                  return aRank - bRank;
+                });
+
+              rankedStates.forEach((point) => {
+                if (stateLabelsLayer.getLayers().length >= maxLabels) return;
+                if (mapBounds && !mapBounds.contains([point.lat, point.lon])) return;
+                const screen = map.latLngToContainerPoint([point.lat, point.lon]);
+                const spot = { x: Number(screen.x), y: Number(screen.y) };
+                if (!shouldKeepLabel(spot, usedScreenPoints, minPxDistance)) return;
+                usedScreenPoints.push(spot);
                 const marker = L.circleMarker([point.lat, point.lon], {
                   radius: 1,
                   color: '#334155',
@@ -192,6 +227,11 @@ export const mapPicker = {
             }
 
             US_LABEL_POINTS.forEach((point) => {
+              if (mapBounds && !mapBounds.contains([point.lat, point.lon])) return;
+              const screen = map.latLngToContainerPoint([point.lat, point.lon]);
+              const spot = { x: Number(screen.x), y: Number(screen.y) };
+              if (!shouldKeepLabel(spot, usedScreenPoints, 40)) return;
+              usedScreenPoints.push(spot);
               const marker = L.circleMarker([point.lat, point.lon], {
                 radius: 2.5,
                 color: '#1f2937',

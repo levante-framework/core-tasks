@@ -3,7 +3,6 @@ import { initTrialSaving, initTimeline } from '../shared/helpers';
 import { jsPsych } from '../taskSetup';
 import { enterFullscreen, exitFullscreen, finishExperiment, taskFinished } from '../shared/trials';
 import { instructions } from './trials/instructions';
-import { modeSelect } from './trials/modeSelect';
 import { gpsCapture } from './trials/gpsCapture';
 import { mapPicker } from './trials/mapPicker';
 import { searchCityPostal } from './trials/searchCityPostal';
@@ -20,12 +19,12 @@ export default function buildLocationSelectionTimeline(config: Record<string, an
   taskStore('locationSelectionConfig', locationConfig);
   taskStore('locationSelectionMode', null);
   taskStore('locationSelectionLastStep', null);
+  taskStore('locationSelectionCommitPreview', null);
   clearLocationSelectionDraft();
 
   const timeline: Record<string, any>[] = [
     initialTimeline,
     ...instructions,
-    modeSelect,
     gpsCapture,
     mapPicker,
     searchCityPostal,
