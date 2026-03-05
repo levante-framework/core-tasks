@@ -6,6 +6,8 @@ dist
 **/.ipynb_checkpoints
 .idea
 .DS_Store.firebase/*.cache
+.firebase/
+.firebase/*.cache
 **/.DS_Store
 test-results/
 lib/
