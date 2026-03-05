@@ -1,4 +1,9 @@
 export function ensureLocationSelectionStyles() {
+  const displayEl = document.querySelector('.jspsych-display-element');
+  if (displayEl) {
+    displayEl.classList.add('location-selection-scroll-enabled');
+  }
+
   const styleId = 'location-selection-shared-ui-styles';
   let style = document.getElementById(styleId) as HTMLStyleElement | null;
   if (!style) {
@@ -7,6 +12,22 @@ export function ensureLocationSelectionStyles() {
     document.head.appendChild(style);
   }
   style.textContent = `
+    .jspsych-display-element.location-selection-scroll-enabled {
+      overflow-y: auto !important;
+      overflow-x: hidden;
+    }
+    .jspsych-display-element.location-selection-scroll-enabled .jspsych-content-wrapper {
+      height: auto;
+      min-height: 100%;
+      align-items: flex-start;
+    }
+    .jspsych-display-element.location-selection-scroll-enabled .jspsych-content {
+      height: auto;
+      min-height: 100%;
+      justify-content: flex-start;
+      padding-top: 1.25rem;
+      padding-bottom: 1.25rem;
+    }
     .lev-row-container.instruction.location-selection-panel {
       width: min(92vw, 680px);
       max-width: 680px;
@@ -75,6 +96,42 @@ export function ensureLocationSelectionStyles() {
       overflow: auto;
       max-height: 280px;
       white-space: pre;
+    }
+    .location-selection-debug-table-wrap {
+      margin-top: 0.5rem;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      overflow: auto;
+      max-height: 240px;
+      background: #ffffff;
+    }
+    .location-selection-debug-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+      line-height: 1.25;
+    }
+    .location-selection-debug-table th,
+    .location-selection-debug-table td {
+      border-bottom: 1px solid #e2e8f0;
+      padding: 0.35rem 0.45rem;
+      text-align: left;
+      white-space: nowrap;
+    }
+    .location-selection-debug-table th {
+      position: sticky;
+      top: 0;
+      background: #f8fafc;
+      z-index: 1;
+      font-weight: 700;
+    }
+    .location-selection-pass {
+      color: #166534;
+      font-weight: 700;
+    }
+    .location-selection-fail {
+      color: #b91c1c;
+      font-weight: 700;
     }
     .location-selection-intro h2 {
       font-size: 1.15rem;

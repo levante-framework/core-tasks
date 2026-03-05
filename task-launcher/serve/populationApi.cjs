@@ -75,6 +75,7 @@ async function wait(ms) {
 
 function parseWorldPopSum(payload) {
   const candidates = [
+    payload?.data?.total_population,
     payload?.stats?.sum,
     payload?.data?.stats?.sum,
     payload?.result?.stats?.sum,

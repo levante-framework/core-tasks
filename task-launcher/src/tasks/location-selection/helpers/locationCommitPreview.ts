@@ -26,6 +26,19 @@ type LocationCommitPreview = {
   computedAt: string;
 };
 
+export type PopulationCandidateDebug = {
+  resolution: number;
+  cellId: string;
+  population: number | null;
+  source: 'kontur' | 'worldpop' | 'unknown';
+  privacyMet: boolean;
+};
+
+export type LocationCommitComputation = {
+  preview: LocationCommitPreview;
+  candidates: PopulationCandidateDebug[];
+};
+
 function getPreferredPopulationSource(
   config: Partial<LocationSelectionTaskConfig> | null | undefined,
 ): 'kontur' | 'worldpop' {
@@ -86,6 +99,14 @@ export async function buildLocationCommitPreviewWithPopulation(
   draft: LocationSelectionDraft | null,
   config: Partial<LocationSelectionTaskConfig> | null | undefined,
 ): Promise<LocationCommitPreview | null> {
+  const computed = await buildLocationCommitComputationWithPopulation(draft, config);
+  return computed?.preview || null;
+}
+
+export async function buildLocationCommitComputationWithPopulation(
+  draft: LocationSelectionDraft | null,
+  config: Partial<LocationSelectionTaskConfig> | null | undefined,
+): Promise<LocationCommitComputation | null> {
   if (!draft) return null;
 
   const baselineResolution = Number(config?.baselineResolution);
@@ -105,6 +126,7 @@ export async function buildLocationCommitPreviewWithPopulation(
   let effectivePopulationSource: 'kontur' | 'worldpop' | 'unknown' = 'unknown';
   let observedPopulationSource: 'kontur' | 'worldpop' | 'unknown' = 'unknown';
   let foundPassingCell = false;
+  const candidates: PopulationCandidateDebug[] = [];
 
   for (let resolution = safeBaselineResolution; resolution <= safeMaxResolution; resolution += 1) {
     const cellId = latLngToCell(draft.lat, draft.lon, resolution);
@@ -114,6 +136,13 @@ export async function buildLocationCommitPreviewWithPopulation(
       observedPopulationSource = populationResult.source;
     }
     const privacyMet = typeof population === 'number' ? population >= safePopulationThreshold : false;
+    candidates.push({
+      resolution,
+      cellId,
+      population,
+      source: populationResult.source,
+      privacyMet,
+    });
 
     if (privacyMet) {
       effectiveCell = cellId;
@@ -129,7 +158,7 @@ export async function buildLocationCommitPreviewWithPopulation(
 
   const [centerLat, centerLon] = cellToLatLng(effectiveCell);
 
-  return {
+  const preview: LocationCommitPreview = {
     schemaVersion: 'location_v1',
     latLon: {
       lat: roundTo(centerLat, 6),
@@ -153,5 +182,9 @@ export async function buildLocationCommitPreviewWithPopulation(
         ? effectivePopulationSource
         : (observedPopulationSource !== 'unknown' ? observedPopulationSource : preferredSource),
     computedAt: draft.selectedAt || new Date().toISOString(),
+  };
+  return {
+    preview,
+    candidates,
   };
 }
