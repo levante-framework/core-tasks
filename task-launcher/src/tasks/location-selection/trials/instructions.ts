@@ -11,20 +11,17 @@ export const instructions = [
       <div class="lev-stimulus-container">
         <div class="lev-row-container instruction location-selection-panel location-selection-copy location-selection-intro">
           <h2>How would you like to share location?</h2>
-          <p>Choose the method that is easiest for you. You can use GPS, tap a map, or search by city/postal code.</p>
-          <p>We only need an approximate location for planning and analysis.</p>
-          <div class="location-selection-note">
-            <p><strong>What to expect:</strong></p>
-            <p>- GPS: uses your browser location permission.</p>
-            <p>- Map: click a point in the United States.</p>
-            <p>- City/Postal: choose from suggested places after selecting a country.</p>
-          </div>
+          <p>Choose one option below.<br />We only use an approximate location.</p>
         </div>
       </div>
     `,
     prompt_above_buttons: true,
-    button_choices: ['Use GPS', 'Pick on map', 'Type city/postal'],
-    button_html: '<button class="primary">%choice%</button>',
+    button_choices: [
+      '<span class="location-method-title">Use GPS</span><span class="location-method-meta">Use browser location permission on this device.</span>',
+      '<span class="location-method-title">Pick on map</span><span class="location-method-meta">Click an approximate point in the United States.</span>',
+      '<span class="location-method-title">Type city/postal</span><span class="location-method-meta">Choose country first, then autocomplete a place or code.</span>',
+    ],
+    button_html: '<button class="primary location-method-button">%choice%</button>',
     keyboard_choices: 'NO_KEYS',
     data: {
       assessment_stage: 'mode_select_intro',
@@ -32,6 +29,8 @@ export const instructions = [
     },
     on_load: () => {
       ensureLocationSelectionStyles();
+      const btnGroup = document.getElementById('jspsych-html-multi-response-btngroup');
+      if (btnGroup) btnGroup.classList.add('location-method-buttons');
     },
     on_finish: (data: Record<string, any>) => {
       const idx = Number(data?.response ?? data?.button_response ?? -1);

@@ -32,7 +32,13 @@ Sentry.init({
 // TODO: Add game params for all tasks
 const queryString = new URL(window.location).search;
 const urlParams = new URLSearchParams(queryString);
-const taskName = urlParams.get('task') ?? 'egma-math';
+const requestedTaskRaw = String(urlParams.get('task') || '').trim();
+const requestedTask = requestedTaskRaw.toLowerCase();
+const taskName = (
+  requestedTask === 'locationselection'
+    ? 'location-selection'
+    : requestedTaskRaw || 'egma-math'
+);
 const corpus = urlParams.get('corpus');
 const buttonLayout = urlParams.get('buttonLayout');
 const numOfPracticeTrials = urlParams.get('practiceTrials');
@@ -47,6 +53,11 @@ const inferenceNumStories =
   urlParams.get('inferenceNumStories') === null ? null : parseInt(urlParams.get('inferenceNumStories'), 10);
 const semThreshold = Number(urlParams.get('semThreshold') || '0');
 const startingTheta = Number(urlParams.get('theta') || '0');
+const populationSourcePreference = String(urlParams.get('populationSourcePreference') || 'kontur').trim().toLowerCase();
+const konturPopulationApiUrl = urlParams.get('konturPopulationApiUrl') || undefined;
+const worldpopPopulationApiUrl = urlParams.get('worldpopPopulationApiUrl') || undefined;
+const populationApiTimeoutMs =
+  urlParams.get('populationApiTimeoutMs') === null ? undefined : parseInt(urlParams.get('populationApiTimeoutMs'), 10);
 
 // Boolean parameters
 const keyHelpers = stringToBoolean(urlParams.get('keyHelpers'));
@@ -95,6 +106,10 @@ async function startWebApp() {
         inferenceNumStories,
         semThreshold,
         startingTheta,
+        populationSourcePreference,
+        konturPopulationApiUrl,
+        worldpopPopulationApiUrl,
+        populationApiTimeoutMs,
         heavyInstructions,
         demoMode,
       };

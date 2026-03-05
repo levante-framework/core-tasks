@@ -93,6 +93,10 @@ export const setSharedConfig = async (
     semThreshold,
     startingTheta,
     demoMode,
+    populationSourcePreference,
+    konturPopulationApiUrl,
+    worldpopPopulationApiUrl,
+    populationApiTimeoutMs,
   } = cleanParams;
 
   const config = {
@@ -123,6 +127,10 @@ export const setSharedConfig = async (
     semThreshold: Number(semThreshold),
     startingTheta: Number(startingTheta),
     demoMode: !!demoMode,
+    populationSourcePreference: String(populationSourcePreference || 'kontur'),
+    konturPopulationApiUrl: konturPopulationApiUrl ? String(konturPopulationApiUrl) : undefined,
+    worldpopPopulationApiUrl: worldpopPopulationApiUrl ? String(worldpopPopulationApiUrl) : undefined,
+    populationApiTimeoutMs: Number(populationApiTimeoutMs) || undefined,
   };
 
   // default corpus if nothing is passed in

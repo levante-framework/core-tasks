@@ -17,14 +17,15 @@ function escapeHtml(value: string): string {
 export const reviewAndConfirm = {
   type: jsPsychHtmlMultiResponse,
   stimulus: () => {
-    const mode = taskStore().locationSelectionMode || 'unknown';
     const draft = getLocationSelectionDraft();
     const commitPreview = buildLocationCommitPreview(draft, taskStore().locationSelectionConfig || null);
-    const commitPreviewJson = escapeHtml(JSON.stringify(commitPreview, null, 2));
+    const commitPreviewJson = commitPreview
+      ? escapeHtml(JSON.stringify(commitPreview, null, 2))
+      : '{"error":"No location selected yet. Go back and choose a location."}';
     const draftDetails = draft
       ? `
         <div class="location-selection-note">
-          <p><strong>Mode:</strong> ${draft.mode}</p>
+          <p><strong>Selected method:</strong> ${draft.mode}</p>
           <p><strong>Source:</strong> ${draft.source || 'unknown'}</p>
           ${draft.label ? `<p><strong>Label:</strong> ${draft.label}</p>` : ''}
           ${draft.accuracyMeters ? `<p><strong>Accuracy:</strong> ~${Math.round(draft.accuracyMeters)}m</p>` : ''}
@@ -35,13 +36,14 @@ export const reviewAndConfirm = {
     return `
       <div class="lev-stimulus-container">
         <div class="lev-row-container instruction location-selection-panel location-selection-copy">
-          <h2>Review selection</h2>
-          <p>Selected mode: <strong>${mode}</strong></p>
-          ${draftDetails}
-          <div class="location-selection-note" style="margin-top: 0.9rem;">
-            <p><strong>Location object to commit (schema preview):</strong></p>
-            <p id="location-commit-preview-status" class="location-selection-status" style="margin-top:0;">Computing effective H3 with population lookup…</p>
-            <pre id="location-commit-preview-json" style="margin:0; padding:0.65rem; background:#0f172a; color:#e2e8f0; border-radius:6px; font-size:0.82rem; overflow:auto; line-height:1.35;">${commitPreviewJson}</pre>
+          <div class="location-selection-stack">
+            <h2>Review selection</h2>
+            ${draftDetails}
+            <div class="location-selection-note" style="margin-top: 0.9rem;">
+              <p><strong>Location object to commit (schema preview):</strong></p>
+              <p id="location-commit-preview-status" class="location-selection-status" style="margin-top:0;">Computing effective H3 with population lookup…</p>
+              <pre id="location-commit-preview-json" class="location-selection-json">${commitPreviewJson}</pre>
+            </div>
           </div>
         </div>
       </div>

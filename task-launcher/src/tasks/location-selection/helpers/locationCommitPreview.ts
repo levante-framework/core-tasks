@@ -26,6 +26,14 @@ type LocationCommitPreview = {
   computedAt: string;
 };
 
+function getPreferredPopulationSource(
+  config: Partial<LocationSelectionTaskConfig> | null | undefined,
+): 'kontur' | 'worldpop' {
+  const preference = String(config?.populationSourcePreference || 'kontur').toLowerCase();
+  if (preference === 'worldpop') return 'worldpop';
+  return 'kontur';
+}
+
 function roundTo(value: number, decimals = 6): number {
   const factor = 10 ** decimals;
   return Math.round(value * factor) / factor;
@@ -43,6 +51,7 @@ export function buildLocationCommitPreview(
   const safePopulationThreshold = Number.isFinite(populationThreshold) && populationThreshold > 0
     ? Math.round(populationThreshold)
     : 50000;
+  const preferredSource = getPreferredPopulationSource(config);
 
   const baselineCell = latLngToCell(draft.lat, draft.lon, safeBaselineResolution);
 
@@ -68,7 +77,7 @@ export function buildLocationCommitPreview(
       },
       populationThreshold: safePopulationThreshold,
     },
-    populationSource: 'unknown',
+    populationSource: preferredSource,
     computedAt: draft.selectedAt || new Date().toISOString(),
   };
 }
@@ -88,17 +97,22 @@ export async function buildLocationCommitPreviewWithPopulation(
   const safePopulationThreshold = Number.isFinite(populationThreshold) && populationThreshold > 0
     ? Math.round(populationThreshold)
     : 50000;
+  const preferredSource = getPreferredPopulationSource(config);
 
   const baselineCell = latLngToCell(draft.lat, draft.lon, safeBaselineResolution);
   let effectiveCell = baselineCell;
   let effectiveResolution = safeBaselineResolution;
   let effectivePopulationSource: 'kontur' | 'worldpop' | 'unknown' = 'unknown';
+  let observedPopulationSource: 'kontur' | 'worldpop' | 'unknown' = 'unknown';
   let foundPassingCell = false;
 
   for (let resolution = safeBaselineResolution; resolution <= safeMaxResolution; resolution += 1) {
     const cellId = latLngToCell(draft.lat, draft.lon, resolution);
     const populationResult = await lookupPopulationForCell(cellId, resolution, config);
     const population = populationResult.population;
+    if (populationResult.source !== 'unknown' && observedPopulationSource === 'unknown') {
+      observedPopulationSource = populationResult.source;
+    }
     const privacyMet = typeof population === 'number' ? population >= safePopulationThreshold : false;
 
     if (privacyMet) {
@@ -134,7 +148,10 @@ export async function buildLocationCommitPreviewWithPopulation(
       },
       populationThreshold: safePopulationThreshold,
     },
-    populationSource: effectivePopulationSource,
+    populationSource:
+      effectivePopulationSource !== 'unknown'
+        ? effectivePopulationSource
+        : (observedPopulationSource !== 'unknown' ? observedPopulationSource : preferredSource),
     computedAt: draft.selectedAt || new Date().toISOString(),
   };
 }

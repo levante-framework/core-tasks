@@ -48,7 +48,7 @@ async function fetchPopulation(
       signal: controller.signal,
     });
     window.clearTimeout(timeout);
-    if (!response.ok) return { population: null, source: 'unknown' };
+    if (!response.ok) return { population: null, source };
     const payload = await response.json().catch(() => ({}));
     const resolvedSourceRaw = String(payload?.source || '').trim().toLowerCase();
     const resolvedSource: PopulationSource | 'unknown' =
@@ -57,7 +57,7 @@ async function fetchPopulation(
         : source;
     return { population: parsePopulation(payload), source: resolvedSource };
   } catch {
-    return { population: null, source: 'unknown' };
+    return { population: null, source };
   }
 }
 
@@ -78,12 +78,14 @@ export async function lookupPopulationForCell(
         ? ['worldpop', 'kontur']
         : ['kontur', 'worldpop'];
 
+  let attemptedKnownSource: PopulationSource | 'unknown' = 'unknown';
   for (let i = 0; i < orderedSources.length; i += 1) {
     const source = orderedSources[i];
     const endpoint = source === 'kontur' ? konturUrl : worldpopUrl;
     const result = await fetchPopulation(endpoint, source, cellId, resolution, timeoutMs);
+    if (result.source !== 'unknown') attemptedKnownSource = result.source;
     if (typeof result.population === 'number') return result;
   }
 
-  return { population: null, source: 'unknown' };
+  return { population: null, source: attemptedKnownSource };
 }

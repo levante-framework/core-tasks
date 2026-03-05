@@ -20,6 +20,8 @@ export default function buildLocationSelectionTimeline(config: Record<string, an
   taskStore('locationSelectionMode', null);
   taskStore('locationSelectionLastStep', null);
   taskStore('locationSelectionCommitPreview', null);
+  taskStore('locationSelectionPendingSuggestion', null);
+  taskStore('locationSelectionPendingCountry', null);
   clearLocationSelectionDraft();
 
   const timeline: Record<string, any>[] = [

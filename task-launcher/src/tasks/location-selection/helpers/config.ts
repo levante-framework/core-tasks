@@ -12,7 +12,7 @@ export function getLocationSelectionTaskConfig(config: Record<string, any>): Loc
   const threshold = Number(config?.populationThreshold);
   const baseline = Number(config?.baselineResolution);
   const maxRes = Number(config?.maxResolution);
-  const sourcePreference = String(config?.populationSourcePreference || 'auto').trim().toLowerCase();
+  const sourcePreference = String(config?.populationSourcePreference || 'kontur').trim().toLowerCase();
   const konturPopulationApiUrl = String(config?.konturPopulationApiUrl || '/api/population-kontur-h3').trim();
   const worldpopPopulationApiUrl = String(config?.worldpopPopulationApiUrl || '/api/population-worldpop-h3').trim();
   const populationApiTimeoutMs = Number(config?.populationApiTimeoutMs);
@@ -30,7 +30,7 @@ export function getLocationSelectionTaskConfig(config: Record<string, any>): Loc
     populationSourcePreference:
       sourcePreference === 'kontur' || sourcePreference === 'worldpop' || sourcePreference === 'auto'
         ? sourcePreference
-        : 'auto',
+        : 'kontur',
     konturPopulationApiUrl,
     worldpopPopulationApiUrl,
     populationApiTimeoutMs:

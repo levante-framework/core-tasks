@@ -29,12 +29,12 @@ export const gpsCapture = {
         <div class="lev-stimulus-container">
           <div class="lev-row-container instruction location-selection-panel location-selection-copy">
             <h2>GPS location</h2>
-            <p>Use your browser location to capture coordinates from this device.</p>
-            <div class="location-selection-field">
-              <button id="capture-gps-btn" class="primary">Use Current Location</button>
-            </div>
-            <p id="gps-status" class="location-selection-status">Waiting for GPS request…</p>
+            <p>We are requesting your browser location permission now.</p>
+            <p id="gps-status" class="location-selection-status">Requesting GPS location…</p>
             <p id="gps-value" style="font-size: 0.95rem; opacity: 0.85; line-height: 1.4;"></p>
+            <div class="location-selection-field">
+              <button id="gps-retry-btn" class="primary" style="display:none;">Retry GPS</button>
+            </div>
           </div>
         </div>
       `,
@@ -49,18 +49,23 @@ export const gpsCapture = {
       on_load: () => {
         ensureLocationSelectionStyles();
         const continueButton = document.querySelector<HTMLButtonElement>('#jspsych-html-multi-response-button-0');
-        const gpsButton = document.getElementById('capture-gps-btn') as HTMLButtonElement | null;
+        const retryButton = document.getElementById('gps-retry-btn') as HTMLButtonElement | null;
         const statusEl = document.getElementById('gps-status');
         const valueEl = document.getElementById('gps-value');
-        if (continueButton) continueButton.disabled = true;
+        if (continueButton) {
+          continueButton.disabled = true;
+          continueButton.style.display = 'none';
+        }
 
         if (!navigator.geolocation) {
           if (statusEl) statusEl.textContent = 'Geolocation is not supported by this browser.';
+          if (retryButton) retryButton.style.display = 'inline-block';
           return;
         }
 
-        gpsButton?.addEventListener('click', async () => {
+        const requestGps = () => {
           if (statusEl) statusEl.textContent = 'Requesting GPS location…';
+          if (retryButton) retryButton.style.display = 'none';
           navigator.geolocation.getCurrentPosition(
             async (position) => {
               const lat = Number(position.coords.latitude);
@@ -86,10 +91,14 @@ export const gpsCapture = {
                   `${lat.toFixed(5)}, ${lon.toFixed(5)} · accuracy ≈ ${Math.round(accuracyMeters || 0)}m` +
                   (label ? ` · ${label}` : '');
               }
-              if (continueButton) continueButton.disabled = false;
+              if (continueButton) {
+                continueButton.disabled = false;
+                continueButton.click();
+              }
             },
             (error) => {
               if (statusEl) statusEl.textContent = `GPS error: ${error.message}`;
+              if (retryButton) retryButton.style.display = 'inline-block';
             },
             {
               enableHighAccuracy: true,
@@ -97,7 +106,10 @@ export const gpsCapture = {
               maximumAge: 0,
             },
           );
-        });
+        };
+
+        retryButton?.addEventListener('click', requestGps);
+        requestGps();
       },
       on_finish: (data: Record<string, any>) => {
         const draft = getLocationSelectionDraft();

@@ -87,6 +87,25 @@ async function searchLocations(query: string, countryCode?: string): Promise<Nom
   return Array.isArray(payload) ? payload : [];
 }
 
+function buildDraftFromSuggestion(selected: NominatimResult, selectedCountry: string) {
+  const lat = Number(selected?.lat);
+  const lon = Number(selected?.lon);
+  if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
+  return {
+    mode: 'city_postal' as const,
+    lat,
+    lon,
+    label: String(selected.display_name || ''),
+    source: 'nominatim_search',
+    metadata: {
+      placeId: selected.place_id ?? null,
+      resultType: selected.type ?? null,
+      countryCode: selectedCountry,
+    },
+    selectedAt: new Date().toISOString(),
+  };
+}
+
 export const searchCityPostal = {
   timeline: [
     {
@@ -127,11 +146,13 @@ export const searchCityPostal = {
 
         if (continueButton) continueButton.disabled = true;
         let selectedCountry = 'US';
+        taskStore('locationSelectionPendingCountry', selectedCountry);
         let debounceHandle: number | null = null;
         let latestRequestId = 0;
         let latestResults: NominatimResult[] = [];
         let highlightedIndex = -1;
         let latestQuery = '';
+        let hasExplicitSelection = false;
 
         const hideDropdown = () => {
           if (!dropdownEl) return;
@@ -141,23 +162,12 @@ export const searchCityPostal = {
         };
 
         const selectResult = (selected: NominatimResult) => {
-          const lat = Number(selected?.lat);
-          const lon = Number(selected?.lon);
-          if (!Number.isFinite(lat) || !Number.isFinite(lon)) return;
-          setLocationSelectionDraft({
-            mode: 'city_postal',
-            lat,
-            lon,
-            label: String(selected.display_name || ''),
-            source: 'nominatim_search',
-            metadata: {
-              placeId: selected.place_id ?? null,
-              resultType: selected.type ?? null,
-              countryCode: selectedCountry,
-            },
-            selectedAt: new Date().toISOString(),
-          });
-          if (statusEl) statusEl.textContent = `Selected: ${selected.display_name || `${lat.toFixed(5)}, ${lon.toFixed(5)}`}`;
+          const draft = buildDraftFromSuggestion(selected, selectedCountry);
+          if (!draft) return;
+          setLocationSelectionDraft(draft);
+          taskStore('locationSelectionPendingSuggestion', selected);
+          hasExplicitSelection = true;
+          if (statusEl) statusEl.textContent = `Selected: ${selected.display_name || `${draft.lat.toFixed(5)}, ${draft.lon.toFixed(5)}`}`;
           if (inputEl) inputEl.value = String(selected.display_name || inputEl.value);
           hideDropdown();
           if (continueButton) continueButton.disabled = false;
@@ -166,6 +176,7 @@ export const searchCityPostal = {
         const renderResults = (results: NominatimResult[]) => {
           if (!dropdownEl) return;
           latestResults = results.slice();
+          taskStore('locationSelectionPendingSuggestion', null);
           if (highlightedIndex >= latestResults.length) highlightedIndex = latestResults.length - 1;
           if (!results.length) {
             dropdownEl.innerHTML = '<div style="padding: 0.7rem;">No matches found.</div>';
@@ -186,12 +197,8 @@ export const searchCityPostal = {
             active?.scrollIntoView({ block: 'nearest' });
           }
           dropdownEl.querySelectorAll<HTMLButtonElement>('button[data-result-index]').forEach((button) => {
-            button.addEventListener('mouseenter', () => {
-              const idx = Number(button.dataset.resultIndex);
-              highlightedIndex = Number.isFinite(idx) ? idx : -1;
-              renderResults(latestResults);
-            });
-            button.addEventListener('click', () => {
+            button.addEventListener('mousedown', (event) => {
+              event.preventDefault();
               const idx = Number(button.dataset.resultIndex);
               const selected = latestResults[idx];
               if (!selected) return;
@@ -215,6 +222,7 @@ export const searchCityPostal = {
           }
           if (query.length < 2) {
             hideDropdown();
+            taskStore('locationSelectionPendingSuggestion', null);
             return;
           }
           if (statusEl) statusEl.textContent = `Searching in ${selectedCountry}…`;
@@ -234,6 +242,7 @@ export const searchCityPostal = {
               .map((country) => `<option value="${country.code}" ${country.code === 'US' ? 'selected' : ''}>${country.label}</option>`)
               .join('');
             selectedCountry = countryEl.value || 'US';
+            taskStore('locationSelectionPendingCountry', selectedCountry);
             if (statusEl) statusEl.textContent = 'Country selected. Start typing a city or postal code.';
           })
           .catch((error: any) => {
@@ -242,15 +251,22 @@ export const searchCityPostal = {
 
         countryEl?.addEventListener('change', () => {
           selectedCountry = String(countryEl.value || '').toUpperCase();
+          taskStore('locationSelectionPendingCountry', selectedCountry);
+          hasExplicitSelection = false;
           if (continueButton) continueButton.disabled = true;
           hideDropdown();
           if (inputEl) inputEl.value = '';
           taskStore('locationSelectionDraft', null);
+          taskStore('locationSelectionPendingSuggestion', null);
           latestResults = [];
           if (statusEl) statusEl.textContent = `Country set to ${selectedCountry}. Start typing to see matches.`;
         });
 
         inputEl?.addEventListener('input', () => {
+          hasExplicitSelection = false;
+          taskStore('locationSelectionDraft', null);
+          taskStore('locationSelectionPendingSuggestion', null);
+          if (continueButton) continueButton.disabled = true;
           if (debounceHandle) {
             window.clearTimeout(debounceHandle);
           }
@@ -298,6 +314,11 @@ export const searchCityPostal = {
             event.preventDefault();
             if (highlightedIndex >= 0 && highlightedIndex < latestResults.length) {
               selectResult(latestResults[highlightedIndex]);
+              return;
+            }
+            if (!hasExplicitSelection) {
+              if (statusEl) statusEl.textContent = 'Select a result from the dropdown first.';
+              if (continueButton) continueButton.disabled = true;
               return;
             }
             runSearch().catch((error: any) => {
