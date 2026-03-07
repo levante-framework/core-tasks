@@ -45,6 +45,19 @@ by R5 parent cell, so the URL/path should be a *folder* containing `{r5CellId}.j
 - `KONTUR_H3_CACHE_URL` (base URL; supports `.gz` shards)
 - `KONTUR_H3_CACHE_PATH` (base folder for local shards)
 
+#### Build the R5 shard cache
+
+We provide a repeatable script to download the Kontur dataset and build R5 shards:
+
+```bash
+cd task-launcher
+pip install h3 pyarrow
+python scripts/build_kontur_r5_shards.py --download --gzip --output data/kontur-h3-r5
+```
+
+This uses the latest 400m Kontur dataset from HDX and requires `ogr2ogr` (GDAL) to convert
+the GeoPackage into Parquet for streaming.
+
 Task details:
 
 1. [Matrix Reasoning](https://hs-levante-assessment-dev.web.app/?task=matrix-reasoning) [George]
