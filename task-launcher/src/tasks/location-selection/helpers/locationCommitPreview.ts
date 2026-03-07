@@ -1,6 +1,6 @@
 import { cellToLatLng, latLngToCell } from 'h3-js';
 import { type LocationSelectionDraft } from './state';
-import { type LocationSelectionTaskConfig } from './config';
+import { H3_MAX_RESOLUTION, type LocationSelectionTaskConfig } from './config';
 import { lookupPopulationForCell } from './populationApi';
 
 type LocationCommitPreview = {
@@ -113,8 +113,12 @@ export async function buildLocationCommitComputationWithPopulation(
   const maxResolution = Number(config?.maxResolution);
   const populationThreshold = Number(config?.populationThreshold);
   const safeBaselineResolution = Number.isInteger(baselineResolution) ? baselineResolution : 5;
-  const safeMaxResolution =
-    Number.isInteger(maxResolution) && maxResolution >= safeBaselineResolution ? maxResolution : Math.max(9, safeBaselineResolution);
+  const safeMaxResolution = Math.min(
+    H3_MAX_RESOLUTION,
+    Number.isInteger(maxResolution) && maxResolution >= safeBaselineResolution
+      ? maxResolution
+      : Math.max(H3_MAX_RESOLUTION, safeBaselineResolution),
+  );
   const safePopulationThreshold = Number.isFinite(populationThreshold) && populationThreshold > 0
     ? Math.round(populationThreshold)
     : 50000;

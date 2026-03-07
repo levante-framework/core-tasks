@@ -1,3 +1,5 @@
+export const H3_MAX_RESOLUTION = 7;
+
 export type LocationSelectionTaskConfig = {
   populationThreshold: number;
   baselineResolution: number;
@@ -25,8 +27,8 @@ export function getLocationSelectionTaskConfig(config: Record<string, any>): Loc
         : 5,
     maxResolution:
       Number.isFinite(maxRes) && Number.isInteger(maxRes) && maxRes >= 0 && maxRes <= 15
-        ? maxRes
-        : 9,
+        ? Math.min(maxRes, H3_MAX_RESOLUTION)
+        : H3_MAX_RESOLUTION,
     populationSourcePreference:
       sourcePreference === 'kontur' || sourcePreference === 'worldpop' || sourcePreference === 'auto'
         ? sourcePreference
