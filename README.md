@@ -39,10 +39,11 @@ For testing location saves against the Firebase emulators:
 
 The population lookup uses a local Kontur cache if available, otherwise it falls back to WorldPop.
 You can point the dev server at a compressed, sparse Kontur cache stored elsewhere (e.g. GCS) by
-setting one of these environment variables before starting `npm run dev`:
+setting one of these environment variables before starting `npm run dev`. The cache is sharded
+by R5 parent cell, so the URL/path should be a *folder* containing `{r5CellId}.json.gz` files:
 
-- `KONTUR_H3_CACHE_URL` (supports `.gz`)
-- `KONTUR_H3_CACHE_PATH` (local JSON path)
+- `KONTUR_H3_CACHE_URL` (base URL; supports `.gz` shards)
+- `KONTUR_H3_CACHE_PATH` (base folder for local shards)
 
 Task details:
 

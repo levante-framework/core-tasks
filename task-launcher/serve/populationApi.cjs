@@ -1,14 +1,15 @@
 const fs = require('fs');
 const path = require('path');
 const zlib = require('zlib');
-const { cellToBoundary, getResolution } = require('h3-js');
+const { cellToBoundary, cellToParent, getResolution } = require('h3-js');
 
 const WORLDPOP_STATS_URL = 'https://api.worldpop.org/v1/services/stats';
 const WORLDPOP_TASK_URL = 'https://api.worldpop.org/v1/tasks';
 
-let konturCacheByResolution = null;
-let konturCacheLoadedFrom = null;
-let konturCachePromise = null;
+const konturShardCache = new Map();
+const konturShardInFlight = new Map();
+const defaultShardBaseUrl = 'https://storage.googleapis.com/levante-assets-dev/maps/kontur-h3-r5';
+const defaultShardBasePath = path.resolve(process.cwd(), 'data', 'kontur-h3-r5');
 
 function sendJson(res, statusCode, payload) {
   res.status(statusCode).set('Content-Type', 'application/json').send(JSON.stringify(payload));
@@ -51,82 +52,102 @@ function buildCellPolygon(cellId) {
   };
 }
 
-function findKonturCachePath() {
-  const envPath = String(process.env.KONTUR_H3_CACHE_PATH || '').trim();
-  if (envPath) return envPath;
-  const candidates = [
-    path.resolve(process.cwd(), 'data', 'gallery', 'kontur-h3-population-cache.json'),
-    path.resolve(process.cwd(), '..', 'levante-web-dashboard', 'data', 'gallery', 'kontur-h3-population-cache.json'),
-    path.resolve(process.cwd(), '..', '..', 'levante-web-dashboard', 'data', 'gallery', 'kontur-h3-population-cache.json'),
-  ];
-  return candidates.find((candidate) => fs.existsSync(candidate)) || '';
+function getShardCacheLimit() {
+  const raw = Number(process.env.KONTUR_H3_CACHE_MAX_SHARDS || 64);
+  return Number.isFinite(raw) && raw > 0 ? Math.round(raw) : 64;
 }
 
-function parseKonturCacheJson(json, sourceLabel) {
+function parseKonturShardJson(json, sourceLabel) {
   const resolutions = json?.resolutions;
   if (!resolutions || typeof resolutions !== 'object') return null;
-  konturCacheByResolution = resolutions;
-  konturCacheLoadedFrom = sourceLabel;
-  return konturCacheByResolution;
+  return { resolutions, loadedFrom: sourceLabel };
 }
 
-async function loadKonturCacheFromUrl(cacheUrl) {
+async function loadKonturShardFromUrl(shardUrl) {
   try {
-    const response = await fetch(cacheUrl);
+    const response = await fetch(shardUrl);
     if (!response.ok) return null;
     const buffer = Buffer.from(await response.arrayBuffer());
     const isGzip =
       String(response.headers.get('content-encoding') || '').includes('gzip')
-      || cacheUrl.endsWith('.gz');
+      || shardUrl.endsWith('.gz');
     const jsonText = isGzip ? zlib.gunzipSync(buffer).toString('utf-8') : buffer.toString('utf-8');
     const json = JSON.parse(jsonText);
-    return parseKonturCacheJson(json, cacheUrl);
+    return parseKonturShardJson(json, shardUrl);
   } catch (_err) {
     return null;
   }
 }
 
-async function loadKonturCache() {
-  if (konturCacheByResolution) return konturCacheByResolution;
-  if (konturCachePromise) return konturCachePromise;
-  konturCachePromise = (async () => {
-    const urlPath = String(
-      process.env.KONTUR_H3_CACHE_URL
-        || 'https://storage.googleapis.com/levante-assets-dev/maps/kontur-h3-population-cache.json.gz',
-    ).trim();
-    if (urlPath) {
-      const remote = await loadKonturCacheFromUrl(urlPath);
+function getShardCacheKey(shardCellId) {
+  return `r5:${shardCellId}`;
+}
+
+function getShardBaseUrl() {
+  const raw = String(process.env.KONTUR_H3_CACHE_URL || '').trim();
+  return raw || defaultShardBaseUrl;
+}
+
+function getShardBasePath() {
+  const raw = String(process.env.KONTUR_H3_CACHE_PATH || '').trim();
+  return raw || defaultShardBasePath;
+}
+
+function resolveShardUrl(shardCellId) {
+  const base = getShardBaseUrl();
+  if (!base) return '';
+  return `${base}/${shardCellId}.json.gz`;
+}
+
+function resolveShardPath(shardCellId) {
+  const base = getShardBasePath();
+  if (!base) return '';
+  return path.resolve(base, `${shardCellId}.json`);
+}
+
+async function loadKonturShard(shardCellId) {
+  const cacheKey = getShardCacheKey(shardCellId);
+  const existing = konturShardCache.get(cacheKey);
+  if (existing) {
+    konturShardCache.delete(cacheKey);
+    konturShardCache.set(cacheKey, existing);
+    return existing;
+  }
+  const inflight = konturShardInFlight.get(cacheKey);
+  if (inflight) return inflight;
+
+  const loader = (async () => {
+    const shardUrl = resolveShardUrl(shardCellId);
+    if (shardUrl) {
+      const remote = await loadKonturShardFromUrl(shardUrl);
       if (remote) return remote;
     }
-
-    const cachePath = findKonturCachePath();
-    if (!cachePath || !fs.existsSync(cachePath)) return null;
-    try {
-      const raw = fs.readFileSync(cachePath, 'utf-8');
-      const json = JSON.parse(raw);
-      return parseKonturCacheJson(json, cachePath);
-    } catch (_err) {
-      return null;
+    const shardPath = resolveShardPath(shardCellId);
+    if (shardPath && fs.existsSync(shardPath)) {
+      try {
+        const raw = fs.readFileSync(shardPath, 'utf-8');
+        const json = JSON.parse(raw);
+        return parseKonturShardJson(json, shardPath);
+      } catch (_err) {
+        return null;
+      }
     }
-  })();
-  try {
-    return await konturCachePromise;
-  } finally {
-    konturCachePromise = null;
-  }
-}
-  const cachePath = findKonturCachePath();
-  if (!cachePath || !fs.existsSync(cachePath)) return null;
-  try {
-    const raw = fs.readFileSync(cachePath, 'utf-8');
-    const json = JSON.parse(raw);
-    const resolutions = json?.resolutions;
-    if (!resolutions || typeof resolutions !== 'object') return null;
-    konturCacheByResolution = resolutions;
-    konturCacheLoadedFrom = cachePath;
-    return konturCacheByResolution;
-  } catch (_err) {
     return null;
+  })();
+  konturShardInFlight.set(cacheKey, loader);
+  try {
+    const loaded = await loader;
+    if (loaded) {
+      konturShardCache.set(cacheKey, loaded);
+      const limit = getShardCacheLimit();
+      while (konturShardCache.size > limit) {
+        const oldestKey = konturShardCache.keys().next().value;
+        konturShardCache.delete(oldestKey);
+      }
+    }
+    return loaded;
+  } finally {
+    konturShardInFlight.delete(cacheKey);
   }
 }
 
@@ -196,9 +217,15 @@ async function queryWorldPopForPolygon(polygon, year) {
 }
 
 async function resolveKonturPopulation(cellId, resolution) {
-  const cache = await loadKonturCache();
-  if (!cache) return null;
-  const byRes = cache[String(resolution)];
+  if (resolution < 5) return null;
+  let shardCellId = null;
+  try {
+    shardCellId = cellToParent(cellId, 5);
+  } catch (_err) {
+    return null;
+  }
+  const shard = await loadKonturShard(shardCellId);
+  const byRes = shard?.resolutions?.[String(resolution)];
   if (!byRes || typeof byRes !== 'object') return null;
   const value = Number(byRes[cellId]);
   if (!Number.isFinite(value) || value < 0) return null;
@@ -277,13 +304,19 @@ function registerPopulationApi(app) {
 
       const konturPopulation = await resolveKonturPopulation(cellId, resolution);
       if (typeof konturPopulation === 'number') {
+        let cachePath = null;
+        try {
+          cachePath = resolveShardUrl(cellToParent(cellId, 5));
+        } catch (_err) {
+          cachePath = null;
+        }
         sendJson(res, 200, {
           success: true,
           source: 'kontur',
           population: konturPopulation,
           resolution,
           cellId,
-          cachePath: konturCacheLoadedFrom || null,
+          cachePath,
         });
         return;
       }
@@ -317,7 +350,7 @@ function registerPopulationApi(app) {
       sendJson(res, 200, {
         success: true,
         source: 'kontur',
-        cachePath: konturCacheLoadedFrom || null,
+        cachePath: getShardBaseUrl(),
         items,
       });
     } catch (error) {
