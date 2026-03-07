@@ -1,24 +1,24 @@
 #!/usr/bin/env python3
 import argparse
+import csv
 import gzip
 import json
 import os
 import shutil
 import subprocess
 import sys
-import tempfile
 import urllib.request
 from collections import OrderedDict
 
 try:
-    from h3 import h3
+    import h3
 except ImportError as exc:
     raise SystemExit("Missing dependency: pip install h3") from exc
 
 try:
     import pyarrow.dataset as ds
-except ImportError as exc:
-    raise SystemExit("Missing dependency: pip install pyarrow") from exc
+except ImportError:
+    ds = None
 
 
 DEFAULT_DATASET_URL = (
@@ -39,32 +39,59 @@ def gunzip_file(src_path: str, dest_path: str) -> None:
         shutil.copyfileobj(src, dest)
 
 
-def ensure_parquet_from_gpkg(gpkg_path: str, parquet_path: str) -> None:
+def ensure_tabular_from_gpkg(gpkg_path: str, parquet_path: str, csv_path: str) -> tuple[str, str]:
     if os.path.exists(parquet_path):
-        return
+        return "parquet", parquet_path
+    if os.path.exists(csv_path):
+        return "csv", csv_path
     ogr2ogr = shutil.which("ogr2ogr")
     if not ogr2ogr:
-        raise SystemExit("ogr2ogr not found; install GDAL to convert GPKG -> Parquet.")
+        raise SystemExit("ogr2ogr not found; install GDAL to convert GPKG.")
     os.makedirs(os.path.dirname(parquet_path), exist_ok=True)
+    if ds is not None:
+        cmd = [
+            ogr2ogr,
+            "-f",
+            "Parquet",
+            parquet_path,
+            gpkg_path,
+            "-select",
+            "h3,population",
+        ]
+        try:
+            subprocess.check_call(cmd)
+            return "parquet", parquet_path
+        except subprocess.CalledProcessError:
+            pass
     cmd = [
         ogr2ogr,
         "-f",
-        "Parquet",
-        parquet_path,
+        "CSV",
+        csv_path,
         gpkg_path,
         "-select",
         "h3,population",
     ]
     subprocess.check_call(cmd)
+    return "csv", csv_path
 
 
 def iter_rows_from_parquet(parquet_path: str):
+    if ds is None:
+        raise SystemExit("pyarrow not available for parquet parsing.")
     dataset = ds.dataset(parquet_path, format="parquet")
     for batch in dataset.to_batches(columns=["h3", "population"]):
         h3_col = batch.column(0).to_pylist()
         pop_col = batch.column(1).to_pylist()
         for h3_id, pop in zip(h3_col, pop_col):
             yield h3_id, pop
+
+
+def iter_rows_from_csv(csv_path: str):
+    with open(csv_path, "r", encoding="utf-8") as fh:
+        reader = csv.DictReader(fh)
+        for row in reader:
+            yield row.get("h3"), row.get("population")
 
 
 def merge_into(existing: dict, incoming: dict) -> dict:
@@ -99,6 +126,7 @@ def flush_shard(output_dir: str, r5_cell_id: str, shard_data: dict, gzip_output:
 
 def build_shards(
     input_path: str,
+    input_format: str,
     output_dir: str,
     resolutions: list[int],
     max_shards: int,
@@ -116,7 +144,12 @@ def build_shards(
         shard_cache[r5_cell_id] = {str(res): {} for res in resolutions}
         return shard_cache[r5_cell_id]
 
-    for h3_id, pop in iter_rows_from_parquet(input_path):
+    if input_format == "parquet":
+        row_iter = iter_rows_from_parquet(input_path)
+    else:
+        row_iter = iter_rows_from_csv(input_path)
+
+    for h3_id, pop in row_iter:
         if h3_id is None or pop is None:
             continue
         try:
@@ -126,11 +159,11 @@ def build_shards(
         if pop_val <= 0:
             continue
         try:
-            base_resolution = h3.h3_get_resolution(h3_id)
+            base_resolution = h3.get_resolution(h3_id)
         except Exception:
             continue
         try:
-            r5_cell = h3.h3_to_parent(h3_id, 5)
+            r5_cell = h3.cell_to_parent(h3_id, 5)
         except Exception:
             continue
 
@@ -139,7 +172,7 @@ def build_shards(
             if res > base_resolution:
                 continue
             try:
-                parent = h3.h3_to_parent(h3_id, res)
+                parent = h3.cell_to_parent(h3_id, res)
             except Exception:
                 continue
             res_map = shard[str(res)]
@@ -165,16 +198,17 @@ def main() -> None:
         gz_path = os.path.join(raw_dir, "kontur_population_20231101.gpkg.gz")
         gpkg_path = os.path.join(raw_dir, "kontur_population_20231101.gpkg")
         parquet_path = os.path.join(raw_dir, "kontur_population_20231101.parquet")
+        csv_path = os.path.join(raw_dir, "kontur_population_20231101.csv")
         if not os.path.exists(gz_path):
             print(f"Downloading {DEFAULT_DATASET_URL} ...")
             download_file(DEFAULT_DATASET_URL, gz_path)
         if not os.path.exists(gpkg_path):
             print("Extracting .gpkg.gz ...")
             gunzip_file(gz_path, gpkg_path)
-        ensure_parquet_from_gpkg(gpkg_path, parquet_path)
-        input_path = parquet_path
+        input_format, input_path = ensure_tabular_from_gpkg(gpkg_path, parquet_path, csv_path)
     else:
         input_path = args.input
+        input_format = "parquet" if input_path and input_path.endswith(".parquet") else "csv"
 
     if not input_path or not os.path.exists(input_path):
         raise SystemExit("Input Parquet file not found. Use --input or --download.")
@@ -182,6 +216,7 @@ def main() -> None:
     resolutions = [int(x.strip()) for x in args.resolutions.split(",") if x.strip()]
     build_shards(
         input_path=input_path,
+        input_format=input_format,
         output_dir=args.output,
         resolutions=resolutions,
         max_shards=max(args.max_shards, 1),

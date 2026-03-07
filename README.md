@@ -50,13 +50,13 @@ by R5 parent cell, so the URL/path should be a *folder* containing `{r5CellId}.j
 We provide a repeatable script to download the Kontur dataset and build R5 shards:
 
 ```bash
-cd task-launcher
+cd /home/david/levante/core-tasks/task-launcher
 pip install h3 pyarrow
 python scripts/build_kontur_r5_shards.py --download --gzip --output data/kontur-h3-r5
 ```
 
 This uses the latest 400m Kontur dataset from HDX and requires `ogr2ogr` (GDAL) to convert
-the GeoPackage into Parquet for streaming.
+the GeoPackage into Parquet/CSV for streaming.
 
 Task details:
 
