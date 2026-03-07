@@ -5,13 +5,27 @@ type PopulationSource = 'kontur' | 'worldpop';
 export type PopulationLookupConfig = {
   populationSourcePreference?: 'kontur' | 'worldpop' | 'auto';
   konturPopulationApiUrl?: string;
+  konturPopulationBatchApiUrl?: string;
   worldpopPopulationApiUrl?: string;
   populationApiTimeoutMs?: number;
+  populationBatchEnabled?: boolean;
 };
 
 type PopulationLookupResult = {
   population: number | null;
   source: PopulationSource | 'unknown';
+};
+
+type PopulationBatchItem = {
+  cellId: string;
+  resolution: number | null;
+  population: number | null;
+  source: PopulationSource | 'unknown';
+};
+
+type PopulationBatchResult = {
+  success: boolean;
+  items?: PopulationBatchItem[];
 };
 
 function parsePopulation(payload: any): number | null {
@@ -147,6 +161,42 @@ async function fetchPopulation(
   }
 }
 
+async function fetchPopulationBatch(
+  endpoint: string,
+  cellIds: string[],
+  timeoutMs: number,
+): Promise<Record<string, PopulationLookupResult>> {
+  if (!endpoint || !cellIds.length) return {};
+  try {
+    const url = new URL(endpoint, window.location.origin);
+    url.searchParams.set('cellIds', cellIds.join(','));
+    url.searchParams.set('fallback', 'worldpop');
+
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
+    const response = await fetch(url.toString(), {
+      method: 'GET',
+      signal: controller.signal,
+    });
+    window.clearTimeout(timeout);
+    if (!response.ok) return {};
+    const payload = (await response.json().catch(() => ({}))) as PopulationBatchResult;
+    const items = Array.isArray(payload?.items) ? payload.items : [];
+    return items.reduce<Record<string, PopulationLookupResult>>((acc, item) => {
+      if (!item?.cellId) return acc;
+      const resolvedSource: PopulationSource | 'unknown' =
+        item.source === 'kontur' || item.source === 'worldpop' ? item.source : 'unknown';
+      acc[item.cellId] = {
+        population: typeof item.population === 'number' ? item.population : null,
+        source: resolvedSource,
+      };
+      return acc;
+    }, {});
+  } catch {
+    return {};
+  }
+}
+
 export async function lookupPopulationForCell(
   cellId: string,
   resolution: number,
@@ -174,4 +224,13 @@ export async function lookupPopulationForCell(
   }
 
   return { population: null, source: attemptedKnownSource };
+}
+
+export async function lookupPopulationBatch(
+  cellIds: string[],
+  config: PopulationLookupConfig | null | undefined,
+): Promise<Record<string, PopulationLookupResult>> {
+  const batchUrl = String(config?.konturPopulationBatchApiUrl || '/api/population-kontur-h3-batch');
+  const timeoutMs = Number(config?.populationApiTimeoutMs) > 0 ? Number(config?.populationApiTimeoutMs) : 2500;
+  return fetchPopulationBatch(batchUrl, cellIds, timeoutMs);
 }

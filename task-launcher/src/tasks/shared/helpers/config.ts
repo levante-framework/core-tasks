@@ -95,8 +95,10 @@ export const setSharedConfig = async (
     demoMode,
     populationSourcePreference,
     konturPopulationApiUrl,
+    konturPopulationBatchApiUrl,
     worldpopPopulationApiUrl,
     populationApiTimeoutMs,
+    populationBatchEnabled,
   } = cleanParams;
 
   const config = {
@@ -129,8 +131,10 @@ export const setSharedConfig = async (
     demoMode: !!demoMode,
     populationSourcePreference: String(populationSourcePreference || 'kontur'),
     konturPopulationApiUrl: konturPopulationApiUrl ? String(konturPopulationApiUrl) : undefined,
+    konturPopulationBatchApiUrl: konturPopulationBatchApiUrl ? String(konturPopulationBatchApiUrl) : undefined,
     worldpopPopulationApiUrl: worldpopPopulationApiUrl ? String(worldpopPopulationApiUrl) : undefined,
     populationApiTimeoutMs: Number(populationApiTimeoutMs) || undefined,
+    populationBatchEnabled: !!populationBatchEnabled,
   };
 
   // default corpus if nothing is passed in

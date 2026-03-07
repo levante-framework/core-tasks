@@ -55,6 +55,7 @@ const semThreshold = Number(urlParams.get('semThreshold') || '0');
 const startingTheta = Number(urlParams.get('theta') || '0');
 const populationSourcePreference = String(urlParams.get('populationSourcePreference') || 'kontur').trim().toLowerCase();
 const konturPopulationApiUrl = urlParams.get('konturPopulationApiUrl') || undefined;
+const konturPopulationBatchApiUrl = urlParams.get('konturPopulationBatchApiUrl') || undefined;
 const worldpopPopulationApiUrl = urlParams.get('worldpopPopulationApiUrl') || undefined;
 const populationApiTimeoutMs =
   urlParams.get('populationApiTimeoutMs') === null ? undefined : parseInt(urlParams.get('populationApiTimeoutMs'), 10);
@@ -67,6 +68,7 @@ const sequentialStimulus = stringToBoolean(urlParams.get('sequentialStimulus'), 
 const storeItemId = stringToBoolean(urlParams.get('storeItemId'), false);
 const cat = stringToBoolean(urlParams.get('cat'), false);
 const heavyInstructions = stringToBoolean(urlParams.get('heavyInstructions'), false);
+const populationBatchEnabled = stringToBoolean(urlParams.get('populationBatch'), false);
 
 const emulatorConfig = EMULATORS ? firebaseJSON.emulators : undefined;
 // if running in demo mode, no data will be saved to Firestore
@@ -112,8 +114,10 @@ async function startWebApp() {
         startingTheta,
         populationSourcePreference,
         konturPopulationApiUrl,
+        konturPopulationBatchApiUrl,
         worldpopPopulationApiUrl,
         populationApiTimeoutMs,
+        populationBatchEnabled,
         heavyInstructions,
         demoMode,
       };

@@ -1,7 +1,7 @@
 import { cellToLatLng, latLngToCell } from 'h3-js';
 import { type LocationSelectionDraft } from './state';
 import { H3_MAX_RESOLUTION, type LocationSelectionTaskConfig } from './config';
-import { lookupPopulationForCell } from './populationApi';
+import { lookupPopulationBatch, lookupPopulationForCell } from './populationApi';
 
 type LocationCommitPreview = {
   schemaVersion: 'location_v1';
@@ -131,10 +131,18 @@ export async function buildLocationCommitComputationWithPopulation(
   let observedPopulationSource: 'kontur' | 'worldpop' | 'unknown' = 'unknown';
   let foundPassingCell = false;
   const candidates: PopulationCandidateDebug[] = [];
-
+  const useBatch = Boolean(config?.populationBatchEnabled);
+  const cellIds: string[] = [];
   for (let resolution = safeBaselineResolution; resolution <= safeMaxResolution; resolution += 1) {
-    const cellId = latLngToCell(draft.lat, draft.lon, resolution);
-    const populationResult = await lookupPopulationForCell(cellId, resolution, config);
+    cellIds.push(latLngToCell(draft.lat, draft.lon, resolution));
+  }
+  const batchResults = useBatch ? await lookupPopulationBatch(cellIds, config) : null;
+
+  for (let index = 0; index < cellIds.length; index += 1) {
+    const resolution = safeBaselineResolution + index;
+    const cellId = cellIds[index];
+    const populationResult =
+      batchResults?.[cellId] ?? (await lookupPopulationForCell(cellId, resolution, config));
     const population = populationResult.population;
     if (populationResult.source !== 'unknown' && observedPopulationSource === 'unknown') {
       observedPopulationSource = populationResult.source;

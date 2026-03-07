@@ -1,12 +1,14 @@
 const fs = require('fs');
 const path = require('path');
-const { cellToBoundary } = require('h3-js');
+const zlib = require('zlib');
+const { cellToBoundary, getResolution } = require('h3-js');
 
 const WORLDPOP_STATS_URL = 'https://api.worldpop.org/v1/services/stats';
 const WORLDPOP_TASK_URL = 'https://api.worldpop.org/v1/tasks';
 
 let konturCacheByResolution = null;
 let konturCacheLoadedFrom = null;
+let konturCachePromise = null;
 
 function sendJson(res, statusCode, payload) {
   res.status(statusCode).set('Content-Type', 'application/json').send(JSON.stringify(payload));
@@ -22,6 +24,14 @@ function parseResolution(value) {
   const n = Number(value);
   if (!Number.isInteger(n) || n < 0 || n > 15) return null;
   return n;
+}
+
+function parseCellIds(value) {
+  if (!value) return [];
+  return String(value)
+    .split(',')
+    .map((cellId) => String(cellId).trim())
+    .filter((cellId) => cellId.length > 0);
 }
 
 function buildCellPolygon(cellId) {
@@ -52,8 +62,59 @@ function findKonturCachePath() {
   return candidates.find((candidate) => fs.existsSync(candidate)) || '';
 }
 
-function loadKonturCache() {
+function parseKonturCacheJson(json, sourceLabel) {
+  const resolutions = json?.resolutions;
+  if (!resolutions || typeof resolutions !== 'object') return null;
+  konturCacheByResolution = resolutions;
+  konturCacheLoadedFrom = sourceLabel;
+  return konturCacheByResolution;
+}
+
+async function loadKonturCacheFromUrl(cacheUrl) {
+  try {
+    const response = await fetch(cacheUrl);
+    if (!response.ok) return null;
+    const buffer = Buffer.from(await response.arrayBuffer());
+    const isGzip =
+      String(response.headers.get('content-encoding') || '').includes('gzip')
+      || cacheUrl.endsWith('.gz');
+    const jsonText = isGzip ? zlib.gunzipSync(buffer).toString('utf-8') : buffer.toString('utf-8');
+    const json = JSON.parse(jsonText);
+    return parseKonturCacheJson(json, cacheUrl);
+  } catch (_err) {
+    return null;
+  }
+}
+
+async function loadKonturCache() {
   if (konturCacheByResolution) return konturCacheByResolution;
+  if (konturCachePromise) return konturCachePromise;
+  konturCachePromise = (async () => {
+    const urlPath = String(
+      process.env.KONTUR_H3_CACHE_URL
+        || 'https://storage.googleapis.com/levante-assets-dev/maps/kontur-h3-population-cache.json.gz',
+    ).trim();
+    if (urlPath) {
+      const remote = await loadKonturCacheFromUrl(urlPath);
+      if (remote) return remote;
+    }
+
+    const cachePath = findKonturCachePath();
+    if (!cachePath || !fs.existsSync(cachePath)) return null;
+    try {
+      const raw = fs.readFileSync(cachePath, 'utf-8');
+      const json = JSON.parse(raw);
+      return parseKonturCacheJson(json, cachePath);
+    } catch (_err) {
+      return null;
+    }
+  })();
+  try {
+    return await konturCachePromise;
+  } finally {
+    konturCachePromise = null;
+  }
+}
   const cachePath = findKonturCachePath();
   if (!cachePath || !fs.existsSync(cachePath)) return null;
   try {
@@ -134,14 +195,73 @@ async function queryWorldPopForPolygon(polygon, year) {
   throw new Error(`WorldPop task ${taskId} timed out`);
 }
 
-function resolveKonturPopulation(cellId, resolution) {
-  const cache = loadKonturCache();
+async function resolveKonturPopulation(cellId, resolution) {
+  const cache = await loadKonturCache();
   if (!cache) return null;
   const byRes = cache[String(resolution)];
   if (!byRes || typeof byRes !== 'object') return null;
   const value = Number(byRes[cellId]);
   if (!Number.isFinite(value) || value < 0) return null;
   return Math.round(value);
+}
+
+async function resolveKonturPopulationBatch(cellIds, fallbackToWorldpop) {
+  const items = [];
+  for (let i = 0; i < cellIds.length; i += 1) {
+    const cellId = cellIds[i];
+    let resolution = null;
+    try {
+      resolution = getResolution(cellId);
+    } catch (_err) {
+      items.push({
+        cellId,
+        resolution: null,
+        population: null,
+        source: 'unknown',
+        error: 'invalid cellId',
+      });
+      continue;
+    }
+    const konturPopulation = await resolveKonturPopulation(cellId, resolution);
+    if (typeof konturPopulation === 'number') {
+      items.push({
+        cellId,
+        resolution,
+        population: konturPopulation,
+        source: 'kontur',
+      });
+      continue;
+    }
+    if (!fallbackToWorldpop) {
+      items.push({
+        cellId,
+        resolution,
+        population: null,
+        source: 'unknown',
+      });
+      continue;
+    }
+    try {
+      const polygon = buildCellPolygon(cellId);
+      const worldpopPopulation = await queryWorldPopForPolygon(polygon, 2020);
+      items.push({
+        cellId,
+        resolution,
+        population: Math.round(worldpopPopulation),
+        source: 'worldpop',
+        fallbackFrom: 'kontur',
+      });
+    } catch (error) {
+      items.push({
+        cellId,
+        resolution,
+        population: null,
+        source: 'unknown',
+        error: error?.message || 'Unknown error',
+      });
+    }
+  }
+  return items;
 }
 
 function registerPopulationApi(app) {
@@ -155,7 +275,7 @@ function registerPopulationApi(app) {
         return;
       }
 
-      const konturPopulation = resolveKonturPopulation(cellId, resolution);
+      const konturPopulation = await resolveKonturPopulation(cellId, resolution);
       if (typeof konturPopulation === 'number') {
         sendJson(res, 200, {
           success: true,
@@ -178,6 +298,27 @@ function registerPopulationApi(app) {
         population: Math.round(worldpopPopulation),
         resolution,
         cellId,
+      });
+    } catch (error) {
+      sendJson(res, 500, { success: false, error: error?.message || 'Unknown error' });
+    }
+  });
+
+  app.get('/api/population-kontur-h3-batch', async (req, res) => {
+    try {
+      const cellIds = parseCellIds(req.query?.cellIds);
+      if (!cellIds.length) {
+        sendJson(res, 400, { success: false, error: 'Missing cellIds' });
+        return;
+      }
+      const fallback = String(req.query?.fallback || '').trim().toLowerCase();
+      const fallbackToWorldpop = fallback === 'worldpop';
+      const items = await resolveKonturPopulationBatch(cellIds, fallbackToWorldpop);
+      sendJson(res, 200, {
+        success: true,
+        source: 'kontur',
+        cachePath: konturCacheLoadedFrom || null,
+        items,
       });
     } catch (error) {
       sendJson(res, 500, { success: false, error: error?.message || 'Unknown error' });

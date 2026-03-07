@@ -35,6 +35,15 @@ For testing location saves against the Firebase emulators:
    `http://localhost:8080/?task=locationselection&locationSaveDebug=true`
 3. Click **Save** and confirm a `locations` doc appears in the Emulator UI.
 
+### Kontur Population Cache
+
+The population lookup uses a local Kontur cache if available, otherwise it falls back to WorldPop.
+You can point the dev server at a compressed, sparse Kontur cache stored elsewhere (e.g. GCS) by
+setting one of these environment variables before starting `npm run dev`:
+
+- `KONTUR_H3_CACHE_URL` (supports `.gz`)
+- `KONTUR_H3_CACHE_PATH` (local JSON path)
+
 Task details:
 
 1. [Matrix Reasoning](https://hs-levante-assessment-dev.web.app/?task=matrix-reasoning) [George]
