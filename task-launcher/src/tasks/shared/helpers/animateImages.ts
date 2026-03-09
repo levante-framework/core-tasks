@@ -28,64 +28,102 @@ export function triggerAnimation(item: any, animation: string) {
 
 
 // drags the target element to fill in the missing space in the stimulus image
-export function matrixDragAnimation(stimImage: HTMLElement, target: HTMLElement, offSetX: number = 0, offSetY: number = 0, blackOutImage = false) {
-    // Get current position of the target button
-    const currentRect = target.getBoundingClientRect();
-    const startX = currentRect.left;
-    const startY = currentRect.top;
+export function displaceAnimation(
+  destination: HTMLElement, 
+  origin: HTMLElement,
+  cursorTarget: 'origin' | 'destination',
+  offSetX: number = 0, 
+  offSetY: number = 0,
+  leaveCopyInPlace: boolean,
+  blackOutImage = false,
+) {
+    const addCursorPulse = () => {
+        const rect = cursorTarget === 'origin' ? origin.getBoundingClientRect() : destination.getBoundingClientRect();
+        const cursorImg = document.createElement('img');
+        cursorImg.src = mediaAssets.images.pointingHand;
+        cursorImg.style.position = 'absolute';
+        cursorImg.style.width = rect.width * 0.7 + 'px';
+        cursorImg.style.height = 'auto';
+        cursorImg.style.left = `${rect.left + rect.width / 4}px`;
+        cursorImg.style.top = `${rect.top + rect.height / 4}px`;
+        cursorImg.style.pointerEvents = 'none';
+        cursorImg.style.zIndex = '20';
+        cursorImg.style.animation = 'pulse 2s 1';
 
-    // Set up the target button for absolute positioning
-    target.style.position = 'absolute';
-    target.style.left = `${startX}px`;
-    target.style.top = `${startY}px`;
+        document.body.appendChild(cursorImg);
 
-    const duration = 2000; 
-    const startTime = performance.now();
+        window.setTimeout(() => {
+            startDragAnimation();
+        }, 2000);
 
-    // Function to update position based on stimImage
-    const updatePosition = () => {
-        const rect = stimImage.getBoundingClientRect();
-        const targetPositionX = rect.left + (rect.width * offSetX);
-        const targetPositionY = rect.top + (rect.height * offSetY);
-        target.style.left = `${targetPositionX}px`;
-        target.style.top = `${targetPositionY}px`;
+        window.setTimeout(() => {
+            cursorImg.remove();
+        }, 4000);
     };
 
-    const animate = (currentTime: number) => {
-      const elapsed = currentTime - startTime;
-      const progress = Math.min(elapsed / duration, 1);
+    const startDragAnimation = () => {
+        const transitionDuration = 1000;
 
-      // creates gradual easing effect to make the animation more natural
-      const easeOut = 1 - Math.pow(1 - progress, 3);
+        // Get current position of the target button
+        const currentRect = origin.getBoundingClientRect();
+        const startX = currentRect.left;
+        const startY = currentRect.top;
 
-      // Calculate the center of stimImage
-      const rect = stimImage.getBoundingClientRect();
-      const targetPositionX = rect.left + (rect.width * offSetX);
-      const targetPositionY = rect.top + (rect.height * offSetY);
+        let animatedTarget: HTMLElement;
 
-      // Calculate current position
-      const currentX = startX + (targetPositionX - startX) * easeOut;
-      const currentY = startY + (targetPositionY - startY) * easeOut;
+        if (leaveCopyInPlace) {
+            // create a non-interactive copy to animate
+            animatedTarget = origin.cloneNode(true) as HTMLElement;
+            animatedTarget.id = 'animated-target';
+            animatedTarget.style.position = 'absolute';
+            animatedTarget.style.transition = `opacity ${transitionDuration}ms ease`;
+            animatedTarget.style.opacity = '1';
+            animatedTarget.style.left = `${startX}px`;
+            animatedTarget.style.top = `${startY}px`;
 
-      // Update position
-      target.style.left = `${currentX}px`;
-      target.style.top = `${currentY}px`;
+            // gray out the original button
+            origin.style.transition = `opacity ${transitionDuration}ms ease`;
+            origin.classList.add('image-grayed-out');
 
-      if (progress < 1) {
-        requestAnimationFrame(animate);
-      } else {
-        // Animation complete - set up resize listener
-        updatePosition(); // Ensure final position is correct
-        window.addEventListener('resize', updatePosition);
-        
-        if (blackOutImage) {
-          // replace the target image with a black background to give the illusion that the bunny fits perfectly for mental rotation
-          (stimImage.children[0] as HTMLImageElement).src = mediaAssets.images.blackBackground;
-          target.style.zIndex = '10';
+            const animationParent = origin.parentElement ?? document.body;
+            animationParent.appendChild(animatedTarget);
+        } else {
+            animatedTarget = origin;
+            animatedTarget.style.position = 'absolute';
+            animatedTarget.style.transition = `opacity ${transitionDuration}ms ease`;
         }
-      }
+
+        // Function to update position based on stimImage
+        const updatePosition = () => {
+            const rect = destination.getBoundingClientRect();
+            const targetPositionX = rect.left + (rect.width * offSetX);
+            const targetPositionY = rect.top + (rect.height * offSetY);
+            animatedTarget.style.left = `${targetPositionX}px`;
+            animatedTarget.style.top = `${targetPositionY}px`;
+        };
+
+        const fadeOutThenMove = () => {
+            animatedTarget.style.opacity = '0';
+            setTimeout(() => {
+                updatePosition();
+                requestAnimationFrame(() => {
+                    animatedTarget.style.opacity = '1';
+                });
+            }, transitionDuration);
+
+            window.setTimeout(() => {
+                if (blackOutImage) {
+                    // replace the target image with a black background to give the illusion that the bunny fits perfectly for mental rotation
+                    (destination.children[0] as HTMLImageElement).src = mediaAssets.images.blackBackground;
+                    animatedTarget.style.zIndex = '10';
+                }
+            }, transitionDuration * 2);
+        };
+
+        fadeOutThenMove();
+
+        window.addEventListener('resize', updatePosition);
     };
 
-    requestAnimationFrame(animate);
+    addCursorPulse();
 }
-

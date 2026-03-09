@@ -1,7 +1,16 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { taskStore } from '../../../taskStore';
 import { mediaAssets } from '../../..';
-import { addPracticeButtonListeners, camelize, PageAudioHandler, PageStateHandler, replayButtonSvg, setupReplayAudio, popAnimation } from '../../shared/helpers';
+import { 
+  addPracticeButtonListeners, 
+  camelize, 
+  PageAudioHandler, 
+  PageStateHandler, 
+  replayButtonSvg, 
+  setupReplayAudio, 
+  popAnimation,
+  enableAllButtons
+} from '../../shared/helpers';
 import { isTouchScreen, jsPsych } from '../../taskSetup';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
@@ -9,11 +18,11 @@ let practiceResponses = []
 let startTime: number;
 let audioEnabled = false; // disable audio if the trial has changed since the loop started - prevent overlapping audio
 
-export const downexStimulus = (layoutConfigMap: Record<string, LayoutConfigType>, animate: boolean) => {
+export const downexStimulus = (layoutConfigMap: Record<string, LayoutConfigType>, animate: boolean, trial?: StimulusType) => {
     return {
         type: jsPsychHtmlMultiResponse,
         data: () => {
-          const stim = taskStore().nextStimulus;
+          const stim = trial || taskStore().nextStimulus;
           let isPracticeTrial = stim.assessmentStage === 'practice_response';
           return {
             // not camelCase because firekit
@@ -24,7 +33,7 @@ export const downexStimulus = (layoutConfigMap: Record<string, LayoutConfigType>
           };
         },
         stimulus: () => {
-            const stim = taskStore().nextStimulus;
+            const stim = trial || taskStore().nextStimulus;
             const t = taskStore().translations;
             const imageSrc = mediaAssets.images[camelize(stim.item)];
 
@@ -57,7 +66,7 @@ export const downexStimulus = (layoutConfigMap: Record<string, LayoutConfigType>
         },
         prompt_above_buttons: true,
         button_choices: () => {
-            const stim = taskStore().nextStimulus;
+            const stim = trial || taskStore().nextStimulus;
             const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
             const choices = itemLayoutConfig.response.displayValues;
 
@@ -69,19 +78,21 @@ export const downexStimulus = (layoutConfigMap: Record<string, LayoutConfigType>
         },
         keyboard_choices: () => 'NO_KEYS',
         button_html: () => {
-            const stim = taskStore().nextStimulus;
+            const stim = trial || taskStore().nextStimulus;
             const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
             const classList = [...itemLayoutConfig.classOverrides.buttonClassList];
             if (stim.assessmentStage === 'practice_response') {
                 classList.push('practice-btn');
             }
 
-            return `<button class='${classList.join(' ')}'>%choice%</button>`;
+            return `<button class="${classList.join(' ')}" ${stim.assessmentStage === 'practice_response' ? 'disabled' : ''}>
+                      %choice%
+                    </button>`;
         }, 
         on_load: async () => {
             startTime = performance.now();
 
-            const stim = taskStore().nextStimulus;
+            const stim = trial || taskStore().nextStimulus;
 
             // set up replay audio with animations
             const trialAudio = stim.audioFile;
@@ -129,8 +140,15 @@ export const downexStimulus = (layoutConfigMap: Record<string, LayoutConfigType>
                     targetButton.offsetHeight; // Force reflow
                     targetButton.style.animation = 'pulse 2s 0s 2';
                 }
+
+                const audioConfig: AudioConfigType = {
+                  restrictRepetition: {
+                    enabled: true,
+                    maxRepetitions: 2,
+                  }
+                }
                 
-                PageAudioHandler.playAudio(mediaAssets.audio.matrixReasoningFeedbackIncorrectDownex);
+                PageAudioHandler.playAudio(mediaAssets.audio.matrixReasoningFeedbackIncorrectDownex, audioConfig);
             }
 
             addPracticeButtonListeners(stim.answer.toString(), isTouchScreen, itemLayoutConfig.response.values, onCorrect, onIncorrect);
@@ -186,6 +204,8 @@ export const downexStimulus = (layoutConfigMap: Record<string, LayoutConfigType>
               if (replayButton) {
                 (replayButton as HTMLButtonElement).disabled = false;
               }
+
+              enableAllButtons();
             }
 
             animateAndPlayAudio();
@@ -194,7 +214,7 @@ export const downexStimulus = (layoutConfigMap: Record<string, LayoutConfigType>
             PageAudioHandler.stopAndDisconnectNode();
             audioEnabled = false;
 
-            const stimulus = taskStore().nextStimulus;
+            const stimulus = trial || taskStore().nextStimulus;
             const itemLayoutConfig = layoutConfigMap?.[stimulus.itemId];
             const { corpus } = taskStore();
 
@@ -271,7 +291,7 @@ export const downexStimulus = (layoutConfigMap: Record<string, LayoutConfigType>
               }
         },
         response_ends_trial: () => {
-          const stim = taskStore().nextStimulus;
+          const stim = trial || taskStore().nextStimulus;
     
           return stim.assessmentStage !== 'practice_response';
         },

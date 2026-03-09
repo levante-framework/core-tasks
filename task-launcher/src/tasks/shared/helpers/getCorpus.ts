@@ -16,8 +16,7 @@ import { getChildSurveyResponses } from './childSurveyResponses';
 
 type ParsedRowType = {
   source: string;
-  block_index?: string;
-  blockIndex?: number;
+  block_index: string;
   task: string;
   prompt: string;
   item: string | number[];
@@ -48,15 +47,7 @@ type ParsedRowType = {
   randomize?: string;
   trial_num: number;
   downex?: string;
-};
-
-export const sdsPhaseCount = {
-  block1: 0,
-  block2: 0,
-  block3: 0,
-  block4: 0,
-  block5: 0,
-  block6: 0,
+  block_threshold?: number;
 };
 
 let totalTrials = 0;
@@ -80,36 +71,32 @@ function containsLettersOrSlash(str: string) {
 
 const transformCSV = (
   csvInput: ParsedRowType[],
-  numOfPracticeTrials: number,
   sequentialStimulus: boolean,
   task: string,
 ) => {
   let currTrialTypeBlock = '';
   let currPracticeAmount = 0;
 
-  // Phase 1 is test-dimensions and something-same
-  // Phase 2 is match and unique - subphases are either matching or test-dimensions
-  let sdsBlock1Count = 0;
-  let sdsBlock2Count = 0;
-  let sdsBlock3Count = 0;
-  let sdsBlock4Count = 0;
-  let sdsBlock5Count = 0;
-  let sdsBlock6Count = 0;
+  const blockThresholds: number[] = [];
 
   csvInput.forEach((row) => {
     // Leaving this here for quick testing of a certain type of trial
     // if (!row.trial_type.includes('Number Line')) return;
 
+    if (row.block_threshold && !blockThresholds.includes(row.block_threshold)) {
+      blockThresholds.push(row.block_threshold);
+    }
+
     const newRow: StimulusType = {
       source: row.source,
-      block_index: row.block_index,
+      block_index: parseInt(row.block_index),
       task: row.task,
       // for testing, will be removed
       prompt: row.prompt,
       item: writeItem(row),
       origItemNum: row.orig_item_num,
       trialType: row.trial_type,
-      image: row?.image?.includes(',') ? (row.image as string).split(',') : row?.image,
+      image: row?.image?.includes(',') ? (row.image as string).replace(" ", "").split(',') : row?.image,
       timeLimit: row.time_limit,
       answer: _toNumber(row.answer) || row.answer,
       assessmentStage: row.assessment_stage,
@@ -129,16 +116,16 @@ const transformCSV = (
         }
       })(),
       audioFile: row.audio_file?.includes(',') ? (row.audio_file as string).split(',') : row.audio_file as string,
-      // difficulty must be undefined for non-instruction/practice trials to avoid running cat
-      difficulty:
-        taskStore().runCat ||
-          (row.trial_type === 'instructions' || row.assessment_stage === 'practice_response')
-          ? parseFloat(row.d || row.difficulty)
-          : NaN,
+      // difficulty must be undefined to avoid running cat
+      difficulty: taskStore().runCat ? parseFloat(row.d || row.difficulty) : NaN,
       randomize: row.randomize as 'yes' | 'no' | 'at_block_level',
       trialNumber: row.trial_num,
       downex: row.downex?.toUpperCase() === 'TRUE',
     };
+
+    if (row.task === 'same-different-selection') {
+      newRow.requiredSelections = _toNumber(row.required_selections);
+    }
 
     if (row.task === 'Mental Rotation') {
       newRow.item = camelize(newRow.item as string);
@@ -148,28 +135,6 @@ const transformCSV = (
 
     if (row.task === 'same-different-selection') {
       newRow.requiredSelections = parseInt(row.required_selections);
-      newRow.blockIndex = parseInt(row.block_index || '');
-      // all instructions are part of phase 1
-      if (newRow.blockIndex == 1) {
-        sdsBlock1Count += 1;
-      } else if (newRow.blockIndex == 2) {
-        sdsBlock2Count += 1;
-      } else if (newRow.blockIndex == 3) {
-        sdsBlock3Count += 1;
-      } else if (newRow.blockIndex == 4) {
-        sdsBlock4Count += 1;
-      } else if (newRow.blockIndex == 5) {
-        sdsBlock5Count += 1;
-      } else {
-        sdsBlock6Count += 1;
-      }
-
-      sdsPhaseCount.block1 = sdsBlock1Count;
-      sdsPhaseCount.block2 = sdsBlock2Count;
-      sdsPhaseCount.block3 = sdsBlock3Count;
-      sdsPhaseCount.block4 = sdsBlock4Count;
-      sdsPhaseCount.block5 = sdsBlock5Count;
-      sdsPhaseCount.block6 = sdsBlock6Count;
     }
 
     let currentTrialType = newRow.trialType;
@@ -180,34 +145,16 @@ const transformCSV = (
 
     if (newRow.downex) {
       // Add to downex corpus
-      if (newRow.assessmentStage === 'practice_response') {
-        if (currPracticeAmount < numOfPracticeTrials) {
-          // Only push in the specified amount of practice trials
-          currPracticeAmount += 1;
-          downexData.push(newRow);
-          totalDownexTrials += 1;
-        } // else skip extra practice
-      } else {
-        // instruction and stimulus
-        downexData.push(newRow);
-        totalDownexTrials += 1;
-      }
+      downexData.push(newRow);
+      totalDownexTrials += 1;
     } else {
       // Add to stimulus corpus
-      if (newRow.assessmentStage === 'practice_response') {
-        if (currPracticeAmount < numOfPracticeTrials) {
-          // Only push in the specified amount of practice trials
-          currPracticeAmount += 1;
-          stimulusData.push(newRow);
-          totalTrials += 1;
-        } // else skip extra practice
-      } else {
-        // instruction and stimulus
-        stimulusData.push(newRow);
-        totalTrials += 1;
-      }
+      stimulusData.push(newRow);
+      totalTrials += 1;
     }
   });
+
+  taskStore('blockThresholds', blockThresholds.sort((a, b) => a - b));
 
   if (task === 'roar-inference') {
     const inferenceNumStories = taskStore().inferenceNumStories;
@@ -226,11 +173,11 @@ const transformCSV = (
 };
 
 export const getCorpus = async (config: Record<string, any>, isDev: boolean) => {
-  const { corpus, task, sequentialStimulus, numOfPracticeTrials } = config;
+  const { corpus, task, sequentialStimulus } = config;
 
   const bucketName = getBucketName(task, isDev, 'corpus');
 
-  const corpusUrl = `https://storage.googleapis.com/${bucketName}/${corpus}.csv?alt=media`;
+  const corpusUrl = `https://storage.googleapis.com/${bucketName}/${corpus}.csv?alt=media?v=2`;
 
   function downloadCSV(url: string) {
     return new Promise((resolve, reject) => {
@@ -239,7 +186,7 @@ export const getCorpus = async (config: Record<string, any>, isDev: boolean) => 
         header: true,
         skipEmptyLines: true,
         complete: function (results) {
-          transformCSV(results.data, numOfPracticeTrials, sequentialStimulus, task);
+          transformCSV(results.data, sequentialStimulus, task);
           resolve(results.data);
         },
         error: function (error) {

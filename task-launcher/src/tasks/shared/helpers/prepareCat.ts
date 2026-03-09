@@ -60,7 +60,7 @@ export function prepareCorpus(
   const possibleStartItems: StimulusType[] = normedTrials.filter(
     (trial) =>
       trial.trialType !== excludedTrialTypes &&
-      ((taskStore().task == 'egma-math' && trial.block_index == '0') || taskStore().task !== 'egma-math') &&
+      ((taskStore().task == 'egma-math' && trial.block_index === 0) || taskStore().task !== 'egma-math') &&
       Number(trial.difficulty) <= maxTrialDifficulty,
   );
   const startItems: StimulusType[] = selectNItems(possibleStartItems, 5);

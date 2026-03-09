@@ -219,7 +219,6 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
     
     let olderKidBlocks: StimulusType[][] = prepareMultiBlockCat(taskStore().corpora.stimulus);
     taskStore('corpora', { stimulus: olderKidBlocks, downex: taskStore().corpora.downex });
-
     taskStore('totalTestTrials', 0); // add to this while building out each block
 
     // don't repeat instructions
