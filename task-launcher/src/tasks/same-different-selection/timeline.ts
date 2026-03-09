@@ -156,9 +156,6 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
 
   initializeCat();
 
-  if (heavy) {
-    timeline.push(dataQualityScreen);
-  }
   timeline.push(taskFinished());
   timeline.push(exitFullscreen);
   return { jsPsych, timeline };
