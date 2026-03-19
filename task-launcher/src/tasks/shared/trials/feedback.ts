@@ -75,6 +75,7 @@ export const feedback = (
             },
           };
 
+          PageAudioHandler.stopAndDisconnectNode();
           PageAudioHandler.playAudio(stimulusPath || mediaAssets.audio.nullAudio, audioConfig);
         },
         on_finish: () => {
