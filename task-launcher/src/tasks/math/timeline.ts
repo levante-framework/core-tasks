@@ -278,7 +278,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
     }
 
     const numOfBlocks = olderKidBlocks.length;
-    const trialProportionsPerBlock = [2, 3, 3]; // divide by these numbers to get trials per block
+    const trialProportionsPerBlock = [4, 6, 6]; // divide by these numbers to get trials per block
     for (let i = 0; i < numOfBlocks; i++) {
       // push in block-specific instructions
       const blockInstructions = olderKidInstructions.filter((trial) => {
