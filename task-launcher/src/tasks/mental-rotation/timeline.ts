@@ -159,7 +159,7 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
   );
 
   taskStore('corpora', {
-    practice: taskStore().corpora.practice,
+    downex: taskStore().corpora.downex,
     stimulus: corpus,
   });
 
