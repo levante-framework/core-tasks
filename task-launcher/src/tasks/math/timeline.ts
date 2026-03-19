@@ -95,14 +95,10 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
     return {
       timeline: [feedback(true, 'feedbackCorrect', 'feedbackNotQuiteRight', false)],
       conditional_function: () => {
-        if (!trial) {
           return (
-            taskStore().nextStimulus.assessmentStage === 'practice_response' &&
-            taskStore().nextStimulus.trialType === 'Number Line Slider'
+            ((trial ||taskStore().nextStimulus).assessmentStage) === 'practice_response' && 
+            ((trial ||taskStore().nextStimulus).trialType) === 'Number Line Slider'
           );
-        } else {
-          return trial.trialType === 'Number Line Slider';
-        }
       },
     };
   };
