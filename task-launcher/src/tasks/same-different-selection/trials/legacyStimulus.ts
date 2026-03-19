@@ -7,6 +7,7 @@ import {
   setupReplayAudio,
   PageAudioHandler,
   camelize,
+  shouldTerminateCat,
 } from '../../shared/helpers';
 import { finishExperiment } from '../../shared/trials';
 import { isTouchScreen, jsPsych } from '../../taskSetup';
@@ -308,7 +309,7 @@ export const legacyStimulus = (trial?: StimulusType) => {
           taskStore.transact('testTrialCount', (oldVal: number) => oldVal + 1);
         }
         // if heavy instructions is true, show data quality screen before ending
-        if (taskStore().numIncorrect >= taskStore().maxIncorrect && !taskStore().heavyInstructions) {
+        if (taskStore().numIncorrect >= taskStore().maxIncorrect && !taskStore().heavyInstructions && !cat) {
           finishExperiment();
         }
 
@@ -317,6 +318,7 @@ export const legacyStimulus = (trial?: StimulusType) => {
         }
 
         if (cat && !(stim.assessmentStage === 'practice_response')) {
+          shouldTerminateCat();
           setNextCatTrial(stim);
         }
       }

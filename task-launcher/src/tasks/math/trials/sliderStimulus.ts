@@ -14,6 +14,7 @@ import {
   setSentryContext,
   updateTheta,
   addPracticeButtonListeners,
+  shouldTerminateCat,
 } from '../../shared/helpers';
 import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
@@ -70,7 +71,7 @@ function getRandomValue(max: number, avoid: number, tolerance: number = 0.1) {
   return result * max;
 }
 
-export const slider = (layoutConfigMap: Record<string, LayoutConfigType>, trial?: StimulusType) => {
+export const slider = (layoutConfigMap: Record<string, LayoutConfigType>, terminateCat: boolean, trial?: StimulusType) => {
   return {
     type: HTMLSliderResponse,
     data: () => {
@@ -358,6 +359,10 @@ export const slider = (layoutConfigMap: Record<string, LayoutConfigType>, trial?
 
       if (!runCat) {
         setSkipCurrentBlock(stimulus.trialType);
+      }
+
+      if (terminateCat) {
+        shouldTerminateCat();
       }
     },
   };
