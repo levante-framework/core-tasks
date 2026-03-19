@@ -4,42 +4,51 @@ import { cat } from '../../taskSetup';
 import { jsPsych } from '../../taskSetup';
 
 // separates trials from corpus into blocks depending on for heavy/light instructions and CAT
-export function prepareCorpus(corpus: StimulusType[], randomStartBlock = true, fillInSdsDifficulty: boolean = false) {
+export function prepareCorpus(
+  corpus: StimulusType[], 
+  randomStartBlock = true, 
+  downexCorpus?: StimulusType[], 
+  fillInSdsDifficulty: boolean = false
+) {
   const excludedTrialTypes = '3D';
   // limit random starting items so that their difficulty is less than 0
   const maxTrialDifficulty = 0;
   const cat: boolean = taskStore().runCat;
   let corpora;
 
-  const instructionPracticeTrials: StimulusType[] = corpus.filter(
+  let heavyInstructionPracticeTrials: StimulusType[] = [];
+  let downexTestTrials: StimulusType[] = [];
+
+  if (downexCorpus) {
+    heavyInstructionPracticeTrials = downexCorpus.filter(
+      (trial) => trial.trialType === 'instructions' || trial.assessmentStage === 'practice_response',
+    );
+    downexTestTrials = downexCorpus.filter((trial) => !heavyInstructionPracticeTrials.includes(trial));
+  }
+
+  const lightInstructionPracticeTrials: StimulusType[] = corpus.filter(
     (trial) => trial.trialType === 'instructions' || trial.assessmentStage === 'practice_response',
   );
-
-  const heavyInstructionPracticeTrials: StimulusType[] = instructionPracticeTrials.filter(
-    (trial) => Number(trial.difficulty) < 0,
-  );
-
-  const lightInstructionPracticeTrials: StimulusType[] = instructionPracticeTrials.filter(
-    (trial) => Number(trial.difficulty) > 0 || trial.difficulty == null || isNaN(Number(trial.difficulty)),
-  );
+  const testTrials: StimulusType[] = corpus.filter((trial) => !lightInstructionPracticeTrials.includes(trial));
 
   const corpusParts = {
     ipHeavy: heavyInstructionPracticeTrials,
     ipLight: lightInstructionPracticeTrials,
-    test: corpus.filter((trial) => !instructionPracticeTrials.includes(trial)),
+    test: testTrials,
+    downexTest: downexTestTrials,
   };
 
-  // something same 1 trials inherit difficulty from the corresponding something same 2 trial
-  if (fillInSdsDifficulty) {
-    corpusParts.test.forEach((trial, index) => {
-      if (trial.trialType === 'something-same-1') {
-        const nextTrial = corpusParts.test[index + 1];
-        if (nextTrial.trialType === 'something-same-2') {
-          trial.difficulty = nextTrial.difficulty;
+    // something same 1 trials inherit difficulty from the corresponding something same 2 trial
+    if (fillInSdsDifficulty) {
+      corpusParts.test.forEach((trial, index) => {
+        if (trial.trialType === 'something-same-1') {
+          const nextTrial = corpusParts.test[index + 1];
+          if (nextTrial.trialType === 'something-same-2') {
+            trial.difficulty = nextTrial.difficulty;
+          }
         }
-      }
-    });
-  }
+      });
+    }
 
   // separate out normed/unnormed trials
   const unnormedTrials: StimulusType[] = corpusParts.test.filter(
@@ -61,25 +70,35 @@ export function prepareCorpus(corpus: StimulusType[], randomStartBlock = true, f
     randomStartBlock ? 
     normedTrials.filter((trial) => !startItems.includes(trial)) : normedTrials;
 
+  const downexUnnormedTrials: StimulusType[] = downexTestTrials.filter(
+    (trial) => trial.difficulty == null || isNaN(Number(trial.difficulty)),
+  );
+
+  const downexCatCorpus: StimulusType[] = downexTestTrials.filter(
+    trial => !downexUnnormedTrials.includes(trial),
+  );
+
   corpora = {
-    ipHeavy: corpusParts.ipHeavy, // heavy instruction/practice trials
-    ipLight: corpusParts.ipLight, // light instruction/practice
+    ipHeavy: corpusParts.ipHeavy, // downex instruction/practice trials
+    ipLight: corpusParts.ipLight, // older kid instruction/practice
     start: startItems, // 5 random items to be used in starting block (all under a certain max difficulty)
     unnormed: unnormedTrials, // all items without IRT parameters
+    downexUnnormed: downexUnnormedTrials,
     cat: catCorpus, // all normed items for CAT
+    downexCat: downexCatCorpus,
   };
 
   if (cat) {
     // if cat is running, put only normed trials into taskStore
     const newCorpora = {
-      practice: taskStore().corpora.practice,
+      downex: downexTestTrials,
       stimulus: catCorpus,
     };
     taskStore('corpora', newCorpora);
   } else {
     // if cat is not running, put entire test portion of corpus into taskStore but leave out instruction/practice
     const newCorpora = {
-      practice: taskStore().corpora.practice,
+      practice: downexTestTrials,
       stimulus: corpusParts.test,
     };
     taskStore('corpora', newCorpora);
