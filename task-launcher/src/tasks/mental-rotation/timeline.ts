@@ -207,7 +207,7 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
     return heavyInstructions && taskStore().nextStimulus.trialType === '2D' ? 'mentalRotationInstruct5Downex' : 'generalYourTurn';
   }
 
-  const numOfTrials = taskStore().totalTrials;
+  const numOfTrials = corpus.length;
   taskStore('totalTestTrials', getRealTrials(corpus));
   const numOfInitialPracticeTrials = firstBlockPractice.length;
   const fallbackIndex = numOfInitialPracticeTrials + 4;

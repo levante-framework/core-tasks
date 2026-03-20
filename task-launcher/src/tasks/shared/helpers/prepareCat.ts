@@ -10,7 +10,7 @@ export function prepareCorpus(
   downexCorpus?: StimulusType[], 
   fillInSdsDifficulty: boolean = false
 ) {
-  const excludedTrialTypes = '3D';
+  const excludedTrialTypes = ['3D', 'polygon'];
   // limit random starting items so that their difficulty is less than 0
   const maxTrialDifficulty = 0;
   const cat: boolean = taskStore().runCat;
@@ -59,7 +59,7 @@ export function prepareCorpus(
   // determine start items
   const possibleStartItems: StimulusType[] = normedTrials.filter(
     (trial) =>
-      trial.trialType !== excludedTrialTypes &&
+      !excludedTrialTypes.includes(trial.trialType) &&
       ((taskStore().task == 'egma-math' && trial.block_index === 0) || taskStore().task !== 'egma-math') &&
       Number(trial.difficulty) <= maxTrialDifficulty,
   );
