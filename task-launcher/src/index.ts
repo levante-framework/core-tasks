@@ -41,6 +41,7 @@ export class TaskLauncher {
     
     const { taskName } = this.gameParams;
     let { language } = this.gameParams;
+    taskStore('language', language);
 
     // adding this to handle old 'es' variant language param values
     if (language === 'es') {

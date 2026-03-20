@@ -1,3 +1,4 @@
+import { taskStore } from "../../../taskStore";
 import { jsPsych } from "../../taskSetup";
 
 export const checkFallbackCriteria = (filterInputTrials: boolean = false) => {
@@ -9,6 +10,5 @@ export const checkFallbackCriteria = (filterInputTrials: boolean = false) => {
     }
 
     const numIncorrect = incorrectTrials.count();
-
-    return numIncorrect >= 2;
+    return numIncorrect >= 2 && taskStore().language === 'en';
 };

@@ -59,7 +59,7 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
 
   const layoutConfigMap: Record<string, LayoutConfigType> = {};
   let i = 0;
-  for (const c of fullCorpus) {
+  for (const c of (heavyInstructions ? fullCorpus : defaultCorpus)) {
     const { itemConfig, errorMessages } = getLayoutConfig(c, translations, mediaAssets, i);
     layoutConfigMap[c.itemId] = itemConfig;
     if (errorMessages.length) {
@@ -148,7 +148,7 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
       downexInstructions5,
     ],
     conditional_function: () => {
-      const run = checkFallbackCriteria() && !fellBack && !heavyInstructions;
+      const run = checkFallbackCriteria() && !fellBack;
       if (run) {
         fellBack = true;
       }

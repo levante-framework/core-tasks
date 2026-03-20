@@ -11,6 +11,7 @@ import {
   combineMediaAssets,
   filterMedia,
   prepareMultiBlockCat,
+  checkFallbackCriteria,
 } from '../shared/helpers';
 // trials
 import {
@@ -31,6 +32,7 @@ import {
   practiceTransition,
   setupStimulusFromCurrentCatBlock,
   setupNextBlock,
+  repeatInstructionsMessage,
 } from '../shared/trials';
 import { getLayoutConfig } from './helpers/config';
 import { prepareCorpus } from '../shared/helpers/prepareCat';
@@ -167,6 +169,27 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
     }
   };
 
+  const firstBlockPractice: StimulusType[] = corpus.filter((trial) => 
+    Number(trial.block_index) === 1 && trial.assessmentStage === 'practice_response'
+  );
+
+  let fellBack = false;
+  const fallbackInstructions = {
+    timeline: [
+      repeatInstructionsMessage, 
+      ...downexInstructions,
+      ...firstBlockPractice.map((trial) => afcStimulusTemplate(trialConfig, trial)),
+    ],
+    conditional_function: () => {
+      const run = checkFallbackCriteria() && !fellBack;
+      if (run) {
+        fellBack = true;
+      }
+
+      return run;
+    },
+  };
+
   function addInstructionPractice() {
     batchedCorpus.forEach((block, index) => {
       timeline.push(instructionPracticeBlock(index + 1));
@@ -184,7 +207,9 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
     addInstructionPractice();
 
     if (index === 0) { 
-        timeline.push(practiceTransition(() => 'mentalRotationInstruct5Downex'));    
+        timeline.push(practiceTransition(
+          heavyInstructions ? () => 'mentalRotationInstruct5Downex' : undefined,
+        )); 
     
         // push in starting block
         corpora.start.forEach((trial: StimulusType) => {
@@ -197,7 +222,11 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
     }
 
     const numOfTrials = block.length / 3;
+    const fallBackIndex = 4;
     for (let i = 0; i < numOfTrials; i++) {
+      if (i <= fallBackIndex && index === 0) {
+        timeline.push(fallbackInstructions);
+      }
       timeline.push(stimulusBlock(index));
     };
 
