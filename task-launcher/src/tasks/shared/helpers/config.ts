@@ -137,9 +137,5 @@ export const setSharedConfig = async (
     Object.entries(gameParams).map(([key, value]) => [key, config[key as keyof typeof config] ?? value]),
   );
 
-  if (!config.demoMode) {
-    await config.firekit.updateTaskParams(updatedGameParams);
-  }
-
   return config;
 };
