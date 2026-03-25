@@ -32,7 +32,11 @@ export class PageAudioHandler {
     return audioBuffer?.duration;
   }
 
-  static async playAudio(audioUri: string, config: AudioConfigType = this.defaultAudioConfig, setClassAudioField: boolean = true) {
+  static async playAudio(
+    audioUri: string,
+    config: AudioConfigType = this.defaultAudioConfig,
+    setClassAudioField: boolean = true,
+  ) {
     const { enabled, maxRepetitions } = config.restrictRepetition;
     const { onEnded } = config;
 
@@ -92,9 +96,9 @@ export class PageAudioHandler {
 
     // safari requires resuming audio context on user interaction, then it can be used freely later
     if (ctx.state === 'suspended') {
-      ctx.resume(); 
+      ctx.resume();
     }
-  
+
     const buffer = ctx.createBuffer(1, 1, ctx.sampleRate);
     const source = ctx.createBufferSource();
     source.buffer = buffer;

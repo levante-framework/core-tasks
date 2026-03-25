@@ -69,11 +69,7 @@ function containsLettersOrSlash(str: string) {
   return /[a-zA-Z\/]/.test(str);
 }
 
-const transformCSV = (
-  csvInput: ParsedRowType[],
-  sequentialStimulus: boolean,
-  task: string,
-) => {
+const transformCSV = (csvInput: ParsedRowType[], sequentialStimulus: boolean, task: string) => {
   let currTrialTypeBlock = '';
   let currPracticeAmount = 0;
 
@@ -96,7 +92,7 @@ const transformCSV = (
       item: writeItem(row),
       origItemNum: row.orig_item_num,
       trialType: row.trial_type,
-      image: row?.image?.includes(',') ? (row.image as string).replace(" ", "").split(',') : row?.image,
+      image: row?.image?.includes(',') ? (row.image as string).replace(' ', '').split(',') : row?.image,
       timeLimit: row.time_limit,
       answer: _toNumber(row.answer) || row.answer,
       assessmentStage: row.assessment_stage,
@@ -115,7 +111,7 @@ const transformCSV = (
             : stringToNumberArray(row.response_alternatives);
         }
       })(),
-      audioFile: row.audio_file?.includes(',') ? (row.audio_file as string).split(',') : row.audio_file as string,
+      audioFile: row.audio_file?.includes(',') ? (row.audio_file as string).split(',') : (row.audio_file as string),
       // difficulty must be undefined to avoid running cat
       difficulty: taskStore().runCat ? parseFloat(row.d || row.difficulty) : NaN,
       randomize: row.randomize as 'yes' | 'no' | 'at_block_level',
@@ -154,7 +150,10 @@ const transformCSV = (
     }
   });
 
-  taskStore('blockThresholds', blockThresholds.sort((a, b) => a - b));
+  taskStore(
+    'blockThresholds',
+    blockThresholds.sort((a, b) => a - b),
+  );
 
   if (task === 'roar-inference') {
     const inferenceNumStories = taskStore().inferenceNumStories;

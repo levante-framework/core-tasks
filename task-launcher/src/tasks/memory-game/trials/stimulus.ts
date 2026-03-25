@@ -39,10 +39,10 @@ const downexPracticeAudioCues = [
   'memoryGameInstruct8Downex',
   'memoryGameInstruct7Downex',
   'memoryGameInstruct5Downex',
-  "memoryGameInstruct4Downex",
+  'memoryGameInstruct4Downex',
   'memoryGameInstruct3Downex',
   'memoryGameInstruct2Downex',
-]
+];
 
 // play audio cue
 export function setUpAudio(
@@ -80,16 +80,15 @@ export function setUpAudio(
 }
 
 // This function produces both the display and input trials for the corsi blocks
-export function getCorsiBlocks(
-  { mode, 
-    reverse = false, 
-    isPractice = false, 
-    resetSeq = false, 
-    customSeqLength, 
-    animation,
-    prompt,
-  }: CorsiBlocksArgs
-) {
+export function getCorsiBlocks({
+  mode,
+  reverse = false,
+  isPractice = false,
+  resetSeq = false,
+  customSeqLength,
+  animation,
+  prompt,
+}: CorsiBlocksArgs) {
   return {
     type: jsPsychCorsiBlocks,
     sequence: () => {
@@ -186,7 +185,13 @@ export function getCorsiBlocks(
       const heavyInstructions = taskStore().heavyInstructions;
 
       // save itemUid for data analysis
-      const itemUid = 'mg_' + `${reverse ? 'backward_' : 'forward_'}` + gridSize + 'grid_' + 'len' + (customSeqLength || sequenceLength);
+      const itemUid =
+        'mg_' +
+        `${reverse ? 'backward_' : 'forward_'}` +
+        gridSize +
+        'grid_' +
+        'len' +
+        (customSeqLength || sequenceLength);
 
       if (mode === 'input') {
         jsPsych.data.addDataToLastTrial({
@@ -246,12 +251,12 @@ export function getCorsiBlocks(
 let timeoutIDs: Array<NodeJS.Timeout | number> = [];
 
 function doOnLoad(
-    mode: 'display' | 'input', 
-    isPractice: boolean, 
-    reverse: boolean, 
-    animation?: 'pulse' | 'cursor',
-    prompt?: string,
-  ) {
+  mode: 'display' | 'input',
+  isPractice: boolean,
+  reverse: boolean,
+  animation?: 'pulse' | 'cursor',
+  prompt?: string,
+) {
   const container = document.getElementById('jspsych-corsi-stimulus') as HTMLDivElement;
   container.id = '';
   container.classList.add('lev-corsi-override');
@@ -298,13 +303,13 @@ function doOnLoad(
       const nextBlockIndex = inputSequence[clickCount];
 
       setTimeout(() => {
-      // Disable all blocks except the correct next one
-      Array.from(blocks).forEach((element, i) => {
-        if (i === nextBlockIndex) {
-          // Enable the correct block
-          enableBlock(element, animation);
-        } else {
-          // Disable incorrect blocks
+        // Disable all blocks except the correct next one
+        Array.from(blocks).forEach((element, i) => {
+          if (i === nextBlockIndex) {
+            // Enable the correct block
+            enableBlock(element, animation);
+          } else {
+            // Disable incorrect blocks
             disableBlock(element);
           }
         });
@@ -351,7 +356,7 @@ function doOnLoad(
 
           const color = isPractice && i !== nextBlockIndex ? INCORRECT_COLOR : HIGHLIGHT_COLOR;
           (event.target as HTMLDivElement).style.backgroundColor = color;
-          
+
           Array.from(blocks).forEach((element, j) => {
             if (i !== j) {
               element.style.backgroundColor = '#ffffffcc';
@@ -360,7 +365,7 @@ function doOnLoad(
 
           setTimeout(() => {
             (event.target as HTMLDivElement).style.backgroundColor = '#ffffffcc';
-          },  1000);
+          }, 1000);
         }
 
         clickCount++;
@@ -406,33 +411,33 @@ function doOnLoad(
     }
   });
 
-    const contentWrapper = document.getElementById('jspsych-content') as HTMLDivElement;
-    const corsiBlocksHTML = contentWrapper.children[1] as HTMLDivElement;
-    const promptContainer = document.createElement('div');
-    promptContainer.classList.add('lev-row-container', 'instruction');
-    const promptElement = document.createElement('p');
+  const contentWrapper = document.getElementById('jspsych-content') as HTMLDivElement;
+  const corsiBlocksHTML = contentWrapper.children[1] as HTMLDivElement;
+  const promptContainer = document.createElement('div');
+  promptContainer.classList.add('lev-row-container', 'instruction');
+  const promptElement = document.createElement('p');
 
-    const defaultCue = getMemoryGamePrompt(mode, reverse);
+  const defaultCue = getMemoryGamePrompt(mode, reverse);
 
-    let cue;
+  let cue;
 
-    // downex practice trials have custom audio cues
-    if (taskStore().heavyInstructions && !reverse && isPractice) {
-      cue = prompt || downexPracticeAudioCues.pop() || defaultCue;
-    } else {
-      cue = defaultCue;
-    }
+  // downex practice trials have custom audio cues
+  if (taskStore().heavyInstructions && !reverse && isPractice) {
+    cue = prompt || downexPracticeAudioCues.pop() || defaultCue;
+  } else {
+    cue = defaultCue;
+  }
 
-    promptElement.textContent = t[cue];
+  promptElement.textContent = t[cue];
 
-    if (mode === 'display') {
-      promptContainer.style.visibility = 'hidden';
-    }
+  if (mode === 'display') {
+    promptContainer.style.visibility = 'hidden';
+  }
 
-    promptContainer.appendChild(promptElement);
-    // Inserting element at the second child position rather than
-    // changing the jspsych-content styles to avoid potential issues in the future
-    contentWrapper.insertBefore(promptContainer, corsiBlocksHTML);
+  promptContainer.appendChild(promptElement);
+  // Inserting element at the second child position rather than
+  // changing the jspsych-content styles to avoid potential issues in the future
+  contentWrapper.insertBefore(promptContainer, corsiBlocksHTML);
 
-    setUpAudio(contentWrapper, promptContainer, cue, mode);
+  setUpAudio(contentWrapper, promptContainer, cue, mode);
 }

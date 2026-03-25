@@ -7,7 +7,7 @@ import { PageAudioHandler } from '../helpers/audioHandler';
 export const enterFullscreen = {
   type: jsPsychFullScreen,
   // force fullscreen on a touchscreen so that audio context can be unlocked
-  fullscreen_mode: (!!fscreen.fullscreenEnabled) || isTouchScreen,
+  fullscreen_mode: !!fscreen.fullscreenEnabled || isTouchScreen,
   message: () => {
     const t = taskStore().translations;
     return `<div class="lev-row-container header">
@@ -27,10 +27,12 @@ export const enterFullscreen = {
     if (isTouchScreen) {
       continueButton?.addEventListener('click', () => {
         PageAudioHandler.unlockAudioContext();
-      }), { once: true };
+      }),
+        { once: true };
       continueButton?.addEventListener('touchend', () => {
         PageAudioHandler.unlockAudioContext();
-      }), { once: true };
+      }),
+        { once: true };
     }
   },
   on_start: () => {

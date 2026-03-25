@@ -48,7 +48,7 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
   const initialTimeline = initTimeline(config, enterFullscreen, finishExperiment);
 
   const ifRealTrialResponse = {
-    timeline: [getAudioResponse(mediaAssets)]
+    timeline: [getAudioResponse(mediaAssets)],
   };
 
   let corpus: StimulusType[] = taskStore().corpora.stimulus;
@@ -86,9 +86,9 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
   const initialMedia = getLeftoverAssets(batchedMediaAssets, mediaAssets);
 
   const initialPreload = createPreloadTrials(initialMedia).default;
-  const instructions = heavyInstructions ? 
-    downexInstructions : 
-    [imageInstructions, videoInstructionsMisfit, videoInstructionsFit];
+  const instructions = heavyInstructions
+    ? downexInstructions
+    : [imageInstructions, videoInstructionsMisfit, videoInstructionsFit];
 
   const timeline = [initialPreload, initialTimeline, ...instructions];
 
@@ -106,14 +106,18 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
 
   const stimulusBlock = (index: number) => {
     return {
-        timeline: [{ ...setupStimulusFromCurrentCatBlock, stimulus: '' }, afcStimulusTemplate(trialConfig), ifRealTrialResponse],
-        conditional_function: () => {
-          if (taskStore().skipBlock === index) {
-            return false;
-          }
-          return true;
-        },
-    }   
+      timeline: [
+        { ...setupStimulusFromCurrentCatBlock, stimulus: '' },
+        afcStimulusTemplate(trialConfig),
+        ifRealTrialResponse,
+      ],
+      conditional_function: () => {
+        if (taskStore().skipBlock === index) {
+          return false;
+        }
+        return true;
+      },
+    };
   };
 
   const polygonInstructBlock = {
@@ -142,21 +146,25 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
   // returns practice + instruction trials for a given block
   function getPracticeInstructions(blockNum: number): StimulusType[] {
     const trials = instructionPractice.filter(
-        (trial) => trial.block_index === blockNum && !presentedInstructions.includes(trial.block_index)
+      (trial) => trial.block_index === blockNum && !presentedInstructions.includes(trial.block_index),
     );
-    
+
     return trials;
   }
 
   const instructionPracticeBlock = (blockNum: number) => {
     const trials = getPracticeInstructions(blockNum);
-    
+
     return {
-      timeline: [polygonInstructBlock, threeDimInstructBlock, ...trials.map((trial) => {
-        return {
-          timeline: [{ ...fixationOnly, stimulus: '' }, afcStimulusTemplate(trialConfig, trial)],
-        }
-      })],
+      timeline: [
+        polygonInstructBlock,
+        threeDimInstructBlock,
+        ...trials.map((trial) => {
+          return {
+            timeline: [{ ...fixationOnly, stimulus: '' }, afcStimulusTemplate(trialConfig, trial)],
+          };
+        }),
+      ],
       conditional_function: () => {
         const run = taskStore().currentCatBlock === blockNum - 1 && !presentedInstructions.includes(blockNum);
 
@@ -166,17 +174,17 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
 
         return run;
       },
-    }
+    };
   };
 
-  const firstBlockPractice: StimulusType[] = corpus.filter((trial) => 
-    Number(trial.block_index) === 1 && trial.assessmentStage === 'practice_response'
+  const firstBlockPractice: StimulusType[] = corpus.filter(
+    (trial) => Number(trial.block_index) === 1 && trial.assessmentStage === 'practice_response',
   );
 
   let fellBack = false;
   const fallbackInstructions = {
     timeline: [
-      repeatInstructionsMessage, 
+      repeatInstructionsMessage,
       ...downexInstructions,
       ...firstBlockPractice.map((trial) => afcStimulusTemplate(trialConfig, trial)),
     ],
@@ -197,7 +205,7 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
   }
 
   taskStore('currentCatBlock', 0);
-  
+
   const numOfCatTrials = corpora.cat.length;
   taskStore('totalTestTrials', numOfCatTrials);
   batchedCorpus.forEach((block, index) => {
@@ -206,19 +214,17 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
     // add in instructions for all blocks each time: only the correct one will run based on currentCatBlock in taskStore
     addInstructionPractice();
 
-    if (index === 0) { 
-        timeline.push(practiceTransition(
-          heavyInstructions ? () => 'mentalRotationInstruct5Downex' : undefined,
-        )); 
-    
-        // push in starting block
-        corpora.start.forEach((trial: StimulusType) => {
-          timeline.push({ ...fixationOnly, stimulus: '' });
-          timeline.push(afcStimulusTemplate(trialConfig, trial));
-          timeline.push(ifRealTrialResponse);
-        });  
+    if (index === 0) {
+      timeline.push(practiceTransition(heavyInstructions ? () => 'mentalRotationInstruct5Downex' : undefined));
+
+      // push in starting block
+      corpora.start.forEach((trial: StimulusType) => {
+        timeline.push({ ...fixationOnly, stimulus: '' });
+        timeline.push(afcStimulusTemplate(trialConfig, trial));
+        timeline.push(ifRealTrialResponse);
+      });
     } else {
-        timeline.push(practiceTransition(() => 'generalYourTurn'));
+      timeline.push(practiceTransition(() => 'generalYourTurn'));
     }
 
     const numOfTrials = block.length / 3;
@@ -228,7 +234,7 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
         timeline.push(fallbackInstructions);
       }
       timeline.push(stimulusBlock(index));
-    };
+    }
 
     // check the participant's theta and assign next block
     if (index < batchedCorpus.length - 1) {

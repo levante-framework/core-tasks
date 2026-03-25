@@ -35,7 +35,7 @@ function assignNextBlock() {
 
   let nextBlock = taskStore().currentCatBlock;
   if (nextBlockThreshold && cat.theta >= nextBlockThreshold) {
-    nextBlock ++;
+    nextBlock++;
   }
 
   taskStore('currentCatBlock', nextBlock);
@@ -51,6 +51,10 @@ export const setupPractice = fixationTrial('practice');
 export const setupStimulus = fixationTrial('stimulus');
 export const setupDownex = fixationTrial('downex');
 export const setupStimulusFromBlock = (blockNum: number) => fixationTrial('stimulus', blockNum);
-export const setupStimulusFromCurrentCatBlock = { ...fixationTrial(), on_finish: selectFromCurrentCatBlock, stimulus: '' };
+export const setupStimulusFromCurrentCatBlock = {
+  ...fixationTrial(),
+  on_finish: selectFromCurrentCatBlock,
+  stimulus: '',
+};
 export const fixationOnly = fixationTrial();
 export const setupNextBlock = { ...fixationTrial(), on_finish: assignNextBlock, stimulus: '' };

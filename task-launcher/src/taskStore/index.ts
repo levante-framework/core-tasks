@@ -119,7 +119,7 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     maxIncorrect: config.maxIncorrect,
     keyHelpers: config.keyHelpers,
     runCat: config.cat,
-    heavyInstructions: 
+    heavyInstructions:
       (config.heavyInstructions || config.userMetadata.age <= 4) &&
       (config.language?.toLowerCase().startsWith('en') ?? false),
     semThreshold: config.semThreshold,

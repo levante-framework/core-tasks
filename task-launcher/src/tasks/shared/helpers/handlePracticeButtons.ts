@@ -8,8 +8,8 @@ function enableBtns(btnElements: NodeListOf<HTMLButtonElement>) {
 }
 
 export function addPracticeButtonListeners(
-  answer: string, 
-  isTouchScreen: boolean, 
+  answer: string,
+  isTouchScreen: boolean,
   choices: string[],
   onCorrect?: () => void,
   onIncorrect?: () => void,
@@ -42,14 +42,16 @@ function handlePracticeButtonPress(
     restrictRepetition: {
       enabled: false,
       maxRepetitions: 2,
-    }
-  }
+    },
+  };
 
   // custom incorrect prompts by task
-  const incorrectPromptKey = 
-  (taskStore().task === 'mental-rotation' && taskStore().heavyInstructions) && taskStore().nextStimulus?.trialType == "2D" ? 
-  'mentalRotationFeedbackIncorrectDownex' :
-  'feedbackTryAgain'
+  const incorrectPromptKey =
+    taskStore().task === 'mental-rotation' &&
+    taskStore().heavyInstructions &&
+    taskStore().nextStimulus?.trialType == '2D'
+      ? 'mentalRotationFeedbackIncorrectDownex'
+      : 'feedbackTryAgain';
 
   if (isCorrectChoice) {
     btn.classList.add('success-shadow');
@@ -62,7 +64,7 @@ function handlePracticeButtonPress(
         }),
       onCorrect ? 3000 : 1000, // if callback is provided, give more time for callback to finish before ending trial
     );
-    
+
     // if there is audio playing, stop it first before playing feedback audio to prevent overlap between trials
     PageAudioHandler.stopAndDisconnectNode();
     onCorrect ? onCorrect() : PageAudioHandler.playAudio(mediaAssets.audio.feedbackGoodJob, audioConfig);

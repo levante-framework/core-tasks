@@ -1,4 +1,4 @@
-import { mediaAssets } from "../../..";
+import { mediaAssets } from '../../..';
 
 type CreateGridArgs = {
   x: number;
@@ -62,13 +62,17 @@ function addAnimation(element: HTMLDivElement, animation?: 'pulse' | 'cursor') {
     const cursorImageSrc = mediaAssets.images.cursor;
 
     // Ensure element has position relative for absolute positioning of cursor image
-    if (element.style.position !== 'relative' && element.style.position !== 'absolute' && element.style.position !== 'fixed') {
+    if (
+      element.style.position !== 'relative' &&
+      element.style.position !== 'absolute' &&
+      element.style.position !== 'fixed'
+    ) {
       element.style.position = 'relative';
     }
 
     // Remove existing cursor image if it exists
     removeCursorImage(element);
-    
+
     // Create and add cursor image
     const cursorImg = document.createElement('img');
     cursorImg.src = cursorImageSrc;
@@ -108,14 +112,14 @@ export function enableBlock(element: HTMLDivElement, animation?: 'pulse' | 'curs
     addAnimation(element, animation);
   }
 }
- 
+
 // disables a corsi block element, making it non-clickable and visually dimmed
 export function disableBlock(element: HTMLDivElement) {
   element.style.pointerEvents = 'none';
   element.style.opacity = '0.5';
   element.style.cursor = 'not-allowed';
-  element.style.backgroundColor = 'rgba(215, 215, 215, 0.93)'
-  
+  element.style.backgroundColor = 'rgba(215, 215, 215, 0.93)';
+
   // disable any ongoing animations
   removeCursorImage(element);
   element.style.animation = 'none';

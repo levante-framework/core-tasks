@@ -67,7 +67,7 @@ export const instructions = instructionData.map((data) => {
             </button>`,
       ];
     },
-    keyboard_choices: "NO_KEYS",
+    keyboard_choices: 'NO_KEYS',
     on_load: () => {
       PageAudioHandler.playAudio(mediaAssets.audio[data.prompt]);
 

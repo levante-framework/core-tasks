@@ -12,22 +12,15 @@ interface InputDetector {
 }
 
 export function setupInputDetection(): InputDetector {
-  const mq = (query: string): boolean =>
-    window.matchMedia(query).matches;
+  const mq = (query: string): boolean => window.matchMedia(query).matches;
 
   // --- Capability snapshot
   const capability: InputCapability = {
-    touch:
-      navigator.maxTouchPoints > 0 ||
-      mq('(any-pointer: coarse)'),
+    touch: navigator.maxTouchPoints > 0 || mq('(any-pointer: coarse)'),
 
     mouse: mq('(any-pointer: fine)'),
 
-    primary: mq('(pointer: coarse)')
-      ? 'touch'
-      : mq('(pointer: fine)')
-      ? 'mouse'
-      : 'unknown'
+    primary: mq('(pointer: coarse)') ? 'touch' : mq('(pointer: fine)') ? 'mouse' : 'unknown',
   };
 
   let lastTouchTime = 0;
@@ -46,7 +39,7 @@ export function setupInputDetection(): InputDetector {
       lastTouchTime = Date.now();
       setInput('touch');
     },
-    { passive: true }
+    { passive: true },
   );
 
   window.addEventListener('mousemove', () => {
@@ -66,6 +59,6 @@ export function setupInputDetection(): InputDetector {
 
   return {
     capability,
-    getCurrentInput: () => currentInput
+    getCurrentInput: () => currentInput,
   };
 }

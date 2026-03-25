@@ -71,7 +71,7 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
   };
 
   const feedbackBlock = {
-    timeline: [feedback(true, 'feedbackCorrect', 'feedbackNotQuiteRight')], 
+    timeline: [feedback(true, 'feedbackCorrect', 'feedbackNotQuiteRight')],
     conditional_function: () => {
       return (
         taskStore().nextStimulus.assessmentStage === 'practice_response' &&
@@ -82,7 +82,7 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
   };
 
   const stimulusBlock = {
-    timeline: [(taskStore().taskVersion === 2 ? stimulus() : legacyStimulus()), feedbackBlock],
+    timeline: [taskStore().taskVersion === 2 ? stimulus() : legacyStimulus(), feedbackBlock],
   };
 
   const afcBlock = {
@@ -97,7 +97,7 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
   };
 
   // create list of numbers of trials per block
-  const {blockCountList, blockOperations} = setTrialBlock(false); 
+  const { blockCountList, blockOperations } = setTrialBlock(false);
 
   const totalRealTrials = blockCountList.reduce((acc, total) => acc + total, 0);
   taskStore('totalTestTrials', totalRealTrials);
@@ -115,21 +115,21 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
   const updateTestDimensions = () => {
     timeline.push({ ...setupStimulus, stimulus: '' });
     timeline.push(stimulusBlock);
-  }
+  };
 
   const updateSomethingSame = () => {
     timeline.push({ ...setupStimulus, stimulus: '' });
     timeline.push(stimulusBlock);
     timeline.push(buttonNoise);
     timeline.push(dataQualityBlock);
-  }
+  };
 
   const updateMatching = () => {
     timeline.push({ ...setupStimulus, stimulus: '' });
     timeline.push(afcBlock);
     timeline.push(buttonNoise);
     timeline.push(dataQualityBlock);
-  }
+  };
 
   // map of block operation functions
   const blockFunctions = {
@@ -144,11 +144,11 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
   blockCountList.forEach((count, index) => {
     // push in trials
     for (let i = 0; i < count; i += 1) {
-       // preload assets
-       if (trialCount % batchSize === 0) {
+      // preload assets
+      if (trialCount % batchSize === 0) {
         preloadBlock();
       }
-      
+
       blockFunctions[blockOperations[index] as keyof typeof blockFunctions]();
       trialCount++;
     }

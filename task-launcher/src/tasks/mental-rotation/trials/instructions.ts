@@ -168,7 +168,7 @@ export const threeDimInstructions = {
   stimulus: () => {
     const t = taskStore().translations;
     const prompt = taskStore().heavyInstructions ? t.mentalRotationInstruct3DDownex : t.mentalRotationInstruct3D;
-    
+
     return `
       <div class="lev-stimulus-container">
         <div class="lev-row-container instruction">
@@ -216,7 +216,7 @@ export const polygonInstructions = {
   stimulus: () => {
     const t = taskStore().translations;
     const prompt = t.mentalRotationInstructPolygonDownex;
-    
+
     return `
       <div class="lev-stimulus-container">
         <div class="lev-row-container instruction">

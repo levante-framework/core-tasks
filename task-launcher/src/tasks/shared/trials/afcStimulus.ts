@@ -206,7 +206,8 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
   const playAudioOnLoad = itemLayoutConfig?.playAudioOnLoad;
 
   let pageStateHandler;
-  if (typeof stim.audioFile === 'string') { // no need to handle array case since it's not supported yet
+  if (typeof stim.audioFile === 'string') {
+    // no need to handle array case since it's not supported yet
     pageStateHandler = new PageStateHandler(stim.audioFile, playAudioOnLoad);
   } else {
     throw new Error('Multiple audio files are not supported in this trial type');
@@ -291,7 +292,13 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
   setupReplayAudio(pageStateHandler);
 }
 
-function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, LayoutConfigType>, terminateCat: boolean, trial?: StimulusType) {
+function doOnFinish(
+  data: any,
+  task: string,
+  layoutConfigMap: Record<string, LayoutConfigType>,
+  terminateCat: boolean,
+  trial?: StimulusType,
+) {
   PageAudioHandler.stopAndDisconnectNode();
 
   // note: nextStimulus is actually the current stimulus
@@ -435,7 +442,7 @@ export const afcStimulusTemplate = (
     },
     stimulus: () => getPrompt(layoutConfigMap, trial),
     prompt_above_buttons: promptAboveButtons,
-    keyboard_choices: "NO_KEYS",
+    keyboard_choices: 'NO_KEYS',
     button_choices: () => getButtonChoices(layoutConfigMap, trial),
     button_html: () => getButtonHtml(layoutConfigMap, trial),
     on_load: () => doOnLoad(layoutConfigMap, trial),

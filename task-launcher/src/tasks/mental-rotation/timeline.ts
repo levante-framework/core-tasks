@@ -90,9 +90,9 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
   const initialMedia = getLeftoverAssets(batchedMediaAssets, mediaAssets);
 
   const initialPreload = createPreloadTrials(runCat ? mediaAssets : initialMedia).default;
-  const instructions = heavyInstructions ? 
-    downexInstructions : 
-    [imageInstructions, videoInstructionsMisfit, videoInstructionsFit];
+  const instructions = heavyInstructions
+    ? downexInstructions
+    : [imageInstructions, videoInstructionsMisfit, videoInstructionsFit];
 
   const timeline = [initialPreload, initialTimeline, ...instructions];
 
@@ -124,14 +124,14 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
     },
   };
 
-  const firstBlockPractice: StimulusType[] = corpus.filter((trial) => 
-    Number(trial.block_index) === 1 && trial.assessmentStage === 'practice_response'
+  const firstBlockPractice: StimulusType[] = corpus.filter(
+    (trial) => Number(trial.block_index) === 1 && trial.assessmentStage === 'practice_response',
   );
 
   let fellBack = false;
   const fallbackInstructions = {
     timeline: [
-      repeatInstructionsMessage, 
+      repeatInstructionsMessage,
       ...downexInstructions,
       ...firstBlockPractice.map((trial) => afcStimulusTemplate(trialConfig, trial)),
     ],
@@ -146,17 +146,15 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
   };
 
   // put polygon and 3D practice in their own blocks so they run at the right time
-  const polygonPractice: StimulusType[] = corpus.filter((trial) => 
-    trial.trialType === 'polygon' && trial.assessmentStage === 'practice_response'
+  const polygonPractice: StimulusType[] = corpus.filter(
+    (trial) => trial.trialType === 'polygon' && trial.assessmentStage === 'practice_response',
   );
 
-  const threeDimPractice: StimulusType[] = corpus.filter((trial) => 
-    trial.trialType === '3D' && trial.assessmentStage === 'practice_response'
+  const threeDimPractice: StimulusType[] = corpus.filter(
+    (trial) => trial.trialType === '3D' && trial.assessmentStage === 'practice_response',
   );
 
-  corpus = corpus.filter((trial) => 
-    !(polygonPractice.includes(trial)) && !(threeDimPractice.includes(trial))
-  );
+  corpus = corpus.filter((trial) => !polygonPractice.includes(trial) && !threeDimPractice.includes(trial));
 
   taskStore('corpora', {
     downex: taskStore().corpora.downex,
@@ -165,8 +163,8 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
 
   const threeDimInstructBlock = {
     timeline: [
-      threeDimInstructions, 
-      ...threeDimPractice.map((trial) => afcStimulusTemplate(trialConfig, trial)), 
+      threeDimInstructions,
+      ...threeDimPractice.map((trial) => afcStimulusTemplate(trialConfig, trial)),
       { ...fixationOnly, stimulus: '' },
     ],
     conditional_function: () => {
@@ -180,16 +178,13 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
   };
 
   const polygonInstructBlock = {
-    timeline: [polygonInstructions, 
-      ...polygonPractice.map((trial) => afcStimulusTemplate(trialConfig, trial)), 
+    timeline: [
+      polygonInstructions,
+      ...polygonPractice.map((trial) => afcStimulusTemplate(trialConfig, trial)),
       { ...fixationOnly, stimulus: '' },
     ],
     conditional_function: () => {
-      if (
-        taskStore().nextStimulus.trialType === 'polygon' &&
-        !playedPolygonInstructions &&
-        heavyInstructions
-      ) {
+      if (taskStore().nextStimulus.trialType === 'polygon' && !playedPolygonInstructions && heavyInstructions) {
         playedPolygonInstructions = true;
         return true;
       }
@@ -204,7 +199,9 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
   }
 
   function getPracticeTransitionPrompt() {
-    return heavyInstructions && taskStore().nextStimulus.trialType === '2D' ? 'mentalRotationInstruct5Downex' : 'generalYourTurn';
+    return heavyInstructions && taskStore().nextStimulus.trialType === '2D'
+      ? 'mentalRotationInstruct5Downex'
+      : 'generalYourTurn';
   }
 
   const numOfTrials = corpus.length;

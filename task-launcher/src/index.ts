@@ -38,7 +38,7 @@ export class TaskLauncher {
     if (!this.gameParams.demoMode) {
       await this.firekit.startRun();
     }
-    
+
     const { taskName } = this.gameParams;
     let { language } = this.gameParams;
     taskStore('language', language);
@@ -113,10 +113,10 @@ export class TaskLauncher {
     const translations = taskStore().translations;
     const pageSetup = new InitPageSetup(4000, translations);
     pageSetup.init();
-    const checkTaskFinished = this.gameParams.demoMode ? 
-      () => taskStore().taskComplete :
-      () => this.firekit?.run?.completed === true && taskStore().taskComplete;
-      
+    const checkTaskFinished = this.gameParams.demoMode
+      ? () => taskStore().taskComplete
+      : () => this.firekit?.run?.completed === true && taskStore().taskComplete;
+
     await isTaskFinished(checkTaskFinished);
   }
 }

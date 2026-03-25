@@ -71,9 +71,10 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
     }
 
     const practice = trial.assessmentStage === 'practice_response';
-    const timeline = practice && !trial.trialType.includes('something-same-1') ? 
-      [{ ...fixationOnly, stimulus: '' }, trialGenerator(trial), feedbackBlock] :
-      [{ ...fixationOnly, stimulus: '' }, trialGenerator(trial)];
+    const timeline =
+      practice && !trial.trialType.includes('something-same-1')
+        ? [{ ...fixationOnly, stimulus: '' }, trialGenerator(trial), feedbackBlock]
+        : [{ ...fixationOnly, stimulus: '' }, trialGenerator(trial)];
 
     return {
       timeline: timeline,
@@ -81,7 +82,7 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
   };
 
   const feedbackBlock = {
-    timeline: [feedback(true, 'feedbackCorrect', 'feedbackNotQuiteRight')], 
+    timeline: [feedback(true, 'feedbackCorrect', 'feedbackNotQuiteRight')],
     conditional_function: () => {
       return taskStore().taskVersion === 2;
     },

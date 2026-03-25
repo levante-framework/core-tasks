@@ -2,7 +2,7 @@ import { taskStore } from '../../../taskStore';
 
 function compareTrialTypes(trialType1: string, trialType2: string) {
   return (
-    trialType1 === trialType2 || 
+    trialType1 === trialType2 ||
     (trialType1.includes('match') && trialType2.includes('match')) ||
     (trialType1.includes('something-same') && trialType2.includes('something-same'))
   );
@@ -22,7 +22,7 @@ export function setTrialBlock(cat: boolean) {
   // create list of numbers of trials per block
   const blockCountList: number[] = [];
   const blockOperations: string[] = [];
-  let currentTrialType = "test-dimensions";
+  let currentTrialType = 'test-dimensions';
   let currentBlockCount = 0;
 
   if (cat) {
@@ -31,10 +31,10 @@ export function setTrialBlock(cat: boolean) {
     });
   } else {
     taskStore().corpora.stimulus.forEach((trial: StimulusType) => {
-      if (!compareTrialTypes(trial.trialType, currentTrialType) && trial.trialType !== "instructions") {
+      if (!compareTrialTypes(trial.trialType, currentTrialType) && trial.trialType !== 'instructions') {
         blockCountList.push(currentBlockCount);
         blockOperations.push(getBlockOperations(currentTrialType));
-        
+
         currentTrialType = trial.trialType;
         currentBlockCount = 0;
       }
@@ -46,5 +46,5 @@ export function setTrialBlock(cat: boolean) {
     blockOperations.push(getBlockOperations(currentTrialType));
   }
 
-  return {blockCountList, blockOperations};
+  return { blockCountList, blockOperations };
 }

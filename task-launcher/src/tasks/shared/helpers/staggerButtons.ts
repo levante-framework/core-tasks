@@ -10,7 +10,7 @@ export const handleStaggeredButtons = async (
   pageState: PageStateHandler,
   buttonContainer: HTMLDivElement,
   audioList: string[],
-  currentTrialId?: string, 
+  currentTrialId?: string,
   disableButtons = true,
 ) => {
   const parentResponseDiv = buttonContainer;
@@ -65,7 +65,7 @@ const showStaggeredBtnAndPlaySound = (
   if (!staggerEnabled || (currentTrialId && currentTrialId !== actualTrialId)) {
     return;
   }
-  
+
   const btn = btnList[index];
   btn.classList.remove('lev-staggered-grayscale', 'lev-staggered-opacity');
 
@@ -86,7 +86,7 @@ const showStaggeredBtnAndPlaySound = (
         return;
       }
 
-      if (index + 1 === btnList?.length) { 
+      if (index + 1 === btnList?.length) {
         // Last Element
         for (const jsResponseEl of btnList) {
           jsResponseEl.classList.remove('lev-staggered-disabled');

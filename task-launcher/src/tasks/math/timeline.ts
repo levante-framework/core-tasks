@@ -97,10 +97,10 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
     return {
       timeline: [feedback(true, 'feedbackCorrect', 'feedbackNotQuiteRight', false)],
       conditional_function: () => {
-          return (
-            ((trial ||taskStore().nextStimulus).assessmentStage) === 'practice_response' && 
-            ((trial ||taskStore().nextStimulus).trialType) === 'Number Line Slider'
-          );
+        return (
+          (trial || taskStore().nextStimulus).assessmentStage === 'practice_response' &&
+          (trial || taskStore().nextStimulus).trialType === 'Number Line Slider'
+        );
       },
     };
   };
@@ -212,9 +212,13 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
     // puts the CAT portion of the corpus into taskStore and removes instructions
     const allCorpusParts = prepareCorpus(corpus, true, downexCorpus);
     const olderKidInstructionPractice: StimulusType[] = allCorpusParts.ipLight;
-    const olderKidInstructions: StimulusType[] = olderKidInstructionPractice.filter((trial: StimulusType) => trial.trialType == 'instructions');
-    let olderKidPractice: StimulusType[] = olderKidInstructionPractice.filter((trial: StimulusType) => trial.assessmentStage == 'practice_response');
-    
+    const olderKidInstructions: StimulusType[] = olderKidInstructionPractice.filter(
+      (trial: StimulusType) => trial.trialType == 'instructions',
+    );
+    let olderKidPractice: StimulusType[] = olderKidInstructionPractice.filter(
+      (trial: StimulusType) => trial.assessmentStage == 'practice_response',
+    );
+
     let olderKidBlocks: StimulusType[][] = prepareMultiBlockCat(taskStore().corpora.stimulus);
     taskStore('corpora', { stimulus: olderKidBlocks, downex: taskStore().corpora.downex });
     taskStore('totalTestTrials', 0); // add to this while building out each block
@@ -225,9 +229,13 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
     // first add downex trials to the timeline
     if (heavyInstructions) {
       const downexInstructionPractice: StimulusType[] = allCorpusParts.ipHeavy;
-      const downexInstructions: StimulusType[] = downexInstructionPractice.filter((trial) => trial.trialType == 'instructions');
-      let downexPractice: StimulusType[] = downexInstructionPractice.filter((trial) => trial.assessmentStage == 'practice_response');
-      
+      const downexInstructions: StimulusType[] = downexInstructionPractice.filter(
+        (trial) => trial.trialType == 'instructions',
+      );
+      let downexPractice: StimulusType[] = downexInstructionPractice.filter(
+        (trial) => trial.assessmentStage == 'practice_response',
+      );
+
       let downexBlock: StimulusType[] = allCorpusParts.downexCat;
 
       // remove items from first block that are already in subsequent blocks
@@ -237,7 +245,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
       downexBlock = downexBlock.filter((trial: StimulusType) => {
         return !nonDownexIds.includes(trial.itemId as string);
       });
-    
+
       // filter practice trials to only include appropriate trial types if downward extension
       const excludedDownexPracticeTypes = [
         'Addition',
@@ -247,9 +255,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
         'Counting AFC',
       ];
 
-      downexPractice = downexPractice.filter(
-        (trial) => !excludedDownexPracticeTypes.includes(trial.trialType),
-      );
+      downexPractice = downexPractice.filter((trial) => !excludedDownexPracticeTypes.includes(trial.trialType));
 
       const allowedIds = ['math-instructions1-heavy', 'math-intro1-heavy'];
 

@@ -51,7 +51,6 @@ function captureValue(
   isPractice: boolean,
   choice?: string,
 ) {
-
   chosenAnswer = choice ? _toNumber(choice) : _toNumber(btnElement?.textContent);
   responseIdx = i;
 
@@ -71,7 +70,11 @@ function getRandomValue(max: number, avoid: number, tolerance: number = 0.1) {
   return result * max;
 }
 
-export const slider = (layoutConfigMap: Record<string, LayoutConfigType>, terminateCat: boolean, trial?: StimulusType) => {
+export const slider = (
+  layoutConfigMap: Record<string, LayoutConfigType>,
+  terminateCat: boolean,
+  trial?: StimulusType,
+) => {
   return {
     type: HTMLSliderResponse,
     data: () => {
@@ -211,7 +214,7 @@ export const slider = (layoutConfigMap: Record<string, LayoutConfigType>, termin
             btn.classList.add('practice-btn');
           }
           btn.addEventListener('click', (e) => captureValue(btn, e, i, isPractice));
-          
+
           btnWrapper.appendChild(btn);
           buttonContainer.appendChild(btnWrapper);
         }
@@ -276,7 +279,7 @@ export const slider = (layoutConfigMap: Record<string, LayoutConfigType>, termin
         let feedbackHandler;
         const answer = stim.answer.toString();
         const choices = layoutConfigMap?.[stim.itemId].response.values;
-        
+
         feedbackHandler = addPracticeButtonListeners(answer, isTouchScreen, choices);
       }
     },

@@ -54,25 +54,25 @@ export default function buildAdultReasoningTimeline(config: Record<string, any>,
 
   const stimulusBlock = (trial?: StimulusType) => {
     return {
-      timeline: [afcStimulusTemplate(trialConfig, trial)]
-    }
+      timeline: [afcStimulusTemplate(trialConfig, trial)],
+    };
   };
 
-  let numOfTrials; 
+  let numOfTrials;
 
   if (cat) {
     const fullCorpus = prepareCorpus(corpus, false);
-    const practice = [...fullCorpus.ipLight, ...fullCorpus.ipHeavy]; 
+    const practice = [...fullCorpus.ipLight, ...fullCorpus.ipHeavy];
     numOfTrials = 8;
 
-    practice.forEach(trial => {
+    practice.forEach((trial) => {
       timeline.push({ ...fixationOnly, stimulus: `` });
       timeline.push(stimulusBlock(trial));
     });
   } else {
     numOfTrials = taskStore().totalTrials;
   }
-  
+
   for (let i = 0; i < numOfTrials; i++) {
     timeline.push({ ...setupStimulus, stimulus: `` });
     timeline.push(stimulusBlock());

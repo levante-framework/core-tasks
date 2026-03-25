@@ -1,96 +1,78 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
-import { mediaAssets } from "../../..";
-import { taskStore } from "../../../taskStore";
-import { camelize, PageAudioHandler, replayButtonSvg } from "../../shared/helpers";
-import { animate } from "../helpers/animate";
-import { jsPsych } from "../../taskSetup";
+import { mediaAssets } from '../../..';
+import { taskStore } from '../../../taskStore';
+import { camelize, PageAudioHandler, replayButtonSvg } from '../../shared/helpers';
+import { animate } from '../helpers/animate';
+import { jsPsych } from '../../taskSetup';
 import { pulseOkButton } from '../../shared/helpers/pulseOkButton';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 
 const downexData = [
-    {
-        audio: [
-            'mental-rotation-instruct1-part1-downex',
-            'mental-rotation-instruct1-part2-downex',
-        ],
-        choices: [
-            'Rp-000-silh',
-            'Rn-000-silh',
-        ],
-        image: 'Rp-000-gray',
-        animations: [
-            {
-                item: 'stim-image',
-                animation: 'pulse',
-            }
-        ], 
-        eventOrder: ['audio', 'animation', 'audio']
-    }, 
-    {
-        audio: [
-            'mental-rotation-instruct2-downex',
-            'mental-rotation-instruct3-downex',
-        ],
-        choices: [
-            'Rp-000-silh',
-            'Rn-000-silh',
-        ],
-        image: 'Rp-000-gray',
-        animations: [
-            {
-                item: 'distractor',
-                animation: 'pulse',
-            },
-            {
-                item: 'distractor',
-                animation: 'drag',
-            }
-        ], 
-        eventOrder: ['audio', 'animation', 'animation', 'audio']
-    },
-    {
-        audio: [
-            'mental-rotation-instruct2-downex',
-            'mental-rotation-instruct4-downex',
-        ],
-        choices: [
-            'Rp-000-silh',
-            'Rn-000-silh',
-        ],
-        image: 'Rp-000-gray',
-        animations: [
-            {
-                item: 'target',
-                animation: 'pulse',
-            },
-            {
-                item: 'target',
-                animation: 'drag',
-            }
-        ], 
-        eventOrder: ['audio', 'animation', 'animation', 'audio']
-    }
-]
+  {
+    audio: ['mental-rotation-instruct1-part1-downex', 'mental-rotation-instruct1-part2-downex'],
+    choices: ['Rp-000-silh', 'Rn-000-silh'],
+    image: 'Rp-000-gray',
+    animations: [
+      {
+        item: 'stim-image',
+        animation: 'pulse',
+      },
+    ],
+    eventOrder: ['audio', 'animation', 'audio'],
+  },
+  {
+    audio: ['mental-rotation-instruct2-downex', 'mental-rotation-instruct3-downex'],
+    choices: ['Rp-000-silh', 'Rn-000-silh'],
+    image: 'Rp-000-gray',
+    animations: [
+      {
+        item: 'distractor',
+        animation: 'pulse',
+      },
+      {
+        item: 'distractor',
+        animation: 'drag',
+      },
+    ],
+    eventOrder: ['audio', 'animation', 'animation', 'audio'],
+  },
+  {
+    audio: ['mental-rotation-instruct2-downex', 'mental-rotation-instruct4-downex'],
+    choices: ['Rp-000-silh', 'Rn-000-silh'],
+    image: 'Rp-000-gray',
+    animations: [
+      {
+        item: 'target',
+        animation: 'pulse',
+      },
+      {
+        item: 'target',
+        animation: 'drag',
+      },
+    ],
+    eventOrder: ['audio', 'animation', 'animation', 'audio'],
+  },
+];
 
 let startTime: number;
 
 function enableOkBtn() {
-    const okButton: HTMLButtonElement | null = document.querySelector('.primary');
-    if (okButton != null) {
-      okButton.disabled = false;
-    }
+  const okButton: HTMLButtonElement | null = document.querySelector('.primary');
+  if (okButton != null) {
+    okButton.disabled = false;
   }
+}
 
 export const downexInstructions = downexData.map((data: any) => {
-    return {    
-        type: jsPsychHtmlMultiResponse,
-        stimulus: () => {
-            const t = taskStore().translations;
-            const stimImage = mediaAssets.images[camelize(data.image)];
-            const itemText = data.audio.map((file: string) => t[camelize(file)]).join(' ');
-            
-            return `<div class="lev-stimulus-container">
+  return {
+    type: jsPsychHtmlMultiResponse,
+    stimulus: () => {
+      const t = taskStore().translations;
+      const stimImage = mediaAssets.images[camelize(data.image)];
+      const itemText = data.audio.map((file: string) => t[camelize(file)]).join(' ');
+
+      return `<div class="lev-stimulus-container">
                   <button
                       id="${replayButtonHtmlId}"
                       class="replay"
@@ -123,9 +105,7 @@ export const downexInstructions = downexData.map((data: any) => {
     button_choices: ['Next'],
     button_html: () => {
       const t = taskStore().translations;
-      return [
-        `<button class="primary" disabled>${t.continueButtonText}</button>`,
-      ];
+      return [`<button class="primary" disabled>${t.continueButtonText}</button>`];
     },
     keyboard_choices: () => 'NO_KEYS',
     on_load: async () => {
@@ -182,7 +162,7 @@ export const downexInstructions = downexData.map((data: any) => {
           },
           onEnded: () => {
             triggerNextEvent();
-          }
+          },
         };
 
         function triggerNextEvent() {
@@ -209,7 +189,7 @@ export const downexInstructions = downexData.map((data: any) => {
       }
 
       animateAndPlayAudio();
-    }, 
+    },
     on_finish: () => {
       PageAudioHandler.stopAndDisconnectNode();
 
@@ -218,5 +198,5 @@ export const downexInstructions = downexData.map((data: any) => {
         assessment_stage: 'instructions',
       });
     },
-  } 
+  };
 });

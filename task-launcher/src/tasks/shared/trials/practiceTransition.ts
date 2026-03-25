@@ -68,7 +68,7 @@ export const practiceTransition = (getPrompt?: () => string, forceRun = false) =
               pulseOkButton(3000, taskStore().totalTrialCount);
             },
           };
-          
+
           PageAudioHandler.playAudio(mediaAssets.audio[camelize(audioKey)], audioConfig);
 
           const pageStateHandler = new PageStateHandler(camelize(audioKey), true);
@@ -76,7 +76,7 @@ export const practiceTransition = (getPrompt?: () => string, forceRun = false) =
         },
         on_finish: () => {
           PageAudioHandler.stopAndDisconnectNode();
-        },  
+        },
       },
     ],
     conditional_function: () => {
