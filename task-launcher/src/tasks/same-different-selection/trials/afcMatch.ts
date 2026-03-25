@@ -249,7 +249,6 @@ export const afcMatch = (trial?: StimulusType) => {
                     if (
                       compareSelections([firstSelection, secondSelection], previousSelections, ['number', 'bgcolor'])
                     ) {
-                      console.log(firstSelection, secondSelection);
                       responseBtns[i].style.animation = 'pulse 2s infinite';
                       responseBtns[j].style.animation = 'pulse 2s infinite';
                       animationStarted = true;

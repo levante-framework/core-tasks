@@ -144,12 +144,17 @@ const instructions = instructionData.map((data) => {
       // set the display prompt durations here, since awaiting promise during a display trial is not possible in the jsPsych plugin
       if (!setPromptDurations) {
         setPromptDurations = true;
-        const displayPromptDurations = {
+
+        const displayPromptDurations = taskStore().language === 'en' ?
+        {
           'memoryGameInstruct7Downex': await PageAudioHandler.getAudioDuration(mediaAssets.audio.memoryGameInstruct7Downex),
           'memoryGameDisplay': await PageAudioHandler.getAudioDuration(mediaAssets.audio.memoryGameDisplay),
           'memoryGameInstruct2Downex': await PageAudioHandler.getAudioDuration(mediaAssets.audio.memoryGameInstruct2Downex),
           "memoryGameInstruct4Downex": await PageAudioHandler.getAudioDuration(mediaAssets.audio.memoryGameInstruct4Downex),
-        }
+        } :
+        {
+          'memoryGameDisplay': await PageAudioHandler.getAudioDuration(mediaAssets.audio.memoryGameDisplay),
+        } 
 
         taskStore('displayPromptDurations', displayPromptDurations);
       }

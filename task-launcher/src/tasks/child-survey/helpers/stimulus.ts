@@ -189,6 +189,7 @@ export const surveyItem = ({
       let responseValue = null;
       let responseIndex = null;
 
+      const t = taskStore().translations;
       const corpus = taskStore().corpus;
       const stim = taskStore().nextStimulus;
       const itemLayoutConfig: LayoutConfigType = layoutConfigMap?.[stim.itemId];
@@ -214,7 +215,8 @@ export const surveyItem = ({
           audioFile: stim.audioFile,
           corpus: corpus,
           audioButtonPresses: PageAudioHandler.replayPresses,
-          correct: false,
+          correct: false, // false because there is no correct answer
+          answer: stim.distractors[selectedButtonIndex]
         });
 
         // corpusId and itemId fields are used by ROAR but not ROAD
