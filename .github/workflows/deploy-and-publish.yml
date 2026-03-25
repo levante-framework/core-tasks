@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       version-type:
-        description: 'Type of version bump'
+        description: 'Type of version bump (used only when bump version and push tag is enabled)'
         required: true
         default: 'patch'
         type: choice
@@ -12,12 +12,22 @@ on:
           - patch
           - minor
           - major
+      bump-and-tag:
+        description: 'Bump package version, commit, push main, and push release tag'
+        required: false
+        default: true
+        type: boolean
+      update-dashboard:
+        description: 'Trigger levante-dashboard repository dispatch'
+        required: false
+        default: true
+        type: boolean
 
 jobs:
   version-and-publish:
     runs-on: ubuntu-latest
     outputs:
-      new_version: ${{ steps.bump_package_version.outputs.new_version }}
+      new_version: ${{ steps.resolve_version.outputs.new_version }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -36,30 +46,51 @@ jobs:
 
       - name: Bump package version
         id: bump_package_version
-        run: |
-          npm version ${{ github.event.inputs.version-type }} --no-git-tag-version
-          NEW_VERSION=$(node -p "require('./package.json').version")
-          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+        if: github.event.inputs['bump-and-tag'] == 'true'
+        run: npm version ${{ github.event.inputs.version-type }} --no-git-tag-version
+        working-directory: ./task-launcher
+
+      - name: Resolve version for publish and outputs
+        id: resolve_version
+        run: echo "new_version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
         working-directory: ./task-launcher
 
       - name: Create and push git tag
+        if: github.event.inputs['bump-and-tag'] == 'true'
         run: |
           git config --global user.email "github-actions@github.com"
           git config --global user.name "GitHub Actions"
           git add package.json
-          git commit -m "chore: bump version to ${{ steps.bump_package_version.outputs.new_version }}"
-          git tag -a "v${{ steps.bump_package_version.outputs.new_version }}" -m "Release v${{ steps.bump_package_version.outputs.new_version }}"
+          git commit -m "chore: bump version to ${{ steps.resolve_version.outputs.new_version }}"
+          git tag -a "v${{ steps.resolve_version.outputs.new_version }}" -m "Release v${{ steps.resolve_version.outputs.new_version }}"
           git push origin main
-          git push origin "v${{ steps.bump_package_version.outputs.new_version }}"
+          git push origin "v${{ steps.resolve_version.outputs.new_version }}"
         working-directory: ./task-launcher
+
+      - name: Verify npm token
+        working-directory: ./task-launcher
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.LEVANTE_NPM_TOKEN }}
+        run: |
+          if [ -z "$NODE_AUTH_TOKEN" ]; then
+            echo "::error::LEVANTE_NPM_TOKEN is missing or empty. Add a valid npm access token (with publish permission) in the repository secrets."
+            exit 1
+          fi
+          if ! NPM_USER=$(npm whoami --registry https://registry.npmjs.org 2>&1); then
+            echo "::error::npm token is invalid or expired. LEVANTE_NPM_TOKEN failed registry authentication. Renew the token at https://www.npmjs.com/settings/~/tokens and update the repository secret."
+            echo "$NPM_USER"
+            exit 1
+          fi
+          echo "npm token OK (logged in as $NPM_USER)"
 
       - name: Publish to npm
         run: npm publish --access public
         working-directory: ./task-launcher
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.LEVANTE_NPM_TOKEN }}
 
   update-dashboard:
+    if: github.event.inputs['update-dashboard'] == 'true'
     needs: version-and-publish
     runs-on: ubuntu-latest
     steps:
