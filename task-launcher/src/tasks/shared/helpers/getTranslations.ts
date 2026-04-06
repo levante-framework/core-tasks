@@ -6,7 +6,7 @@ import 'regenerator-runtime/runtime';
 
 let translations: Record<string, string> = {};
 
-function getRowData(row: Record<string, string>, language: string, nonLocalDialect: string) {
+export function getRowData(row: Record<string, string>, language: string, nonLocalDialect: string) {
   const normalizedRow = Object.fromEntries(
     Object.entries(row).map(([key, value]) => [key.toLowerCase(), value]),
   );
