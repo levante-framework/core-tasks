@@ -365,11 +365,11 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
 
     const newCorpora = {
       downex: taskStore().corpora.downex,
-      stimulus: corpus,
+      stimulus: heavyInstructions ? downexCorpus : corpus,
     };
     taskStore('corpora', newCorpora);
 
-    const numOfTrials = taskStore().totalTrials;
+    const numOfTrials = heavyInstructions ? taskStore().totalDownexTrials : taskStore().totalTrials;
     for (let i = 0; i < numOfTrials; i++) {
       timeline.push(setupBlock);
       timeline.push(repeatSliderPracticeBlock());
