@@ -125,7 +125,18 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
   const timeline = [preloadTrials, initialTimeline];
 
   // all instructions + practice trials
-  const instructionPractice: StimulusType[] = heavy ? preparedCorpus.ipHeavy : preparedCorpus.ipLight;
+  let instructionPractice: StimulusType[] = heavy ? preparedCorpus.ipHeavy : preparedCorpus.ipLight;
+
+  // separate this out so that it is inserted at the right place in the timeline
+  const fiveBlockIntroTrial = instructionPractice.find((trial) => trial.itemId === "sds-instruct5") as StimulusType;
+  instructionPractice = instructionPractice.filter((trial) => trial.itemId !== "sds-instruct5");
+
+  const fiveBlockIntro = {
+    timeline: [ipBlock(fiveBlockIntroTrial)],
+    conditional_function: () => {
+      return taskStore().nextStimulus.trialType === "4-match";
+    }
+  };
 
   // returns practice + instruction trials for a given block
   function getPracticeInstructions(blockNum: number): StimulusType[] {
@@ -165,6 +176,7 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
         timeline.push(runCatTrials(2, 'stimulus'));
       }
       if (index === 2) {
+        timeline.push(fiveBlockIntro);
         timeline.push(runCatTrials(2, 'afc'));
         timeline.push(runCatTrials(3, 'afc'));
         timeline.push(runCatTrials(4, 'afc'));
