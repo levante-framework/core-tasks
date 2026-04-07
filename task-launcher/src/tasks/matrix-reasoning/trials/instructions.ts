@@ -7,6 +7,7 @@ import {
   setupReplayAudio,
   camelize,
   addPracticeButtonListeners,
+  disableOkButton,
 } from '../../shared/helpers';
 import { isTouchScreen, jsPsych } from '../../taskSetup';
 import { taskStore } from '../../../taskStore';
@@ -210,11 +211,7 @@ export const downexInstructions1 = {
         target.style.zIndex = '';
       }
 
-      // disable ok button
-      const okButton: HTMLButtonElement | null = document.querySelector('.primary');
-      if (okButton) {
-        okButton.disabled = true;
-      }
+      disableOkButton();
 
       // set up animations
       let itemsToAnimate = [target, buttons, stimImage];

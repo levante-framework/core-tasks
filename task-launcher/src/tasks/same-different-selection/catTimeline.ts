@@ -100,7 +100,7 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
         timeline.push(buttonNoise);
       }
 
-      if (i < trialNum - 1) {
+      if (i < trialNum - 1 && !trialType.includes('something-same')) {
         timeline.push({ ...fixationOnly, stimulus: '' });
       }
     }

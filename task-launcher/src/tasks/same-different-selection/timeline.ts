@@ -118,7 +118,7 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
   };
 
   const updateSomethingSame = () => {
-    timeline.push({ ...setupStimulus, stimulus: '' });
+    timeline.push({ ...setupStimulus, stimulus: '', trial_duration: 0 });
     timeline.push(stimulusBlock);
     timeline.push(buttonNoise);
     timeline.push(dataQualityBlock);

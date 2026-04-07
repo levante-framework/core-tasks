@@ -203,6 +203,7 @@ export const afcMatch = (trial?: StimulusType) => {
           okButton.disabled = true;
           okButton.addEventListener('click', () => {
             if (!isPractice || compareSelections(selectedCards, previousSelections, getIgnoreDims(stim))) {
+              numberOfErrors = 0;
               jsPsych.finishTrial();
             } else {
               const prompt = document.getElementById('afc-match-prompt') as HTMLParagraphElement;
@@ -210,12 +211,15 @@ export const afcMatch = (trial?: StimulusType) => {
                 taskStore().translations[camelize(audioFile)]
               }`;
 
+              numberOfErrors++;
+              const numberOfErrorsThisCall = numberOfErrors;
+
               const audioConfig: AudioConfigType = {
                 restrictRepetition: {
                   enabled: false,
                   maxRepetitions: 2,
                 },
-                onEnded: (numberOfErrorsThisCall: number) => {
+                onEnded: () => {
                   if (numberOfErrorsThisCall === numberOfErrors) {
                     // don't overlap audio
                     PageAudioHandler.playAudio(mediaAssets.audio[camelize(audioFile)]);
@@ -229,7 +233,6 @@ export const afcMatch = (trial?: StimulusType) => {
               responseBtns.forEach((btn) => btn.classList.remove(SELECT_CLASS_NAME));
               selectedCards = [];
               disableOkButton();
-              numberOfErrors++;
 
               if (numberOfErrors >= 2) {
                 let animationStarted = false;
