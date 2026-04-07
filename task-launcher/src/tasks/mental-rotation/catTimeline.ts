@@ -123,7 +123,7 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
   const polygonInstructBlock = {
     timeline: [polygonInstructions],
     conditional_function: () => {
-      return taskStore().currentCatBlock === 1 && taskStore().language === 'en';
+      return taskStore().currentCatBlock === 1 && taskStore().language?.toLowerCase().startsWith('en');
     },
   };
 
