@@ -7,17 +7,13 @@ import 'regenerator-runtime/runtime';
 let translations: Record<string, string> = {};
 
 export function getRowData(row: Record<string, string>, language: string, nonLocalDialect: string) {
-  const normalizedRow = Object.fromEntries(
-    Object.entries(row).map(([key, value]) => [key.toLowerCase(), value]),
-  );
+  const normalizedRow = Object.fromEntries(Object.entries(row).map(([key, value]) => [key.toLowerCase(), value]));
   const translation = normalizedRow[language.toLowerCase()];
 
   // Only need this because we don't have base language translations for all languages.
   // Ex we have 'es-co' but not 'es'
   const noBaseLang = Object.keys(normalizedRow).find((key) => key.includes(nonLocalDialect)) || '';
-  return (
-    translation || normalizedRow[nonLocalDialect] || normalizedRow[noBaseLang] || normalizedRow['en']
-  );
+  return translation || normalizedRow[nonLocalDialect] || normalizedRow[noBaseLang] || normalizedRow['en'];
 }
 
 function parseTranslations(translationData: Record<string, string>[], configLanguage: string) {
