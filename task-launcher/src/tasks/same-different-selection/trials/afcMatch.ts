@@ -15,6 +15,7 @@ import {
 import { finishExperiment } from '../../shared/trials';
 import { taskStore } from '../../../taskStore';
 import { updateTheta } from '../../shared/helpers';
+import { sdsProgressComponentFilled, sdsProgressComponentEmpty } from '../../shared/helpers/components';
 
 let selectedCards: string[] = [];
 let selectedCardIdxs: number[] = [];
@@ -193,9 +194,30 @@ export const afcMatch = (trial?: StimulusType) => {
 
       let numberOfErrors = 0;
 
-      // Add primary OK button under the other buttons
       if (stim.trialType !== 'instructions') {
         if (taskStore().taskVersion === 2) {
+          // insert progress indicator
+          const numbers = {
+            'first_response': 1,
+            'second_response': 2,
+            'third_response': 3,
+            'fourth_response': 4,
+          }
+          const currentResponse = numbers[stim.assessmentStage as keyof typeof numbers];
+          const maxResponses = Number(stim.trialType[0]);
+
+          if (currentResponse !== undefined) {
+            const progressContainer = document.createElement('div');
+            progressContainer.className = 'sds-progress-container';
+            progressContainer.innerHTML = `
+              ${sdsProgressComponentFilled.repeat(currentResponse)} ${sdsProgressComponentEmpty.repeat(maxResponses - currentResponse)}
+            `;
+            progressContainer.style.marginTop = '32px';
+
+          buttonContainer.parentNode?.insertBefore(progressContainer, buttonContainer.nextSibling);
+          }
+
+          // Add primary OK button under the other buttons
           const okButton = document.createElement('button');
           okButton.className = 'primary';
           okButton.textContent = 'OK';
