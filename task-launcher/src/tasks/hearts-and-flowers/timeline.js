@@ -22,6 +22,8 @@ import {
   getTimeToPlay,
   getMixedInstructions,
   getEndGame,
+  getInputInstructions,
+  getGoingFasterInstructions,
 } from './trials/instructions';
 import { StimulusType, StimulusSideType, AssessmentStageType, CorpusTrialType } from './helpers/utils';
 
@@ -37,24 +39,31 @@ export default function buildHeartsAndFlowersTimeline(config, mediaAssets) {
       practiceTrialCount: 6,
       correctPracticeTrial: 2,
       testTrialCount: 12,
-      stimulusPresentationTime: 1500,
+      stimulusPresentationTime: 3000,
       interStimulusInterval: 500,
     },
     flower: {
       practiceTrialCount: 6,
       correctPracticeTrial: 2,
       testTrialCount: 16,
-      stimulusPresentationTime: 1500,
+      stimulusPresentationTime: 3000,
       interStimulusInterval: 500,
     },
     mixed1: {
       practiceTrialCount: 6,
       correctPracticeTrial: 3,
       testTrialCount: 16,
-      stimulusPresentationTime: 2000,
+      stimulusPresentationTime: 3000,
       interStimulusInterval: 500,
     },
     mixed2: {
+      practiceTrialCount: 6,
+      correctPracticeTrial: 3,
+      testTrialCount: 16,
+      stimulusPresentationTime: 2000,
+      interStimulusInterval: 500,
+    },
+    mixed3: {
       testTrialCount: 16,
       stimulusPresentationTime: 1500,
       interStimulusInterval: 500,
@@ -65,11 +74,14 @@ export default function buildHeartsAndFlowersTimeline(config, mediaAssets) {
     timelineAdminConfig.heart.testTrialCount +
     timelineAdminConfig.flower.testTrialCount +
     timelineAdminConfig.mixed1.testTrialCount +
-    timelineAdminConfig.mixed2.testTrialCount;
+    timelineAdminConfig.mixed2.testTrialCount + 
+    timelineAdminConfig.mixed3.testTrialCount;
 
   taskStore('totalTestTrials', totalRealTrials);
 
   let timeline = [preloadTrials, initialTimeline];
+  timeline.push(getInputInstructions());
+
   if (timelineAdminConfig.heart) {
     timeline.push(...getHeartOrFlowerSubtimelines(timelineAdminConfig.heart, StimulusType.Heart));
   }
@@ -83,7 +95,12 @@ export default function buildHeartsAndFlowersTimeline(config, mediaAssets) {
     timeline.push(...getMixedTestSection(adminConfig));
   }
   if (timelineAdminConfig.mixed2) {
+    timeline.push(getGoingFasterInstructions());
     timeline.push(...getMixedTestSection(timelineAdminConfig.mixed2));
+  }
+  if (timelineAdminConfig.mixed3) {
+    timeline.push(getGoingFasterInstructions());
+    timeline.push(...getMixedTestSection(timelineAdminConfig.mixed3));
   }
   timeline.push(getEndGame());
   timeline.push(exitFullscreen);

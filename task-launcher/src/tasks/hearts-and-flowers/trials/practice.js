@@ -6,6 +6,7 @@ import { PageStateHandler, setupReplayAudio, PageAudioHandler } from '../../shar
 import { jsPsych } from '../../taskSetup';
 import { taskStore } from '../../../taskStore';
 import { addKeyHelpers } from '../../shared/helpers';
+import { setupHafMultiResponseTouchRouting } from '../helpers/touchResponseRouting';
 
 /**
  * Builds a practice trial for the Instruction sections.
@@ -67,6 +68,7 @@ export function buildInstructionPracticeTrial(
       buttonContainers.forEach((container, i) => {
         addKeyHelpers(container, i);
       });
+      setupHafMultiResponseTouchRouting();
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
     keyboard_choices: isTouchScreen ? InputKey.NoKeys : [InputKey.ArrowLeft, InputKey.ArrowRight],
@@ -221,11 +223,12 @@ function buildPracticeFeedback(
       document.getElementById('jspsych-html-multi-response-btngroup').classList.add('lev-response-row');
       document.getElementById('jspsych-html-multi-response-btngroup').classList.add('linear-4');
       const buttons = document.querySelectorAll('.secondary--green');
-      buttons.forEach((button) => {
+      buttons.forEach((button, i) => {
         button.disabled = true;
         if (button.id === validAnswerButtonHtmlIdentifier) {
           button.style.animation = 'pulse 2s infinite';
         }
+        addKeyHelpers(button, i);
       });
 
       const audioAssetKey = getAssetKey();

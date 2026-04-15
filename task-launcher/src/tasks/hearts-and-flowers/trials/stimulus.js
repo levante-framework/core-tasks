@@ -13,6 +13,7 @@ import shuffle from 'lodash/shuffle';
 import { finishExperiment } from '../../shared/trials';
 import { taskStore } from '../../../taskStore';
 import { addKeyHelpers } from '../../shared/helpers';
+import { setupHafMultiResponseTouchRouting } from '../helpers/touchResponseRouting';
 /**
  *TODO: we should perhaps allow {@link https://www.jspsych.org/7.2/overview/media-preloading/#automatic-preloading automatic preload}
   of the stimulus image and modify the DOM nodes that jsPsych creates in on_load?
@@ -37,8 +38,6 @@ export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrial
         jsPsych.timelineVariable('position') <= 0.5,
       );
     },
-    //TODO: apply stimulusDuration but only on the heart or flower, the stimulus container should remain visible.
-    // stimulus_duration: stimulusDuration,
     on_load: () => {
       // document.getElementById('jspsych-html-multi-response-btngroup').classList.add('btn-layout-hf');
       document.getElementById('jspsych-html-multi-response-stimulus').classList.add('haf-parent-container');
@@ -50,6 +49,7 @@ export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrial
       responseButtons.forEach((button, i) => {
         addKeyHelpers(button, i);
       });
+      setupHafMultiResponseTouchRouting();
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
     keyboard_choices: isTouchScreen ? InputKey.NoKeys : [InputKey.ArrowLeft, InputKey.ArrowRight],
@@ -62,8 +62,7 @@ export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrial
       <button class='secondary--green'></button>
     </div>`,
     ],
-    //TODO: save whether answer is correct/incorrect to fix practice feedback
-    //TODO: check data is saved properly
+    trial_duration: stimulusDuration,
     on_finish: (data) => {
       const stimulusPosition = jsPsych.timelineVariable('position');
       const stimulusType = jsPsych.timelineVariable('stimulus');
@@ -74,7 +73,10 @@ export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrial
         response = data.button_response;
       } else if (data.keyboard_response === InputKey.ArrowLeft || data.keyboard_response === InputKey.ArrowRight) {
         response = data.keyboard_response === InputKey.ArrowLeft ? 0 : 1;
-      } else {
+      } else if (data.timedOut) {
+        response = null;
+      }
+      else {
         const errorMessage = `Invalid response: ${data.button_response} or ${data.keyboard_response} in ${data}`;
         console.error(errorMessage);
       }

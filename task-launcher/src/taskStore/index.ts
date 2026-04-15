@@ -1,4 +1,5 @@
 import store from 'store2';
+import { InputCapability } from '../utils/detectInput';
 
 /**
  * @typedef {Object} TaskStore
@@ -56,6 +57,8 @@ import store from 'store2';
  * @property {Object} displayPromptDurations - The durations of the display prompts, default is an empty object.
  * ------- H&F & Memory Game only -------
  * @property {boolean} isCorrect - Whether the response to the previous trial was correct, default is false.
+ * ------- H&F only -------
+ * @property {Object} inputCapability - Object containing the input capability of the user's device.
  * --------- ToM only ---------
  * @property {Array} previousChoices - Array containing previously randomized order of choices for the current block.
  * ------- SDS only -------
@@ -90,6 +93,7 @@ export type TaskStoreDataType = {
   currentCatBlock?: number;
   blockThresholds?: number[];
   displayPromptDurations: Record<string, number>;
+  inputCapability?: InputCapability;
 };
 
 /**

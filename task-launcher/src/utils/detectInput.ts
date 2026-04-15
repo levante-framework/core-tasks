@@ -1,6 +1,6 @@
 type InputType = 'touch' | 'mouse' | 'keyboard' | 'unknown';
 
-interface InputCapability {
+export interface InputCapability {
   touch: boolean;
   mouse: boolean;
   primary: InputType;
