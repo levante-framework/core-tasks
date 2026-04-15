@@ -12,8 +12,9 @@ import {
 import shuffle from 'lodash/shuffle';
 import { finishExperiment } from '../../shared/trials';
 import { taskStore } from '../../../taskStore';
-import { addKeyHelpers } from '../../shared/helpers';
+import { addKeyHelpers, PageAudioHandler } from '../../shared/helpers';
 import { setupHafMultiResponseTouchRouting } from '../helpers/touchResponseRouting';
+import { shouldTerminateCat } from '../../shared/helpers/shouldTerminateCat';
 /**
  *TODO: we should perhaps allow {@link https://www.jspsych.org/7.2/overview/media-preloading/#automatic-preloading automatic preload}
   of the stimulus image and modify the DOM nodes that jsPsych creates in on_load?
@@ -96,19 +97,16 @@ export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrial
       const validAnswer = getCorrectInputSide(stimulusType, stimuluSide);
       data.correct = validAnswer === response;
 
-      if (!isPractice) {
-        if (!data.correct) {
-          taskStore.transact('numIncorrect', (oldVal) => oldVal + 1);
-        } else {
-          taskStore('numIncorrect', 0);
-        }
-      }
+      const audioConfig = {
+        restrictRepetition: {
+          enabled: false,
+          maxRepetitions: 2,
+        },
+      };
 
-      const maxIncorrect = taskStore().maxIncorrect;
+      PageAudioHandler.playAudio(data.correct ? mediaAssets.audio.coin : mediaAssets.audio.fail, audioConfig);
 
-      if (taskStore().numIncorrect == maxIncorrect) {
-        finishExperiment();
-      }
+      shouldTerminateCat();
 
       //TODO: move these to timeline-level callback/variables
       taskStore('isCorrect', data.correct);

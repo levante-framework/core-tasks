@@ -64,9 +64,8 @@ export function buildInstructionPracticeTrial(
       const pageStateHandler = new PageStateHandler(audioAssetKey);
       setupReplayAudio(pageStateHandler);
 
-      const buttonContainers = document.querySelectorAll('.jspsych-html-multi-response-button');
-      buttonContainers.forEach((container, i) => {
-        addKeyHelpers(container, i);
+      buttons.forEach((button, i) => {
+        addKeyHelpers(button, i);
       });
       setupHafMultiResponseTouchRouting();
     },

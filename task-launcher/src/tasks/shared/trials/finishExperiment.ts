@@ -6,29 +6,32 @@ import { Logger } from '../../../utils';
 
 export function finishExperiment() {
   const t = taskStore().translations;
-  const removeDOMElements = (event: Event) => {
-    if (event.type === 'click') {
-      const buttonId = (event.target as HTMLElement)?.id;
-      if (buttonId === 'exit-button') {
+  setTimeout(() => {
+    const removeDOMElements = (event: Event) => {
+      if (event.type === 'click') {
+        const buttonId = (event.target as HTMLElement)?.id;
+        if (buttonId === 'exit-button') {
+          document.body.innerHTML = '';
+          taskStore('taskComplete', true);
+          window.removeEventListener('click', removeDOMElements);
+          window.removeEventListener('keydown', removeDOMElements);
+        }
+      } else if (event.type === 'keydown') {
         document.body.innerHTML = '';
         taskStore('taskComplete', true);
-        window.removeEventListener('click', removeDOMElements);
         window.removeEventListener('keydown', removeDOMElements);
+        window.removeEventListener('click', removeDOMElements);
       }
-    } else if (event.type === 'keydown') {
-      document.body.innerHTML = '';
-      taskStore('taskComplete', true);
-      window.removeEventListener('keydown', removeDOMElements);
-      window.removeEventListener('click', removeDOMElements);
-    }
-  };
-  window.addEventListener('click', removeDOMElements);
-  window.addEventListener('keydown', removeDOMElements);
-  const logger = Logger.getInstance();
-  logger.capture('Task Aborted', {
-    taskName: taskStore().task,
-    taskFinished: taskStore().taskComplete,
-  });
+    };
+    window.addEventListener('click', removeDOMElements);
+    window.addEventListener('keydown', removeDOMElements);
+    const logger = Logger.getInstance();
+    logger.capture('Task Aborted', {
+      taskName: taskStore().task,
+      taskFinished: taskStore().taskComplete,
+    });
+  }, 50); // delay so that previous key presses are not captured
+  
 
   jsPsych.endExperiment(
     `<div class='lev-stimulus-container'>
