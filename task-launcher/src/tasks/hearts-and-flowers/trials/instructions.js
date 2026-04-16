@@ -11,6 +11,7 @@ import {
 import { jsPsych } from '../../taskSetup';
 import { taskStore } from '../../../taskStore';
 import { disableOkButton } from '../../shared/helpers/disableOkButton';
+import { enableOkButton } from '../../shared/helpers/enableButtons';
 
 let continueTrialConfig;
 
@@ -142,7 +143,7 @@ function buildInstructionTrial(mascotImage, getPromptAudioKey, getPromptText, sh
             </div>
             ${
               continueTrialConfig.type === 'bottomText'
-                ? `<div class="lev-row-container header" ${showResponseButtons ? 'style="visibility: hidden;"' : ''}><p>${continueTrialConfig.text}</p></div>`
+                ? `<div class="lev-row-container header" ${showResponseButtons ? 'style="display: none;"' : ''}><p>${continueTrialConfig.text}</p></div>`
                 : ''
             }
         </div>
@@ -158,7 +159,11 @@ function buildInstructionTrial(mascotImage, getPromptAudioKey, getPromptText, sh
       let currentButtonToPress = 0;
 
       if (showResponseButtons) {
-        disableOkButton();
+        if (continueTrialConfig.type === 'button') {
+          disableOkButton();
+          const okButton = document.querySelector('.primary');
+          okButton.style.display = 'none';
+        }
 
         const buttonContainer = document.createElement('div');
         buttonContainer.classList.add('lev-response-row');
@@ -196,12 +201,20 @@ function buildInstructionTrial(mascotImage, getPromptAudioKey, getPromptText, sh
             if (currentButtonToPress < responseButtons.length) { 
               responseButtons[currentButtonToPress].style.animation = 'pulse 2s infinite';
             } else {
-              const bottomText = document.querySelector('.lev-row-container.header');
-              bottomText.style.visibility = 'visible';
+              buttonContainer.style.display = 'none';
+              
+              if (continueTrialConfig.type === 'bottomText') {
+                const bottomText = document.querySelector('.lev-row-container.header');
+                bottomText.style.display = 'block';
 
-              window.addEventListener('keydown', () => {
-                jsPsych.finishTrial();
-              }, { once: true });
+                window.addEventListener('keydown', () => {
+                  jsPsych.finishTrial();
+                }, { once: true });
+              } else {
+                const okButton = document.querySelector('.primary');
+                okButton.style.display = 'block';
+                enableOkButton();
+              }
             }
           }
         };
