@@ -9,14 +9,14 @@ import { addKeyHelpers } from '../../shared/helpers';
 import { disableOkButton } from '../../shared/helpers/disableOkButton';
 import { enableOkButton } from '../../shared/helpers/enableButtons';
 
-// These are the instruction "trials" they are full screen with no stimulus
+let continueTrialConfig;
 
+// These are the instruction "trials" they are full screen with no stimulus
 export function getHeartInstructions() {
   return buildInstructionTrial(
     mediaAssets.images.animalBodySq,
     () => 'heartInstruct1',
     () => taskStore().translations.heartInstruct1, // heart-instruct1, "This is the heart game. Here's how you play it."
-    taskStore().translations.heartsAndFlowersPressAnyKey,
   );
 }
 
@@ -25,7 +25,6 @@ export function getFlowerInstructions() {
     mediaAssets.images.animalBodySq,
     () => 'flowerInstruct1',
     () => taskStore().translations.flowerInstruct1, // flower-instruct1, "This is the flower game. Here's how you play."
-    taskStore().translations.heartsAndFlowersPressAnyKey,
   );
 }
 
@@ -43,7 +42,6 @@ export function getKeepUp() {
     mediaAssets.images.keepupSq,
     () => 'heartsAndFlowersInstruct1',
     () => taskStore().translations.heartsAndFlowersInstruct1, // hearts-and-flowers-instruct1:	"This time the game will go faster. It won't tell you if you are right or wrong."
-    taskStore().translations.heartsAndFlowersPressAnyKey,
   );
 }
 
@@ -52,7 +50,6 @@ export function getKeepGoing() {
     mediaAssets.images.rocketSq,
     () => 'heartsAndFlowersInstruct2',
     () => taskStore().translations.heartsAndFlowersInstruct2, //hearts-and-flowers-instruct2: "Try to answer as fast as you can without making mistakes."
-    taskStore().translations.heartsAndFlowersPressAnyKey,
   );
 }
 
@@ -61,7 +58,6 @@ export function getTimeToPlay() {
     mediaAssets.images.animalBodySq,
     () => 'heartsAndFlowersPlayTime',
     () => taskStore().translations.heartsAndFlowersPlayTime, // hearts-and-flowers-play-time: "Time to play!"
-    taskStore().translations.heartsAndFlowersPressAnyKey,
   );
 }
 
@@ -70,7 +66,6 @@ export function getMixedInstructions() {
     mediaAssets.images.animalBodySq,
     () => 'heartsAndFlowersInstruct3',
     () => taskStore().translations.heartsAndFlowersInstruct3, // hearts-and-flowers-instruct3: "Now, we're going to play a game with hearts and flowers."
-    taskStore().translations.heartsAndFlowersPressAnyKey,
   );
 }
 
@@ -79,7 +74,6 @@ export function getGoingFasterInstructions() {
     mediaAssets.images.animalBodySq,
     () => 'heartsAndFlowersInstruct4',
     () => taskStore().translations.heartsAndFlowersInstruct4, // hearts-and-flowers-instruct4: "This time the game will go even faster. Try to keep up!"
-    taskStore().translations.heartsAndFlowersPressAnyKey,
   );
 }
 
@@ -88,7 +82,6 @@ export function getEndGame() {
     mediaAssets.images.animalBodySq,
     () => 'heartsAndFlowersEnd',
     () => taskStore().translations.heartsAndFlowersEnd, // hearts-and-flowers-end: "Great job! You've completed the game."
-    taskStore().translations.heartsAndFlowersPressAnyKey,
   );
 }
 
@@ -97,12 +90,11 @@ export function getInputInstructions() {
       mediaAssets.images.animalBodySq,
       getInputInstructPrompt,
       getInputInstructPrompt,
-      taskStore().translations.heartsAndFlowersPressAnyKey,
       true,
     );
 }
 
-function buildInstructionTrial(mascotImage, getPromptAudioKey, getPromptText, bottomText = undefined, showResponseButtons = false) {
+function buildInstructionTrial(mascotImage, getPromptAudioKey, getPromptText, showResponseButtons = false) {
   if (!mascotImage) {
     // throw new Error(`Missing mascot image for instruction trial`);
     console.error(`buildInstructionTrial: Missing mascot image`);
@@ -121,25 +113,37 @@ function buildInstructionTrial(mascotImage, getPromptAudioKey, getPromptText, bo
 
   const trial = {
     type: jsPsychHtmlMultiResponse,
-    stimulus: () => `
-      <div class="lev-stimulus-container">
-          <button id="replay-btn-revisited" class="replay">
-            ${replayButtonSvg}
-          </button>
-          <div id="instruction-text" class="lev-row-container instruction-small">
-            <p>${getPromptText()}</p>
-          </div>
-          <div class="lev-stim-content-x-3">
-            <img
-                src=${mascotImage}
-                alt='Instruction graphic'
-            />
-          </div>
-          ${bottomText ? `<div class="lev-row-container header" ${showResponseButtons ? 'style="visibility: hidden;"' : ''}><p>${bottomText}</p></div>` : ''}
-      </div>
-    `,
+    stimulus: () => {
+      // set the continue trial config based on the input capability
+      continueTrialConfig = {
+        type: taskStore().inputCapability?.touch ? 'button' : 'bottomText',
+        text: taskStore().inputCapability?.touch ? taskStore().translations.continueButtonText : taskStore().translations.heartsAndFlowersPressAnyKey,
+      };
+
+      return `
+        <div class="lev-stimulus-container">
+            <button id="replay-btn-revisited" class="replay">
+              ${replayButtonSvg}
+            </button>
+            <div id="instruction-text" class="lev-row-container instruction-small">
+              <p>${getPromptText()}</p>
+            </div>
+            <div class="lev-stim-content-x-3">
+              <img
+                  src=${mascotImage}
+                  alt='Instruction graphic'
+              />
+            </div>
+            ${continueTrialConfig.type === 'bottomText' ? 
+              `<div class="lev-row-container header" ${showResponseButtons ? 'style="visibility: hidden;"' : ''}><p>${continueTrialConfig.text}</p></div>` : ''
+            }
+        </div>
+        `;
+    },
     prompt_above_buttons: true,
     keyboard_choices: showResponseButtons ? 'NO_KEYS' : 'ALL_KEYS',
+    button_choices: () => continueTrialConfig.type === 'button' ? [continueTrialConfig.text] : undefined,
+    button_html: () => continueTrialConfig.type === 'button' ? [`<button class="primary">choice</button>`]: undefined,
     on_load: () => {
       let responseButtons;
       let onButtonPress;
