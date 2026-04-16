@@ -28,6 +28,7 @@ import {
 import { StimulusType, StimulusSideType, AssessmentStageType, CorpusTrialType } from './helpers/utils';
 
 export default function buildHeartsAndFlowersTimeline(config, mediaAssets) {
+  const { heavyInstructions } = taskStore();
   const preloadTrials = createPreloadTrials(mediaAssets).default;
 
   initTrialSaving(config);
@@ -70,12 +71,17 @@ export default function buildHeartsAndFlowersTimeline(config, mediaAssets) {
     },
   };
 
-  const totalRealTrials =
+  let totalRealTrials =
     timelineAdminConfig.heart.testTrialCount +
     timelineAdminConfig.flower.testTrialCount +
-    timelineAdminConfig.mixed1.testTrialCount +
+    timelineAdminConfig.mixed1.testTrialCount;
+
+  if (heavyInstructions) {
+    totalRealTrials +=
     timelineAdminConfig.mixed2.testTrialCount + 
     timelineAdminConfig.mixed3.testTrialCount;
+  }
+    
 
   taskStore('totalTestTrials', totalRealTrials);
 
@@ -94,11 +100,11 @@ export default function buildHeartsAndFlowersTimeline(config, mediaAssets) {
     timeline.push(...getMixedPracticeSection(adminConfig));
     timeline.push(...getMixedTestSection(adminConfig));
   }
-  if (timelineAdminConfig.mixed2) {
+  if (timelineAdminConfig.mixed2 && heavyInstructions) {
     timeline.push(getGoingFasterInstructions());
     timeline.push(...getMixedTestSection(timelineAdminConfig.mixed2));
   }
-  if (timelineAdminConfig.mixed3) {
+  if (timelineAdminConfig.mixed3 && heavyInstructions) {
     timeline.push(getGoingFasterInstructions());
     timeline.push(...getMixedTestSection(timelineAdminConfig.mixed3));
   }
