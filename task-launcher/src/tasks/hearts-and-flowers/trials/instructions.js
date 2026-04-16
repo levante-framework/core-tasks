@@ -1,22 +1,29 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
-import { InputKey } from '../helpers/utils';
-import { setupReplayAudio, replayButtonSvg, PageStateHandler, PageAudioHandler } from '../../shared/helpers';
+import { InputKey, getInputInstructPrompt } from '../helpers/utils';
+import {
+  setupReplayAudio,
+  replayButtonSvg,
+  PageStateHandler,
+  PageAudioHandler,
+  addKeyHelpers,
+} from '../../shared/helpers';
 import { jsPsych } from '../../taskSetup';
 import { taskStore } from '../../../taskStore';
-import { getInputInstructPrompt } from '../helpers/utils';
-import { addKeyHelpers } from '../../shared/helpers';
 import { disableOkButton } from '../../shared/helpers/disableOkButton';
-import { enableOkButton } from '../../shared/helpers/enableButtons';
 
 let continueTrialConfig;
+
+function isHfV2() {
+  return taskStore().taskVersion === 2;
+}
 
 // These are the instruction "trials" they are full screen with no stimulus
 export function getHeartInstructions() {
   return buildInstructionTrial(
     mediaAssets.images.animalBodySq,
     () => 'heartInstruct1',
-    () => taskStore().translations.heartInstruct1, // heart-instruct1, "This is the heart game. Here's how you play it."
+    () => taskStore().translations.heartInstruct1,
   );
 }
 
@@ -24,7 +31,7 @@ export function getFlowerInstructions() {
   return buildInstructionTrial(
     mediaAssets.images.animalBodySq,
     () => 'flowerInstruct1',
-    () => taskStore().translations.flowerInstruct1, // flower-instruct1, "This is the flower game. Here's how you play."
+    () => taskStore().translations.flowerInstruct1,
   );
 }
 
@@ -32,7 +39,7 @@ export function getTimeToPractice() {
   return buildInstructionTrial(
     mediaAssets.images.animalBodySq,
     () => 'heartsAndFlowersPracticeTime',
-    () => taskStore().translations.heartsAndFlowersPracticeTime, // hearts-and-flowers-practice-time: "Time to practice!"
+    () => taskStore().translations.heartsAndFlowersPracticeTime,
     taskStore().translations.heartsAndFlowersPressAnyKey,
   );
 }
@@ -41,7 +48,7 @@ export function getKeepUp() {
   return buildInstructionTrial(
     mediaAssets.images.keepupSq,
     () => 'heartsAndFlowersInstruct1',
-    () => taskStore().translations.heartsAndFlowersInstruct1, // hearts-and-flowers-instruct1:	"This time the game will go faster. It won't tell you if you are right or wrong."
+    () => taskStore().translations.heartsAndFlowersInstruct1,
   );
 }
 
@@ -49,7 +56,7 @@ export function getKeepGoing() {
   return buildInstructionTrial(
     mediaAssets.images.rocketSq,
     () => 'heartsAndFlowersInstruct2',
-    () => taskStore().translations.heartsAndFlowersInstruct2, //hearts-and-flowers-instruct2: "Try to answer as fast as you can without making mistakes."
+    () => taskStore().translations.heartsAndFlowersInstruct2,
   );
 }
 
@@ -57,7 +64,7 @@ export function getTimeToPlay() {
   return buildInstructionTrial(
     mediaAssets.images.animalBodySq,
     () => 'heartsAndFlowersPlayTime',
-    () => taskStore().translations.heartsAndFlowersPlayTime, // hearts-and-flowers-play-time: "Time to play!"
+    () => taskStore().translations.heartsAndFlowersPlayTime,
   );
 }
 
@@ -65,7 +72,7 @@ export function getMixedInstructions() {
   return buildInstructionTrial(
     mediaAssets.images.animalBodySq,
     () => 'heartsAndFlowersInstruct3',
-    () => taskStore().translations.heartsAndFlowersInstruct3, // hearts-and-flowers-instruct3: "Now, we're going to play a game with hearts and flowers."
+    () => taskStore().translations.heartsAndFlowersInstruct3,
   );
 }
 
@@ -73,7 +80,7 @@ export function getGoingFasterInstructions() {
   return buildInstructionTrial(
     mediaAssets.images.animalBodySq,
     () => 'heartsAndFlowersInstruct4',
-    () => taskStore().translations.heartsAndFlowersInstruct4, // hearts-and-flowers-instruct4: "This time the game will go even faster. Try to keep up!"
+    () => taskStore().translations.heartsAndFlowersInstruct4,
   );
 }
 
@@ -81,7 +88,7 @@ export function getEndGame() {
   return buildInstructionTrial(
     mediaAssets.images.animalBodySq,
     () => 'heartsAndFlowersEnd',
-    () => taskStore().translations.heartsAndFlowersEnd, // hearts-and-flowers-end: "Great job! You've completed the game."
+    () => taskStore().translations.heartsAndFlowersEnd,
   );
 }
 
@@ -96,15 +103,12 @@ export function getInputInstructions() {
 
 function buildInstructionTrial(mascotImage, getPromptAudioKey, getPromptText, showResponseButtons = false) {
   if (!mascotImage) {
-    // throw new Error(`Missing mascot image for instruction trial`);
     console.error(`buildInstructionTrial: Missing mascot image`);
   }
   if (!getPromptAudioKey()) {
-    // throw new Error(`Missing prompt audio for instruction trial`);
     console.error(`buildInstructionTrial: Missing prompt audio`);
   }
   if (!getPromptText()) {
-    // throw new Error(`Missing prompt text for instruction trial`);
     console.error(`buildInstructionTrial: Missing prompt text`);
   }
 
@@ -116,8 +120,10 @@ function buildInstructionTrial(mascotImage, getPromptAudioKey, getPromptText, sh
     stimulus: () => {
       // set the continue trial config based on the input capability
       continueTrialConfig = {
-        type: taskStore().inputCapability?.touch ? 'button' : 'bottomText',
-        text: taskStore().inputCapability?.touch ? taskStore().translations.continueButtonText : taskStore().translations.heartsAndFlowersPressAnyKey,
+        type: taskStore().inputCapability?.touch || !isHfV2() ? 'button' : 'bottomText',
+        text: taskStore().inputCapability?.touch || !isHfV2()
+          ? taskStore().translations.continueButtonText
+          : taskStore().translations.heartsAndFlowersPressAnyKey,
       };
 
       return `
@@ -134,8 +140,10 @@ function buildInstructionTrial(mascotImage, getPromptAudioKey, getPromptText, sh
                   alt='Instruction graphic'
               />
             </div>
-            ${continueTrialConfig.type === 'bottomText' ? 
-              `<div class="lev-row-container header" ${showResponseButtons ? 'style="visibility: hidden;"' : ''}><p>${continueTrialConfig.text}</p></div>` : ''
+            ${
+              continueTrialConfig.type === 'bottomText'
+                ? `<div class="lev-row-container header" ${showResponseButtons ? 'style="visibility: hidden;"' : ''}><p>${continueTrialConfig.text}</p></div>`
+                : ''
             }
         </div>
         `;
@@ -143,7 +151,7 @@ function buildInstructionTrial(mascotImage, getPromptAudioKey, getPromptText, sh
     prompt_above_buttons: true,
     keyboard_choices: showResponseButtons ? 'NO_KEYS' : 'ALL_KEYS',
     button_choices: () => continueTrialConfig.type === 'button' ? [continueTrialConfig.text] : undefined,
-    button_html: () => continueTrialConfig.type === 'button' ? [`<button class="primary">choice</button>`]: undefined,
+    button_html: () => continueTrialConfig.type === 'button' ? [`<button class="primary">%choice%</button>`]: undefined,
     on_load: () => {
       let responseButtons;
       let onButtonPress;
@@ -153,8 +161,8 @@ function buildInstructionTrial(mascotImage, getPromptAudioKey, getPromptText, sh
         disableOkButton();
 
         const buttonContainer = document.createElement('div');
-        buttonContainer.classList.add("lev-response-row");
-        buttonContainer.classList.add("linear-4");
+        buttonContainer.classList.add('lev-response-row');
+        buttonContainer.classList.add('linear-4');
         buttonContainer.innerHTML = `
           <div class='response-container--small'>
             <button class='secondary--green'></button>
@@ -162,7 +170,7 @@ function buildInstructionTrial(mascotImage, getPromptAudioKey, getPromptText, sh
           <div class='response-container--small'>
             <button class='secondary--green'></button>
           </div>`;
-      
+
         const stimContainer = document.querySelector('.lev-stimulus-container');
         stimContainer.appendChild(buttonContainer);
 
@@ -191,10 +199,12 @@ function buildInstructionTrial(mascotImage, getPromptAudioKey, getPromptText, sh
               const bottomText = document.querySelector('.lev-row-container.header');
               bottomText.style.visibility = 'visible';
 
-              window.addEventListener('keydown', () => {jsPsych.finishTrial()}, { once: true });
+              window.addEventListener('keydown', () => {
+                jsPsych.finishTrial();
+              }, { once: true });
             }
           }
-        }
+        };
       }
 
       const audioConfig = {
@@ -214,7 +224,9 @@ function buildInstructionTrial(mascotImage, getPromptAudioKey, getPromptText, sh
 
           if (taskStore().inputCapability?.touch) {
             responseButtons.forEach((button, i) => {
-              button.addEventListener('touchend', (event) => {onButtonPress(button, i, event)}, { once: true });
+              button.addEventListener('touchend', (event) => {
+                onButtonPress(button, i, event);
+              }, { once: true });
             });
           } else {
             const onWindowKeydown = (event) => {
@@ -227,10 +239,10 @@ function buildInstructionTrial(mascotImage, getPromptAudioKey, getPromptText, sh
               window.removeEventListener('keydown', onWindowKeydown);
             };
           }
-        }
+        },
       };
 
-      PageAudioHandler.playAudio((mediaAssets.audio[getPromptAudioKey()] || mediaAssets.audio.inputAudioCue), audioConfig);
+      PageAudioHandler.playAudio(mediaAssets.audio[getPromptAudioKey()] || mediaAssets.audio.inputAudioCue, audioConfig);
 
       const pageStateHandler = new PageStateHandler(getPromptAudioKey());
       setupReplayAudio(pageStateHandler);

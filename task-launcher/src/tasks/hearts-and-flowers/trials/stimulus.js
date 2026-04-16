@@ -21,6 +21,7 @@ import { shouldTerminateCat } from '../../shared/helpers/shouldTerminateCat';
   */
 
 export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrialFinishTimelineCallback = undefined) {
+  const hfV2 = taskStore().taskVersion === 2;;
   return {
     type: jsPsychHTMLMultiResponse,
     data: () => {
@@ -50,7 +51,9 @@ export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrial
       responseButtons.forEach((button, i) => {
         addKeyHelpers(button, i);
       });
-      setupHafMultiResponseTouchRouting();
+      if (hfV2) {
+        setupHafMultiResponseTouchRouting();
+      }
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
     keyboard_choices: isTouchScreen ? InputKey.NoKeys : [InputKey.ArrowLeft, InputKey.ArrowRight],
@@ -63,7 +66,7 @@ export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrial
       <button class='secondary--green'></button>
     </div>`,
     ],
-    trial_duration: stimulusDuration,
+    ...(hfV2 ? { trial_duration: stimulusDuration } : {}),
     on_finish: (data) => {
       const stimulusPosition = jsPsych.timelineVariable('position');
       const stimulusType = jsPsych.timelineVariable('stimulus');
@@ -74,10 +77,9 @@ export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrial
         response = data.button_response;
       } else if (data.keyboard_response === InputKey.ArrowLeft || data.keyboard_response === InputKey.ArrowRight) {
         response = data.keyboard_response === InputKey.ArrowLeft ? 0 : 1;
-      } else if (data.timedOut) {
+      } else if (hfV2 && data.timedOut) {
         response = null;
-      }
-      else {
+      } else {
         const errorMessage = `Invalid response: ${data.button_response} or ${data.keyboard_response} in ${data}`;
         console.error(errorMessage);
       }
@@ -97,16 +99,30 @@ export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrial
       const validAnswer = getCorrectInputSide(stimulusType, stimuluSide);
       data.correct = validAnswer === response;
 
-      const audioConfig = {
-        restrictRepetition: {
-          enabled: false,
-          maxRepetitions: 2,
-        },
-      };
+      if (hfV2) {
+        const audioConfig = {
+          restrictRepetition: {
+            enabled: false,
+            maxRepetitions: 2,
+          },
+        };
 
-      PageAudioHandler.playAudio(data.correct ? mediaAssets.audio.coin : mediaAssets.audio.fail, audioConfig);
+        PageAudioHandler.playAudio(data.correct ? mediaAssets.audio.coin : mediaAssets.audio.fail, audioConfig);
 
-      shouldTerminateCat();
+        shouldTerminateCat();
+      } else if (!isPractice) {
+        if (!data.correct) {
+          taskStore.transact('numIncorrect', (oldVal) => oldVal + 1);
+        } else {
+          taskStore('numIncorrect', 0);
+        }
+
+        const maxIncorrect = taskStore().maxIncorrect;
+
+        if (taskStore().numIncorrect == maxIncorrect) {
+          finishExperiment();
+        }
+      }
 
       //TODO: move these to timeline-level callback/variables
       taskStore('isCorrect', data.correct);

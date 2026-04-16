@@ -30,6 +30,7 @@ export function buildInstructionPracticeTrial(
     // throw new Error(`Missing prompt text for instruction practice trial`);
     console.error(`buildInstructionPracticeTrial: Missing prompt text`);
   }
+  const hfV2 = taskStore().taskVersion === 2;
   const replayButtonHtmlId = 'replay-btn-revisited';
   const validAnswer = getCorrectInputSide(stimulusType, stimulusSideType);
   const trial = {
@@ -67,7 +68,10 @@ export function buildInstructionPracticeTrial(
       buttons.forEach((button, i) => {
         addKeyHelpers(button, i);
       });
-      setupHafMultiResponseTouchRouting();
+
+      if (hfV2) {
+        setupHafMultiResponseTouchRouting();
+      }
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
     keyboard_choices: isTouchScreen ? InputKey.NoKeys : [InputKey.ArrowLeft, InputKey.ArrowRight],
@@ -161,6 +165,7 @@ function buildPracticeFeedback(
   flowerfeedbackPromptCorrectKey,
   onFinishTimelineCallback,
 ) {
+  const hfV2 = taskStore().taskVersion === 2;
   const validAnswerButtonHtmlIdentifier = 'valid-answer-btn';
   const feedbackTexts = {
     IncorrectHeart: taskStore().translations[heartFeedbackPromptIncorrectKey],
