@@ -43,9 +43,13 @@ export class TaskLauncher {
     let { language } = this.gameParams;
     taskStore('language', language);
 
-    // adding this to handle old 'es' variant language param values
+    // adding this to handle legacy two letter language codes in variant docs
     if (language === 'es') {
       language = 'es-CO';
+    } else if (language === 'en') {
+      language = 'en-US';
+    } else if (language === 'de') {
+      language = 'de-DE';
     }
 
     const { setConfig, getCorpus, buildTaskTimeline, getTranslations } =
@@ -71,7 +75,7 @@ export class TaskLauncher {
 
     setTaskStore(config);
 
-    await getTranslations(isDev, config.language);
+    await getTranslations(isDev, taskName, config.language);
 
     // TODO: make hearts and flowers corpus? make list of tasks that don't need corpora?
     if (taskName !== 'hearts-and-flowers' && taskName !== 'memory-game' && taskName !== 'intro') {

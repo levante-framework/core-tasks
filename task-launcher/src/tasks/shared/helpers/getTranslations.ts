@@ -1,4 +1,3 @@
-import Papa from 'papaparse';
 import { camelize } from './camelize';
 import { taskStore } from '../../../taskStore';
 
@@ -6,59 +5,38 @@ import 'regenerator-runtime/runtime';
 
 let translations: Record<string, string> = {};
 
-export function getRowData(row: Record<string, string>, language: string, nonLocalDialect: string) {
-  const normalizedRow = Object.fromEntries(Object.entries(row).map(([key, value]) => [key.toLowerCase(), value]));
-  const translation = normalizedRow[language.toLowerCase()];
+function parseTranslations(translationData: Record<string, string>[]) {
 
-  // Only need this because we don't have base language translations for all languages.
-  // Ex we have 'es-co' but not 'es'
-  const noBaseLang = Object.keys(normalizedRow).find((key) => key.includes(nonLocalDialect)) || '';
-  return translation || normalizedRow[nonLocalDialect] || normalizedRow[noBaseLang] || normalizedRow['en'];
+  for (const [key, value] of Object.entries(translationData)) {
+    translations[camelize(key.trim())] = value as unknown as string;
+  }
 }
 
-function parseTranslations(translationData: Record<string, string>[], configLanguage: string) {
-  const nonLocalDialect = configLanguage.split('-')[0].toLowerCase();
+export const getTranslations = async (isDev: boolean, taskName: string, configLanguage?: string) => {
+  async function downloadJson(url: string): Promise<Record<string, string>[]> {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch translations (${response.status}): ${url}`);
+    }
+    const data: unknown = await response.json();
+    const rows = data as Record<string, string>[];
 
-  translationData.forEach((row) => {
-    translations[camelize(row.item_id)] = getRowData(row, configLanguage, nonLocalDialect);
-  });
-
-  taskStore('translations', translations);
-}
-
-export const getTranslations = async (isDev: boolean, configLanguage?: string) => {
-  if (!configLanguage) {
-    return;
+    parseTranslations(rows);
+    return rows;
   }
 
-  function downloadCSV(url: string) {
-    return new Promise((resolve, reject) => {
-      Papa.parse<Record<string, string>>(url, {
-        download: true,
-        header: true,
-        skipEmptyLines: true,
-        complete: function (results) {
-          parseTranslations(results.data, configLanguage || '');
-          resolve(results.data);
-        },
-        error: function (error) {
-          reject(error);
-        },
-      });
-    });
-  }
-
-  async function parseCSVs(urls: string[]) {
-    const promises = urls.map((url) => downloadCSV(url));
-    return Promise.all(promises);
+  async function loadTranslationJsons(urls: string[]) {
+    return Promise.all(urls.map((url) => downloadJson(url)));
   }
 
   async function fetchData() {
     const urls = [
-      `https://storage.googleapis.com/levante-assets-${isDev ? 'dev' : 'prod'}/translations/item-bank-translations.csv`,
+      `https://storage.googleapis.com/levante-assets-${isDev ? 'dev' : 'prod'}/translations/itembank/${taskName}/${configLanguage}/item-bank-translations.json`,
+      `https://storage.googleapis.com/levante-assets-${isDev ? 'dev' : 'prod'}/translations/itembank/general/${configLanguage}/item-bank-translations.json`,
     ];
     try {
-      await parseCSVs(urls);
+      await loadTranslationJsons(urls);
+      taskStore('translations', translations);
     } catch (error) {
       console.error('Error:', error);
     }
