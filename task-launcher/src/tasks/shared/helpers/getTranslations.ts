@@ -13,6 +13,11 @@ function parseTranslations(translationData: Record<string, string>[]) {
 }
 
 export const getTranslations = async (isDev: boolean, taskName: string, configLanguage?: string) => {
+  // adult reasoning strings are in the math item bank
+  if (taskName === 'adult-reasoning') {
+    taskName = 'egma-math';
+  }
+
   async function downloadJson(url: string): Promise<Record<string, string>[]> {
     const response = await fetch(url);
     if (!response.ok) {
@@ -34,8 +39,13 @@ export const getTranslations = async (isDev: boolean, taskName: string, configLa
       `https://storage.googleapis.com/levante-assets-${isDev ? 'dev' : 'prod'}/translations/itembank/${taskName}/${configLanguage}/item-bank-translations.json`,
       `https://storage.googleapis.com/levante-assets-${isDev ? 'dev' : 'prod'}/translations/itembank/general/${configLanguage}/item-bank-translations.json`,
     ];
+
+    // hostile attribution requires some strings in the theory of mind item bank
+    if (taskName === 'hostile-attribution') {
+      urls.push(`https://storage.googleapis.com/levante-assets-${isDev ? 'dev' : 'prod'}/translations/itembank/theory-of-mind/${configLanguage}/item-bank-translations.json`);
+    }
     try {
-      await loadTranslationJsons(urls);
+      await loadTranslationJsons(taskName === 'intro' ? urls : [urls[0]]);
       taskStore('translations', translations);
     } catch (error) {
       console.error('Error:', error);

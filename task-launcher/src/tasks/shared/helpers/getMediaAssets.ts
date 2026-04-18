@@ -29,7 +29,7 @@ export async function getMediaAssets(
   const parts = bucketName.split('/');
   const bucket = parts[0];
   const folder = parts.slice(1).join('/');
-
+  console.log('folder', folder);
   const baseUrl = `https://storage.googleapis.com/storage/v1/b/${bucket}/o?prefix=${folder}/`;
 
   let url = baseUrl;
@@ -37,8 +37,23 @@ export async function getMediaAssets(
     url += `&pageToken=${nextPageToken}`;
   }
 
-  const response = await fetch(url);
-  const data: ResponseDataType = await response.json();
+  let data: ResponseDataType;
+  let response: Response;
+
+  response = await fetch(url);
+  data = await response.json();
+
+  // add temporary fallback for en-US and de-DE until we have the correct folders in the bucket
+  if (!data.items || data.items.length === 0) {
+    if (folder === 'audio/en-US') {
+      response = await fetch(`https://storage.googleapis.com/storage/v1/b/${bucket}/o?prefix=audio/en/`);
+      data = await response.json();
+    } else if (folder === 'audio/de-DE') {
+      console.log('fetching de-DE');
+      response = await fetch(`https://storage.googleapis.com/storage/v1/b/${bucket}/o?prefix=audio/de/`);
+      data = await response.json();
+    }
+  }
 
   data.items.forEach((item) => {
     if (isLanguageAndDeviceValid(item.name, taskName, language) && isWhitelisted(item.name, whitelist)) {
@@ -75,7 +90,7 @@ function isLanguageAndDeviceValid(filePath: string, languageCode: string, taskNa
     return parts[1] === taskName && parts[2].length !== 0;
   } else if (parts[0] === 'audio') {
     // audio assets have language prefix
-    return parts[1] == languageCode && parts[2].length !== 0;
+    return (parts[1] === languageCode || parts[1] === languageCode.slice(0, 2)) && parts[2].length !== 0;
   }
 
   return false; // Not a valid path
