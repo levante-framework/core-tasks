@@ -251,7 +251,7 @@ button {
     @extend .button-base;
     padding: 0;
     box-sizing: border-box;
-    border-color: $bg-button-primary;
+    border-color: $border-grey;
     min-width: unset !important;
     min-height: unset !important;
 
@@ -297,7 +297,7 @@ button {
     @extend .button-base;
     padding: 0;
     box-sizing: border-box;
-    border-color: $bg-button-primary;
+    border-color: $border-grey;
     min-width: unset !important;
     min-height: unset !important;
     background-color: $bg-bubble-base;
@@ -351,7 +351,7 @@ button {
     @extend .button-base;
     padding: 0;
     box-sizing: border-box;
-    border-color: $bg-button-primary;
+    border-color: $border-grey;
 
     img {
       border: none;
@@ -376,7 +376,7 @@ button {
     @extend .button-base;
     padding: 0;
     box-sizing: border-box;
-    border-color: $bg-button-primary;
+    border-color: $border-grey;
 
     img {
       border: none;
