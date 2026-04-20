@@ -24,7 +24,6 @@ export function getHeartInstructions() {
   return buildInstructionTrial(
     mediaAssets.images.animalBodySq,
     () => 'heartInstruct1',
-    () => taskStore().translations.heartInstruct1,
   );
 }
 
@@ -32,7 +31,6 @@ export function getFlowerInstructions() {
   return buildInstructionTrial(
     mediaAssets.images.animalBodySq,
     () => 'flowerInstruct1',
-    () => taskStore().translations.flowerInstruct1,
   );
 }
 
@@ -40,7 +38,6 @@ export function getTimeToPractice() {
   return buildInstructionTrial(
     mediaAssets.images.animalBodySq,
     () => 'heartsAndFlowersPracticeTime',
-    () => taskStore().translations.heartsAndFlowersPracticeTime,
   );
 }
 
@@ -48,7 +45,6 @@ export function getKeepUp() {
   return buildInstructionTrial(
     mediaAssets.images.keepupSq,
     () => 'heartsAndFlowersInstruct1',
-    () => taskStore().translations.heartsAndFlowersInstruct1,
   );
 }
 
@@ -56,7 +52,6 @@ export function getKeepGoing() {
   return buildInstructionTrial(
     mediaAssets.images.rocketSq,
     () => 'heartsAndFlowersInstruct2',
-    () => taskStore().translations.heartsAndFlowersInstruct2,
   );
 }
 
@@ -64,7 +59,6 @@ export function getTimeToPlay() {
   return buildInstructionTrial(
     mediaAssets.images.animalBodySq,
     () => 'heartsAndFlowersPlayTime',
-    () => taskStore().translations.heartsAndFlowersPlayTime,
   );
 }
 
@@ -72,7 +66,6 @@ export function getMixedInstructions() {
   return buildInstructionTrial(
     mediaAssets.images.animalBodySq,
     () => 'heartsAndFlowersInstruct3',
-    () => taskStore().translations.heartsAndFlowersInstruct3,
   );
 }
 
@@ -80,7 +73,6 @@ export function getGoingFasterInstructions() {
   return buildInstructionTrial(
     mediaAssets.images.animalBodySq,
     () => 'heartsAndFlowersInstruct4',
-    () => taskStore().translations.heartsAndFlowersInstruct4,
   );
 }
 
@@ -88,7 +80,6 @@ export function getEndGame() {
   return buildInstructionTrial(
     mediaAssets.images.animalBodySq,
     () => 'heartsAndFlowersEnd',
-    () => taskStore().translations.heartsAndFlowersEnd,
   );
 }
 
@@ -96,20 +87,16 @@ export function getInputInstructions() {
   return buildInstructionTrial(
       mediaAssets.images.animalBodySq,
       getInputInstructPrompt,
-      getInputInstructPrompt,
       true,
     );
 }
 
-function buildInstructionTrial(mascotImage, getPromptAudioKey, getPromptText, showResponseButtons = false) {
+function buildInstructionTrial(mascotImage, getPromptKey, showResponseButtons = false) {
   if (!mascotImage) {
     console.error(`buildInstructionTrial: Missing mascot image`);
   }
-  if (!getPromptAudioKey()) {
-    console.error(`buildInstructionTrial: Missing prompt audio`);
-  }
-  if (!getPromptText()) {
-    console.error(`buildInstructionTrial: Missing prompt text`);
+  if (!getPromptKey()) {
+    console.error(`buildInstructionTrial: Missing prompt audio or text`);
   }
 
   const replayButtonHtmlId = 'replay-btn-revisited';
@@ -132,7 +119,7 @@ function buildInstructionTrial(mascotImage, getPromptAudioKey, getPromptText, sh
               ${replayButtonSvg}
             </button>
             <div id="instruction-text" class="lev-row-container instruction-small">
-              <p>${getPromptText()}</p>
+              <p>${taskStore().translations[getPromptKey()]}</p>
             </div>
             <div class="lev-stim-content-x-3">
               <img
@@ -254,9 +241,9 @@ function buildInstructionTrial(mascotImage, getPromptAudioKey, getPromptText, sh
         },
       };
 
-      PageAudioHandler.playAudio(mediaAssets.audio[getPromptAudioKey()] || mediaAssets.audio.inputAudioCue, audioConfig);
+      PageAudioHandler.playAudio(mediaAssets.audio[getPromptKey()] || mediaAssets.audio.inputAudioCue, audioConfig);
 
-      const pageStateHandler = new PageStateHandler(getPromptAudioKey());
+      const pageStateHandler = new PageStateHandler(getPromptKey());
       setupReplayAudio(pageStateHandler);
     },
     on_finish: () => {
@@ -265,7 +252,7 @@ function buildInstructionTrial(mascotImage, getPromptAudioKey, getPromptText, sh
 
       PageAudioHandler.stopAndDisconnectNode();
 
-      if (getPromptAudioKey() === 'heartsAndFlowersEnd') {
+      if (getPromptKey() === 'heartsAndFlowersEnd') {
         taskStore('taskComplete', true);
       }
 

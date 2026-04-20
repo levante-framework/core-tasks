@@ -113,5 +113,5 @@ export const getStimulusLayout = (imageSrc, isLeft, promptText = undefined, repl
 export const getInputInstructPrompt = () => {
   const inputCapability = taskStore().inputCapability;
 
-  return inputCapability?.touch ? taskStore().translations.heartsAndFlowersInstructTouchscreen : taskStore().translations.heartsAndFlowersInstructKeyboard;
+  return inputCapability?.touch ? "heartsAndFlowersInstructTouchscreen" : "heartsAndFlowersInstructKeyboard";
 }
