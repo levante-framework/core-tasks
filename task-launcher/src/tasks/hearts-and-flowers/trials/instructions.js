@@ -41,7 +41,6 @@ export function getTimeToPractice() {
     mediaAssets.images.animalBodySq,
     () => 'heartsAndFlowersPracticeTime',
     () => taskStore().translations.heartsAndFlowersPracticeTime,
-    taskStore().translations.heartsAndFlowersPressAnyKey,
   );
 }
 

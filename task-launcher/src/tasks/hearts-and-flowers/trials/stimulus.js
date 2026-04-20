@@ -66,7 +66,7 @@ export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrial
       <button class='secondary--green'></button>
     </div>`,
     ],
-    ...(hfV2 ? { trial_duration: stimulusDuration } : {}),
+    ...(hfV2 && !isPractice ? { trial_duration: stimulusDuration } : {}),
     on_finish: (data) => {
       const stimulusPosition = jsPsych.timelineVariable('position');
       const stimulusType = jsPsych.timelineVariable('stimulus');
