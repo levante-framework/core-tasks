@@ -29,7 +29,6 @@ export async function getMediaAssets(
   const parts = bucketName.split('/');
   const bucket = parts[0];
   const folder = parts.slice(1).join('/');
-  console.log('folder', folder);
   const baseUrl = `https://storage.googleapis.com/storage/v1/b/${bucket}/o?prefix=${folder}/`;
 
   let url = baseUrl;

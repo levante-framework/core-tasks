@@ -45,7 +45,7 @@ export const getTranslations = async (isDev: boolean, taskName: string, configLa
       urls.push(`https://storage.googleapis.com/levante-assets-${isDev ? 'dev' : 'prod'}/translations/itembank/theory-of-mind/${configLanguage}/item-bank-translations.json`);
     }
     try {
-      await loadTranslationJsons(taskName === 'intro' ? urls : [urls[0]]);
+      await loadTranslationJsons(taskName === 'intro' ? [urls[1]] : urls);
       taskStore('translations', translations);
     } catch (error) {
       console.error('Error:', error);
