@@ -432,5 +432,6 @@ button {
   &.info-shadow {
     box-shadow: 0 0 20px 5px $border-accent;
     border-radius: 2rem;
+    border-color: $bg-accent_secondary;
   }
 }
