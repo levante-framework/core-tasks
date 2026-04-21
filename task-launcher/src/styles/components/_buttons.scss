@@ -61,6 +61,9 @@ button {
     font-size: $font-size-lm;
     width: 2.5 * $font-size-l;
     height: 2.5 * $font-size-l;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     @include respond-to('small-medium') {
       font-size: $font-size-ms;
