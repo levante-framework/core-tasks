@@ -6,6 +6,7 @@ import { PageStateHandler, setupReplayAudio, PageAudioHandler } from '../../shar
 import { jsPsych } from '../../taskSetup';
 import { taskStore } from '../../../taskStore';
 import { addKeyHelpers } from '../../shared/helpers';
+import { setupHafMultiResponseTouchRouting } from '../helpers/touchResponseRouting';
 
 /**
  * Builds a practice trial for the Instruction sections.
@@ -29,6 +30,7 @@ export function buildInstructionPracticeTrial(
     // throw new Error(`Missing prompt text for instruction practice trial`);
     console.error(`buildInstructionPracticeTrial: Missing prompt text`);
   }
+  const hfV2 = taskStore().taskVersion === 2;
   const replayButtonHtmlId = 'replay-btn-revisited';
   const validAnswer = getCorrectInputSide(stimulusType, stimulusSideType);
   const trial = {
@@ -63,10 +65,13 @@ export function buildInstructionPracticeTrial(
       const pageStateHandler = new PageStateHandler(audioAssetKey);
       setupReplayAudio(pageStateHandler);
 
-      const buttonContainers = document.querySelectorAll('.jspsych-html-multi-response-button');
-      buttonContainers.forEach((container, i) => {
-        addKeyHelpers(container, i);
+      buttons.forEach((button, i) => {
+        addKeyHelpers(button, i);
       });
+
+      if (hfV2) {
+        setupHafMultiResponseTouchRouting();
+      }
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
     keyboard_choices: isTouchScreen ? InputKey.NoKeys : [InputKey.ArrowLeft, InputKey.ArrowRight],
@@ -160,6 +165,7 @@ function buildPracticeFeedback(
   flowerfeedbackPromptCorrectKey,
   onFinishTimelineCallback,
 ) {
+  const hfV2 = taskStore().taskVersion === 2;
   const validAnswerButtonHtmlIdentifier = 'valid-answer-btn';
   const feedbackTexts = {
     IncorrectHeart: taskStore().translations[heartFeedbackPromptIncorrectKey],
@@ -221,11 +227,12 @@ function buildPracticeFeedback(
       document.getElementById('jspsych-html-multi-response-btngroup').classList.add('lev-response-row');
       document.getElementById('jspsych-html-multi-response-btngroup').classList.add('linear-4');
       const buttons = document.querySelectorAll('.secondary--green');
-      buttons.forEach((button) => {
+      buttons.forEach((button, i) => {
         button.disabled = true;
         if (button.id === validAnswerButtonHtmlIdentifier) {
           button.style.animation = 'pulse 2s infinite';
         }
+        addKeyHelpers(button, i);
       });
 
       const audioAssetKey = getAssetKey();

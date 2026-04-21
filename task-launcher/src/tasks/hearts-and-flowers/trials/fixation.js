@@ -1,7 +1,11 @@
 import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { StimulusSideType, InputKey } from '../helpers/utils';
+import { addKeyHelpers } from '../../shared/helpers';
+import { setupHafMultiResponseTouchRouting } from '../helpers/touchResponseRouting';
+import { taskStore } from '../../../taskStore';
 
 export function fixation(interStimulusInterval) {
+  const hfV2 = taskStore().taskVersion === 2;
   return {
     type: jsPsychHTMLMultiResponse,
     stimulus: () => {
@@ -15,9 +19,18 @@ export function fixation(interStimulusInterval) {
       document.getElementById('jspsych-html-multi-response-btngroup').classList.add('haf-parent-container');
       document.getElementById('jspsych-html-multi-response-btngroup').classList.add('lev-response-row');
       document.getElementById('jspsych-html-multi-response-btngroup').classList.add('linear-4');
+
+      const responseButtons = document.querySelectorAll('.jspsych-html-multi-response-button');
+      responseButtons.forEach((button, i) => {
+        addKeyHelpers(button, i);
+      });
+      
+      if (hfV2) {
+        setupHafMultiResponseTouchRouting();
+      }
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
-    keyboard_choice: InputKey.NoKeys,
+    keyboard_choices: InputKey.NoKeys,
     button_html: [
       `
     <div class='response-container--small'>

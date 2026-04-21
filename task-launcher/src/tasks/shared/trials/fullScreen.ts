@@ -3,6 +3,7 @@ import fscreen from 'fscreen';
 import { taskStore } from '../../../taskStore';
 import { isTouchScreen } from '../../taskSetup';
 import { PageAudioHandler } from '../helpers/audioHandler';
+import { setupInputDetection } from '../../../utils/detectInput';
 
 export const enterFullscreen = {
   type: jsPsychFullScreen,
@@ -34,6 +35,9 @@ export const enterFullscreen = {
       }),
         { once: true };
     }
+
+    const inputDetector = setupInputDetection();
+    taskStore('inputCapability', inputDetector.capability);
   },
   on_start: () => {
     document.body.style.cursor = 'default';
