@@ -229,7 +229,7 @@ export const stimulus = (trial?: StimulusType) => {
     response_ends_trial: () => {
       const stim = trial || taskStore().nextStimulus;
 
-      return stim.trialType !== 'test-dimensions';
+      return !(stim.trialType === 'test-dimensions' || (stim.trialType === 'something-same-2' && stim.assessmentStage === 'practice_response'));
     },
     on_load: () => {
       startTime = performance.now();
@@ -296,8 +296,7 @@ export const stimulus = (trial?: StimulusType) => {
           leftPrompt.style.height = `${contentBoxHeight}px`;
         }
 
-        const okButton = document.querySelector('.primary') as HTMLButtonElement;
-        okButton.disabled = true;
+        disableOkButton();
 
         const responseBtns = Array.from(
           document.getElementById('img-button-container')?.children as any,
@@ -335,6 +334,43 @@ export const stimulus = (trial?: StimulusType) => {
             setTimeout(() => enableBtns(responseBtns), 500);
           });
         });
+
+        let numberOfErrors = 0;
+
+        if (stimulus.assessmentStage === 'practice_response') {
+          const okButton = document.querySelector('.primary') as HTMLButtonElement;
+          okButton.addEventListener('click', (e) => {
+            if (selectionIdx !== taskStore().correctResponseIdx) {
+              const rightPrompt = document.getElementById('right-prompt') as HTMLParagraphElement;
+              const leftPrompt = document.getElementById('left-prompt') as HTMLParagraphElement;
+              rightPrompt.innerHTML =  `<p>${taskStore().translations.feedbackNotQuiteRight}</p>`;
+              leftPrompt.style.visibility = 'hidden';
+
+              numberOfErrors++;
+
+              const audioConfig: AudioConfigType = {
+                restrictRepetition: {
+                  enabled: false,
+                  maxRepetitions: 2,
+                }
+              };
+
+              PageAudioHandler.stopAndDisconnectNode();
+              PageAudioHandler.playAudio(mediaAssets.audio.feedbackNotQuiteRight, audioConfig);
+
+              responseBtns.forEach((btn) => btn.classList.remove(SELECT_CLASS_NAME));
+              selection = null;
+              selectionIdx = null;
+
+              if (numberOfErrors >= 2) {
+                responseBtns[taskStore().correctResponseIdx].style.animation = 'pulse 2s infinite';
+              }
+            } else {
+              e.stopPropagation(); // prevents jspsych from disabling the buttons in the next trial
+              jsPsych.finishTrial();
+            }
+          });
+        }
       }
 
       // if the task is running in a cypress test, the correct answer should be indicated with 'correct' class
@@ -392,7 +428,7 @@ export const stimulus = (trial?: StimulusType) => {
         if (stim.trialType !== 'something-same-1') {
           // update task store
           taskStore('isCorrect', isCorrect);
-          if (isCorrect === false) {
+          if (isCorrect === false && stim.assessmentStage !== 'practice_response') {
             taskStore.transact('numIncorrect', (oldVal: number) => oldVal + 1);
           } else {
             taskStore('numIncorrect', 0);

@@ -1,7 +1,7 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
-import { camelize, PageAudioHandler, replayButtonSvg } from '../../shared/helpers';
+import { camelize, disableOkButton, PageAudioHandler, replayButtonSvg } from '../../shared/helpers';
 import { animate } from '../helpers/animate';
 import { jsPsych } from '../../taskSetup';
 import { pulseOkButton } from '../../shared/helpers/pulseOkButton';
@@ -123,10 +123,8 @@ export const downexInstructions = downexData.map((data: any) => {
         if (replayButton) {
           (replayButton as HTMLButtonElement).disabled = true;
         }
-        const okButton: HTMLButtonElement | null = document.querySelector('.primary');
-        if (okButton) {
-          okButton.disabled = true;
-        }
+        
+        disableOkButton();
 
         // Preserve stim-container height before animation
         const stimContainer = document.getElementById('stim-container');

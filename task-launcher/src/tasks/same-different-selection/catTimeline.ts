@@ -99,10 +99,6 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
         timeline.push(afcMatch());
         timeline.push(buttonNoise);
       }
-
-      if (i < trialNum - 1) {
-        timeline.push({ ...fixationOnly, stimulus: '' });
-      }
     }
 
     return {
@@ -125,7 +121,23 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
   const timeline = [preloadTrials, initialTimeline];
 
   // all instructions + practice trials
-  const instructionPractice: StimulusType[] = heavy ? preparedCorpus.ipHeavy : preparedCorpus.ipLight;
+  let instructionPractice: StimulusType[] = preparedCorpus.ipLight;
+
+  let fiveBlockIntroTrial: StimulusType;
+  let fiveBlockIntro: any; 
+  if (taskStore().taskVersion === 2) {
+    // separate this out so that it is inserted at the right place in the timeline
+    fiveBlockIntroTrial = instructionPractice.find((trial) => trial.itemId === "sds-instruct5") as StimulusType;
+    instructionPractice = instructionPractice.filter((trial) => trial.itemId !== "sds-instruct5");
+
+    fiveBlockIntro = {
+      timeline: [ipBlock(fiveBlockIntroTrial)],
+      conditional_function: () => {
+        return taskStore().nextStimulus.trialType === "4-match";
+      }
+    };
+  }
+  
 
   // returns practice + instruction trials for a given block
   function getPracticeInstructions(blockNum: number): StimulusType[] {
@@ -156,6 +168,7 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
 
     const numOfTrials = index === 0 ? count : count / 2; // change this based on simulation results?
     for (let i = 0; i < numOfTrials; i++) {
+
       timeline.push({ ...setupStimulusFromBlock(index), stimulus: '' });
 
       if (index === 0) {
@@ -165,6 +178,9 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
         timeline.push(runCatTrials(2, 'stimulus'));
       }
       if (index === 2) {
+        if (taskStore().taskVersion === 2) {
+          timeline.push(fiveBlockIntro);
+        }
         timeline.push(runCatTrials(2, 'afc'));
         timeline.push(runCatTrials(3, 'afc'));
         timeline.push(runCatTrials(4, 'afc'));

@@ -19,3 +19,15 @@ export const arrowKeyEmojis = [
           </svg>`,
   ],
 ];
+
+export const sdsProgressComponentFilled = `
+<svg xmlns="http://www.w3.org/2000/svg" width="88" height="32" viewBox="0 0 88 32" fill="none" aria-hidden="true">
+  <rect x="1" y="1" width="80" height="24" rx="12" ry="12" fill="#275BDD" />
+</svg>
+`;
+
+export const sdsProgressComponentEmpty = `
+<svg xmlns="http://www.w3.org/2000/svg" width="88" height="32" viewBox="0 0 88 32" fill="none" aria-hidden="true">
+  <rect x="1" y="1" width="80" height="24" rx="12" ry="12" fill="#828282" />
+</svg>
+`;

@@ -117,15 +117,17 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
     timeline.push(stimulusBlock);
   };
 
+  const setupTrialDuration = taskStore().taskVersion === 2 ? 0 : 350;
+
   const updateSomethingSame = () => {
-    timeline.push({ ...setupStimulus, stimulus: '' });
+    timeline.push({ ...setupStimulus, stimulus: '', trial_duration: setupTrialDuration});
     timeline.push(stimulusBlock);
     timeline.push(buttonNoise);
     timeline.push(dataQualityBlock);
   };
 
   const updateMatching = () => {
-    timeline.push({ ...setupStimulus, stimulus: '' });
+    timeline.push({ ...setupStimulus, stimulus: '', trial_duration: setupTrialDuration});
     timeline.push(afcBlock);
     timeline.push(buttonNoise);
     timeline.push(dataQualityBlock);

@@ -15,6 +15,7 @@ import {
 import { finishExperiment } from '../../shared/trials';
 import { taskStore } from '../../../taskStore';
 import { updateTheta } from '../../shared/helpers';
+import { sdsProgressComponentFilled, sdsProgressComponentEmpty } from '../../shared/helpers/components';
 
 let selectedCards: string[] = [];
 let selectedCardIdxs: number[] = [];
@@ -193,9 +194,30 @@ export const afcMatch = (trial?: StimulusType) => {
 
       let numberOfErrors = 0;
 
-      // Add primary OK button under the other buttons
       if (stim.trialType !== 'instructions') {
         if (taskStore().taskVersion === 2) {
+          // insert progress indicator
+          const numbers = {
+            'first_response': 1,
+            'second_response': 2,
+            'third_response': 3,
+            'fourth_response': 4,
+          }
+          const currentResponse = numbers[stim.assessmentStage as keyof typeof numbers];
+          const maxResponses = Number(stim.trialType[0]);
+
+          if (currentResponse !== undefined) {
+            const progressContainer = document.createElement('div');
+            progressContainer.className = 'sds-progress-container';
+            progressContainer.innerHTML = `
+              ${sdsProgressComponentFilled.repeat(currentResponse)} ${sdsProgressComponentEmpty.repeat(maxResponses - currentResponse)}
+            `;
+            progressContainer.style.marginTop = '32px';
+
+          buttonContainer.parentNode?.insertBefore(progressContainer, buttonContainer.nextSibling);
+          }
+
+          // Add primary OK button under the other buttons
           const okButton = document.createElement('button');
           okButton.className = 'primary';
           okButton.textContent = 'OK';
@@ -203,6 +225,7 @@ export const afcMatch = (trial?: StimulusType) => {
           okButton.disabled = true;
           okButton.addEventListener('click', () => {
             if (!isPractice || compareSelections(selectedCards, previousSelections, getIgnoreDims(stim))) {
+              numberOfErrors = 0;
               jsPsych.finishTrial();
             } else {
               const prompt = document.getElementById('afc-match-prompt') as HTMLParagraphElement;
@@ -210,12 +233,15 @@ export const afcMatch = (trial?: StimulusType) => {
                 taskStore().translations[camelize(audioFile)]
               }`;
 
+              numberOfErrors++;
+              const numberOfErrorsThisCall = numberOfErrors;
+
               const audioConfig: AudioConfigType = {
                 restrictRepetition: {
                   enabled: false,
                   maxRepetitions: 2,
                 },
-                onEnded: (numberOfErrorsThisCall: number) => {
+                onEnded: () => {
                   if (numberOfErrorsThisCall === numberOfErrors) {
                     // don't overlap audio
                     PageAudioHandler.playAudio(mediaAssets.audio[camelize(audioFile)]);
@@ -229,7 +255,6 @@ export const afcMatch = (trial?: StimulusType) => {
               responseBtns.forEach((btn) => btn.classList.remove(SELECT_CLASS_NAME));
               selectedCards = [];
               disableOkButton();
-              numberOfErrors++;
 
               if (numberOfErrors >= 2) {
                 let animationStarted = false;
