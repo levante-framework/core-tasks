@@ -6,7 +6,6 @@ import 'regenerator-runtime/runtime';
 let translations: Record<string, string> = {};
 
 function parseTranslations(translationData: Record<string, string>[]) {
-
   for (const [key, value] of Object.entries(translationData)) {
     translations[camelize(key.trim())] = value as unknown as string;
   }
@@ -36,13 +35,21 @@ export const getTranslations = async (isDev: boolean, taskName: string, configLa
 
   async function fetchData() {
     const urls = [
-      `https://storage.googleapis.com/levante-assets-${isDev ? 'dev' : 'prod'}/translations/itembank/${taskName}/${configLanguage}/item-bank-translations.json`,
-      `https://storage.googleapis.com/levante-assets-${isDev ? 'dev' : 'prod'}/translations/itembank/general/${configLanguage}/item-bank-translations.json`,
+      `https://storage.googleapis.com/levante-assets-${
+        isDev ? 'dev' : 'prod'
+      }/translations/itembank/${taskName}/${configLanguage}/item-bank-translations.json`,
+      `https://storage.googleapis.com/levante-assets-${
+        isDev ? 'dev' : 'prod'
+      }/translations/itembank/general/${configLanguage}/item-bank-translations.json`,
     ];
 
     // hostile attribution requires some strings in the theory of mind item bank
     if (taskName === 'hostile-attribution') {
-      urls.push(`https://storage.googleapis.com/levante-assets-${isDev ? 'dev' : 'prod'}/translations/itembank/theory-of-mind/${configLanguage}/item-bank-translations.json`);
+      urls.push(
+        `https://storage.googleapis.com/levante-assets-${
+          isDev ? 'dev' : 'prod'
+        }/translations/itembank/theory-of-mind/${configLanguage}/item-bank-translations.json`,
+      );
     }
     try {
       await loadTranslationJsons(taskName === 'intro' ? [urls[1]] : urls);

@@ -24,7 +24,7 @@ export function fixation(interStimulusInterval) {
       responseButtons.forEach((button, i) => {
         addKeyHelpers(button, i);
       });
-      
+
       if (hfV2) {
         setupHafMultiResponseTouchRouting();
       }

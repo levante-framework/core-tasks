@@ -229,7 +229,10 @@ export const stimulus = (trial?: StimulusType) => {
     response_ends_trial: () => {
       const stim = trial || taskStore().nextStimulus;
 
-      return !(stim.trialType === 'test-dimensions' || (stim.trialType === 'something-same-2' && stim.assessmentStage === 'practice_response'));
+      return !(
+        stim.trialType === 'test-dimensions' ||
+        (stim.trialType === 'something-same-2' && stim.assessmentStage === 'practice_response')
+      );
     },
     on_load: () => {
       startTime = performance.now();
@@ -343,7 +346,7 @@ export const stimulus = (trial?: StimulusType) => {
             if (selectionIdx !== taskStore().correctResponseIdx) {
               const rightPrompt = document.getElementById('right-prompt') as HTMLParagraphElement;
               const leftPrompt = document.getElementById('left-prompt') as HTMLParagraphElement;
-              rightPrompt.innerHTML =  `<p>${taskStore().translations.feedbackNotQuiteRight}</p>`;
+              rightPrompt.innerHTML = `<p>${taskStore().translations.feedbackNotQuiteRight}</p>`;
               leftPrompt.style.visibility = 'hidden';
 
               numberOfErrors++;
@@ -352,7 +355,7 @@ export const stimulus = (trial?: StimulusType) => {
                 restrictRepetition: {
                   enabled: false,
                   maxRepetitions: 2,
-                }
+                },
               };
 
               PageAudioHandler.stopAndDisconnectNode();

@@ -123,7 +123,7 @@ export const downexInstructions = downexData.map((data: any) => {
         if (replayButton) {
           (replayButton as HTMLButtonElement).disabled = true;
         }
-        
+
         disableOkButton();
 
         // Preserve stim-container height before animation

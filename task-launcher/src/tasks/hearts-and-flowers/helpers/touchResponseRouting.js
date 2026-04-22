@@ -40,10 +40,10 @@ export function setupHafMultiResponseTouchRouting() {
   });
 }
 
-let timeoutID; 
+let timeoutID;
 function triggerToast() {
   const toast = document.getElementById('lev-toast-default');
-  
+
   if (toast && !toast.classList.contains('show')) {
     toast.classList.add('show');
 

@@ -198,11 +198,11 @@ export const afcMatch = (trial?: StimulusType) => {
         if (taskStore().taskVersion === 2) {
           // insert progress indicator
           const numbers = {
-            'first_response': 1,
-            'second_response': 2,
-            'third_response': 3,
-            'fourth_response': 4,
-          }
+            first_response: 1,
+            second_response: 2,
+            third_response: 3,
+            fourth_response: 4,
+          };
           const currentResponse = numbers[stim.assessmentStage as keyof typeof numbers];
           const maxResponses = Number(stim.trialType[0]);
 
@@ -210,11 +210,13 @@ export const afcMatch = (trial?: StimulusType) => {
             const progressContainer = document.createElement('div');
             progressContainer.className = 'sds-progress-container';
             progressContainer.innerHTML = `
-              ${sdsProgressComponentFilled.repeat(currentResponse)} ${sdsProgressComponentEmpty.repeat(maxResponses - currentResponse)}
+              ${sdsProgressComponentFilled.repeat(currentResponse)} ${sdsProgressComponentEmpty.repeat(
+                maxResponses - currentResponse,
+              )}
             `;
             progressContainer.style.marginTop = '32px';
 
-          buttonContainer.parentNode?.insertBefore(progressContainer, buttonContainer.nextSibling);
+            buttonContainer.parentNode?.insertBefore(progressContainer, buttonContainer.nextSibling);
           }
 
           // Add primary OK button under the other buttons

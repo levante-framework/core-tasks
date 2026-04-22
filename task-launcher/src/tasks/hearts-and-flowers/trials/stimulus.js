@@ -21,7 +21,7 @@ import { shouldTerminateCat } from '../../shared/helpers/shouldTerminateCat';
   */
 
 export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrialFinishTimelineCallback = undefined) {
-  const hfV2 = taskStore().taskVersion === 2;;
+  const hfV2 = taskStore().taskVersion === 2;
   return {
     type: jsPsychHTMLMultiResponse,
     data: () => {

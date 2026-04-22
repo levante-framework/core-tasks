@@ -21,74 +21,43 @@ function isHfV2() {
 
 // These are the instruction "trials" they are full screen with no stimulus
 export function getHeartInstructions() {
-  return buildInstructionTrial(
-    mediaAssets.images.animalBodySq,
-    () => 'heartInstruct1',
-  );
+  return buildInstructionTrial(mediaAssets.images.animalBodySq, () => 'heartInstruct1');
 }
 
 export function getFlowerInstructions() {
-  return buildInstructionTrial(
-    mediaAssets.images.animalBodySq,
-    () => 'flowerInstruct1',
-  );
+  return buildInstructionTrial(mediaAssets.images.animalBodySq, () => 'flowerInstruct1');
 }
 
 export function getTimeToPractice() {
-  return buildInstructionTrial(
-    mediaAssets.images.animalBodySq,
-    () => 'heartsAndFlowersPracticeTime',
-  );
+  return buildInstructionTrial(mediaAssets.images.animalBodySq, () => 'heartsAndFlowersPracticeTime');
 }
 
 export function getKeepUp() {
-  return buildInstructionTrial(
-    mediaAssets.images.keepupSq,
-    () => 'heartsAndFlowersInstruct1',
-  );
+  return buildInstructionTrial(mediaAssets.images.keepupSq, () => 'heartsAndFlowersInstruct1');
 }
 
 export function getKeepGoing() {
-  return buildInstructionTrial(
-    mediaAssets.images.rocketSq,
-    () => 'heartsAndFlowersInstruct2',
-  );
+  return buildInstructionTrial(mediaAssets.images.rocketSq, () => 'heartsAndFlowersInstruct2');
 }
 
 export function getTimeToPlay() {
-  return buildInstructionTrial(
-    mediaAssets.images.animalBodySq,
-    () => 'heartsAndFlowersPlayTime',
-  );
+  return buildInstructionTrial(mediaAssets.images.animalBodySq, () => 'heartsAndFlowersPlayTime');
 }
 
 export function getMixedInstructions() {
-  return buildInstructionTrial(
-    mediaAssets.images.animalBodySq,
-    () => 'heartsAndFlowersInstruct3',
-  );
+  return buildInstructionTrial(mediaAssets.images.animalBodySq, () => 'heartsAndFlowersInstruct3');
 }
 
 export function getGoingFasterInstructions() {
-  return buildInstructionTrial(
-    mediaAssets.images.animalBodySq,
-    () => 'heartsAndFlowersInstruct4',
-  );
+  return buildInstructionTrial(mediaAssets.images.animalBodySq, () => 'heartsAndFlowersInstruct4');
 }
 
 export function getEndGame() {
-  return buildInstructionTrial(
-    mediaAssets.images.animalBodySq,
-    () => 'heartsAndFlowersEnd',
-  );
+  return buildInstructionTrial(mediaAssets.images.animalBodySq, () => 'heartsAndFlowersEnd');
 }
 
 export function getInputInstructions() {
-  return buildInstructionTrial(
-      mediaAssets.images.animalBodySq,
-      getInputInstructPrompt,
-      true,
-    );
+  return buildInstructionTrial(mediaAssets.images.animalBodySq, getInputInstructPrompt, true);
 }
 
 function buildInstructionTrial(mascotImage, getPromptKey, showResponseButtons = false) {
@@ -108,9 +77,10 @@ function buildInstructionTrial(mascotImage, getPromptKey, showResponseButtons = 
       // set the continue trial config based on the input capability
       continueTrialConfig = {
         type: taskStore().inputCapability?.touch || !isHfV2() ? 'button' : 'bottomText',
-        text: taskStore().inputCapability?.touch || !isHfV2()
-          ? taskStore().translations.continueButtonText
-          : taskStore().translations.heartsAndFlowersPressAnyKey,
+        text:
+          taskStore().inputCapability?.touch || !isHfV2()
+            ? taskStore().translations.continueButtonText
+            : taskStore().translations.heartsAndFlowersPressAnyKey,
       };
 
       return `
@@ -129,7 +99,9 @@ function buildInstructionTrial(mascotImage, getPromptKey, showResponseButtons = 
             </div>
             ${
               continueTrialConfig.type === 'bottomText'
-                ? `<div class="lev-row-container header" ${showResponseButtons ? 'style="display: none;"' : ''}><p>${continueTrialConfig.text}</p></div>`
+                ? `<div class="lev-row-container header" ${showResponseButtons ? 'style="display: none;"' : ''}><p>${
+                    continueTrialConfig.text
+                  }</p></div>`
                 : ''
             }
         </div>
@@ -137,8 +109,9 @@ function buildInstructionTrial(mascotImage, getPromptKey, showResponseButtons = 
     },
     prompt_above_buttons: true,
     keyboard_choices: showResponseButtons ? 'NO_KEYS' : 'ALL_KEYS',
-    button_choices: () => continueTrialConfig.type === 'button' ? [continueTrialConfig.text] : undefined,
-    button_html: () => continueTrialConfig.type === 'button' ? [`<button class="primary">%choice%</button>`]: undefined,
+    button_choices: () => (continueTrialConfig.type === 'button' ? [continueTrialConfig.text] : undefined),
+    button_html: () =>
+      continueTrialConfig.type === 'button' ? [`<button class="primary">%choice%</button>`] : undefined,
     on_load: () => {
       let responseButtons;
       let onButtonPress;
@@ -169,11 +142,9 @@ function buildInstructionTrial(mascotImage, getPromptKey, showResponseButtons = 
 
         onButtonPress = (button, i, event) => {
           if (
-            (
-              (i === 0 && event.key === 'ArrowLeft') ||
-              (i === 1 && event.key === 'ArrowRight') || 
-              (event.type === 'touchend')
-            ) && 
+            ((i === 0 && event.key === 'ArrowLeft') ||
+              (i === 1 && event.key === 'ArrowRight') ||
+              event.type === 'touchend') &&
             currentButtonToPress === i
           ) {
             PageAudioHandler.playAudio(mediaAssets.audio.coin);
@@ -184,18 +155,22 @@ function buildInstructionTrial(mascotImage, getPromptKey, showResponseButtons = 
             button.style.animation = 'none';
 
             currentButtonToPress++;
-            if (currentButtonToPress < responseButtons.length) { 
+            if (currentButtonToPress < responseButtons.length) {
               responseButtons[currentButtonToPress].style.animation = 'pulse 2s infinite';
             } else {
               buttonContainer.style.display = 'none';
-              
+
               if (continueTrialConfig.type === 'bottomText') {
                 const bottomText = document.querySelector('.lev-row-container.header');
                 bottomText.style.display = 'block';
 
-                window.addEventListener('keydown', () => {
-                  jsPsych.finishTrial();
-                }, { once: true });
+                window.addEventListener(
+                  'keydown',
+                  () => {
+                    jsPsych.finishTrial();
+                  },
+                  { once: true },
+                );
               } else {
                 const okButton = document.querySelector('.primary');
                 okButton.style.display = 'block';
@@ -223,9 +198,13 @@ function buildInstructionTrial(mascotImage, getPromptKey, showResponseButtons = 
 
           if (taskStore().inputCapability?.touch) {
             responseButtons.forEach((button, i) => {
-              button.addEventListener('touchend', (event) => {
-                onButtonPress(button, i, event);
-              }, { once: true });
+              button.addEventListener(
+                'touchend',
+                (event) => {
+                  onButtonPress(button, i, event);
+                },
+                { once: true },
+              );
             });
           } else {
             const onWindowKeydown = (event) => {

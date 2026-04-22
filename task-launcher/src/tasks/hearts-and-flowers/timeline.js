@@ -80,9 +80,7 @@ export default function buildHeartsAndFlowersTimeline(config, mediaAssets) {
   if (!hfV2) {
     totalRealTrials += timelineAdminConfig.mixed2.testTrialCount;
   } else if (!heavyInstructions) {
-    totalRealTrials +=
-    timelineAdminConfig.mixed2.testTrialCount + 
-    timelineAdminConfig.mixed3.testTrialCount;
+    totalRealTrials += timelineAdminConfig.mixed2.testTrialCount + timelineAdminConfig.mixed3.testTrialCount;
   }
 
   taskStore('totalTestTrials', totalRealTrials);

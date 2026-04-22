@@ -31,7 +31,6 @@ export function finishExperiment() {
       taskFinished: taskStore().taskComplete,
     });
   }, 50); // delay so that previous key presses are not captured
-  
 
   jsPsych.endExperiment(
     `<div class='lev-stimulus-container'>
