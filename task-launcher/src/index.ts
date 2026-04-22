@@ -43,9 +43,13 @@ export class TaskLauncher {
     let { language } = this.gameParams;
     taskStore('language', language);
 
-    // adding this to handle old 'es' variant language param values
+    // adding this to handle legacy two letter language codes in variant docs
     if (language === 'es') {
       language = 'es-CO';
+    } else if (language === 'en') {
+      language = 'en-US';
+    } else if (language === 'de') {
+      language = 'de-DE';
     }
 
     const { setConfig, getCorpus, buildTaskTimeline, getTranslations } =
@@ -59,10 +63,10 @@ export class TaskLauncher {
 
     try {
       // will avoid language folder if not provided
-      languageAudioAssets = await getMediaAssets(languageAudioBucket, {}, taskName, language);
-      sharedAudioAssets = await getMediaAssets(sharedAudioBucket, {}, taskName, 'shared');
-      taskVisualAssets = await getMediaAssets(taskVisualBucket, {}, taskName, language);
-      sharedVisualAssets = await getMediaAssets(sharedVisualBucket, {}, 'shared', language);
+      languageAudioAssets = await getMediaAssets(languageAudioBucket, {}, language, taskName);
+      sharedAudioAssets = await getMediaAssets(sharedAudioBucket, {}, 'shared', taskName);
+      taskVisualAssets = await getMediaAssets(taskVisualBucket, {}, language, taskName);
+      sharedVisualAssets = await getMediaAssets(sharedVisualBucket, {}, language, 'shared');
     } catch (error) {
       throw new Error('Error fetching media assets: ' + error);
     }
@@ -71,7 +75,7 @@ export class TaskLauncher {
 
     setTaskStore(config);
 
-    await getTranslations(isDev, config.language);
+    await getTranslations(isDev, taskName, language);
 
     // TODO: make hearts and flowers corpus? make list of tasks that don't need corpora?
     if (taskName !== 'hearts-and-flowers' && taskName !== 'memory-game' && taskName !== 'intro') {

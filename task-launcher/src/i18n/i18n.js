@@ -7,7 +7,7 @@ const languageDetector = new LanguageDetector();
 languageDetector.addDetector({
   name: 'defaultToEnglish',
   lookup(_options) {
-    return 'en';
+    return 'en-US';
   },
 });
 
@@ -23,7 +23,7 @@ i18next
     debug: false,
     // which langauage codes to use. Ex. if 'en-US' detected, will use 'en'
     // load: 'languageOnly',
-    fallbackLng: 'en',
+    fallbackLng: 'en-US',
     detection: {
       order: ['defaultToEnglish', 'querystring'],
     },
