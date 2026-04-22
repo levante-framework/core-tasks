@@ -48,14 +48,13 @@ export async function getMediaAssets(
       response = await fetch(`https://storage.googleapis.com/storage/v1/b/${bucket}/o?prefix=audio/en/`);
       data = await response.json();
     } else if (folder === 'audio/de-DE') {
-      console.log('fetching de-DE');
       response = await fetch(`https://storage.googleapis.com/storage/v1/b/${bucket}/o?prefix=audio/de/`);
       data = await response.json();
     }
   }
 
   data.items.forEach((item) => {
-    if (isLanguageAndDeviceValid(item.name, taskName, language) && isWhitelisted(item.name, whitelist)) {
+    if (isLanguageAndDeviceValid(item.name, language, taskName) && isWhitelisted(item.name, whitelist)) {
       const contentType = item.contentType;
       const id = item.name;
       const path = `https://storage.googleapis.com/${bucket}/${id}`;
@@ -73,7 +72,7 @@ export async function getMediaAssets(
   });
 
   if (data.nextPageToken) {
-    return getMediaAssets(bucketName, whitelist, taskName, language, data.nextPageToken, categorizedObjects);
+    return getMediaAssets(bucketName, whitelist, language, taskName, data.nextPageToken, categorizedObjects);
   } else {
     return categorizedObjects;
   }
@@ -81,6 +80,8 @@ export async function getMediaAssets(
 
 function isLanguageAndDeviceValid(filePath: string, languageCode: string, taskName: string) {
   const parts = filePath.split('/');
+  console.log('languageCode', languageCode);
+  console.log('taskName', taskName);
 
   if (parts.length !== 3) {
     return false;
