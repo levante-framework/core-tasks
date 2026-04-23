@@ -195,7 +195,7 @@ export const afcMatch = (trial?: StimulusType) => {
       let numberOfErrors = 0;
 
       if (stim.trialType !== 'instructions') {
-        if (taskStore().taskVersion === 2) {
+        if (taskStore().version === 2) {
           // insert progress indicator
           const numbers = {
             first_response: 1,
@@ -314,7 +314,7 @@ export const afcMatch = (trial?: StimulusType) => {
               selectedCardIdxs.push(i);
             }
 
-            if (taskStore().taskVersion === 2) {
+            if (taskStore().version === 2) {
               if (selectedCards.length === stim.requiredSelections) {
                 enableOkButton();
               } else {
@@ -334,7 +334,7 @@ export const afcMatch = (trial?: StimulusType) => {
       }
     },
     response_ends_trial: () => {
-      return (trial || taskStore().nextStimulus).trialType === 'instructions' && taskStore().taskVersion === 2;
+      return (trial || taskStore().nextStimulus).trialType === 'instructions' && taskStore().version === 2;
     },
     on_finish: () => {
       const stim = trial || taskStore().nextStimulus;

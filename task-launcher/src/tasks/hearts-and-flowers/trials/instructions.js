@@ -16,7 +16,7 @@ import { enableOkButton } from '../../shared/helpers/enableButtons';
 let continueTrialConfig;
 
 function isHfV2() {
-  return taskStore().taskVersion === 2;
+  return taskStore().version === 2;
 }
 
 // These are the instruction "trials" they are full screen with no stimulus

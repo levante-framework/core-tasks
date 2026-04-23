@@ -47,7 +47,11 @@ const inferenceNumStories =
   urlParams.get('inferenceNumStories') === null ? null : parseInt(urlParams.get('inferenceNumStories'), 10);
 const semThreshold = Number(urlParams.get('semThreshold') || '0');
 const startingTheta = Number(urlParams.get('theta') || '0');
-const taskVersion = urlParams.get('taskVersion') === null ? null : parseInt(urlParams.get('taskVersion'), 10);
+// `taskVersion` is deprecated; prefer `version` when both are present.
+const versionFromQuery = urlParams.get('version') === null ? null : parseInt(urlParams.get('version'), 10);
+const taskVersionFromQuery =
+  urlParams.get('taskVersion') === null ? null : parseInt(urlParams.get('taskVersion'), 10);
+const version = versionFromQuery ?? taskVersionFromQuery;
 
 // Boolean parameters
 const keyHelpers = stringToBoolean(urlParams.get('keyHelpers'));
@@ -98,7 +102,7 @@ async function startWebApp() {
         startingTheta,
         heavyInstructions,
         demoMode,
-        taskVersion,
+        version,
       };
 
       const taskInfo = {
