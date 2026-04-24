@@ -15,6 +15,7 @@ import { taskStore } from '../../../taskStore';
 import { handleStaggeredButtons } from '../../shared/helpers/staggerButtons';
 import { updateTheta } from '../../shared/helpers';
 import { setNextCatTrial } from '../helpers/setNextCatTrial';
+import { displayDebugInfo } from '../../shared/helpers/displayDebugInfo';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 let incorrectPracticeResponses: string[] = [];
@@ -249,6 +250,8 @@ export const legacyStimulus = (trial?: StimulusType) => {
           });
         });
       }
+
+      displayDebugInfo(stimulus);
     },
     on_finish: (data: any) => {
       const stim = trial || taskStore().nextStimulus;

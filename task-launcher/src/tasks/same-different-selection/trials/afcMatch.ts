@@ -16,6 +16,7 @@ import { finishExperiment } from '../../shared/trials';
 import { taskStore } from '../../../taskStore';
 import { updateTheta } from '../../shared/helpers';
 import { sdsProgressComponentFilled, sdsProgressComponentEmpty } from '../../shared/helpers/components';
+import { displayDebugInfo } from '../../shared/helpers/displayDebugInfo';
 
 let selectedCards: string[] = [];
 let selectedCardIdxs: number[] = [];
@@ -332,6 +333,8 @@ export const afcMatch = (trial?: StimulusType) => {
           }),
         );
       }
+
+      displayDebugInfo(stim);
     },
     response_ends_trial: () => {
       return (trial || taskStore().nextStimulus).trialType === 'instructions' && taskStore().taskVersion === 2;

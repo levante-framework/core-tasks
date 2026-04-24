@@ -16,6 +16,7 @@ import { taskStore } from '../../../taskStore';
 import { updateTheta } from '../../shared/helpers';
 import { setNextCatTrial } from '../helpers/setNextCatTrial';
 import { shouldTerminateCat } from '../../shared/helpers/shouldTerminateCat';
+import { displayDebugInfo } from '../../shared/helpers/displayDebugInfo';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 let incorrectPracticeResponses: string[] = [];
@@ -401,6 +402,8 @@ export const stimulus = (trial?: StimulusType) => {
           });
         });
       }
+
+      displayDebugInfo(stimulus);
     },
     on_finish: (data: any) => {
       PageAudioHandler.stopAndDisconnectNode();
