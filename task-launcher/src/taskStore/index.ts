@@ -26,6 +26,7 @@ import { InputCapability } from '../utils/detectInput';
  * @property {boolean} taskComplete - Whether the task has ended - if true, the user should return to dashboard.
  * @property {Object} assetsPerTask - Object containing list of assets belonging to each task.
  * @property {boolean} demoMode - Whether the task is running in demo mode (no interaction with Firestore), default is false.
+ * @property {boolean} debug - Shows theta estimate on the screen for cat debugging when enabled.
  * @property {number} currentCatBlock - The current block number to select trials from in a CAT.
  * @property {number[]} blockThresholds - Array of theta thresholds.
  * @property {number} totalTrialCount - Total number of trials, including practice and instructions.
@@ -89,6 +90,7 @@ export type TaskStoreDataType = {
   language?: string;
   maxTime?: number;
   demoMode: boolean;
+  debug: boolean;
   taskVersion: number;
   currentCatBlock?: number;
   blockThresholds?: number[];
@@ -144,6 +146,7 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     testPhase: false,
     maxTime: config.maxTime,
     demoMode: config.demoMode,
+    debug: config.debug,
     taskVersion: config.taskVersion || 1,
   });
 };

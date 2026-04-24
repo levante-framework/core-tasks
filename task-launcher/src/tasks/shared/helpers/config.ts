@@ -94,6 +94,7 @@ export const setSharedConfig = async (
     startingTheta,
     demoMode,
     taskVersion,
+    debug,
   } = cleanParams;
 
   const config = {
@@ -125,6 +126,7 @@ export const setSharedConfig = async (
     startingTheta: Number(startingTheta),
     demoMode: !!demoMode,
     taskVersion: Number(taskVersion || 1),
+    debug: !!debug,
     displayPromptDurations: {},
   };
 
