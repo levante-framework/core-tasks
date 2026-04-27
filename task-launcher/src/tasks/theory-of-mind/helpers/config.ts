@@ -5,6 +5,7 @@ import {
   DEFAULT_LAYOUT_CONFIG,
   mapDistractorsToString,
 } from '../../shared/helpers';
+import { taskStore } from '../../../taskStore';
 
 type GetConfigReturnType = {
   itemConfig: LayoutConfigType;
@@ -40,6 +41,8 @@ export const getLayoutConfig = (
     defaultConfig.classOverrides.buttonClassList = ['primary'];
     defaultConfig.disableOkButton = true;
   }
+
+  defaultConfig.blockedTrials = taskStore().version === 2;
 
   const messages = validateLayoutConfig(defaultConfig, mediaAssets, translations, stimulus);
 

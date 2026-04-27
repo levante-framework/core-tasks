@@ -11,6 +11,7 @@ import {
   enableOkButton,
   disableOkButton,
   shouldTerminateCat,
+  selectNextSequentialTrial,
 } from '../../shared/helpers';
 import { finishExperiment } from '../../shared/trials';
 import { taskStore } from '../../../taskStore';
@@ -408,16 +409,7 @@ export const afcMatch = (trial?: StimulusType) => {
           return trial.trialNumber === stim.trialNumber && trial.trialType === stim.trialType;
         });
 
-        // set the next stimulus here (rather than selecting it in a CAT) if there are remaining trials in the block
-        if (nextTrials.length > 0) {
-          const nextStim = nextTrials[0];
-          taskStore('nextStimulus', nextStim);
-          const newSequentialTrials = allSequentialTrials.filter((trial: StimulusType) => {
-            return trial.itemId !== nextStim.itemId;
-          });
-
-          taskStore('sequentialTrials', newSequentialTrials);
-        }
+        selectNextSequentialTrial(nextTrials);
       }
     },
   };

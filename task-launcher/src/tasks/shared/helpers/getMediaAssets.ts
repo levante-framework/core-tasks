@@ -80,8 +80,6 @@ export async function getMediaAssets(
 
 function isLanguageAndDeviceValid(filePath: string, languageCode: string, taskName: string) {
   const parts = filePath.split('/');
-  console.log('languageCode', languageCode);
-  console.log('taskName', taskName);
 
   if (parts.length !== 3) {
     return false;

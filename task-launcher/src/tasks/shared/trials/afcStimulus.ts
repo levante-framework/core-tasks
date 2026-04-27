@@ -16,6 +16,7 @@ import {
   addPracticeButtonListeners,
   enableOkButton,
   shouldTerminateCat,
+  selectNextSequentialTrial,
 } from '../helpers';
 import { mediaAssets } from '../../..';
 import { finishExperiment } from '.';
@@ -407,6 +408,14 @@ function doOnFinish(
 
   if (terminateCat) {
     shouldTerminateCat();
+  }
+
+  if (itemLayoutConfig?.blockedTrials) {
+    const nextTrials = taskStore().sequentialTrials.filter((trial: StimulusType) => {
+      return trial.block_index === stimulus.block_index;
+    });
+
+    selectNextSequentialTrial(nextTrials);
   }
 }
 

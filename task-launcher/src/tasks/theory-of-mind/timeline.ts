@@ -21,6 +21,7 @@ import {
 import { getLayoutConfig } from './helpers/config';
 import { taskStore } from '../../taskStore';
 import { preloadSharedAudio } from '../shared/helpers/preloadSharedAudio';
+import { prepareTomCorpus } from './helpers/prepareTomCorpus';
 
 export default function buildTOMTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   initTrialSaving(config);
@@ -57,7 +58,11 @@ export default function buildTOMTimeline(config: Record<string, any>, mediaAsset
   const initialPreload = preloadSharedAudio();
   const timeline = [initialPreload, initialTimeline];
 
-  const blockList = prepareMultiBlockCat(corpus, false);
+  const blockList: StimulusType[][] = prepareMultiBlockCat(corpus, false);
+  if (taskStore().version === 2) {
+    prepareTomCorpus(blockList);
+  }
+
   const batchedMediaAssets = batchMediaAssets(
     mediaAssets,
     blockList,
@@ -89,9 +94,14 @@ export default function buildTOMTimeline(config: Record<string, any>, mediaAsset
   taskStore('totalTestTrials', getRealTrials(corpus));
   blockList.forEach((block: StimulusType[]) => {
     preloadBlock();
+    if (taskStore().version === 2) {
+      timeline.push({ ...setupStimulus, stimulus: '' });
+    }
 
     for (let i = 0; i < block.length; i++) {
-      timeline.push({ ...setupStimulus, stimulus: '' });
+      if (!(taskStore().version === 2)) {
+        timeline.push({ ...setupStimulus, stimulus: '' });
+      }
       timeline.push(stimulusBlock);
     }
   });
