@@ -88,6 +88,7 @@ declare global {
     randomize?: 'yes' | 'no' | 'at_block_level';
     trialNumber?: number;
     downex?: boolean;
+    storyGroup?: number;
   };
 
   type MediaAssetsType = {

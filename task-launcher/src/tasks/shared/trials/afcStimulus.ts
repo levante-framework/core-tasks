@@ -172,7 +172,7 @@ function getButtonHtml(layoutConfigMap: Record<string, LayoutConfigType>, trial?
   const itemLayoutConfig = layoutConfigMap?.[stimulus.itemId];
   if (itemLayoutConfig) {
     const classList = [...itemLayoutConfig.classOverrides.buttonClassList];
-    const disableOkButton = itemLayoutConfig.disableOkButton;
+    const disableOkButton = false;
     // TODO: Remove once we have a way to handle practive btns
     if (isPracticeTrial) {
       classList.push('practice-btn');

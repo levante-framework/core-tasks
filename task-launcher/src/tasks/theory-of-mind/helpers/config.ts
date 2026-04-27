@@ -12,6 +12,8 @@ type GetConfigReturnType = {
   errorMessages: string[];
 };
 
+const fillerTrialIds = ['ToM-intro', 'ToM-transition'];
+
 export const getLayoutConfig = (
   stimulus: StimulusType,
   translations: Record<string, string>,
@@ -42,7 +44,7 @@ export const getLayoutConfig = (
     defaultConfig.disableOkButton = true;
   }
 
-  defaultConfig.blockedTrials = taskStore().version === 2;
+  defaultConfig.blockedTrials = taskStore().version === 2 && !fillerTrialIds.includes(stimulus.itemId);
 
   const messages = validateLayoutConfig(defaultConfig, mediaAssets, translations, stimulus);
 

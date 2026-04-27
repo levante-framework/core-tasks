@@ -14,6 +14,7 @@ import {
   afcStimulusTemplate,
   exitFullscreen,
   setupStimulus,
+  setupStimulusFromStoryGroup,
   taskFinished,
   enterFullscreen,
   finishExperiment,
@@ -21,7 +22,7 @@ import {
 import { getLayoutConfig } from './helpers/config';
 import { taskStore } from '../../taskStore';
 import { preloadSharedAudio } from '../shared/helpers/preloadSharedAudio';
-import { prepareTomCorpus } from './helpers/prepareTomCorpus';
+import { prepareTomCorpus, prepareStoryGroups } from './helpers/prepareTomCorpus';
 
 export default function buildTOMTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   initTrialSaving(config);
@@ -59,13 +60,12 @@ export default function buildTOMTimeline(config: Record<string, any>, mediaAsset
   const timeline = [initialPreload, initialTimeline];
 
   const blockList: StimulusType[][] = prepareMultiBlockCat(corpus, false);
-  if (taskStore().version === 2) {
-    prepareTomCorpus(blockList);
-  }
+  const fillerTrials = prepareTomCorpus(blockList);
+  const storyGroups = prepareStoryGroups(corpus);
 
   const batchedMediaAssets = batchMediaAssets(
     mediaAssets,
-    blockList,
+    (taskStore().version === 2) ? storyGroups : blockList,
     ['item', 'answer', 'distractors'],
     ['audioFile', 'distractors'], // we need to preload audio for the staggered buttons
   );
@@ -78,34 +78,62 @@ export default function buildTOMTimeline(config: Record<string, any>, mediaAsset
     currPreloadBatch++;
   }
 
-  const stimulusBlock = {
-    timeline: [afcStimulusTemplate(trialConfig)],
-    // true = execute normally, false = skip
-    conditional_function: () => {
-      if (taskStore().skipCurrentTrial) {
-        taskStore('skipCurrentTrial', false);
-        return false;
-      } else {
-        return true;
-      }
-    },
+  const stimulusBlock = (trial?: StimulusType) => {
+    return {
+      timeline: [afcStimulusTemplate(trialConfig, trial)],
+      // true = execute normally, false = skip
+      conditional_function: () => {
+        if (taskStore().skipCurrentTrial) {
+          taskStore('skipCurrentTrial', false);
+          return false;
+        } else {
+          return true;
+        }
+      },
+    };
+  };
+
+  const stimulusBlockCat = (currentStoryGroup: number) => {
+    return {
+      timeline: [afcStimulusTemplate(trialConfig)],
+      conditional_function: () => {
+        return currentStoryGroup === taskStore().currentStoryGroup;
+      },
+    };
   };
 
   taskStore('totalTestTrials', getRealTrials(corpus));
-  blockList.forEach((block: StimulusType[]) => {
-    preloadBlock();
-    if (taskStore().version === 2) {
-      timeline.push({ ...setupStimulus, stimulus: '' });
-    }
+  if (taskStore().version === 2) {
+    const numberOfStories = taskStore().numberOfStories;
+    // We can't know in advance how many trials will be in each story, so we set an arbitrarily high number
+    const upperTrialLimitPerStory = 50;
 
-    for (let i = 0; i < block.length; i++) {
-      if (!(taskStore().version === 2)) {
-        timeline.push({ ...setupStimulus, stimulus: '' });
+    for (let i = 0; i < numberOfStories; i++) {
+      preloadBlock();
+
+      if (i === 0) {
+        timeline.push(stimulusBlock(fillerTrials?.taskIntro));
+      } else {
+        timeline.push(stimulusBlock(fillerTrials?.blockTransition));
       }
-      timeline.push(stimulusBlock);
-    }
-  });
 
+      timeline.push({ ...setupStimulusFromStoryGroup, stimulus: '' });
+
+      for (let j = 0; j < upperTrialLimitPerStory; j++) {
+        timeline.push(stimulusBlockCat(i));
+      }
+    }
+  } else {
+    blockList.forEach((block: StimulusType[]) => {
+      preloadBlock();
+  
+      for (let i = 0; i < block.length; i++) {
+          timeline.push({ ...setupStimulus, stimulus: '' });
+        timeline.push(stimulusBlock);
+      }
+    });
+  }
+  
   initializeCat();
 
   timeline.push(taskFinished());

@@ -1,5 +1,6 @@
 import { taskStore } from '../../../taskStore';
 import { finishExperiment } from '../trials';
+import { camelize } from './camelize';
 import { PageStateHandler } from './PageStateHandler';
 
 // This feature allows the task configurator to set a time limit for the app,

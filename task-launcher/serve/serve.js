@@ -45,6 +45,7 @@ const language = urlParams.get('lng');
 const pid = urlParams.get('pid');
 const inferenceNumStories =
   urlParams.get('inferenceNumStories') === null ? null : parseInt(urlParams.get('inferenceNumStories'), 10);
+const numberOfStories = urlParams.get('numberOfStories') === null ? 3 : parseInt(urlParams.get('numberOfStories'), 10);
 const semThreshold = Number(urlParams.get('semThreshold') || '0');
 const startingTheta = Number(urlParams.get('theta') || '0');
 // `taskVersion` is deprecated; prefer `version` when both are present.
@@ -98,6 +99,7 @@ async function startWebApp() {
         storeItemId,
         cat,
         inferenceNumStories,
+        numberOfStories,
         semThreshold,
         startingTheta,
         heavyInstructions,

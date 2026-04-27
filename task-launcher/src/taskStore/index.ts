@@ -61,6 +61,7 @@ import { InputCapability } from '../utils/detectInput';
  * @property {Object} inputCapability - Object containing the input capability of the user's device.
  * --------- ToM only ---------
  * @property {Array} previousChoices - Array containing previously randomized order of choices for the current block.
+ * @property {number} currentStoryGroup - The current story group to select trials from in the ToM CAT..
  * ------- SDS only -------
  * @property {StimulusType[]} sequentialTrials - Should be run sequentially in blocks by trial number in an SDS CAT.
  * @property {number} version - A version number for the task, default is 1. Can be used as a feature flag.
@@ -82,6 +83,7 @@ export type TaskStoreDataType = {
     age: number;
   } & Record<string, any>;
   inferenceNumStories?: number; // FIXME: Remove
+  numberOfStories: number;
   cat: boolean;
   heavyInstructions: boolean;
   semThreshold: number;
@@ -141,10 +143,12 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     stimulusPosition: 0,
     isCorrect: false,
     inferenceNumStories: config.inferenceNumStories,
+    numberOfStories: config.numberOfStories,
     testPhase: false,
     maxTime: config.maxTime,
     demoMode: config.demoMode,
     version: config.version || 1,
+    currentStoryGroup: 0,
   });
 };
 

@@ -90,6 +90,7 @@ export const setSharedConfig = async (
     cat,
     heavyInstructions,
     inferenceNumStories,
+    numberOfStories,
     semThreshold,
     startingTheta,
     demoMode,
@@ -122,6 +123,7 @@ export const setSharedConfig = async (
     cat: !!cat, // defaults to false
     heavyInstructions: !!heavyInstructions,
     inferenceNumStories: Number(inferenceNumStories) || undefined,
+    numberOfStories: Number(numberOfStories) || 3,
     semThreshold: Number(semThreshold),
     startingTheta: Number(startingTheta),
     demoMode: !!demoMode,
