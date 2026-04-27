@@ -33,6 +33,10 @@ export function prepareTomCorpus(blockList: StimulusType[][]) {
 }
 
 export function prepareStoryGroups(corpus: StimulusType[]) {
+    if (!(taskStore().version === 2)) { 
+        return;
+    }
+
     const storyGroups: StimulusType[][] = [];
 
     for (let i = 0; i < taskStore().numberOfStories; i++) {

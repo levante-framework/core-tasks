@@ -65,7 +65,7 @@ export default function buildTOMTimeline(config: Record<string, any>, mediaAsset
 
   const batchedMediaAssets = batchMediaAssets(
     mediaAssets,
-    (taskStore().version === 2) ? storyGroups : blockList,
+    (taskStore().version === 2 && storyGroups !== undefined) ? storyGroups : blockList,
     ['item', 'answer', 'distractors'],
     ['audioFile', 'distractors'], // we need to preload audio for the staggered buttons
   );
@@ -129,7 +129,7 @@ export default function buildTOMTimeline(config: Record<string, any>, mediaAsset
   
       for (let i = 0; i < block.length; i++) {
           timeline.push({ ...setupStimulus, stimulus: '' });
-        timeline.push(stimulusBlock);
+        timeline.push(stimulusBlock());
       }
     });
   }
