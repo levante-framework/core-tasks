@@ -9,12 +9,12 @@ import {
   camelize,
   enableOkButton,
   disableOkButton,
+  selectNextSequentialTrial,
 } from '../../shared/helpers';
 import { finishExperiment } from '../../shared/trials';
 import { isTouchScreen, jsPsych } from '../../taskSetup';
 import { taskStore } from '../../../taskStore';
 import { updateTheta } from '../../shared/helpers';
-import { setNextCatTrial } from '../helpers/setNextCatTrial';
 import { shouldTerminateCat } from '../../shared/helpers/shouldTerminateCat';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
@@ -479,7 +479,13 @@ export const stimulus = (trial?: StimulusType) => {
         }
 
         if (cat && !(stim.assessmentStage === 'practice_response')) {
-          setNextCatTrial(stim);
+          shouldTerminateCat();
+          const allSequentialTrials = taskStore().sequentialTrials;
+          const nextTrials = allSequentialTrials.filter((trial: StimulusType) => {
+            return trial.trialNumber === stim.trialNumber && trial.trialType === stim.trialType;
+          });
+
+          selectNextSequentialTrial(nextTrials);
         }
       }
 

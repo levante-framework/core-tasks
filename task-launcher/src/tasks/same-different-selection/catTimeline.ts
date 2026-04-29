@@ -64,7 +64,7 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
     let trialGenerator;
     if (trial.trialType.includes('match')) {
       trialGenerator = afcMatch;
-    } else if (taskStore().taskVersion === 2) {
+    } else if (taskStore().version === 2) {
       trialGenerator = stimulus;
     } else {
       trialGenerator = legacyStimulus;
@@ -84,7 +84,7 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
   const feedbackBlock = {
     timeline: [feedback(true, 'feedbackCorrect', 'feedbackNotQuiteRight')],
     conditional_function: () => {
-      return taskStore().taskVersion === 2;
+      return taskStore().version === 2;
     },
   };
 
@@ -93,7 +93,7 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
     const timeline = [];
     for (let i = 0; i < trialNum; i++) {
       if (trialType === 'stimulus') {
-        timeline.push(taskStore().taskVersion === 2 ? stimulus() : legacyStimulus());
+        timeline.push(taskStore().version === 2 ? stimulus() : legacyStimulus());
         timeline.push(buttonNoise);
       } else {
         timeline.push(afcMatch());
@@ -125,7 +125,7 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
 
   let fiveBlockIntroTrial: StimulusType;
   let fiveBlockIntro: any;
-  if (taskStore().taskVersion === 2) {
+  if (taskStore().version === 2) {
     // separate this out so that it is inserted at the right place in the timeline
     fiveBlockIntroTrial = instructionPractice.find((trial) => trial.itemId === 'sds-instruct5') as StimulusType;
     instructionPractice = instructionPractice.filter((trial) => trial.itemId !== 'sds-instruct5');
@@ -161,7 +161,7 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
     });
 
     // only younger kids get something-same blocks
-    if (!heavy && index === 1 && taskStore().taskVersion === 2) {
+    if (!heavy && index === 1 && taskStore().version === 2) {
       return;
     }
 
@@ -176,7 +176,7 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
         timeline.push(runCatTrials(2, 'stimulus'));
       }
       if (index === 2) {
-        if (taskStore().taskVersion === 2) {
+        if (taskStore().version === 2) {
           timeline.push(fiveBlockIntro);
         }
         timeline.push(runCatTrials(2, 'afc'));

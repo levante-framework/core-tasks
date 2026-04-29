@@ -44,6 +44,7 @@ declare global {
       // Other config can be placed here
     };
     disableOkButton?: boolean; // disable the OK button until the instruction prompt ends
+    blockedTrials?: boolean; // when true with CAT, advance queued sequential trials in the same block via selectNextSequentialTrial
   };
 
   type AudioConfigType = {
@@ -87,6 +88,7 @@ declare global {
     randomize?: 'yes' | 'no' | 'at_block_level';
     trialNumber?: number;
     downex?: boolean;
+    storyGroup?: number;
   };
 
   type MediaAssetsType = {

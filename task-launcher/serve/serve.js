@@ -45,9 +45,14 @@ const language = urlParams.get('lng');
 const pid = urlParams.get('pid');
 const inferenceNumStories =
   urlParams.get('inferenceNumStories') === null ? null : parseInt(urlParams.get('inferenceNumStories'), 10);
+const numberOfStories = urlParams.get('numberOfStories') === null ? 3 : parseInt(urlParams.get('numberOfStories'), 10);
 const semThreshold = Number(urlParams.get('semThreshold') || '0');
 const startingTheta = Number(urlParams.get('theta') || '0');
-const taskVersion = urlParams.get('taskVersion') === null ? null : parseInt(urlParams.get('taskVersion'), 10);
+// `taskVersion` is deprecated; prefer `version` when both are present.
+const versionFromQuery = urlParams.get('version') === null ? null : parseInt(urlParams.get('version'), 10);
+const taskVersionFromQuery =
+  urlParams.get('taskVersion') === null ? null : parseInt(urlParams.get('taskVersion'), 10);
+const version = versionFromQuery ?? taskVersionFromQuery;
 
 // Boolean parameters
 const keyHelpers = stringToBoolean(urlParams.get('keyHelpers'));
@@ -94,11 +99,12 @@ async function startWebApp() {
         storeItemId,
         cat,
         inferenceNumStories,
+        numberOfStories,
         semThreshold,
         startingTheta,
         heavyInstructions,
         demoMode,
-        taskVersion,
+        version,
       };
 
       const taskInfo = {

@@ -5,7 +5,7 @@ import { setupHafMultiResponseTouchRouting } from '../helpers/touchResponseRouti
 import { taskStore } from '../../../taskStore';
 
 export function fixation(interStimulusInterval) {
-  const hfV2 = taskStore().taskVersion === 2;
+  const hfV2 = taskStore().version === 2;
   return {
     type: jsPsychHTMLMultiResponse,
     stimulus: () => {

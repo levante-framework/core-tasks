@@ -8,13 +8,13 @@ import {
   PageAudioHandler,
   camelize,
   shouldTerminateCat,
+  selectNextSequentialTrial,
 } from '../../shared/helpers';
 import { finishExperiment } from '../../shared/trials';
 import { isTouchScreen, jsPsych } from '../../taskSetup';
 import { taskStore } from '../../../taskStore';
 import { handleStaggeredButtons } from '../../shared/helpers/staggerButtons';
 import { updateTheta } from '../../shared/helpers';
-import { setNextCatTrial } from '../helpers/setNextCatTrial';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 let incorrectPracticeResponses: string[] = [];
@@ -319,7 +319,12 @@ export const legacyStimulus = (trial?: StimulusType) => {
 
         if (cat && !(stim.assessmentStage === 'practice_response')) {
           shouldTerminateCat();
-          setNextCatTrial(stim);
+          const allSequentialTrials = taskStore().sequentialTrials;
+          const nextTrials = allSequentialTrials.filter((trial: StimulusType) => {
+            return trial.trialNumber === stim.trialNumber && trial.trialType === stim.trialType;
+          });
+
+          selectNextSequentialTrial(nextTrials);
         }
       }
 

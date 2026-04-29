@@ -16,6 +16,7 @@ import {
   addPracticeButtonListeners,
   enableOkButton,
   shouldTerminateCat,
+  selectNextSequentialTrial,
 } from '../helpers';
 import { mediaAssets } from '../../..';
 import { finishExperiment } from '.';
@@ -172,7 +173,7 @@ function getButtonHtml(layoutConfigMap: Record<string, LayoutConfigType>, trial?
   if (itemLayoutConfig) {
     const classList = [...itemLayoutConfig.classOverrides.buttonClassList];
     const disableOkButton = itemLayoutConfig.disableOkButton;
-    // TODO: Remove once we have a way to handle practive btns
+    // TODO: Remove once we have a way to handle practice btns
     if (isPracticeTrial) {
       classList.push('practice-btn');
     }
@@ -407,6 +408,14 @@ function doOnFinish(
 
   if (terminateCat) {
     shouldTerminateCat();
+  }
+
+  if (itemLayoutConfig?.blockedTrials) {
+    const nextTrials = taskStore().sequentialTrials.filter((trial: StimulusType) => {
+      return trial.block_index === stimulus.block_index;
+    });
+
+    selectNextSequentialTrial(nextTrials);
   }
 }
 
