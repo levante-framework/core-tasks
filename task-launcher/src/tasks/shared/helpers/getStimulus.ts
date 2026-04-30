@@ -14,14 +14,18 @@ export const getStimulus = (corpusType: string, blockNumber?: number, storyGroup
 
   corpus = taskStore().corpora;
 
-  if (blockNumber) {   // if block number is specified, get next item from only the indicated block of the corpus
-    (itemSuggestion = cat.findNextItem(corpus[corpusType][blockNumber]))
-  } else if (storyGroup !== undefined) {   // if story group is specified (only for ToM), get next item from only the indicated story group of the corpus
+  if (blockNumber) {
+    // if block number is specified, get next item from only the indicated block of the corpus
+    itemSuggestion = cat.findNextItem(corpus[corpusType][blockNumber]);
+  } else if (storyGroup !== undefined) {
+    // if story group is specified (only for ToM), get next item from only the indicated story group of the corpus
     const storyGroupStimuli = corpus[corpusType].filter((stimulus: StimulusType) => stimulus.storyGroup === storyGroup);
 
     if (randomize) {
       const nextItem = storyGroupStimuli[Math.floor(Math.random() * storyGroupStimuli.length)];
-      const remainingStimuli = corpus[corpusType].filter((stimulus: StimulusType) => stimulus.itemId !== nextItem.itemId);
+      const remainingStimuli = corpus[corpusType].filter(
+        (stimulus: StimulusType) => stimulus.itemId !== nextItem.itemId,
+      );
 
       itemSuggestion = {
         nextStimulus: nextItem,

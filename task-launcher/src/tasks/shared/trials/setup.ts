@@ -55,7 +55,7 @@ function selectFromStoryGroup() {
 
 export const setupPractice = fixationTrial('practice');
 export const setupStimulus = fixationTrial('stimulus');
-export const setupStimulusFromStoryGroup = {...fixationTrial(), on_finish: selectFromStoryGroup, stimulus: '' };
+export const setupStimulusFromStoryGroup = { ...fixationTrial(), on_finish: selectFromStoryGroup, stimulus: '' };
 export const setupDownex = fixationTrial('downex');
 export const setupStimulusFromBlock = (blockNum: number) => fixationTrial('stimulus', blockNum);
 export const setupStimulusFromCurrentCatBlock = {

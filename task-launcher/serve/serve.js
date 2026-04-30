@@ -50,8 +50,7 @@ const semThreshold = Number(urlParams.get('semThreshold') || '0');
 const startingTheta = Number(urlParams.get('theta') || '0');
 // `taskVersion` is deprecated; prefer `version` when both are present.
 const versionFromQuery = urlParams.get('version') === null ? null : parseInt(urlParams.get('version'), 10);
-const taskVersionFromQuery =
-  urlParams.get('taskVersion') === null ? null : parseInt(urlParams.get('taskVersion'), 10);
+const taskVersionFromQuery = urlParams.get('taskVersion') === null ? null : parseInt(urlParams.get('taskVersion'), 10);
 const version = versionFromQuery ?? taskVersionFromQuery;
 
 // Boolean parameters
