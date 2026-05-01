@@ -14,10 +14,10 @@ export const getStimulus = (corpusType: string, blockNumber?: number, storyGroup
 
   corpus = taskStore().corpora;
 
-  if (blockNumber) {
+  if (blockNumber != null) {
     // if block number is specified, get next item from only the indicated block of the corpus
     itemSuggestion = cat.findNextItem(corpus[corpusType][blockNumber]);
-  } else if (storyGroup !== undefined) {
+  } else if (storyGroup != null) {
     // if story group is specified (only for ToM), get next item from only the indicated story group of the corpus
     const storyGroupStimuli = corpus[corpusType].filter((stimulus: StimulusType) => stimulus.storyGroup === storyGroup);
 
@@ -71,7 +71,7 @@ export const getStimulus = (corpusType: string, blockNumber?: number, storyGroup
   }
 
   // update the corpus with the remaining unused items
-  blockNumber != undefined
+  blockNumber != null
     ? (corpus[corpusType][blockNumber] = itemSuggestion.remainingStimuli)
     : (corpus[corpusType] = itemSuggestion.remainingStimuli);
 
