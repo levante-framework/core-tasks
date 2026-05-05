@@ -89,6 +89,7 @@ declare global {
     trialNumber?: number;
     downex?: boolean;
     storyGroup?: number;
+    discrimination?: number;
   };
 
   type MediaAssetsType = {
