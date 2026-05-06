@@ -90,11 +90,13 @@ export const setSharedConfig = async (
     cat,
     heavyInstructions,
     inferenceNumStories,
+    numberOfStories,
     semThreshold,
     startingTheta,
     demoMode,
-    taskVersion,
     debug,
+    version,
+    taskVersion, // deprecated; use `version` — kept for backward compatibility
   } = cleanParams;
 
   const config = {
@@ -122,11 +124,12 @@ export const setSharedConfig = async (
     cat: !!cat, // defaults to false
     heavyInstructions: !!heavyInstructions,
     inferenceNumStories: Number(inferenceNumStories) || undefined,
+    numberOfStories: Number(numberOfStories) || 3,
     semThreshold: Number(semThreshold),
     startingTheta: Number(startingTheta),
     demoMode: !!demoMode,
-    taskVersion: Number(taskVersion || 1),
     debug: !!debug,
+    version: Number((version ?? taskVersion) || 1),
     displayPromptDurations: {},
   };
 

@@ -27,7 +27,7 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
 
   let corpus: StimulusType[] = taskStore().corpora.stimulus;
 
-  if (!heavy && taskStore().taskVersion === 2) {
+  if (!heavy && taskStore().version === 2) {
     corpus = corpus.filter((trial) => {
       return !(trial.trialType.includes('something-same') && !(trial.assessmentStage === 'practice_response'));
     });
@@ -76,13 +76,13 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
       return (
         taskStore().nextStimulus.assessmentStage === 'practice_response' &&
         !taskStore().nextStimulus.trialType.includes('something-same-1') &&
-        taskStore().taskVersion === 2
+        taskStore().version === 2
       );
     },
   };
 
   const stimulusBlock = {
-    timeline: [taskStore().taskVersion === 2 ? stimulus() : legacyStimulus(), feedbackBlock],
+    timeline: [taskStore().version === 2 ? stimulus() : legacyStimulus(), feedbackBlock],
   };
 
   const afcBlock = {
@@ -117,7 +117,7 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
     timeline.push(stimulusBlock);
   };
 
-  const setupTrialDuration = taskStore().taskVersion === 2 ? 0 : 350;
+  const setupTrialDuration = taskStore().version === 2 ? 0 : 350;
 
   const updateSomethingSame = () => {
     timeline.push({ ...setupStimulus, stimulus: '', trial_duration: setupTrialDuration });

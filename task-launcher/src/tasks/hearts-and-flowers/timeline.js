@@ -28,7 +28,7 @@ import {
 import { StimulusType, StimulusSideType, AssessmentStageType, CorpusTrialType } from './helpers/utils';
 
 export default function buildHeartsAndFlowersTimeline(config, mediaAssets) {
-  const hfV2 = taskStore().taskVersion === 2;
+  const hfV2 = taskStore().version === 2;
   const { heavyInstructions } = taskStore();
   const preloadTrials = createPreloadTrials(mediaAssets).default;
 

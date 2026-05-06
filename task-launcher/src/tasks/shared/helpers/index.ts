@@ -46,5 +46,6 @@ export { disableOkButton } from './disableOkButton';
 export { enableOkButton, enableAllButtons } from './enableButtons';
 export { popAnimation, triggerAnimation, displaceAnimation } from './animateImages';
 export { shouldTerminateCat } from './shouldTerminateCat';
+export { selectNextSequentialTrial } from './selectNextSequentialTrial';
 export { checkFallbackCriteria } from './checkFallbackCriteria';
 export { addKeyHelpers } from './addKeyHelpers';

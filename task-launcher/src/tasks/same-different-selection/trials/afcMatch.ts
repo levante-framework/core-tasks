@@ -11,6 +11,7 @@ import {
   enableOkButton,
   disableOkButton,
   shouldTerminateCat,
+  selectNextSequentialTrial,
 } from '../../shared/helpers';
 import { finishExperiment } from '../../shared/trials';
 import { taskStore } from '../../../taskStore';
@@ -196,7 +197,7 @@ export const afcMatch = (trial?: StimulusType) => {
       let numberOfErrors = 0;
 
       if (stim.trialType !== 'instructions') {
-        if (taskStore().taskVersion === 2) {
+        if (taskStore().version === 2) {
           // insert progress indicator
           const numbers = {
             first_response: 1,
@@ -315,7 +316,7 @@ export const afcMatch = (trial?: StimulusType) => {
               selectedCardIdxs.push(i);
             }
 
-            if (taskStore().taskVersion === 2) {
+            if (taskStore().version === 2) {
               if (selectedCards.length === stim.requiredSelections) {
                 enableOkButton();
               } else {
@@ -337,7 +338,7 @@ export const afcMatch = (trial?: StimulusType) => {
       displayDebugInfo(stim);
     },
     response_ends_trial: () => {
-      return (trial || taskStore().nextStimulus).trialType === 'instructions' && taskStore().taskVersion === 2;
+      return (trial || taskStore().nextStimulus).trialType === 'instructions' && taskStore().version === 2;
     },
     on_finish: () => {
       const stim = trial || taskStore().nextStimulus;
@@ -411,16 +412,7 @@ export const afcMatch = (trial?: StimulusType) => {
           return trial.trialNumber === stim.trialNumber && trial.trialType === stim.trialType;
         });
 
-        // set the next stimulus here (rather than selecting it in a CAT) if there are remaining trials in the block
-        if (nextTrials.length > 0) {
-          const nextStim = nextTrials[0];
-          taskStore('nextStimulus', nextStim);
-          const newSequentialTrials = allSequentialTrials.filter((trial: StimulusType) => {
-            return trial.itemId !== nextStim.itemId;
-          });
-
-          taskStore('sequentialTrials', newSequentialTrials);
-        }
+        selectNextSequentialTrial(nextTrials);
       }
     },
   };
