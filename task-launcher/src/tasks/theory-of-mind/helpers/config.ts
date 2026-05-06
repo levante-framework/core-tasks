@@ -6,6 +6,7 @@ import {
   mapDistractorsToString,
 } from '../../shared/helpers';
 import { taskStore } from '../../../taskStore';
+import { addAudioKeyFallbacks } from '../../shared/helpers/addAudioKeyFallbacks';
 
 type GetConfigReturnType = {
   itemConfig: LayoutConfigType;
@@ -46,10 +47,11 @@ export const getLayoutConfig = (
 
   defaultConfig.blockedTrials = taskStore().version === 2 && !fillerTrialIds.includes(stimulus.itemId);
 
-  const messages = validateLayoutConfig(defaultConfig, mediaAssets, translations, stimulus);
+  const updatedConfig = addAudioKeyFallbacks(defaultConfig, mediaAssets);
+  const messages = validateLayoutConfig(updatedConfig, mediaAssets, translations, stimulus);
 
   return {
-    itemConfig: defaultConfig,
+    itemConfig: updatedConfig,
     errorMessages: messages,
   };
 };
