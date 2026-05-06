@@ -1,7 +1,7 @@
 // For all tasks except: H&F, Memory Game, Same Different Selection
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import _toNumber from 'lodash/toNumber';
-import { jsPsych, isTouchScreen } from '../../taskSetup';
+import { jsPsych, isTouchScreen, cat } from '../../taskSetup';
 import {
   arrowKeyEmojis,
   replayButtonSvg,
@@ -21,6 +21,7 @@ import {
 import { mediaAssets } from '../../..';
 import { finishExperiment } from '.';
 import { taskStore } from '../../../taskStore';
+import { displayDebugInfo } from '../helpers/displayDebugInfo';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 // Previously chosen responses for current practice trial
@@ -291,6 +292,9 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
   }
 
   setupReplayAudio(pageStateHandler);
+
+  // display debug info if enabled
+  displayDebugInfo(stim);
 }
 
 function doOnFinish(
@@ -301,6 +305,10 @@ function doOnFinish(
   trial?: StimulusType,
 ) {
   PageAudioHandler.stopAndDisconnectNode();
+
+  if (taskStore().debug) {
+    document.body.removeChild(document.querySelector('.theta-estimate-container') as Node);
+  }
 
   // note: nextStimulus is actually the current stimulus
   const stimulus = trial || taskStore().nextStimulus;

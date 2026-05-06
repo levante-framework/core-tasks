@@ -94,6 +94,7 @@ export const setSharedConfig = async (
     semThreshold,
     startingTheta,
     demoMode,
+    debug,
     version,
     taskVersion, // deprecated; use `version` — kept for backward compatibility
   } = cleanParams;
@@ -127,6 +128,7 @@ export const setSharedConfig = async (
     semThreshold: Number(semThreshold),
     startingTheta: Number(startingTheta),
     demoMode: !!demoMode,
+    debug: !!debug,
     version: Number((version ?? taskVersion) || 1),
     displayPromptDurations: {},
   };
