@@ -2,10 +2,17 @@ import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-respons
 import { mediaAssets } from '../../..';
 import { isTouchScreen } from '../../taskSetup';
 import { StimulusType, StimulusSideType, InputKey, getCorrectInputSide, getStimulusLayout } from '../helpers/utils';
-import { PageStateHandler, setupReplayAudio, PageAudioHandler } from '../../shared/helpers';
+import {
+  addExperimenterButtons,
+  PageStateHandler,
+  setupReplayAudio,
+  PageAudioHandler,
+  setupFullscreenButton,
+  getParticipantUtilityButtonsHtml,
+  addKeyHelpers,
+} from '../../shared/helpers';
 import { jsPsych } from '../../taskSetup';
 import { taskStore } from '../../../taskStore';
-import { addKeyHelpers } from '../../shared/helpers';
 import { setupHafMultiResponseTouchRouting } from '../helpers/touchResponseRouting';
 
 /**
@@ -64,6 +71,8 @@ export function buildInstructionPracticeTrial(
       PageAudioHandler.playAudio(promptAudioAsset);
       const pageStateHandler = new PageStateHandler(audioAssetKey);
       setupReplayAudio(pageStateHandler);
+      addExperimenterButtons();
+      setupFullscreenButton();
 
       buttons.forEach((button, i) => {
         addKeyHelpers(button, i);
@@ -212,6 +221,7 @@ function buildPracticeFeedback(
             <img src='${mediaAssets.images.smilingFace}' />
             <p class='lev-text h4 primary'>${correctPrompt}</p>
           </div>
+          ${getParticipantUtilityButtonsHtml('replay-btn-revisited', false)}
         `;
       }
       //no else: user input was incorrect
@@ -222,6 +232,9 @@ function buildPracticeFeedback(
     },
     prompt_above_buttons: true,
     on_load: () => {
+      addExperimenterButtons();
+      setupFullscreenButton();
+
       document.getElementById('jspsych-html-multi-response-stimulus').classList.add('haf-parent-container');
       document.getElementById('jspsych-html-multi-response-btngroup').classList.add('haf-parent-container');
       document.getElementById('jspsych-html-multi-response-btngroup').classList.add('lev-response-row');

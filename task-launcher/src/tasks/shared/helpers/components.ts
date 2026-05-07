@@ -31,3 +31,52 @@ export const sdsProgressComponentEmpty = `
   <rect x="1" y="1" width="80" height="24" rx="12" ry="12" fill="#828282" />
 </svg>
 `;
+
+export const exitButtonSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="icon icon-tabler icons-tabler-filled icon-tabler-xbox-x"><path stroke="none" d="M0 0h24v24H0z" fill="none" />
+  <path d="M12 2c5.523 0 10 4.477 10 10s-4.477 10 -10 10s-10 -4.477 -10 -10s4.477 -10 10 -10m3.6 5.2a1 1 0 0 0 -1.4 .2l-2.2 2.933l-2.2 -2.933a1 1 0 1 0 -1.6 1.2l2.55 3.4l-2.55 3.4a1 1 0 1 0 1.6 1.2l2.2 -2.933l2.2 2.933a1 1 0 0 0 1.6 -1.2l-2.55 -3.4l2.55 -3.4a1 1 0 0 0 -.2 -1.4" fill="#7D7F7C"/>
+</svg>
+`;
+
+export const pauseButtonSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="icon icon-tabler icons-tabler-filled icon-tabler-player-pause">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+  <path d="M9 4h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h2a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2z" fill="#7D7F7C"/>
+  <path d="M17 4h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h2a2 2 0 0 0 2 -2v-12a2 2 0 0 0 -2 -2z" fill="#7D7F7C"/>
+</svg>
+`;
+
+export const playButtonSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="icon icon-tabler icons-tabler-filled icon-tabler-player-play">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+  <path d="M6 4v16a1 1 0 0 0 1.524 .852l13 -8a1 1 0 0 0 0 -1.704l-13 -8a1 1 0 0 0 -1.524 .852z" fill="#7D7F7C"/>
+</svg>
+`;
+
+export const fullscreenButtonSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#275BDD" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-arrows-maximize">
+  <path d="M16 4l4 0l0 4"/>
+  <path d="M14 10l6 -6"/>
+  <path d="M8 20l-4 0l0 -4"/>
+  <path d="M4 20l6 -6"/>
+  <path d="M16 20l4 0l0 -4"/>
+  <path d="M14 14l6 6"/>
+  <path d="M8 4l-4 0l0 4"/>
+  <path d="M4 4l6 6"/>
+</svg>`;
+
+export const menuButtonSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="icon icon-tabler icons-tabler-filled icon-tabler-menu-2"><path stroke="none" d="M0 0h24v24H0z" fill="none" />
+  <path d="M21 6a1 1 0 0 1 -1 1h-16a1 1 0 1 1 0 -2h16a1 1 0 0 1 1 1" fill="#275BDD"/>
+  <path d="M21 12a1 1 0 0 1 -1 1h-16a1 1 0 0 1 0 -2h16a1 1 0 0 1 1 1" fill="#275BDD"/>
+  <path d="M21 18a1 1 0 0 1 -1 1h-16a1 1 0 0 1 0 -2h16a1 1 0 0 1 1 1" fill="#275BDD"/>
+</svg>`;
+
+// fullscreen and replay button html
+export function getParticipantUtilityButtonsHtml(replayButtonHtmlId: string, includeReplayButton = true): string {
+  return `
+    <div class="participant-button-container">
+      <button class="utility" id="fullscreen" ${document.fullscreenElement ? 'style="visibility: hidden;"' : ''}>
+        ${fullscreenButtonSvg}
+      </button>
+      ${includeReplayButton ? `<button id="${replayButtonHtmlId}" class="utility">
+        ${replayButtonSvg}
+      </button>` : ''}
+    </div>
+  `;
+}

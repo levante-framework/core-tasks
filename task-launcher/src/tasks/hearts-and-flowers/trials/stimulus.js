@@ -12,7 +12,7 @@ import {
 import shuffle from 'lodash/shuffle';
 import { finishExperiment } from '../../shared/trials';
 import { taskStore } from '../../../taskStore';
-import { addKeyHelpers, PageAudioHandler } from '../../shared/helpers';
+import { addExperimenterButtons, addKeyHelpers, PageAudioHandler, setupFullscreenButton } from '../../shared/helpers';
 import { setupHafMultiResponseTouchRouting } from '../helpers/touchResponseRouting';
 import { shouldTerminateCat } from '../../shared/helpers/shouldTerminateCat';
 /**
@@ -54,6 +54,9 @@ export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrial
       if (hfV2) {
         setupHafMultiResponseTouchRouting();
       }
+
+      addExperimenterButtons();
+      setupFullscreenButton();
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
     keyboard_choices: isTouchScreen ? InputKey.NoKeys : [InputKey.ArrowLeft, InputKey.ArrowRight],

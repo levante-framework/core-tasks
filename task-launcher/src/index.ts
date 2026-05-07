@@ -118,8 +118,8 @@ export class TaskLauncher {
     const pageSetup = new InitPageSetup(4000, translations);
     pageSetup.init();
     const checkTaskFinished = this.gameParams.demoMode
-      ? () => taskStore().taskComplete
-      : () => this.firekit?.run?.completed === true && taskStore().taskComplete;
+      ? () => taskStore().taskComplete || taskStore().quitTask
+      : () => this.firekit?.run?.completed === true && taskStore().taskComplete || taskStore().quitTask;
 
     await isTaskFinished(checkTaskFinished);
   }

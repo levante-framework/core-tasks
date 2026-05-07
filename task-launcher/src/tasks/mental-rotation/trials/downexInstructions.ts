@@ -1,7 +1,14 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
-import { camelize, disableOkButton, PageAudioHandler, replayButtonSvg } from '../../shared/helpers';
+import {
+  addExperimenterButtons,
+  camelize,
+  disableOkButton,
+  PageAudioHandler,
+  getParticipantUtilityButtonsHtml,
+  setupFullscreenButton,
+} from '../../shared/helpers';
 import { animate } from '../helpers/animate';
 import { jsPsych } from '../../taskSetup';
 import { pulseOkButton } from '../../shared/helpers/pulseOkButton';
@@ -73,12 +80,7 @@ export const downexInstructions = downexData.map((data: any) => {
       const itemText = data.audio.map((file: string) => t[camelize(file)]).join(' ');
 
       return `<div class="lev-stimulus-container">
-                  <button
-                      id="${replayButtonHtmlId}"
-                      class="replay"
-                  >
-                      ${replayButtonSvg}
-                  </button>
+                  ${getParticipantUtilityButtonsHtml(replayButtonHtmlId)}
                   <div class="lev-row-container instruction-small">
                       <p>${itemText}</p>
                   </div>
@@ -110,6 +112,9 @@ export const downexInstructions = downexData.map((data: any) => {
     keyboard_choices: () => 'NO_KEYS',
     on_load: async () => {
       startTime = performance.now();
+
+      addExperimenterButtons();
+      setupFullscreenButton();
 
       const replayButton = document.getElementById(replayButtonHtmlId);
       if (replayButton) {

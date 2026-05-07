@@ -61,6 +61,7 @@ const sequentialStimulus = stringToBoolean(urlParams.get('sequentialStimulus'), 
 const storeItemId = stringToBoolean(urlParams.get('storeItemId'), false);
 const cat = stringToBoolean(urlParams.get('cat'), false);
 const heavyInstructions = stringToBoolean(urlParams.get('heavyInstructions'), false);
+const experimenterButtons = stringToBoolean(urlParams.get('experimenterButtons'), false);
 const debug = stringToBoolean(urlParams.get('debug'), false);
 
 const emulatorConfig = EMULATORS ? firebaseJSON.emulators : undefined;
@@ -103,6 +104,7 @@ async function startWebApp() {
         semThreshold,
         startingTheta,
         heavyInstructions,
+        experimenterButtons,
         demoMode,
         version,
         debug,

@@ -17,7 +17,6 @@ import {
   setupStimulusFromStoryGroup,
   taskFinished,
   enterFullscreen,
-  finishExperiment,
 } from '../shared/trials';
 import { getLayoutConfig } from './helpers/config';
 import { taskStore } from '../../taskStore';
@@ -26,7 +25,7 @@ import { prepareTomCorpus, prepareStoryGroups } from './helpers/prepareTomCorpus
 
 export default function buildTOMTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   initTrialSaving(config);
-  const initialTimeline = initTimeline(config, enterFullscreen, finishExperiment);
+  const initialTimeline = initTimeline(config, enterFullscreen);
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {};

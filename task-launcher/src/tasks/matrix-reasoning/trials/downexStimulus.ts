@@ -2,12 +2,14 @@ import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-respons
 import { taskStore } from '../../../taskStore';
 import { mediaAssets } from '../../..';
 import {
+  addExperimenterButtons,
   addPracticeButtonListeners,
   camelize,
   PageAudioHandler,
   PageStateHandler,
-  replayButtonSvg,
+  getParticipantUtilityButtonsHtml,
   setupReplayAudio,
+  setupFullscreenButton,
   popAnimation,
   enableAllButtons,
 } from '../../shared/helpers';
@@ -50,13 +52,7 @@ export const downexStimulus = (
       }
 
       return `<div class="lev-stimulus-container">
-                        <button
-                            id="${replayButtonHtmlId}"
-                            class="replay"
-                            disabled
-                        >
-                            ${replayButtonSvg}
-                        </button>
+                        ${getParticipantUtilityButtonsHtml(replayButtonHtmlId)}
                         <div class="lev-row-container instruction-small">
                             <p>${itemText}</p>
                         </div>
@@ -100,6 +96,9 @@ export const downexStimulus = (
 
       // set up replay audio with animations
       const trialAudio = stim.audioFile;
+
+      addExperimenterButtons();
+      setupFullscreenButton();
 
       const replayButton = document.getElementById('replay-btn-revisited');
       if (animate) {

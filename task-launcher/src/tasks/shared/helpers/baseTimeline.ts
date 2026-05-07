@@ -4,7 +4,6 @@ import { startAppTimer } from './appTimer';
 export const initTimeline = (
   config: Record<string, any>,
   enterFullscreen: Record<string, any>,
-  finishExperiment: () => void,
 ) => {
   const initialTimeline = [enterFullscreen];
 
@@ -16,7 +15,7 @@ export const initTimeline = (
         ...config.userMetadata,
       });
 
-      startAppTimer(config.maxTime, finishExperiment);
+      startAppTimer(config.maxTime);
     },
   };
 

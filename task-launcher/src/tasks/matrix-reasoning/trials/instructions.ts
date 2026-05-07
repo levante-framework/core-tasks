@@ -1,10 +1,12 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
 import {
+  addExperimenterButtons,
   PageStateHandler,
   PageAudioHandler,
-  replayButtonSvg,
+  getParticipantUtilityButtonsHtml,
   setupReplayAudio,
+  setupFullscreenButton,
   camelize,
   addPracticeButtonListeners,
   disableOkButton,
@@ -33,12 +35,7 @@ export const instructions = instructionData.map((data) => {
       const t = taskStore().translations;
       const imageSrc = mediaAssets.images[data.image];
       return `<div class="lev-stimulus-container">
-                        <button
-                            id="${replayButtonHtmlId}"
-                            class="replay"
-                        >
-                            ${replayButtonSvg}
-                        </button>
+                        ${getParticipantUtilityButtonsHtml(replayButtonHtmlId)}
                         <div class="lev-row-container instruction-small">
                             <p>${t[data.prompt]}</p>
                         </div>
@@ -67,6 +64,8 @@ export const instructions = instructionData.map((data) => {
 
       const pageStateHandler = new PageStateHandler(data.prompt, true);
       setupReplayAudio(pageStateHandler);
+      addExperimenterButtons();
+      setupFullscreenButton();
     },
     on_finish: () => {
       PageAudioHandler.stopAndDisconnectNode();
@@ -138,12 +137,7 @@ export const downexInstructions1 = {
     const itemText = downexData1.audio.map((file: string) => t[camelize(file)]).join(' ');
 
     return `<div class="lev-stimulus-container">
-                  <button
-                      id="${replayButtonHtmlId}"
-                      class="replay"
-                  >
-                      ${replayButtonSvg}
-                  </button>
+                  ${getParticipantUtilityButtonsHtml(replayButtonHtmlId)}
                   <div class="lev-row-container instruction-small">
                       <p>${itemText}</p>
                   </div>
@@ -180,6 +174,9 @@ export const downexInstructions1 = {
   keyboard_choices: () => 'NO_KEYS',
   on_load: async () => {
     startTime = performance.now();
+
+    addExperimenterButtons();
+    setupFullscreenButton();
 
     // set up replay audio
     const trialAudio = downexData1.audio;
@@ -298,12 +295,7 @@ const textOnlyDownexInstruction = textOnlyDownexInstructionData.map((data) => {
 
       return `
       <div class="lev-stimulus-container">
-        <button
-          id="${replayButtonHtmlId}"
-          class="replay"
-        >
-          ${replayButtonSvg}
-        </button>
+        ${getParticipantUtilityButtonsHtml(replayButtonHtmlId)}
         <div class="lev-row-container instruction">
           <p>${itemText}</p>
         </div>
@@ -333,6 +325,8 @@ const textOnlyDownexInstruction = textOnlyDownexInstructionData.map((data) => {
 
       const pageStateHandler = new PageStateHandler(data.audio, true);
       setupReplayAudio(pageStateHandler);
+      addExperimenterButtons();
+      setupFullscreenButton();
     },
     on_finish: () => {
       PageAudioHandler.stopAndDisconnectNode();
@@ -356,12 +350,7 @@ export const downexInstructions3 = {
     const itemText = downexData3.audio.map((file: string) => t[camelize(file)]).join(' ');
 
     return `<div class="lev-stimulus-container">
-                  <button
-                      id="${replayButtonHtmlId}"
-                      class="replay"
-                  >
-                      ${replayButtonSvg}
-                  </button>
+                  ${getParticipantUtilityButtonsHtml(replayButtonHtmlId)}
                   <div class="lev-row-container instruction-small">
                       <p>${itemText}</p>
                   </div>
@@ -389,6 +378,9 @@ export const downexInstructions3 = {
   keyboard_choices: () => 'NO_KEYS',
   on_load: async () => {
     startTime = performance.now();
+
+    addExperimenterButtons();
+    setupFullscreenButton();
 
     // set up replay audio
     const trialAudio = downexData3.audio;
@@ -527,12 +519,7 @@ export const downexInstructions4 = {
     const itemText = downexData4.audio.map((file: string) => t[camelize(file)]).join(' ');
 
     return `<div class="lev-stimulus-container">
-                  <button
-                      id="${replayButtonHtmlId}"
-                      class="replay"
-                  >
-                      ${replayButtonSvg}
-                  </button>
+                  ${getParticipantUtilityButtonsHtml(replayButtonHtmlId)}
                   <div class="lev-row-container instruction-small">
                       <p>${itemText}</p>
                   </div>
@@ -559,6 +546,9 @@ export const downexInstructions4 = {
   keyboard_choices: () => 'NO_KEYS',
   on_load: async () => {
     startTime = performance.now();
+
+    addExperimenterButtons();
+    setupFullscreenButton();
 
     // set up replay audio
     const trialAudio = downexData4.audio;

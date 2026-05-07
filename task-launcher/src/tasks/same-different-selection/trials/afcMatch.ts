@@ -3,7 +3,7 @@ import { mediaAssets } from '../../..';
 import { jsPsych } from '../../taskSetup';
 import {
   prepareChoices,
-  replayButtonSvg,
+  getParticipantUtilityButtonsHtml,
   setupReplayAudio,
   PageStateHandler,
   PageAudioHandler,
@@ -12,6 +12,8 @@ import {
   disableOkButton,
   shouldTerminateCat,
   selectNextSequentialTrial,
+  addExperimenterButtons,
+  setupFullscreenButton,
 } from '../../shared/helpers';
 import { finishExperiment } from '../../shared/trials';
 import { taskStore } from '../../../taskStore';
@@ -141,12 +143,7 @@ export const afcMatch = (trial?: StimulusType) => {
 
       const t = taskStore().translations;
       return `<div class="lev-stimulus-container">
-        <button
-            id="${replayButtonHtmlId}"
-            class="replay"
-        >
-            ${replayButtonSvg}
-        </button>
+        ${getParticipantUtilityButtonsHtml(replayButtonHtmlId)}
         <div class="lev-row-container instruction">
           <p id="afc-match-prompt">${t[prompt]}</p>
         </div>
@@ -188,6 +185,8 @@ export const afcMatch = (trial?: StimulusType) => {
 
       const pageStateHandler = new PageStateHandler(audioFile, true);
       setupReplayAudio(pageStateHandler);
+      addExperimenterButtons();
+      setupFullscreenButton();
 
       const buttonContainer = document.getElementById('jspsych-audio-multi-response-btngroup') as HTMLDivElement;
       const responseBtns = Array.from(buttonContainer.children)
