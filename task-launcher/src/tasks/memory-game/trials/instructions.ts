@@ -146,7 +146,7 @@ const instructions = instructionData.map((data) => {
         setPromptDurations = true;
 
         const displayPromptDurations =
-          taskStore().language === 'en'
+          taskStore().language.includes('en')
             ? {
                 memoryGameInstruct7Downex: await PageAudioHandler.getAudioDuration(
                   mediaAssets.audio.memoryGameInstruct7Downex,

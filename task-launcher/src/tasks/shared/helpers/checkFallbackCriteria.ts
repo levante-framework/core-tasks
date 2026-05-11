@@ -10,5 +10,5 @@ export const checkFallbackCriteria = (filterInputTrials: boolean = false) => {
   }
 
   const numIncorrect = incorrectTrials.count();
-  return numIncorrect >= 2 && taskStore().language === 'en';
+  return numIncorrect >= 2 && taskStore().language.includes('en');
 };
