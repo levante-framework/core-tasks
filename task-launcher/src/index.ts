@@ -120,8 +120,8 @@ export class TaskLauncher {
     
     pageSetup.init();
     const checkTaskFinished = this.gameParams.demoMode
-      ? () => taskStore().taskComplete || taskStore().quitTask
-      : () => this.firekit?.run?.completed === true && taskStore().taskComplete || taskStore().quitTask;
+      ? () => taskStore().taskComplete
+      : () => this.firekit?.run?.completed === true && taskStore().taskComplete;
 
     await isTaskFinished(checkTaskFinished);
   }

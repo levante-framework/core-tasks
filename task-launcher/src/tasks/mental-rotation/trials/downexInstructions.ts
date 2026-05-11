@@ -8,12 +8,15 @@ import {
   PageAudioHandler,
   getParticipantUtilityButtonsHtml,
   setupFullscreenButton,
+  enableOkButton,
 } from '../../shared/helpers';
 import { animate } from '../helpers/animate';
 import { jsPsych } from '../../taskSetup';
 import { pulseOkButton } from '../../shared/helpers/pulseOkButton';
 
+
 const replayButtonHtmlId = 'replay-btn-revisited';
+let cycleId = 0; // disable audio if the trial has changed since the loop started - prevent overlapping audio
 
 const downexData = [
   {
@@ -63,13 +66,6 @@ const downexData = [
 ];
 
 let startTime: number;
-
-function enableOkBtn() {
-  const okButton: HTMLButtonElement | null = document.querySelector('.primary');
-  if (okButton != null) {
-    okButton.disabled = false;
-  }
-}
 
 export const downexInstructions = downexData.map((data: any) => {
   return {
@@ -124,6 +120,9 @@ export const downexInstructions = downexData.map((data: any) => {
       }
 
       function animateAndPlayAudio() {
+        cycleId++;
+        const thisCycleId = cycleId;
+
         // replay button and ok button should be disabled while animations are happening
         if (replayButton) {
           (replayButton as HTMLButtonElement).disabled = true;
@@ -169,8 +168,12 @@ export const downexInstructions = downexData.map((data: any) => {
         };
 
         function triggerNextEvent() {
+          if (thisCycleId !== cycleId || taskStore().isPaused) {
+            return;
+          }
+
           if (trialEventOrder.length === 0) {
-            enableOkBtn();
+            enableOkButton();
             pulseOkButton(3000, taskStore().totalTrialCount);
             if (replayButton) {
               (replayButton as HTMLButtonElement).disabled = false;
@@ -195,6 +198,7 @@ export const downexInstructions = downexData.map((data: any) => {
     },
     on_finish: () => {
       PageAudioHandler.stopAndDisconnectNode();
+      cycleId++;
 
       jsPsych.data.addDataToLastTrial({
         audioButtonPresses: PageAudioHandler.replayPresses,

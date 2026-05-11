@@ -31,7 +31,6 @@ import { InputCapability } from '../utils/detectInput';
  * @property {number} currentCatBlock - The current block number to select trials from in a CAT.
  * @property {number[]} blockThresholds - Array of theta thresholds.
  * @property {number} totalTrialCount - Total number of trials, including practice and instructions.
- * @property {boolean} quitTask - Whether the task has been quit by the user, default is false.
  * ------- Added after config is parsed -------
  * @property {number} totalTrials - Total number trials, including practice and instructions.
  * @property {number} totalTestTrials - Total number of test trials in the experiment timeline.
@@ -42,6 +41,7 @@ import { InputCapability } from '../utils/detectInput';
  * @property {any} taskTimer - The timer ID for the task, stored here so the task can be paused.
  * @property {number} taskTimerPausedMs - Cumulative ms excluded from max-time while experimenter pause is active.
  * @property {number|null} taskTimerPauseBeganAt - Wall time when the current experimenter pause began, or null.
+ * @property {boolean} isPaused - Whether the task is paused, default is false.
  * ------- AFC and SDS only -------
  * @property {string} target - Target item.
  * @property {Array} choices - List of choices.
@@ -107,7 +107,7 @@ export type TaskStoreDataType = {
   taskTimer: any;
   taskTimerPausedMs?: number;
   taskTimerPauseBeganAt?: number | null;
-  quitTask: boolean;
+  isPaused: boolean;
 };
 
 /**
@@ -166,7 +166,7 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     taskTimer: null,
     taskTimerPausedMs: 0,
     taskTimerPauseBeganAt: null,
-    quitTask: false,
+    isPaused: false,
   });
 };
 

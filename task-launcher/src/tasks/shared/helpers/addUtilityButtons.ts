@@ -2,6 +2,8 @@ import { pauseButtonSvg, playButtonSvg, exitButtonSvg, fullscreenButtonSvg, menu
 import { taskStore } from "../../../taskStore";
 import { finalizeCurrentPauseSegment, getActiveTaskElapsedMs } from "./appTimer";
 import { InitPageSetup } from "../../../utils/initPageSetup";
+import { jsPsych } from "../../taskSetup";
+import { PageAudioHandler } from "./audioHandler";
 
 let pageSetup: InitPageSetup | null = null;
 export function addExperimenterButtons() {
@@ -42,23 +44,34 @@ export function addExperimenterButtons() {
 
     const menuButton = document.getElementById("menu");
     menuButton?.addEventListener('click', () => {
-        if (menuButton.getAttribute('state') === 'closed') {
-            exitButton!.style.display = 'block';
-            pauseButton!.style.display = 'block';
-
-            menuButton!.classList.add('open');
-            menuButton.setAttribute('state', 'open');
-        } else {
-            exitButton!.style.display = 'none';
-            pauseButton!.style.display = 'none';
-
-            menuButton!.classList.remove('open');
-            menuButton.setAttribute('state', 'closed');
-        }
+        onMenuPress(menuButton as HTMLButtonElement);
     });
 
     pageSetup = new InitPageSetup(4000, taskStore().translations);
     pageSetup.init();
+
+    const popup = document.createElement('div');
+    popup.id = 'exit-confirmation-popup';
+    popup.classList.add('exit-confirmation-popup');
+    popup.textContent = taskStore().translations.generalConfirmExit || 'Are you sure you want to exit the game?';
+    popup.style.display = 'none';
+
+    const popupButtonContainer = document.createElement('div');
+    popupButtonContainer.id = 'exit-confirmation-popup-buttons';
+    popupButtonContainer.classList.add('exit-confirmation-popup-buttons');
+    popupButtonContainer.innerHTML = `
+        <button class="primary small">${taskStore().translations.yes || 'Yes'}</button>
+        <button class="primary small">${taskStore().translations.no || 'No'}</button>
+    `;
+    popup.appendChild(popupButtonContainer);
+
+    // equalize button widths
+    const popupButtons = popupButtonContainer.querySelectorAll('button');
+    const standardWidth = popupButtons[0].getBoundingClientRect().width;
+    popupButtons[0].style.width = standardWidth.toString() + 'px';
+    popupButtons[1].style.width = standardWidth.toString() + 'px';
+
+    document.body.appendChild(popup);
 }
 
 export function setupFullscreenButton() {
@@ -88,9 +101,14 @@ function onPause() {
     playButton?.addEventListener('click', () => {
         onResume();
     });
+
+    PageAudioHandler.stopAndDisconnectNode();
+    taskStore('isPaused', true);
 }
 
 function onResume() {
+    taskStore('isPaused', false);
+
     finalizeCurrentPauseSegment();
     const maxTimeInMilliseconds = Math.max(Number(taskStore().maxTime), 1) * 60000;
     const remainingMs = Math.max(0, maxTimeInMilliseconds - getActiveTaskElapsedMs());
@@ -107,11 +125,38 @@ function onResume() {
     buttons.forEach((button: HTMLButtonElement) => {
         button.disabled = false;
     });
+
+    // trigger replay button, which will repeat audio and animations
+    PageAudioHandler.stopAndDisconnectNode();
+    const replayButton = document.getElementById('replay-btn-revisited') as HTMLButtonElement;
+    if (replayButton && !replayButton.disabled) {
+        replayButton.click();
+        replayButton.disabled = true;
+    }
 }
 
 function onExit() {
-    taskStore('quitTask', true);
-    document.body.innerHTML = '';
+    openPopup();
+
+    const popupButtons = document.getElementById('exit-confirmation-popup-buttons')!.querySelectorAll('button');
+    popupButtons[0].addEventListener('click', () => {
+        document.body.innerHTML = '';
+        taskStore('taskComplete', true);
+        jsPsych.endExperiment();
+    });
+    popupButtons[1].addEventListener('click', () => {
+        closePopup();
+
+        const menuButton = document.getElementById("menu");
+        const exitButton = document.getElementById("exit");
+        const pauseButton = document.getElementById("pause");
+
+        exitButton!.style.display = 'none';
+        pauseButton!.style.display = 'none';
+
+        menuButton!.classList.remove('open');
+        menuButton!.setAttribute('state', 'closed');
+    });
 }
 
 function onFullscreen() {
@@ -122,4 +167,37 @@ function onFullscreen() {
     document.documentElement.requestFullscreen().catch((err) => {
         console.error(`Error enabling fullscreen: ${err.message}`);
     });
+}
+
+function onMenuPress(menuButton: HTMLButtonElement) {
+    const exitButton = document.getElementById("exit");
+    const pauseButton = document.getElementById("pause");
+
+    if (menuButton.getAttribute('state') === 'closed') {
+        exitButton!.style.display = 'block';
+        pauseButton!.style.display = 'block';
+
+        menuButton!.classList.add('open');
+        menuButton.setAttribute('state', 'open');
+    } else {
+        exitButton!.style.display = 'none';
+        pauseButton!.style.display = 'none';
+
+        menuButton!.classList.remove('open');
+        menuButton.setAttribute('state', 'closed');
+    }
+}
+
+function openPopup() {
+    const popup = document.getElementById('exit-confirmation-popup');
+    if (popup) {
+      popup.style.display = 'block';
+    }
+}
+
+function closePopup() {
+    const popup = document.getElementById('exit-confirmation-popup');
+    if (popup) {
+      popup.style.display = 'none';
+    }
 }

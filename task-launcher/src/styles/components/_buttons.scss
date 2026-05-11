@@ -49,6 +49,17 @@ button {
       box-shadow: $button-default-box-shadow $btn-disabled-inset inset;
       cursor: no-drop;
     }
+
+    &.small {
+      font-size: $font-size-xxxs;
+      font-weight: $font-weight-normal;
+      color: $txt-white;
+      padding: $button-primary-padding-xs;
+      border-radius: $button-default-border-radius-small;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
   }
 
   &.secondary {

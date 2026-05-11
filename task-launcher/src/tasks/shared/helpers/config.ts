@@ -98,6 +98,7 @@ export const setSharedConfig = async (
     debug,
     version,
     taskVersion, // deprecated; use `version` — kept for backward compatibility
+    isPaused,
   } = cleanParams;
 
   const config = {
@@ -134,7 +135,7 @@ export const setSharedConfig = async (
     version: Number((version ?? taskVersion) || 1),
     displayPromptDurations: {},
     taskTimer: null,
-    quitTask: false,
+    isPaused: false,
   };
 
   // default corpus if nothing is passed in

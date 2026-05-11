@@ -18,7 +18,7 @@ import { isTouchScreen, jsPsych } from '../../taskSetup';
 const replayButtonHtmlId = 'replay-btn-revisited';
 let practiceResponses = [];
 let startTime: number;
-let audioEnabled = false; // disable audio if the trial has changed since the loop started - prevent overlapping audio
+let cycleId = 0; // disable audio if the trial has changed since the loop started - prevent overlapping audio
 
 export const downexStimulus = (
   layoutConfigMap: Record<string, LayoutConfigType>,
@@ -125,13 +125,13 @@ export const downexStimulus = (
 
       function onCorrect() {
         PageAudioHandler.stopAndDisconnectNode();
-        audioEnabled = false;
+        cycleId++;
         PageAudioHandler.playAudio(mediaAssets.audio.feedbackRightOne);
       }
 
       function onIncorrect() {
         PageAudioHandler.stopAndDisconnectNode();
-        audioEnabled = false;
+        cycleId++;
 
         const rspImages = buttons.map((button) => button.querySelector('img'));
         const targetImageIdx = rspImages.findIndex((image) => image?.alt === stim.answer);
@@ -163,6 +163,9 @@ export const downexStimulus = (
       );
 
       async function animateAndPlayAudio() {
+        cycleId++;
+        const thisCycleId = cycleId;
+
         // replay button should be disabled while animations are happening
         if (replayButton) {
           (replayButton as HTMLButtonElement).disabled = true;
@@ -185,12 +188,8 @@ export const downexStimulus = (
           for (const [index, audioFile] of trialAudio.entries()) {
             const audioUri = mediaAssets.audio[camelize(audioFile)] || mediaAssets.audio.nullAudio;
 
-            if (index === 0) {
-              audioEnabled = true;
-            }
-
             // make sure the trial has not changed since the loop started
-            if (!audioEnabled) {
+            if (thisCycleId !== cycleId || taskStore().isPaused) {
               break;
             }
 
@@ -221,7 +220,7 @@ export const downexStimulus = (
     },
     on_finish: (data: any) => {
       PageAudioHandler.stopAndDisconnectNode();
-      audioEnabled = false;
+      cycleId++;
 
       const stimulus = trial || taskStore().nextStimulus;
       const itemLayoutConfig = layoutConfigMap?.[stimulus.itemId];
