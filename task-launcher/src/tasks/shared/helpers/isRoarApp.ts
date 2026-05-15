@@ -8,7 +8,10 @@ const roarFirebaseProjects = [
   'gse-roar-admin-dev',
 ];
 
-export function isRoarApp(_firekit: RoarAppkit) {
+export function isRoarApp(_firekit: RoarAppkit | null) {
+  if (!_firekit) {
+    return false;
+  }
   const projectId = _firekit?.firebaseProject?.firebaseApp?.options?.projectId ?? '';
   return roarFirebaseProjects.includes(projectId);
 }
