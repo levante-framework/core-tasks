@@ -119,21 +119,8 @@ export const initTrialSaving = (config: Record<string, any>) => {
 
   // @ts-ignore
   jsPsych.opts.on_finish = extend(jsPsych.opts.on_finish, () => {
-    // Add finishing metadata to run doc
-    // const finishingMetadata = {}
-    // const { maxTimeReached, numIncorrect, maxIncorrect } = taskStore();
 
-    // if (maxTimeReached) {
-    //   finishingMetadata.reasonTaskEnded = 'Max Time'
-    // } else if (numIncorrect >= maxIncorrect) {
-    //   finishingMetadata.reasonTaskEnded = 'Max Incorrect Trials'
-    // } else {
-    //   finishingMetadata.reasonTaskEnded = 'Completed Task'
-    // }
-
-    // config.firekit.finishRun(finishingMetadata);
-
-    if (!taskStore().demoMode) {
+    if (!taskStore().demoMode && config.firekit) {
       config.firekit.finishRun();
     }
   });
@@ -154,7 +141,7 @@ export const initTrialSaving = (config: Record<string, any>) => {
 
   // @ts-ignore
   jsPsych.opts.on_data_update = extend(jsPsych.opts.on_data_update, (data) => {
-    if (data.save_trial && !taskStore().demoMode) {
+    if (data.save_trial && !taskStore().demoMode && config.firekit) {
       // save_trial is a flag that indicates whether the trial should
       // be saved to Firestore. No point in writing it to the db.
       // creating a deep copy to prevent modifying of original data
