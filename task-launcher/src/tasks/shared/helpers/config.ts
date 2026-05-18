@@ -61,7 +61,7 @@ const defaultCorpus: Record<string, string> = {
 };
 
 export const setSharedConfig = async (
-  firekit: RoarAppkit,
+  firekit: RoarAppkit | null,
   gameParams: GameParamsType,
   userParams: UserParamsType,
 ): Promise<TaskStoreDataType> => {
@@ -142,10 +142,6 @@ export const setSharedConfig = async (
   if (!config.corpus) {
     config.corpus = defaultCorpus[camelize(taskName)];
   }
-
-  const updatedGameParams = Object.fromEntries(
-    Object.entries(gameParams).map(([key, value]) => [key, config[key as keyof typeof config] ?? value]),
-  );
 
   return config;
 };

@@ -1,7 +1,7 @@
 import { taskStore } from '../../../taskStore';
 
 export function recordCompletion(config: Record<string, any>) {
-  if (!config?.firekit?.run?.completed && !taskStore().demoMode) {
+  if (!taskStore().demoMode && config.firekit && !config.firekit?.run?.completed) {
     config.firekit.finishRun();
   }
 }

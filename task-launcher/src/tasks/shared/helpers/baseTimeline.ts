@@ -10,10 +10,12 @@ export const initTimeline = (
   const beginningTimeline = {
     timeline: initialTimeline,
     on_timeline_finish: async () => {
-      await config.firekit.updateUser({
-        assessmentPid: config.pid || makePid(),
-        ...config.userMetadata,
-      });
+      if (config.firekit) {
+        await config.firekit.updateUser({
+            assessmentPid: config.pid || makePid(),
+            ...config.userMetadata,
+          });
+      }
 
       startAppTimer(config.maxTime);
     },
