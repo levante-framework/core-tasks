@@ -1,7 +1,7 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { jsPsych } from '../../taskSetup';
 import { mediaAssets } from '../../..';
-import { PageStateHandler, PageAudioHandler, replayButtonSvg, setupReplayAudio } from '../../shared/helpers';
+import { PageStateHandler, PageAudioHandler, replayButtonSvg, setupReplayAudio, isEnglish } from '../../shared/helpers';
 import { taskStore } from '../../../taskStore';
 
 let setPromptDurations = false;
@@ -146,7 +146,7 @@ const instructions = instructionData.map((data) => {
         setPromptDurations = true;
 
         const displayPromptDurations =
-          taskStore().language.includes('en')
+          isEnglish(taskStore().language)
             ? {
                 memoryGameInstruct7Downex: await PageAudioHandler.getAudioDuration(
                   mediaAssets.audio.memoryGameInstruct7Downex,
