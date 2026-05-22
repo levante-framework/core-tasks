@@ -1,4 +1,5 @@
 import { replayButtonSvg } from '../../shared/helpers';
+import { taskStore } from '../../../taskStore';
 
 export const StimulusType = Object.freeze({
   Heart: 'heart',
@@ -107,4 +108,10 @@ export const getStimulusLayout = (imageSrc, isLeft, promptText = undefined, repl
   `;
 
   return template;
+};
+
+export const getInputInstructPrompt = () => {
+  const inputCapability = taskStore().inputCapability;
+
+  return inputCapability?.touch ? 'heartsAndFlowersInstructTouchscreen' : 'heartsAndFlowersInstructKeyboard';
 };

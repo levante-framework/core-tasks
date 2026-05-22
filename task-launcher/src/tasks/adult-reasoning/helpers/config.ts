@@ -26,7 +26,6 @@ export const getLayoutConfig = (
     value: stimItem,
     displayValue: undefined,
   };
-  defaultConfig.inCorrectTrialConfig.onIncorrectTrial = 'skip';
   if (!defaultConfig.isInstructionTrial) {
     const mappedDistractors = mapDistractorsToString(distractors);
     const prepChoices = prepareChoices(answer.toString(), mappedDistractors, 'yes', trialType);
@@ -43,6 +42,8 @@ export const getLayoutConfig = (
       value: stimItem,
       displayValue: stimItem,
     };
+  } else {
+    defaultConfig.classOverrides.buttonClassList = ['primary'];
   }
 
   const messages = validateLayoutConfig(defaultConfig, mediaAssets, translations, stimulus);

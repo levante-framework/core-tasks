@@ -61,6 +61,9 @@ button {
     font-size: $font-size-lm;
     width: 2.5 * $font-size-l;
     height: 2.5 * $font-size-l;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     @include respond-to('small-medium') {
       font-size: $font-size-ms;
@@ -251,7 +254,7 @@ button {
     @extend .button-base;
     padding: 0;
     box-sizing: border-box;
-    border-color: $bg-button-primary;
+    border-color: $border-grey;
     min-width: unset !important;
     min-height: unset !important;
 
@@ -297,7 +300,7 @@ button {
     @extend .button-base;
     padding: 0;
     box-sizing: border-box;
-    border-color: $bg-button-primary;
+    border-color: $border-grey;
     min-width: unset !important;
     min-height: unset !important;
     background-color: $bg-bubble-base;
@@ -336,11 +339,22 @@ button {
     }
   }
 
+  // for applying grayed-out styling independent of the disabled button state
+  &.image-grayed-out {
+    filter: grayscale(100%);
+    -moz-filter: grayscale(100%);
+    -ms-filter: grayscale(100%);
+    -o-filter: grayscale(100%);
+    filter: gray; /* IE6-9 */
+    -webkit-filter: grayscale(100%); /* Chrome 19+, Safari 6+, Safari 6+ iOS */
+    opacity: 0.6;
+  }
+
   &.image-large {
     @extend .button-base;
     padding: 0;
     box-sizing: border-box;
-    border-color: $bg-button-primary;
+    border-color: $border-grey;
 
     img {
       border: none;
@@ -365,7 +379,7 @@ button {
     @extend .button-base;
     padding: 0;
     box-sizing: border-box;
-    border-color: $bg-button-primary;
+    border-color: $border-grey;
 
     img {
       border: none;
@@ -421,5 +435,6 @@ button {
   &.info-shadow {
     box-shadow: 0 0 20px 5px $border-accent;
     border-radius: 2rem;
+    border-color: $bg-accent_secondary;
   }
 }

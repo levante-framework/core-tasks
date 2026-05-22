@@ -12,6 +12,7 @@ import { afcMatch } from './trials/afcMatch';
 import {
   enterFullscreen,
   exitFullscreen,
+  feedback,
   finishExperiment,
   fixationOnly,
   getAudioResponse,
@@ -19,28 +20,21 @@ import {
   taskFinished,
 } from '../shared/trials';
 import { setTrialBlock } from './helpers/setTrialBlock';
-import {
-  matchDemo1,
-  matchDemo2,
-  somethingSameDemo1,
-  somethingSameDemo2,
-  somethingSameDemo3,
-} from './trials/heavyInstructions';
-import { dataQualityScreen } from '../shared/trials/dataQuality';
 import { initializeCat, jsPsych } from '../taskSetup';
+import { legacyStimulus } from './trials/legacyStimulus';
 
 export default function buildSameDifferentTimelineCat(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
   const heavy: boolean = taskStore().heavyInstructions;
 
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
-  const preparedCorpus = prepareCorpus(corpus);
+  const preparedCorpus = prepareCorpus(corpus, false, undefined, true);
 
   const catCorpus = setupSds(taskStore().corpora.stimulus);
   const allBlocks = prepareMultiBlockCat(catCorpus);
 
   const newCorpora = {
-    practice: taskStore().corpora.practice,
+    downex: taskStore().corpora.downex,
     stimulus: allBlocks,
   };
   taskStore('corpora', newCorpora); // puts all blocks into taskStore
@@ -67,9 +61,31 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
 
   // used for instruction and practice trials
   const ipBlock = (trial: StimulusType) => {
+    let trialGenerator;
+    if (trial.trialType.includes('match')) {
+      trialGenerator = afcMatch;
+    } else if (taskStore().version === 2) {
+      trialGenerator = stimulus;
+    } else {
+      trialGenerator = legacyStimulus;
+    }
+
+    const practice = trial.assessmentStage === 'practice_response';
+    const timeline =
+      practice && !trial.trialType.includes('something-same-1')
+        ? [{ ...fixationOnly, stimulus: '' }, trialGenerator(trial), feedbackBlock]
+        : [{ ...fixationOnly, stimulus: '' }, trialGenerator(trial)];
+
     return {
-      timeline: [{ ...fixationOnly, stimulus: '' }, stimulus(trial)],
+      timeline: timeline,
     };
+  };
+
+  const feedbackBlock = {
+    timeline: [feedback(true, 'feedbackCorrect', 'feedbackNotQuiteRight')],
+    conditional_function: () => {
+      return taskStore().version === 2;
+    },
   };
 
   // returns timeline object containing the appropriate trials - only runs if they match what is in taskStore
@@ -77,15 +93,11 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
     const timeline = [];
     for (let i = 0; i < trialNum; i++) {
       if (trialType === 'stimulus') {
-        timeline.push(stimulus());
+        timeline.push(taskStore().version === 2 ? stimulus() : legacyStimulus());
         timeline.push(buttonNoise);
       } else {
-        timeline.push(afcMatch);
+        timeline.push(afcMatch());
         timeline.push(buttonNoise);
-      }
-
-      if (i < trialNum - 1) {
-        timeline.push({ ...fixationOnly, stimulus: '' });
       }
     }
 
@@ -109,15 +121,34 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
   const timeline = [preloadTrials, initialTimeline];
 
   // all instructions + practice trials
-  const instructionPractice: StimulusType[] = heavy ? preparedCorpus.ipHeavy : preparedCorpus.ipLight;
+  let instructionPractice: StimulusType[] = preparedCorpus.ipLight;
+
+  let fiveBlockIntroTrial: StimulusType;
+  let fiveBlockIntro: any;
+  if (taskStore().version === 2) {
+    // separate this out so that it is inserted at the right place in the timeline
+    fiveBlockIntroTrial = instructionPractice.find((trial) => trial.itemId === 'sds-instruct5') as StimulusType;
+    instructionPractice = instructionPractice.filter((trial) => trial.itemId !== 'sds-instruct5');
+
+    fiveBlockIntro = {
+      timeline: [ipBlock(fiveBlockIntroTrial)],
+      conditional_function: () => {
+        return taskStore().nextStimulus.trialType === '4-match';
+      },
+    };
+  }
 
   // returns practice + instruction trials for a given block
   function getPracticeInstructions(blockNum: number): StimulusType[] {
-    return instructionPractice.filter((trial) => trial.blockIndex == blockNum);
+    return instructionPractice.filter((trial) => {
+      if (Number.isNaN(trial.block_index)) return;
+
+      return trial.block_index === blockNum;
+    });
   }
 
   // create list of numbers of trials per block
-  const blockCountList = setTrialBlock(true);
+  const blockCountList = setTrialBlock(true).blockCountList;
 
   const totalRealTrials = blockCountList.reduce((acc, total) => acc + total, 0);
   taskStore('totalTestTrials', totalRealTrials);
@@ -125,27 +156,13 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
   blockCountList.forEach((count, index) => {
     const currentBlockInstructionPractice = getPracticeInstructions(index);
 
-    // push in instruction + practice trials
-    if (index === 1 && heavy) {
-      // something's the same block has demo trials in between instructions
-      const firstInstruction = currentBlockInstructionPractice.shift();
-      if (firstInstruction != undefined) {
-        timeline.push(ipBlock(firstInstruction));
-      }
-
-      timeline.push(somethingSameDemo1);
-      timeline.push(somethingSameDemo2);
-      timeline.push(somethingSameDemo3);
-    }
-
     currentBlockInstructionPractice.forEach((trial) => {
       timeline.push(ipBlock(trial));
     });
 
-    if (index === 2 && heavy) {
-      // 2-match has demo trials after instructions
-      timeline.push(matchDemo1);
-      timeline.push(matchDemo2);
+    // only younger kids get something-same blocks
+    if (!heavy && index === 1 && taskStore().version === 2) {
+      return;
     }
 
     const numOfTrials = index === 0 ? count : count / 2; // change this based on simulation results?
@@ -159,6 +176,9 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
         timeline.push(runCatTrials(2, 'stimulus'));
       }
       if (index === 2) {
+        if (taskStore().version === 2) {
+          timeline.push(fiveBlockIntro);
+        }
         timeline.push(runCatTrials(2, 'afc'));
         timeline.push(runCatTrials(3, 'afc'));
         timeline.push(runCatTrials(4, 'afc'));
@@ -168,9 +188,6 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
 
   initializeCat();
 
-  if (heavy) {
-    timeline.push(dataQualityScreen);
-  }
   timeline.push(taskFinished());
   timeline.push(exitFullscreen);
   return { jsPsych, timeline };

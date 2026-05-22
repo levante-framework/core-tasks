@@ -81,12 +81,12 @@ export const surveyItem = ({
     },
     on_load: async () => {
       startTime = performance.now();
-    
+
       const stim = taskStore().nextStimulus;
       const itemLayoutConfig: LayoutConfigType = layoutConfigMap?.[stim.itemId];
       const playAudioOnLoad = itemLayoutConfig?.playAudioOnLoad;
       const pageStateHandler = new PageStateHandler(stim.audioFile, playAudioOnLoad);
-      const buttonClass = itemLayoutConfig.classOverrides.buttonClassList[0]; 
+      const buttonClass = itemLayoutConfig.classOverrides.buttonClassList[0];
       const responseButtonChildren = document.querySelectorAll(`button.${buttonClass}`);
       const buttonContainer = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
 
@@ -110,7 +110,7 @@ export const surveyItem = ({
       const audioConfig: AudioConfigType = {
         restrictRepetition: {
           enabled: false,
-          maxRepetitions: 1,
+          maxRepetitions: 2,
         },
         onEnded: () => {
           responseButtonChildren.forEach((button) => {
@@ -141,7 +141,7 @@ export const surveyItem = ({
             }, 10);
             (button as HTMLButtonElement).classList.remove('success-shadow');
           });
-          
+
           (event.target as HTMLButtonElement).classList.add('success-shadow');
           selectedButtonIndex = Array.prototype.indexOf.call(responseButtonChildren, event.target as HTMLButtonElement);
         });
@@ -150,17 +150,17 @@ export const surveyItem = ({
       if (itemLayoutConfig.isStaggered) {
         // Handle the staggered buttons
         let audioKeys: string[] = [
-          'child-survey-response1', 
-          'child-survey-response2', 
-          'child-survey-response3', 
+          'child-survey-response1',
+          'child-survey-response2',
+          'child-survey-response3',
           'child-survey-response4',
         ];
         await handleStaggeredButtons(
-          pageStateHandler, 
-          buttonContainer, 
-          audioKeys, 
-          stim.itemId, 
-          stim.assessmentStage === 'instructions'
+          pageStateHandler,
+          buttonContainer,
+          audioKeys,
+          stim.itemId,
+          stim.assessmentStage === 'instructions',
         );
 
         // disable demo buttons
@@ -189,6 +189,7 @@ export const surveyItem = ({
       let responseValue = null;
       let responseIndex = null;
 
+      const t = taskStore().translations;
       const corpus = taskStore().corpus;
       const stim = taskStore().nextStimulus;
       const itemLayoutConfig: LayoutConfigType = layoutConfigMap?.[stim.itemId];
@@ -214,7 +215,8 @@ export const surveyItem = ({
           audioFile: stim.audioFile,
           corpus: corpus,
           audioButtonPresses: PageAudioHandler.replayPresses,
-          correct: false,
+          correct: false, // false because there is no correct answer
+          answer: stim.distractors[selectedButtonIndex],
         });
 
         // corpusId and itemId fields are used by ROAR but not ROAD

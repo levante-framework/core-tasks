@@ -4,30 +4,32 @@ import { mediaAssets } from '../../..';
 import { PageStateHandler, PageAudioHandler, replayButtonSvg, setupReplayAudio } from '../../shared/helpers';
 import { taskStore } from '../../../taskStore';
 
+let setPromptDurations = false;
+
 const instructionData = [
   // downex instructions
   {
-    prompt: "memoryGameInstruct1", 
+    prompt: 'memoryGameInstruct1',
     image: 'catAvatar',
     buttonText: 'continueButtonText',
   },
   {
-    prompt: "memoryGameInstruct6Downex", 
+    prompt: 'memoryGameInstruct6Downex',
     image: 'catAvatar',
     buttonText: 'continueButtonText',
   },
   {
-    prompt: "memoryGameInstruct10Downex", 
+    prompt: 'memoryGameInstruct10Downex',
     image: 'catAvatar',
     buttonText: 'continueButtonText',
   },
   {
-    prompt: "heartsAndFlowersEncourage2", 
+    prompt: 'heartsAndFlowersEncourage2',
     image: 'rocket@2x',
     buttonText: 'continueButtonText',
   },
   {
-    prompt: "heartsAndFlowersPlayTime", 
+    prompt: 'heartsAndFlowersPlayTime',
     image: 'catAvatar',
     buttonText: 'continueButtonText',
   },
@@ -116,11 +118,11 @@ const instructions = instructionData.map((data) => {
     },
     keyboard_choices: 'NO_KEYS',
     post_trial_gap: 500,
-    on_load: () => {
+    on_load: async () => {
       const audioConfig: AudioConfigType = {
         restrictRepetition: {
           enabled: false,
-          maxRepetitions: 1,
+          maxRepetitions: 2,
         },
         onEnded: () => {
           if (!data.buttonText) {
@@ -128,7 +130,7 @@ const instructions = instructionData.map((data) => {
           }
         },
       };
-      
+
       PageAudioHandler.playAudio(mediaAssets.audio[data.prompt], audioConfig);
       const pageStateHandler = new PageStateHandler(data.prompt, true);
       setupReplayAudio(pageStateHandler);
@@ -137,6 +139,31 @@ const instructions = instructionData.map((data) => {
       const toast = document.getElementById('lev-toast-default');
       if (toast) {
         toast.classList.remove('show');
+      }
+
+      // set the display prompt durations here, since awaiting promise during a display trial is not possible in the jsPsych plugin
+      if (!setPromptDurations) {
+        setPromptDurations = true;
+
+        const displayPromptDurations =
+          taskStore().language === 'en'
+            ? {
+                memoryGameInstruct7Downex: await PageAudioHandler.getAudioDuration(
+                  mediaAssets.audio.memoryGameInstruct7Downex,
+                ),
+                memoryGameDisplay: await PageAudioHandler.getAudioDuration(mediaAssets.audio.memoryGameDisplay),
+                memoryGameInstruct2Downex: await PageAudioHandler.getAudioDuration(
+                  mediaAssets.audio.memoryGameInstruct2Downex,
+                ),
+                memoryGameInstruct4Downex: await PageAudioHandler.getAudioDuration(
+                  mediaAssets.audio.memoryGameInstruct4Downex,
+                ),
+              }
+            : {
+                memoryGameDisplay: await PageAudioHandler.getAudioDuration(mediaAssets.audio.memoryGameDisplay),
+              };
+
+        taskStore('displayPromptDurations', displayPromptDurations);
       }
     },
     on_finish: () => {
@@ -153,5 +180,5 @@ export const reverseOrderPrompt = instructions.pop();
 export const reverseOrderInstructions = instructions.pop();
 export const readyToPlay = instructions.pop();
 
-export const defaultInstructions = instructions.slice(5,9)
-export const downexInstructions = instructions.slice(0,5)
+export const defaultInstructions = instructions.slice(5, 9);
+export const downexInstructions = instructions.slice(0, 5);

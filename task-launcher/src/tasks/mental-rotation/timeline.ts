@@ -8,8 +8,7 @@ import {
   getRealTrials,
   batchTrials,
   batchMediaAssets,
-  combineMediaAssets,
-  filterMedia,
+  checkFallbackCriteria,
 } from '../shared/helpers';
 // trials
 import {
@@ -91,9 +90,9 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
   const initialMedia = getLeftoverAssets(batchedMediaAssets, mediaAssets);
 
   const initialPreload = createPreloadTrials(runCat ? mediaAssets : initialMedia).default;
-  const instructions = heavyInstructions ? 
-    downexInstructions : 
-    [imageInstructions, videoInstructionsMisfit, videoInstructionsFit];
+  const instructions = heavyInstructions
+    ? downexInstructions
+    : [imageInstructions, videoInstructionsMisfit, videoInstructionsFit];
 
   const timeline = [initialPreload, initialTimeline, ...instructions];
 
@@ -125,35 +124,47 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
     },
   };
 
-  const repeatInstructions = {
-    timeline: [repeatInstructionsMessage, imageInstructions, videoInstructionsMisfit, videoInstructionsFit],
+  const firstBlockPractice: StimulusType[] = corpus.filter(
+    (trial) => Number(trial.block_index) === 1 && trial.assessmentStage === 'practice_response',
+  );
+
+  let fellBack = false;
+  const fallbackInstructions = {
+    timeline: [
+      repeatInstructionsMessage,
+      ...downexInstructions,
+      ...firstBlockPractice.map((trial) => afcStimulusTemplate(trialConfig, trial)),
+    ],
     conditional_function: () => {
-      return taskStore().numIncorrect >= 2;
+      const run = checkFallbackCriteria() && !fellBack;
+      if (run) {
+        fellBack = true;
+      }
+
+      return run;
     },
   };
 
   // put polygon and 3D practice in their own blocks so they run at the right time
-  const polygonPractice: StimulusType[] = corpus.filter((trial) => 
-    trial.trialType === 'polygon' && trial.assessmentStage === 'practice_response'
+  const polygonPractice: StimulusType[] = corpus.filter(
+    (trial) => trial.trialType === 'polygon' && trial.assessmentStage === 'practice_response',
   );
 
-  const threeDimPractice: StimulusType[] = corpus.filter((trial) => 
-    trial.trialType === '3D' && trial.assessmentStage === 'practice_response'
+  const threeDimPractice: StimulusType[] = corpus.filter(
+    (trial) => trial.trialType === '3D' && trial.assessmentStage === 'practice_response',
   );
 
-  corpus = corpus.filter((trial) => 
-    !(polygonPractice.includes(trial)) && !(threeDimPractice.includes(trial))
-  );
+  corpus = corpus.filter((trial) => !polygonPractice.includes(trial) && !threeDimPractice.includes(trial));
 
   taskStore('corpora', {
-    practice: taskStore().corpora.practice,
+    downex: taskStore().corpora.downex,
     stimulus: corpus,
   });
 
   const threeDimInstructBlock = {
     timeline: [
-      threeDimInstructions, 
-      ...threeDimPractice.map((trial) => afcStimulusTemplate(trialConfig, trial)), 
+      threeDimInstructions,
+      ...threeDimPractice.map((trial) => afcStimulusTemplate(trialConfig, trial)),
       { ...fixationOnly, stimulus: '' },
     ],
     conditional_function: () => {
@@ -167,16 +178,13 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
   };
 
   const polygonInstructBlock = {
-    timeline: [polygonInstructions, 
-      ...polygonPractice.map((trial) => afcStimulusTemplate(trialConfig, trial)), 
+    timeline: [
+      polygonInstructions,
+      ...polygonPractice.map((trial) => afcStimulusTemplate(trialConfig, trial)),
       { ...fixationOnly, stimulus: '' },
     ],
     conditional_function: () => {
-      if (
-        taskStore().nextStimulus.trialType === 'polygon' &&
-        !playedPolygonInstructions &&
-        heavyInstructions
-      ) {
+      if (taskStore().nextStimulus.trialType === 'polygon' && !playedPolygonInstructions && heavyInstructions) {
         playedPolygonInstructions = true;
         return true;
       }
@@ -191,63 +199,28 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
   }
 
   function getPracticeTransitionPrompt() {
-    return heavyInstructions && taskStore().nextStimulus.trialType === '2D' ? 'mentalRotationInstruct5Downex' : 'generalYourTurn';
+    return heavyInstructions && taskStore().nextStimulus.trialType === '2D'
+      ? 'mentalRotationInstruct5Downex'
+      : 'generalYourTurn';
   }
 
-  if (runCat) {
-    // seperate out corpus to get cat/non-cat blocks
-    const corpora = prepareCorpus(corpus);
-
-    // push in instruction block
-    corpora.ipLight.forEach((trial: StimulusType) => {
-      timeline.push({ ...fixationOnly, stimulus: '' });
-      timeline.push(afcStimulusTemplate(trialConfig, trial));
-    });
-
-    // push in practice transition
-    timeline.push(practiceTransition());
-
-    // push in starting block
-    corpora.start.forEach((trial: StimulusType) => {
-      timeline.push({ ...fixationOnly, stimulus: '' });
-      timeline.push(afcStimulusTemplate(trialConfig, trial));
-      timeline.push(ifRealTrialResponse);
-    });
-
-    const numOfCatTrials = corpora.cat.length;
-    taskStore('totalTestTrials', numOfCatTrials);
-    for (let i = 0; i < numOfCatTrials; i++) {
-      timeline.push({ ...setupStimulus, stimulus: '' });
-      timeline.push(threeDimInstructBlock);
-      timeline.push(polygonInstructBlock);
-      timeline.push(stimulusBlock);
+  const numOfTrials = corpus.length;
+  taskStore('totalTestTrials', getRealTrials(corpus));
+  const numOfInitialPracticeTrials = firstBlockPractice.length;
+  const fallbackIndex = numOfInitialPracticeTrials + 4;
+  for (let i = 0; i < numOfTrials; i++) {
+    if (i % batchSize === 0) {
+      preloadBatch();
     }
-
-    const unnormedTrials: StimulusType[] = selectNItems(corpora.unnormed, 5);
-
-    const unnormedBlock = {
-      timeline: unnormedTrials.map((trial) => afcStimulusTemplate(trialConfig, trial)),
-    };
-
-    timeline.push(unnormedBlock);
-  } else {
-    const numOfTrials = taskStore().totalTrials;
-    taskStore('totalTestTrials', getRealTrials(corpus));
-    for (let i = 0; i < numOfTrials; i++) {
-      if (i % batchSize === 0) {
-        preloadBatch();
-      }
-      if (i === 4) {
-        timeline.push(repeatInstructions);
-      }
-      timeline.push({ ...setupStimulus, stimulus: '' });
-      timeline.push(practiceTransition(getPracticeTransitionPrompt));
-      timeline.push(threeDimInstructBlock);
-      timeline.push(polygonInstructBlock);
-      timeline.push(stimulusBlock);
+    if (i <= fallbackIndex) {
+      timeline.push(fallbackInstructions);
     }
+    timeline.push({ ...setupStimulus, stimulus: '' });
+    timeline.push(practiceTransition(getPracticeTransitionPrompt));
+    timeline.push(threeDimInstructBlock);
+    timeline.push(polygonInstructBlock);
+    timeline.push(stimulusBlock);
   }
-
   initializeCat();
 
   timeline.push(taskFinished());

@@ -1,4 +1,3 @@
-import Papa from 'papaparse';
 import { camelize } from './camelize';
 import { taskStore } from '../../../taskStore';
 
@@ -6,58 +5,55 @@ import 'regenerator-runtime/runtime';
 
 let translations: Record<string, string> = {};
 
-function getRowData(row: Record<string, string>, language: string, nonLocalDialect: string) {
-  const translation = row[language.toLowerCase()];
-
-  // Only need this because we don't have base language translations for all languages.
-  // Ex we have 'es-co' but not 'es'
-  const noBaseLang = Object.keys(row).find((key) => key.includes(nonLocalDialect)) || '';
-  return translation || row[nonLocalDialect] || row[noBaseLang] || row['en'];
+function parseTranslations(translationData: Record<string, string>[]) {
+  for (const [key, value] of Object.entries(translationData)) {
+    translations[camelize(key.trim())] = value as unknown as string;
+  }
 }
 
-function parseTranslations(translationData: Record<string, string>[], configLanguage: string) {
-  const nonLocalDialect = configLanguage.split('-')[0].toLowerCase();
-
-  translationData.forEach((row) => {
-    translations[camelize(row.item_id)] = getRowData(row, configLanguage, nonLocalDialect);
-  });
-
-  taskStore('translations', translations);
-}
-
-export const getTranslations = async (isDev: boolean, configLanguage?: string) => {
-  if (!configLanguage) {
-    return;
+export const getTranslations = async (isDev: boolean, taskName: string, configLanguage?: string) => {
+  // adult reasoning strings are in the math item bank
+  if (taskName === 'adult-reasoning') {
+    taskName = 'egma-math';
   }
 
-  function downloadCSV(url: string) {
-    return new Promise((resolve, reject) => {
-      Papa.parse<Record<string, string>>(url, {
-        download: true,
-        header: true,
-        skipEmptyLines: true,
-        complete: function (results) {
-          parseTranslations(results.data, configLanguage || '');
-          resolve(results.data);
-        },
-        error: function (error) {
-          reject(error);
-        },
-      });
-    });
+  async function downloadJson(url: string): Promise<Record<string, string>[]> {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch translations (${response.status}): ${url}`);
+    }
+    const data: unknown = await response.json();
+    const rows = data as Record<string, string>[];
+
+    parseTranslations(rows);
+    return rows;
   }
 
-  async function parseCSVs(urls: string[]) {
-    const promises = urls.map((url) => downloadCSV(url));
-    return Promise.all(promises);
+  async function loadTranslationJsons(urls: string[]) {
+    return Promise.all(urls.map((url) => downloadJson(url)));
   }
 
   async function fetchData() {
     const urls = [
-      `https://storage.googleapis.com/levante-assets-${isDev ? 'dev' : 'prod'}/translations/item-bank-translations.csv`,
+      `https://storage.googleapis.com/levante-assets-${
+        isDev ? 'dev' : 'prod'
+      }/translations/itembank/${taskName}/${configLanguage}/item-bank-translations.json`,
+      `https://storage.googleapis.com/levante-assets-${
+        isDev ? 'dev' : 'prod'
+      }/translations/itembank/general/${configLanguage}/item-bank-translations.json`,
     ];
+
+    // hostile attribution requires some strings in the theory of mind item bank
+    if (taskName === 'hostile-attribution') {
+      urls.push(
+        `https://storage.googleapis.com/levante-assets-${
+          isDev ? 'dev' : 'prod'
+        }/translations/itembank/theory-of-mind/${configLanguage}/item-bank-translations.json`,
+      );
+    }
     try {
-      await parseCSVs(urls);
+      await loadTranslationJsons(taskName === 'intro' ? [urls[1]] : urls);
+      taskStore('translations', translations);
     } catch (error) {
       console.error('Error:', error);
     }

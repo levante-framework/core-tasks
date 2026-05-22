@@ -1,9 +1,6 @@
-import { RoarAppkit, initializeFirebaseProject } from '@levante-framework/firekit';
-import { onAuthStateChanged, signInAnonymously } from 'firebase/auth';
 import * as Sentry from '@sentry/browser';
 import i18next from 'i18next';
 import { TaskLauncher } from '../src';
-import { firebaseConfig } from './firebaseConfig';
 import { stringToBoolean } from '../src/tasks/shared/helpers/stringToBoolean';
 import firebaseJSON from '../firebase.json';
 
@@ -45,8 +42,13 @@ const language = urlParams.get('lng');
 const pid = urlParams.get('pid');
 const inferenceNumStories =
   urlParams.get('inferenceNumStories') === null ? null : parseInt(urlParams.get('inferenceNumStories'), 10);
+const numberOfStories = urlParams.get('numberOfStories') === null ? 3 : parseInt(urlParams.get('numberOfStories'), 10);
 const semThreshold = Number(urlParams.get('semThreshold') || '0');
 const startingTheta = Number(urlParams.get('theta') || '0');
+// `taskVersion` is deprecated; prefer `version` when both are present.
+const versionFromQuery = urlParams.get('version') === null ? null : parseInt(urlParams.get('version'), 10);
+const taskVersionFromQuery = urlParams.get('taskVersion') === null ? null : parseInt(urlParams.get('taskVersion'), 10);
+const version = versionFromQuery ?? taskVersionFromQuery;
 
 // Boolean parameters
 const keyHelpers = stringToBoolean(urlParams.get('keyHelpers'));
@@ -56,66 +58,47 @@ const sequentialStimulus = stringToBoolean(urlParams.get('sequentialStimulus'), 
 const storeItemId = stringToBoolean(urlParams.get('storeItemId'), false);
 const cat = stringToBoolean(urlParams.get('cat'), false);
 const heavyInstructions = stringToBoolean(urlParams.get('heavyInstructions'), false);
+const debug = stringToBoolean(urlParams.get('debug'), false);
 
 const emulatorConfig = EMULATORS ? firebaseJSON.emulators : undefined;
 // if running in demo mode, no data will be saved to Firestore
 const demoMode = DEMO;
 
 async function startWebApp() {
-  const appKit = await initializeFirebaseProject(firebaseConfig, 'admin', emulatorConfig, 'none');
 
-  onAuthStateChanged(appKit.auth, (user) => {
-    if (user) {
-      const userInfo = {
-        assessmentUid: user.uid,
-        userMetadata: {},
-      };
+  const firekit = null;
+  const gameParams = {
+    taskName,
+    skipInstructions,
+    sequentialPractice,
+    sequentialStimulus,
+    corpus,
+    buttonLayout,
+    numOfPracticeTrials,
+    numberOfTrials,
+    maxIncorrect,
+    stimulusBlocks,
+    keyHelpers,
+    language: language ?? i18next.language,
+    age,
+    maxTime,
+    storeItemId,
+    cat,
+    inferenceNumStories,
+    numberOfStories,
+    semThreshold,
+    startingTheta,
+    heavyInstructions,
+    demoMode,
+    version,
+    debug,
+  };
+  const userParams = {
+    pid,
+  };
+  const task = new TaskLauncher(firekit, gameParams, userParams);
+  task.run();
 
-      const userParams = {
-        pid,
-      };
-
-      const gameParams = {
-        taskName,
-        skipInstructions,
-        sequentialPractice,
-        sequentialStimulus,
-        corpus,
-        buttonLayout,
-        numOfPracticeTrials,
-        numberOfTrials,
-        maxIncorrect,
-        stimulusBlocks,
-        keyHelpers,
-        language: language ?? i18next.language,
-        age,
-        maxTime,
-        storeItemId,
-        cat,
-        inferenceNumStories,
-        semThreshold,
-        startingTheta,
-        heavyInstructions,
-        demoMode,
-      };
-
-      const taskInfo = {
-        taskId: taskName,
-        variantParams: gameParams,
-      };
-
-      const firekit = new RoarAppkit({
-        firebaseProject: appKit,
-        taskInfo,
-        userInfo,
-      });
-
-      const task = new TaskLauncher(firekit, gameParams, userParams);
-      task.run();
-    }
-  });
-
-  await signInAnonymously(appKit.auth);
 }
 
 await startWebApp();

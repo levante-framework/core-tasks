@@ -281,7 +281,7 @@ class CorsiBlocksPlugin {
                         .querySelector(`.jspsych-corsi-block[data-id="${id}"]`)
                         .animate(correct_animation, animation_timing);
                 }
-                else if (!correct) {
+                else if (!correct && !trial.disable_animation) {
                     display_element
                         .querySelector(`.jspsych-corsi-block[data-id="${id}"]`)
                         .animate(incorrect_animation, animation_timing);
