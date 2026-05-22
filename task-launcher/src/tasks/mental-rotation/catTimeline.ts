@@ -5,21 +5,14 @@ import {
   createPreloadTrials,
   initTrialSaving,
   initTimeline,
-  getRealTrials,
-  batchTrials,
   batchMediaAssets,
-  combineMediaAssets,
-  filterMedia,
   prepareMultiBlockCat,
   checkFallbackCriteria,
 } from '../shared/helpers';
 // trials
 import {
-  imageInstructions,
-  polygonInstructions,
   threeDimInstructions,
-  videoInstructionsFit,
-  videoInstructionsMisfit,
+  instructions,
 } from './trials/instructions';
 import {
   afcStimulusTemplate,
@@ -38,12 +31,8 @@ import { getLayoutConfig } from './helpers/config';
 import { prepareCorpus } from '../shared/helpers/prepareCat';
 import { taskStore } from '../../taskStore';
 import { getLeftoverAssets } from '../shared/helpers/batchPreloading';
-import { downexInstructions } from './trials/downexInstructions';
 
 export default function buildMentalRotationCatTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
-  const { heavyInstructions } = taskStore();
-  const { semThreshold } = taskStore();
-
   initTrialSaving(config);
   const initialTimeline = initTimeline(config, enterFullscreen, finishExperiment);
 
@@ -86,9 +75,6 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
   const initialMedia = getLeftoverAssets(batchedMediaAssets, mediaAssets);
 
   const initialPreload = createPreloadTrials(initialMedia).default;
-  const instructions = heavyInstructions
-    ? downexInstructions
-    : [imageInstructions, videoInstructionsMisfit, videoInstructionsFit];
 
   const timeline = [initialPreload, initialTimeline, ...instructions];
 
@@ -118,13 +104,6 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
         return true;
       },
     };
-  };
-
-  const polygonInstructBlock = {
-    timeline: [polygonInstructions],
-    conditional_function: () => {
-      return taskStore().currentCatBlock === 1 && taskStore().language?.toLowerCase().startsWith('en');
-    },
   };
 
   const threeDimInstructBlock = {
@@ -157,7 +136,6 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
 
     return {
       timeline: [
-        polygonInstructBlock,
         threeDimInstructBlock,
         ...trials.map((trial) => {
           return {
@@ -185,7 +163,7 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
   const fallbackInstructions = {
     timeline: [
       repeatInstructionsMessage,
-      ...downexInstructions,
+      ...instructions,
       ...firstBlockPractice.map((trial) => afcStimulusTemplate(trialConfig, trial)),
     ],
     conditional_function: () => {
@@ -215,7 +193,7 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
     addInstructionPractice();
 
     if (index === 0) {
-      timeline.push(practiceTransition(heavyInstructions ? () => 'mentalRotationInstruct5Downex' : undefined));
+      timeline.push(practiceTransition(() => 'mentalRotationInstruct5Downex'));
 
       // push in starting block
       corpora.start.forEach((trial: StimulusType) => {

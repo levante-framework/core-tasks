@@ -12,13 +12,6 @@ import {
 } from '../shared/helpers';
 // trials
 import {
-  imageInstructions,
-  polygonInstructions,
-  threeDimInstructions,
-  videoInstructionsFit,
-  videoInstructionsMisfit,
-} from './trials/instructions';
-import {
   afcStimulusTemplate,
   taskFinished,
   exitFullscreen,
@@ -30,17 +23,15 @@ import {
   repeatInstructionsMessage,
   practiceTransition,
 } from '../shared/trials';
+import { instructions, threeDimInstructions } from './trials/instructions';
 import { getLayoutConfig } from './helpers/config';
-import { prepareCorpus, selectNItems } from '../shared/helpers/prepareCat';
 import { taskStore } from '../../taskStore';
 import { getLeftoverAssets } from '../shared/helpers/batchPreloading';
-import { downexInstructions } from './trials/downexInstructions';
+
 
 export default function buildMentalRotationTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
-  const { runCat, heavyInstructions } = taskStore();
-  const { semThreshold } = taskStore();
+  const { runCat, semThreshold} = taskStore();
   let playedThreeDimInstructions = false;
-  let playedPolygonInstructions = false;
 
   initTrialSaving(config);
   const initialTimeline = initTimeline(config, enterFullscreen, finishExperiment);
@@ -90,10 +81,6 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
   const initialMedia = getLeftoverAssets(batchedMediaAssets, mediaAssets);
 
   const initialPreload = createPreloadTrials(runCat ? mediaAssets : initialMedia).default;
-  const instructions = heavyInstructions
-    ? downexInstructions
-    : [imageInstructions, videoInstructionsMisfit, videoInstructionsFit];
-
   const timeline = [initialPreload, initialTimeline, ...instructions];
 
   const trialConfig = {
@@ -132,7 +119,7 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
   const fallbackInstructions = {
     timeline: [
       repeatInstructionsMessage,
-      ...downexInstructions,
+      ...instructions,
       ...firstBlockPractice.map((trial) => afcStimulusTemplate(trialConfig, trial)),
     ],
     conditional_function: () => {
@@ -177,29 +164,13 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
     },
   };
 
-  const polygonInstructBlock = {
-    timeline: [
-      polygonInstructions,
-      ...polygonPractice.map((trial) => afcStimulusTemplate(trialConfig, trial)),
-      { ...fixationOnly, stimulus: '' },
-    ],
-    conditional_function: () => {
-      if (taskStore().nextStimulus.trialType === 'polygon' && !playedPolygonInstructions && heavyInstructions) {
-        playedPolygonInstructions = true;
-        return true;
-      }
-
-      return false;
-    },
-  };
-
   function preloadBatch() {
     timeline.push(createPreloadTrials(batchedMediaAssets[currPreloadBatch]).default);
     currPreloadBatch++;
   }
 
   function getPracticeTransitionPrompt() {
-    return heavyInstructions && taskStore().nextStimulus.trialType === '2D'
+    return taskStore().nextStimulus.trialType === '2D'
       ? 'mentalRotationInstruct5Downex'
       : 'generalYourTurn';
   }
@@ -218,7 +189,6 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
     timeline.push({ ...setupStimulus, stimulus: '' });
     timeline.push(practiceTransition(getPracticeTransitionPrompt));
     timeline.push(threeDimInstructBlock);
-    timeline.push(polygonInstructBlock);
     timeline.push(stimulusBlock);
   }
   initializeCat();
