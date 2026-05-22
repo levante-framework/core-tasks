@@ -81,10 +81,15 @@ export function setupFullscreenButton() {
     });
 
     document.addEventListener('fullscreenchange', () => {
+        if (!fullscreenButton) {
+            return;
+        }
+
+
         if (document.fullscreenElement) {
-            fullscreenButton!.style.visibility = 'hidden';
+            fullscreenButton.style.visibility = 'hidden';
         } else {
-            fullscreenButton!.style.visibility = 'visible';
+            fullscreenButton.style.visibility = 'visible';
         }
     });
 }
