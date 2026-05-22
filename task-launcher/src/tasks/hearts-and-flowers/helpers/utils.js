@@ -110,8 +110,12 @@ export const getStimulusLayout = (imageSrc, isLeft, promptText = undefined, repl
   return template;
 };
 
-export const getInputInstructPrompt = () => {
+export const getInputInstructPrompt = (showButton = false) => {
   const inputCapability = taskStore().inputCapability;
 
-  return inputCapability?.touch ? 'heartsAndFlowersInstructTouchscreen' : 'heartsAndFlowersInstructKeyboard';
-};
+  if (showButton) {
+    return inputCapability?.touch ? 'heartsAndFlowersInstructButtonTouch' : 'heartsAndFlowersInstructKeyPress';
+  } else {
+    return inputCapability?.touch ? 'heartsAndFlowersInstructTouchscreen' : 'heartsAndFlowersInstructKeyboard';
+  }
+};    
