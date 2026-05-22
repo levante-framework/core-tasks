@@ -485,7 +485,7 @@ export const stimulus = (trial?: StimulusType) => {
           shouldTerminateCat();
           const allSequentialTrials = taskStore().sequentialTrials;
           const nextTrials = allSequentialTrials.filter((trial: StimulusType) => {
-            return trial.trialNumber === stim.trialNumber && trial.trialType === stim.trialType;
+            return trial.trialNumber === stim.trialNumber && trial.block_index === stim.block_index;
           });
 
           selectNextSequentialTrial(nextTrials);
