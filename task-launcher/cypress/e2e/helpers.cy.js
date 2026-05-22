@@ -24,8 +24,9 @@ export function instructions() {
 function selectAnswers(correctFlag, buttonClass) {
   cy.get('.jspsych-content').then((content) => {
     const responseButtons = content.find(buttonClass);
+    const hasDisabledButton = responseButtons.filter(':disabled').length > 0;
 
-    if (responseButtons.length > 1) {
+    if (responseButtons.length > 1 && !hasDisabledButton) {
       if (correctFlag === 'alt') {
         cy.get('[aria-label="correct"]')
           .should('be.visible')
