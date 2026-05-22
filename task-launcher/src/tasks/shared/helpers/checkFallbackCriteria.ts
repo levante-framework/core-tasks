@@ -1,6 +1,6 @@
 import { taskStore } from '../../../taskStore';
 import { jsPsych } from '../../taskSetup';
-import { isEnglish } from '.'
+import { isEnglish } from './checkLocale';
 
 export const checkFallbackCriteria = (filterInputTrials: boolean = false) => {
   const data = jsPsych.data.get().filter({ assessment_stage: 'test_response' }).last(4);
