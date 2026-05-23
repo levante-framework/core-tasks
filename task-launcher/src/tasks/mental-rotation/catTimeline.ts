@@ -29,7 +29,6 @@ import {
   fixationOnly,
   getAudioResponse,
   enterFullscreen,
-  finishExperiment,
   practiceTransition,
   setupStimulusFromCurrentCatBlock,
   setupNextBlock,
@@ -46,7 +45,7 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
   const { semThreshold } = taskStore();
 
   initTrialSaving(config);
-  const initialTimeline = initTimeline(config, enterFullscreen, finishExperiment);
+  const initialTimeline = initTimeline(config, enterFullscreen);
 
   const ifRealTrialResponse = {
     timeline: [getAudioResponse(mediaAssets)],

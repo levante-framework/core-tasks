@@ -42,3 +42,26 @@
   height: 100%;
   background: $bg-white-80;
 }
+
+
+.exit-confirmation-popup {
+  position: absolute;
+  top: 10%;
+  left: 50vw;
+  transform: translateX(-50%);
+  border: 3px solid $bg-accent_secondary;
+  border-radius: $button-default-border-radius;
+  background-color: $bg-bubble-base;
+  padding: 20px;
+  text-align: center;
+  font-weight: $font-weight-dark;
+}
+
+.exit-confirmation-popup-buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  margin-top: 20px;
+  justify-content: center;
+  align-items: center;
+}

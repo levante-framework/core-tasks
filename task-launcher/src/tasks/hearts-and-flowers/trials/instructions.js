@@ -2,11 +2,13 @@ import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-respons
 import { mediaAssets } from '../../..';
 import { InputKey, getInputInstructPrompt } from '../helpers/utils';
 import {
+  addExperimenterButtons,
   setupReplayAudio,
-  replayButtonSvg,
+  getParticipantUtilityButtonsHtml,
   PageStateHandler,
   PageAudioHandler,
   addKeyHelpers,
+  setupFullscreenButton,
 } from '../../shared/helpers';
 import { jsPsych } from '../../taskSetup';
 import { taskStore } from '../../../taskStore';
@@ -85,9 +87,7 @@ function buildInstructionTrial(mascotImage, getPromptKey, showResponseButtons = 
 
       return `
         <div class="lev-stimulus-container">
-            <button id="replay-btn-revisited" class="replay">
-              ${replayButtonSvg}
-            </button>
+            ${getParticipantUtilityButtonsHtml('replay-btn-revisited')}
             <div id="instruction-text" class="lev-row-container instruction-small">
               <p>${taskStore().translations[getPromptKey()]}</p>
             </div>
@@ -224,6 +224,8 @@ function buildInstructionTrial(mascotImage, getPromptKey, showResponseButtons = 
 
       const pageStateHandler = new PageStateHandler(getPromptKey());
       setupReplayAudio(pageStateHandler);
+      addExperimenterButtons();
+      setupFullscreenButton();
     },
     on_finish: () => {
       cleanupInstructionInputListeners?.();

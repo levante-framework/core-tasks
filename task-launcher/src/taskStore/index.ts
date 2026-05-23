@@ -28,6 +28,7 @@ import { isEnglish } from '../tasks/shared/helpers';
  * @property {Object} assetsPerTask - Object containing list of assets belonging to each task.
  * @property {boolean} demoMode - Whether the task is running in demo mode (no interaction with Firestore), default is false.
  * @property {boolean} debug - Shows theta estimate on the screen for cat debugging when enabled.
+ * @property {boolean} experimenterButtons - When true, experimenter utility controls (pause, exit) are available.
  * @property {number} currentCatBlock - The current block number to select trials from in a CAT.
  * @property {number[]} blockThresholds - Array of theta thresholds.
  * @property {number} totalTrialCount - Total number of trials, including practice and instructions.
@@ -38,6 +39,10 @@ import { isEnglish } from '../tasks/shared/helpers';
  * @property {Object} translations - Object containing the translations.
  * @property {Object} nextStimulus - Object containing the next stimulus.
  * @property {boolean} testPhase - True if not running practice/instruction trial
+ * @property {any} taskTimer - The timer ID for the task, stored here so the task can be paused.
+ * @property {number} taskTimerPausedMs - Cumulative ms excluded from max-time while experimenter pause is active.
+ * @property {number|null} taskTimerPauseBeganAt - Wall time when the current experimenter pause began, or null.
+ * @property {boolean} isPaused - Whether the task is paused, default is false.
  * ------- AFC and SDS only -------
  * @property {string} target - Target item.
  * @property {Array} choices - List of choices.
@@ -63,7 +68,7 @@ import { isEnglish } from '../tasks/shared/helpers';
  * @property {Object} inputCapability - Object containing the input capability of the user's device.
  * --------- ToM only ---------
  * @property {Array} previousChoices - Array containing previously randomized order of choices for the current block.
- * @property {number} currentStoryGroup - The current story group to select trials from in the ToM CAT..
+ * @property {number} currentStoryGroup - The current story group to select trials from in the ToM CAT.
  * ------- SDS only -------
  * @property {StimulusType[]} sequentialTrials - Should be run sequentially in blocks by trial number in an SDS CAT.
  * @property {number} version - A version number for the task, default is 1. Can be used as a feature flag.
@@ -93,12 +98,17 @@ export type TaskStoreDataType = {
   language?: string;
   maxTime?: number;
   demoMode: boolean;
+  experimenterButtons: boolean;
   debug: boolean;
   version: number;
   currentCatBlock?: number;
   blockThresholds?: number[];
   displayPromptDurations: Record<string, number>;
   inputCapability?: InputCapability;
+  taskTimer: any;
+  taskTimerPausedMs?: number;
+  taskTimerPauseBeganAt?: number | null;
+  isPaused: boolean;
 };
 
 /**
@@ -150,9 +160,14 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     testPhase: false,
     maxTime: config.maxTime,
     demoMode: config.demoMode,
+    experimenterButtons: config.experimenterButtons && config.heavyInstructions,
     debug: config.debug,
     version: config.version || 1,
     currentStoryGroup: 0,
+    taskTimer: null,
+    taskTimerPausedMs: 0,
+    taskTimerPauseBeganAt: null,
+    isPaused: false,
   });
 };
 

@@ -7,9 +7,11 @@ import {
   handleStaggeredButtons,
   PageAudioHandler,
   PageStateHandler,
-  replayButtonSvg,
+  addExperimenterButtons,
+  getParticipantUtilityButtonsHtml,
   setSentryContext,
   setupReplayAudio,
+  setupFullscreenButton,
 } from '../../shared/helpers';
 import { mediaAssets } from '../../..';
 import { jsPsych } from '../../taskSetup';
@@ -50,12 +52,7 @@ export const surveyItem = ({
         <div class="lev-progress-bar">
           <div id="progress-fill" class="progress-fill"></div>
         </div>
-        <button
-          id="${replayButtonHtmlId}"
-          class="replay"
-        >
-          ${replayButtonSvg}
-        </button>
+        ${getParticipantUtilityButtonsHtml(replayButtonHtmlId)}
         <div class="lev-row-container instruction-small">
             <p>${t[camelize(prompt)]}</p>
         </div>
@@ -105,6 +102,8 @@ export const surveyItem = ({
 
       // set up replay button
       setupReplayAudio(pageStateHandler);
+      addExperimenterButtons();
+      setupFullscreenButton();
 
       // enable response buttons immediately after prompt audio finishes so stagger effect can be interrupted
       const audioConfig: AudioConfigType = {

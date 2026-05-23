@@ -13,7 +13,6 @@ import {
   enterFullscreen,
   exitFullscreen,
   feedback,
-  finishExperiment,
   repeatInstructionsMessage,
   taskFinished,
 } from '../shared/trials';
@@ -66,7 +65,7 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
 
   initTrialSaving(config);
   const preloadTrials = createPreloadTrials(mediaAssets).default;
-  const initialTimeline = initTimeline(config, enterFullscreen, finishExperiment);
+  const initialTimeline = initTimeline(config, enterFullscreen);
 
   const corsiBlocksPractice = {
     timeline: [...generatePracticeTrialTimeline(false, 'memoryGameForwardTryAgain', 3)],

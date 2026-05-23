@@ -1,7 +1,15 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { jsPsych } from '../../taskSetup';
 import { mediaAssets } from '../../..';
-import { PageStateHandler, PageAudioHandler, replayButtonSvg, setupReplayAudio, isEnglish } from '../../shared/helpers';
+import {
+  addExperimenterButtons,
+  PageStateHandler,
+  PageAudioHandler,
+  getParticipantUtilityButtonsHtml,
+  setupReplayAudio,
+  setupFullscreenButton,
+  isEnglish,
+} from '../../shared/helpers';
 import { taskStore } from '../../../taskStore';
 
 let setPromptDurations = false;
@@ -80,12 +88,7 @@ const instructions = instructionData.map((data) => {
       const t = taskStore().translations;
       const mediaSrc = data.video ? mediaAssets.video[data.video] : mediaAssets.images[data.image as string];
       return `<div class="lev-stimulus-container">
-                        <button
-                            id="${replayButtonHtmlId}"
-                            class="replay"
-                        >
-                            ${replayButtonSvg}
-                        </button>
+                        ${getParticipantUtilityButtonsHtml(replayButtonHtmlId)}
                         <div class="lev-row-container instruction">
                             <p>${t[data.prompt]}</p>
                         </div>
@@ -134,6 +137,8 @@ const instructions = instructionData.map((data) => {
       PageAudioHandler.playAudio(mediaAssets.audio[data.prompt], audioConfig);
       const pageStateHandler = new PageStateHandler(data.prompt, true);
       setupReplayAudio(pageStateHandler);
+      addExperimenterButtons();
+      setupFullscreenButton();
 
       // hide toast if it is there
       const toast = document.getElementById('lev-toast-default');
