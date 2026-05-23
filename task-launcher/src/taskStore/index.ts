@@ -1,5 +1,6 @@
 import store from 'store2';
 import { InputCapability } from '../utils/detectInput';
+import { isEnglish } from '../tasks/shared/helpers';
 
 /**
  * @typedef {Object} TaskStore
@@ -139,7 +140,7 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     runCat: config.cat,
     heavyInstructions:
       (config.heavyInstructions || config.userMetadata.age <= 4) &&
-      (config.language?.toLowerCase().startsWith('en') ?? false),
+      isEnglish(config.language),
     semThreshold: config.semThreshold,
     startingTheta: config.startingTheta,
     storeItemId: config.storeItemId,

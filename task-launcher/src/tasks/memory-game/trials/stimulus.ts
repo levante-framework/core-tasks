@@ -173,8 +173,11 @@ export function getCorsiBlocks({
 
       // get the pre-assigned prompt duration values from task store
       const displayPromptDurations = taskStore().displayPromptDurations;
+      const durationSec = displayPromptDurations[cue as keyof typeof displayPromptDurations];
+      const durationMs =
+        durationSec != null && Number.isFinite(durationSec) ? durationSec * 1000 : 3000;
 
-      return displayPromptDurations[cue as keyof typeof displayPromptDurations] * 1000;
+      return durationMs;
     },
     on_load: () => {
       doOnLoad(mode, isPractice, reverse, animation, prompt);
