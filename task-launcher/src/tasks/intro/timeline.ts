@@ -4,13 +4,13 @@ import { initTrialSaving, initTimeline, createPreloadTrials } from '../shared/he
 import { instructions } from './trials/instructions';
 import { jsPsych } from '../taskSetup';
 // trials
-import { enterFullscreen, exitFullscreen, finishExperiment, taskFinished } from '../shared/trials';
+import { enterFullscreen, exitFullscreen, taskFinished } from '../shared/trials';
 
 export default function buildIntroTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
 
   initTrialSaving(config);
-  const initialTimeline = initTimeline(config, enterFullscreen, finishExperiment);
+  const initialTimeline = initTimeline(config, enterFullscreen);
 
   const timeline = [preloadTrials, initialTimeline, ...instructions];
 

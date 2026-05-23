@@ -3,13 +3,15 @@ import { mediaAssets } from '../../..';
 import {
   PageStateHandler,
   prepareChoices,
-  replayButtonSvg,
+  getParticipantUtilityButtonsHtml,
   setupReplayAudio,
   PageAudioHandler,
   camelize,
   enableOkButton,
   disableOkButton,
   selectNextSequentialTrial,
+  addExperimenterButtons,
+  setupFullscreenButton,
 } from '../../shared/helpers';
 import { finishExperiment } from '../../shared/trials';
 import { isTouchScreen, jsPsych } from '../../taskSetup';
@@ -48,12 +50,7 @@ function getTestDimensionsHtml(stim: StimulusType) {
 
   return `
         <div class="lev-stimulus-container">
-          <button
-              id="${replayButtonHtmlId}"
-              class="replay"
-          >
-              ${replayButtonSvg}
-          </button>
+          ${getParticipantUtilityButtonsHtml(replayButtonHtmlId)}
           <div class="lev-row-container instruction">
             <p>${t[prompt]}</p>
           </div>
@@ -103,12 +100,7 @@ function getSomethingSameHtml(stim: StimulusType) {
 
   return `
     <div class="lev-stimulus-container-wide">
-      <button
-        id="${replayButtonHtmlId}"
-        class="replay"
-      >
-        ${replayButtonSvg}
-      </button>
+      ${getParticipantUtilityButtonsHtml(replayButtonHtmlId)}
       <div class="horizontal-wrapper">
         ${
           stim.trialType === 'something-same-2'
@@ -270,6 +262,8 @@ export const stimulus = (trial?: StimulusType) => {
 
       const pageStateHandler = new PageStateHandler(audioFile, true);
       setupReplayAudio(pageStateHandler);
+      addExperimenterButtons();
+      setupFullscreenButton();
       const jspsychButtonContainer = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
       jspsychButtonContainer.classList.add('lev-response-row');
       jspsychButtonContainer.classList.add('multi-4');

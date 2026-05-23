@@ -1,6 +1,13 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
-import { replayButtonSvg, PageStateHandler, setupReplayAudio, PageAudioHandler } from '../helpers';
+import {
+  addExperimenterButtons,
+  getParticipantUtilityButtonsHtml,
+  PageStateHandler,
+  setupReplayAudio,
+  PageAudioHandler,
+  setupFullscreenButton,
+} from '../helpers';
 import { taskStore } from '../../../taskStore';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
@@ -15,12 +22,7 @@ export const repeatInstructionsMessage = {
   stimulus: () => {
     const t = taskStore().translations;
     return `<div class="lev-stimulus-container">
-                <button
-                  id="${replayButtonHtmlId}"
-                  class="replay"
-                >
-                ${replayButtonSvg}
-                </button>
+                ${getParticipantUtilityButtonsHtml(replayButtonHtmlId)}
                 <div class="lev-row-container instruction">
                   <p>${t.generalRepeatInstructions}</p>
                 </div>
@@ -38,6 +40,8 @@ export const repeatInstructionsMessage = {
 
     const pageStateHandler = new PageStateHandler('generalRepeatInstructions', true);
     setupReplayAudio(pageStateHandler);
+    addExperimenterButtons();
+    setupFullscreenButton();
   },
   on_finish: () => {
     PageAudioHandler.stopAndDisconnectNode();

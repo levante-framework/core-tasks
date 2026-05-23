@@ -3,12 +3,14 @@ import { mediaAssets } from '../../..';
 import {
   PageStateHandler,
   prepareChoices,
-  replayButtonSvg,
+  getParticipantUtilityButtonsHtml,
   setupReplayAudio,
   PageAudioHandler,
   camelize,
   shouldTerminateCat,
   selectNextSequentialTrial,
+  addExperimenterButtons,
+  setupFullscreenButton,
 } from '../../shared/helpers';
 import { finishExperiment } from '../../shared/trials';
 import { isTouchScreen, jsPsych } from '../../taskSetup';
@@ -111,12 +113,7 @@ export const legacyStimulus = (trial?: StimulusType) => {
 
       const t = taskStore().translations;
       return `<div class="lev-stimulus-container">
-        <button
-            id="${replayButtonHtmlId}"
-            class="replay"
-        >
-            ${replayButtonSvg}
-        </button>
+        ${getParticipantUtilityButtonsHtml(replayButtonHtmlId)}
         <div class="lev-row-container instruction">
           <p>${t[prompt]}</p>
         </div>
@@ -208,6 +205,8 @@ export const legacyStimulus = (trial?: StimulusType) => {
 
       const pageStateHandler = new PageStateHandler(audioFile, true);
       setupReplayAudio(pageStateHandler);
+      addExperimenterButtons();
+      setupFullscreenButton();
       const buttonContainer = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
       buttonContainer.classList.add('lev-response-row');
       buttonContainer.classList.add('multi-4');

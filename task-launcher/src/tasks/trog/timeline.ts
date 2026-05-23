@@ -17,7 +17,6 @@ import {
   setupStimulus,
   taskFinished,
   enterFullscreen,
-  finishExperiment,
   practiceTransition,
 } from '../shared/trials';
 import { getLayoutConfig } from './helpers/config';
@@ -29,7 +28,7 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
   const preloadTrials = createPreloadTrials(mediaAssets).default;
 
   initTrialSaving(config);
-  const initialTimeline = initTimeline(config, enterFullscreen, finishExperiment);
+  const initialTimeline = initTimeline(config, enterFullscreen);
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {};

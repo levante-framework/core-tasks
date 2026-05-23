@@ -2,12 +2,14 @@ import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-respons
 import { mediaAssets } from '../../..';
 import {
   PageStateHandler,
-  replayButtonSvg,
+  getParticipantUtilityButtonsHtml,
   setupReplayAudio,
   PageAudioHandler,
   camelize,
   handleStaggeredButtons,
   prepareChoices,
+  addExperimenterButtons,
+  setupFullscreenButton,
 } from '../../shared/helpers';
 import { generateImageChoices, handleButtonFeedback } from '../trials/stimulus';
 import { jsPsych } from '../../taskSetup';
@@ -33,12 +35,7 @@ export const somethingSameDemo1 = {
     const prompt = 'sameDifferentSelectionBothYellowHeavy';
     const t = taskStore().translations;
     return `<div class="lev-stimulus-container">
-          <button
-              id="${replayButtonHtmlId}"
-              class="replay"
-          >
-              ${replayButtonSvg}
-          </button>
+          ${getParticipantUtilityButtonsHtml(replayButtonHtmlId)}
           <div class="lev-row-container instruction">
             <p>${t[prompt]}</p>
           </div>
@@ -89,6 +86,8 @@ export const somethingSameDemo1 = {
 
     const pageStateHandler = new PageStateHandler(audioFile, true);
     setupReplayAudio(pageStateHandler);
+    addExperimenterButtons();
+    setupFullscreenButton();
     const buttonContainer = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
     buttonContainer.classList.add('lev-response-row');
     buttonContainer.classList.add('multi-4');
@@ -113,12 +112,7 @@ export const somethingSameDemo2 = {
     const prompt = 'sdsPrompt3DemoHeavy';
     const t = taskStore().translations;
     return `<div class="lev-stimulus-container">
-          <button
-              id="${replayButtonHtmlId}"
-              class="replay"
-          >
-              ${replayButtonSvg}
-          </button>
+          ${getParticipantUtilityButtonsHtml(replayButtonHtmlId)}
           <div class="lev-row-container instruction">
             <p>${t[prompt]}</p>
           </div>
@@ -157,6 +151,8 @@ export const somethingSameDemo2 = {
   on_load: () => {
     const pageStateHandler = new PageStateHandler('sdsPrompt3DemoHeavy', true);
     setupReplayAudio(pageStateHandler);
+    addExperimenterButtons();
+    setupFullscreenButton();
     const buttonContainer = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
     buttonContainer.classList.add('lev-response-row');
     buttonContainer.classList.add('multi-4');
@@ -235,9 +231,7 @@ const videoInstructions = videoInstructionData.map((data) => {
       const t = taskStore().translations;
       return `
         <div class="lev-stimulus-container">
-          <button id="${replayButtonHtmlId}" class="replay">
-            ${replayButtonSvg}
-          </button>
+          ${getParticipantUtilityButtonsHtml(replayButtonHtmlId)}
           <div class="lev-row-container instruction">
             <p>${t[camelize(data.prompt)]}</p>
           </div>
@@ -269,6 +263,8 @@ const videoInstructions = videoInstructionData.map((data) => {
 
       const pageStateHandler = new PageStateHandler(data.prompt, true);
       setupReplayAudio(pageStateHandler);
+      addExperimenterButtons();
+      setupFullscreenButton();
     },
     on_finish: () => {
       PageAudioHandler.stopAndDisconnectNode();
@@ -345,12 +341,7 @@ export const heavyPractice = practiceData.map((data) => {
 
       const t = taskStore().translations;
       return `<div class="lev-stimulus-container">
-        <button
-            id="${replayButtonHtmlId}"
-            class="replay"
-        >
-            ${replayButtonSvg}
-        </button>
+        ${getParticipantUtilityButtonsHtml(replayButtonHtmlId)}
         <div class="lev-row-container instruction">
           <p>${t[prompt]}</p>
         </div>
@@ -429,6 +420,8 @@ export const heavyPractice = practiceData.map((data) => {
 
       const pageStateHandler = new PageStateHandler(audioFile, true);
       setupReplayAudio(pageStateHandler);
+      addExperimenterButtons();
+      setupFullscreenButton();
       const buttonContainer = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
       buttonContainer.classList.add('lev-response-row');
       buttonContainer.classList.add('multi-4');

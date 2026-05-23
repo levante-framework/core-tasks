@@ -28,7 +28,6 @@ import {
   taskFinished,
   getAudioResponse,
   enterFullscreen,
-  finishExperiment,
   practiceTransition,
   setupDownex,
 } from '../shared/trials';
@@ -40,7 +39,7 @@ import { getLeftoverAssets } from '../shared/helpers/batchPreloading';
 
 export default function buildMatrixTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   initTrialSaving(config);
-  const initialTimeline = initTimeline(config, enterFullscreen, finishExperiment);
+  const initialTimeline = initTimeline(config, enterFullscreen);
 
   const ifRealTrialResponse = {
     timeline: [getAudioResponse(mediaAssets)],

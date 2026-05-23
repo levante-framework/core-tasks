@@ -89,6 +89,7 @@ export const setSharedConfig = async (
     storeItemId,
     cat,
     heavyInstructions,
+    experimenterButtons,
     inferenceNumStories,
     numberOfStories,
     semThreshold,
@@ -97,6 +98,7 @@ export const setSharedConfig = async (
     debug,
     version,
     taskVersion, // deprecated; use `version` — kept for backward compatibility
+    isPaused,
   } = cleanParams;
 
   const config = {
@@ -123,6 +125,7 @@ export const setSharedConfig = async (
 
     cat: !!cat, // defaults to false
     heavyInstructions: !!heavyInstructions,
+    experimenterButtons: !!experimenterButtons,
     inferenceNumStories: Number(inferenceNumStories) || undefined,
     numberOfStories: Number(numberOfStories) || 3,
     semThreshold: Number(semThreshold),
@@ -131,6 +134,8 @@ export const setSharedConfig = async (
     debug: !!debug,
     version: Number((version ?? taskVersion) || 1),
     displayPromptDurations: {},
+    taskTimer: null,
+    isPaused: false,
   };
 
   // default corpus if nothing is passed in
