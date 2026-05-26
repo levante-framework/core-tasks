@@ -13,7 +13,6 @@ import {
   enterFullscreen,
   exitFullscreen,
   feedback,
-  finishExperiment,
   fixationOnly,
   getAudioResponse,
   setupStimulusFromBlock,
@@ -40,7 +39,7 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
   taskStore('corpora', newCorpora); // puts all blocks into taskStore
 
   initTrialSaving(config);
-  const initialTimeline = initTimeline(config, enterFullscreen, finishExperiment);
+  const initialTimeline = initTimeline(config, enterFullscreen);
 
   const buttonNoise = {
     timeline: [getAudioResponse(mediaAssets)],

@@ -12,6 +12,7 @@ import {
   filterMedia,
   prepareMultiBlockCat,
   checkFallbackCriteria,
+  isEnglish
 } from '../shared/helpers';
 // trials
 import {
@@ -28,7 +29,6 @@ import {
   fixationOnly,
   getAudioResponse,
   enterFullscreen,
-  finishExperiment,
   practiceTransition,
   setupStimulusFromCurrentCatBlock,
   setupNextBlock,
@@ -45,7 +45,7 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
   const { semThreshold } = taskStore();
 
   initTrialSaving(config);
-  const initialTimeline = initTimeline(config, enterFullscreen, finishExperiment);
+  const initialTimeline = initTimeline(config, enterFullscreen);
 
   const ifRealTrialResponse = {
     timeline: [getAudioResponse(mediaAssets)],
@@ -123,7 +123,7 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
   const polygonInstructBlock = {
     timeline: [polygonInstructions],
     conditional_function: () => {
-      return taskStore().currentCatBlock === 1 && taskStore().language?.toLowerCase().startsWith('en');
+      return taskStore().currentCatBlock === 1 && isEnglish(taskStore().language);
     },
   };
 

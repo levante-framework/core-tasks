@@ -6,7 +6,14 @@ import { finishExperiment } from '../../shared/trials';
 import { mediaAssets } from '../../..';
 import { getMemoryGameType } from '../helpers/getMemoryGameType';
 import { getMemoryGamePrompt } from '../helpers/getMemoryGamePrompt';
-import { setupReplayAudio, PageAudioHandler, replayButtonSvg, PageStateHandler } from '../../shared/helpers';
+import {
+  addExperimenterButtons,
+  setupReplayAudio,
+  PageAudioHandler,
+  PageStateHandler,
+  getParticipantUtilityButtonsHtml,
+  setupFullscreenButton,
+} from '../../shared/helpers';
 import { taskStore } from '../../../taskStore';
 
 type CorsiBlocksArgs = {
@@ -51,14 +58,16 @@ export function setUpAudio(
   cue: string,
   mode?: 'display' | 'input',
 ) {
-  // add replay button
+  // add replay + fullscreen participant controls
   if (mode === 'input') {
-    const replayButton = document.createElement('button');
-    replayButton.innerHTML = replayButtonSvg;
-    replayButton.id = 'replay-btn-revisited';
-    replayButton.classList.add('replay');
+    const wrap = document.createElement('div');
+    wrap.innerHTML = getParticipantUtilityButtonsHtml('replay-btn-revisited');
+    const participantContainer = wrap.firstElementChild as HTMLElement;
+    contentWrapper.insertBefore(participantContainer, prompt);
+    const replayButton = participantContainer.querySelector('#replay-btn-revisited') as HTMLButtonElement;
     replayButton.disabled = true;
-    contentWrapper.insertBefore(replayButton, prompt);
+    addExperimenterButtons();
+    setupFullscreenButton();
   }
 
   const audioFile = mediaAssets.audio[cue];
@@ -164,8 +173,11 @@ export function getCorsiBlocks({
 
       // get the pre-assigned prompt duration values from task store
       const displayPromptDurations = taskStore().displayPromptDurations;
+      const durationSec = displayPromptDurations[cue as keyof typeof displayPromptDurations];
+      const durationMs =
+        durationSec != null && Number.isFinite(durationSec) ? durationSec * 1000 : 3000;
 
-      return displayPromptDurations[cue as keyof typeof displayPromptDurations] * 1000;
+      return durationMs;
     },
     on_load: () => {
       doOnLoad(mode, isPractice, reverse, animation, prompt);

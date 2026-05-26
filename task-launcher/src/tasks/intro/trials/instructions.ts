@@ -1,7 +1,14 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { isTouchScreen, jsPsych } from '../../taskSetup';
 import { mediaAssets } from '../../..';
-import { PageAudioHandler, PageStateHandler, replayButtonSvg, setupReplayAudio } from '../../shared/helpers';
+import {
+  addExperimenterButtons,
+  PageAudioHandler,
+  PageStateHandler,
+  getParticipantUtilityButtonsHtml,
+  setupReplayAudio,
+  setupFullscreenButton,
+} from '../../shared/helpers';
 import { taskStore } from '../../../taskStore';
 
 const instructionData = [
@@ -42,9 +49,7 @@ export const instructions = instructionData.map((data) => {
       const t = taskStore().translations;
       return `
         <div class="lev-stimulus-container">
-            <button id="replay-btn-revisited" class="replay">
-                ${replayButtonSvg}
-            </button>
+            ${getParticipantUtilityButtonsHtml('replay-btn-revisited')}
             <div class="lev-row-container instruction-small">
                 <p>${t[data.prompt]}</p>
             </div>
@@ -73,6 +78,8 @@ export const instructions = instructionData.map((data) => {
 
       const pageStateHandler = new PageStateHandler(data.prompt, true);
       setupReplayAudio(pageStateHandler);
+      addExperimenterButtons();
+      setupFullscreenButton();
     },
     on_finish: () => {
       PageAudioHandler.stopAndDisconnectNode();

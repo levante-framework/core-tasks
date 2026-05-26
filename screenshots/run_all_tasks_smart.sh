@@ -189,7 +189,7 @@ describe('Task Screenshot Capture', () => {
           '.jspsych-btn',                                   // Standard jsPsych buttons
           'button[data-choice]',                           // Choice buttons
           '.lev-response-row button',                      // Levante framework buttons
-          'button:not(.replay):not(#replay-btn-revisited)', // Any button except replay
+          'button:not(#replay-btn-revisited):not(#fullscreen)', // Any button except participant replay / fullscreen
           'button'                                         // Fallback to any button
         ];
         
@@ -310,11 +310,11 @@ describe('Task Screenshot Capture', () => {
     // Binary choice interaction
     function performBinaryChoiceInteraction() {
       cy.get('body').then($body => {
-        const buttons = $body.find('button:not(.replay):not(#replay-btn-revisited)');
+        const buttons = $body.find('button:not(#replay-btn-revisited):not(#fullscreen)');
         if (buttons.length === 2) {
           // Exactly 2 buttons, pick randomly
           const randomIndex = Math.floor(Math.random() * 2);
-          cy.get('button:not(.replay):not(#replay-btn-revisited)').eq(randomIndex).click({ force: true });
+          cy.get('button:not(#replay-btn-revisited):not(#fullscreen)').eq(randomIndex).click({ force: true });
         } else {
           performAFCInteraction();
         }
@@ -349,7 +349,7 @@ describe('Task Screenshot Capture', () => {
       cy.get('body').then($body => {
         // Try to find any clickable element
         const genericSelectors = [
-          'button:not(.replay):not(#replay-btn-revisited):visible',
+          'button:not(#replay-btn-revisited):not(#fullscreen):visible',
           'input[type="submit"]:visible',
           '[role="button"]:visible',
           '.clickable:visible',

@@ -113,6 +113,8 @@ export class TaskLauncher {
     jsPsych.run(timeline);
     const translations = taskStore().translations;
     const pageSetup = new InitPageSetup(4000, translations);
+    taskStore('pageSetup', pageSetup);
+    
     pageSetup.init();
     const checkTaskFinished = (this.gameParams.demoMode || this.firekit === null)
       ? () => taskStore().taskComplete
