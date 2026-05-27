@@ -14,6 +14,7 @@ import { disableOkButton } from '../../shared/helpers/disableOkButton';
 import { enableOkButton } from '../../shared/helpers/enableButtons';
 
 let continueTrialConfig;
+let cleanupInstructionInputListeners = [];
 
 function isHfV2() {
   return taskStore().version === 2;
@@ -77,7 +78,6 @@ function buildInstructionTrial(mascotImage, getPromptKey, showResponseButton = f
   }
 
   const replayButtonHtmlId = 'replay-btn-revisited';
-  let cleanupInstructionInputListeners = null;
 
   const trial = {
     type: jsPsychHtmlMultiResponse,
@@ -184,12 +184,16 @@ function buildInstructionTrial(mascotImage, getPromptKey, showResponseButton = f
                   maxRepetitions: 2
                 },
                 onEnded: () => {
-                  window.addEventListener('keydown', (event) => {
+                  const onSpacebarPress = (event) => {
                     if (event.key === " ") {
                       jsPsych.finishTrial();
                     }
-                  }, 
-                  {once: true});
+                  };
+      
+                  window.addEventListener('keydown', onSpacebarPress);
+                  cleanupInstructionInputListeners.push(() => {
+                    window.removeEventListener('keydown', onSpacebarPress);
+                  });
                 }
               }
 
@@ -212,18 +216,18 @@ function buildInstructionTrial(mascotImage, getPromptKey, showResponseButton = f
             }
 
             displayedButton.addEventListener('touchend', buttonPressListener);
-            cleanupInstructionInputListeners = () => {
-              displayedButton.removeEventListener('touchend', onButtonPress);
-            };
+            cleanupInstructionInputListeners.push(() => {
+              displayedButton.removeEventListener('touchend', buttonPressListener);
+            });
           } else {
             const onWindowKeydown = (event) => {
               onButtonPress(displayedButton, displayedButtonIndex, event);
             };
 
             window.addEventListener('keydown', onWindowKeydown);
-            cleanupInstructionInputListeners = () => {
+            cleanupInstructionInputListeners.push(() => {
               window.removeEventListener('keydown', onWindowKeydown);
-            };
+            });
           }
         },
       };
@@ -235,8 +239,10 @@ function buildInstructionTrial(mascotImage, getPromptKey, showResponseButton = f
       setupReplayAudio(pageStateHandler);
     },
     on_finish: () => {
-      cleanupInstructionInputListeners?.();
-      cleanupInstructionInputListeners = null;
+      cleanupInstructionInputListeners?.forEach((listenerCleanup) => {
+        listenerCleanup?.();
+      });
+      cleanupInstructionInputListeners = [];
 
       PageAudioHandler.stopAndDisconnectNode();
 
