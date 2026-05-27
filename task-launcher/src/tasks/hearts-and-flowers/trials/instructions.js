@@ -85,10 +85,7 @@ function buildInstructionTrial(mascotImage, getPromptKey, showResponseButton = f
       // set the continue trial config based on the input capability
       continueTrialConfig = {
         type: taskStore().inputCapability?.touch || !isHfV2() ? 'button' : 'bottomText',
-        text:
-          taskStore().inputCapability?.touch || !isHfV2()
-            ? "continueButtonText"
-            : "heartsAndFlowersPressAnyKey",
+        text: taskStore().inputCapability?.touch || !isHfV2() ? 'continueButtonText' : 'heartsAndFlowersPressAnyKey',
       };
 
       return `
@@ -117,7 +114,8 @@ function buildInstructionTrial(mascotImage, getPromptKey, showResponseButton = f
     },
     prompt_above_buttons: true,
     keyboard_choices: 'NO_KEYS',
-    button_choices: () => (continueTrialConfig.type === 'button' ? [taskStore().translations[continueTrialConfig.text]] : undefined),
+    button_choices: () =>
+      continueTrialConfig.type === 'button' ? [taskStore().translations[continueTrialConfig.text]] : undefined,
     button_html: () =>
       continueTrialConfig.type === 'button' ? [`<button class="primary" disabled>%choice%</button>`] : undefined,
     on_load: () => {
@@ -136,10 +134,14 @@ function buildInstructionTrial(mascotImage, getPromptKey, showResponseButton = f
         buttonContainer.classList.add('linear-4');
         buttonContainer.innerHTML = `
           <div class='response-container--small'>
-            <button class='secondary--green' ${buttonSide === "right" ? 'style="visibility: hidden" disabled' : ''}></button>
+            <button class='secondary--green' ${
+              buttonSide === 'right' ? 'style="visibility: hidden" disabled' : ''
+            }></button>
           </div>
           <div class='response-container--small'>
-            <button class='secondary--green' ${buttonSide === "left" ? 'style="visibility: hidden" disabled' : ''}></button>
+            <button class='secondary--green' ${
+              buttonSide === 'left' ? 'style="visibility: hidden" disabled' : ''
+            }></button>
           </div>`;
 
         const stimContainer = document.querySelector('.lev-stimulus-container');
@@ -149,9 +151,9 @@ function buildInstructionTrial(mascotImage, getPromptKey, showResponseButton = f
 
         onButtonPress = (button, i, event) => {
           if (
-            ((i === 0 && event.key === 'ArrowLeft') ||
-              (i === 1 && event.key === 'ArrowRight') ||
-              event.type === 'touchend')
+            (i === 0 && event.key === 'ArrowLeft') ||
+            (i === 1 && event.key === 'ArrowRight') ||
+            event.type === 'touchend'
           ) {
             PageAudioHandler.playAudio(mediaAssets.audio.coin);
             button.classList.add('info-shadow');
@@ -165,15 +167,15 @@ function buildInstructionTrial(mascotImage, getPromptKey, showResponseButton = f
               jsPsych.finishTrial();
             }, 2000);
           }
-        }
-      };
+        };
+      }
 
       const audioConfig = {
         restrictRepetition: {
           enabled: false,
           maxRepetitions: 2,
         },
-        onEnded: () => {   
+        onEnded: () => {
           if (!showResponseButton) {
             if (continueTrialConfig.type === 'bottomText') {
               const audioUri = mediaAssets.audio[continueTrialConfig.text];
@@ -181,21 +183,21 @@ function buildInstructionTrial(mascotImage, getPromptKey, showResponseButton = f
               const secondAudioConfig = {
                 restrictRepetition: {
                   enabled: false,
-                  maxRepetitions: 2
+                  maxRepetitions: 2,
                 },
                 onEnded: () => {
                   const onSpacebarPress = (event) => {
-                    if (event.key === " ") {
+                    if (event.key === ' ') {
                       jsPsych.finishTrial();
                     }
                   };
-      
+
                   window.addEventListener('keydown', onSpacebarPress);
                   cleanupInstructionInputListeners.push(() => {
                     window.removeEventListener('keydown', onSpacebarPress);
                   });
-                }
-              }
+                },
+              };
 
               PageAudioHandler.playAudio(audioUri, secondAudioConfig);
             } else {
@@ -213,7 +215,7 @@ function buildInstructionTrial(mascotImage, getPromptKey, showResponseButton = f
           if (taskStore().inputCapability?.touch) {
             const buttonPressListener = (event) => {
               onButtonPress(displayedButton, displayedButtonIndex, event);
-            }
+            };
 
             displayedButton.addEventListener('touchend', buttonPressListener);
             cleanupInstructionInputListeners.push(() => {

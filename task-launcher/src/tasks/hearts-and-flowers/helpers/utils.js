@@ -118,4 +118,4 @@ export const getInputInstructPrompt = (showButton = false) => {
   } else {
     return inputCapability?.touch ? 'heartsAndFlowersInstructTouchscreen' : 'heartsAndFlowersInstructKeyboard';
   }
-};    
+};

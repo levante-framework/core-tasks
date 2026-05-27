@@ -90,7 +90,7 @@ export default function buildHeartsAndFlowersTimeline(config, mediaAssets) {
   let timeline = [preloadTrials, initialTimeline];
   if (hfV2) {
     timeline.push(getInputInstructions());
-    timeline.push(getLeftButtonDemo()); 
+    timeline.push(getLeftButtonDemo());
     timeline.push(getRightButtonDemo());
   }
 

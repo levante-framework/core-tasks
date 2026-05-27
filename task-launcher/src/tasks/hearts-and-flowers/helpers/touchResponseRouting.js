@@ -47,7 +47,7 @@ function triggerToast() {
   if (taskStore().inputCapability.touch) {
     return;
   }
-  
+
   const toast = document.getElementById('lev-toast-default');
 
   if (toast && !toast.classList.contains('show')) {
