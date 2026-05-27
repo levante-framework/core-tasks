@@ -31,9 +31,7 @@ async function buildLanguageLocaleTaskMatrix() {
   });
 
   if (matrix.length === 0) {
-    throw new Error(
-      'languageoptions.json produced an empty test matrix (no locales with taskOptions).',
-    );
+    throw new Error('languageoptions.json produced an empty test matrix (no locales with taskOptions).');
   }
 
   return matrix;

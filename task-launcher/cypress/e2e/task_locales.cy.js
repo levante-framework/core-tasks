@@ -2,7 +2,7 @@
 
 function visitTaskWithLocaleAndEnterFullscreen(task, lng) {
   cy.visit(`http://localhost:8080/?task=${task}&lng=${lng}`);
-  cy.get('button.primary', {timeout: 120000}).should('be.visible').first().realClick();
+  cy.get('button.primary', { timeout: 120000 }).should('be.visible').first().realClick();
 }
 
 function groupLocalesByTask(matrix) {

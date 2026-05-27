@@ -66,7 +66,6 @@ const emulatorConfig = EMULATORS ? firebaseJSON.emulators : undefined;
 const demoMode = DEMO;
 
 async function startWebApp() {
-
   const firekit = null;
   const gameParams = {
     taskName,
@@ -100,7 +99,6 @@ async function startWebApp() {
   };
   const task = new TaskLauncher(firekit, gameParams, userParams);
   task.run();
-
 }
 
 await startWebApp();

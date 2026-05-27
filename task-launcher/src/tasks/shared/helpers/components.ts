@@ -74,9 +74,13 @@ export function getParticipantUtilityButtonsHtml(replayButtonHtmlId: string, inc
       <button class="utility" id="fullscreen" ${document.fullscreenElement ? 'style="visibility: hidden;"' : ''}>
         ${fullscreenButtonSvg}
       </button>
-      ${includeReplayButton ? `<button id="${replayButtonHtmlId}" class="utility">
+      ${
+        includeReplayButton
+          ? `<button id="${replayButtonHtmlId}" class="utility">
         ${replayButtonSvg}
-      </button>` : ''}
+      </button>`
+          : ''
+      }
     </div>
   `;
 }

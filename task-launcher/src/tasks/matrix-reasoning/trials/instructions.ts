@@ -272,8 +272,10 @@ export const downexInstructions1 = {
           },
         };
 
-        setTimeout(() => 
-          !taskStore().isPaused ? PageAudioHandler.playAudio(lastAudioUri, lastAudioConfig) : null, 5000);
+        setTimeout(
+          () => (!taskStore().isPaused ? PageAudioHandler.playAudio(lastAudioUri, lastAudioConfig) : null),
+          5000,
+        );
       } else {
         if (replayButton) {
           (replayButton as HTMLButtonElement).disabled = false;

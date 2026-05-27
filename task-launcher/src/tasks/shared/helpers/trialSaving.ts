@@ -119,7 +119,6 @@ export const initTrialSaving = (config: Record<string, any>) => {
 
   // @ts-ignore
   jsPsych.opts.on_finish = extend(jsPsych.opts.on_finish, () => {
-
     if (!taskStore().demoMode && config.firekit) {
       config.firekit.finishRun();
     }

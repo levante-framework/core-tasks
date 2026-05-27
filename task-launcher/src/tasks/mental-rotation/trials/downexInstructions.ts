@@ -14,7 +14,6 @@ import { animate } from '../helpers/animate';
 import { jsPsych } from '../../taskSetup';
 import { pulseOkButton } from '../../shared/helpers/pulseOkButton';
 
-
 const replayButtonHtmlId = 'replay-btn-revisited';
 let cycleId = 0; // disable audio if the trial has changed since the loop started - prevent overlapping audio
 
