@@ -61,12 +61,19 @@ export class TaskLauncher {
     const languageAudioBucket = getBucketName('shared', isDev, 'audio', language);
     const sharedAudioBucket = getBucketName('shared', isDev, 'audio', 'shared');
 
+    await getAssetsPerTask(isDev);
+
+    const taskAudioAssetNames = [
+      ...taskStore().assetsPerTask[taskName].audio,
+      ...taskStore().assetsPerTask.shared.audio,
+    ];
+
     try {
       // will avoid language folder if not provided
-      languageAudioAssets = await getMediaAssets(languageAudioBucket, {}, language, taskName);
-      sharedAudioAssets = await getMediaAssets(sharedAudioBucket, {}, 'shared', taskName);
-      taskVisualAssets = await getMediaAssets(taskVisualBucket, {}, language, taskName);
-      sharedVisualAssets = await getMediaAssets(sharedVisualBucket, {}, language, 'shared');
+      languageAudioAssets = await getMediaAssets(languageAudioBucket, {}, taskName, language, taskAudioAssetNames);
+      sharedAudioAssets = await getMediaAssets(sharedAudioBucket, {}, taskName, 'shared');
+      taskVisualAssets = await getMediaAssets(taskVisualBucket, {}, taskName, language);
+      sharedVisualAssets = await getMediaAssets(sharedVisualBucket, {}, 'shared', language);
     } catch (error) {
       throw new Error('Error fetching media assets: ' + error);
     }
@@ -81,16 +88,6 @@ export class TaskLauncher {
     if (taskName !== 'hearts-and-flowers' && taskName !== 'memory-game' && taskName !== 'intro') {
       await getCorpus(config, isDev);
     }
-
-    await getAssetsPerTask(isDev);
-
-    const taskAudioAssetNames = [
-      ...taskStore().assetsPerTask[taskName].audio,
-      ...taskStore().assetsPerTask.shared.audio,
-    ];
-
-    // filter out language audio not relevant to current task
-    languageAudioAssets = filterMedia(languageAudioAssets, [], taskAudioAssetNames, []);
 
     mediaAssets = combineMediaAssets([languageAudioAssets, sharedAudioAssets, taskVisualAssets, sharedVisualAssets]);
 
