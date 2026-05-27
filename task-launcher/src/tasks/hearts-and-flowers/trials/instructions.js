@@ -136,10 +136,10 @@ function buildInstructionTrial(mascotImage, getPromptKey, showResponseButton = f
         buttonContainer.classList.add('linear-4');
         buttonContainer.innerHTML = `
           <div class='response-container--small'>
-            <button class='secondary--green' ${buttonSide === "right" ? 'style=visibility: hidden disabled' : ''}></button>
+            <button class='secondary--green' ${buttonSide === "right" ? 'style="visibility: hidden" disabled' : ''}></button>
           </div>
           <div class='response-container--small'>
-            <button class='secondary--green' ${buttonSide === "left" ? 'style=visibility: hidden disabled' : ''}></button>
+            <button class='secondary--green' ${buttonSide === "left" ? 'style="visibility: hidden" disabled' : ''}></button>
           </div>`;
 
         const stimContainer = document.querySelector('.lev-stimulus-container');
@@ -207,13 +207,14 @@ function buildInstructionTrial(mascotImage, getPromptKey, showResponseButton = f
           addKeyHelpers(displayedButton, displayedButtonIndex);
 
           if (taskStore().inputCapability?.touch) {
-            displayedButton.addEventListener(
-              'touchend',
-              (event) => {
-                onButtonPress(displayedButton, displayedButtonIndex, event);
-              },
-              { once: true },
-            );
+            const buttonPressListener = (event) => {
+              onButtonPress(displayedButton, displayedButtonIndex, event);
+            }
+
+            displayedButton.addEventListener('touchend', buttonPressListener);
+            cleanupInstructionInputListeners = () => {
+              displayedButton.removeEventListener('touchend', onButtonPress);
+            };
           } else {
             const onWindowKeydown = (event) => {
               onButtonPress(displayedButton, displayedButtonIndex, event);
@@ -230,7 +231,7 @@ function buildInstructionTrial(mascotImage, getPromptKey, showResponseButton = f
       const promptAudioKey = showResponseButton ? getPromptKey(true) : getPromptKey(false);
       PageAudioHandler.playAudio(mediaAssets.audio[promptAudioKey] || mediaAssets.audio.inputAudioCue, audioConfig);
 
-      const pageStateHandler = new PageStateHandler(getPromptKey());
+      const pageStateHandler = new PageStateHandler(promptAudioKey);
       setupReplayAudio(pageStateHandler);
     },
     on_finish: () => {
