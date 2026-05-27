@@ -142,6 +142,7 @@ export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrial
         response: response === 0 ? ResponseSideType.Left : ResponseSideType.Right,
         responseLocation: response,
         itemUid: itemUid,
+        presentationTime: hfV2 ? stimulusDuration : null,
       });
 
       taskStore.transact('testTrialCount', (oldVal) => oldVal + 1);

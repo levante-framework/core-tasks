@@ -5,7 +5,9 @@ export function setupHafMultiResponseTouchRouting() {
   toast.id = 'lev-toast-default';
   toast.classList.add('lev-toast-default');
   toast.textContent = taskStore().translations.heartsAndFlowersClickReminder;
-  document.body.appendChild(toast);
+  if (!taskStore().inputCapability.touch) {
+    document.body.appendChild(toast);
+  }
 
   document.querySelectorAll('.jspsych-html-multi-response-button').forEach((wrapper) => {
     if (wrapper.dataset.hafTouchRouting === '1') return;
@@ -42,6 +44,10 @@ export function setupHafMultiResponseTouchRouting() {
 
 let timeoutID;
 function triggerToast() {
+  if (taskStore().inputCapability.touch) {
+    return;
+  }
+
   const toast = document.getElementById('lev-toast-default');
 
   if (toast && !toast.classList.contains('show')) {

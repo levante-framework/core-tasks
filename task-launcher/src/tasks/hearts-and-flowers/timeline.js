@@ -24,6 +24,8 @@ import {
   getEndGame,
   getInputInstructions,
   getGoingFasterInstructions,
+  getLeftButtonDemo,
+  getRightButtonDemo,
 } from './trials/instructions';
 import { StimulusType, StimulusSideType, AssessmentStageType, CorpusTrialType } from './helpers/utils';
 
@@ -88,6 +90,8 @@ export default function buildHeartsAndFlowersTimeline(config, mediaAssets) {
   let timeline = [preloadTrials, initialTimeline];
   if (hfV2) {
     timeline.push(getInputInstructions());
+    timeline.push(getLeftButtonDemo());
+    timeline.push(getRightButtonDemo());
   }
 
   if (timelineAdminConfig.heart) {
