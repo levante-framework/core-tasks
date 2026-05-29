@@ -49,3 +49,6 @@ export { shouldTerminateCat } from './shouldTerminateCat';
 export { selectNextSequentialTrial } from './selectNextSequentialTrial';
 export { checkFallbackCriteria } from './checkFallbackCriteria';
 export { addKeyHelpers } from './addKeyHelpers';
+export { isEnglish } from './checkLocale';
+export { addExperimenterButtons } from './addUtilityButtons';
+export { setupFullscreenButton } from './addUtilityButtons';

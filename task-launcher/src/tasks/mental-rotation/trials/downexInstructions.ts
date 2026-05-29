@@ -1,12 +1,21 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
-import { camelize, disableOkButton, PageAudioHandler, replayButtonSvg } from '../../shared/helpers';
+import {
+  addExperimenterButtons,
+  camelize,
+  disableOkButton,
+  PageAudioHandler,
+  getParticipantUtilityButtonsHtml,
+  setupFullscreenButton,
+  enableOkButton,
+} from '../../shared/helpers';
 import { animate } from '../helpers/animate';
 import { jsPsych } from '../../taskSetup';
 import { pulseOkButton } from '../../shared/helpers/pulseOkButton';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
+let cycleId = 0; // disable audio if the trial has changed since the loop started - prevent overlapping audio
 
 const downexData = [
   {
@@ -57,13 +66,6 @@ const downexData = [
 
 let startTime: number;
 
-function enableOkBtn() {
-  const okButton: HTMLButtonElement | null = document.querySelector('.primary');
-  if (okButton != null) {
-    okButton.disabled = false;
-  }
-}
-
 export const downexInstructions = downexData.map((data: any) => {
   return {
     type: jsPsychHtmlMultiResponse,
@@ -73,12 +75,7 @@ export const downexInstructions = downexData.map((data: any) => {
       const itemText = data.audio.map((file: string) => t[camelize(file)]).join(' ');
 
       return `<div class="lev-stimulus-container">
-                  <button
-                      id="${replayButtonHtmlId}"
-                      class="replay"
-                  >
-                      ${replayButtonSvg}
-                  </button>
+                  ${getParticipantUtilityButtonsHtml(replayButtonHtmlId)}
                   <div class="lev-row-container instruction-small">
                       <p>${itemText}</p>
                   </div>
@@ -111,6 +108,9 @@ export const downexInstructions = downexData.map((data: any) => {
     on_load: async () => {
       startTime = performance.now();
 
+      addExperimenterButtons();
+      setupFullscreenButton();
+
       const replayButton = document.getElementById(replayButtonHtmlId);
       if (replayButton) {
         replayButton.addEventListener('click', () => {
@@ -119,6 +119,9 @@ export const downexInstructions = downexData.map((data: any) => {
       }
 
       function animateAndPlayAudio() {
+        cycleId++;
+        const thisCycleId = cycleId;
+
         // replay button and ok button should be disabled while animations are happening
         if (replayButton) {
           (replayButton as HTMLButtonElement).disabled = true;
@@ -164,8 +167,12 @@ export const downexInstructions = downexData.map((data: any) => {
         };
 
         function triggerNextEvent() {
+          if (thisCycleId !== cycleId || taskStore().isPaused) {
+            return;
+          }
+
           if (trialEventOrder.length === 0) {
-            enableOkBtn();
+            enableOkButton();
             pulseOkButton(3000, taskStore().totalTrialCount);
             if (replayButton) {
               (replayButton as HTMLButtonElement).disabled = false;
@@ -190,6 +197,7 @@ export const downexInstructions = downexData.map((data: any) => {
     },
     on_finish: () => {
       PageAudioHandler.stopAndDisconnectNode();
+      cycleId++;
 
       jsPsych.data.addDataToLastTrial({
         audioButtonPresses: PageAudioHandler.replayPresses,

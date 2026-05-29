@@ -9,14 +9,7 @@ import {
 import { jsPsych } from '../taskSetup';
 import { initializeCat } from '../taskSetup';
 // trials
-import {
-  enterFullscreen,
-  exitFullscreen,
-  feedback,
-  finishExperiment,
-  repeatInstructionsMessage,
-  taskFinished,
-} from '../shared/trials';
+import { enterFullscreen, exitFullscreen, feedback, repeatInstructionsMessage, taskFinished } from '../shared/trials';
 import { getCorsiBlocks } from './trials/stimulus';
 import {
   readyToPlay,
@@ -66,7 +59,7 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
 
   initTrialSaving(config);
   const preloadTrials = createPreloadTrials(mediaAssets).default;
-  const initialTimeline = initTimeline(config, enterFullscreen, finishExperiment);
+  const initialTimeline = initTimeline(config, enterFullscreen);
 
   const corsiBlocksPractice = {
     timeline: [...generatePracticeTrialTimeline(false, 'memoryGameForwardTryAgain', 3)],

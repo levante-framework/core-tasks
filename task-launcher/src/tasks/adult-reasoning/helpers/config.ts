@@ -42,6 +42,8 @@ export const getLayoutConfig = (
       value: stimItem,
       displayValue: stimItem,
     };
+  } else {
+    defaultConfig.classOverrides.buttonClassList = ['primary'];
   }
 
   const messages = validateLayoutConfig(defaultConfig, mediaAssets, translations, stimulus);

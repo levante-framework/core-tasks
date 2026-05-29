@@ -1,10 +1,12 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
 import {
+  addExperimenterButtons,
   PageStateHandler,
   PageAudioHandler,
-  replayButtonSvg,
+  getParticipantUtilityButtonsHtml,
   setupReplayAudio,
+  setupFullscreenButton,
   camelize,
   addPracticeButtonListeners,
   disableOkButton,
@@ -24,7 +26,7 @@ export const instructionData = [
   },
 ];
 const replayButtonHtmlId = 'replay-btn-revisited';
-let audioEnabled = false; // disable audio if the trial has changed since the loop started - prevent overlapping audio
+let cycleId = 0; // disable audio if the trial has changed since the loop started - prevent overlapping audio
 
 export const instructions = instructionData.map((data) => {
   return {
@@ -33,12 +35,7 @@ export const instructions = instructionData.map((data) => {
       const t = taskStore().translations;
       const imageSrc = mediaAssets.images[data.image];
       return `<div class="lev-stimulus-container">
-                        <button
-                            id="${replayButtonHtmlId}"
-                            class="replay"
-                        >
-                            ${replayButtonSvg}
-                        </button>
+                        ${getParticipantUtilityButtonsHtml(replayButtonHtmlId)}
                         <div class="lev-row-container instruction-small">
                             <p>${t[data.prompt]}</p>
                         </div>
@@ -67,6 +64,8 @@ export const instructions = instructionData.map((data) => {
 
       const pageStateHandler = new PageStateHandler(data.prompt, true);
       setupReplayAudio(pageStateHandler);
+      addExperimenterButtons();
+      setupFullscreenButton();
     },
     on_finish: () => {
       PageAudioHandler.stopAndDisconnectNode();
@@ -138,12 +137,7 @@ export const downexInstructions1 = {
     const itemText = downexData1.audio.map((file: string) => t[camelize(file)]).join(' ');
 
     return `<div class="lev-stimulus-container">
-                  <button
-                      id="${replayButtonHtmlId}"
-                      class="replay"
-                  >
-                      ${replayButtonSvg}
-                  </button>
+                  ${getParticipantUtilityButtonsHtml(replayButtonHtmlId)}
                   <div class="lev-row-container instruction-small">
                       <p>${itemText}</p>
                   </div>
@@ -181,12 +175,23 @@ export const downexInstructions1 = {
   on_load: async () => {
     startTime = performance.now();
 
+    addExperimenterButtons();
+    setupFullscreenButton();
+
     // set up replay audio
     const trialAudio = downexData1.audio;
 
     const replayButton = document.getElementById(replayButtonHtmlId);
     if (replayButton) {
       replayButton.addEventListener('click', () => {
+        // clean up from previous animation
+        const animatedTarget = document.getElementById('animated-target');
+        if (animatedTarget) {
+          animatedTarget.remove();
+        }
+
+        target?.classList.remove('image-grayed-out');
+
         animateAndPlayAudio();
       });
     }
@@ -198,6 +203,9 @@ export const downexInstructions1 = {
     const target = document.getElementById('target');
 
     async function animateAndPlayAudio() {
+      cycleId++;
+      const thisCycleId = cycleId;
+
       // replay button should be disabled while animations are happening
       if (replayButton) {
         (replayButton as HTMLButtonElement).disabled = true;
@@ -227,11 +235,7 @@ export const downexInstructions1 = {
         const audioUri = mediaAssets.audio[camelize(audioFile)] || mediaAssets.audio.nullAudio;
         const delay = index === 2 ? 2 : 0;
 
-        if (index === 0) {
-          audioEnabled = true;
-        }
-
-        if (!audioEnabled) {
+        if (thisCycleId !== cycleId || taskStore().isPaused) {
           break;
         }
 
@@ -251,7 +255,7 @@ export const downexInstructions1 = {
         mediaAssets.audio[camelize(trialAudio[trialAudio.length - 1])] || mediaAssets.audio.nullAudio;
 
       // animate the target button to the center of stimImage
-      if (stimImage && target) {
+      if (stimImage && target && !taskStore().isPaused && thisCycleId === cycleId) {
         displaceAnimation(stimImage, target, 'origin', 0.5, 0.5, true);
 
         const lastAudioConfig: AudioConfigType = {
@@ -268,7 +272,10 @@ export const downexInstructions1 = {
           },
         };
 
-        setTimeout(() => PageAudioHandler.playAudio(lastAudioUri, lastAudioConfig), 5000);
+        setTimeout(
+          () => (!taskStore().isPaused ? PageAudioHandler.playAudio(lastAudioUri, lastAudioConfig) : null),
+          5000,
+        );
       } else {
         if (replayButton) {
           (replayButton as HTMLButtonElement).disabled = false;
@@ -280,7 +287,7 @@ export const downexInstructions1 = {
   },
   on_finish: () => {
     PageAudioHandler.stopAndDisconnectNode(); // stop ongoing audio
-    audioEnabled = false; // stop queued audio
+    cycleId++; // stop queued audio
 
     jsPsych.data.addDataToLastTrial({
       audioButtonPresses: PageAudioHandler.replayPresses,
@@ -298,12 +305,7 @@ const textOnlyDownexInstruction = textOnlyDownexInstructionData.map((data) => {
 
       return `
       <div class="lev-stimulus-container">
-        <button
-          id="${replayButtonHtmlId}"
-          class="replay"
-        >
-          ${replayButtonSvg}
-        </button>
+        ${getParticipantUtilityButtonsHtml(replayButtonHtmlId)}
         <div class="lev-row-container instruction">
           <p>${itemText}</p>
         </div>
@@ -333,6 +335,8 @@ const textOnlyDownexInstruction = textOnlyDownexInstructionData.map((data) => {
 
       const pageStateHandler = new PageStateHandler(data.audio, true);
       setupReplayAudio(pageStateHandler);
+      addExperimenterButtons();
+      setupFullscreenButton();
     },
     on_finish: () => {
       PageAudioHandler.stopAndDisconnectNode();
@@ -356,12 +360,7 @@ export const downexInstructions3 = {
     const itemText = downexData3.audio.map((file: string) => t[camelize(file)]).join(' ');
 
     return `<div class="lev-stimulus-container">
-                  <button
-                      id="${replayButtonHtmlId}"
-                      class="replay"
-                  >
-                      ${replayButtonSvg}
-                  </button>
+                  ${getParticipantUtilityButtonsHtml(replayButtonHtmlId)}
                   <div class="lev-row-container instruction-small">
                       <p>${itemText}</p>
                   </div>
@@ -390,6 +389,9 @@ export const downexInstructions3 = {
   on_load: async () => {
     startTime = performance.now();
 
+    addExperimenterButtons();
+    setupFullscreenButton();
+
     // set up replay audio
     const trialAudio = downexData3.audio;
 
@@ -416,14 +418,14 @@ export const downexInstructions3 = {
 
     function onCorrect() {
       PageAudioHandler.stopAndDisconnectNode();
-      audioEnabled = false;
+      cycleId++;
 
       PageAudioHandler.playAudio(mediaAssets.audio.feedbackRightOne);
     }
 
     function onIncorrect() {
       PageAudioHandler.stopAndDisconnectNode();
-      audioEnabled = false;
+      cycleId++;
 
       if (targetButton) {
         targetButton.style.animation = 'none';
@@ -437,6 +439,9 @@ export const downexInstructions3 = {
     addPracticeButtonListeners(downexData3.choices[1], isTouchScreen, downexData3.choices, onCorrect, onIncorrect);
 
     async function animateAndPlayAudio() {
+      cycleId++;
+      const thisCycleId = cycleId;
+
       // replay button should be disabled while animations are happening
       if (replayButton) {
         (replayButton as HTMLButtonElement).disabled = true;
@@ -454,11 +459,7 @@ export const downexInstructions3 = {
         const audioUri = mediaAssets.audio[camelize(audioFile)];
         const image = index > 2 ? downexData3.image[0] : downexData3.image[index]; // keep the image after the fourth audio file
 
-        if (index === 0) {
-          audioEnabled = true;
-        }
-
-        if (!audioEnabled) {
+        if (thisCycleId !== cycleId || taskStore().isPaused) {
           break;
         }
 
@@ -510,7 +511,7 @@ export const downexInstructions3 = {
   response_ends_trial: false,
   on_finish: () => {
     PageAudioHandler.stopAndDisconnectNode();
-    audioEnabled = false;
+    cycleId++;
 
     jsPsych.data.addDataToLastTrial({
       audioButtonPresses: PageAudioHandler.replayPresses,
@@ -527,12 +528,7 @@ export const downexInstructions4 = {
     const itemText = downexData4.audio.map((file: string) => t[camelize(file)]).join(' ');
 
     return `<div class="lev-stimulus-container">
-                  <button
-                      id="${replayButtonHtmlId}"
-                      class="replay"
-                  >
-                      ${replayButtonSvg}
-                  </button>
+                  ${getParticipantUtilityButtonsHtml(replayButtonHtmlId)}
                   <div class="lev-row-container instruction-small">
                       <p>${itemText}</p>
                   </div>
@@ -560,6 +556,9 @@ export const downexInstructions4 = {
   on_load: async () => {
     startTime = performance.now();
 
+    addExperimenterButtons();
+    setupFullscreenButton();
+
     // set up replay audio
     const trialAudio = downexData4.audio;
 
@@ -586,14 +585,14 @@ export const downexInstructions4 = {
 
     function onCorrect() {
       PageAudioHandler.stopAndDisconnectNode();
-      audioEnabled = false;
+      cycleId++;
 
       PageAudioHandler.playAudio(mediaAssets.audio.feedbackRightOne);
     }
 
     function onIncorrect() {
       PageAudioHandler.stopAndDisconnectNode();
-      audioEnabled = false;
+      cycleId++;
 
       if (targetButton) {
         targetButton.style.animation = 'none';
@@ -607,6 +606,9 @@ export const downexInstructions4 = {
     addPracticeButtonListeners(downexData4.choices[2], isTouchScreen, downexData4.choices, onCorrect, onIncorrect);
 
     async function animateAndPlayAudio() {
+      cycleId++;
+      const thisCycleId = cycleId;
+
       // replay button should be disabled while animations are happening
       if (replayButton) {
         (replayButton as HTMLButtonElement).disabled = true;
@@ -624,11 +626,7 @@ export const downexInstructions4 = {
         const audioUri = mediaAssets.audio[camelize(audioFile)];
         const image = index > 3 ? downexData4.image[0] : downexData4.image[index]; // keep the image after the fourth audio file
 
-        if (index === 0) {
-          audioEnabled = true;
-        }
-
-        if (!audioEnabled) {
+        if (thisCycleId !== cycleId || taskStore().isPaused) {
           break;
         }
 
@@ -666,7 +664,7 @@ export const downexInstructions4 = {
   response_ends_trial: false,
   on_finish: () => {
     PageAudioHandler.stopAndDisconnectNode();
-    audioEnabled = false;
+    cycleId++;
 
     jsPsych.data.addDataToLastTrial({
       audioButtonPresses: PageAudioHandler.replayPresses,

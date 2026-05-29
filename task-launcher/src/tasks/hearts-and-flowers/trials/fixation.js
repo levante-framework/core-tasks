@@ -1,6 +1,11 @@
 import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { StimulusSideType, InputKey } from '../helpers/utils';
-import { addKeyHelpers } from '../../shared/helpers';
+import {
+  addExperimenterButtons,
+  addKeyHelpers,
+  getParticipantUtilityButtonsHtml,
+  setupFullscreenButton,
+} from '../../shared/helpers';
 import { setupHafMultiResponseTouchRouting } from '../helpers/touchResponseRouting';
 import { taskStore } from '../../../taskStore';
 
@@ -11,7 +16,9 @@ export function fixation(interStimulusInterval) {
     stimulus: () => {
       return `<div class='haf-fixation-container'>
                 <span class='fixation'>+</span>
-              </div>`;
+              </div>
+              ${getParticipantUtilityButtonsHtml('replay-btn-revisited', false)}
+              `;
     },
     on_load: () => {
       // document.getElementById('jspsych-html-multi-response-btngroup').classList.add('btn-layout-hf');
@@ -28,6 +35,9 @@ export function fixation(interStimulusInterval) {
       if (hfV2) {
         setupHafMultiResponseTouchRouting();
       }
+
+      addExperimenterButtons();
+      setupFullscreenButton();
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
     keyboard_choices: InputKey.NoKeys,

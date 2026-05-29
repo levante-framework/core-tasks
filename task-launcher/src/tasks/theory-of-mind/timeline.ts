@@ -17,7 +17,6 @@ import {
   setupStimulusFromStoryGroup,
   taskFinished,
   enterFullscreen,
-  finishExperiment,
   setupDownex,
 } from '../shared/trials';
 import { getLayoutConfig } from './helpers/config';
@@ -28,8 +27,7 @@ import { prepareTomCorpus, prepareStoryGroups } from './helpers/prepareTomCorpus
 export default function buildTOMTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   initTrialSaving(config);
   const downex = taskStore().heavyInstructions;
-
-  const initialTimeline = initTimeline(config, enterFullscreen, finishExperiment);
+  const initialTimeline = initTimeline(config, enterFullscreen);
   const corpus: StimulusType[] = downex ? taskStore().corpora.downex : taskStore().corpora.stimulus;
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {};

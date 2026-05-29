@@ -1,6 +1,6 @@
 {
   "name": "@levante-framework/core-tasks",
-  "version": "1.2.1",
+  "version": "1.3.1",
   "description": "",
   "main": "lib/index.1298d4fd.js",
   "module": "lib/index.1298d4fd.js",
@@ -68,7 +68,6 @@
     "@rollup/plugin-dsv": "^3.0.2",
     "@rollup/plugin-json": "^6.0.0",
     "@rollup/plugin-node-resolve": "^15.1.0",
-    "@rollup/plugin-terser": "^0.4.3",
     "@rollup/plugin-typescript": "^11.1.6",
     "@types/fscreen": "^1.0.4",
     "@types/lodash": "^4.17.7",

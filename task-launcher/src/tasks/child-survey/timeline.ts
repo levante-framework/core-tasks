@@ -1,7 +1,7 @@
 import { taskStore } from '../../taskStore';
 import { getLayoutConfig } from '../child-survey/helpers/config';
 import { createPreloadTrials, getRealTrials, initTimeline, initTrialSaving } from '../shared/helpers';
-import { enterFullscreen, exitFullscreen, finishExperiment, setupStimulus, taskFinished } from '../shared/trials';
+import { enterFullscreen, exitFullscreen, setupStimulus, taskFinished } from '../shared/trials';
 import { initializeCat, jsPsych } from '../taskSetup';
 import { surveyItem } from './helpers/stimulus';
 
@@ -9,7 +9,7 @@ export default function buildChildSurveyTimeline(config: Record<string, any>, me
   const preloadTrials = createPreloadTrials(mediaAssets).default;
 
   initTrialSaving(config);
-  const initialTimeline = initTimeline(config, enterFullscreen, finishExperiment);
+  const initialTimeline = initTimeline(config, enterFullscreen);
 
   const timeline = [preloadTrials, initialTimeline];
 
