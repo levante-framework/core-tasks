@@ -194,6 +194,11 @@
 
 .lev-stim-content-x-3 {
   @extend .lev-stim-content;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 
   img {
     width: calc(3 * $response-size-default);
