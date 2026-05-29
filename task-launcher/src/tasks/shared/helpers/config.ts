@@ -44,6 +44,7 @@ export const DEFAULT_LAYOUT_CONFIG: LayoutConfigType = {
     onIncorrectTrial: 'end',
   },
   disableOkButton: false,
+  multiStimImage: false,
 };
 
 const defaultCorpus: Record<string, string> = {

@@ -45,6 +45,7 @@ declare global {
     };
     disableOkButton?: boolean; // disable the OK button until the instruction prompt ends
     blockedTrials?: boolean; // when true with CAT, advance queued sequential trials in the same block via selectNextSequentialTrial
+    multiStimImage?: boolean; // two images side-by-side if true
   };
 
   type AudioConfigType = {
@@ -59,7 +60,7 @@ declare global {
     source: string;
     block_index: number;
     task: string; // TODO: define all task types here
-    item: string | number[];
+    item: string | number[] | string[];
     trial_type?: string;
     trialType: string;
     image: string | string[];
@@ -89,6 +90,8 @@ declare global {
     trialNumber?: number;
     downex?: boolean;
     storyGroup?: number;
+    responseBranches?: Record<string, string>;
+    storyBranch?: string;
   };
 
   type MediaAssetsType = {

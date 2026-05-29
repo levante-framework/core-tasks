@@ -71,12 +71,20 @@ const getPromptTemplate = (
   if (mediaSrc || stimText) {
     let contentTemplate = '';
     if (mediaSrc) {
-      contentTemplate += `
+      if (Array.isArray(mediaSrc)) {
+        mediaSrc.forEach((src) => {
+          contentTemplate += `
+            <img src=${src} alt=${mediaAlt} />
+          `;
+        });
+      } else {
+        contentTemplate += `
         <img 
           src=${mediaSrc}
           alt=${mediaAlt}
         />
       `;
+      }
     }
 
     if (stimText) {
@@ -113,9 +121,16 @@ function getPrompt(layoutConfigMap: Record<string, LayoutConfigType>, trial?: St
       showStimImage,
       stimText: stimulusTextConfig,
     } = itemLayoutConfig;
-    const mediaAsset = stimulusTextConfig?.value
-      ? mediaAssets.images[camelize(stimulusTextConfig.value)] || mediaAssets.images['blank']
-      : null;
+
+    let mediaAsset;
+    if (itemLayoutConfig.multiStimImage) {
+      mediaAsset = stim.item.map((image: string) => mediaAssets.images[camelize(image)]);
+    } else {
+      mediaAsset = stimulusTextConfig?.value
+        ? mediaAssets.images[camelize(stimulusTextConfig.value)] || mediaAssets.images['blank']
+        : null;
+    } 
+    
     const prompt = promptEnabled ? t[camelize(stim.audioFile)] : null;
     const mediaSrc = showStimImage ? mediaAsset : null;
     const mediaAlt = stimulusTextConfig?.value || `Image not loading: ${mediaSrc}. Please continue the task.`;
@@ -424,6 +439,14 @@ function doOnFinish(
     });
 
     selectNextSequentialTrial(nextTrials);
+  }
+
+  if (stimulus.responseBranches != null && responseValue != null) {
+    const branch = stimulus.responseBranches[String(responseValue)];
+
+    if (branch != null) {
+      taskStore('currentStoryBranch', branch);
+    }
   }
 }
 

@@ -37,7 +37,7 @@ export const getTranslations = async (isDev: boolean, taskName: string, configLa
     const urls = [
       `https://storage.googleapis.com/levante-assets-${
         isDev ? 'dev' : 'prod'
-      }/translations/itembank/${taskName}/${configLanguage}/item-bank-translations.json`,
+      }/translations/itembank/${taskName}/${configLanguage}/item-bank-translations.json?v=2`,
       `https://storage.googleapis.com/levante-assets-${
         isDev ? 'dev' : 'prod'
       }/translations/itembank/general/${configLanguage}/item-bank-translations.json`,
