@@ -332,7 +332,7 @@
 // holds experimenter buttons for pausing, leaving the task, or reentering fullscreen
 .experimenter-button-container {
   position: absolute;
-  top: $replay_btn_pos;
+  bottom: $replay_btn_pos;
   left: $replay_btn_pos;
   display: flex;
   flex-direction: column;

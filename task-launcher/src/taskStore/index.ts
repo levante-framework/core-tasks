@@ -119,6 +119,8 @@ export type TaskStoreDataType = {
 export const taskStore = store.page.namespace('taskStore');
 
 export const setTaskStore = (config: TaskStoreDataType) => {
+  const effectiveHeavyInstructions = config.heavyInstructions || config.userMetadata.age <= 4;
+
   taskStore({
     itemSelect: 'mfi',
     trialNumSubtask: 0,
@@ -138,7 +140,7 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     maxIncorrect: config.maxIncorrect,
     keyHelpers: config.keyHelpers,
     runCat: config.cat,
-    heavyInstructions: (config.heavyInstructions || config.userMetadata.age <= 4) && isEnglish(config.language),
+    heavyInstructions: effectiveHeavyInstructions && isEnglish(config.language),
     semThreshold: config.semThreshold,
     startingTheta: config.startingTheta,
     storeItemId: config.storeItemId,
@@ -158,7 +160,7 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     testPhase: false,
     maxTime: config.maxTime,
     demoMode: config.demoMode,
-    experimenterButtons: config.experimenterButtons && config.heavyInstructions,
+    experimenterButtons: config.experimenterButtons && effectiveHeavyInstructions,
     debug: config.debug,
     version: config.version || 1,
     currentStoryGroup: 0,

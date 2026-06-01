@@ -420,8 +420,10 @@ button {
       }
     }
 
-    &:hover {
-      border-color: $bg-accent_secondary;
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        border-color: $border-button-primary-clicked;
+      }
     }
 
     &:active {
