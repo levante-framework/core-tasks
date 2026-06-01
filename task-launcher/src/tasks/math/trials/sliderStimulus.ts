@@ -6,15 +6,17 @@ import { jsPsych, isTouchScreen, cat } from '../../taskSetup';
 //@ts-ignore
 import { camelize } from '@bdelab/roar-utils';
 import {
-  arrowKeyEmojis,
+  addExperimenterButtons,
   setSkipCurrentBlock,
-  replayButtonSvg,
+  getParticipantUtilityButtonsHtml,
   setupReplayAudio,
   PageAudioHandler,
   PageStateHandler,
   setSentryContext,
   updateTheta,
   addPracticeButtonListeners,
+  shouldTerminateCat,
+  setupFullscreenButton,
 } from '../../shared/helpers';
 import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
@@ -22,25 +24,7 @@ import { taskStore } from '../../../taskStore';
 let chosenAnswer: number;
 let responseIdx: number;
 let sliderStart: number;
-let keyboardResponseMap: Record<string, any> = {};
 let startTime: number;
-let keyboardFeedbackHandler: (ev: KeyboardEvent) => void;
-let keyboardResponseHandler: (ev: KeyboardEvent) => void;
-
-function addKeyHelpers(el: HTMLElement, keyIndex: number) {
-  const { keyHelpers } = taskStore();
-  if (keyHelpers && !isTouchScreen) {
-    const arrowKeyBorder = document.createElement('div');
-    arrowKeyBorder.classList.add('arrow-key-border');
-
-    const arrowKey = document.createElement('p');
-    arrowKey.innerHTML = arrowKeyEmojis[keyIndex][1];
-    arrowKey.style.textAlign = 'center';
-    arrowKey.style.margin = '0';
-    arrowKeyBorder.appendChild(arrowKey);
-    el.appendChild(arrowKeyBorder);
-  }
-}
 
 function setUpAudio(cue: string) {
   const audioFile = mediaAssets.audio[camelize(cue)] || '';
@@ -55,6 +39,8 @@ function setUpAudio(cue: string) {
       if (cue) {
         const pageStateHandler = new PageStateHandler(cue, true);
         setupReplayAudio(pageStateHandler);
+        addExperimenterButtons();
+        setupFullscreenButton();
       }
     },
   };
@@ -69,24 +55,12 @@ function captureValue(
   isPractice: boolean,
   choice?: string,
 ) {
-  if (event?.key) {
-    chosenAnswer = _toNumber(keyboardResponseMap[event.key.toLowerCase()]);
-  } else {
-    chosenAnswer = choice ? _toNumber(choice) : _toNumber(btnElement?.textContent);
-  }
-
+  chosenAnswer = choice ? _toNumber(choice) : _toNumber(btnElement?.textContent);
   responseIdx = i;
 
   if (!isPractice) {
     jsPsych.finishTrial();
   }
-}
-
-// Defining the function here since we need a reference to it to remove the event listener later
-function captureBtnValue(event: Event & { key?: string }, isPractice: boolean) {
-  // record responseIdx in addition to value
-  const responseIndex = event.key ? ['ArrowUp', 'ArrowLeft', 'ArrowRight', 'ArrowDown'].indexOf(event.key) : -1;
-  responseIndex > -1 && captureValue(null, event, responseIndex, isPractice);
 }
 
 function getRandomValue(max: number, avoid: number, tolerance: number = 0.1) {
@@ -100,7 +74,11 @@ function getRandomValue(max: number, avoid: number, tolerance: number = 0.1) {
   return result * max;
 }
 
-export const slider = (layoutConfigMap: Record<string, LayoutConfigType>, trial?: StimulusType) => {
+export const slider = (
+  layoutConfigMap: Record<string, LayoutConfigType>,
+  terminateCat: boolean,
+  trial?: StimulusType,
+) => {
   return {
     type: HTMLSliderResponse,
     data: () => {
@@ -117,9 +95,7 @@ export const slider = (layoutConfigMap: Record<string, LayoutConfigType>, trial?
       const isSlider = stim.trialType === 'Number Line Slider';
       return `
       <div class="lev-stimulus-container">
-        <button id="replay-btn-revisited" class="replay">
-          ${replayButtonSvg}
-        </button>
+        ${getParticipantUtilityButtonsHtml('replay-btn-revisited')}
           ${
             stim.trialType !== 'Number Line Buttons'
               ? `<div class="lev-row-container instruction">
@@ -175,7 +151,7 @@ export const slider = (layoutConfigMap: Record<string, LayoutConfigType>, trial?
         el.style.fontSize = '1.5rem';
         //}
       });
-      const { buttonLayout, keyHelpers } = taskStore();
+      const { buttonLayout } = taskStore();
       const isPractice = stim.assessmentStage === 'practice_response';
       const response = layoutConfigMap[stim.itemId].response;
       const answer = _toNumber(response.target);
@@ -241,17 +217,7 @@ export const slider = (layoutConfigMap: Record<string, LayoutConfigType>, trial?
           }
           btn.addEventListener('click', (e) => captureValue(btn, e, i, isPractice));
 
-          // To not duplicate event listeners
-          if (i === 0) {
-            keyboardResponseHandler = (e: KeyboardEvent) => captureBtnValue(e, isPractice);
-            document.addEventListener('keydown', keyboardResponseHandler);
-          }
-
-          const keyIndex = responseChoices.length === 2 ? i + 1 : i;
-
           btnWrapper.appendChild(btn);
-          addKeyHelpers(btnWrapper, keyIndex);
-
           buttonContainer.appendChild(btnWrapper);
         }
       } else if (stim.trialType === 'Number Line Slider') {
@@ -315,12 +281,8 @@ export const slider = (layoutConfigMap: Record<string, LayoutConfigType>, trial?
         let feedbackHandler;
         const answer = stim.answer.toString();
         const choices = layoutConfigMap?.[stim.itemId].response.values;
-        
-        feedbackHandler = addPracticeButtonListeners(answer, isTouchScreen, choices);
 
-        if (feedbackHandler !== undefined) {
-          keyboardFeedbackHandler = feedbackHandler;
-        }
+        feedbackHandler = addPracticeButtonListeners(answer, isTouchScreen, choices);
       }
     },
     on_finish: (data: any) => {
@@ -328,13 +290,6 @@ export const slider = (layoutConfigMap: Record<string, LayoutConfigType>, trial?
 
       const stimulus = trial || taskStore().nextStimulus;
       const isPractice = stimulus.assessmentStage === 'practice_response';
-      // Need to remove event listeners after trial completion or they will stack and cause an error.
-      document.removeEventListener('keydown', keyboardResponseHandler);
-
-      if (isPractice) {
-        document.removeEventListener('keydown', keyboardFeedbackHandler);
-      }
-
       const endTime = performance.now();
       const runCat = taskStore().runCat;
 
@@ -409,6 +364,10 @@ export const slider = (layoutConfigMap: Record<string, LayoutConfigType>, trial?
 
       if (!runCat) {
         setSkipCurrentBlock(stimulus.trialType);
+      }
+
+      if (terminateCat) {
+        shouldTerminateCat();
       }
     },
   };

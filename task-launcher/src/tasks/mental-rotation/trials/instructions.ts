@@ -1,11 +1,13 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
 import {
-  replayButtonSvg,
+  addExperimenterButtons,
+  getParticipantUtilityButtonsHtml,
   PageStateHandler,
   PageAudioHandler,
   setupReplayAudio,
   enableOkButton,
+  setupFullscreenButton,
 } from '../../shared/helpers';
 import { jsPsych } from '../../taskSetup';
 import { taskStore } from '../../../taskStore';
@@ -34,9 +36,7 @@ export const videoInstructionsFit = {
 
     return `
       <div class="lev-stimulus-container">
-        <button id="${replayButtonHtmlId}" class="replay">
-          ${replayButtonSvg}
-        </button>
+        ${getParticipantUtilityButtonsHtml(replayButtonHtmlId)}
         <video class="instruction-video" autoplay>
           <source src=${videoSrc} type="video/mp4"/>
           Video not loading: ${videoSrc}. Please continue the task.
@@ -59,6 +59,8 @@ export const videoInstructionsFit = {
 
     const pageStateHandler = new PageStateHandler('mental-rotation-training-instruct3', true);
     setupReplayAudio(pageStateHandler);
+    addExperimenterButtons();
+    setupFullscreenButton();
   },
   on_finish: () => {
     PageAudioHandler.stopAndDisconnectNode();
@@ -81,9 +83,7 @@ export const videoInstructionsMisfit = {
 
     return `
       <div class="lev-stimulus-container">
-        <button id="${replayButtonHtmlId}" class="replay">
-          ${replayButtonSvg}
-        </button>
+        ${getParticipantUtilityButtonsHtml(replayButtonHtmlId)}
         <video class="instruction-video" autoplay>
           <source src=${videoSrc} type="video/mp4"/>
           Video not loading: ${videoSrc}. Please continue the task.
@@ -103,6 +103,8 @@ export const videoInstructionsMisfit = {
 
     const pageStateHandler = new PageStateHandler('mental-rotation-training-instruct2', true);
     setupReplayAudio(pageStateHandler);
+    addExperimenterButtons();
+    setupFullscreenButton();
   },
   on_finish: () => {
     PageAudioHandler.stopAndDisconnectNode();
@@ -125,9 +127,7 @@ export const imageInstructions = {
 
     return `
       <div class="lev-stimulus-container">
-        <button id="${replayButtonHtmlId}" class="replay">
-          ${replayButtonSvg}
-        </button>
+        ${getParticipantUtilityButtonsHtml(replayButtonHtmlId)}
         <img 
           src=${imageSrc} 
           class="instruction-video" 
@@ -148,6 +148,8 @@ export const imageInstructions = {
 
     const pageStateHandler = new PageStateHandler('mental-rotation-instruct1', true);
     setupReplayAudio(pageStateHandler);
+    addExperimenterButtons();
+    setupFullscreenButton();
   },
   on_finish: () => {
     PageAudioHandler.stopAndDisconnectNode();
@@ -168,15 +170,13 @@ export const threeDimInstructions = {
   stimulus: () => {
     const t = taskStore().translations;
     const prompt = taskStore().heavyInstructions ? t.mentalRotationInstruct3DDownex : t.mentalRotationInstruct3D;
-    
+
     return `
       <div class="lev-stimulus-container">
+        ${getParticipantUtilityButtonsHtml(replayButtonHtmlId)}
         <div class="lev-row-container instruction">
           <p>${prompt}</p>
         </div>
-        <button id="${replayButtonHtmlId}" class="replay">
-          ${replayButtonSvg}
-        </button>
       </div>
     `;
   },
@@ -196,6 +196,8 @@ export const threeDimInstructions = {
     PageAudioHandler.playAudio(mediaAssets.audio[prompt]);
     const pageStateHandler = new PageStateHandler(prompt, true);
     setupReplayAudio(pageStateHandler);
+    addExperimenterButtons();
+    setupFullscreenButton();
   },
   on_finish: () => {
     PageAudioHandler.stopAndDisconnectNode();
@@ -216,15 +218,13 @@ export const polygonInstructions = {
   stimulus: () => {
     const t = taskStore().translations;
     const prompt = t.mentalRotationInstructPolygonDownex;
-    
+
     return `
       <div class="lev-stimulus-container">
+        ${getParticipantUtilityButtonsHtml(replayButtonHtmlId)}
         <div class="lev-row-container instruction">
           <p>${prompt}</p>
         </div>
-        <button id="${replayButtonHtmlId}" class="replay">
-          ${replayButtonSvg}
-        </button>
       </div>
     `;
   },
@@ -244,6 +244,8 @@ export const polygonInstructions = {
     PageAudioHandler.playAudio(mediaAssets.audio[prompt]);
     const pageStateHandler = new PageStateHandler(prompt, true);
     setupReplayAudio(pageStateHandler);
+    addExperimenterButtons();
+    setupFullscreenButton();
   },
   on_finish: () => {
     PageAudioHandler.stopAndDisconnectNode();

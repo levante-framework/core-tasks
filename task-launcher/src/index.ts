@@ -25,9 +25,14 @@ let sharedVisualAssets: MediaAssetsType;
 export class TaskLauncher {
   gameParams: GameParamsType;
   userParams: UserParamsType;
-  firekit: RoarAppkit;
+  firekit: RoarAppkit | null;
   logger?: LevanteLogger;
-  constructor(firekit: RoarAppkit, gameParams: GameParamsType, userParams: UserParamsType, logger?: LevanteLogger) {
+  constructor(
+    firekit: RoarAppkit | null,
+    gameParams: GameParamsType,
+    userParams: UserParamsType,
+    logger?: LevanteLogger,
+  ) {
     this.gameParams = gameParams;
     this.userParams = userParams;
     this.firekit = firekit;
@@ -35,22 +40,29 @@ export class TaskLauncher {
   }
 
   async init() {
-    if (!this.gameParams.demoMode) {
+    if (!this.gameParams.demoMode && this.firekit) {
       await this.firekit.startRun();
     }
-    
+
     const { taskName } = this.gameParams;
     let { language } = this.gameParams;
+    taskStore('language', language);
 
-    // adding this to handle old 'es' variant language param values
+    // adding this to handle legacy two letter language codes in variant docs
     if (language === 'es') {
       language = 'es-CO';
+    } else if (language === 'en') {
+      language = 'en-US';
+    } else if (language === 'de') {
+      language = 'de-DE';
     }
 
     const { setConfig, getCorpus, buildTaskTimeline, getTranslations } =
       taskConfig[dashToCamelCase(taskName) as keyof typeof taskConfig];
 
-    const isDev = this.firekit.firebaseProject?.firebaseApp?.options?.projectId === 'hs-levante-admin-dev';
+    const isDev = this.firekit
+      ? this.firekit.firebaseProject?.firebaseApp?.options?.projectId === 'hs-levante-admin-dev'
+      : !!this.gameParams.demoMode;
     const taskVisualBucket = getBucketName(taskName, isDev, 'visual', language);
     const sharedVisualBucket = getBucketName('shared', isDev, 'visual', language);
     const languageAudioBucket = getBucketName('shared', isDev, 'audio', language);
@@ -58,10 +70,10 @@ export class TaskLauncher {
 
     try {
       // will avoid language folder if not provided
-      languageAudioAssets = await getMediaAssets(languageAudioBucket, {}, taskName, language);
-      sharedAudioAssets = await getMediaAssets(sharedAudioBucket, {}, taskName, 'shared');
-      taskVisualAssets = await getMediaAssets(taskVisualBucket, {}, taskName, language);
-      sharedVisualAssets = await getMediaAssets(sharedVisualBucket, {}, 'shared', language);
+      languageAudioAssets = await getMediaAssets(languageAudioBucket, {}, language, taskName);
+      sharedAudioAssets = await getMediaAssets(sharedAudioBucket, {}, 'shared', taskName);
+      taskVisualAssets = await getMediaAssets(taskVisualBucket, {}, language, taskName);
+      sharedVisualAssets = await getMediaAssets(sharedVisualBucket, {}, language, 'shared');
     } catch (error) {
       throw new Error('Error fetching media assets: ' + error);
     }
@@ -70,7 +82,7 @@ export class TaskLauncher {
 
     setTaskStore(config);
 
-    await getTranslations(isDev, config.language);
+    await getTranslations(isDev, taskName, language);
 
     // TODO: make hearts and flowers corpus? make list of tasks that don't need corpora?
     if (
@@ -115,11 +127,14 @@ export class TaskLauncher {
     jsPsych.run(timeline);
     const translations = taskStore().translations;
     const pageSetup = new InitPageSetup(4000, translations);
+    taskStore('pageSetup', pageSetup);
+
     pageSetup.init();
-    const checkTaskFinished = this.gameParams.demoMode ? 
-      () => taskStore().taskComplete :
-      () => this.firekit?.run?.completed === true && taskStore().taskComplete;
-      
+    const checkTaskFinished =
+      this.gameParams.demoMode || this.firekit === null
+        ? () => taskStore().taskComplete
+        : () => this.firekit?.run?.completed === true && taskStore().taskComplete;
+
     await isTaskFinished(checkTaskFinished);
   }
 }

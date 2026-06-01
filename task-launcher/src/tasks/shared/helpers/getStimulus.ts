@@ -3,21 +3,40 @@ import { mediaAssets } from '../../..';
 import { camelize } from './camelize';
 import { taskStore } from '../../../taskStore';
 import { cat, jsPsych } from '../../taskSetup';
-import { checkEndTaskEarly } from './appTimer';
+import { checkEndTaskEarly, getActiveTaskElapsedMs } from './appTimer';
 
 // This function reads the corpus, calls the adaptive algorithm to select
 // the next item, stores it in a session variable, and removes it from the corpus
 // corpusType is the name of the subTask's corpus within corpusLetterAll[]
 
-export const getStimulus = (corpusType: string, blockNumber?: number) => {
+export const getStimulus = (corpusType: string, blockNumber?: number, storyGroup?: number, randomize = false) => {
   let corpus, itemSuggestion;
 
   corpus = taskStore().corpora;
 
-  // if block number is specified, get next item from only the indicated block of the corpus
-  blockNumber != undefined
-    ? (itemSuggestion = cat.findNextItem(corpus[corpusType][blockNumber]))
-    : (itemSuggestion = cat.findNextItem(corpus[corpusType]));
+  if (blockNumber != null) {
+    // if block number is specified, get next item from only the indicated block of the corpus
+    itemSuggestion = cat.findNextItem(corpus[corpusType][blockNumber]);
+  } else if (storyGroup != null) {
+    // if story group is specified (only for ToM), get next item from only the indicated story group of the corpus
+    const storyGroupStimuli = corpus[corpusType].filter((stimulus: StimulusType) => stimulus.storyGroup === storyGroup);
+
+    if (randomize) {
+      const nextItem = storyGroupStimuli[Math.floor(Math.random() * storyGroupStimuli.length)];
+      const remainingStimuli = corpus[corpusType].filter(
+        (stimulus: StimulusType) => stimulus.itemId !== nextItem.itemId,
+      );
+
+      itemSuggestion = {
+        nextStimulus: nextItem,
+        remainingStimuli: remainingStimuli,
+      };
+    } else {
+      itemSuggestion = cat.findNextItem(storyGroupStimuli);
+    }
+  } else {
+    itemSuggestion = cat.findNextItem(corpus[corpusType]);
+  }
 
   const stimAudio = itemSuggestion.nextStimulus.audioFile;
   if (typeof stimAudio === 'string') {
@@ -39,7 +58,7 @@ export const getStimulus = (corpusType: string, blockNumber?: number) => {
 
   // end task if there is not enough time to display next stimulus
   const maxTimeInMilliseconds = taskStore().maxTime * 60000;
-  const timeElapsed = Date.now() - taskStore().startTime;
+  const timeElapsed = getActiveTaskElapsedMs();
   const timeRemaining = maxTimeInMilliseconds - timeElapsed;
 
   checkEndTaskEarly(timeRemaining, stimAudio);
@@ -52,7 +71,7 @@ export const getStimulus = (corpusType: string, blockNumber?: number) => {
   }
 
   // update the corpus with the remaining unused items
-  blockNumber != undefined
+  blockNumber != null
     ? (corpus[corpusType][blockNumber] = itemSuggestion.remainingStimuli)
     : (corpus[corpusType] = itemSuggestion.remainingStimuli);
 

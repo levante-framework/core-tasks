@@ -1,4 +1,6 @@
 import store from 'store2';
+import { InputCapability } from '../utils/detectInput';
+import { isEnglish } from '../tasks/shared/helpers';
 
 /**
  * @typedef {Object} TaskStore
@@ -25,6 +27,11 @@ import store from 'store2';
  * @property {boolean} taskComplete - Whether the task has ended - if true, the user should return to dashboard.
  * @property {Object} assetsPerTask - Object containing list of assets belonging to each task.
  * @property {boolean} demoMode - Whether the task is running in demo mode (no interaction with Firestore), default is false.
+ * @property {boolean} debug - Shows theta estimate on the screen for cat debugging when enabled.
+ * @property {boolean} experimenterButtons - When true, experimenter utility controls (pause, exit) are available.
+ * @property {number} currentCatBlock - The current block number to select trials from in a CAT.
+ * @property {number[]} blockThresholds - Array of theta thresholds.
+ * @property {number} totalTrialCount - Total number of trials, including practice and instructions.
  * ------- Added after config is parsed -------
  * @property {number} totalTrials - Total number trials, including practice and instructions.
  * @property {number} totalTestTrials - Total number of test trials in the experiment timeline.
@@ -32,6 +39,10 @@ import store from 'store2';
  * @property {Object} translations - Object containing the translations.
  * @property {Object} nextStimulus - Object containing the next stimulus.
  * @property {boolean} testPhase - True if not running practice/instruction trial
+ * @property {any} taskTimer - The timer ID for the task, stored here so the task can be paused.
+ * @property {number} taskTimerPausedMs - Cumulative ms excluded from max-time while experimenter pause is active.
+ * @property {number|null} taskTimerPauseBeganAt - Wall time when the current experimenter pause began, or null.
+ * @property {boolean} isPaused - Whether the task is paused, default is false.
  * ------- AFC and SDS only -------
  * @property {string} target - Target item.
  * @property {Array} choices - List of choices.
@@ -50,12 +61,17 @@ import store from 'store2';
  * @property {number} numOfBlocks - Number of blocks in the memory game, default is 4.
  * @property {number} blockSize - Size of each block in the memory game, default is 50.
  * @property {number} gridSize - Size of the grid in the memory game, default is 2x2.
+ * @property {Object} displayPromptDurations - The durations of the display prompts, default is an empty object.
  * ------- H&F & Memory Game only -------
  * @property {boolean} isCorrect - Whether the response to the previous trial was correct, default is false.
+ * ------- H&F only -------
+ * @property {Object} inputCapability - Object containing the input capability of the user's device.
  * --------- ToM only ---------
  * @property {Array} previousChoices - Array containing previously randomized order of choices for the current block.
+ * @property {number} currentStoryGroup - The current story group to select trials from in the ToM CAT.
  * ------- SDS only -------
  * @property {StimulusType[]} sequentialTrials - Should be run sequentially in blocks by trial number in an SDS CAT.
+ * @property {number} version - A version number for the task, default is 1. Can be used as a feature flag.
  */
 
 export type TaskStoreDataType = {
@@ -74,6 +90,7 @@ export type TaskStoreDataType = {
     age: number;
   } & Record<string, any>;
   inferenceNumStories?: number; // FIXME: Remove
+  numberOfStories: number;
   cat: boolean;
   heavyInstructions: boolean;
   semThreshold: number;
@@ -81,6 +98,17 @@ export type TaskStoreDataType = {
   language?: string;
   maxTime?: number;
   demoMode: boolean;
+  experimenterButtons: boolean;
+  debug: boolean;
+  version: number;
+  currentCatBlock?: number;
+  blockThresholds?: number[];
+  displayPromptDurations: Record<string, number>;
+  inputCapability?: InputCapability;
+  taskTimer: any;
+  taskTimerPausedMs?: number;
+  taskTimerPauseBeganAt?: number | null;
+  isPaused: boolean;
 };
 
 /**
@@ -91,10 +119,13 @@ export type TaskStoreDataType = {
 export const taskStore = store.page.namespace('taskStore');
 
 export const setTaskStore = (config: TaskStoreDataType) => {
+  const effectiveHeavyInstructions = config.heavyInstructions || config.userMetadata.age <= 4;
+
   taskStore({
     itemSelect: 'mfi',
     trialNumSubtask: 0,
     testTrialCount: 0,
+    totalTrialCount: 0,
     numIncorrect: 0,
     // For ROAR syntax (TROG)
     totalCorrect: 0,
@@ -109,7 +140,7 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     maxIncorrect: config.maxIncorrect,
     keyHelpers: config.keyHelpers,
     runCat: config.cat,
-    heavyInstructions: config.heavyInstructions || config.userMetadata.age <= 4,
+    heavyInstructions: effectiveHeavyInstructions && isEnglish(config.language),
     semThreshold: config.semThreshold,
     startingTheta: config.startingTheta,
     storeItemId: config.storeItemId,
@@ -125,9 +156,18 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     stimulusPosition: 0,
     isCorrect: false,
     inferenceNumStories: config.inferenceNumStories,
+    numberOfStories: config.numberOfStories,
     testPhase: false,
     maxTime: config.maxTime,
     demoMode: config.demoMode,
+    experimenterButtons: config.experimenterButtons && effectiveHeavyInstructions,
+    debug: config.debug,
+    version: config.version || 1,
+    currentStoryGroup: 0,
+    taskTimer: null,
+    taskTimerPausedMs: 0,
+    taskTimerPauseBeganAt: null,
+    isPaused: false,
   });
 };
 

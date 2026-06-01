@@ -1,7 +1,16 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
-import { replayButtonSvg, PageStateHandler, setupReplayAudio, PageAudioHandler, camelize } from '../helpers';
+import {
+  addExperimenterButtons,
+  getParticipantUtilityButtonsHtml,
+  PageStateHandler,
+  setupReplayAudio,
+  PageAudioHandler,
+  camelize,
+  setupFullscreenButton,
+} from '../helpers';
 import { taskStore } from '../../../taskStore';
+import { pulseOkButton } from '../helpers/pulseOkButton';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 
@@ -27,12 +36,7 @@ export const practiceTransition = (getPrompt?: () => string, forceRun = false) =
           const promptText = t[camelize(textKey)];
 
           return `<div class="lev-stimulus-container">
-                  <button
-                    id="${replayButtonHtmlId}"
-                    class="replay"
-                  >
-                  ${replayButtonSvg}
-                  </button>
+                  ${getParticipantUtilityButtonsHtml(replayButtonHtmlId)}
                   <div class="lev-row-container instruction">
                     <p>${promptText}</p>
                   </div>
@@ -57,15 +61,27 @@ export const practiceTransition = (getPrompt?: () => string, forceRun = false) =
           if (getPrompt) {
             audioKey = getPrompt();
           }
-          
-          PageAudioHandler.playAudio(mediaAssets.audio[camelize(audioKey)]);
+
+          const audioConfig: AudioConfigType = {
+            restrictRepetition: {
+              enabled: false,
+              maxRepetitions: 2,
+            },
+            onEnded: () => {
+              pulseOkButton(3000, taskStore().totalTrialCount);
+            },
+          };
+
+          PageAudioHandler.playAudio(mediaAssets.audio[camelize(audioKey)], audioConfig);
 
           const pageStateHandler = new PageStateHandler(camelize(audioKey), true);
           setupReplayAudio(pageStateHandler);
+          addExperimenterButtons();
+          setupFullscreenButton();
         },
         on_finish: () => {
           PageAudioHandler.stopAndDisconnectNode();
-        },  
+        },
       },
     ],
     conditional_function: () => {

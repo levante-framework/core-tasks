@@ -1,10 +1,9 @@
 // For all tasks except: H&F, Memory Game, Same Different Selection
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import _toNumber from 'lodash/toNumber';
-import { jsPsych, isTouchScreen } from '../../taskSetup';
+import { jsPsych, isTouchScreen, cat } from '../../taskSetup';
 import {
-  arrowKeyEmojis,
-  replayButtonSvg,
+  getParticipantUtilityButtonsHtml,
   setupReplayAudio,
   setSkipCurrentBlock,
   PageAudioHandler,
@@ -16,36 +15,21 @@ import {
   addPracticeButtonListeners,
   enableOkButton,
   shouldTerminateCat,
+  selectNextSequentialTrial,
+  addExperimenterButtons,
+  setupFullscreenButton,
 } from '../helpers';
 import { mediaAssets } from '../../..';
 import { finishExperiment } from '.';
 import { taskStore } from '../../../taskStore';
+import { displayDebugInfo } from '../helpers/displayDebugInfo';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 // Previously chosen responses for current practice trial
 let practiceResponses = [];
 let trialsOfCurrentType = 0;
 let startTime: number;
-let keyboardFeedbackHandler: (ev: KeyboardEvent) => void;
 const incorrectPracticeResponses: Array<string | null> = [];
-
-const getKeyboardChoices = (itemLayoutConfig: LayoutConfigType) => {
-  const buttonLength = itemLayoutConfig.response.values.length;
-  if (buttonLength === 1) {
-    // instruction trial
-    return ['Enter'];
-  }
-  if (buttonLength === 2) {
-    return ['ArrowLeft', 'ArrowRight'];
-  }
-  if (buttonLength === 3) {
-    return ['ArrowUp', 'ArrowLeft', 'ArrowRight'];
-  }
-  if (buttonLength === 4) {
-    return ['ArrowUp', 'ArrowLeft', 'ArrowRight', 'ArrowDown'];
-  }
-  throw new Error('More than 4 buttons are not supported yet');
-};
 
 function getStimulus(layoutConfigMap: Record<string, LayoutConfigType>, trial?: StimulusType) {
   const stim = trial || taskStore().nextStimulus;
@@ -67,11 +51,7 @@ const getPromptTemplate = (
 ) => {
   let template = '<div class="lev-stimulus-container">';
 
-  template += `
-    <button id="${replayButtonHtmlId}" class="replay">
-      ${replayButtonSvg}
-    </button>
-  `;
+  template += getParticipantUtilityButtonsHtml(replayButtonHtmlId);
 
   if (prompt) {
     let containerClass = 'lev-row-container instruction';
@@ -191,7 +171,7 @@ function getButtonHtml(layoutConfigMap: Record<string, LayoutConfigType>, trial?
   if (itemLayoutConfig) {
     const classList = [...itemLayoutConfig.classOverrides.buttonClassList];
     const disableOkButton = itemLayoutConfig.disableOkButton;
-    // TODO: Remove once we have a way to handle practive btns
+    // TODO: Remove once we have a way to handle practice btns
     if (isPracticeTrial) {
       classList.push('practice-btn');
     }
@@ -201,26 +181,11 @@ function getButtonHtml(layoutConfigMap: Record<string, LayoutConfigType>, trial?
   }
 }
 
-function addKeyHelpers(el: HTMLElement, keyIndex: number) {
-  const { keyHelpers } = taskStore();
-  if (keyHelpers && !isTouchScreen) {
-    const arrowKeyBorder = document.createElement('div');
-    arrowKeyBorder.classList.add('arrow-key-border');
-
-    const arrowKey = document.createElement('p');
-    arrowKey.innerHTML = arrowKeyEmojis[keyIndex][1];
-    arrowKey.style.textAlign = 'center';
-    arrowKey.style.margin = '0';
-    arrowKeyBorder.appendChild(arrowKey);
-    el.appendChild(arrowKeyBorder);
-  }
-}
-
 function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: StimulusType) {
   const audioConfig: AudioConfigType = {
     restrictRepetition: {
-      enabled: false,
-      maxRepetitions: 1,
+      enabled: true,
+      maxRepetitions: 2,
     },
     onEnded: () => {
       enableOkButton();
@@ -240,7 +205,8 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
   const playAudioOnLoad = itemLayoutConfig?.playAudioOnLoad;
 
   let pageStateHandler;
-  if (typeof stim.audioFile === 'string') { // no need to handle array case since it's not supported yet
+  if (typeof stim.audioFile === 'string') {
+    // no need to handle array case since it's not supported yet
     pageStateHandler = new PageStateHandler(stim.audioFile, playAudioOnLoad);
   } else {
     throw new Error('Multiple audio files are not supported in this trial type');
@@ -277,22 +243,17 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
 
     // flag correct answers with alt text for math if running a Cypress test
     if (window.Cypress && !isInstructionTrial) {
-      const choices: NodeListOf<HTMLButtonElement> = document.querySelectorAll('.secondary');
+      const choices: NodeListOf<HTMLButtonElement> = document.querySelectorAll('.secondary, .image-medium, .primary');
       choices[itemLayoutConfig.response.targetIndex].setAttribute('aria-label', 'correct');
     }
   }
   const twoTrialsAgoStimulus = jsPsych.data.get().filter({ trial_index: twoTrialsAgoIndex }).values();
 
   if (isPracticeTrial) {
-    let feedbackHandler;
     const answer = stim.answer.toString();
     const choices = layoutConfigMap?.[stim.itemId].response.values;
 
-    feedbackHandler = addPracticeButtonListeners(answer, isTouchScreen, choices);
-
-    if (feedbackHandler !== undefined) {
-      keyboardFeedbackHandler = feedbackHandler;
-    }
+    addPracticeButtonListeners(answer, isTouchScreen, choices);
   }
 
   // should log trialsOfCurrentType - race condition
@@ -323,20 +284,31 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
       }
     }
 
-    Array.from(responseButtons).forEach((el, i) => {
-      const keyIndex = totalResponseButtons === 2 ? i + 1 : i;
-      addKeyHelpers(el, keyIndex);
-    });
-
     // update the trial number
     taskStore.transact('trialNumSubtask', (oldVal: number) => oldVal + 1);
   }
 
   setupReplayAudio(pageStateHandler);
+
+  // display debug info if enabled
+  displayDebugInfo(stim);
+
+  addExperimenterButtons();
+  setupFullscreenButton();
 }
 
-function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, LayoutConfigType>, terminateCat: boolean, trial?: StimulusType) {
+function doOnFinish(
+  data: any,
+  task: string,
+  layoutConfigMap: Record<string, LayoutConfigType>,
+  terminateCat: boolean,
+  trial?: StimulusType,
+) {
   PageAudioHandler.stopAndDisconnectNode();
+
+  if (taskStore().debug) {
+    document.body.removeChild(document.querySelector('.theta-estimate-container') as Node);
+  }
 
   // note: nextStimulus is actually the current stimulus
   const stimulus = trial || taskStore().nextStimulus;
@@ -352,11 +324,7 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
       if (!response) {
         throw new Error('Choices not defined in the config');
       }
-      const keyboardChoices = getKeyboardChoices(itemLayoutConfig);
-      responseIndex = data.keyboard_response
-        ? keyboardChoices.findIndex((f) => f.toLowerCase() === data.keyboard_response.toLowerCase())
-        : data.button_response;
-      responseValue = response.values[responseIndex];
+      responseValue = response.values[data.button_response];
       target = response.target;
       data.correct = responseValue === target;
     }
@@ -365,8 +333,8 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
       updateTheta(stimulus, data.correct);
     }
 
-    // check response and record it
-    const responseType = data.button_response ? 'mouse' : 'keyboard';
+    // TODO: detect touch input
+    const responseType = 'mouse';
 
     // update running score and answer lists
     if (data.correct) {
@@ -416,21 +384,12 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
 
     // adding manually since trial does not log it properly
     // for keyboard responses
-    if (
-      responseType === 'keyboard' ||
-      data.response_source === 'keyboard' ||
-      stimulus.assessmentStage === 'practice_response'
-    ) {
+    if (stimulus.assessmentStage === 'practice_response') {
       const endTime = performance.now();
       const calculatedRt = Math.round(endTime - startTime);
       jsPsych.data.addDataToLastTrial({
         rt: calculatedRt,
       });
-    }
-
-    // remove listner or it will stack since were adding it on the document itself
-    if (stimulus.assessmentStage === 'practice_response') {
-      document.removeEventListener('keydown', keyboardFeedbackHandler);
     }
   } else {
     // instructions
@@ -457,6 +416,14 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
 
   if (terminateCat) {
     shouldTerminateCat();
+  }
+
+  if (itemLayoutConfig?.blockedTrials) {
+    const nextTrials = taskStore().sequentialTrials.filter((trial: StimulusType) => {
+      return trial.block_index === stimulus.block_index;
+    });
+
+    selectNextSequentialTrial(nextTrials);
   }
 }
 
@@ -492,12 +459,7 @@ export const afcStimulusTemplate = (
     },
     stimulus: () => getPrompt(layoutConfigMap, trial),
     prompt_above_buttons: promptAboveButtons,
-    keyboard_choices: () => {
-      const stim = trial || taskStore().nextStimulus;
-
-      const itemLayoutConfig = layoutConfigMap[stim.itemId];
-      return getKeyboardChoices(itemLayoutConfig);
-    },
+    keyboard_choices: 'NO_KEYS',
     button_choices: () => getButtonChoices(layoutConfigMap, trial),
     button_html: () => getButtonHtml(layoutConfigMap, trial),
     on_load: () => doOnLoad(layoutConfigMap, trial),

@@ -5,11 +5,14 @@ import {
   DEFAULT_LAYOUT_CONFIG,
   mapDistractorsToString,
 } from '../../shared/helpers';
+import { taskStore } from '../../../taskStore';
 
 type GetConfigReturnType = {
   itemConfig: LayoutConfigType;
   errorMessages: string[];
 };
+
+const fillerTrialIds = ['ToM-intro', 'ToM-transition'];
 
 export const getLayoutConfig = (
   stimulus: StimulusType,
@@ -40,6 +43,8 @@ export const getLayoutConfig = (
     defaultConfig.classOverrides.buttonClassList = ['primary'];
     defaultConfig.disableOkButton = true;
   }
+
+  defaultConfig.blockedTrials = taskStore().version === 2 && !fillerTrialIds.includes(stimulus.itemId);
 
   const messages = validateLayoutConfig(defaultConfig, mediaAssets, translations, stimulus);
 

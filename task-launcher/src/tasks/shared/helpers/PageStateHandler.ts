@@ -34,7 +34,9 @@ export class PageStateHandler {
       this.audioBuffer = (await jsPsych.pluginAPI.getAudioBuffer(this.audioUri)) as AudioBuffer;
       return this.audioBuffer;
     } else {
-      this.audioBuffer = (await Promise.all(this.audioUri.map(async (audio: string) => jsPsych.pluginAPI.getAudioBuffer(audio)))) as AudioBuffer[];
+      this.audioBuffer = (await Promise.all(
+        this.audioUri.map(async (audio: string) => jsPsych.pluginAPI.getAudioBuffer(audio)),
+      )) as AudioBuffer[];
       return this.audioBuffer;
     }
   }

@@ -49,6 +49,17 @@ button {
       box-shadow: $button-default-box-shadow $btn-disabled-inset inset;
       cursor: no-drop;
     }
+
+    &.small {
+      font-size: $font-size-xxxs;
+      font-weight: $font-weight-normal;
+      color: $txt-white;
+      padding: $button-primary-padding-xs;
+      border-radius: $button-default-border-radius-small;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
   }
 
   &.secondary {
@@ -61,6 +72,9 @@ button {
     font-size: $font-size-lm;
     width: 2.5 * $font-size-l;
     height: 2.5 * $font-size-l;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     @include respond-to('small-medium') {
       font-size: $font-size-ms;
@@ -203,11 +217,7 @@ button {
     height: 16x;
   }
 
-  &.replay {
-    // This is also used by the Hearts and Flowers task
-    position: absolute;
-    top: $replay_btn_pos;
-    right: $replay_btn_pos;
+  &.utility {
     cursor: pointer;
     border-radius: min(16px, 2vh);
     padding: min(16px, 2vh);
@@ -245,13 +255,26 @@ button {
         }
       }
     }
+
+    &.open {
+      background-color: rgba($bg-button-primary-clicked, 0.6);
+      border: 2px solid $border-button-primary-clicked;
+    }
+
+    &.transparent {
+      background-color: transparent;
+      border: transparent;
+      width: $experimenter_btn_size;
+      height: $experimenter_btn_size;
+      padding: 0;
+    }
   }
 
   &.image {
     @extend .button-base;
     padding: 0;
     box-sizing: border-box;
-    border-color: $bg-button-primary;
+    border-color: $border-grey;
     min-width: unset !important;
     min-height: unset !important;
 
@@ -297,7 +320,7 @@ button {
     @extend .button-base;
     padding: 0;
     box-sizing: border-box;
-    border-color: $bg-button-primary;
+    border-color: $border-grey;
     min-width: unset !important;
     min-height: unset !important;
     background-color: $bg-bubble-base;
@@ -336,11 +359,22 @@ button {
     }
   }
 
+  // for applying grayed-out styling independent of the disabled button state
+  &.image-grayed-out {
+    filter: grayscale(100%);
+    -moz-filter: grayscale(100%);
+    -ms-filter: grayscale(100%);
+    -o-filter: grayscale(100%);
+    filter: gray; /* IE6-9 */
+    -webkit-filter: grayscale(100%); /* Chrome 19+, Safari 6+, Safari 6+ iOS */
+    opacity: 0.6;
+  }
+
   &.image-large {
     @extend .button-base;
     padding: 0;
     box-sizing: border-box;
-    border-color: $bg-button-primary;
+    border-color: $border-grey;
 
     img {
       border: none;
@@ -365,7 +399,7 @@ button {
     @extend .button-base;
     padding: 0;
     box-sizing: border-box;
-    border-color: $bg-button-primary;
+    border-color: $border-grey;
 
     img {
       border: none;
@@ -386,8 +420,10 @@ button {
       }
     }
 
-    &:hover {
-      border-color: $bg-accent_secondary;
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        border-color: $border-button-primary-clicked;
+      }
     }
 
     &:active {
@@ -421,5 +457,6 @@ button {
   &.info-shadow {
     box-shadow: 0 0 20px 5px $border-accent;
     border-radius: 2rem;
+    border-color: $bg-accent_secondary;
   }
 }

@@ -1,9 +1,6 @@
-import { RoarAppkit, initializeFirebaseProject } from '@levante-framework/firekit';
-import { onAuthStateChanged, signInAnonymously } from 'firebase/auth';
 import * as Sentry from '@sentry/browser';
 import i18next from 'i18next';
 import { TaskLauncher } from '../src';
-import { firebaseConfig } from './firebaseConfig';
 import { stringToBoolean } from '../src/tasks/shared/helpers/stringToBoolean';
 import firebaseJSON from '../firebase.json';
 
@@ -32,13 +29,7 @@ Sentry.init({
 // TODO: Add game params for all tasks
 const queryString = new URL(window.location).search;
 const urlParams = new URLSearchParams(queryString);
-const requestedTaskRaw = String(urlParams.get('task') || '').trim();
-const requestedTask = requestedTaskRaw.toLowerCase();
-const taskName = (
-  requestedTask === 'locationselection'
-    ? 'location-selection'
-    : requestedTaskRaw || 'egma-math'
-);
+const taskName = urlParams.get('task') ?? 'egma-math';
 const corpus = urlParams.get('corpus');
 const buttonLayout = urlParams.get('buttonLayout');
 const numOfPracticeTrials = urlParams.get('practiceTrials');
@@ -51,6 +42,7 @@ const language = urlParams.get('lng');
 const pid = urlParams.get('pid');
 const inferenceNumStories =
   urlParams.get('inferenceNumStories') === null ? null : parseInt(urlParams.get('inferenceNumStories'), 10);
+const numberOfStories = urlParams.get('numberOfStories') === null ? 3 : parseInt(urlParams.get('numberOfStories'), 10);
 const semThreshold = Number(urlParams.get('semThreshold') || '0');
 const startingTheta = Number(urlParams.get('theta') || '0');
 const populationSourcePreference = String(urlParams.get('populationSourcePreference') || 'kontur').trim().toLowerCase();
@@ -59,6 +51,10 @@ const konturPopulationBatchApiUrl = urlParams.get('konturPopulationBatchApiUrl')
 const worldpopPopulationApiUrl = urlParams.get('worldpopPopulationApiUrl') || undefined;
 const populationApiTimeoutMs =
   urlParams.get('populationApiTimeoutMs') === null ? undefined : parseInt(urlParams.get('populationApiTimeoutMs'), 10);
+// `taskVersion` is deprecated; prefer `version` when both are present.
+const versionFromQuery = urlParams.get('version') === null ? null : parseInt(urlParams.get('version'), 10);
+const taskVersionFromQuery = urlParams.get('taskVersion') === null ? null : parseInt(urlParams.get('taskVersion'), 10);
+const version = versionFromQuery ?? taskVersionFromQuery;
 
 // Boolean parameters
 const keyHelpers = stringToBoolean(urlParams.get('keyHelpers'));
@@ -69,76 +65,60 @@ const storeItemId = stringToBoolean(urlParams.get('storeItemId'), false);
 const cat = stringToBoolean(urlParams.get('cat'), false);
 const heavyInstructions = stringToBoolean(urlParams.get('heavyInstructions'), false);
 const populationBatchEnabled = stringToBoolean(urlParams.get('populationBatch'), false);
+const experimenterButtons = stringToBoolean(urlParams.get('experimenterButtons'), false);
+const debug = stringToBoolean(urlParams.get('debug'), false);
 
 const emulatorConfig = EMULATORS ? firebaseJSON.emulators : undefined;
 // if running in demo mode, no data will be saved to Firestore
 const demoMode = DEMO;
 
 async function startWebApp() {
+  const firekit = null;
+
   const appKit = await initializeFirebaseProject(firebaseConfig, 'admin', emulatorConfig, 'none');
   if (typeof window !== 'undefined') {
     window.__firebaseApp = appKit.firebaseApp;
     window.__firebaseConfig = firebaseConfig;
   }
-
-  onAuthStateChanged(appKit.auth, (user) => {
-    if (user) {
-      const userInfo = {
-        assessmentUid: user.uid,
-        userMetadata: {},
-      };
-
-      const userParams = {
-        pid,
-      };
-
-      const gameParams = {
-        taskName,
-        skipInstructions,
-        sequentialPractice,
-        sequentialStimulus,
-        corpus,
-        buttonLayout,
-        numOfPracticeTrials,
-        numberOfTrials,
-        maxIncorrect,
-        stimulusBlocks,
-        keyHelpers,
-        language: language ?? i18next.language,
-        age,
-        maxTime,
-        storeItemId,
-        cat,
-        inferenceNumStories,
-        semThreshold,
-        startingTheta,
-        populationSourcePreference,
-        konturPopulationApiUrl,
-        konturPopulationBatchApiUrl,
-        worldpopPopulationApiUrl,
-        populationApiTimeoutMs,
-        populationBatchEnabled,
-        heavyInstructions,
-        demoMode,
-      };
-
-      const taskInfo = {
-        taskId: taskName,
-        variantParams: gameParams,
-      };
-
-      const firekit = new RoarAppkit({
-        firebaseProject: appKit,
-        taskInfo,
-        userInfo,
-      });
-
-      const task = new TaskLauncher(firekit, gameParams, userParams);
-      task.run();
-    }
-  });
-
-  await signInAnonymously(appKit.auth);
+  
+  const gameParams = {
+    taskName,
+    skipInstructions,
+    sequentialPractice,
+    sequentialStimulus,
+    corpus,
+    buttonLayout,
+    numOfPracticeTrials,
+    numberOfTrials,
+    maxIncorrect,
+    stimulusBlocks,
+    keyHelpers,
+    language: language ?? i18next.language,
+    age,
+    maxTime,
+    storeItemId,
+    cat,
+    inferenceNumStories,
+    numberOfStories,
+    semThreshold,
+    startingTheta,
+    heavyInstructions,
+    demoMode,
+    version,
+    debug,
+    experimenterButtons,
+    populationSourcePreference,
+    konturPopulationApiUrl,
+    konturPopulationBatchApiUrl,
+    worldpopPopulationApiUrl,
+    populationApiTimeoutMs,
+    populationBatchEnabled,
+  };
+  const userParams = {
+    pid,
+  };
+  const task = new TaskLauncher(firekit, gameParams, userParams);
+  task.run();
 }
 
 await startWebApp();

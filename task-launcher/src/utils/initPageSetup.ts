@@ -7,10 +7,18 @@ const rotateSvgString = `
   </svg>
 `;
 
+export const playButtonSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" xml:space="preserve" class="pulse">
+<g style="transform: translate(-40px, -40px); fill:#1D4AB9;">
+  <circle cx="350" cy="345" r="170" fill="none" stroke="#1D4AB9" stroke-width="40"/>
+  <path d="M 280,260 C 280,252 288,248 295,252 L 450,335 C 457,339 457,351 450,355 L 295,438 C 288,442 280,438 280,430 Z"/>
+</g>
+</svg>`;
+
 export class InitPageSetup {
   warningDuration: number;
   rotateOverlayDiv: HTMLDivElement;
   smallDeviceOverlayDiv: HTMLDivElement;
+  pauseOverlayDiv: HTMLDivElement;
   #translations: Record<string, string>;
   #overlayShown: boolean;
   #timeout?: number;
@@ -20,6 +28,7 @@ export class InitPageSetup {
     this.warningDuration = warningDuration;
     this.rotateOverlayDiv = this.createRotateOverlayDiv();
     this.smallDeviceOverlayDiv = this.createSmallDeviceOverlayDiv();
+    this.pauseOverlayDiv = this.createPauseOverlayDiv();
     this.#overlayShown = false;
   }
 
@@ -64,19 +73,49 @@ export class InitPageSetup {
     return smallDeviceOverlayDiv;
   }
 
+  createPauseOverlayDiv() {
+    const pauseOverlayDiv = document.createElement('div');
+    pauseOverlayDiv.classList.add('lev-overlay-default');
+
+    const text = this.#translations.generalGamePaused || 'Your game is paused. Press the play button to resume.';
+    const textHolder = document.createElement('div');
+    textHolder.classList.add(...['lev-row-container', 'header']);
+
+    const textElement = document.createElement('p');
+    textElement.textContent = text;
+    textHolder.appendChild(textElement);
+
+    const svgHolder = document.createElement('div');
+    svgHolder.innerHTML = playButtonSvg;
+    svgHolder.style.display = 'flex';
+    svgHolder.style.justifyContent = 'center';
+    svgHolder.style.alignItems = 'center';
+    svgHolder.id = 'play-button';
+    pauseOverlayDiv.appendChild(textHolder);
+    pauseOverlayDiv.appendChild(svgHolder);
+
+    svgHolder.addEventListener('click', () => {
+      this.onResume();
+    });
+
+    return pauseOverlayDiv;
+  }
+
   hideOverlay(overlayDiv: HTMLDivElement) {
     overlayDiv.remove();
     clearTimeout(this.#timeout);
   }
 
-  showOverlay(overlayDiv: HTMLDivElement) {
+  showOverlay(overlayDiv: HTMLDivElement, timeout = true) {
     if (this.#overlayShown) {
       this.hideOverlay(overlayDiv);
     }
     document.body.appendChild(overlayDiv);
-    this.#timeout = window.setTimeout(() => {
-      this.hideOverlay(overlayDiv);
-    }, this.warningDuration);
+    if (timeout) {
+      this.#timeout = window.setTimeout(() => {
+        this.hideOverlay(overlayDiv);
+      }, this.warningDuration);
+    }
   }
 
   onOrientationChange() {
@@ -90,5 +129,13 @@ export class InitPageSetup {
     } else if (screen.availHeight > screen.availWidth && isPortrait) {
       this.showOverlay(this.rotateOverlayDiv);
     }
+  }
+
+  onPause() {
+    this.showOverlay(this.pauseOverlayDiv, false);
+  }
+
+  onResume() {
+    this.hideOverlay(this.pauseOverlayDiv);
   }
 }

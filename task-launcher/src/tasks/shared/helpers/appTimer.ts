@@ -1,26 +1,45 @@
 import { taskStore } from '../../../taskStore';
 import { finishExperiment } from '../trials';
+import { camelize } from './camelize';
 import { PageStateHandler } from './PageStateHandler';
 
 // This feature allows the task configurator to set a time limit for the app,
 // configured via url and store variable maxTime.
 // Preload time is not included in the time limit
 
-// define timerId here so that it can be cleared if task ends early
-let timerId: any;
 // buffer in milliseconds after presentation of stimulus to allow some time to answer
 const RESPONSE_BUFFER = 2000;
 
-export const startAppTimer = (maxTimeInMinutes: number, finishExperiment: () => void) => {
+export function getActiveTaskElapsedMs(): number {
+  const startTime = taskStore().startTime;
+  if (typeof startTime !== 'number') return 0;
+  const accumulatedPauseMs = taskStore().taskTimerPausedMs ?? 0;
+  const pauseBeganAt = taskStore().taskTimerPauseBeganAt;
+  const currentPauseMs = typeof pauseBeganAt === 'number' ? Date.now() - pauseBeganAt : 0;
+  return Date.now() - startTime - accumulatedPauseMs - currentPauseMs;
+}
+
+export function finalizeCurrentPauseSegment(): void {
+  const pauseBeganAt = taskStore().taskTimerPauseBeganAt;
+  if (typeof pauseBeganAt !== 'number') return;
+  taskStore('taskTimerPausedMs', (taskStore().taskTimerPausedMs ?? 0) + (Date.now() - pauseBeganAt));
+  taskStore('taskTimerPauseBeganAt', null);
+}
+
+export const startAppTimer = (maxTimeInMinutes: number) => {
   // Minimum time is 1 minute
   const maxTimeInMilliseconds = Math.max(maxTimeInMinutes, 1) * 60000;
 
   taskStore('startTime', Date.now());
+  taskStore('taskTimerPausedMs', 0);
+  taskStore('taskTimerPauseBeganAt', null);
 
-  timerId = setTimeout(() => {
+  const timerId = setTimeout(() => {
     taskStore('maxTimeReached', true);
     clearTimeout(timerId);
   }, maxTimeInMilliseconds);
+
+  taskStore('taskTimer', timerId);
 };
 
 // function for ending the task if the next trial
@@ -29,7 +48,7 @@ export async function checkEndTaskEarly(timeRemaining: number, stimAudio: string
   const minTrialDuration = (await pageStateHandler.getStimulusDurationMs()) + RESPONSE_BUFFER;
 
   if (timeRemaining < minTrialDuration) {
-    clearTimeout(timerId);
+    clearTimeout(taskStore().taskTimer);
     finishExperiment();
   }
 }

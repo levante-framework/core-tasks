@@ -3,6 +3,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import _mapValues from 'lodash/mapValues';
 import { taskStore } from '../../../taskStore';
 import { recordCompletion } from './recordCompletion';
+import { Logger } from '../../../utils/logger';
 import { finishExperiment } from '../trials';
 
 /**
@@ -118,21 +119,7 @@ export const initTrialSaving = (config: Record<string, any>) => {
 
   // @ts-ignore
   jsPsych.opts.on_finish = extend(jsPsych.opts.on_finish, () => {
-    // Add finishing metadata to run doc
-    // const finishingMetadata = {}
-    // const { maxTimeReached, numIncorrect, maxIncorrect } = taskStore();
-
-    // if (maxTimeReached) {
-    //   finishingMetadata.reasonTaskEnded = 'Max Time'
-    // } else if (numIncorrect >= maxIncorrect) {
-    //   finishingMetadata.reasonTaskEnded = 'Max Incorrect Trials'
-    // } else {
-    //   finishingMetadata.reasonTaskEnded = 'Completed Task'
-    // }
-
-    // config.firekit.finishRun(finishingMetadata);
-
-    if (!taskStore().demoMode) {
+    if (!taskStore().demoMode && config.firekit) {
       config.firekit.finishRun();
     }
   });
@@ -147,11 +134,13 @@ export const initTrialSaving = (config: Record<string, any>) => {
     if (taskStore().testTrialCount >= taskStore().totalTestTrials * 0.8) {
       recordCompletion(config);
     }
+
+    taskStore('totalTrialCount', taskStore().totalTrialCount + 1);
   });
 
   // @ts-ignore
   jsPsych.opts.on_data_update = extend(jsPsych.opts.on_data_update, (data) => {
-    if (data.save_trial && !taskStore().demoMode) {
+    if (data.save_trial && !taskStore().demoMode && config.firekit) {
       // save_trial is a flag that indicates whether the trial should
       // be saved to Firestore. No point in writing it to the db.
       // creating a deep copy to prevent modifying of original data
@@ -161,7 +150,6 @@ export const initTrialSaving = (config: Record<string, any>) => {
       delete dataCopy.save_trial;
       delete dataCopy.internal_node_id;
       delete dataCopy.button_response;
-      delete dataCopy.keyboard_response;
       delete dataCopy.response_source;
       dataCopy.responseSource = data.response_source;
       delete dataCopy.trial_type;
@@ -171,7 +159,10 @@ export const initTrialSaving = (config: Record<string, any>) => {
       if (config.isRoarApp) {
         config.firekit.writeTrial(dataCopy, computedScoreCallback);
       } else {
-        config.firekit.writeTrial(dataCopy);
+        config.firekit.writeTrial(dataCopy).catch((error: any) => {
+          delete dataCopy.stimulus; // remove stimulus from data to avoid logging large html elements
+          Logger.getInstance().capture('Error writing trial to Firestore', { error: error, data: dataCopy });
+        });
       }
     }
   });
