@@ -180,26 +180,19 @@ function buildInstructionTrial(mascotImage, getPromptKey, showResponseButton = f
             if (continueTrialConfig.type === 'bottomText') {
               const audioUri = mediaAssets.audio[continueTrialConfig.text];
 
-              const secondAudioConfig = {
-                restrictRepetition: {
-                  enabled: false,
-                  maxRepetitions: 2,
-                },
-                onEnded: () => {
-                  const onSpacebarPress = (event) => {
-                    if (event.key === ' ') {
-                      jsPsych.finishTrial();
-                    }
-                  };
-
-                  window.addEventListener('keydown', onSpacebarPress);
-                  cleanupInstructionInputListeners.push(() => {
-                    window.removeEventListener('keydown', onSpacebarPress);
-                  });
-                },
+              const onSpacebarPress = (event) => {
+                if (event.key === ' ') {
+                  jsPsych.finishTrial();
+                  PageAudioHandler.stopAndDisconnectNode();
+                }
               };
 
-              PageAudioHandler.playAudio(audioUri, secondAudioConfig);
+              window.addEventListener('keydown', onSpacebarPress);
+              cleanupInstructionInputListeners.push(() => {
+                window.removeEventListener('keydown', onSpacebarPress);
+              });
+
+              PageAudioHandler.playAudio(audioUri);
             } else {
               enableOkButton();
             }
