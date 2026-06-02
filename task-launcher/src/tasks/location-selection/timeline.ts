@@ -13,7 +13,7 @@ import { clearLocationSelectionDraft } from './helpers/state';
 
 export default function buildLocationSelectionTimeline(config: Record<string, any>, _mediaAssets: MediaAssetsType) {
   initTrialSaving(config);
-  const initialTimeline = initTimeline(config, enterFullscreen, finishExperiment);
+  const initialTimeline = initTimeline(config, enterFullscreen);
   const locationConfig = getLocationSelectionTaskConfig(config);
 
   taskStore('locationSelectionConfig', locationConfig);

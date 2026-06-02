@@ -74,13 +74,6 @@ const demoMode = DEMO;
 
 async function startWebApp() {
   const firekit = null;
-
-  const appKit = await initializeFirebaseProject(firebaseConfig, 'admin', emulatorConfig, 'none');
-  if (typeof window !== 'undefined') {
-    window.__firebaseApp = appKit.firebaseApp;
-    window.__firebaseConfig = firebaseConfig;
-  }
-  
   const gameParams = {
     taskName,
     skipInstructions,

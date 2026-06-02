@@ -150,6 +150,14 @@
       }
     }
   }
+
+  &.location-selection {
+    @extend .lev-row-container, .instruction;
+    width: 30vw;
+    display: flex;
+    flex-direction: column; 
+    gap: 30px;
+  }
 }
 
 .lev-stimulus-container {
