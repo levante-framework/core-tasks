@@ -21,7 +21,7 @@
     "dev:db": "webpack serve --mode development --env dbmode=development --env demo=true",
     "deploy": "npm run build:demo && firebase deploy --only hosting:core-tasks",
     "lint": "eslint --ext .ts,.tsx,.js,.jsx",
-    "format": "prettier --write",
+    "format": "prettier . --write",
     "format:check": "prettier . --check",
     "patchPackages": "node patchPackages.js",
     "postinstall": "npm run patchPackages"
