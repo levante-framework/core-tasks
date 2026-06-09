@@ -23,79 +23,68 @@ on:
         default: true
         type: boolean
 
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  id-token: write
+
 jobs:
   version-and-publish:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./task-launcher
     outputs:
-      new_version: ${{ steps.resolve_version.outputs.new_version }}
+      new_version: ${{ steps.bump_package_version.outputs.new_version }}
     steps:
       - name: Generate GitHub App token
         id: checkout_token
-        uses: tibdex/github-app-token@v2
+        uses: actions/create-github-app-token@v3
         with:
-          app_id: ${{ secrets.LEVANTE_BOT_APP_ID }}
-          private_key: ${{ secrets.LEVANTE_BOT_APP_PRIVATE_KEY }}
-          repository: ${{ github.repository }}
+          client-id: ${{ secrets.LEVANTE_BOT_APP_CLIENT_ID }}
+          private-key: ${{ secrets.LEVANTE_BOT_APP_PRIVATE_KEY }}
 
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           token: ${{ steps.checkout_token.outputs.token }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: '20.x'
+          node-version-file: '.nvmrc'
+          package-manager-cache: false
           registry-url: 'https://registry.npmjs.org'
 
       - name: Install dependencies
         run: npm ci
-        working-directory: ./task-launcher
+
+      - name: Run checks
+        run: |
+          npm run format:check
+          npm run lint
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Bump package version
         id: bump_package_version
         if: github.event.inputs['bump-and-tag'] == 'true'
-        run: npm version ${{ github.event.inputs.version-type }} --no-git-tag-version
-        working-directory: ./task-launcher
+        run: |
+          npm version ${{ inputs.version-type }} --message "chore: release v%s [skip ci]"
+          echo "new_version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
 
-      - name: Resolve version for publish and outputs
-        id: resolve_version
-        run: echo "new_version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
-        working-directory: ./task-launcher
-
-      - name: Create and push git tag
+      - name: Push version commit and tag
         if: github.event.inputs['bump-and-tag'] == 'true'
-        run: |
-          git config --global user.email "github-actions@github.com"
-          git config --global user.name "GitHub Actions"
-          git add package.json
-          git commit -m "chore: bump version to ${{ steps.resolve_version.outputs.new_version }}"
-          git tag -a "v${{ steps.resolve_version.outputs.new_version }}" -m "Release v${{ steps.resolve_version.outputs.new_version }}"
-          git push origin main
-          git push origin "v${{ steps.resolve_version.outputs.new_version }}"
-        working-directory: ./task-launcher
-
-      - name: Verify npm token
-        working-directory: ./task-launcher
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.LEVANTE_NPM_TOKEN }}
-        run: |
-          if [ -z "$NODE_AUTH_TOKEN" ]; then
-            echo "::error::LEVANTE_NPM_TOKEN is missing or empty. Add a valid npm access token (with publish permission) in the repository secrets."
-            exit 1
-          fi
-          if ! NPM_USER=$(npm whoami --registry https://registry.npmjs.org 2>&1); then
-            echo "::error::npm token is invalid or expired. LEVANTE_NPM_TOKEN failed registry authentication. Renew the token at https://www.npmjs.com/settings/~/tokens and update the repository secret."
-            echo "$NPM_USER"
-            exit 1
-          fi
-          echo "npm token OK (logged in as $NPM_USER)"
+        run: git push --follow-tags
 
       - name: Publish to npm
         run: npm publish --access public
-        working-directory: ./task-launcher
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.LEVANTE_NPM_TOKEN }}
 
   update-dashboard:
     if: github.event.inputs['update-dashboard'] == 'true'
@@ -104,11 +93,11 @@ jobs:
     steps:
       - name: Generate GitHub App token
         id: generate_token
-        uses: tibdex/github-app-token@v2
+        uses: actions/create-github-app-token@v3
         with:
-          app_id: ${{ secrets.LEVANTE_BOT_APP_ID }}
-          private_key: ${{ secrets.LEVANTE_BOT_APP_PRIVATE_KEY }}
-          repository: levante-framework/levante-dashboard
+          client-id: ${{ secrets.LEVANTE_BOT_APP_CLIENT_ID }}
+          private-key: ${{ secrets.LEVANTE_BOT_APP_PRIVATE_KEY }}
+          repositories: levante-dashboard
 
       - name: Trigger dashboard update
         uses: peter-evans/repository-dispatch@v2
