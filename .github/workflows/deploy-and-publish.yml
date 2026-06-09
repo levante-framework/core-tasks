@@ -74,20 +74,20 @@ jobs:
 
       - name: Bump package version
         id: bump_package_version
-        if: github.event.inputs['bump-and-tag'] == 'true'
+        if: inputs.bump-and-tag == 'true'
         run: |
           npm version ${{ inputs.version-type }} --message "chore: release v%s [skip ci]"
           echo "new_version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
 
       - name: Push version commit and tag
-        if: github.event.inputs['bump-and-tag'] == 'true'
+        if: inputs.bump-and-tag == 'true'
         run: git push --follow-tags
 
       - name: Publish to npm
         run: npm publish --access public
 
   update-dashboard:
-    if: github.event.inputs['update-dashboard'] == 'true'
+    if: inputs.update-dashboard == 'true'
     needs: version-and-publish
     runs-on: ubuntu-latest
     steps:
