@@ -75,7 +75,8 @@ jobs:
 
       - name: Bump package version
         if: inputs.bump-and-tag == 'true'
-        run: npm version ${{ inputs.version-type }} --message "chore: release v%s [skip ci]"
+        run: |
+          npm version ${{ inputs.version-type }} --message "chore: release v%s [skip ci]"
 
       - name: Resolve version
         id: resolve_version
