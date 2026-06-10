@@ -205,7 +205,7 @@ export async function lookupPopulationForCell(
   const preference = String(config?.populationSourcePreference || 'auto').toLowerCase();
   const konturUrl = String(config?.konturPopulationApiUrl || '/api/population-kontur-h3');
   const worldpopUrl = String(config?.worldpopPopulationApiUrl || '/api/population-worldpop-h3');
-  const timeoutMs = Number(config?.populationApiTimeoutMs) > 0 ? Number(config?.populationApiTimeoutMs) : 2500;
+  const timeoutMs = 25000;
 
   const orderedSources: PopulationSource[] =
     preference === 'kontur'

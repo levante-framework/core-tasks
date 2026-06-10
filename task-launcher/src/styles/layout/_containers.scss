@@ -156,7 +156,12 @@
     width: 30vw;
     display: flex;
     flex-direction: column; 
-    gap: 30px;
+    gap: 40px;
+    padding: 40px;
+
+    > * {
+      margin: 0
+    }
   }
 }
 

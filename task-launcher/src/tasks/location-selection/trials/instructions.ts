@@ -1,6 +1,14 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { taskStore } from '../../../taskStore';
-import { homeIcon, schoolIcon, mapIcon, mapPointerIcon, pointerIcon, keyboardIcon } from '../../shared/helpers';
+import { 
+  homeIcon, 
+  schoolIcon, 
+  mapIcon, 
+  mapPointerIcon, 
+  pointerIcon, 
+  keyboardIcon,
+  worldSearchIcon, 
+} from '../../shared/helpers';
 import { jsPsych } from '../../taskSetup';
 
 const modes = ['gps', 'city_postal', 'map'] as const;
@@ -9,7 +17,12 @@ const data = [
   {
     primaryText: "locationText1",
     secondaryText: "locationText2",
-    buttonChoices: ['OK'],
+    topIcon: worldSearchIcon,
+    buttonChoices: () => {
+      const t = taskStore().translations;
+
+      return [t.continueButtonText];
+    },
     buttonHtml: '<button class="primary">%choice%</button>',
     setMode: false,
   },
@@ -39,12 +52,34 @@ const data = [
     },
     buttonHtml: '<button class=text-image>%choice%</button>',
     setMode: true,
-  }
+  },
+  {
+    primaryText: "locationTextBrowser1",
+    secondaryText: "locationTextBrowser2",
+    topIcon: worldSearchIcon,
+    buttonChoices: () => {
+      const t = taskStore().translations;
+
+      return [t.locationButtonPermission];
+    },
+    buttonHtml: '<button class="primary">%choice%</button>',
+    setMode: false,
+  },
+  {
+    primaryText: "locationText6",
+    topIcon: worldSearchIcon,
+    buttonChoices: () => {
+      const t = taskStore().translations;
+
+      return [t.locationButtonFinish];
+    },
+    buttonHtml: '<button class="primary">%choice%</button>',
+    setMode: false,
+  },
 ]
 
-export const instructions = data.map((instructionData) => {
-  return (
-    {
+const allInstructions = data.map((instructionData) => {
+  return {
       type: jsPsychHtmlMultiResponse,
       stimulus: () => {
         const t = taskStore().translations;
@@ -53,8 +88,9 @@ export const instructions = data.map((instructionData) => {
           `
             <div class="lev-stimulus-container">
               <div class="lev-row-container location-selection">
+                ${instructionData.topIcon || ''}
                 <h1>${t[instructionData.primaryText] }</h1>
-                <p>${instructionData.secondaryText ? t[instructionData.secondaryText] : ''}</p>
+                <t>${instructionData.secondaryText ? t[instructionData.secondaryText] : ''}</t>
               </div>
             </div>
           `
@@ -80,6 +116,9 @@ export const instructions = data.map((instructionData) => {
           taskStore('locationSelectionMode', selectedMode);
         }
       },
-    }
-  )
+    };
 });
+
+export const finishTaskMessage = allInstructions.pop();
+export const gpsInstructions = allInstructions.pop();
+export const instructions = allInstructions;

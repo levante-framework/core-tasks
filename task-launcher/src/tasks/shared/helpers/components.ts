@@ -99,6 +99,22 @@ export const keyboardIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="48" 
   <path d="M20 5a3 3 0 0 1 3 3v8a3 3 0 0 1 -3 3h-16a3 3 0 0 1 -3 -3v-8a3 3 0 0 1 3 -3zm-14 8a1 1 0 0 0 -1 1v.01a1 1 0 0 0 2 0v-.01a1 1 0 0 0 -1 -1m12 0a1 1 0 0 0 -1 1v.01a1 1 0 0 0 2 0v-.01a1 1 0 0 0 -1 -1m-7.998 0a1 1 0 0 0 -.004 2l4 .01a1 1 0 0 0 .005 -2zm-4.002 -4a1 1 0 0 0 -1 1v.01a1 1 0 0 0 2 0v-.01a1 1 0 0 0 -1 -1m4 0a1 1 0 0 0 -1 1v.01a1 1 0 0 0 2 0v-.01a1 1 0 0 0 -1 -1m4 0a1 1 0 0 0 -1 1v.01a1 1 0 0 0 2 0v-.01a1 1 0 0 0 -1 -1m4 0a1 1 0 0 0 -1 1v.01a1 1 0 0 0 2 0v-.01a1 1 0 0 0 -1 -1" />
 </svg>`
 
+export const worldSearchIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-world-search">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+  <path d="M21 12a9 9 0 1 0 -9 9" />
+  <path d="M3.6 9h16.8" />
+  <path d="M3.6 15h7.9" />
+  <path d="M11.5 3a17 17 0 0 0 0 18" />
+  <path d="M12.5 3a16.984 16.984 0 0 1 2.574 8.62" />
+  <path d="M15 18a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
+  <path d="M20.2 20.2l1.8 1.8" />
+</svg>`
+
+export const loader = `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-loader-2 rotate">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+  <path d="M12 3a9 9 0 1 0 9 9" />
+</svg>`
+
 // fullscreen and replay button html
 export function getParticipantUtilityButtonsHtml(replayButtonHtmlId: string, includeReplayButton = true): string {
   return `

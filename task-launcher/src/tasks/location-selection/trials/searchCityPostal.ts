@@ -1,7 +1,9 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { taskStore } from '../../../taskStore';
 import { getLocationSelectionDraft, setLocationSelectionDraft } from '../helpers/state';
-import { ensureLocationSelectionStyles } from '../helpers/ui';
+import { disableOkButton, enableOkButton } from '../../shared/helpers';
+import { jsPsych } from '../../taskSetup';
+import { buildLocationSavePayload } from '../helpers/locationCommitPreview';
 
 interface NominatimResult {
   place_id?: number;
@@ -48,7 +50,7 @@ function highlightLabel(label: string, query: string): string {
   const q = String(query || '').trim();
   if (!q || q.length < 2) return safeLabel;
   const expr = new RegExp(`(${escapeRegex(q)})`, 'ig');
-  return safeLabel.replace(expr, '<mark style="background:#fef08a; padding:0;">$1</mark>');
+  return safeLabel.replace(expr, '<mark class="location-search-highlight">$1</mark>');
 }
 
 function getCountryLabel(code: string): string {
@@ -110,34 +112,45 @@ export const searchCityPostal = {
   timeline: [
     {
       type: jsPsychHtmlMultiResponse,
-      stimulus: `
-        <div class="lev-stimulus-container">
-          <div class="lev-row-container instruction location-selection-panel location-selection-copy">
-            <h2>City / postal search</h2>
-            <p>Select a country, then type a city/town or postal code.</p>
-            <div class="location-selection-field">
-              <label for="location-country-select"><strong>Country</strong></label>
-              <select id="location-country-select" style="display:block; width:100%; min-height: 40px; margin-top: 0.3rem; padding: 0 0.5rem;"></select>
+      stimulus: () => {
+        const t = taskStore().translations;
+
+        return `
+          <div class="lev-stimulus-container">
+            <div class="lev-row-container instruction location-selection">
+              <h1>${t.locationButtonZip}</h1>
+              <t>${t.locationTextZip1}</t>
+              <div class="location-selection-field">
+                <label for="location-country-select"><strong>${t.locationTextZip2}</strong></label>
+                <select id="location-country-select" class="location-search-control"></select>
+              </div>
+              <div class="location-selection-field">
+                <label for="location-query-input"><strong>${t.locationButtonZip}</strong></label>
+                <input id="location-query-input" class="location-search-control" type="text" placeholder=${t.locationTextZip3} autocomplete="off" />
+                <div id="location-autocomplete-dropdown" class="location-autocomplete-dropdown"></div>
+              </div>
             </div>
-            <div class="location-selection-field">
-              <label for="location-query-input"><strong>City / Postal code</strong></label>
-              <input id="location-query-input" type="text" placeholder="Start typing..." autocomplete="off" style="display:block; width:100%; min-height: 40px; margin-top: 0.3rem; padding: 0 0.7rem;" />
-              <div id="location-autocomplete-dropdown" style="border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 8px 8px; display: none; max-height: 260px; overflow-y: auto; background: #fff;"></div>
-            </div>
-            <p id="location-search-status" class="location-selection-status">Choose a country to begin.</p>
           </div>
-        </div>
-      `,
+        `
+      },
       prompt_above_buttons: true,
-      button_choices: ['Continue'],
+      button_choices: () => {
+        const t = taskStore().translations;
+  
+        return [t.continueButtonText];
+      },
       button_html: '<button class="primary">%choice%</button>',
       keyboard_choices: 'NO_KEYS',
-      data: {
-        assessment_stage: 'city_postal_search',
-        task: 'location-selection',
-      },
       on_load: () => {
-        ensureLocationSelectionStyles();
+        const btnGroup = document.getElementById('jspsych-html-multi-response-btngroup');
+        const container = document.querySelector('.lev-row-container.location-selection');
+  
+        if (btnGroup && container) {
+          container.appendChild(btnGroup);
+        }
+        btnGroup?.classList.add("lev-response-row", "multi-4");
+        disableOkButton();
+
         const continueButton = document.querySelector<HTMLButtonElement>('#jspsych-html-multi-response-button-0');
         const inputEl = document.getElementById('location-query-input') as HTMLInputElement | null;
         const countryEl = document.getElementById('location-country-select') as HTMLSelectElement | null;
@@ -156,7 +169,7 @@ export const searchCityPostal = {
 
         const hideDropdown = () => {
           if (!dropdownEl) return;
-          dropdownEl.style.display = 'none';
+          dropdownEl.classList.remove('is-open');
           dropdownEl.innerHTML = '';
           highlightedIndex = -1;
         };
@@ -171,6 +184,8 @@ export const searchCityPostal = {
           if (inputEl) inputEl.value = String(selected.display_name || inputEl.value);
           hideDropdown();
           if (continueButton) continueButton.disabled = false;
+
+          enableOkButton();
         };
 
         const renderResults = (results: NominatimResult[]) => {
@@ -179,19 +194,19 @@ export const searchCityPostal = {
           taskStore('locationSelectionPendingSuggestion', null);
           if (highlightedIndex >= latestResults.length) highlightedIndex = latestResults.length - 1;
           if (!results.length) {
-            dropdownEl.innerHTML = '<div style="padding: 0.7rem;">No matches found.</div>';
-            dropdownEl.style.display = 'block';
+            dropdownEl.innerHTML = '<div class="location-autocomplete-empty">No matches found.</div>';
+            dropdownEl.classList.add('is-open');
             return;
           }
           dropdownEl.innerHTML = results
             .map((result, index) => {
               const label = String(result.display_name || 'Unknown location');
-              const bg = index === highlightedIndex ? '#eff6ff' : '#fff';
+              const activeClass = index === highlightedIndex ? ' is-active' : '';
               const labelHtml = highlightLabel(label, latestQuery);
-              return `<button type="button" data-result-index="${index}" style="display:block; width:100%; padding:0.6rem 0.75rem; border:none; border-bottom:1px solid #f1f5f9; text-align:left; background:${bg}; cursor:pointer;">${labelHtml}</button>`;
+              return `<button type="button" class="location-autocomplete-option${activeClass}" data-result-index="${index}">${labelHtml}</button>`;
             })
             .join('');
-          dropdownEl.style.display = 'block';
+          dropdownEl.classList.add('is-open');
           if (highlightedIndex >= 0) {
             const active = dropdownEl.querySelector<HTMLButtonElement>(`button[data-result-index="${highlightedIndex}"]`);
             active?.scrollIntoView({ block: 'nearest' });
@@ -279,7 +294,7 @@ export const searchCityPostal = {
 
         inputEl?.addEventListener('focus', () => {
           const hasOptions = Boolean(dropdownEl && dropdownEl.innerHTML.trim());
-          if (hasOptions && dropdownEl) dropdownEl.style.display = 'block';
+          if (hasOptions && dropdownEl) dropdownEl.classList.add('is-open');
         });
 
         document.addEventListener('click', (event) => {
@@ -327,11 +342,12 @@ export const searchCityPostal = {
           }
         });
       },
-      on_finish: (data: Record<string, any>) => {
-        const draft = getLocationSelectionDraft();
-        data.mode = 'city_postal';
-        data.selectedLocation = draft || null;
-        taskStore('locationSelectionLastStep', 'city_postal_search');
+      on_finish: async () => {
+        const location = await buildLocationSavePayload();
+
+        jsPsych.data.addDataToLastTrial({
+          location: location
+        });
       },
     },
   ],

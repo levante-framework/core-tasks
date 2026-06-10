@@ -72,6 +72,8 @@ import { isEnglish } from '../tasks/shared/helpers';
  * ------- SDS only -------
  * @property {StimulusType[]} sequentialTrials - Should be run sequentially in blocks by trial number in an SDS CAT.
  * @property {number} version - A version number for the task, default is 1. Can be used as a feature flag.
+ * ------- Location Selection only -------
+ * @property {boolean} locationDataSaved - Whether location data has been saved, default is false.
  */
 
 export type TaskStoreDataType = {
@@ -168,6 +170,7 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     taskTimerPausedMs: 0,
     taskTimerPauseBeganAt: null,
     isPaused: false,
+    locationDataSaved: false,
   });
 };
 

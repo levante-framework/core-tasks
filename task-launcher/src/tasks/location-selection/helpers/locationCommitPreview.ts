@@ -1,7 +1,8 @@
 import { cellToLatLng, latLngToCell } from 'h3-js';
 import { type LocationSelectionDraft } from './state';
-import { H3_MAX_RESOLUTION, type LocationSelectionTaskConfig } from './config';
+import { H3_MAX_RESOLUTION, H3_MIN_RESOLUTION, type LocationSelectionTaskConfig } from './config';
 import { lookupPopulationBatch, lookupPopulationForCell } from './populationApi';
+import { taskStore } from '../../../taskStore';
 
 type LocationCommitPreview = {
   schemaVersion: 'location_v1';
@@ -110,9 +111,17 @@ export async function buildLocationCommitComputationWithPopulation(
   if (!draft) return null;
 
   const baselineResolution = Number(config?.baselineResolution);
+  const minResolution = Number(config?.minResolution);
   const maxResolution = Number(config?.maxResolution);
   const populationThreshold = Number(config?.populationThreshold);
   const safeBaselineResolution = Number.isInteger(baselineResolution) ? baselineResolution : 5;
+  const safeMinResolution = Math.max(
+    H3_MIN_RESOLUTION,
+    Math.min(
+      safeBaselineResolution,
+      Number.isInteger(minResolution) ? minResolution : H3_MIN_RESOLUTION,
+    ),
+  );
   const safeMaxResolution = Math.min(
     H3_MAX_RESOLUTION,
     Number.isInteger(maxResolution) && maxResolution >= safeBaselineResolution
@@ -129,18 +138,21 @@ export async function buildLocationCommitComputationWithPopulation(
   let effectiveResolution = safeBaselineResolution;
   let effectivePopulationSource: 'kontur' | 'worldpop' | 'unknown' = 'unknown';
   let observedPopulationSource: 'kontur' | 'worldpop' | 'unknown' = 'unknown';
-  let foundPassingCell = false;
   const candidates: PopulationCandidateDebug[] = [];
   const useBatch = Boolean(config?.populationBatchEnabled);
-  const cellIds: string[] = [];
-  for (let resolution = safeBaselineResolution; resolution <= safeMaxResolution; resolution += 1) {
-    cellIds.push(latLngToCell(draft.lat, draft.lon, resolution));
-  }
-  const batchResults = useBatch ? await lookupPopulationBatch(cellIds, config) : null;
 
-  for (let index = 0; index < cellIds.length; index += 1) {
-    const resolution = safeBaselineResolution + index;
-    const cellId = cellIds[index];
+  const cellIdByResolution = new Map<number, string>();
+  for (let resolution = safeMinResolution; resolution <= safeMaxResolution; resolution += 1) {
+    cellIdByResolution.set(resolution, latLngToCell(draft.lat, draft.lon, resolution));
+  }
+  const batchResults = useBatch
+    ? await lookupPopulationBatch([...cellIdByResolution.values()], config)
+    : null;
+
+  const evaluateResolution = async (resolution: number) => {
+    const cellId = cellIdByResolution.get(resolution);
+    if (!cellId) return null;
+
     const populationResult =
       batchResults?.[cellId] ?? (await lookupPopulationForCell(cellId, resolution, config));
     const population = populationResult.population;
@@ -155,17 +167,35 @@ export async function buildLocationCommitComputationWithPopulation(
       source: populationResult.source,
       privacyMet,
     });
+    return { cellId, resolution, populationResult, privacyMet };
+  };
 
-    if (privacyMet) {
-      effectiveCell = cellId;
-      effectiveResolution = resolution;
-      effectivePopulationSource = populationResult.source;
-      foundPassingCell = true;
-      continue;
+  const baselineEvaluation = await evaluateResolution(safeBaselineResolution);
+  if (baselineEvaluation?.privacyMet) {
+    effectiveCell = baselineEvaluation.cellId;
+    effectiveResolution = baselineEvaluation.resolution;
+    effectivePopulationSource = baselineEvaluation.populationResult.source;
+
+    for (let resolution = safeBaselineResolution + 1; resolution <= safeMaxResolution; resolution += 1) {
+      const evaluation = await evaluateResolution(resolution);
+      if (!evaluation) continue;
+      if (evaluation.privacyMet) {
+        effectiveCell = evaluation.cellId;
+        effectiveResolution = evaluation.resolution;
+        effectivePopulationSource = evaluation.populationResult.source;
+        continue;
+      }
+      break;
     }
-
-    // Privacy-first: once we found an acceptable cell, stop at first finer failure.
-    if (foundPassingCell) break;
+  } else {
+    for (let resolution = safeBaselineResolution - 1; resolution >= safeMinResolution; resolution -= 1) {
+      const evaluation = await evaluateResolution(resolution);
+      if (!evaluation?.privacyMet) continue;
+      effectiveCell = evaluation.cellId;
+      effectiveResolution = evaluation.resolution;
+      effectivePopulationSource = evaluation.populationResult.source;
+      break;
+    }
   }
 
   const [centerLat, centerLon] = cellToLatLng(effectiveCell);
@@ -199,4 +229,13 @@ export async function buildLocationCommitComputationWithPopulation(
     preview,
     candidates,
   };
+}
+
+
+export async function buildLocationSavePayload() {
+  const draft = taskStore().locationSelectionDraft;
+  const config = taskStore().locationSelectionConfig;
+  const location = await buildLocationCommitPreviewWithPopulation(draft, config);
+  taskStore("locationDataSaved", true);
+  return location;
 }

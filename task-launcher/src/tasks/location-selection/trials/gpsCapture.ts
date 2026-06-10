@@ -1,7 +1,8 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { taskStore } from '../../../taskStore';
 import { getLocationSelectionDraft, setLocationSelectionDraft } from '../helpers/state';
-import { ensureLocationSelectionStyles } from '../helpers/ui';
+import { jsPsych } from '../../taskSetup';
+import { buildLocationSavePayload } from '../helpers/locationCommitPreview';
 
 async function reverseGeocode(lat: number, lon: number): Promise<string | null> {
   try {
@@ -25,46 +26,42 @@ export const gpsCapture = {
   timeline: [
     {
       type: jsPsychHtmlMultiResponse,
-      stimulus: `
-        <div class="lev-stimulus-container">
-          <div class="lev-row-container instruction location-selection-panel location-selection-copy">
-            <h2>GPS location</h2>
-            <p>We are requesting your browser location permission now.</p>
-            <p id="gps-status" class="location-selection-status">Requesting GPS location…</p>
-            <p id="gps-value" style="font-size: 0.95rem; opacity: 0.85; line-height: 1.4;"></p>
-            <div class="location-selection-field">
-              <button id="gps-retry-btn" class="primary" style="display:none;">Retry GPS</button>
+      stimulus: () => {
+        const t = taskStore().translations;
+
+        return `
+          <div class="lev-stimulus-container">
+            <div class="lev-row-container location-selection" id="container">
+              <h1 id="gps-status"></h1>
+              <div class="location-selection-field">
+                <button id="gps-retry-btn" class="primary" style="display:none;">${t.locationButtonAskAgain}</button>
+              </div>
             </div>
           </div>
-        </div>
-      `,
-      prompt_above_buttons: true,
-      button_choices: ['Continue'],
-      button_html: '<button class="primary">%choice%</button>',
-      keyboard_choices: 'NO_KEYS',
-      data: {
-        assessment_stage: 'gps_capture',
-        task: 'location-selection',
+        `
       },
+      keyboard_choices: 'NO_KEYS',
       on_load: () => {
-        ensureLocationSelectionStyles();
+        const t = taskStore().translations;
         const continueButton = document.querySelector<HTMLButtonElement>('#jspsych-html-multi-response-button-0');
         const retryButton = document.getElementById('gps-retry-btn') as HTMLButtonElement | null;
         const statusEl = document.getElementById('gps-status');
-        const valueEl = document.getElementById('gps-value');
         if (continueButton) {
           continueButton.disabled = true;
           continueButton.style.display = 'none';
         }
 
         if (!navigator.geolocation) {
-          if (statusEl) statusEl.textContent = 'Geolocation is not supported by this browser.';
-          if (retryButton) retryButton.style.display = 'inline-block';
+          if (statusEl) statusEl.textContent = t.locationTextBroswer5;
+          if (retryButton) {
+            retryButton.textContent = t.locationButtonBack;
+            retryButton.style.display = 'inline-block';
+          }
           return;
         }
 
         const requestGps = () => {
-          if (statusEl) statusEl.textContent = 'Requesting GPS location…';
+          if (statusEl) statusEl.textContent = t.locationTextBrowser3;
           if (retryButton) retryButton.style.display = 'none';
           navigator.geolocation.getCurrentPosition(
             async (position) => {
@@ -85,20 +82,24 @@ export const gpsCapture = {
                 },
                 selectedAt: new Date().toISOString(),
               });
-              if (statusEl) statusEl.textContent = 'GPS location captured.';
-              if (valueEl) {
-                valueEl.textContent =
-                  `${lat.toFixed(5)}, ${lon.toFixed(5)} · accuracy ≈ ${Math.round(accuracyMeters || 0)}m` +
-                  (label ? ` · ${label}` : '');
-              }
-              if (continueButton) {
-                continueButton.disabled = false;
-                continueButton.click();
-              }
+              jsPsych.finishTrial();
             },
             (error) => {
-              if (statusEl) statusEl.textContent = `GPS error: ${error.message}`;
+              if (statusEl) statusEl.textContent = t.locationTextBrowser4;
               if (retryButton) retryButton.style.display = 'inline-block';
+
+              const backButton = document.createElement('button');
+              const container = document.getElementById("container");
+
+              backButton.classList.add("primary");
+              backButton.textContent = t.locationButtonBack;
+              container?.appendChild(backButton);
+
+              const retryButtonWidth = document.getElementById("gps-retry-btn")?.getBoundingClientRect().width;
+              if (retryButtonWidth) {
+                backButton.style.width = `${retryButtonWidth}px`;
+              }
+              
             },
             {
               enableHighAccuracy: true,
@@ -111,12 +112,12 @@ export const gpsCapture = {
         retryButton?.addEventListener('click', requestGps);
         requestGps();
       },
-      on_finish: (data: Record<string, any>) => {
-        const draft = getLocationSelectionDraft();
-        data.mode = 'gps';
-        data.geolocationSupported = typeof navigator !== 'undefined' && !!navigator.geolocation;
-        data.selectedLocation = draft || null;
-        taskStore('locationSelectionLastStep', 'gps_capture');
+      on_finish: async () => {
+        const location = await buildLocationSavePayload();
+
+        jsPsych.data.addDataToLastTrial({
+          location: location
+        });
       },
     },
   ],
