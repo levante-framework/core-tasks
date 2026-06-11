@@ -45,6 +45,7 @@ export const mapPicker = {
         setupMap();
       },
       on_finish: async () => {
+        taskStore('userWentBack', false);
         const location = await buildLocationSavePayload();
 
         jsPsych.data.addDataToLastTrial({

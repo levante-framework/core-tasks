@@ -1,6 +1,6 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { taskStore } from '../../../taskStore';
-import { getLocationSelectionDraft, setLocationSelectionDraft } from '../helpers/state';
+import { setLocationSelectionDraft } from '../helpers/state';
 import { jsPsych } from '../../taskSetup';
 import { buildLocationSavePayload } from '../helpers/locationCommitPreview';
 
@@ -42,6 +42,8 @@ export const gpsCapture = {
       },
       keyboard_choices: 'NO_KEYS',
       on_load: () => {
+        taskStore('userWentBack', false);
+
         const t = taskStore().translations;
         const continueButton = document.querySelector<HTMLButtonElement>('#jspsych-html-multi-response-button-0');
         const retryButton = document.getElementById('gps-retry-btn') as HTMLButtonElement | null;
@@ -88,12 +90,22 @@ export const gpsCapture = {
               if (statusEl) statusEl.textContent = t.locationTextBrowser4;
               if (retryButton) retryButton.style.display = 'inline-block';
 
-              const backButton = document.createElement('button');
-              const container = document.getElementById("container");
+              let backButton = document.getElementById("back-button");
+              if (!backButton) {
+                backButton = document.createElement('button');
+                backButton.id = "back-button";
 
-              backButton.classList.add("primary");
-              backButton.textContent = t.locationButtonBack;
-              container?.appendChild(backButton);
+                const container = document.getElementById("container");
+
+                backButton.classList.add("primary");
+                backButton.textContent = t.locationButtonBack;
+                container?.appendChild(backButton);
+
+                backButton.addEventListener('click', () => {
+                  taskStore('userWentBack', true);
+                  jsPsych.finishTrial();
+                });
+              }
 
               const retryButtonWidth = document.getElementById("gps-retry-btn")?.getBoundingClientRect().width;
               if (retryButtonWidth) {
@@ -113,11 +125,13 @@ export const gpsCapture = {
         requestGps();
       },
       on_finish: async () => {
-        const location = await buildLocationSavePayload();
+        if (!taskStore().userWentBack) {
+          const location = await buildLocationSavePayload();
 
-        jsPsych.data.addDataToLastTrial({
-          location: location
-        });
+          jsPsych.data.addDataToLastTrial({
+            location: location
+          });
+        }
       },
     },
   ],

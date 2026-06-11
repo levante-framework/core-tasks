@@ -11,7 +11,7 @@ import {
 } from '../../shared/helpers';
 import { jsPsych } from '../../taskSetup';
 
-const modes = ['gps', 'city_postal', 'map'] as const;
+const modes = ['city_postal', 'map', 'gps'];
 
 const data = [
   {
@@ -25,33 +25,41 @@ const data = [
     },
     buttonHtml: '<button class="primary">%choice%</button>',
     setMode: false,
+    setLocationType: false,
   },
   {
     primaryText: "locationText3",
     buttonChoices: () => {
       const t = taskStore().translations;
       return [
-        `${homeIcon}${t.locationTextHome}`, 
-        `${schoolIcon}${t.locationTextSchool}`, 
+        `${homeIcon}${t.locationTextHome}`,
         `${mapPointerIcon}${t.locationTextOther}`
       ]
     },
     buttonHtml: '<button class=text-image>%choice%</button>',
     setMode: false,
+    setLocationType: true,
   },
   {
     primaryText: "locationText4",
     secondaryText: "locationText5",
     buttonChoices: () => {
       const t = taskStore().translations;
-      return [
-        `${pointerIcon}${t.locationButtonBrowser}`, 
+
+      const buttons = [
         `${keyboardIcon}${t.locationButtonZip}`, 
         `${mapIcon}${t.locationButtonMap}`
-      ]
+      ];
+
+      if (taskStore().locationType === "Home") {
+        buttons.push(`${pointerIcon}${t.locationButtonBrowser}`)
+      }
+
+      return buttons;
     },
     buttonHtml: '<button class=text-image>%choice%</button>',
     setMode: true,
+    setLocationType: false,
   },
   {
     primaryText: "locationTextBrowser1",
@@ -64,6 +72,7 @@ const data = [
     },
     buttonHtml: '<button class="primary">%choice%</button>',
     setMode: false,
+    setLocationType: false,
   },
   {
     primaryText: "locationText6",
@@ -75,6 +84,7 @@ const data = [
     },
     buttonHtml: '<button class="primary">%choice%</button>',
     setMode: false,
+    setLocationType: false,
   },
 ]
 
@@ -115,10 +125,22 @@ const allInstructions = data.map((instructionData) => {
           const selectedMode = modes[data.button_response];
           taskStore('locationSelectionMode', selectedMode);
         }
+
+        if (instructionData.setLocationType) {
+          const responseIdx = data.button_response;
+          const locationType = ['Home', 'Other'][responseIdx];
+          taskStore('locationType', locationType);
+
+          jsPsych.data.addDataToLastTrial({
+            response: locationType 
+          });
+        }
       },
     };
 });
 
 export const finishTaskMessage = allInstructions.pop();
 export const gpsInstructions = allInstructions.pop();
+export const modeSelectInstructions = allInstructions.pop();
+
 export const instructions = allInstructions;

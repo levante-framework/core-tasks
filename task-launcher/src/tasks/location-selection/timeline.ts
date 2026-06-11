@@ -2,7 +2,7 @@ import 'regenerator-runtime/runtime';
 import { initTrialSaving, initTimeline } from '../shared/helpers';
 import { jsPsych } from '../taskSetup';
 import { enterFullscreen, exitFullscreen } from '../shared/trials';
-import { finishTaskMessage, instructions, gpsInstructions } from './trials/instructions';
+import { finishTaskMessage, instructions, gpsInstructions, modeSelectInstructions } from './trials/instructions';
 import { gpsCapture } from './trials/gpsCapture';
 import { mapPicker } from './trials/mapPicker';
 import { searchCityPostal } from './trials/searchCityPostal';
@@ -17,13 +17,6 @@ export default function buildLocationSelectionTimeline(config: Record<string, an
   const locationConfig = getLocationSelectionTaskConfig(config);
 
   taskStore('locationSelectionConfig', locationConfig);
-  taskStore('locationSelectionMode', null);
-  taskStore('locationSelectionLastStep', null);
-  taskStore('locationSelectionCommitPreview', null);
-  taskStore('locationSelectionCommitCandidates', null);
-  taskStore('locationSelectionPendingSuggestion', null);
-  taskStore('locationSelectionPendingCountry', null);
-  clearLocationSelectionDraft();
 
   const gpsBlock = {
     timeline: [
@@ -35,12 +28,22 @@ export default function buildLocationSelectionTimeline(config: Record<string, an
     }
   }
 
+  const locationSelectionLoop = {
+    timeline: [
+      modeSelectInstructions,
+      gpsBlock,
+      mapPicker,
+      searchCityPostal,
+    ], 
+    loop_function: () => {
+      return taskStore().userWentBack;
+    }
+  }
+
   const timeline: any = [
     initialTimeline,
     ...instructions,
-    gpsBlock,
-    mapPicker,
-    searchCityPostal,
+    locationSelectionLoop,
     waitScreen,
     finishTaskMessage,
   ];

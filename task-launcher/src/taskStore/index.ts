@@ -74,6 +74,8 @@ import { isEnglish } from '../tasks/shared/helpers';
  * @property {number} version - A version number for the task, default is 1. Can be used as a feature flag.
  * ------- Location Selection only -------
  * @property {boolean} locationDataSaved - Whether location data has been saved, default is false.
+ * @property {string} userLocationType - 'Home" or 'Other".
+ * @property {boolean} userWentBack - Whether the user pressed the back button to change their preferred method of location selection.
  */
 
 export type TaskStoreDataType = {
@@ -171,6 +173,8 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     taskTimerPauseBeganAt: null,
     isPaused: false,
     locationDataSaved: false,
+    userLocationType: null,
+    userWentBack: false,
   });
 };
 
