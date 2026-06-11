@@ -45,6 +45,12 @@ const inferenceNumStories =
 const numberOfStories = urlParams.get('numberOfStories') === null ? 3 : parseInt(urlParams.get('numberOfStories'), 10);
 const semThreshold = Number(urlParams.get('semThreshold') || '0');
 const startingTheta = Number(urlParams.get('theta') || '0');
+const populationSourcePreference = String(urlParams.get('populationSourcePreference') || 'kontur').trim().toLowerCase();
+const konturPopulationApiUrl = urlParams.get('konturPopulationApiUrl') || undefined;
+const konturPopulationBatchApiUrl = urlParams.get('konturPopulationBatchApiUrl') || undefined;
+const worldpopPopulationApiUrl = urlParams.get('worldpopPopulationApiUrl') || undefined;
+const populationApiTimeoutMs =
+  urlParams.get('populationApiTimeoutMs') === null ? undefined : parseInt(urlParams.get('populationApiTimeoutMs'), 10);
 // `taskVersion` is deprecated; prefer `version` when both are present.
 const versionFromQuery = urlParams.get('version') === null ? null : parseInt(urlParams.get('version'), 10);
 const taskVersionFromQuery = urlParams.get('taskVersion') === null ? null : parseInt(urlParams.get('taskVersion'), 10);
@@ -58,6 +64,7 @@ const sequentialStimulus = stringToBoolean(urlParams.get('sequentialStimulus'), 
 const storeItemId = stringToBoolean(urlParams.get('storeItemId'), false);
 const cat = stringToBoolean(urlParams.get('cat'), false);
 const heavyInstructions = stringToBoolean(urlParams.get('heavyInstructions'), false);
+const populationBatchEnabled = stringToBoolean(urlParams.get('populationBatch'), false);
 const experimenterButtons = stringToBoolean(urlParams.get('experimenterButtons'), false);
 const debug = stringToBoolean(urlParams.get('debug'), false);
 
@@ -93,6 +100,12 @@ async function startWebApp() {
     version,
     debug,
     experimenterButtons,
+    populationSourcePreference,
+    konturPopulationApiUrl,
+    konturPopulationBatchApiUrl,
+    worldpopPopulationApiUrl,
+    populationApiTimeoutMs,
+    populationBatchEnabled,
   };
   const userParams = {
     pid,

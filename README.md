@@ -26,6 +26,38 @@ npm run dev
 You can now locally run tasks e.g. TROG `http://localhost:8080/?task=trog`. 
 Task parameters are documented here (TODO linkme).
 
+### Location Selection Save Debug (Emulator)
+
+For testing location saves against the Firebase emulators:
+
+1. Start the emulators from the functions repo (auth `9290`, functions `5005`, firestore `8185`, UI `4002`).
+2. Open the task with debug save enabled:
+   `http://localhost:8080/?task=locationselection&locationSaveDebug=true`
+3. Click **Save** and confirm a `locations` doc appears in the Emulator UI.
+
+### Kontur Population Cache
+
+The population lookup uses a local Kontur cache if available, otherwise it falls back to WorldPop.
+You can point the dev server at a compressed, sparse Kontur cache stored elsewhere (e.g. GCS) by
+setting one of these environment variables before starting `npm run dev`. The cache is sharded
+by R5 parent cell, so the URL/path should be a *folder* containing `{r5CellId}.json.gz` files:
+
+- `KONTUR_H3_CACHE_URL` (base URL; supports `.gz` shards)
+- `KONTUR_H3_CACHE_PATH` (base folder for local shards)
+
+#### Build the R5 shard cache
+
+We provide a repeatable script to download the Kontur dataset and build R5 shards:
+
+```bash
+cd /home/david/levante/core-tasks/task-launcher
+pip install h3 pyarrow
+python scripts/build_kontur_r5_shards.py --download --gzip --output data/kontur-h3-r5
+```
+
+This uses the latest 400m Kontur dataset from HDX and requires `ogr2ogr` (GDAL) to convert
+the GeoPackage into Parquet/CSV for streaming.
+
 Task details:
 
 1. [Matrix Reasoning](https://hs-levante-assessment-dev.web.app/?task=matrix-reasoning) [George]

@@ -70,9 +70,9 @@ export class TaskLauncher {
 
     try {
       // will avoid language folder if not provided
-      languageAudioAssets = await getMediaAssets(languageAudioBucket, {}, language, taskName);
-      sharedAudioAssets = await getMediaAssets(sharedAudioBucket, {}, 'shared', taskName);
-      taskVisualAssets = await getMediaAssets(taskVisualBucket, {}, language, taskName);
+      languageAudioAssets = taskName === 'location-selection' ? {images: {}, audio: {}, video: {}} : await getMediaAssets(languageAudioBucket, {}, language, taskName);
+      sharedAudioAssets = taskName === 'location-selection' ? {images: {}, audio: {}, video: {}} : await getMediaAssets(sharedAudioBucket, {}, 'shared', taskName);
+      taskVisualAssets = taskName === 'location-selection' ? {images: {}, audio: {}, video: {}} : await getMediaAssets(taskVisualBucket, {}, language, taskName);
       sharedVisualAssets = await getMediaAssets(sharedVisualBucket, {}, language, 'shared');
     } catch (error) {
       throw new Error('Error fetching media assets: ' + error);
@@ -85,16 +85,20 @@ export class TaskLauncher {
     await getTranslations(isDev, taskName, language);
 
     // TODO: make hearts and flowers corpus? make list of tasks that don't need corpora?
-    if (taskName !== 'hearts-and-flowers' && taskName !== 'memory-game' && taskName !== 'intro') {
+    if (
+      taskName !== 'hearts-and-flowers' &&
+      taskName !== 'memory-game' &&
+      taskName !== 'intro' &&
+      taskName !== 'location-selection'
+    ) {
       await getCorpus(config, isDev);
     }
 
     await getAssetsPerTask(isDev);
 
-    const taskAudioAssetNames = [
-      ...taskStore().assetsPerTask[taskName].audio,
-      ...taskStore().assetsPerTask.shared.audio,
-    ];
+    const taskAssetEntry = taskStore().assetsPerTask?.[taskName] || { audio: [] };
+    const sharedAssetEntry = taskStore().assetsPerTask?.shared || { audio: [] };
+    const taskAudioAssetNames = [...(taskAssetEntry.audio || []), ...(sharedAssetEntry.audio || [])];
 
     // filter out language audio not relevant to current task
     languageAudioAssets = filterMedia(languageAudioAssets, [], taskAudioAssetNames, []);

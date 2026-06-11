@@ -34,3 +34,13 @@
     transform: scale(1.1);
   }
 }
+
+.rotate {
+  animation: fullRotation 2s infinite;
+}
+
+@keyframes fullRotation {
+  0% {
+    transform: rotate(360deg);
+  }
+}

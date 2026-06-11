@@ -2,6 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 const { merge } = require('webpack-merge');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const { registerPopulationApi } = require('./serve/populationApi.cjs');
 
 const commonConfig = {
   optimization: {
@@ -92,6 +93,10 @@ const commonConfig = {
           },
         ],
       },
+      {
+        test: /\.css$/i,
+        use: ['style-loader', 'css-loader']
+      }
     ],
   },
   experiments: {
@@ -126,6 +131,12 @@ const developmentConfig = merge(webConfig, {
   devtool: 'inline-source-map',
   devServer: {
     static: './dist',
+    setupMiddlewares: (middlewares, devServer) => {
+      if (devServer?.app) {
+        registerPopulationApi(devServer.app);
+      }
+      return middlewares;
+    },
   },
 });
 
