@@ -21,8 +21,8 @@ type ResponseDataType = {
 export async function getMediaAssets(
   bucketName: string,
   whitelist: Record<string, any> = {},
-  taskName: string,
   language: string,
+  taskName: string,
   nextPageToken = '',
   categorizedObjects: CategorizedObjectsType = { images: {}, audio: {}, video: {} },
 ) {
