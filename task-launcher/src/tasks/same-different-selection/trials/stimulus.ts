@@ -114,7 +114,7 @@ function getSomethingSameHtml(stim: StimulusType) {
         </div>
       </div>
       <div class="horizontal-wrapper">
-        <div class="lev-stim-content">
+        <div class="lev-stim-content" id="stim-img-container">
           ${leftImageHtml}
         </div>
         <div class="lev-stim-content" id="img-button-container">
@@ -279,6 +279,15 @@ export const stimulus = (trial?: StimulusType) => {
 
         const okButtonContainer = document.getElementById('ok-button-container') as HTMLDivElement;
         okButtonContainer.appendChild(jspsychButtonContainer);
+
+        // prevent button size mismatch on narrow screens
+        const buttonRect = document.getElementById('img-button-container')?.children[0]?.getBoundingClientRect();
+        const stimImage = document.getElementById('stim-img-container')?.children[0] as HTMLElement;
+
+        if (buttonRect?.width) {
+          stimImage.style.width = `${buttonRect.width}px`;
+        }
+
       }
 
       if (trialType === 'something-same-2') {
