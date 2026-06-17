@@ -5,7 +5,6 @@ import {
   showLevanteLogoLoading,
   hideLevanteLogoLoading,
   combineMediaAssets,
-  getAssetsPerTask,
   filterMedia,
 } from './tasks/shared/helpers';
 import './styles/index.scss';
@@ -60,13 +59,10 @@ export class TaskLauncher {
     const sharedVisualBucket = getBucketName('shared', isDev, 'visual', language);
     const languageAudioBucket = getBucketName('shared', isDev, 'audio', language);
     const sharedAudioBucket = getBucketName('shared', isDev, 'audio', 'shared');
+    
+    await getTranslations(isDev, taskName, language);
 
-    await getAssetsPerTask(isDev);
-
-    const taskAudioAssetNames = [
-      ...taskStore().assetsPerTask[taskName].audio,
-      ...taskStore().assetsPerTask.shared.audio,
-    ];
+    const taskAudioAssetNames = taskStore().requiredAudioAssets;
 
     try {
       // will avoid language folder if not provided
@@ -81,8 +77,6 @@ export class TaskLauncher {
     const config = await setConfig(this.firekit, this.gameParams, this.userParams);
 
     setTaskStore(config);
-
-    await getTranslations(isDev, taskName, language);
 
     // TODO: make hearts and flowers corpus? make list of tasks that don't need corpora?
     if (taskName !== 'hearts-and-flowers' && taskName !== 'memory-game' && taskName !== 'intro') {

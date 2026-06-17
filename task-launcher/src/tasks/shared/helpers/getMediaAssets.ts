@@ -31,10 +31,15 @@ export async function getMediaAssets(
   const prefix = folder ? `${folder}/` : '';
 
   if (requiredAssetNames) {
-    requiredAssetNames.forEach((assetName) => {
+    requiredAssetNames.forEach(async (assetName) => {
       const path = `https://storage.googleapis.com/${bucket}/${prefix}${assetName}.mp3`;
 
-      categorizedObjects.audio[camelize(assetName)] = path;
+      const response = await fetch(path);
+      if (response.ok) {
+        categorizedObjects.audio[camelize(assetName)] = path;
+      } else {
+        console.warn("No audio for text: ", assetName);
+      }
     });
 
     return categorizedObjects;
