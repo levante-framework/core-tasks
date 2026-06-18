@@ -8,7 +8,7 @@ import {
   getParticipantUtilityButtonsHtml,
   setupReplayAudio,
   setupFullscreenButton,
-  isEnglish,
+  isLanguageAllowedDownex,
 } from '../../shared/helpers';
 import { taskStore } from '../../../taskStore';
 
@@ -150,7 +150,7 @@ const instructions = instructionData.map((data) => {
       if (!setPromptDurations) {
         setPromptDurations = true;
 
-        const displayPromptDurations = isEnglish(taskStore().language)
+        const displayPromptDurations = isLanguageAllowedDownex(taskStore().language)
           ? {
               memoryGameInstruct7Downex: await PageAudioHandler.getAudioDuration(
                 mediaAssets.audio.memoryGameInstruct7Downex,
