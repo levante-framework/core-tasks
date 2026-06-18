@@ -216,8 +216,9 @@ export const stimulus = (trial?: StimulusType) => {
       const stim = trial || taskStore().nextStimulus;
       const buttonClass = stim.trialType === 'test-dimensions' ? 'image-medium' : 'primary';
       const buttonStyle = stim.trialType !== 'test-dimensions' ? 'margin: 16px' : '';
+      const disabled = stim.assessmentStage === 'instructions' ? ' disabled' : '';
 
-      return `<button class="${buttonClass}" style="${buttonStyle}">%choice%</button>`;
+      return `<button class="${buttonClass}" style="${buttonStyle}"${disabled}>%choice%</button>`;
     },
     response_ends_trial: () => {
       const stim = trial || taskStore().nextStimulus;
@@ -257,7 +258,27 @@ export const stimulus = (trial?: StimulusType) => {
 
         PageAudioHandler.playAudio(mediaAssets.audio[camelize(audioFiles.shift() as string)], audioConfig);
       } else {
-        PageAudioHandler.playAudio(mediaAssets.audio[camelize(audioFile)]);
+        const audioConfig: AudioConfigType =
+          stimulus.assessmentStage === 'instructions'
+            ? {
+                restrictRepetition: {
+                  enabled: false,
+                  maxRepetitions: 2,
+                },
+                onEnded: enableOkButton,
+              }
+            : {
+                restrictRepetition: {
+                  enabled: false,
+                  maxRepetitions: 2,
+                },
+              };
+
+        PageAudioHandler.playAudio(mediaAssets.audio[camelize(audioFile)], audioConfig);
+
+        if (stimulus.assessmentStage === 'instructions') {
+          disableOkButton();
+        }
       }
 
       const pageStateHandler = new PageStateHandler(audioFile, true);
