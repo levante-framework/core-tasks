@@ -324,8 +324,8 @@ export const slider = (
       const responseType = stimulus.trialType.includes('Slider')
         ? 'slider'
         : stimulus.trialType.includes('4afc')
-        ? 'button'
-        : 'slider-button';
+          ? 'button'
+          : 'slider-button';
       const answer = stimulus.answer;
 
       jsPsych.data.addDataToLastTrial({
