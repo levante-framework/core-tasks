@@ -44,7 +44,6 @@ export default defineConfig({
       on('task', {
         progress(message) {
           // Print immediate progress to STDOUT so long runs show liveness
-          // eslint-disable-next-line no-console
           console.log(`[progress] ${message}`);
           return null;
         },
