@@ -1,17 +1,17 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
-import { taskStore } from '../../../taskStore';
 import { mediaAssets } from '../../..';
+import { taskStore } from '../../../taskStore';
 import {
   addExperimenterButtons,
   addPracticeButtonListeners,
   camelize,
+  enableAllButtons,
+  getParticipantUtilityButtonsHtml,
   PageAudioHandler,
   PageStateHandler,
-  getParticipantUtilityButtonsHtml,
-  setupReplayAudio,
-  setupFullscreenButton,
   popAnimation,
-  enableAllButtons,
+  setupFullscreenButton,
+  setupReplayAudio,
 } from '../../shared/helpers';
 import { isTouchScreen, jsPsych } from '../../taskSetup';
 
@@ -29,7 +29,7 @@ export const downexStimulus = (
     type: jsPsychHtmlMultiResponse,
     data: () => {
       const stim = trial || taskStore().nextStimulus;
-      let isPracticeTrial = stim.assessmentStage === 'practice_response';
+      const isPracticeTrial = stim.assessmentStage === 'practice_response';
       return {
         // not camelCase because firekit
         save_trial: true,

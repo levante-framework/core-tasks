@@ -1,23 +1,23 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
+import { taskStore } from '../../../taskStore';
 import {
+  addExperimenterButtons,
+  camelize,
+  getParticipantUtilityButtonsHtml,
+  PageAudioHandler,
   PageStateHandler,
   prepareChoices,
-  getParticipantUtilityButtonsHtml,
-  setupReplayAudio,
-  PageAudioHandler,
-  camelize,
-  shouldTerminateCat,
   selectNextSequentialTrial,
-  addExperimenterButtons,
   setupFullscreenButton,
+  setupReplayAudio,
+  shouldTerminateCat,
+  updateTheta,
 } from '../../shared/helpers';
+import { displayDebugInfo } from '../../shared/helpers/displayDebugInfo';
+import { handleStaggeredButtons } from '../../shared/helpers/staggerButtons';
 import { finishExperiment } from '../../shared/trials';
 import { isTouchScreen, jsPsych } from '../../taskSetup';
-import { taskStore } from '../../../taskStore';
-import { handleStaggeredButtons } from '../../shared/helpers/staggerButtons';
-import { updateTheta } from '../../shared/helpers';
-import { displayDebugInfo } from '../../shared/helpers/displayDebugInfo';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 let incorrectPracticeResponses: string[] = [];
@@ -92,7 +92,7 @@ export const legacyStimulus = (trial?: StimulusType) => {
     type: jsPsychHtmlMultiResponse,
     data: () => {
       const stim = trial || taskStore().nextStimulus;
-      let isPracticeTrial = stim.assessmentStage === 'practice_response';
+      const isPracticeTrial = stim.assessmentStage === 'practice_response';
       return {
         save_trial: stim.assessmentStage !== 'instructions',
         assessment_stage: stim.assessmentStage,
@@ -170,7 +170,7 @@ export const legacyStimulus = (trial?: StimulusType) => {
       if (stim.trialType === 'instructions' || stim.trialType == 'something-same-1') {
         return ['OK'];
       } else {
-        const randomize = !!stim.answer ? 'yes' : 'no';
+        const randomize = stim.answer ? 'yes' : 'no';
         // Randomize choices if there is an answer
         const { choices } = prepareChoices(stim.answer, stim.distractors, randomize);
         return generateImageChoices(choices);

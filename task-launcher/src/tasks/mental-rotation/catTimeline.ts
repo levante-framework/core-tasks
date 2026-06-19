@@ -1,19 +1,36 @@
 import 'regenerator-runtime/runtime';
-// setup
-import { jsPsych, initializeCat, cat } from '../taskSetup';
+import { taskStore } from '../../taskStore';
 import {
-  createPreloadTrials,
-  initTrialSaving,
-  initTimeline,
-  getRealTrials,
-  batchTrials,
   batchMediaAssets,
-  combineMediaAssets,
-  filterMedia,
-  prepareMultiBlockCat,
+  batchTrials,
   checkFallbackCriteria,
+  combineMediaAssets,
+  createPreloadTrials,
+  filterMedia,
+  getRealTrials,
+  initTimeline,
+  initTrialSaving,
   isEnglish,
+  prepareMultiBlockCat,
 } from '../shared/helpers';
+import { getLeftoverAssets } from '../shared/helpers/batchPreloading';
+import { prepareCorpus } from '../shared/helpers/prepareCat';
+import {
+  afcStimulusTemplate,
+  enterFullscreen,
+  exitFullscreen,
+  fixationOnly,
+  getAudioResponse,
+  practiceTransition,
+  repeatInstructionsMessage,
+  setupNextBlock,
+  setupStimulusFromCurrentCatBlock,
+  taskFinished,
+} from '../shared/trials';
+// setup
+import { cat, initializeCat, jsPsych } from '../taskSetup';
+import { getLayoutConfig } from './helpers/config';
+import { downexInstructions } from './trials/downexInstructions';
 // trials
 import {
   imageInstructions,
@@ -22,23 +39,6 @@ import {
   videoInstructionsFit,
   videoInstructionsMisfit,
 } from './trials/instructions';
-import {
-  afcStimulusTemplate,
-  taskFinished,
-  exitFullscreen,
-  fixationOnly,
-  getAudioResponse,
-  enterFullscreen,
-  practiceTransition,
-  setupStimulusFromCurrentCatBlock,
-  setupNextBlock,
-  repeatInstructionsMessage,
-} from '../shared/trials';
-import { getLayoutConfig } from './helpers/config';
-import { prepareCorpus } from '../shared/helpers/prepareCat';
-import { taskStore } from '../../taskStore';
-import { getLeftoverAssets } from '../shared/helpers/batchPreloading';
-import { downexInstructions } from './trials/downexInstructions';
 
 export default function buildMentalRotationCatTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const { heavyInstructions } = taskStore();
@@ -51,7 +51,7 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
     timeline: [getAudioResponse(mediaAssets)],
   };
 
-  let corpus: StimulusType[] = taskStore().corpora.stimulus;
+  const corpus: StimulusType[] = taskStore().corpora.stimulus;
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {};
 

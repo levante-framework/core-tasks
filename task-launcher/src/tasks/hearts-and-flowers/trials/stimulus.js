@@ -1,20 +1,20 @@
 import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
-import { mediaAssets } from '../../..';
-import { jsPsych, isTouchScreen } from '../../taskSetup';
-import {
-  StimulusType,
-  StimulusSideType,
-  ResponseSideType,
-  InputKey,
-  getCorrectInputSide,
-  getStimulusLayout,
-} from '../helpers/utils';
 import shuffle from 'lodash/shuffle';
-import { finishExperiment } from '../../shared/trials';
+import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
 import { addExperimenterButtons, addKeyHelpers, PageAudioHandler, setupFullscreenButton } from '../../shared/helpers';
-import { setupHafMultiResponseTouchRouting } from '../helpers/touchResponseRouting';
 import { shouldTerminateCat } from '../../shared/helpers/shouldTerminateCat';
+import { finishExperiment } from '../../shared/trials';
+import { isTouchScreen, jsPsych } from '../../taskSetup';
+import { setupHafMultiResponseTouchRouting } from '../helpers/touchResponseRouting';
+import {
+  getCorrectInputSide,
+  getStimulusLayout,
+  InputKey,
+  ResponseSideType,
+  StimulusSideType,
+  StimulusType,
+} from '../helpers/utils';
 /**
  *TODO: we should perhaps allow {@link https://www.jspsych.org/7.2/overview/media-preloading/#automatic-preloading automatic preload}
   of the stimulus image and modify the DOM nodes that jsPsych creates in on_load?

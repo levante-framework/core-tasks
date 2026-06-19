@@ -1,15 +1,15 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
-import { isTouchScreen, jsPsych } from '../../taskSetup';
 import { mediaAssets } from '../../..';
+import { taskStore } from '../../../taskStore';
 import {
   addExperimenterButtons,
+  getParticipantUtilityButtonsHtml,
   PageAudioHandler,
   PageStateHandler,
-  getParticipantUtilityButtonsHtml,
-  setupReplayAudio,
   setupFullscreenButton,
+  setupReplayAudio,
 } from '../../shared/helpers';
-import { taskStore } from '../../../taskStore';
+import { isTouchScreen, jsPsych } from '../../taskSetup';
 
 const instructionData = [
   {

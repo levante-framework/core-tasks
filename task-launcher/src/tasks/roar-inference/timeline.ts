@@ -1,15 +1,15 @@
 import 'regenerator-runtime/runtime';
-// setup
-import { initTrialSaving, initTimeline, createPreloadTrials, convertItemToString } from '../shared/helpers';
-import { instructions } from './trials/instructions';
-import { jsPsych, initializeCat } from '../taskSetup';
-// trials
-import { exitFullscreen, setupStimulus, taskFinished, enterFullscreen } from '../shared/trials';
-import { AfcStimulusInput, afcStimulusInference } from './trials/afcInference';
-import { getLayoutConfig } from './helpers/config';
-import { repeatInstructionsMessage } from '../shared/trials/repeatInstructions';
-import type { LayoutConfigTypeInference } from './types/inferenceTypes';
 import { taskStore } from '../../taskStore';
+// setup
+import { convertItemToString, createPreloadTrials, initTimeline, initTrialSaving } from '../shared/helpers';
+// trials
+import { enterFullscreen, exitFullscreen, setupStimulus, taskFinished } from '../shared/trials';
+import { repeatInstructionsMessage } from '../shared/trials/repeatInstructions';
+import { initializeCat, jsPsych } from '../taskSetup';
+import { getLayoutConfig } from './helpers/config';
+import { type AfcStimulusInput, afcStimulusInference } from './trials/afcInference';
+import { instructions } from './trials/instructions';
+import type { LayoutConfigTypeInference } from './types/inferenceTypes';
 
 export default function buildRoarInferenceTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;

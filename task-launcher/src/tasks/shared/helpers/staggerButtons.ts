@@ -1,8 +1,8 @@
-import { PageStateHandler } from './PageStateHandler';
-import { PageAudioHandler } from './audioHandler';
 import { mediaAssets } from '../../..';
-import { camelize } from './camelize';
 import { taskStore } from '../../../taskStore';
+import { PageAudioHandler } from './audioHandler';
+import { camelize } from './camelize';
+import type { PageStateHandler } from './PageStateHandler';
 
 let staggerEnabled = true;
 
@@ -14,7 +14,7 @@ export const handleStaggeredButtons = async (
   disableButtons = true,
 ) => {
   const parentResponseDiv = buttonContainer;
-  let i = 0;
+  const i = 0;
   const stimulusDuration = await pageState.getStimulusDurationMs();
   const intialDelay = stimulusDuration + 300;
 

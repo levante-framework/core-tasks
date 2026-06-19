@@ -1,18 +1,18 @@
 // Required to use top level await
 import 'regenerator-runtime/runtime';
 import '../../../i18n/i18n';
-import _shuffle from 'lodash/shuffle';
-import Papa from 'papaparse';
 import _compact from 'lodash/compact';
+import _shuffle from 'lodash/shuffle';
 import _toNumber from 'lodash/toNumber';
-import { stringToNumberArray } from './stringToNumArray';
-import { dashToCamelCase } from './dashToCamelCase';
-import { camelize } from './camelize';
-import { shuffleStimulusTrials } from './randomizeStimulusBlocks';
-import { shuffleStories } from '../../roar-inference/helpers/shuffleRoarInferenceStories';
+import Papa from 'papaparse';
 import { taskStore } from '../../../taskStore';
-import { getBucketName } from './getBucketName';
+import { shuffleStories } from '../../roar-inference/helpers/shuffleRoarInferenceStories';
+import { camelize } from './camelize';
 import { getChildSurveyResponses } from './childSurveyResponses';
+import { dashToCamelCase } from './dashToCamelCase';
+import { getBucketName } from './getBucketName';
+import { shuffleStimulusTrials } from './randomizeStimulusBlocks';
+import { stringToNumberArray } from './stringToNumArray';
 
 type ParsedRowType = {
   source: string;
@@ -67,7 +67,7 @@ function writeItem(row: ParsedRowType) {
 }
 
 function containsLettersOrSlash(str: string) {
-  return /[a-zA-Z\/]/.test(str);
+  return /[a-zA-Z/]/.test(str);
 }
 
 const transformCSV = (csvInput: ParsedRowType[], sequentialStimulus: boolean, task: string) => {
@@ -135,7 +135,7 @@ const transformCSV = (csvInput: ParsedRowType[], sequentialStimulus: boolean, ta
       newRow.requiredSelections = parseInt(row.required_selections);
     }
 
-    let currentTrialType = newRow.trialType;
+    const currentTrialType = newRow.trialType;
     if (currentTrialType !== currTrialTypeBlock) {
       currTrialTypeBlock = currentTrialType;
       currPracticeAmount = 0;
@@ -186,11 +186,11 @@ export const getCorpus = async (config: Record<string, any>, isDev: boolean) => 
         download: true,
         header: true,
         skipEmptyLines: true,
-        complete: function (results) {
+        complete: (results) => {
           transformCSV(results.data, sequentialStimulus, task);
           resolve(results.data);
         },
-        error: function (error) {
+        error: (error) => {
           reject(error);
         },
       });

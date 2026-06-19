@@ -1,14 +1,15 @@
 // Used in Math and Matrix-reasoning so far
-import _omitBy from 'lodash/omitBy';
+
+import type { RoarAppkit } from '@levante-framework/firekit';
+import i18next from 'i18next';
 import _isNull from 'lodash/isNull';
 import _isUndefined from 'lodash/isUndefined';
+import _omitBy from 'lodash/omitBy';
 import _toNumber from 'lodash/toNumber';
-import i18next from 'i18next';
-import { isRoarApp } from './isRoarApp';
+import type { TaskStoreDataType } from '../../../taskStore';
 import { camelize } from './camelize';
-import { RoarAppkit } from '@levante-framework/firekit';
-import { TaskStoreDataType } from '../../../taskStore';
 import { getAge } from './getAge';
+import { isRoarApp } from './isRoarApp';
 
 export const DEFAULT_LAYOUT_CONFIG: LayoutConfigType = {
   playAudioOnLoad: true,

@@ -1,9 +1,9 @@
 import _isEqual from 'lodash/isEqual';
 import { mediaAssets } from '../../..';
-import { camelize } from './camelize';
 import { taskStore } from '../../../taskStore';
 import { cat, jsPsych } from '../../taskSetup';
 import { checkEndTaskEarly, getActiveTaskElapsedMs } from './appTimer';
+import { camelize } from './camelize';
 
 // This function reads the corpus, calls the adaptive algorithm to select
 // the next item, stores it in a session variable, and removes it from the corpus

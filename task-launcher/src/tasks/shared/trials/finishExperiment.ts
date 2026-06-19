@@ -1,8 +1,8 @@
-import { jsPsych } from '../../taskSetup';
-import { PageAudioHandler } from '../helpers';
 import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
 import { Logger } from '../../../utils';
+import { jsPsych } from '../../taskSetup';
+import { PageAudioHandler } from '../helpers';
 
 export function finishExperiment() {
   const t = taskStore().translations;

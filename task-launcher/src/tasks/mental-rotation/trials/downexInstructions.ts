@@ -5,14 +5,14 @@ import {
   addExperimenterButtons,
   camelize,
   disableOkButton,
-  PageAudioHandler,
-  getParticipantUtilityButtonsHtml,
-  setupFullscreenButton,
   enableOkButton,
+  getParticipantUtilityButtonsHtml,
+  PageAudioHandler,
+  setupFullscreenButton,
 } from '../../shared/helpers';
-import { animate } from '../helpers/animate';
-import { jsPsych } from '../../taskSetup';
 import { pulseOkButton } from '../../shared/helpers/pulseOkButton';
+import { jsPsych } from '../../taskSetup';
+import { animate } from '../helpers/animate';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 let cycleId = 0; // disable audio if the trial has changed since the loop started - prevent overlapping audio

@@ -1,15 +1,31 @@
 import 'regenerator-runtime/runtime';
-// setup
-import { jsPsych, initializeCat, cat } from '../taskSetup';
+import { taskStore } from '../../taskStore';
 import {
-  createPreloadTrials,
-  initTrialSaving,
-  initTimeline,
-  getRealTrials,
-  batchTrials,
   batchMediaAssets,
+  batchTrials,
   checkFallbackCriteria,
+  createPreloadTrials,
+  getRealTrials,
+  initTimeline,
+  initTrialSaving,
 } from '../shared/helpers';
+import { getLeftoverAssets } from '../shared/helpers/batchPreloading';
+import { prepareCorpus, selectNItems } from '../shared/helpers/prepareCat';
+import {
+  afcStimulusTemplate,
+  enterFullscreen,
+  exitFullscreen,
+  fixationOnly,
+  getAudioResponse,
+  practiceTransition,
+  repeatInstructionsMessage,
+  setupStimulus,
+  taskFinished,
+} from '../shared/trials';
+// setup
+import { cat, initializeCat, jsPsych } from '../taskSetup';
+import { getLayoutConfig } from './helpers/config';
+import { downexInstructions } from './trials/downexInstructions';
 // trials
 import {
   imageInstructions,
@@ -18,22 +34,6 @@ import {
   videoInstructionsFit,
   videoInstructionsMisfit,
 } from './trials/instructions';
-import {
-  afcStimulusTemplate,
-  taskFinished,
-  exitFullscreen,
-  setupStimulus,
-  fixationOnly,
-  getAudioResponse,
-  enterFullscreen,
-  repeatInstructionsMessage,
-  practiceTransition,
-} from '../shared/trials';
-import { getLayoutConfig } from './helpers/config';
-import { prepareCorpus, selectNItems } from '../shared/helpers/prepareCat';
-import { taskStore } from '../../taskStore';
-import { getLeftoverAssets } from '../shared/helpers/batchPreloading';
-import { downexInstructions } from './trials/downexInstructions';
 
 export default function buildMentalRotationTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const { runCat, heavyInstructions } = taskStore();

@@ -1,19 +1,19 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
-import {
-  PageStateHandler,
-  getParticipantUtilityButtonsHtml,
-  setupReplayAudio,
-  PageAudioHandler,
-  camelize,
-  handleStaggeredButtons,
-  prepareChoices,
-  addExperimenterButtons,
-  setupFullscreenButton,
-} from '../../shared/helpers';
-import { generateImageChoices, handleButtonFeedback } from '../trials/stimulus';
-import { jsPsych } from '../../taskSetup';
 import { taskStore } from '../../../taskStore';
+import {
+  addExperimenterButtons,
+  camelize,
+  getParticipantUtilityButtonsHtml,
+  handleStaggeredButtons,
+  PageAudioHandler,
+  PageStateHandler,
+  prepareChoices,
+  setupFullscreenButton,
+  setupReplayAudio,
+} from '../../shared/helpers';
+import { jsPsych } from '../../taskSetup';
+import { generateImageChoices, handleButtonFeedback } from '../trials/stimulus';
 
 function enableOkBtn() {
   const okButton: HTMLButtonElement | null = document.querySelector('.primary');
@@ -337,7 +337,7 @@ export const heavyPractice = practiceData.map((data) => {
       };
     },
     stimulus: () => {
-      let prompt = data.audioFile;
+      const prompt = data.audioFile;
 
       const t = taskStore().translations;
       return `<div class="lev-stimulus-container">
@@ -398,7 +398,7 @@ export const heavyPractice = practiceData.map((data) => {
       if (data.trialType === 'instructions' || data.trialType == 'something-same-1') {
         return ['OK'];
       } else {
-        const randomize = !!data.answer ? 'yes' : 'no';
+        const randomize = data.answer ? 'yes' : 'no';
         // Randomize choices if there is an answer
         const { choices } = prepareChoices(data.answer, data.distractors, randomize);
         return generateImageChoices(choices);
@@ -414,7 +414,7 @@ export const heavyPractice = practiceData.map((data) => {
     },
     on_load: () => {
       startTime = performance.now();
-      let audioFile = data.audioFile;
+      const audioFile = data.audioFile;
 
       PageAudioHandler.playAudio(mediaAssets.audio[audioFile]);
 
@@ -470,7 +470,7 @@ export const heavyPractice = practiceData.map((data) => {
       });
 
       if (data.trialType !== 'something-same-2') {
-        let isCorrect = incorrectPracticeResponses.length === 0;
+        const isCorrect = incorrectPracticeResponses.length === 0;
 
         incorrectPracticeResponses = [];
 

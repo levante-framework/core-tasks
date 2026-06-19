@@ -1,6 +1,7 @@
-//@ts-ignore
-import { getDevice } from '@bdelab/roar-utils';
+//@ts-expect-error
+
 import { Cat } from '@bdelab/jscat';
+import { getDevice } from '@bdelab/roar-utils';
 import { initJsPsych } from 'jspsych';
 import '../i18n/i18n';
 import { taskStore } from '../taskStore';
@@ -23,7 +24,7 @@ export const initializeCat = () => {
 };
 
 export const jsPsych = initJsPsych({
-  on_data_update: function (data: Record<string, any>) {
+  on_data_update: (data: Record<string, any>) => {
     // Removing stimulus from data to avoid sending large html files to Levante
     const { stimulus, task, ...rest } = data;
     const logger = Logger.getInstance();

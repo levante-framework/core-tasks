@@ -1,5 +1,5 @@
-import { jsPsych } from '../../taskSetup';
 import { mediaAssets } from '../../..';
+import { jsPsych } from '../../taskSetup';
 
 export class PageAudioHandler {
   constructor() {
@@ -34,7 +34,7 @@ export class PageAudioHandler {
 
   static async playAudio(
     audioUri: string,
-    config: AudioConfigType = this.defaultAudioConfig,
+    config: AudioConfigType = PageAudioHandler.defaultAudioConfig,
     setClassAudioField: boolean = true,
   ) {
     const { enabled, maxRepetitions } = config.restrictRepetition;

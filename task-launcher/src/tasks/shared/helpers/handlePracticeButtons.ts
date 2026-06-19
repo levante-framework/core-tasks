@@ -1,7 +1,7 @@
 import { mediaAssets } from '../../..';
+import { taskStore } from '../../../taskStore';
 import { jsPsych } from '../../taskSetup';
 import { PageAudioHandler } from './audioHandler';
-import { taskStore } from '../../../taskStore';
 
 function enableBtns(btnElements: NodeListOf<HTMLButtonElement>) {
   btnElements.forEach((btn) => (btn.disabled = false));
@@ -73,7 +73,7 @@ function handlePracticeButtonPress(
     // jspysch disables the buttons for some reason, so re-enable them
     setTimeout(() => enableBtns(practiceBtns), 500);
 
-    let incorrectPracticeResponses = taskStore().incorrectPracticeResponses;
+    const incorrectPracticeResponses = taskStore().incorrectPracticeResponses;
     incorrectPracticeResponses.push(choice);
     taskStore('incorrectPracticeResponses', incorrectPracticeResponses);
 

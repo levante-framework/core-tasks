@@ -1,10 +1,10 @@
 import {
   convertItemToString,
-  validateLayoutConfig,
-  prepareChoices,
   DEFAULT_LAYOUT_CONFIG,
-  mapDistractorsToString,
   fractionToMathML,
+  mapDistractorsToString,
+  prepareChoices,
+  validateLayoutConfig,
 } from '../../shared/helpers';
 
 type GetConfigReturnType = {

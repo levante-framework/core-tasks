@@ -1,27 +1,27 @@
 import 'regenerator-runtime/runtime';
+import { taskStore } from '../../taskStore';
 // setup
 import {
-  initTrialSaving,
-  initTimeline,
+  batchMediaAssets,
   createPreloadTrials,
   getRealTrials,
+  initTimeline,
+  initTrialSaving,
   prepareMultiBlockCat,
-  batchMediaAssets,
 } from '../shared/helpers';
-import { jsPsych, initializeCat } from '../taskSetup';
+import { preloadSharedAudio } from '../shared/helpers/preloadSharedAudio';
 // trials
 import {
   afcStimulusTemplate,
+  enterFullscreen,
   exitFullscreen,
   setupStimulus,
   setupStimulusFromStoryGroup,
   taskFinished,
-  enterFullscreen,
 } from '../shared/trials';
+import { initializeCat, jsPsych } from '../taskSetup';
 import { getLayoutConfig } from './helpers/config';
-import { taskStore } from '../../taskStore';
-import { preloadSharedAudio } from '../shared/helpers/preloadSharedAudio';
-import { prepareTomCorpus, prepareStoryGroups } from './helpers/prepareTomCorpus';
+import { prepareStoryGroups, prepareTomCorpus } from './helpers/prepareTomCorpus';
 
 export default function buildTOMTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   initTrialSaving(config);

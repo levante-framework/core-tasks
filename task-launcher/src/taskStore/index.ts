@@ -1,6 +1,6 @@
 import store from 'store2';
-import { InputCapability } from '../utils/detectInput';
 import { isEnglish } from '../tasks/shared/helpers';
+import type { InputCapability } from '../utils/detectInput';
 
 /**
  * @typedef {Object} TaskStore

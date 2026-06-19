@@ -1,14 +1,33 @@
 import 'regenerator-runtime/runtime';
+import { taskStore } from '../../taskStore';
 // setup
 import {
-  initTrialSaving,
-  initTimeline,
+  batchMediaAssets,
+  batchTrials,
+  checkFallbackCriteria,
   createPreloadTrials,
   getRealTrials,
-  batchTrials,
-  batchMediaAssets,
-  checkFallbackCriteria,
+  initTimeline,
+  initTrialSaving,
 } from '../shared/helpers';
+import { getLeftoverAssets } from '../shared/helpers/batchPreloading';
+import { prepareCorpus, selectNItems } from '../shared/helpers/prepareCat';
+// trials
+import {
+  afcStimulusTemplate,
+  enterFullscreen,
+  exitFullscreen,
+  fixationOnly,
+  getAudioResponse,
+  practiceTransition,
+  setupDownex,
+  setupStimulus,
+  taskFinished,
+} from '../shared/trials';
+import { repeatInstructionsMessage } from '../shared/trials/repeatInstructions';
+import { cat, initializeCat, jsPsych } from '../taskSetup';
+import { getLayoutConfig } from './helpers/config';
+import { downexStimulus } from './trials/downexStimulus';
 import {
   downexInstructions1,
   downexInstructions2,
@@ -17,25 +36,6 @@ import {
   downexInstructions5,
   instructions,
 } from './trials/instructions';
-import { downexStimulus } from './trials/downexStimulus';
-import { jsPsych, initializeCat, cat } from '../taskSetup';
-// trials
-import {
-  afcStimulusTemplate,
-  exitFullscreen,
-  setupStimulus,
-  fixationOnly,
-  taskFinished,
-  getAudioResponse,
-  enterFullscreen,
-  practiceTransition,
-  setupDownex,
-} from '../shared/trials';
-import { getLayoutConfig } from './helpers/config';
-import { repeatInstructionsMessage } from '../shared/trials/repeatInstructions';
-import { prepareCorpus, selectNItems } from '../shared/helpers/prepareCat';
-import { taskStore } from '../../taskStore';
-import { getLeftoverAssets } from '../shared/helpers/batchPreloading';
 
 export default function buildMatrixTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   initTrialSaving(config);
@@ -143,23 +143,21 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
       downexInstructions1,
       ...downexCorpus
         .slice(0, secondPhaseIndex)
-        .map((trial) => [
+        .flatMap((trial) => [
           { ...fixationOnly, stimulus: '' },
           downexStimulus(layoutConfigMap, true, trial),
           ifRealTrialResponse,
-        ])
-        .flat(),
+        ]),
       downexInstructions2,
       downexInstructions3,
       practiceTransition(undefined, true),
       ...downexCorpus
         .slice(secondPhaseIndex)
-        .map((trial) => [
+        .flatMap((trial) => [
           { ...fixationOnly, stimulus: '' },
           downexStimulus(layoutConfigMap, false, trial),
           ifRealTrialResponse,
-        ])
-        .flat(),
+        ]),
       downexInstructions4,
       downexInstructions5,
     ],

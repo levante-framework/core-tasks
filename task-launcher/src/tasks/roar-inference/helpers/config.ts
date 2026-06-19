@@ -1,9 +1,9 @@
 import {
   convertItemToString,
-  validateLayoutConfig,
-  prepareChoices,
   DEFAULT_LAYOUT_CONFIG,
   mapDistractorsToString,
+  prepareChoices,
+  validateLayoutConfig,
 } from '../../shared/helpers';
 import type { LayoutConfigTypeInference } from '../types/inferenceTypes';
 

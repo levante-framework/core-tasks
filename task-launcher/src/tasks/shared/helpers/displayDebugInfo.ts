@@ -1,5 +1,5 @@
 import { taskStore } from '../../../taskStore';
-import { jsPsych, cat } from '../../taskSetup';
+import { cat, jsPsych } from '../../taskSetup';
 
 function isRealTrial(trial: any) {
   return (

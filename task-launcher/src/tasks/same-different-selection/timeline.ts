@@ -1,25 +1,24 @@
 // setup
 import 'regenerator-runtime/runtime';
-import { jsPsych } from '../taskSetup';
-import { initTrialSaving, initTimeline, createPreloadTrials, batchMediaAssets } from '../shared/helpers';
-import { initializeCat } from '../taskSetup';
+import { taskStore } from '../../taskStore';
+import { batchMediaAssets, createPreloadTrials, initTimeline, initTrialSaving } from '../shared/helpers';
+import { batchTrials, getLeftoverAssets } from '../shared/helpers/batchPreloading';
+import {
+  enterFullscreen,
+  exitFullscreen,
+  feedback,
+  getAudioResponse,
+  practiceTransition,
+  setupStimulus,
+  taskFinished,
+} from '../shared/trials';
 // trials
 import { dataQualityScreen } from '../shared/trials/dataQuality';
-import {
-  setupStimulus,
-  exitFullscreen,
-  taskFinished,
-  getAudioResponse,
-  enterFullscreen,
-  practiceTransition,
-  feedback,
-} from '../shared/trials';
-import { afcMatch } from './trials/afcMatch';
-import { stimulus } from './trials/stimulus';
-import { legacyStimulus } from './trials/legacyStimulus';
-import { taskStore } from '../../taskStore';
+import { initializeCat, jsPsych } from '../taskSetup';
 import { setTrialBlock } from './helpers/setTrialBlock';
-import { batchTrials, getLeftoverAssets } from '../shared/helpers/batchPreloading';
+import { afcMatch } from './trials/afcMatch';
+import { legacyStimulus } from './trials/legacyStimulus';
+import { stimulus } from './trials/stimulus';
 
 export default function buildSameDifferentTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const heavy: boolean = taskStore().heavyInstructions;

@@ -1,14 +1,14 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
+import { taskStore } from '../../../taskStore';
 import {
   addExperimenterButtons,
   getParticipantUtilityButtonsHtml,
-  PageStateHandler,
-  setupReplayAudio,
   PageAudioHandler,
+  PageStateHandler,
   setupFullscreenButton,
+  setupReplayAudio,
 } from '../helpers';
-import { taskStore } from '../../../taskStore';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 

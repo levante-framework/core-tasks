@@ -1,5 +1,4 @@
 import { taskStore } from '../../taskStore';
-import { setupSds } from './helpers/prepareSdsCorpus';
 import {
   createPreloadTrials,
   initTimeline,
@@ -7,8 +6,6 @@ import {
   prepareCorpus,
   prepareMultiBlockCat,
 } from '../shared/helpers';
-import { stimulus } from './trials/stimulus';
-import { afcMatch } from './trials/afcMatch';
 import {
   enterFullscreen,
   exitFullscreen,
@@ -18,9 +15,12 @@ import {
   setupStimulusFromBlock,
   taskFinished,
 } from '../shared/trials';
-import { setTrialBlock } from './helpers/setTrialBlock';
 import { initializeCat, jsPsych } from '../taskSetup';
+import { setupSds } from './helpers/prepareSdsCorpus';
+import { setTrialBlock } from './helpers/setTrialBlock';
+import { afcMatch } from './trials/afcMatch';
 import { legacyStimulus } from './trials/legacyStimulus';
+import { stimulus } from './trials/stimulus';
 
 export default function buildSameDifferentTimelineCat(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;

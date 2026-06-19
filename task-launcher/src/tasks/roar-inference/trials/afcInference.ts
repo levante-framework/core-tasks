@@ -1,19 +1,19 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
-// @ts-ignore
-import { jsPsych, isTouchScreen } from '../../taskSetup';
+import _toNumber from 'lodash/toNumber';
+import { taskStore } from '../../../taskStore';
 import {
   arrowKeyEmojis,
-  setSkipCurrentBlock,
   PageStateHandler,
   setSentryContext,
-  //@ts-ignore
+  setSkipCurrentBlock,
+  //@ts-expect-error
 } from '../../shared/helpers';
 import { camelize } from '../../shared/helpers/camelize';
-import _toNumber from 'lodash/toNumber';
-// @ts-ignore
+// @ts-expect-error
 import { finishExperiment } from '../../shared/trials';
+// @ts-expect-error
+import { isTouchScreen, jsPsych } from '../../taskSetup';
 import type { LayoutConfigTypeInference } from '../types/inferenceTypes';
-import { taskStore } from '../../../taskStore';
 
 // Previously chosen responses for current practice trial
 let practiceResponses = [];
@@ -71,11 +71,11 @@ function getPrompt(layoutConfigMap: Record<string, LayoutConfigTypeInference>) {
   const stim = taskStore().nextStimulus;
   const t = taskStore().translations;
 
-  let itemLayoutConfig = layoutConfigMap?.[stim.itemId];
+  const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
 
   if (itemLayoutConfig) {
     const {
-      prompt: { enabled: promptEnabled, useStimText: useStimText },
+      prompt: { enabled: promptEnabled, useStimText },
       story,
       stimText: stimulusTextConfig,
     } = itemLayoutConfig;
@@ -338,7 +338,7 @@ export const afcStimulusInference = ({
     response_allowed_while_playing: responseAllowed,
     data: () => {
       const stim = taskStore().nextStimulus;
-      let isPracticeTrial = stim.assessmentStage === 'practice_response';
+      const isPracticeTrial = stim.assessmentStage === 'practice_response';
       return {
         // not camelCase because firekit
         save_trial: true,
