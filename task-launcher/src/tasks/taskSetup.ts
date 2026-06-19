@@ -1,7 +1,6 @@
-//@ts-expect-error
-
-import { Cat } from '@bdelab/jscat';
+//@ts-ignore
 import { getDevice } from '@bdelab/roar-utils';
+import { Cat } from '@bdelab/jscat';
 import { initJsPsych } from 'jspsych';
 import '../i18n/i18n';
 import { taskStore } from '../taskStore';

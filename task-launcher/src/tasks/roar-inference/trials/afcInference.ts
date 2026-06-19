@@ -1,19 +1,19 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
-import _toNumber from 'lodash/toNumber';
-import { taskStore } from '../../../taskStore';
+// @ts-ignore
+import { isTouchScreen, jsPsych } from '../../taskSetup';
 import {
   arrowKeyEmojis,
   PageStateHandler,
   setSentryContext,
   setSkipCurrentBlock,
-  //@ts-expect-error
+  //@ts-ignore
 } from '../../shared/helpers';
 import { camelize } from '../../shared/helpers/camelize';
-// @ts-expect-error
+import _toNumber from 'lodash/toNumber';
+// @ts-ignore
 import { finishExperiment } from '../../shared/trials';
-// @ts-expect-error
-import { isTouchScreen, jsPsych } from '../../taskSetup';
 import type { LayoutConfigTypeInference } from '../types/inferenceTypes';
+import { taskStore } from '../../../taskStore';
 
 // Previously chosen responses for current practice trial
 let practiceResponses = [];
