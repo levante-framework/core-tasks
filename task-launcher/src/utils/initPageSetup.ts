@@ -138,4 +138,4 @@ export class InitPageSetup {
   onResume() {
     this.hideOverlay(this.pauseOverlayDiv);
   }
-};
+}

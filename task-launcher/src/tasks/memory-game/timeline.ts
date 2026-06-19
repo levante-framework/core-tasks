@@ -9,13 +9,7 @@ import {
 import { jsPsych } from '../taskSetup';
 import { initializeCat } from '../taskSetup';
 // trials
-import {
-  enterFullscreen,
-  exitFullscreen,
-  feedback,
-  repeatInstructionsMessage,
-  taskFinished,
-} from '../shared/trials';
+import { enterFullscreen, exitFullscreen, feedback, repeatInstructionsMessage, taskFinished } from '../shared/trials';
 import { getCorsiBlocks } from './trials/stimulus';
 import {
   readyToPlay,

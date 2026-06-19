@@ -12,7 +12,7 @@ import {
   filterMedia,
   prepareMultiBlockCat,
   checkFallbackCriteria,
-  isEnglish
+  isEnglish,
 } from '../shared/helpers';
 // trials
 import {

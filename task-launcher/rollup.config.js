@@ -1,7 +1,6 @@
 import commonjs from '@rollup/plugin-commonjs';
 import dsv from '@rollup/plugin-dsv';
 import json from '@rollup/plugin-json';
-import terser from '@rollup/plugin-terser';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import postcss from 'rollup-plugin-postcss';
 import typescript from '@rollup/plugin-typescript';
@@ -18,7 +17,6 @@ export default {
     nodeResolve({
       preferBuiltins: true,
     }),
-    terser(),
     commonjs(),
   ],
   output: [
@@ -28,6 +26,7 @@ export default {
       entryFileNames: '[name].[hash].js',
       chunkFileNames: '[name].[hash].js',
       format: 'es',
+      sourcemap: true,
     },
   ],
 };
