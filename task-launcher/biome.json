@@ -3,41 +3,13 @@
   "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
   "files": { "includes": ["**", "!!**/dist", "!!**/lib"] },
   "formatter": {
-    "enabled": true,
-    "formatWithErrors": false,
     "indentStyle": "space",
-    "indentWidth": 2,
-    "lineEnding": "lf",
-    "lineWidth": 120,
-    "attributePosition": "auto",
-    "bracketSameLine": false,
-    "bracketSpacing": true,
-    "expand": "auto",
-    "useEditorconfig": true,
-    "includes": ["**", "!**/build", "!**/dist", "!**/lib", "!**/coverage", "!**/node_modules", "!**/*.html"]
+    "lineWidth": 120
   },
-  "linter": { "enabled": true, "rules": { "preset": "recommended" } },
   "javascript": {
-    "formatter": {
-      "jsxQuoteStyle": "double",
-      "quoteProperties": "asNeeded",
-      "trailingCommas": "all",
-      "semicolons": "always",
-      "arrowParentheses": "always",
-      "bracketSameLine": false,
-      "quoteStyle": "single",
-      "attributePosition": "auto",
-      "bracketSpacing": true
-    }
-  },
-  "html": {
-    "formatter": {
-      "indentScriptAndStyle": false,
-      "selfCloseVoidElements": "always"
-    }
+    "formatter": { "quoteStyle": "single" }
   },
   "assist": {
-    "enabled": true,
     "actions": { "source": { "organizeImports": "on" } }
   }
 }

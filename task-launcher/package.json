@@ -5,7 +5,11 @@
   "main": "lib/index.1298d4fd.js",
   "module": "lib/index.1298d4fd.js",
   "type": "module",
-  "files": ["lib", "lib/resources", "patchPackages.js"],
+  "files": [
+    "lib",
+    "lib/resources",
+    "patchPackages.js"
+  ],
   "scripts": {
     "build": "webpack --mode production --env dbmode=development",
     "build:demo": "webpack --mode production --env dbmode=development --env demo=true",
@@ -28,7 +32,10 @@
     "type": "git",
     "url": "git+https://github.com/levante-framework/core-tasks.git"
   },
-  "contributors": ["Philip Ziolkowski", "George Kachergis"],
+  "contributors": [
+    "Philip Ziolkowski",
+    "George Kachergis"
+  ],
   "license": "",
   "dependencies": {
     "@bdelab/jscat": "^3.0.3",
