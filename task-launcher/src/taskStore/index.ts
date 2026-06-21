@@ -69,6 +69,7 @@ import { isEnglish } from '../tasks/shared/helpers';
  * --------- ToM only ---------
  * @property {Array} previousChoices - Array containing previously randomized order of choices for the current block.
  * @property {number} currentStoryGroup - The current story group to select trials from in the ToM CAT.
+ * @property {Object} currentStoryBranch - The current story branch to select trials from in the ToM CAT.
  * ------- SDS only -------
  * @property {StimulusType[]} sequentialTrials - Should be run sequentially in blocks by trial number in an SDS CAT.
  * @property {number} version - A version number for the task, default is 1. Can be used as a feature flag.
@@ -164,6 +165,7 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     debug: config.debug,
     version: config.version || 1,
     currentStoryGroup: 0,
+    currentStoryBranch: null,
     taskTimer: null,
     taskTimerPausedMs: 0,
     taskTimerPauseBeganAt: null,
