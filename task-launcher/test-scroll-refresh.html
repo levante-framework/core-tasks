@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="msapplication-tap-highlight" content="no">
+  <title>Scroll-to-Refresh Prevention Test</title>
+  <style>
+    /* Prevent scroll-to-refresh and overscroll behavior */
+    html, body {
+      height: 100%;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      overscroll-behavior: none;
+      -webkit-overflow-scrolling: touch;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+    
+    /* Prevent pull-to-refresh on mobile browsers */
+    body {
+      overscroll-behavior-y: none;
+      -webkit-overflow-scrolling: touch;
+      touch-action: manipulation;
+    }
+    
+    /* Additional mobile-specific styles */
+    * {
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+    
+    /* Prevent zoom on double tap */
+    input, textarea, select {
+      font-size: 16px;
+    }
+    
+    .test-container {
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    
+    .test-content {
+      max-width: 400px;
+    }
+    
+    .status {
+      margin: 20px 0;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .instructions {
+      margin: 20px 0;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+    
+    .test-button {
+      background: rgba(255, 255, 255, 0.2);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 10px;
+      transition: all 0.3s ease;
+    }
+    
+    .test-button:hover {
+      background: rgba(255, 255, 255, 0.3);
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .test-button:active {
+      transform: scale(0.95);
+    }
+    
+    .pull-feedback {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 0, 0, 0.9);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-size: 14px;
+      z-index: 10000;
+      pointer-events: none;
+      animation: fadeInOut 2s ease-in-out;
+    }
+    
+    @keyframes fadeInOut {
+      0% { opacity: 0; }
+      20% { opacity: 1; }
+      80% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="test-container">
+    <div class="test-content">
+      <h1>🔄 Scroll-to-Refresh Prevention Test</h1>
+      
+      <div class="status">
+        <h3>Test Status</h3>
+        <p id="status-text">Ready to test scroll-to-refresh prevention</p>
+        <p id="touch-info">Touch events will be logged here</p>
+      </div>
+      
+      <div class="instructions">
+        <h3>Instructions:</h3>
+        <ol style="text-align: left;">
+          <li>Try to pull down from the top of the screen to refresh</li>
+          <li>The page should NOT refresh</li>
+          <li>You should see a red message if pull-to-refresh is attempted</li>
+          <li>Try swiping in different directions</li>
+          <li>Try double-tapping to zoom (should be prevented)</li>
+        </ol>
+      </div>
+      
+      <div>
+        <button class="test-button" onclick="testTouchEvents()">Test Touch Events</button>
+        <button class="test-button" onclick="resetTest()">Reset Test</button>
+      </div>
+      
+      <div class="instructions">
+        <h3>Expected Behavior:</h3>
+        <ul style="text-align: left;">
+          <li>✅ No page refresh when pulling down</li>
+          <li>✅ No zoom on double tap</li>
+          <li>✅ No context menu on long press</li>
+          <li>✅ Smooth touch interactions for buttons</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let touchCount = 0;
+    let isPulling = false;
+    let startY = 0;
+    let currentY = 0;
+    let isAtTop = true;
+
+    function updateStatus(message) {
+      document.getElementById('status-text').textContent = message;
+    }
+
+    function updateTouchInfo(message) {
+      document.getElementById('touch-info').textContent = message;
+    }
+
+    function showPullFeedback() {
+      const feedback = document.createElement('div');
+      feedback.className = 'pull-feedback';
+      feedback.textContent = 'Pull-to-refresh disabled!';
+      document.body.appendChild(feedback);
+      
+      setTimeout(() => {
+        if (feedback.parentNode) {
+          feedback.parentNode.removeChild(feedback);
+        }
+      }, 2000);
+    }
+
+    // Prevent default touch behaviors
+    document.addEventListener('touchstart', (e) => {
+      touchCount++;
+      startY = e.touches[0].clientY;
+      currentY = startY;
+      isPulling = false;
+      isAtTop = window.scrollY === 0;
+      
+      updateTouchInfo(`Touch start #${touchCount} - Y: ${startY}, At top: ${isAtTop}`);
+      e.preventDefault();
+    }, { passive: false });
+
+    document.addEventListener('touchmove', (e) => {
+      if (!isAtTop) return;
+      
+      currentY = e.touches[0].clientY;
+      const pullDistance = currentY - startY;
+      
+      if (pullDistance > 0) {
+        isPulling = true;
+        e.preventDefault();
+        
+        if (pullDistance > 50) {
+          showPullFeedback();
+          updateStatus(`Pull detected: ${Math.round(pullDistance)}px - REFRESH PREVENTED`);
+        }
+      }
+    }, { passive: false });
+
+    document.addEventListener('touchend', (e) => {
+      if (isPulling && isAtTop) {
+        updateStatus('Pull-to-refresh attempt blocked successfully!');
+      }
+      isPulling = false;
+      e.preventDefault();
+    }, { passive: false });
+
+    // Prevent context menu
+    document.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      updateStatus('Context menu prevented');
+    });
+
+    // Prevent zoom gestures
+    document.addEventListener('gesturestart', (e) => {
+      e.preventDefault();
+      updateStatus('Zoom gesture prevented');
+    });
+
+    document.addEventListener('gesturechange', (e) => {
+      e.preventDefault();
+    });
+
+    document.addEventListener('gestureend', (e) => {
+      e.preventDefault();
+    });
+
+    // Track scroll position
+    window.addEventListener('scroll', () => {
+      isAtTop = window.scrollY === 0;
+    }, { passive: true });
+
+    function testTouchEvents() {
+      updateStatus('Touch events are being monitored. Try interacting with the screen.');
+      updateTouchInfo('Touch events will appear here...');
+    }
+
+    function resetTest() {
+      touchCount = 0;
+      updateStatus('Test reset. Ready to test scroll-to-refresh prevention');
+      updateTouchInfo('Touch events will be logged here');
+    }
+
+    // Initialize
+    updateStatus('Scroll-to-refresh prevention is active. Try pulling down from the top!');
+  </script>
+</body>
+</html>

@@ -3,3 +3,46 @@
 @forward 'base';
 @forward 'layout';
 @forward 'pages';
+
+/* Global scroll-to-refresh prevention */
+html, body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+  overscroll-behavior-y: none;
+  -webkit-overflow-scrolling: touch;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  touch-action: manipulation;
+}
+
+/* Prevent pull-to-refresh on all mobile browsers */
+* {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Prevent zoom on double tap */
+input, textarea, select {
+  font-size: 16px;
+}
+
+/* Additional mobile-specific prevention */
+@media (hover: none) and (pointer: coarse) {
+  body {
+    overscroll-behavior: none;
+    -webkit-overflow-scrolling: touch;
+    touch-action: manipulation;
+  }
+}

@@ -113,6 +113,15 @@ const webConfig = merge(commonConfig, {
   plugins: [
     new HtmlWebpackPlugin({
       title: 'LEVANTE core tasks',
+      template: 'src/index.html',
+      meta: {
+        viewport: 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover',
+        'mobile-web-app-capable': 'yes',
+        'apple-mobile-web-app-capable': 'yes',
+        'apple-mobile-web-app-status-bar-style': 'black-translucent',
+        'format-detection': 'telephone=no',
+        'msapplication-tap-highlight': 'no',
+      },
     }),
   ],
 });
