@@ -64,7 +64,7 @@ export function buildLocationCommitPreview(
   const safeBaselineResolution = Number.isInteger(baselineResolution) ? baselineResolution : 5;
   const safePopulationThreshold = Number.isFinite(populationThreshold) && populationThreshold > 0
     ? Math.round(populationThreshold)
-    : 50000;
+    : 20000;
   const preferredSource = getPreferredPopulationSource(config);
 
   const baselineCell = latLngToCell(draft.lat, draft.lon, safeBaselineResolution);
@@ -130,7 +130,7 @@ export async function buildLocationCommitComputationWithPopulation(
   );
   const safePopulationThreshold = Number.isFinite(populationThreshold) && populationThreshold > 0
     ? Math.round(populationThreshold)
-    : 50000;
+    : 20000;
   const preferredSource = getPreferredPopulationSource(config);
 
   const baselineCell = latLngToCell(draft.lat, draft.lon, safeBaselineResolution);

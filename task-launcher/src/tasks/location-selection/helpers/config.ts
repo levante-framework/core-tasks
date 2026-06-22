@@ -36,7 +36,7 @@ export function getLocationSelectionTaskConfig(config: Record<string, any>): Loc
       : H3_MIN_RESOLUTION;
 
   return {
-    populationThreshold: Number.isFinite(threshold) && threshold > 0 ? Math.round(threshold) : 50000,
+    populationThreshold: Number.isFinite(threshold) && threshold > 0 ? Math.round(threshold) : 20000,
     baselineResolution: safeBaselineResolution,
     minResolution: Math.max(H3_MIN_RESOLUTION, Math.min(parsedMinResolution, safeBaselineResolution)),
     maxResolution:
