@@ -1,6 +1,6 @@
-import 'regenerator-runtime/runtime';
+import "regenerator-runtime/runtime";
 // setup
-import { jsPsych, initializeCat, cat } from '../taskSetup';
+import { jsPsych, initializeCat, cat } from "../taskSetup";
 import {
   createPreloadTrials,
   initTrialSaving,
@@ -8,13 +8,10 @@ import {
   batchMediaAssets,
   prepareMultiBlockCat,
   checkFallbackCriteria,
-} from '../shared/helpers';
+} from "../shared/helpers";
 // trials
-import {
-  threeDimInstructions,
-  instructions
-} from './trials/instructions';
-import { legacyInstructions } from './trials/legacyInstructions';
+import { threeDimInstructions, instructions } from "./trials/instructions";
+import { legacyInstructions } from "./trials/legacyInstructions";
 import {
   afcStimulusTemplate,
   taskFinished,
@@ -26,13 +23,16 @@ import {
   setupStimulusFromCurrentCatBlock,
   setupNextBlock,
   repeatInstructionsMessage,
-} from '../shared/trials';
-import { getLayoutConfig } from './helpers/config';
-import { prepareCorpus } from '../shared/helpers/prepareCat';
-import { taskStore } from '../../taskStore';
-import { getLeftoverAssets } from '../shared/helpers/batchPreloading';
+} from "../shared/trials";
+import { getLayoutConfig } from "./helpers/config";
+import { prepareCorpus } from "../shared/helpers/prepareCat";
+import { taskStore } from "../../taskStore";
+import { getLeftoverAssets } from "../shared/helpers/batchPreloading";
 
-export default function buildMentalRotationCatTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
+export default function buildMentalRotationCatTimeline(
+  config: Record<string, any>,
+  mediaAssets: MediaAssetsType,
+) {
   initTrialSaving(config);
   const initialTimeline = initTimeline(config, enterFullscreen);
 
@@ -46,26 +46,36 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
 
   const layoutConfigMap: Record<string, LayoutConfigType> = {};
   for (const c of corpus) {
-    const { itemConfig, errorMessages } = getLayoutConfig(c, translations, mediaAssets);
+    const { itemConfig, errorMessages } = getLayoutConfig(
+      c,
+      translations,
+      mediaAssets,
+    );
     layoutConfigMap[c.itemId] = itemConfig;
     if (errorMessages.length) {
-      validationErrorMap[c.itemId] = errorMessages.join('; ');
+      validationErrorMap[c.itemId] = errorMessages.join("; ");
     }
   }
 
   if (Object.keys(validationErrorMap).length) {
-    console.error('The following errors were found');
+    console.error("The following errors were found");
     console.table(validationErrorMap);
-    throw new Error('Something went wrong. Please look in the console for error details');
+    throw new Error(
+      "Something went wrong. Please look in the console for error details",
+    );
   }
 
   const corpora = prepareCorpus(corpus);
 
   // organize media assets into batches for preloading
   const batchedCorpus = prepareMultiBlockCat(corpora.cat);
-  const batchedMediaAssets = batchMediaAssets(mediaAssets, batchedCorpus, ['item', 'answer', 'distractors']);
+  const batchedMediaAssets = batchMediaAssets(mediaAssets, batchedCorpus, [
+    "item",
+    "answer",
+    "distractors",
+  ]);
 
-  taskStore('corpora', {
+  taskStore("corpora", {
     practice: taskStore().corpora.practice,
     stimulus: batchedCorpus,
   });
@@ -77,12 +87,13 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
   const initialPreload = createPreloadTrials(initialMedia).default;
 
   // latest instructions are behind version 2 flag in variant doc
-  const selectedInstructions = taskStore().version === 2 ? instructions : legacyInstructions;
+  const selectedInstructions =
+    taskStore().version === 2 ? instructions : legacyInstructions;
 
   const timeline = [initialPreload, initialTimeline, ...selectedInstructions];
 
   const trialConfig = {
-    trialType: 'audio',
+    trialType: "audio",
     responseAllowed: true,
     promptAboveButtons: true,
     task: config.task,
@@ -96,7 +107,7 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
   const stimulusBlock = (index: number) => {
     return {
       timeline: [
-        { ...setupStimulusFromCurrentCatBlock, stimulus: '' },
+        { ...setupStimulusFromCurrentCatBlock, stimulus: "" },
         afcStimulusTemplate(trialConfig),
         ifRealTrialResponse,
       ],
@@ -117,7 +128,9 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
   };
 
   function preloadBatch() {
-    timeline.push(createPreloadTrials(batchedMediaAssets[currPreloadBatch]).default);
+    timeline.push(
+      createPreloadTrials(batchedMediaAssets[currPreloadBatch]).default,
+    );
     currPreloadBatch++;
   }
 
@@ -128,7 +141,9 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
   // returns practice + instruction trials for a given block
   function getPracticeInstructions(blockNum: number): StimulusType[] {
     const trials = instructionPractice.filter(
-      (trial) => trial.block_index === blockNum && !presentedInstructions.includes(trial.block_index),
+      (trial) =>
+        trial.block_index === blockNum &&
+        !presentedInstructions.includes(trial.block_index),
     );
 
     return trials;
@@ -142,12 +157,17 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
         threeDimInstructBlock,
         ...trials.map((trial) => {
           return {
-            timeline: [{ ...fixationOnly, stimulus: '' }, afcStimulusTemplate(trialConfig, trial)],
+            timeline: [
+              { ...fixationOnly, stimulus: "" },
+              afcStimulusTemplate(trialConfig, trial),
+            ],
           };
         }),
       ],
       conditional_function: () => {
-        const run = taskStore().currentCatBlock === blockNum - 1 && !presentedInstructions.includes(blockNum);
+        const run =
+          taskStore().currentCatBlock === blockNum - 1 &&
+          !presentedInstructions.includes(blockNum);
 
         if (run) {
           presentedInstructions.push(blockNum);
@@ -159,7 +179,9 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
   };
 
   const firstBlockPractice: StimulusType[] = corpus.filter(
-    (trial) => Number(trial.block_index) === 1 && trial.assessmentStage === 'practice_response',
+    (trial) =>
+      Number(trial.block_index) === 1 &&
+      trial.assessmentStage === "practice_response",
   );
 
   let fellBack = false;
@@ -167,7 +189,9 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
     timeline: [
       repeatInstructionsMessage,
       ...instructions,
-      ...firstBlockPractice.map((trial) => afcStimulusTemplate(trialConfig, trial)),
+      ...firstBlockPractice.map((trial) =>
+        afcStimulusTemplate(trialConfig, trial),
+      ),
     ],
     conditional_function: () => {
       const run = checkFallbackCriteria() && !fellBack;
@@ -185,10 +209,10 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
     });
   }
 
-  taskStore('currentCatBlock', 0);
+  taskStore("currentCatBlock", 0);
 
   const numOfCatTrials = corpora.cat.length;
-  taskStore('totalTestTrials', numOfCatTrials);
+  taskStore("totalTestTrials", numOfCatTrials);
   batchedCorpus.forEach((block, index) => {
     preloadBatch();
 
@@ -196,16 +220,16 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
     addInstructionPractice();
 
     if (index === 0) {
-      timeline.push(practiceTransition(() => 'mentalRotationInstruct5Downex'));
+      timeline.push(practiceTransition(() => "mentalRotationInstruct5Downex"));
 
       // push in starting block
       corpora.start.forEach((trial: StimulusType) => {
-        timeline.push({ ...fixationOnly, stimulus: '' });
+        timeline.push({ ...fixationOnly, stimulus: "" });
         timeline.push(afcStimulusTemplate(trialConfig, trial));
         timeline.push(ifRealTrialResponse);
       });
     } else {
-      timeline.push(practiceTransition(() => 'generalYourTurn'));
+      timeline.push(practiceTransition(() => "generalYourTurn"));
     }
 
     const numOfTrials = block.length / 3;

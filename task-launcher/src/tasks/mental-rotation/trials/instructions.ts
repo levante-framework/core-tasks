@@ -1,5 +1,5 @@
-import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
-import { mediaAssets } from '../../..';
+import jsPsychHtmlMultiResponse from "@jspsych-contrib/plugin-html-multi-response";
+import { mediaAssets } from "../../..";
 import {
   addExperimenterButtons,
   getParticipantUtilityButtonsHtml,
@@ -11,62 +11,70 @@ import {
   pulseOkButton,
   enableOkButton,
   setupFullscreenButton,
-} from '../../shared/helpers';
-import { jsPsych } from '../../taskSetup';
-import { taskStore } from '../../../taskStore';
-import { animate } from '../helpers/animate'
+} from "../../shared/helpers";
+import { jsPsych } from "../../taskSetup";
+import { taskStore } from "../../../taskStore";
+import { animate } from "../helpers/animate";
 
-const replayButtonHtmlId = 'replay-btn-revisited';
+const replayButtonHtmlId = "replay-btn-revisited";
 
 const data = [
   {
-    audio: ['mental-rotation-instruct1-part1-downex', 'mental-rotation-instruct1-part2-downex'],
-    choices: ['Rp-000-silh', 'Rn-000-silh'],
-    image: 'Rp-000-gray',
+    audio: [
+      "mental-rotation-instruct1-part1-downex",
+      "mental-rotation-instruct1-part2-downex",
+    ],
+    choices: ["Rp-000-silh", "Rn-000-silh"],
+    image: "Rp-000-gray",
     animations: [
       {
-        item: 'stim-image',
-        animation: 'pulse',
+        item: "stim-image",
+        animation: "pulse",
       },
     ],
-    eventOrder: ['audio', 'animation', 'audio'],
+    eventOrder: ["audio", "animation", "audio"],
   },
   {
-    audio: ['mental-rotation-instruct2-downex', 'mental-rotation-instruct3-downex'],
-    choices: ['Rp-000-silh', 'Rn-000-silh'],
-    image: 'Rp-000-gray',
+    audio: [
+      "mental-rotation-instruct2-downex",
+      "mental-rotation-instruct3-downex",
+    ],
+    choices: ["Rp-000-silh", "Rn-000-silh"],
+    image: "Rp-000-gray",
     animations: [
       {
-        item: 'distractor',
-        animation: 'pulse',
+        item: "distractor",
+        animation: "pulse",
       },
       {
-        item: 'distractor',
-        animation: 'drag',
+        item: "distractor",
+        animation: "drag",
       },
     ],
-    eventOrder: ['audio', 'animation', 'animation', 'audio'],
+    eventOrder: ["audio", "animation", "animation", "audio"],
   },
   {
-    audio: ['mental-rotation-instruct2-downex', 'mental-rotation-instruct4-downex'],
-    choices: ['Rp-000-silh', 'Rn-000-silh'],
-    image: 'Rp-000-gray',
+    audio: [
+      "mental-rotation-instruct2-downex",
+      "mental-rotation-instruct4-downex",
+    ],
+    choices: ["Rp-000-silh", "Rn-000-silh"],
+    image: "Rp-000-gray",
     animations: [
       {
-        item: 'target',
-        animation: 'pulse',
+        item: "target",
+        animation: "pulse",
       },
       {
-        item: 'target',
-        animation: 'drag',
+        item: "target",
+        animation: "drag",
       },
     ],
-    eventOrder: ['audio', 'animation', 'animation', 'audio'],
+    eventOrder: ["audio", "animation", "animation", "audio"],
   },
 ];
 
 let startTime: number;
-
 
 export const instructions = data.map((data: any) => {
   return {
@@ -74,7 +82,9 @@ export const instructions = data.map((data: any) => {
     stimulus: () => {
       const t = taskStore().translations;
       const stimImage = mediaAssets.images[camelize(data.image)];
-      const itemText = data.audio.map((file: string) => t[camelize(file)]).join(' ');
+      const itemText = data.audio
+        .map((file: string) => t[camelize(file)])
+        .join(" ");
 
       return `<div class="lev-stimulus-container">
                   ${getParticipantUtilityButtonsHtml(replayButtonHtmlId)}
@@ -86,27 +96,35 @@ export const instructions = data.map((data: any) => {
                     <img
                         id="stim-image"
                         src=${stimImage}
-                        alt="Image not loading: ${data.image}. Please continue the task."
+                        alt="Image not loading: ${
+                          data.image
+                        }. Please continue the task."
                     />
                   </div>
 
                   <div id="choices-container" class="lev-response-row multi-4" style="gap: 16px; margin-top: 16px">
                     <button id="target" class="image-large no-pointer-events" disabled>
-                      <img src=${mediaAssets.images[camelize(data.choices[0])]} alt=${data.choices[0]} />
+                      <img src=${
+                        mediaAssets.images[camelize(data.choices[0])]
+                      } alt=${data.choices[0]} />
                     </button>
                     <button id="distractor" class="image-large no-pointer-events" disabled>
-                      <img src=${mediaAssets.images[camelize(data.choices[1])]} alt=${data.choices[1]} />
+                      <img src=${
+                        mediaAssets.images[camelize(data.choices[1])]
+                      } alt=${data.choices[1]} />
                     </button>
                   </div>
               </div>`;
     },
     prompt_above_buttons: true,
-    button_choices: ['Next'],
+    button_choices: ["Next"],
     button_html: () => {
       const t = taskStore().translations;
-      return [`<button class="primary" disabled>${t.continueButtonText}</button>`];
+      return [
+        `<button class="primary" disabled>${t.continueButtonText}</button>`,
+      ];
     },
-    keyboard_choices: () => 'NO_KEYS',
+    keyboard_choices: () => "NO_KEYS",
     on_load: async () => {
       startTime = performance.now();
 
@@ -115,7 +133,7 @@ export const instructions = data.map((data: any) => {
 
       const replayButton = document.getElementById(replayButtonHtmlId);
       if (replayButton) {
-        replayButton.addEventListener('click', () => {
+        replayButton.addEventListener("click", () => {
           animateAndPlayAudio();
         });
       }
@@ -129,8 +147,8 @@ export const instructions = data.map((data: any) => {
         disableOkButton();
 
         // Preserve stim-container height before animation
-        const stimContainer = document.getElementById('stim-container');
-        const stimImage = document.getElementById('stim-image');
+        const stimContainer = document.getElementById("stim-container");
+        const stimImage = document.getElementById("stim-image");
         if (stimContainer && stimImage) {
           const imageHeight = stimImage.offsetHeight;
           stimContainer.style.minHeight = `${imageHeight}px`;
@@ -143,14 +161,16 @@ export const instructions = data.map((data: any) => {
 
         // reset stim image to its original position
         if (stimImage) {
-          stimImage.style.position = '';
-          stimImage.style.left = '';
-          stimImage.style.top = '';
-          stimImage.style.zIndex = '';
+          stimImage.style.position = "";
+          stimImage.style.left = "";
+          stimImage.style.top = "";
+          stimImage.style.zIndex = "";
         }
 
         // reset target source
-        const target: HTMLImageElement | null = document.getElementById('target')?.children[0] as HTMLImageElement;
+        const target: HTMLImageElement | null = document.getElementById(
+          "target",
+        )?.children[0] as HTMLImageElement;
         if (target) {
           target.src = mediaAssets.images[camelize(data.choices[0])];
         }
@@ -176,9 +196,12 @@ export const instructions = data.map((data: any) => {
           }
 
           const event = trialEventOrder.shift();
-          if (event === 'audio') {
-            PageAudioHandler.playAudio(mediaAssets.audio[camelize(trialAudio.shift())], audioConfig);
-          } else if (event === 'animation') {
+          if (event === "audio") {
+            PageAudioHandler.playAudio(
+              mediaAssets.audio[camelize(trialAudio.shift())],
+              audioConfig,
+            );
+          } else if (event === "animation") {
             const animationObject = trialAnimations.shift();
             animate(animationObject.animation, animationObject.item);
             setTimeout(triggerNextEvent, 2000);
@@ -195,7 +218,7 @@ export const instructions = data.map((data: any) => {
 
       jsPsych.data.addDataToLastTrial({
         audioButtonPresses: PageAudioHandler.replayPresses,
-        assessment_stage: 'instructions',
+        assessment_stage: "instructions",
       });
     },
   };
@@ -205,7 +228,7 @@ export const threeDimInstructions = {
   type: jsPsychHtmlMultiResponse,
   data: () => {
     return {
-      assessment_stage: 'instructions',
+      assessment_stage: "instructions",
     };
   },
   stimulus: () => {
@@ -222,17 +245,17 @@ export const threeDimInstructions = {
     `;
   },
   prompt_above_buttons: true,
-  button_choices: ['Continue'],
+  button_choices: ["Continue"],
   post_trial_gap: 350,
   button_html: () => {
     const t = taskStore().translations;
     return `<button class="primary">${t.continueButtonText}</button>`;
   },
-  keyboard_choices: 'NO_KEYS',
+  keyboard_choices: "NO_KEYS",
   trial_ends_after_audio: false,
   response_allowed_while_playing: false,
   on_load: () => {
-    const prompt = 'mentalRotationInstruct3D';
+    const prompt = "mentalRotationInstruct3D";
 
     PageAudioHandler.playAudio(mediaAssets.audio[prompt]);
     const pageStateHandler = new PageStateHandler(prompt, true);
