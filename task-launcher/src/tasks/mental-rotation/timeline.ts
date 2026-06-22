@@ -24,6 +24,7 @@ import {
   practiceTransition,
 } from '../shared/trials';
 import { instructions, threeDimInstructions } from './trials/instructions';
+import { legacyInstructions } from './trials/legacyInstructions';
 import { getLayoutConfig } from './helpers/config';
 import { taskStore } from '../../taskStore';
 import { getLeftoverAssets } from '../shared/helpers/batchPreloading';
@@ -80,8 +81,11 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
   let currPreloadBatch = 0;
   const initialMedia = getLeftoverAssets(batchedMediaAssets, mediaAssets);
 
+  // latest instructions are behind version 2 flag in variant doc
+  const selectedInstructions = taskStore().version === 2 ? instructions : legacyInstructions;
+
   const initialPreload = createPreloadTrials(runCat ? mediaAssets : initialMedia).default;
-  const timeline = [initialPreload, initialTimeline, ...instructions];
+  const timeline = [initialPreload, initialTimeline, ...selectedInstructions];
 
   const trialConfig = {
     trialType: 'audio',

@@ -12,8 +12,9 @@ import {
 // trials
 import {
   threeDimInstructions,
-  instructions,
+  instructions
 } from './trials/instructions';
+import { legacyInstructions } from './trials/legacyInstructions';
 import {
   afcStimulusTemplate,
   taskFinished,
@@ -76,7 +77,10 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
 
   const initialPreload = createPreloadTrials(initialMedia).default;
 
-  const timeline = [initialPreload, initialTimeline, ...instructions];
+  // latest instructions are behind version 2 flag in variant doc
+  const selectedInstructions = taskStore().version === 2 ? instructions : legacyInstructions;
+
+  const timeline = [initialPreload, initialTimeline, ...selectedInstructions];
 
   const trialConfig = {
     trialType: 'audio',
