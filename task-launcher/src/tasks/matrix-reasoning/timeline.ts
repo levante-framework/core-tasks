@@ -147,7 +147,8 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
           { ...fixationOnly, stimulus: '' },
           downexStimulus(layoutConfigMap, true, trial),
           ifRealTrialResponse,
-        ]),
+        ])
+        .flat(),
       downexInstructions2,
       downexInstructions3,
       practiceTransition(undefined, true),
@@ -157,7 +158,8 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
           { ...fixationOnly, stimulus: '' },
           downexStimulus(layoutConfigMap, false, trial),
           ifRealTrialResponse,
-        ]),
+        ])
+        .flat(),
       downexInstructions4,
       downexInstructions5,
     ],
