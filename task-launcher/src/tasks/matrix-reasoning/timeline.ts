@@ -143,7 +143,7 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
       downexInstructions1,
       ...downexCorpus
         .slice(0, secondPhaseIndex)
-        .flatMap((trial) => [
+        .map((trial) => [
           { ...fixationOnly, stimulus: '' },
           downexStimulus(layoutConfigMap, true, trial),
           ifRealTrialResponse,
@@ -153,7 +153,7 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
       practiceTransition(undefined, true),
       ...downexCorpus
         .slice(secondPhaseIndex)
-        .flatMap((trial) => [
+        .map((trial) => [
           { ...fixationOnly, stimulus: '' },
           downexStimulus(layoutConfigMap, false, trial),
           ifRealTrialResponse,
