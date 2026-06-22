@@ -49,6 +49,17 @@ button {
       box-shadow: $button-default-box-shadow $btn-disabled-inset inset;
       cursor: no-drop;
     }
+
+    &.small {
+      font-size: $font-size-xxxs;
+      font-weight: $font-weight-normal;
+      color: $txt-white;
+      padding: $button-primary-padding-xs;
+      border-radius: $button-default-border-radius-small;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
   }
 
   &.secondary {
@@ -206,11 +217,7 @@ button {
     height: 16x;
   }
 
-  &.replay {
-    // This is also used by the Hearts and Flowers task
-    position: absolute;
-    top: $replay_btn_pos;
-    right: $replay_btn_pos;
+  &.utility {
     cursor: pointer;
     border-radius: min(16px, 2vh);
     padding: min(16px, 2vh);
@@ -247,6 +254,19 @@ button {
           fill: $border-grey;
         }
       }
+    }
+
+    &.open {
+      background-color: rgba($bg-button-primary-clicked, 0.6);
+      border: 2px solid $border-button-primary-clicked;
+    }
+
+    &.transparent {
+      background-color: transparent;
+      border: transparent;
+      width: $experimenter_btn_size;
+      height: $experimenter_btn_size;
+      padding: 0;
     }
   }
 
@@ -400,8 +420,10 @@ button {
       }
     }
 
-    &:hover {
-      border-color: $bg-accent_secondary;
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        border-color: $border-button-primary-clicked;
+      }
     }
 
     &:active {

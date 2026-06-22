@@ -15,7 +15,6 @@ import {
   afcStimulusTemplate,
   enterFullscreen,
   exitFullscreen,
-  finishExperiment,
   getAudioResponse,
   setupStimulus,
   fixationOnly,
@@ -32,7 +31,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
   const preloadTrials = createPreloadTrials(mediaAssets).default;
 
   initTrialSaving(config);
-  const initialTimeline = initTimeline(config, enterFullscreen, finishExperiment);
+  const initialTimeline = initTimeline(config, enterFullscreen);
 
   const ifRealTrialResponse = (trial?: StimulusType) => {
     return {

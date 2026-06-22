@@ -3,8 +3,7 @@ import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-respons
 import _toNumber from 'lodash/toNumber';
 import { jsPsych, isTouchScreen, cat } from '../../taskSetup';
 import {
-  arrowKeyEmojis,
-  replayButtonSvg,
+  getParticipantUtilityButtonsHtml,
   setupReplayAudio,
   setSkipCurrentBlock,
   PageAudioHandler,
@@ -17,6 +16,8 @@ import {
   enableOkButton,
   shouldTerminateCat,
   selectNextSequentialTrial,
+  addExperimenterButtons,
+  setupFullscreenButton,
 } from '../helpers';
 import { mediaAssets } from '../../..';
 import { finishExperiment } from '.';
@@ -50,11 +51,7 @@ const getPromptTemplate = (
 ) => {
   let template = '<div class="lev-stimulus-container">';
 
-  template += `
-    <button id="${replayButtonHtmlId}" class="replay">
-      ${replayButtonSvg}
-    </button>
-  `;
+  template += getParticipantUtilityButtonsHtml(replayButtonHtmlId);
 
   if (prompt) {
     let containerClass = 'lev-row-container instruction';
@@ -295,6 +292,9 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
 
   // display debug info if enabled
   displayDebugInfo(stim);
+
+  addExperimenterButtons();
+  setupFullscreenButton();
 }
 
 function doOnFinish(

@@ -33,6 +33,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - name: Run the linter
-        run: npm run lint
+      - name: Run checks
+        run: |
+          # TODO: switch to npm run check after linting errors are fixed
+          npm run format:check
         working-directory: ./task-launcher

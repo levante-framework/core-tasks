@@ -31,9 +31,7 @@ async function buildLanguageLocaleTaskMatrix() {
   });
 
   if (matrix.length === 0) {
-    throw new Error(
-      'languageoptions.json produced an empty test matrix (no locales with taskOptions).',
-    );
+    throw new Error('languageoptions.json produced an empty test matrix (no locales with taskOptions).');
   }
 
   return matrix;
@@ -46,7 +44,6 @@ export default defineConfig({
       on('task', {
         progress(message) {
           // Print immediate progress to STDOUT so long runs show liveness
-          // eslint-disable-next-line no-console
           console.log(`[progress] ${message}`);
           return null;
         },

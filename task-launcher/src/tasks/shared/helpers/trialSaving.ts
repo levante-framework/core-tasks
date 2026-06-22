@@ -95,7 +95,6 @@ export const computedScoreCallback = (rawScores: Record<string, any>) => {
  * @param {*} demographic_data
  * @returns {*} normedScores
  */
-// eslint-disable-next-line no-unused-vars
 export const normedScoreCallback = (computedScores: any) => {
   // TODO: Add table lookup after norms have been collected and established.
   return Object.fromEntries(Object.entries(computedScores).map(([key, val]) => [key, val]));
@@ -111,15 +110,12 @@ export const initTrialSaving = (config: Record<string, any>) => {
   // run as completed and write data to Firestore, respectively.
   const extend = (fn: Function, code: Function) =>
     function () {
-      // eslint-disable-next-line prefer-rest-params
       fn.apply(fn, arguments);
-      // eslint-disable-next-line prefer-rest-params
       code.apply(fn, arguments);
     };
 
   // @ts-ignore
   jsPsych.opts.on_finish = extend(jsPsych.opts.on_finish, () => {
-
     if (!taskStore().demoMode && config.firekit) {
       config.firekit.finishRun();
     }

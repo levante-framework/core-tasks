@@ -11,7 +11,6 @@ import {
   taskFinished,
   getAudioResponse,
   enterFullscreen,
-  finishExperiment,
   practiceTransition,
   feedback,
 } from '../shared/trials';
@@ -50,7 +49,7 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
 
   initTrialSaving(config);
 
-  const initialTimeline = initTimeline(config, enterFullscreen, finishExperiment);
+  const initialTimeline = initTimeline(config, enterFullscreen);
   const timeline = [initialPreload, initialTimeline];
 
   const buttonNoise = {

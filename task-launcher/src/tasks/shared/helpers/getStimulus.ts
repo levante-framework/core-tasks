@@ -3,7 +3,7 @@ import { mediaAssets } from '../../..';
 import { camelize } from './camelize';
 import { taskStore } from '../../../taskStore';
 import { cat, jsPsych } from '../../taskSetup';
-import { checkEndTaskEarly } from './appTimer';
+import { checkEndTaskEarly, getActiveTaskElapsedMs } from './appTimer';
 
 // This function reads the corpus, calls the adaptive algorithm to select
 // the next item, stores it in a session variable, and removes it from the corpus
@@ -58,7 +58,7 @@ export const getStimulus = (corpusType: string, blockNumber?: number, storyGroup
 
   // end task if there is not enough time to display next stimulus
   const maxTimeInMilliseconds = taskStore().maxTime * 60000;
-  const timeElapsed = Date.now() - taskStore().startTime;
+  const timeElapsed = getActiveTaskElapsedMs();
   const timeRemaining = maxTimeInMilliseconds - timeElapsed;
 
   checkEndTaskEarly(timeRemaining, stimAudio);

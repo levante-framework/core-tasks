@@ -1,4 +1,4 @@
-import { replayButtonSvg } from '../../shared/helpers';
+import { getParticipantUtilityButtonsHtml } from '../../shared/helpers';
 import { taskStore } from '../../../taskStore';
 
 export const StimulusType = Object.freeze({
@@ -81,14 +81,11 @@ export function getCorrectInputSide(stimulusType, stimulusSideType) {
  */
 export const getStimulusLayout = (imageSrc, isLeft, promptText = undefined, replayButtonHtmlId = undefined) => {
   const stimulusClass = isLeft ? 'stimulus-left' : 'stimulus-right';
+  const includeReplayButton = replayButtonHtmlId !== undefined;
+
   let template = '<div class="haf-stimulus-holder">';
-  if (replayButtonHtmlId) {
-    template += `
-      <button id='${replayButtonHtmlId}' class="replay">
-        ${replayButtonSvg}
-      </button>
-    `;
-  }
+  template += getParticipantUtilityButtonsHtml(replayButtonHtmlId, includeReplayButton);
+
   if (promptText) {
     template += `
       <div class='lev-row-container instruction'>
@@ -110,8 +107,12 @@ export const getStimulusLayout = (imageSrc, isLeft, promptText = undefined, repl
   return template;
 };
 
-export const getInputInstructPrompt = () => {
+export const getInputInstructPrompt = (showButton = false) => {
   const inputCapability = taskStore().inputCapability;
 
-  return inputCapability?.touch ? 'heartsAndFlowersInstructTouchscreen' : 'heartsAndFlowersInstructKeyboard';
+  if (showButton) {
+    return inputCapability?.touch ? 'heartsAndFlowersInstructButtonTouch' : 'heartsAndFlowersInstructKeyPress';
+  } else {
+    return inputCapability?.touch ? 'heartsAndFlowersInstructTouchscreen' : 'heartsAndFlowersInstructKeyboard';
+  }
 };

@@ -58,6 +58,7 @@ const sequentialStimulus = stringToBoolean(urlParams.get('sequentialStimulus'), 
 const storeItemId = stringToBoolean(urlParams.get('storeItemId'), false);
 const cat = stringToBoolean(urlParams.get('cat'), false);
 const heavyInstructions = stringToBoolean(urlParams.get('heavyInstructions'), false);
+const experimenterButtons = stringToBoolean(urlParams.get('experimenterButtons'), false);
 const debug = stringToBoolean(urlParams.get('debug'), false);
 
 const emulatorConfig = EMULATORS ? firebaseJSON.emulators : undefined;
@@ -65,7 +66,6 @@ const emulatorConfig = EMULATORS ? firebaseJSON.emulators : undefined;
 const demoMode = DEMO;
 
 async function startWebApp() {
-
   const firekit = null;
   const gameParams = {
     taskName,
@@ -92,13 +92,13 @@ async function startWebApp() {
     demoMode,
     version,
     debug,
+    experimenterButtons,
   };
   const userParams = {
     pid,
   };
   const task = new TaskLauncher(firekit, gameParams, userParams);
   task.run();
-
 }
 
 await startWebApp();

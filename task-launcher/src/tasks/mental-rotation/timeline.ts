@@ -19,7 +19,6 @@ import {
   fixationOnly,
   getAudioResponse,
   enterFullscreen,
-  finishExperiment,
   repeatInstructionsMessage,
   practiceTransition,
 } from '../shared/trials';
@@ -35,7 +34,7 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
   let playedThreeDimInstructions = false;
 
   initTrialSaving(config);
-  const initialTimeline = initTimeline(config, enterFullscreen, finishExperiment);
+  const initialTimeline = initTimeline(config, enterFullscreen);
 
   const ifRealTrialResponse = {
     timeline: [getAudioResponse(mediaAssets)],

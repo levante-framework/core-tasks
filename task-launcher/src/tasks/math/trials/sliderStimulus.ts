@@ -6,8 +6,9 @@ import { jsPsych, isTouchScreen, cat } from '../../taskSetup';
 //@ts-ignore
 import { camelize } from '@bdelab/roar-utils';
 import {
+  addExperimenterButtons,
   setSkipCurrentBlock,
-  replayButtonSvg,
+  getParticipantUtilityButtonsHtml,
   setupReplayAudio,
   PageAudioHandler,
   PageStateHandler,
@@ -15,6 +16,7 @@ import {
   updateTheta,
   addPracticeButtonListeners,
   shouldTerminateCat,
+  setupFullscreenButton,
 } from '../../shared/helpers';
 import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
@@ -37,6 +39,8 @@ function setUpAudio(cue: string) {
       if (cue) {
         const pageStateHandler = new PageStateHandler(cue, true);
         setupReplayAudio(pageStateHandler);
+        addExperimenterButtons();
+        setupFullscreenButton();
       }
     },
   };
@@ -91,9 +95,7 @@ export const slider = (
       const isSlider = stim.trialType === 'Number Line Slider';
       return `
       <div class="lev-stimulus-container">
-        <button id="replay-btn-revisited" class="replay">
-          ${replayButtonSvg}
-        </button>
+        ${getParticipantUtilityButtonsHtml('replay-btn-revisited')}
           ${
             stim.trialType !== 'Number Line Buttons'
               ? `<div class="lev-row-container instruction">
@@ -322,8 +324,8 @@ export const slider = (
       const responseType = stimulus.trialType.includes('Slider')
         ? 'slider'
         : stimulus.trialType.includes('4afc')
-        ? 'button'
-        : 'slider-button';
+          ? 'button'
+          : 'slider-button';
       const answer = stimulus.answer;
 
       jsPsych.data.addDataToLastTrial({

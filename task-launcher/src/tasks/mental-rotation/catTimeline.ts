@@ -22,7 +22,6 @@ import {
   fixationOnly,
   getAudioResponse,
   enterFullscreen,
-  finishExperiment,
   practiceTransition,
   setupStimulusFromCurrentCatBlock,
   setupNextBlock,
@@ -35,7 +34,7 @@ import { getLeftoverAssets } from '../shared/helpers/batchPreloading';
 
 export default function buildMentalRotationCatTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   initTrialSaving(config);
-  const initialTimeline = initTimeline(config, enterFullscreen, finishExperiment);
+  const initialTimeline = initTimeline(config, enterFullscreen);
 
   const ifRealTrialResponse = {
     timeline: [getAudioResponse(mediaAssets)],
