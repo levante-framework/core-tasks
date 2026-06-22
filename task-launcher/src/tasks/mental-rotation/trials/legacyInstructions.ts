@@ -6,6 +6,8 @@ import {
   PageAudioHandler,
   setupReplayAudio,
   enableOkButton,
+  getParticipantUtilityButtonsHtml,
+  setupFullscreenButton
 } from '../../shared/helpers';
 import { jsPsych } from '../../taskSetup';
 import { taskStore } from '../../../taskStore';
@@ -34,9 +36,7 @@ const videoInstructionsFit = {
 
     return `
       <div class="lev-stimulus-container">
-        <button id="${replayButtonHtmlId}" class="replay">
-          ${replayButtonSvg}
-        </button>
+      ${getParticipantUtilityButtonsHtml(replayButtonHtmlId)}
         <video class="instruction-video" autoplay>
           <source src=${videoSrc} type="video/mp4"/>
           Video not loading: ${videoSrc}. Please continue the task.
@@ -59,6 +59,8 @@ const videoInstructionsFit = {
 
     const pageStateHandler = new PageStateHandler('mental-rotation-training-instruct3', true);
     setupReplayAudio(pageStateHandler);
+
+    setupFullscreenButton();
   },
   on_finish: () => {
     PageAudioHandler.stopAndDisconnectNode();
@@ -81,9 +83,7 @@ const videoInstructionsMisfit = {
 
     return `
       <div class="lev-stimulus-container">
-        <button id="${replayButtonHtmlId}" class="replay">
-          ${replayButtonSvg}
-        </button>
+      ${getParticipantUtilityButtonsHtml(replayButtonHtmlId)}
         <video class="instruction-video" autoplay>
           <source src=${videoSrc} type="video/mp4"/>
           Video not loading: ${videoSrc}. Please continue the task.
@@ -103,6 +103,8 @@ const videoInstructionsMisfit = {
 
     const pageStateHandler = new PageStateHandler('mental-rotation-training-instruct2', true);
     setupReplayAudio(pageStateHandler);
+
+    setupFullscreenButton();
   },
   on_finish: () => {
     PageAudioHandler.stopAndDisconnectNode();
@@ -125,9 +127,7 @@ const imageInstructions = {
 
     return `
       <div class="lev-stimulus-container">
-        <button id="${replayButtonHtmlId}" class="replay">
-          ${replayButtonSvg}
-        </button>
+      ${getParticipantUtilityButtonsHtml(replayButtonHtmlId)}
         <img 
           src=${imageSrc} 
           class="instruction-video" 
@@ -148,6 +148,8 @@ const imageInstructions = {
 
     const pageStateHandler = new PageStateHandler('mental-rotation-instruct1', true);
     setupReplayAudio(pageStateHandler);
+
+    setupFullscreenButton();
   },
   on_finish: () => {
     PageAudioHandler.stopAndDisconnectNode();

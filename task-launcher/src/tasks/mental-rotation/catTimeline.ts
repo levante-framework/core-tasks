@@ -228,7 +228,7 @@ export default function buildMentalRotationCatTimeline(
         timeline.push(afcStimulusTemplate(trialConfig, trial));
         timeline.push(ifRealTrialResponse);
       });
-    } else {
+    } else if (index === 2) {
       timeline.push(practiceTransition(() => "generalYourTurn"));
     }
 
