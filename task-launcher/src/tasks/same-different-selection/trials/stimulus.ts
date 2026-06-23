@@ -308,7 +308,6 @@ export const stimulus = (trial?: StimulusType) => {
         if (buttonRect?.width) {
           stimImage.style.width = `${buttonRect.width}px`;
         }
-
       }
 
       if (trialType === 'something-same-2') {
