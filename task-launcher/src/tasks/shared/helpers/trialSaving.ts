@@ -146,8 +146,6 @@ export const initTrialSaving = (config: Record<string, any>) => {
         inputType: inputType
       });
     }
-
-    console.log(jsPsych.data.getLastTrialData());
   });
 
   // @ts-ignore
