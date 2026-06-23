@@ -44,7 +44,7 @@ export const DEFAULT_LAYOUT_CONFIG: LayoutConfigType = {
   inCorrectTrialConfig: {
     onIncorrectTrial: 'end',
   },
-  disableOkButton: false,
+  disableOkButton: true,
 };
 
 const defaultCorpus: Record<string, string> = {

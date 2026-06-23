@@ -1,15 +1,16 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
+import { isTouchScreen, jsPsych } from '../../taskSetup';
 import { mediaAssets } from '../../..';
-import { taskStore } from '../../../taskStore';
 import {
   addExperimenterButtons,
-  getParticipantUtilityButtonsHtml,
   PageAudioHandler,
   PageStateHandler,
-  setupFullscreenButton,
+  getParticipantUtilityButtonsHtml,
   setupReplayAudio,
+  setupFullscreenButton,
+  enableOkButton,
 } from '../../shared/helpers';
-import { isTouchScreen, jsPsych } from '../../taskSetup';
+import { taskStore } from '../../../taskStore';
 
 const instructionData = [
   {
@@ -67,14 +68,22 @@ export const instructions = instructionData.map((data) => {
     button_html: () => {
       const t = taskStore().translations;
       return [
-        `<button class="primary">
+        `<button class="primary" disabled>
                 ${t[data.buttonText]}
             </button>`,
       ];
     },
     keyboard_choices: 'NO_KEYS',
     on_load: () => {
-      PageAudioHandler.playAudio(mediaAssets.audio[data.prompt]);
+      const audioConfig: AudioConfigType = {
+        restrictRepetition: {
+          enabled: true,
+          maxRepetitions: 2,
+        },
+        onEnded: enableOkButton,
+      };
+
+      PageAudioHandler.playAudio(mediaAssets.audio[data.prompt], audioConfig);
 
       const pageStateHandler = new PageStateHandler(data.prompt, true);
       setupReplayAudio(pageStateHandler);

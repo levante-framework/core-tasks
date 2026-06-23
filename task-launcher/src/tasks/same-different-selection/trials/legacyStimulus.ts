@@ -1,23 +1,25 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
-import { taskStore } from '../../../taskStore';
 import {
-  addExperimenterButtons,
-  camelize,
-  getParticipantUtilityButtonsHtml,
-  PageAudioHandler,
   PageStateHandler,
   prepareChoices,
-  selectNextSequentialTrial,
-  setupFullscreenButton,
+  getParticipantUtilityButtonsHtml,
   setupReplayAudio,
+  PageAudioHandler,
+  camelize,
   shouldTerminateCat,
-  updateTheta,
+  selectNextSequentialTrial,
+  addExperimenterButtons,
+  setupFullscreenButton,
+  enableOkButton,
+  disableOkButton,
 } from '../../shared/helpers';
-import { displayDebugInfo } from '../../shared/helpers/displayDebugInfo';
-import { handleStaggeredButtons } from '../../shared/helpers/staggerButtons';
 import { finishExperiment } from '../../shared/trials';
 import { isTouchScreen, jsPsych } from '../../taskSetup';
+import { taskStore } from '../../../taskStore';
+import { handleStaggeredButtons } from '../../shared/helpers/staggerButtons';
+import { updateTheta } from '../../shared/helpers';
+import { displayDebugInfo } from '../../shared/helpers/displayDebugInfo';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 let incorrectPracticeResponses: string[] = [];
@@ -92,7 +94,7 @@ export const legacyStimulus = (trial?: StimulusType) => {
     type: jsPsychHtmlMultiResponse,
     data: () => {
       const stim = trial || taskStore().nextStimulus;
-      const isPracticeTrial = stim.assessmentStage === 'practice_response';
+      let isPracticeTrial = stim.assessmentStage === 'practice_response';
       return {
         save_trial: stim.assessmentStage !== 'instructions',
         assessment_stage: stim.assessmentStage,
@@ -170,7 +172,7 @@ export const legacyStimulus = (trial?: StimulusType) => {
       if (stim.trialType === 'instructions' || stim.trialType == 'something-same-1') {
         return ['OK'];
       } else {
-        const randomize = stim.answer ? 'yes' : 'no';
+        const randomize = !!stim.answer ? 'yes' : 'no';
         // Randomize choices if there is an answer
         const { choices } = prepareChoices(stim.answer, stim.distractors, randomize);
         return generateImageChoices(choices);
@@ -180,7 +182,8 @@ export const legacyStimulus = (trial?: StimulusType) => {
       const stim = trial || taskStore().nextStimulus;
       const buttonClass =
         stim.trialType === 'instructions' || stim.trialType === 'something-same-1' ? 'primary' : 'image-medium';
-      return `<button class="${buttonClass}">%choice%</button>`;
+      const disabled = stim.trialType === 'instructions' ? ' disabled' : '';
+      return `<button class="${buttonClass}"${disabled}>%choice%</button>`;
     },
     response_ends_trial: () => {
       const stim = trial || taskStore().nextStimulus;
@@ -201,7 +204,27 @@ export const legacyStimulus = (trial?: StimulusType) => {
         audioFile += '-heavy';
       }
 
-      PageAudioHandler.playAudio(mediaAssets.audio[camelize(audioFile)]);
+      const audioConfig: AudioConfigType =
+        stimulus.trialType === 'instructions'
+          ? {
+              restrictRepetition: {
+                enabled: false,
+                maxRepetitions: 2,
+              },
+              onEnded: enableOkButton,
+            }
+          : {
+              restrictRepetition: {
+                enabled: false,
+                maxRepetitions: 2,
+              },
+            };
+
+      PageAudioHandler.playAudio(mediaAssets.audio[camelize(audioFile)], audioConfig);
+
+      if (stimulus.trialType === 'instructions') {
+        disableOkButton();
+      }
 
       const pageStateHandler = new PageStateHandler(audioFile, true);
       setupReplayAudio(pageStateHandler);
