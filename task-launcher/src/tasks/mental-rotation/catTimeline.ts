@@ -8,7 +8,7 @@ import {
   batchMediaAssets,
   prepareMultiBlockCat,
   checkFallbackCriteria,
-} from "../shared/helpers";
+} from '../shared/helpers';
 // trials
 import { threeDimInstructions, instructions } from "./trials/instructions";
 import { legacyInstructions } from "./trials/legacyInstructions";
