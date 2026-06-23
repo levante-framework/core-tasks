@@ -133,6 +133,21 @@ export const initTrialSaving = (config: Record<string, any>) => {
     }
 
     taskStore('totalTrialCount', taskStore().totalTrialCount + 1);
+
+    if (taskStore().inputCapability) {
+      let inputType; 
+      if (taskStore().inputCapability.mouse) {
+        inputType = 'mouse/keyboard';
+      } else if (taskStore().inputCapability.touch) {
+        inputType = 'touch';
+      }
+
+      jsPsych.data.addDataToLastTrial({
+        inputType: inputType
+      });
+    }
+
+    console.log(jsPsych.data.getLastTrialData());
   });
 
   // @ts-ignore
