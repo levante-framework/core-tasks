@@ -9,6 +9,7 @@ import {
   setupReplayAudio,
   setupFullscreenButton,
   isLanguageAllowedDownex,
+  enableOkButton,
 } from '../../shared/helpers';
 import { taskStore } from '../../../taskStore';
 
@@ -113,7 +114,7 @@ const instructions = instructionData.map((data) => {
 
       if (data.buttonText) {
         return [
-          `<button class="primary">
+          `<button class="primary" disabled>
                   ${t[data.buttonText]}
           </button>`,
         ];
@@ -130,6 +131,8 @@ const instructions = instructionData.map((data) => {
         onEnded: () => {
           if (!data.buttonText) {
             jsPsych.finishTrial();
+          } else {
+            enableOkButton();
           }
         },
       };

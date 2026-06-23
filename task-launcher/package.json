@@ -11,26 +11,25 @@
     "patchPackages.js"
   ],
   "scripts": {
-    "build": "npx webpack --mode production --env dbmode=development",
-    "build:demo": "npx webpack --mode production --env dbmode=development --env demo=true",
+    "build": "webpack --mode production --env dbmode=development",
+    "build:demo": "webpack --mode production --env dbmode=development --env demo=true",
+    "check": "biome check",
+    "check:fix": "biome check --write",
     "prepackage": "rimraf lib/",
-    "package": "npx rollup -c",
+    "package": "rollup -c",
     "postpackage": "node postBuildPackage.js",
     "prepublishOnly": "npm run package",
-    "preversion": "npm run lint",
-    "version": "npm run format && git add -A",
-    "postversion": "GIT_REMOTE=$(git remote -v | grep \"levante-framework/core-tasks.git \\(push\\)\" | cut -f 1) && git push $GIT_REMOTE && git push $GIT_REMOTE --tags",
-    "dev": "npx webpack serve --mode development --env dbmode=development --env EMULATORS=true --env demo=true",
-    "dev:db": "npx webpack serve --mode development --env dbmode=development --env demo=true",
+    "dev": "webpack serve --mode development --env dbmode=development --env EMULATORS=true --env demo=true",
+    "dev:db": "webpack serve --mode development --env dbmode=development --env demo=true",
     "deploy": "npm run build:demo && firebase deploy --only hosting:core-tasks",
-    "lint": "npx eslint --ext .ts,.tsx,.js,.jsx",
-    "format": "npx prettier . --write",
+    "format": "biome format --write",
+    "format:check": "biome format",
     "patchPackages": "node patchPackages.js",
     "postinstall": "npm run patchPackages"
   },
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "git+https://github.com/levante-framework/core-tasks.git"
   },
   "contributors": [
     "Philip Ziolkowski",
@@ -64,6 +63,7 @@
     "@babel/cli": "^7.22.5",
     "@babel/core": "^7.22.5",
     "@babel/preset-env": "^7.22.5",
+    "@biomejs/biome": "2.5.0",
     "@rollup/plugin-commonjs": "^25.0.3",
     "@rollup/plugin-dsv": "^3.0.2",
     "@rollup/plugin-json": "^6.0.0",
@@ -76,15 +76,9 @@
     "css-loader": "^6.7.1",
     "csv-loader": "^3.0.5",
     "cypress": "^13.13.3",
-    "eslint": "^8.12.0",
-    "eslint-config-airbnb-base": "^15.0.0",
-    "eslint-config-prettier": "^8.8.0",
-    "eslint-plugin-cypress": "^2.15.1",
-    "eslint-plugin-import": "^2.25.4",
     "file-loader": "^6.2.0",
     "html-webpack-plugin": "^5.5.0",
     "path-browserify": "^1.0.1",
-    "prettier": "3.0.0",
     "process": "^0.11.10",
     "rimraf": "^5.0.1",
     "rollup": "^3.26.3",
@@ -99,5 +93,8 @@
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^4.15.1",
     "webpack-merge": "^5.8.0"
+  },
+  "engines": {
+    "node": "^24"
   }
 }

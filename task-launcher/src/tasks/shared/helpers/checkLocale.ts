@@ -9,6 +9,5 @@ const isSpanishAR = (langCode?: string) => {
 };
 
 export const isLanguageAllowedDownex = (langCode?: string) => {
-  console.log(isSpanishAR(langCode) || isEnglish(langCode));
   return isSpanishAR(langCode) || isEnglish(langCode);
 }
