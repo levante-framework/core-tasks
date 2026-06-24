@@ -22,7 +22,7 @@ import {
 import { getLayoutConfig } from './helpers/config';
 import { prepareCorpus, selectNItems } from '../shared/helpers/prepareCat';
 import { taskStore } from '../../taskStore';
-import { preloadSharedAudio } from '../shared/helpers/preloadSharedAudio';
+import { getLeftoverAssets } from '../shared/helpers/batchPreloading';
 
 export default function buildTROGTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
@@ -57,8 +57,10 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
 
   // counter for next batch to preload (skipping the initial preload)
   let currPreloadBatch = 0;
-
-  const initialPreload = runCat ? createPreloadTrials(mediaAssets).default : preloadSharedAudio();
+  const leftOverAssets = getLeftoverAssets(batchedMediaAssets, mediaAssets);
+  const initialPreload = runCat ? 
+    createPreloadTrials(mediaAssets).default : 
+    createPreloadTrials(leftOverAssets).default;
 
   const timeline = [initialPreload, initialTimeline];
 

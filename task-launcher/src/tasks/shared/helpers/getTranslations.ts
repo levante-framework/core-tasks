@@ -7,10 +7,19 @@ let translations: Record<string, string> = {};
 
 function parseTranslations(translationData: Record<string, string>[]) {
   for (const [key, value] of Object.entries(translationData)) {
-    translations[camelize(key.trim())] = value as unknown as string;
+    translations[key.trim()] = value as unknown as string;
   }
 }
 
+function camelizeTranslations() {
+  for (const [key, value] of Object.entries(translations)) {
+    const camelizedKey = camelize(key);
+
+    translations[camelizedKey] = value as unknown as string;
+    delete translations[key];
+  }
+}
+ 
 export const getTranslations = async (isDev: boolean, taskName: string, configLanguage?: string) => {
   // adult reasoning strings are in the math item bank
   if (taskName === 'adult-reasoning') {
@@ -53,6 +62,9 @@ export const getTranslations = async (isDev: boolean, taskName: string, configLa
     }
     try {
       await loadTranslationJsons(taskName === 'intro' ? [urls[1]] : urls);
+
+      taskStore("requiredAudioAssets", Object.keys(translations));
+      camelizeTranslations();
       taskStore('translations', translations);
     } catch (error) {
       console.error('Error:', error);

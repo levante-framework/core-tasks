@@ -10,5 +10,9 @@ export function getBucketName(
     ? TASK_BUCKET_NAMES_DEV[assetType as keyof typeof TASK_BUCKET_NAMES_DEV]
     : TASK_BUCKET_NAMES_PROD[assetType as keyof typeof TASK_BUCKET_NAMES_PROD];
 
-  return `${bucket}/${assetType === 'audio' ? language : taskName}`;
+  if (assetType === 'audio') {
+    return language ? `${bucket}/${language}` : bucket;
+  }
+
+  return `${bucket}/${taskName}`;
 }

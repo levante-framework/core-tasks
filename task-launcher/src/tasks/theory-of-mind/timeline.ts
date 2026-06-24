@@ -20,8 +20,8 @@ import {
 } from '../shared/trials';
 import { getLayoutConfig } from './helpers/config';
 import { taskStore } from '../../taskStore';
-import { preloadSharedAudio } from '../shared/helpers/preloadSharedAudio';
 import { prepareTomCorpus, prepareStoryGroups } from './helpers/prepareTomCorpus';
+import { getLeftoverAssets } from '../shared/helpers/batchPreloading';
 
 export default function buildTOMTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   initTrialSaving(config);
@@ -55,8 +55,6 @@ export default function buildTOMTimeline(config: Record<string, any>, mediaAsset
     terminateCat: false,
   };
 
-  const initialPreload = preloadSharedAudio();
-  const timeline = [initialPreload, initialTimeline];
 
   const blockList: StimulusType[][] = prepareMultiBlockCat(corpus, false);
   const fillerTrials = prepareTomCorpus(blockList);
@@ -68,6 +66,9 @@ export default function buildTOMTimeline(config: Record<string, any>, mediaAsset
     ['item', 'answer', 'distractors'],
     ['audioFile', 'distractors'], // we need to preload audio for the staggered buttons
   );
+
+  const initialPreload = createPreloadTrials(getLeftoverAssets(batchedMediaAssets, mediaAssets)).default;
+  const timeline = [initialPreload, initialTimeline];
 
   let currPreloadBatch = 0;
 
