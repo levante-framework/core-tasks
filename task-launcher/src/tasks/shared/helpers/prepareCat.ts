@@ -59,7 +59,7 @@ export function prepareCorpus(
   const possibleStartItems: StimulusType[] = normedTrials.filter(
     (trial) =>
       !excludedTrialTypes.includes(trial.trialType) &&
-      ((taskStore().task == 'egma-math' && trial.block_index === 0) || taskStore().task !== 'egma-math') &&
+      ((taskStore().task === 'egma-math' && trial.block_index === 0) || taskStore().task !== 'egma-math') &&
       Number(trial.difficulty) <= maxTrialDifficulty,
   );
   const startItems: StimulusType[] = selectNItems(possibleStartItems, 5);
@@ -138,7 +138,7 @@ export function prepareMultiBlockCat(corpus: StimulusType[], sequentialBlocks = 
     const prevBlock = currBlock;
     currBlock = Number(trial.block_index);
 
-    if (currBlock != undefined) {
+    if (currBlock !== undefined) {
       if (currBlock !== prevBlock) {
         blockList.push([trial]);
       } else {

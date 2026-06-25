@@ -395,7 +395,7 @@ export const heavyPractice = practiceData.map((data) => {
     prompt_above_buttons: true,
     post_trial_gap: 350,
     button_choices: () => {
-      if (data.trialType === 'instructions' || data.trialType == 'something-same-1') {
+      if (data.trialType === 'instructions' || data.trialType === 'something-same-1') {
         return ['OK'];
       } else {
         const randomize = data.answer ? 'yes' : 'no';

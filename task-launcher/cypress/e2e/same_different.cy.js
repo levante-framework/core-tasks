@@ -21,7 +21,7 @@ function cleanDimensions(dimensions) {
   }
 
   const nonWhiteBackgrounds = ['gray', 'black', 'striped'];
-  if (checkOverlap(dimensions, nonWhiteBackgrounds).length == 0 && phaseCount > 3) {
+  if (checkOverlap(dimensions, nonWhiteBackgrounds).length === 0 && phaseCount > 3) {
     dimensions.push('white');
   }
 
@@ -77,7 +77,7 @@ function multiAfc() {
   cy.get('.jspsych-content').then((content) => {
     const responseButtons = content.find('img');
     const correctAnswer = content.find('.correct'); // correct flag signals a single afc trial
-    if (responseButtons.length == 0 || correctAnswer.length > 0) {
+    if (responseButtons.length === 0 || correctAnswer.length > 0) {
       return;
     }
     if (numSelections >= responseButtons.length - 1 || phaseCount < responseButtons.length) {
@@ -102,7 +102,7 @@ function multiAfc() {
           return !matchedDimensions.includes(dimension);
         });
 
-        if (validMatches.length > 0 && j != i) {
+        if (validMatches.length > 0 && j !== i) {
           matchedDimensions.push(validMatches[0]); // remember the matched dimension
           responseButtons[i].click();
           responseButtons[j].click();

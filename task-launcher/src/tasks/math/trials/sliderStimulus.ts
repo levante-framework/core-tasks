@@ -207,7 +207,7 @@ export const slider = (
           btn.textContent = responseChoices[i];
 
           // flag correct answer if running in cypress
-          if (window.Cypress && _toNumber(btn.textContent) == answer) {
+          if (window.Cypress && _toNumber(btn.textContent) === answer) {
             btn.setAttribute('aria-label', 'correct');
           }
 

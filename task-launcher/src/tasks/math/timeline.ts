@@ -212,10 +212,10 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
     const allCorpusParts = prepareCorpus(corpus, true, downexCorpus);
     const olderKidInstructionPractice: StimulusType[] = allCorpusParts.ipLight;
     const olderKidInstructions: StimulusType[] = olderKidInstructionPractice.filter(
-      (trial: StimulusType) => trial.trialType == 'instructions',
+      (trial: StimulusType) => trial.trialType === 'instructions',
     );
     const olderKidPractice: StimulusType[] = olderKidInstructionPractice.filter(
-      (trial: StimulusType) => trial.assessmentStage == 'practice_response',
+      (trial: StimulusType) => trial.assessmentStage === 'practice_response',
     );
 
     const olderKidBlocks: StimulusType[][] = prepareMultiBlockCat(taskStore().corpora.stimulus);
@@ -229,10 +229,10 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
     if (heavyInstructions) {
       const downexInstructionPractice: StimulusType[] = allCorpusParts.ipHeavy;
       const downexInstructions: StimulusType[] = downexInstructionPractice.filter(
-        (trial) => trial.trialType == 'instructions',
+        (trial) => trial.trialType === 'instructions',
       );
       let downexPractice: StimulusType[] = downexInstructionPractice.filter(
-        (trial) => trial.assessmentStage == 'practice_response',
+        (trial) => trial.assessmentStage === 'practice_response',
       );
 
       let downexBlock: StimulusType[] = allCorpusParts.downexCat;

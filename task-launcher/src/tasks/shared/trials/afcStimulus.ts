@@ -261,7 +261,7 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
 
   // should log trialsOfCurrentType - race condition
   if (stim.task === 'math') {
-    if (twoTrialsAgoStimulus != undefined && stim.trialType === twoTrialsAgoStimulus[0]?.trialType) {
+    if (twoTrialsAgoStimulus !== undefined && stim.trialType === twoTrialsAgoStimulus[0]?.trialType) {
       trialsOfCurrentType += 1;
     } else {
       trialsOfCurrentType = 0;
