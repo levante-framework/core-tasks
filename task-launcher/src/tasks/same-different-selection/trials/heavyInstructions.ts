@@ -181,7 +181,7 @@ export const somethingSameDemo2 = {
       };
 
       setTimeout(() => {
-        PageAudioHandler.playAudio(mediaAssets.audio['sdsPrompt3DemoHeavyPart2'], audioConfig);
+        PageAudioHandler.playAudio(mediaAssets.audio.sdsPrompt3DemoHeavyPart2, audioConfig);
       }, 2500);
     }
 
@@ -193,7 +193,7 @@ export const somethingSameDemo2 = {
       onEnded: animateBottomButtons,
     };
 
-    PageAudioHandler.playAudio(mediaAssets.audio['sdsPrompt3DemoHeavyPart1'], audioConfig);
+    PageAudioHandler.playAudio(mediaAssets.audio.sdsPrompt3DemoHeavyPart1, audioConfig);
   },
   on_finish: () => {
     PageAudioHandler.stopAndDisconnectNode();

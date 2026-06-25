@@ -278,11 +278,10 @@ export const slider = (
       }
 
       if (isPractice) {
-        let feedbackHandler;
         const answer = stim.answer.toString();
         const choices = layoutConfigMap?.[stim.itemId].response.values;
 
-        feedbackHandler = addPracticeButtonListeners(answer, isTouchScreen, choices);
+        const feedbackHandler = addPracticeButtonListeners(answer, isTouchScreen, choices);
       }
     },
     on_finish: (data: any) => {

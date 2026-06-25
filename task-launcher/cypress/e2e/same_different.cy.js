@@ -16,7 +16,7 @@ function cleanDimensions(dimensions) {
     dimensions.shift(); // ignore size dimension
   }
 
-  if (dimensions.every((element) => isNaN(Number(element))) && phaseCount > 3) {
+  if (dimensions.every((element) => Number.isNaN(Number(element))) && phaseCount > 3) {
     dimensions.push('1');
   }
 
