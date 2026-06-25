@@ -68,13 +68,13 @@ jobs:
           npm run format:check
 
       - name: Configure git
-        if: inputs.bump-and-tag == 'true'
+        if: ${{ inputs.bump-and-tag }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Bump package version
-        if: inputs.bump-and-tag == 'true'
+        if: ${{ inputs.bump-and-tag }}
         run: |
           npm version ${{ inputs.version-type }} --message "chore: release v%s [skip ci]"
 
@@ -83,14 +83,15 @@ jobs:
         run: echo "new_version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
 
       - name: Push version commit and tag
-        if: inputs.bump-and-tag == 'true'
+        if: ${{ inputs.bump-and-tag }}
         run: git push --follow-tags
 
       - name: Publish to npm
+        if: ${{ inputs.bump-and-tag }}
         run: npm publish --access public
 
   update-dashboard:
-    if: inputs.update-dashboard == 'true'
+    if: ${{ inputs.update-dashboard }}
     needs: version-and-publish
     runs-on: ubuntu-latest
     steps:
