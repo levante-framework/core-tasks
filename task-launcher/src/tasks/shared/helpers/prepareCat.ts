@@ -1,7 +1,6 @@
 import _shuffle from 'lodash/shuffle';
 import { taskStore } from '../../../taskStore';
-import { cat } from '../../taskSetup';
-import { jsPsych } from '../../taskSetup';
+import { cat, jsPsych } from '../../taskSetup';
 
 // separates trials from corpus into blocks depending on for heavy/light instructions and CAT
 export function prepareCorpus(

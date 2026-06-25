@@ -1,9 +1,9 @@
 import jsPsychFullScreen from '@jspsych/plugin-fullscreen';
 import fscreen from 'fscreen';
 import { taskStore } from '../../../taskStore';
+import { setupInputDetection } from '../../../utils/detectInput';
 import { isTouchScreen } from '../../taskSetup';
 import { PageAudioHandler } from '../helpers/audioHandler';
-import { setupInputDetection } from '../../../utils/detectInput';
 
 export const enterFullscreen = {
   type: jsPsychFullScreen,

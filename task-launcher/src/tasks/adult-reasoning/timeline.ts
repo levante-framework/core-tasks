@@ -1,16 +1,17 @@
 // setup
-import { initTrialSaving, initTimeline, createPreloadTrials, getRealTrials, prepareCorpus } from '../shared/helpers';
-import { jsPsych, initializeCat } from '../taskSetup';
+
 import { taskStore } from '../../taskStore';
+import { createPreloadTrials, getRealTrials, initTimeline, initTrialSaving, prepareCorpus } from '../shared/helpers';
 // trials
 import {
   afcStimulusTemplate,
+  enterFullscreen,
   exitFullscreen,
+  fixationOnly,
   setupStimulus,
   taskFinished,
-  enterFullscreen,
-  fixationOnly,
 } from '../shared/trials';
+import { initializeCat, jsPsych } from '../taskSetup';
 import { getLayoutConfig } from './helpers/config';
 
 export default function buildAdultReasoningTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {

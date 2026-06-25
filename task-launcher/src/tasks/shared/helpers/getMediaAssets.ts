@@ -1,4 +1,4 @@
-//@ts-ignore
+//@ts-expect-error
 import { getDevice } from '@bdelab/roar-utils';
 import { camelize } from './camelize';
 

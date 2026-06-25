@@ -1,28 +1,28 @@
 // For all tasks except: H&F, Memory Game, Same Different Selection
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import _toNumber from 'lodash/toNumber';
-import { jsPsych, isTouchScreen, cat } from '../../taskSetup';
+import { mediaAssets } from '../../..';
+import { taskStore } from '../../../taskStore';
+import { cat, isTouchScreen, jsPsych } from '../../taskSetup';
 import {
+  addExperimenterButtons,
+  addPracticeButtonListeners,
+  camelize,
+  enableOkButton,
   getParticipantUtilityButtonsHtml,
-  setupReplayAudio,
-  setSkipCurrentBlock,
+  handleStaggeredButtons,
   PageAudioHandler,
   PageStateHandler,
-  camelize,
-  setSentryContext,
-  handleStaggeredButtons,
-  updateTheta,
-  addPracticeButtonListeners,
-  enableOkButton,
-  shouldTerminateCat,
   selectNextSequentialTrial,
-  addExperimenterButtons,
+  setSentryContext,
+  setSkipCurrentBlock,
   setupFullscreenButton,
+  setupReplayAudio,
+  shouldTerminateCat,
+  updateTheta,
 } from '../helpers';
-import { mediaAssets } from '../../..';
-import { finishExperiment } from '.';
-import { taskStore } from '../../../taskStore';
 import { displayDebugInfo } from '../helpers/displayDebugInfo';
+import { finishExperiment } from '.';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 // Previously chosen responses for current practice trial
@@ -221,7 +221,7 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
     // Handle the staggered buttons
     const buttonContainer = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
     const imgButtons = Array.from(buttonContainer.children as HTMLCollectionOf<HTMLButtonElement>);
-    let audioKeys: string[] = [];
+    const audioKeys: string[] = [];
     for (let i = 0; i < imgButtons.length; i++) {
       const img = imgButtons[i].children[0].getElementsByTagName('img')[0];
       const audioKey = camelize(img?.alt ?? '');
@@ -319,7 +319,7 @@ function doOnFinish(
   const { runCat, corpus } = taskStore();
   let responseValue = null;
   let target = null;
-  let responseIndex = null;
+  const responseIndex = null;
 
   if (stimulus.trialType !== 'instructions') {
     if (itemLayoutConfig) {
@@ -451,7 +451,7 @@ export const afcStimulusTemplate = (
     response_allowed_while_playing: responseAllowed,
     data: () => {
       const stim = trial || taskStore().nextStimulus;
-      let isPracticeTrial = stim.assessmentStage === 'practice_response';
+      const isPracticeTrial = stim.assessmentStage === 'practice_response';
       return {
         // not camelCase because firekit
         save_trial: true,

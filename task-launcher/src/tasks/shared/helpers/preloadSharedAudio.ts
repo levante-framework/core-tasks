@@ -1,6 +1,6 @@
-import { createPreloadTrials, filterMedia } from './';
-import { taskStore } from '../../../taskStore';
 import { mediaAssets } from '../../..';
+import { taskStore } from '../../../taskStore';
+import { createPreloadTrials, filterMedia } from './';
 
 export function preloadSharedAudio() {
   const sharedAudio = filterMedia(mediaAssets, [], taskStore().assetsPerTask.shared.audio, []);

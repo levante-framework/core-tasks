@@ -1,20 +1,19 @@
 import {
-  isTaskFinished,
-  getMediaAssets,
-  dashToCamelCase,
-  showLevanteLogoLoading,
-  hideLevanteLogoLoading,
   combineMediaAssets,
-  getAssetsPerTask,
+  dashToCamelCase,
   filterMedia,
+  getAssetsPerTask,
+  getMediaAssets,
+  hideLevanteLogoLoading,
+  isTaskFinished,
+  showLevanteLogoLoading,
 } from './tasks/shared/helpers';
 import './styles/index.scss';
-import taskConfig from './tasks/taskConfig';
-import { RoarAppkit } from '@levante-framework/firekit';
-import { setTaskStore } from './taskStore';
-import { taskStore } from './taskStore';
-import { InitPageSetup, Logger } from './utils';
+import type { RoarAppkit } from '@levante-framework/firekit';
+import { setTaskStore, taskStore } from './taskStore';
 import { getBucketName } from './tasks/shared/helpers/getBucketName';
+import taskConfig from './tasks/taskConfig';
+import { InitPageSetup, Logger } from './utils';
 
 export let mediaAssets: MediaAssetsType;
 let languageAudioAssets: MediaAssetsType;

@@ -1,33 +1,33 @@
 // setup
-import { jsPsych } from '../taskSetup';
-import { fixation } from './trials/fixation';
-import { initTrialSaving, initTimeline, createPreloadTrials } from '../shared/helpers';
+
 import { mediaAssets } from '../..';
 import { taskStore } from '../../taskStore';
-
+import { createPreloadTrials, initTimeline, initTrialSaving } from '../shared/helpers';
 // trials
-import { exitFullscreen, enterFullscreen } from '../shared/trials';
-import { stimulus, buildHeartsOrFlowersTimelineVariables, buildMixedTimelineVariables } from './trials/stimulus';
+import { enterFullscreen, exitFullscreen } from '../shared/trials';
+import { jsPsych } from '../taskSetup';
+import { AssessmentStageType, CorpusTrialType, StimulusSideType, StimulusType } from './helpers/utils';
+import { fixation } from './trials/fixation';
+import {
+  getEndGame,
+  getFlowerInstructions,
+  getGoingFasterInstructions,
+  getHeartInstructions,
+  getInputInstructions,
+  getKeepGoing,
+  getKeepUp,
+  getLeftButtonDemo,
+  getMixedInstructions,
+  getRightButtonDemo,
+  getTimeToPlay,
+  getTimeToPractice,
+} from './trials/instructions';
 import {
   buildInstructionPracticeTrial,
-  buildStimulusInvariantPracticeFeedback,
   buildMixedPracticeFeedback,
+  buildStimulusInvariantPracticeFeedback,
 } from './trials/practice';
-import {
-  getHeartInstructions,
-  getFlowerInstructions,
-  getTimeToPractice,
-  getKeepUp,
-  getKeepGoing,
-  getTimeToPlay,
-  getMixedInstructions,
-  getEndGame,
-  getInputInstructions,
-  getGoingFasterInstructions,
-  getLeftButtonDemo,
-  getRightButtonDemo,
-} from './trials/instructions';
-import { StimulusType, StimulusSideType, AssessmentStageType, CorpusTrialType } from './helpers/utils';
+import { buildHeartsOrFlowersTimelineVariables, buildMixedTimelineVariables, stimulus } from './trials/stimulus';
 
 export default function buildHeartsAndFlowersTimeline(config, mediaAssets) {
   const hfV2 = taskStore().version === 2;
@@ -87,7 +87,7 @@ export default function buildHeartsAndFlowersTimeline(config, mediaAssets) {
 
   taskStore('totalTestTrials', totalRealTrials);
 
-  let timeline = [preloadTrials, initialTimeline];
+  const timeline = [preloadTrials, initialTimeline];
   if (hfV2) {
     timeline.push(getInputInstructions());
     timeline.push(getLeftButtonDemo());

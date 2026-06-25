@@ -1,25 +1,25 @@
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
 import { mediaAssets } from '../../..';
-import { jsPsych } from '../../taskSetup';
-import {
-  prepareChoices,
-  getParticipantUtilityButtonsHtml,
-  setupReplayAudio,
-  PageStateHandler,
-  PageAudioHandler,
-  camelize,
-  enableOkButton,
-  disableOkButton,
-  shouldTerminateCat,
-  selectNextSequentialTrial,
-  addExperimenterButtons,
-  setupFullscreenButton,
-} from '../../shared/helpers';
-import { finishExperiment } from '../../shared/trials';
 import { taskStore } from '../../../taskStore';
-import { updateTheta } from '../../shared/helpers';
-import { sdsProgressComponentFilled, sdsProgressComponentEmpty } from '../../shared/helpers/components';
+import {
+  addExperimenterButtons,
+  camelize,
+  disableOkButton,
+  enableOkButton,
+  getParticipantUtilityButtonsHtml,
+  PageAudioHandler,
+  PageStateHandler,
+  prepareChoices,
+  selectNextSequentialTrial,
+  setupFullscreenButton,
+  setupReplayAudio,
+  shouldTerminateCat,
+  updateTheta,
+} from '../../shared/helpers';
+import { sdsProgressComponentEmpty, sdsProgressComponentFilled } from '../../shared/helpers/components';
 import { displayDebugInfo } from '../../shared/helpers/displayDebugInfo';
+import { finishExperiment } from '../../shared/trials';
+import { jsPsych } from '../../taskSetup';
 
 let selectedCards: string[] = [];
 let selectedCardIdxs: number[] = [];
@@ -126,7 +126,7 @@ export const afcMatch = (trial?: StimulusType) => {
     type: jsPsychAudioMultiResponse,
     data: () => {
       const stim = trial || taskStore().nextStimulus;
-      let isPracticeTrial = stim.assessmentStage === 'practice_response';
+      const isPracticeTrial = stim.assessmentStage === 'practice_response';
       return {
         save_trial: stim.trialType !== 'instructions',
         assessment_stage: stim.assessmentStage,
@@ -155,7 +155,7 @@ export const afcMatch = (trial?: StimulusType) => {
       if (stim.assessmentStage === 'instructions') {
         return ['OK'];
       } else {
-        const randomize = !!stim.answser ? 'yes' : 'no';
+        const randomize = stim.answser ? 'yes' : 'no';
         // Randomize choices if there is an answer
         const { choices } = prepareChoices(stim.answer, stim.distractors, randomize);
         return generateImageChoices(choices);

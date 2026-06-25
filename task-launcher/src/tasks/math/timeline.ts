@@ -1,31 +1,31 @@
 import 'regenerator-runtime/runtime';
 import store from 'store2';
+import { taskStore } from '../../taskStore';
 // setup
 import {
-  initTrialSaving,
-  initTimeline,
   createPreloadTrials,
+  getRealTrials,
+  initTimeline,
+  initTrialSaving,
   prepareCorpus,
   prepareMultiBlockCat,
-  getRealTrials,
 } from '../shared/helpers';
-import { jsPsych, initializeCat } from '../taskSetup';
-import { slider } from './trials/sliderStimulus';
 import {
   afcStimulusTemplate,
   enterFullscreen,
   exitFullscreen,
-  getAudioResponse,
-  setupStimulus,
+  feedback,
   fixationOnly,
+  getAudioResponse,
+  practiceTransition,
+  setupDownex,
+  setupStimulus,
   setupStimulusFromBlock,
   taskFinished,
-  practiceTransition,
-  feedback,
-  setupDownex,
 } from '../shared/trials';
+import { initializeCat, jsPsych } from '../taskSetup';
 import { getLayoutConfig } from './helpers/config';
-import { taskStore } from '../../taskStore';
+import { slider } from './trials/sliderStimulus';
 
 export default function buildMathTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
@@ -55,7 +55,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
 
   const timeline = [preloadTrials, initialTimeline];
 
-  let corpus: StimulusType[] = taskStore().corpora.stimulus;
+  const corpus: StimulusType[] = taskStore().corpora.stimulus;
   const downexCorpus: StimulusType[] = taskStore().corpora.downex;
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {};
@@ -161,7 +161,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
 
   // this block repeats all slider practice trials
   const repeatSliderPracticeBlock = () => {
-    let trials: any[] = [];
+    const trials: any[] = [];
     sliderPractice.forEach((trial, index) => {
       trials.push(slider(layoutConfigMap, terminateCat, trial));
       if (index < sliderPractice.length - 1) {
@@ -214,11 +214,11 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
     const olderKidInstructions: StimulusType[] = olderKidInstructionPractice.filter(
       (trial: StimulusType) => trial.trialType == 'instructions',
     );
-    let olderKidPractice: StimulusType[] = olderKidInstructionPractice.filter(
+    const olderKidPractice: StimulusType[] = olderKidInstructionPractice.filter(
       (trial: StimulusType) => trial.assessmentStage == 'practice_response',
     );
 
-    let olderKidBlocks: StimulusType[][] = prepareMultiBlockCat(taskStore().corpora.stimulus);
+    const olderKidBlocks: StimulusType[][] = prepareMultiBlockCat(taskStore().corpora.stimulus);
     taskStore('corpora', { stimulus: olderKidBlocks, downex: taskStore().corpora.downex });
     taskStore('totalTestTrials', 0); // add to this while building out each block
 

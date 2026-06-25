@@ -1,10 +1,10 @@
-import { jsPsych } from '../../taskSetup';
 import cloneDeep from 'lodash/cloneDeep';
 import _mapValues from 'lodash/mapValues';
 import { taskStore } from '../../../taskStore';
-import { recordCompletion } from './recordCompletion';
 import { Logger } from '../../../utils/logger';
+import { jsPsych } from '../../taskSetup';
 import { finishExperiment } from '../trials';
+import { recordCompletion } from './recordCompletion';
 
 /**
  * This function calculates computed scores given raw scores for each subtask.
@@ -102,7 +102,7 @@ export const normedScoreCallback = (computedScores: any) => {
 
 export const initTrialSaving = (config: Record<string, any>) => {
   if (config.displayElement) {
-    // @ts-ignore
+    // @ts-expect-error
     jsPsych.opts.display_element = config.display_element;
   }
 
@@ -114,14 +114,14 @@ export const initTrialSaving = (config: Record<string, any>) => {
       code.apply(fn, arguments);
     };
 
-  // @ts-ignore
+  // @ts-expect-error
   jsPsych.opts.on_finish = extend(jsPsych.opts.on_finish, () => {
     if (!taskStore().demoMode && config.firekit) {
       config.firekit.finishRun();
     }
   });
 
-  // @ts-ignore
+  // @ts-expect-error
   jsPsych.opts.on_trial_finish = extend(jsPsych.opts.on_trial_finish, () => {
     if (taskStore().maxTimeReached) {
       finishExperiment();
@@ -135,7 +135,7 @@ export const initTrialSaving = (config: Record<string, any>) => {
     taskStore('totalTrialCount', taskStore().totalTrialCount + 1);
 
     if (taskStore().inputCapability) {
-      let inputType; 
+      let inputType;
       if (taskStore().inputCapability.mouse) {
         inputType = 'mouse/keyboard';
       } else if (taskStore().inputCapability.touch) {
@@ -143,12 +143,12 @@ export const initTrialSaving = (config: Record<string, any>) => {
       }
 
       jsPsych.data.addDataToLastTrial({
-        inputType: inputType
+        inputType: inputType,
       });
     }
   });
 
-  // @ts-ignore
+  // @ts-expect-error
   jsPsych.opts.on_data_update = extend(jsPsych.opts.on_data_update, (data) => {
     if (data.save_trial && !taskStore().demoMode && config.firekit) {
       // save_trial is a flag that indicates whether the trial should

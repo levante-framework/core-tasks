@@ -1,10 +1,10 @@
 import 'regenerator-runtime/runtime';
 // setup
-import { initTrialSaving, initTimeline, createPreloadTrials } from '../shared/helpers';
-import { instructions } from './trials/instructions';
-import { jsPsych } from '../taskSetup';
+import { createPreloadTrials, initTimeline, initTrialSaving } from '../shared/helpers';
 // trials
 import { enterFullscreen, exitFullscreen, taskFinished } from '../shared/trials';
+import { jsPsych } from '../taskSetup';
+import { instructions } from './trials/instructions';
 
 export default function buildIntroTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;

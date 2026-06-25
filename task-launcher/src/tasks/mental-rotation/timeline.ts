@@ -1,6 +1,6 @@
-import "regenerator-runtime/runtime";
+import 'regenerator-runtime/runtime';
 // setup
-import { jsPsych, initializeCat, cat } from "../taskSetup";
+import { jsPsych, initializeCat, cat } from '../taskSetup';
 import {
   createPreloadTrials,
   initTrialSaving,
@@ -9,7 +9,7 @@ import {
   batchTrials,
   batchMediaAssets,
   checkFallbackCriteria,
-} from "../shared/helpers";
+} from '../shared/helpers';
 // trials
 import {
   afcStimulusTemplate,
@@ -21,17 +21,14 @@ import {
   enterFullscreen,
   repeatInstructionsMessage,
   practiceTransition,
-} from "../shared/trials";
-import { instructions, threeDimInstructions } from "./trials/instructions";
-import { legacyInstructions } from "./trials/legacyInstructions";
-import { getLayoutConfig } from "./helpers/config";
-import { taskStore } from "../../taskStore";
-import { getLeftoverAssets } from "../shared/helpers/batchPreloading";
+} from '../shared/trials';
+import { instructions, threeDimInstructions } from './trials/instructions';
+import { legacyInstructions } from './trials/legacyInstructions';
+import { getLayoutConfig } from './helpers/config';
+import { taskStore } from '../../taskStore';
+import { getLeftoverAssets } from '../shared/helpers/batchPreloading';
 
-export default function buildMentalRotationTimeline(
-  config: Record<string, any>,
-  mediaAssets: MediaAssetsType,
-) {
+export default function buildMentalRotationTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const { runCat, semThreshold } = taskStore();
   let playedThreeDimInstructions = false;
 
@@ -47,7 +44,7 @@ export default function buildMentalRotationTimeline(
         // this trial is never used after a practice trial when running in cat
         return true;
       }
-      if (stim.assessmentStage === "practice_response") {
+      if (stim.assessmentStage === 'practice_response') {
         return false;
       }
       return true;
@@ -60,49 +57,36 @@ export default function buildMentalRotationTimeline(
 
   const layoutConfigMap: Record<string, LayoutConfigType> = {};
   for (const c of corpus) {
-    const { itemConfig, errorMessages } = getLayoutConfig(
-      c,
-      translations,
-      mediaAssets,
-    );
+    const { itemConfig, errorMessages } = getLayoutConfig(c, translations, mediaAssets);
     layoutConfigMap[c.itemId] = itemConfig;
     if (errorMessages.length) {
-      validationErrorMap[c.itemId] = errorMessages.join("; ");
+      validationErrorMap[c.itemId] = errorMessages.join('; ');
     }
   }
 
   if (Object.keys(validationErrorMap).length) {
-    console.error("The following errors were found");
+    console.error('The following errors were found');
     console.table(validationErrorMap);
-    throw new Error(
-      "Something went wrong. Please look in the console for error details",
-    );
+    throw new Error('Something went wrong. Please look in the console for error details');
   }
 
   // organize media assets into batches for preloading
   const batchSize = 25;
   const batchedCorpus = batchTrials(corpus, batchSize);
-  const batchedMediaAssets = batchMediaAssets(mediaAssets, batchedCorpus, [
-    "item",
-    "answer",
-    "distractors",
-  ]);
+  const batchedMediaAssets = batchMediaAssets(mediaAssets, batchedCorpus, ['item', 'answer', 'distractors']);
 
   // counter for next batch to preload (skipping the initial preload)
   let currPreloadBatch = 0;
   const initialMedia = getLeftoverAssets(batchedMediaAssets, mediaAssets);
 
   // latest instructions are behind version 2 flag in variant doc
-  const selectedInstructions =
-    taskStore().version === 2 ? instructions : legacyInstructions;
+  const selectedInstructions = taskStore().version === 2 ? instructions : legacyInstructions;
 
-  const initialPreload = createPreloadTrials(
-    runCat ? mediaAssets : initialMedia,
-  ).default;
+  const initialPreload = createPreloadTrials(runCat ? mediaAssets : initialMedia).default;
   const timeline = [initialPreload, initialTimeline, ...selectedInstructions];
 
   const trialConfig = {
-    trialType: "audio",
+    trialType: 'audio',
     responseAllowed: true,
     promptAboveButtons: true,
     task: config.task,
@@ -119,7 +103,7 @@ export default function buildMentalRotationTimeline(
     // true = execute normally, false = skip
     conditional_function: () => {
       if (taskStore().skipCurrentTrial) {
-        taskStore("skipCurrentTrial", false);
+        taskStore('skipCurrentTrial', false);
         return false;
       }
       if (runCat && cat._seMeasurement < semThreshold) {
@@ -130,9 +114,7 @@ export default function buildMentalRotationTimeline(
   };
 
   const firstBlockPractice: StimulusType[] = corpus.filter(
-    (trial) =>
-      Number(trial.block_index) === 1 &&
-      trial.assessmentStage === "practice_response",
+    (trial) => Number(trial.block_index) === 1 && trial.assessmentStage === 'practice_response',
   );
 
   let fellBack = false;
@@ -140,9 +122,7 @@ export default function buildMentalRotationTimeline(
     timeline: [
       repeatInstructionsMessage,
       ...instructions,
-      ...firstBlockPractice.map((trial) =>
-        afcStimulusTemplate(trialConfig, trial),
-      ),
+      ...firstBlockPractice.map((trial) => afcStimulusTemplate(trialConfig, trial)),
     ],
     conditional_function: () => {
       const run = checkFallbackCriteria() && !fellBack;
@@ -156,22 +136,16 @@ export default function buildMentalRotationTimeline(
 
   // put polygon and 3D practice in their own blocks so they run at the right time
   const polygonPractice: StimulusType[] = corpus.filter(
-    (trial) =>
-      trial.trialType === "polygon" &&
-      trial.assessmentStage === "practice_response",
+    (trial) => trial.trialType === 'polygon' && trial.assessmentStage === 'practice_response',
   );
 
   const threeDimPractice: StimulusType[] = corpus.filter(
-    (trial) =>
-      trial.trialType === "3D" && trial.assessmentStage === "practice_response",
+    (trial) => trial.trialType === '3D' && trial.assessmentStage === 'practice_response',
   );
 
-  corpus = corpus.filter(
-    (trial) =>
-      !polygonPractice.includes(trial) && !threeDimPractice.includes(trial),
-  );
+  corpus = corpus.filter((trial) => !polygonPractice.includes(trial) && !threeDimPractice.includes(trial));
 
-  taskStore("corpora", {
+  taskStore('corpora', {
     downex: taskStore().corpora.downex,
     stimulus: corpus,
   });
@@ -179,16 +153,11 @@ export default function buildMentalRotationTimeline(
   const threeDimInstructBlock = {
     timeline: [
       threeDimInstructions,
-      ...threeDimPractice.map((trial) =>
-        afcStimulusTemplate(trialConfig, trial),
-      ),
-      { ...fixationOnly, stimulus: "" },
+      ...threeDimPractice.map((trial) => afcStimulusTemplate(trialConfig, trial)),
+      { ...fixationOnly, stimulus: '' },
     ],
     conditional_function: () => {
-      if (
-        taskStore().nextStimulus.trialType === "3D" &&
-        !playedThreeDimInstructions
-      ) {
+      if (taskStore().nextStimulus.trialType === '3D' && !playedThreeDimInstructions) {
         playedThreeDimInstructions = true;
         return true;
       }
@@ -198,20 +167,16 @@ export default function buildMentalRotationTimeline(
   };
 
   function preloadBatch() {
-    timeline.push(
-      createPreloadTrials(batchedMediaAssets[currPreloadBatch]).default,
-    );
+    timeline.push(createPreloadTrials(batchedMediaAssets[currPreloadBatch]).default);
     currPreloadBatch++;
   }
 
   function getPracticeTransitionPrompt() {
-    return taskStore().nextStimulus.trialType === "2D"
-      ? "mentalRotationInstruct5Downex"
-      : "generalYourTurn";
+    return taskStore().nextStimulus.trialType === '2D' ? 'mentalRotationInstruct5Downex' : 'generalYourTurn';
   }
 
   const numOfTrials = corpus.length;
-  taskStore("totalTestTrials", getRealTrials(corpus));
+  taskStore('totalTestTrials', getRealTrials(corpus));
   const numOfInitialPracticeTrials = firstBlockPractice.length;
   const fallbackIndex = numOfInitialPracticeTrials + 4;
   for (let i = 0; i < numOfTrials; i++) {
@@ -221,7 +186,7 @@ export default function buildMentalRotationTimeline(
     if (i <= fallbackIndex) {
       timeline.push(fallbackInstructions);
     }
-    timeline.push({ ...setupStimulus, stimulus: "" });
+    timeline.push({ ...setupStimulus, stimulus: '' });
     timeline.push(practiceTransition(getPracticeTransitionPrompt));
     timeline.push(threeDimInstructBlock);
     timeline.push(stimulusBlock);

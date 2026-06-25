@@ -1,22 +1,22 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
+import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
 import {
+  addExperimenterButtons,
   camelize,
   equalizeButtonSizes,
   getChildSurveyResponses,
+  getParticipantUtilityButtonsHtml,
   handleStaggeredButtons,
   PageAudioHandler,
   PageStateHandler,
-  addExperimenterButtons,
-  getParticipantUtilityButtonsHtml,
   setSentryContext,
-  setupReplayAudio,
   setupFullscreenButton,
+  setupReplayAudio,
 } from '../../shared/helpers';
-import { mediaAssets } from '../../..';
-import { jsPsych } from '../../taskSetup';
-import { updateProgressBar } from '../../shared/helpers/updateProgressBar';
 import { disableStagger } from '../../shared/helpers/staggerButtons';
+import { updateProgressBar } from '../../shared/helpers/updateProgressBar';
+import { jsPsych } from '../../taskSetup';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 let startTime: number;
@@ -148,7 +148,7 @@ export const surveyItem = ({
 
       if (itemLayoutConfig.isStaggered) {
         // Handle the staggered buttons
-        let audioKeys: string[] = [
+        const audioKeys: string[] = [
           'child-survey-response1',
           'child-survey-response2',
           'child-survey-response3',

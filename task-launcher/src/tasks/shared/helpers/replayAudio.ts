@@ -1,5 +1,5 @@
 import { PageAudioHandler } from './audioHandler';
-import { PageStateHandler } from './PageStateHandler';
+import type { PageStateHandler } from './PageStateHandler';
 
 export async function setupReplayAudio(pageStateHandler: PageStateHandler) {
   PageAudioHandler.replayPresses = 0; // reset to zero at beginning of trial

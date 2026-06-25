@@ -1,9 +1,9 @@
-import { pauseButtonSvg, playButtonSvg, exitButtonSvg, fullscreenButtonSvg, menuButtonSvg } from './components';
 import { taskStore } from '../../../taskStore';
-import { finalizeCurrentPauseSegment, getActiveTaskElapsedMs } from './appTimer';
 import { InitPageSetup } from '../../../utils/initPageSetup';
 import { jsPsych } from '../../taskSetup';
+import { finalizeCurrentPauseSegment, getActiveTaskElapsedMs } from './appTimer';
 import { PageAudioHandler } from './audioHandler';
+import { exitButtonSvg, fullscreenButtonSvg, menuButtonSvg, pauseButtonSvg, playButtonSvg } from './components';
 
 let pageSetup: InitPageSetup | null = null;
 export function addExperimenterButtons() {

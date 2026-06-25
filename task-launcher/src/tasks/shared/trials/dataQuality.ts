@@ -1,6 +1,6 @@
 import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
-import { jsPsych } from '../../taskSetup';
 import { taskStore } from '../../../taskStore';
+import { jsPsych } from '../../taskSetup';
 import { finishExperiment } from './finishExperiment';
 
 const t = taskStore().translations;

@@ -7,7 +7,7 @@ import {
   setupReplayAudio,
   enableOkButton,
   getParticipantUtilityButtonsHtml,
-  setupFullscreenButton
+  setupFullscreenButton,
 } from '../../shared/helpers';
 import { jsPsych } from '../../taskSetup';
 import { taskStore } from '../../../taskStore';

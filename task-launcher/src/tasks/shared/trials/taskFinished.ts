@@ -1,8 +1,8 @@
 import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
-import { PageAudioHandler } from '../helpers';
 import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
 import { Logger } from '../../../utils';
+import { PageAudioHandler } from '../helpers';
 
 function endTask() {
   taskStore('taskComplete', true);

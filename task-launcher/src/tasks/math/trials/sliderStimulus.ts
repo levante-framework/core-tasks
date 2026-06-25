@@ -1,25 +1,25 @@
+//@ts-expect-error
+import { camelize } from '@bdelab/roar-utils';
 import HTMLSliderResponse from '@jspsych/plugin-html-slider-response';
+import _range from 'lodash/range';
 import _shuffle from 'lodash/shuffle';
 import _toNumber from 'lodash/toNumber';
-import _range from 'lodash/range';
-import { jsPsych, isTouchScreen, cat } from '../../taskSetup';
-//@ts-ignore
-import { camelize } from '@bdelab/roar-utils';
+import { mediaAssets } from '../../..';
+import { taskStore } from '../../../taskStore';
 import {
   addExperimenterButtons,
-  setSkipCurrentBlock,
+  addPracticeButtonListeners,
   getParticipantUtilityButtonsHtml,
-  setupReplayAudio,
   PageAudioHandler,
   PageStateHandler,
   setSentryContext,
-  updateTheta,
-  addPracticeButtonListeners,
-  shouldTerminateCat,
+  setSkipCurrentBlock,
   setupFullscreenButton,
+  setupReplayAudio,
+  shouldTerminateCat,
+  updateTheta,
 } from '../../shared/helpers';
-import { mediaAssets } from '../../..';
-import { taskStore } from '../../../taskStore';
+import { cat, isTouchScreen, jsPsych } from '../../taskSetup';
 
 let chosenAnswer: number;
 let responseIdx: number;
@@ -90,7 +90,7 @@ export const slider = (
     },
     stimulus: () => {
       const stim = trial || taskStore().nextStimulus;
-      let t = taskStore().translations;
+      const t = taskStore().translations;
 
       const isSlider = stim.trialType === 'Number Line Slider';
       return `

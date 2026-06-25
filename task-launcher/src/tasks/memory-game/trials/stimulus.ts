@@ -1,20 +1,20 @@
 import jsPsychCorsiBlocks from '@jspsych-contrib/plugin-corsi-blocks';
-import { createGrid, generateRandomSequence, enableBlock, disableBlock } from '../helpers/grid';
-import { jsPsych } from '../../taskSetup';
 import _isEqual from 'lodash/isEqual';
-import { finishExperiment } from '../../shared/trials';
 import { mediaAssets } from '../../..';
-import { getMemoryGameType } from '../helpers/getMemoryGameType';
-import { getMemoryGamePrompt } from '../helpers/getMemoryGamePrompt';
+import { taskStore } from '../../../taskStore';
 import {
   addExperimenterButtons,
-  setupReplayAudio,
+  getParticipantUtilityButtonsHtml,
   PageAudioHandler,
   PageStateHandler,
-  getParticipantUtilityButtonsHtml,
   setupFullscreenButton,
+  setupReplayAudio,
 } from '../../shared/helpers';
-import { taskStore } from '../../../taskStore';
+import { finishExperiment } from '../../shared/trials';
+import { jsPsych } from '../../taskSetup';
+import { getMemoryGamePrompt } from '../helpers/getMemoryGamePrompt';
+import { getMemoryGameType } from '../helpers/getMemoryGameType';
+import { createGrid, disableBlock, enableBlock, generateRandomSequence } from '../helpers/grid';
 
 type CorsiBlocksArgs = {
   mode: 'display' | 'input';

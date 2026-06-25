@@ -1,19 +1,19 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
-import { InputKey, getInputInstructPrompt } from '../helpers/utils';
+import { taskStore } from '../../../taskStore';
 import {
   addExperimenterButtons,
-  setupReplayAudio,
-  getParticipantUtilityButtonsHtml,
-  PageStateHandler,
-  PageAudioHandler,
   addKeyHelpers,
+  getParticipantUtilityButtonsHtml,
+  PageAudioHandler,
+  PageStateHandler,
   setupFullscreenButton,
+  setupReplayAudio,
 } from '../../shared/helpers';
-import { jsPsych } from '../../taskSetup';
-import { taskStore } from '../../../taskStore';
 import { disableOkButton } from '../../shared/helpers/disableOkButton';
 import { enableOkButton } from '../../shared/helpers/enableButtons';
+import { jsPsych } from '../../taskSetup';
+import { getInputInstructPrompt, InputKey } from '../helpers/utils';
 
 let continueTrialConfig;
 let cleanupInstructionInputListeners = [];
