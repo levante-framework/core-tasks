@@ -13,7 +13,6 @@ export function prepareCorpus(
   // limit random starting items so that their difficulty is less than 0
   const maxTrialDifficulty = 0;
   const cat: boolean = taskStore().runCat;
-  let corpora;
 
   let heavyInstructionPracticeTrials: StimulusType[] = [];
   let downexTestTrials: StimulusType[] = [];
@@ -51,7 +50,7 @@ export function prepareCorpus(
 
   // separate out normed/unnormed trials
   const unnormedTrials: StimulusType[] = corpusParts.test.filter(
-    (trial) => trial.difficulty == null || isNaN(Number(trial.difficulty)),
+    (trial) => trial.difficulty == null || Number.isNaN(Number(trial.difficulty)),
   );
   const normedTrials: StimulusType[] = corpusParts.test.filter((trial) => !unnormedTrials.includes(trial));
 
@@ -59,7 +58,7 @@ export function prepareCorpus(
   const possibleStartItems: StimulusType[] = normedTrials.filter(
     (trial) =>
       !excludedTrialTypes.includes(trial.trialType) &&
-      ((taskStore().task == 'egma-math' && trial.block_index === 0) || taskStore().task !== 'egma-math') &&
+      ((taskStore().task === 'egma-math' && trial.block_index === 0) || taskStore().task !== 'egma-math') &&
       Number(trial.difficulty) <= maxTrialDifficulty,
   );
   const startItems: StimulusType[] = selectNItems(possibleStartItems, 5);
@@ -70,12 +69,12 @@ export function prepareCorpus(
     : normedTrials;
 
   const downexUnnormedTrials: StimulusType[] = downexTestTrials.filter(
-    (trial) => trial.difficulty == null || isNaN(Number(trial.difficulty)),
+    (trial) => trial.difficulty == null || Number.isNaN(Number(trial.difficulty)),
   );
 
   const downexCatCorpus: StimulusType[] = downexTestTrials.filter((trial) => !downexUnnormedTrials.includes(trial));
 
-  corpora = {
+  const corpora = {
     ipHeavy: corpusParts.ipHeavy, // downex instruction/practice trials
     ipLight: corpusParts.ipLight, // older kid instruction/practice
     start: startItems, // 5 random items to be used in starting block (all under a certain max difficulty)
@@ -138,7 +137,7 @@ export function prepareMultiBlockCat(corpus: StimulusType[], sequentialBlocks = 
     const prevBlock = currBlock;
     currBlock = Number(trial.block_index);
 
-    if (currBlock != undefined) {
+    if (currBlock !== undefined) {
       if (currBlock !== prevBlock) {
         blockList.push([trial]);
       } else {

@@ -353,6 +353,6 @@ export const afcStimulusInference = ({
     button_html: () => getButtonHtml(layoutConfigMap),
     on_load: () => doOnLoad(layoutConfigMap),
     on_finish: (data: any) => doOnFinish(data, task, layoutConfigMap),
-    response_ends_trial: () => (taskStore().nextStimulus.assessmentStage === 'practice_response' ? false : true),
+    response_ends_trial: () => taskStore().nextStimulus.assessmentStage !== 'practice_response',
   };
 };

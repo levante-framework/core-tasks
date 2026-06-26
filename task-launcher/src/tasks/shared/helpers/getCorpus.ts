@@ -86,7 +86,7 @@ const transformCSV = (csvInput: ParsedRowType[], sequentialStimulus: boolean, ta
 
     const newRow: StimulusType = {
       source: row.source,
-      block_index: parseInt(row.block_index),
+      block_index: parseInt(row.block_index, 10),
       task: row.task,
       // for testing, will be removed
       prompt: row.prompt,
@@ -132,7 +132,7 @@ const transformCSV = (csvInput: ParsedRowType[], sequentialStimulus: boolean, ta
     }
 
     if (row.task === 'same-different-selection') {
-      newRow.requiredSelections = parseInt(row.required_selections);
+      newRow.requiredSelections = parseInt(row.required_selections, 10);
     }
 
     const currentTrialType = newRow.trialType;

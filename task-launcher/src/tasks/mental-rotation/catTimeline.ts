@@ -37,7 +37,7 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
     timeline: [getAudioResponse(mediaAssets)],
   };
 
-  let corpus: StimulusType[] = taskStore().corpora.stimulus;
+  const corpus: StimulusType[] = taskStore().corpora.stimulus;
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {};
 

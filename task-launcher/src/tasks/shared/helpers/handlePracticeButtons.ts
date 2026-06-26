@@ -49,7 +49,7 @@ function handlePracticeButtonPress(
   const incorrectPromptKey =
     taskStore().task === 'mental-rotation' &&
     taskStore().heavyInstructions &&
-    taskStore().nextStimulus?.trialType == '2D'
+    taskStore().nextStimulus?.trialType === '2D'
       ? 'mentalRotationFeedbackIncorrectDownex'
       : 'feedbackTryAgain';
 

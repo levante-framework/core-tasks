@@ -60,7 +60,7 @@ function getTestDimensionsHtml(stim: StimulusType) {
 function getSomethingSameHtml(stim: StimulusType) {
   const t = taskStore().translations;
 
-  const leftImageSrc: string = stim.trialType == 'something-same-1' ? stim.image[0] : (stim.image as string);
+  const leftImageSrc: string = stim.trialType === 'something-same-1' ? stim.image[0] : (stim.image as string);
 
   const leftPromptHtml = stim.trialType === 'something-same-2' ? `<p>${t[camelize(stim.audioFile[0])]}</p>` : '';
   const rightPromptHtml =
@@ -70,7 +70,7 @@ function getSomethingSameHtml(stim: StimulusType) {
 
   const leftImageHtml = `
     <button class='image-medium no-pointer-events' style="${
-      stim.trialType == 'something-same-1' ? 'visibility: hidden;' : ''
+      stim.trialType === 'something-same-1' ? 'visibility: hidden;' : ''
     }">
       <img src=${mediaAssets.images[camelize(leftImageSrc)]} alt=${leftImageSrc} />
     </button>
@@ -80,7 +80,7 @@ function getSomethingSameHtml(stim: StimulusType) {
   const randomize = stim.answer ? 'yes' : 'no';
   const { choices } = prepareChoices(stim.answer as string, stim.distractors as string[], randomize);
   const images: string[] =
-    stim.trialType == 'something-same-1'
+    stim.trialType === 'something-same-1'
       ? (stim.image as string[]).map((image) => {
           return `<img src=${mediaAssets.images[camelize(image)]} alt=${image} />`;
         })

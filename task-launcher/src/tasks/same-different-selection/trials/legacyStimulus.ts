@@ -94,7 +94,7 @@ export const legacyStimulus = (trial?: StimulusType) => {
     type: jsPsychHtmlMultiResponse,
     data: () => {
       const stim = trial || taskStore().nextStimulus;
-      let isPracticeTrial = stim.assessmentStage === 'practice_response';
+      const isPracticeTrial = stim.assessmentStage === 'practice_response';
       return {
         save_trial: stim.assessmentStage !== 'instructions',
         assessment_stage: stim.assessmentStage,
@@ -169,10 +169,10 @@ export const legacyStimulus = (trial?: StimulusType) => {
     prompt_above_buttons: true,
     button_choices: () => {
       const stim = trial || taskStore().nextStimulus;
-      if (stim.trialType === 'instructions' || stim.trialType == 'something-same-1') {
+      if (stim.trialType === 'instructions' || stim.trialType === 'something-same-1') {
         return ['OK'];
       } else {
-        const randomize = !!stim.answer ? 'yes' : 'no';
+        const randomize = stim.answer ? 'yes' : 'no';
         // Randomize choices if there is an answer
         const { choices } = prepareChoices(stim.answer, stim.distractors, randomize);
         return generateImageChoices(choices);

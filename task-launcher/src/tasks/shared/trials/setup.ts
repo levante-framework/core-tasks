@@ -19,7 +19,7 @@ const fixationTrial = (corpusType?: string, blockNum?: number) => {
     },
     on_finish: () => {
       if (corpusType) {
-        if (blockNum != undefined) {
+        if (blockNum !== undefined) {
           getStimulus(corpusType, blockNum);
         } else {
           getStimulus(corpusType);

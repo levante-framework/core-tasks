@@ -40,7 +40,7 @@ export function generateRandomSequence({ numOfBlocks, sequenceLength, previousSe
     // even across trial sequences
 
     // Check the last square in the previous sequence
-    if (i == 0 && previousSequence && previousSequence[previousSequence.length - 1] === randomNumber) {
+    if (i === 0 && previousSequence && previousSequence[previousSequence.length - 1] === randomNumber) {
       i--;
       continue;
     }
