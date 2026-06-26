@@ -161,7 +161,7 @@ export function getCorsiBlocks({
         return 500;
       }
 
-      let cue;
+      let cue: string;
       const defaultCue = getMemoryGamePrompt(mode, reverse);
 
       // downex practice trials have custom audio cues
@@ -430,7 +430,7 @@ function doOnLoad(
 
   const defaultCue = getMemoryGamePrompt(mode, reverse);
 
-  let cue;
+  let cue: string;
 
   // downex practice trials have custom audio cues
   if (taskStore().heavyInstructions && !reverse && isPractice) {

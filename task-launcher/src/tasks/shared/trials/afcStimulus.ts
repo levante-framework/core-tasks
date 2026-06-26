@@ -207,7 +207,7 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
   const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
   const playAudioOnLoad = itemLayoutConfig?.playAudioOnLoad;
 
-  let pageStateHandler;
+  let pageStateHandler: PageStateHandler;
   if (typeof stim.audioFile === 'string') {
     // no need to handle array case since it's not supported yet
     pageStateHandler = new PageStateHandler(stim.audioFile, playAudioOnLoad);

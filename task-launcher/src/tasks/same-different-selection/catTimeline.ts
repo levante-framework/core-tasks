@@ -60,7 +60,7 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
 
   // used for instruction and practice trials
   const ipBlock = (trial: StimulusType) => {
-    let trialGenerator;
+    let trialGenerator: typeof afcMatch | typeof stimulus | typeof legacyStimulus;
     if (trial.trialType.includes('match')) {
       trialGenerator = afcMatch;
     } else if (taskStore().version === 2) {

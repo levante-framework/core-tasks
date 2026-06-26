@@ -19,7 +19,7 @@ export const feedback = (
           const t = taskStore().translations;
           const isCorrect = taskStore().isCorrect;
           const imageUrl = isCorrect ? mediaAssets.images['smilingFace@2x'] : mediaAssets.images['sadFace@2x'];
-          let promptOnIncorrect; // prompt displayed at bottom if incorrect, differs by task
+          let promptOnIncorrect: string; // prompt displayed at bottom if incorrect, differs by task
 
           switch (taskStore().task) {
             case 'same-different-selection':

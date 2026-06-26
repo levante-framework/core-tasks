@@ -47,7 +47,7 @@ export function handleButtonFeedback(
   const answer = taskStore().correctResponseIdx.toString();
 
   const isCorrectChoice = choice.includes(answer);
-  let feedbackAudio;
+  let feedbackAudio: string;
   if (isCorrectChoice) {
     btn.classList.add('success-shadow');
     feedbackAudio = mediaAssets.audio[correctAudio];
@@ -288,7 +288,7 @@ export const legacyStimulus = (trial?: StimulusType) => {
       // Always need to write correct key because of firekit.
       // TODO: Discuss with ROAR team to remove this check
       if (stim.assessmentStage !== 'instructions') {
-        let isCorrect;
+        let isCorrect: boolean;
         if (stim.trialType === 'test-dimensions' || stim.assessmentStage === 'practice_response') {
           // if no incorrect answers were clicked, that trial is correct
           isCorrect = incorrectPracticeResponses.length === 0;
