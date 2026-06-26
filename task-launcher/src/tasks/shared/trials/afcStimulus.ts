@@ -111,7 +111,7 @@ function getPrompt(layoutConfigMap: Record<string, LayoutConfigType>, trial?: St
       stimText: stimulusTextConfig,
     } = itemLayoutConfig;
     const mediaAsset = stimulusTextConfig?.value
-      ? mediaAssets.images[camelize(stimulusTextConfig.value)] || mediaAssets.images['blank']
+      ? mediaAssets.images[camelize(stimulusTextConfig.value)] || mediaAssets.images.blank
       : null;
     const prompt = promptEnabled ? t[camelize(stim.audioFile)] : null;
     const mediaSrc = showStimImage ? mediaAsset : null;
@@ -261,7 +261,7 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
 
   // should log trialsOfCurrentType - race condition
   if (stim.task === 'math') {
-    if (twoTrialsAgoStimulus != undefined && stim.trialType === twoTrialsAgoStimulus[0]?.trialType) {
+    if (twoTrialsAgoStimulus !== undefined && stim.trialType === twoTrialsAgoStimulus[0]?.trialType) {
       trialsOfCurrentType += 1;
     } else {
       trialsOfCurrentType = 0;

@@ -46,7 +46,7 @@ function cleanAttributes(attributes: string[]) {
   if (!attributes.some((item) => nonWhiteBackgrounds.includes(item))) {
     attributes.push('white');
   }
-  if (!attributes.some((item) => !isNaN(Number(item)))) {
+  if (!attributes.some((item) => !Number.isNaN(Number(item)))) {
     attributes.splice(3, 0, '1');
   }
 

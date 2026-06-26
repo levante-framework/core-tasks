@@ -122,7 +122,7 @@ export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrial
 
         const maxIncorrect = taskStore().maxIncorrect;
 
-        if (taskStore().numIncorrect == maxIncorrect) {
+        if (taskStore().numIncorrect === maxIncorrect) {
           finishExperiment();
         }
       }

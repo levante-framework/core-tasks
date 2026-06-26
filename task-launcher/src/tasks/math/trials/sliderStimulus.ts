@@ -207,7 +207,7 @@ export const slider = (
           btn.textContent = responseChoices[i];
 
           // flag correct answer if running in cypress
-          if (window.Cypress && _toNumber(btn.textContent) == answer) {
+          if (window.Cypress && _toNumber(btn.textContent) === answer) {
             btn.setAttribute('aria-label', 'correct');
           }
 
@@ -278,11 +278,10 @@ export const slider = (
       }
 
       if (isPractice) {
-        let feedbackHandler;
         const answer = stim.answer.toString();
         const choices = layoutConfigMap?.[stim.itemId].response.values;
 
-        feedbackHandler = addPracticeButtonListeners(answer, isTouchScreen, choices);
+        addPracticeButtonListeners(answer, isTouchScreen, choices);
       }
     },
     on_finish: (data: any) => {
