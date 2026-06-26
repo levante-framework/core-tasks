@@ -196,19 +196,20 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
 
     if (index === 0) {
       // push in starting block
-      corpora.start.forEach((trial: StimulusType) => {
+      const fallBackIndex = 4;
+      corpora.start.forEach((trial: StimulusType, i: number) => {
         timeline.push({ ...fixationOnly, stimulus: '' });
         timeline.push(afcStimulusTemplate(trialConfig, trial));
         timeline.push(ifRealTrialResponse);
+
+        if (i < fallBackIndex) {
+          timeline.push(fallbackInstructions);
+        }
       });
     }
 
     const numOfTrials = block.length / 3;
-    const fallBackIndex = 4;
     for (let i = 0; i < numOfTrials; i++) {
-      if (i <= fallBackIndex && index === 0) {
-        timeline.push(fallbackInstructions);
-      }
       timeline.push(stimulusBlock(index));
     }
 
