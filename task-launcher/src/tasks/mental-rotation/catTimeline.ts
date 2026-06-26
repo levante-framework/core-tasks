@@ -133,6 +133,7 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
 
   const instructionPracticeBlock = (blockNum: number) => {
     const trials = getPracticeInstructions(blockNum);
+    const practiceTransitionPrompt = blockNum === 1 ? 'mentalRotationInstruct5Downex' : 'generalYourTurn';
 
     return {
       timeline: [
@@ -142,6 +143,7 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
             timeline: [{ ...fixationOnly, stimulus: '' }, afcStimulusTemplate(trialConfig, trial)],
           };
         }),
+        ...(trials.length > 0 ? [practiceTransition(() => practiceTransitionPrompt)] : []),
       ],
       conditional_function: () => {
         const run = taskStore().currentCatBlock === blockNum - 1 && !presentedInstructions.includes(blockNum);
@@ -193,16 +195,12 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
     addInstructionPractice();
 
     if (index === 0) {
-      timeline.push(practiceTransition(() => 'mentalRotationInstruct5Downex'));
-
       // push in starting block
       corpora.start.forEach((trial: StimulusType) => {
         timeline.push({ ...fixationOnly, stimulus: '' });
         timeline.push(afcStimulusTemplate(trialConfig, trial));
         timeline.push(ifRealTrialResponse);
       });
-    } else if (index === 2) {
-      timeline.push(practiceTransition(() => 'generalYourTurn'));
     }
 
     const numOfTrials = block.length / 3;
