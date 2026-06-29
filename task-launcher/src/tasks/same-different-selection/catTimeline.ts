@@ -140,8 +140,7 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
   // returns practice + instruction trials for a given block
   function getPracticeInstructions(blockNum: number): StimulusType[] {
     return instructionPractice.filter((trial) => {
-      if (Number.isNaN(trial.block_index)) return;
-
+      if (Number.isNaN(trial.block_index)) return false;
       return trial.block_index === blockNum;
     });
   }

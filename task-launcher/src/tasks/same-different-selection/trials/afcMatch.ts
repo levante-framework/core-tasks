@@ -37,7 +37,9 @@ const generateImageChoices = (choices: string[]) => {
 };
 
 function enableBtns(btnElements: HTMLButtonElement[]) {
-  btnElements.forEach((btn) => btn.removeAttribute('disabled'));
+  btnElements.forEach((btn) => {
+    btn.removeAttribute('disabled');
+  });
 }
 
 function cleanAttributes(attributes: string[]) {
@@ -261,7 +263,9 @@ export const afcMatch = (trial?: StimulusType) => {
               PageAudioHandler.stopAndDisconnectNode();
               PageAudioHandler.playAudio(mediaAssets.audio.feedbackNotQuiteRight, audioConfig);
 
-              responseBtns.forEach((btn) => btn.classList.remove(SELECT_CLASS_NAME));
+              responseBtns.forEach((btn) => {
+                btn.classList.remove(SELECT_CLASS_NAME);
+              });
               selectedCards = [];
               disableOkButton();
 
@@ -303,7 +307,7 @@ export const afcMatch = (trial?: StimulusType) => {
           // linear button layout
           buttonContainer.classList.add('lev-response-row', 'multi-4');
         }
-        responseBtns.forEach((card, i) =>
+        responseBtns.forEach((card, i) => {
           card.addEventListener('click', async (e) => {
             const answer = ((card as HTMLButtonElement)?.firstChild as HTMLImageElement)?.alt;
 
@@ -336,8 +340,8 @@ export const afcMatch = (trial?: StimulusType) => {
             }
 
             setTimeout(() => enableBtns(responseBtns), 500);
-          }),
-        );
+          });
+        });
       }
 
       displayDebugInfo(stim);

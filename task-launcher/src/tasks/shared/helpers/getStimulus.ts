@@ -70,9 +70,10 @@ export const getStimulus = (corpusType: string, blockNumber?: number, storyGroup
   }
 
   // update the corpus with the remaining unused items
-  blockNumber != null
-    ? (corpus[corpusType][blockNumber] = itemSuggestion.remainingStimuli)
-    : (corpus[corpusType] = itemSuggestion.remainingStimuli);
-
+  if (blockNumber != null) {
+    corpus[corpusType][blockNumber] = itemSuggestion.remainingStimuli;
+  } else {
+    corpus[corpusType] = itemSuggestion.remainingStimuli;
+  }
   taskStore('corpora', corpus);
 };

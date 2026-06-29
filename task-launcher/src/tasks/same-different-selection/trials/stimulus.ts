@@ -37,7 +37,9 @@ export const generateImageChoices = (choices: string[]) => {
 };
 
 function enableBtns(btnElements: HTMLButtonElement[]) {
-  btnElements.forEach((btn) => btn.removeAttribute('disabled'));
+  btnElements.forEach((btn) => {
+    btn.removeAttribute('disabled');
+  });
 }
 
 function getTestDimensionsHtml(stim: StimulusType) {
@@ -385,7 +387,9 @@ export const stimulus = (trial?: StimulusType) => {
               PageAudioHandler.stopAndDisconnectNode();
               PageAudioHandler.playAudio(mediaAssets.audio.feedbackNotQuiteRight, audioConfig);
 
-              responseBtns.forEach((btn) => btn.classList.remove(SELECT_CLASS_NAME));
+              responseBtns.forEach((btn) => {
+                btn.classList.remove(SELECT_CLASS_NAME);
+              });
               selection = null;
               selectionIdx = null;
 

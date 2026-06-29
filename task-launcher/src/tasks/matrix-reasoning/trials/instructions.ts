@@ -647,7 +647,9 @@ export const downexInstructions4 = {
             },
           };
           if (index === 4) {
-            buttons.forEach((button) => (button.style.animation = 'pulse 2s 0s 3'));
+            buttons.forEach((button) => {
+              button.style.animation = 'pulse 2s 0s 3';
+            });
           }
 
           if (stimContainer) {

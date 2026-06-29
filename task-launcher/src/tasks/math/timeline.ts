@@ -339,7 +339,9 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
 
       // push in random items at start of first block (after practice trials)
       if (i === 0) {
-        allCorpusParts.start.forEach((trial) => timeline.push(stimulusBlock(trial)));
+        allCorpusParts.start.forEach((trial) => {
+          timeline.push(stimulusBlock(trial));
+        });
       }
 
       const numOfTrials = Math.floor(olderKidBlocks[i].length / trialProportionsPerBlock[i]);
@@ -360,7 +362,9 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
     taskStore('totalTestTrials', getRealTrials(corpus));
 
     // if cat is not running, remove difficulty field from all items
-    corpus.forEach((trial) => (trial.difficulty = NaN));
+    corpus.forEach((trial) => {
+      trial.difficulty = NaN;
+    });
 
     const newCorpora = {
       downex: taskStore().corpora.downex,

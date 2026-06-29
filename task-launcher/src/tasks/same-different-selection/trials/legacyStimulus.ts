@@ -33,7 +33,9 @@ export const generateImageChoices = (choices: string[]) => {
 };
 
 function enableBtns(btnElements: HTMLButtonElement[]) {
-  btnElements.forEach((btn) => btn.removeAttribute('disabled'));
+  btnElements.forEach((btn) => {
+    btn.removeAttribute('disabled');
+  });
 }
 
 export function handleButtonFeedback(

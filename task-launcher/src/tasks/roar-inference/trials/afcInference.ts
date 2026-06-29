@@ -115,7 +115,9 @@ function getButtonHtml(layoutConfigMap: Record<string, LayoutConfigTypeInference
 }
 
 function enableBtns(btnElements: NodeListOf<HTMLButtonElement>) {
-  btnElements.forEach((btn) => (btn.disabled = false));
+  btnElements.forEach((btn) => {
+    btn.disabled = false;
+  });
 }
 
 function handlePracticeButtonPress(
@@ -181,11 +183,11 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigTypeInference>) {
   if (isPracticeTrial) {
     const practiceBtns: NodeListOf<HTMLButtonElement> = document.querySelectorAll('.practice-btn');
 
-    practiceBtns.forEach((btn, i) =>
+    practiceBtns.forEach((btn, i) => {
       btn.addEventListener('click', async (e) => {
         handlePracticeButtonPress(btn, stim, practiceBtns, false, i);
-      }),
-    );
+      }); 
+    });
 
     if (!isTouchScreen) {
       //   keyboardFeedbackHandler = (e: KeyboardEvent) => keyboardBtnFeedback(e, practiceBtns, stim, itemLayoutConfig);

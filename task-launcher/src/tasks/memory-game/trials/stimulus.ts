@@ -244,7 +244,9 @@ export function getCorsiBlocks({
         const numOfBlocks = taskStore().numOfBlocks;
 
         if (!isPractice) {
-          timeoutIDs.forEach((id) => clearTimeout(id));
+          timeoutIDs.forEach((id) => {
+            clearTimeout(id);
+          });
           timeoutIDs = [];
 
           taskStore.transact('testTrialCount', (oldVal: number) => oldVal + 1);
@@ -392,7 +394,9 @@ function doOnLoad(
         if (!isPractice) {
           // Avoid stacking timeouts
           if (timeoutIDs.length) {
-            timeoutIDs.forEach((id) => clearTimeout(id));
+            timeoutIDs.forEach((id) => {
+              clearTimeout(id);
+            });
             timeoutIDs = [];
           }
 
