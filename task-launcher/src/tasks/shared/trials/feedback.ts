@@ -2,7 +2,6 @@ import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-respons
 import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
 import { PageAudioHandler } from '../helpers';
-import { enableOkButton } from '../helpers/enableButtons';
 
 // isPractice parameter is for tasks that don't have a corpus (e.g. memory game)
 export const feedback = (

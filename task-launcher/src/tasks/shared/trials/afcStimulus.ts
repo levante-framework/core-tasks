@@ -3,7 +3,7 @@ import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-respons
 import _toNumber from 'lodash/toNumber';
 import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
-import { cat, isTouchScreen, jsPsych } from '../../taskSetup';
+import { isTouchScreen, jsPsych } from '../../taskSetup';
 import {
   addExperimenterButtons,
   addPracticeButtonListeners,

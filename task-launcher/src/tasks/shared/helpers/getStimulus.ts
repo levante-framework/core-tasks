@@ -1,4 +1,3 @@
-import _isEqual from 'lodash/isEqual';
 import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
 import { cat, jsPsych } from '../../taskSetup';

@@ -1,7 +1,5 @@
 // JavaScript modules are resolved and executed in the order they are imported.
 
-import { getRealTrials } from './getRealTrials';
-
 export { addKeyHelpers } from './addKeyHelpers';
 export { addExperimenterButtons, setupFullscreenButton } from './addUtilityButtons';
 export { displaceAnimation, popAnimation, triggerAnimation } from './animateImages';

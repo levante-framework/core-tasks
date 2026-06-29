@@ -8,7 +8,6 @@ import {
   exitFullscreen,
   feedback,
   getAudioResponse,
-  practiceTransition,
   setupStimulus,
   taskFinished,
 } from '../shared/trials';

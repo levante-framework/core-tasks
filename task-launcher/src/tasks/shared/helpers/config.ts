@@ -5,7 +5,6 @@ import i18next from 'i18next';
 import _isNull from 'lodash/isNull';
 import _isUndefined from 'lodash/isUndefined';
 import _omitBy from 'lodash/omitBy';
-import _toNumber from 'lodash/toNumber';
 import type { TaskStoreDataType } from '../../../taskStore';
 import { camelize } from './camelize';
 import { getAge } from './getAge';

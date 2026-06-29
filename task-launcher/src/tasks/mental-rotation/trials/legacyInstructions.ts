@@ -6,7 +6,6 @@ import {
   getParticipantUtilityButtonsHtml,
   PageAudioHandler,
   PageStateHandler,
-  replayButtonSvg,
   setupFullscreenButton,
   setupReplayAudio,
 } from '../../shared/helpers';

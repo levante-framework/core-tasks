@@ -5,7 +5,6 @@ import {
   addExperimenterButtons,
   camelize,
   equalizeButtonSizes,
-  getChildSurveyResponses,
   getParticipantUtilityButtonsHtml,
   handleStaggeredButtons,
   PageAudioHandler,

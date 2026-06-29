@@ -1,9 +1,7 @@
 import {
   convertItemToString,
   DEFAULT_LAYOUT_CONFIG,
-  fractionToMathML,
   mapDistractorsToString,
-  prepareChoices,
   validateLayoutConfig,
 } from '../../shared/helpers';
 

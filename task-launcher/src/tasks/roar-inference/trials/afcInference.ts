@@ -8,7 +8,6 @@ import {
   setSkipCurrentBlock,
   //@ts-ignore
 } from '../../shared/helpers';
-import { camelize } from '../../shared/helpers/camelize';
 // @ts-ignore
 import { finishExperiment } from '../../shared/trials';
 // @ts-ignore

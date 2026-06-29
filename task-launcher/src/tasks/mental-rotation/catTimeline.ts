@@ -23,7 +23,7 @@ import {
   taskFinished,
 } from '../shared/trials';
 // setup
-import { cat, initializeCat, jsPsych } from '../taskSetup';
+import { initializeCat, jsPsych } from '../taskSetup';
 import { getLayoutConfig } from './helpers/config';
 // trials
 import { instructions, threeDimInstructions } from './trials/instructions';
