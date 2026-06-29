@@ -1,25 +1,25 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
+import { taskStore } from '../../../taskStore';
 import {
+  addExperimenterButtons,
+  camelize,
+  disableOkButton,
+  enableOkButton,
+  getParticipantUtilityButtonsHtml,
+  PageAudioHandler,
   PageStateHandler,
   prepareChoices,
-  getParticipantUtilityButtonsHtml,
-  setupReplayAudio,
-  PageAudioHandler,
-  camelize,
-  shouldTerminateCat,
   selectNextSequentialTrial,
-  addExperimenterButtons,
   setupFullscreenButton,
-  enableOkButton,
-  disableOkButton,
+  setupReplayAudio,
+  shouldTerminateCat,
+  updateTheta,
 } from '../../shared/helpers';
+import { displayDebugInfo } from '../../shared/helpers/displayDebugInfo';
+import { handleStaggeredButtons } from '../../shared/helpers/staggerButtons';
 import { finishExperiment } from '../../shared/trials';
 import { isTouchScreen, jsPsych } from '../../taskSetup';
-import { taskStore } from '../../../taskStore';
-import { handleStaggeredButtons } from '../../shared/helpers/staggerButtons';
-import { updateTheta } from '../../shared/helpers';
-import { displayDebugInfo } from '../../shared/helpers/displayDebugInfo';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 let incorrectPracticeResponses: string[] = [];

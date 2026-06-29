@@ -1,21 +1,23 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
+import { taskStore } from '../../../taskStore';
 import {
   addExperimenterButtons,
-  PageStateHandler,
-  PageAudioHandler,
-  getParticipantUtilityButtonsHtml,
-  setupReplayAudio,
-  setupFullscreenButton,
-  camelize,
   addPracticeButtonListeners,
+  camelize,
   disableOkButton,
+  displaceAnimation,
+  enableAllButtons,
   enableOkButton,
+  getParticipantUtilityButtonsHtml,
+  PageAudioHandler,
+  PageStateHandler,
+  popAnimation,
+  setupFullscreenButton,
+  setupReplayAudio,
 } from '../../shared/helpers';
-import { isTouchScreen, jsPsych } from '../../taskSetup';
-import { taskStore } from '../../../taskStore';
-import { displaceAnimation, enableAllButtons, popAnimation } from '../../shared/helpers';
 import { pulseOkButton } from '../../shared/helpers/pulseOkButton';
+import { isTouchScreen, jsPsych } from '../../taskSetup';
 
 let startTime: number;
 
