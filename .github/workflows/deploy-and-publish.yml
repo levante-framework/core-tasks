@@ -71,8 +71,7 @@ jobs:
 
       - name: Run checks
         run: |
-          # TODO: switch to npm run check after linting errors are fixed
-          npm run format:check
+          npm run check
 
       - name: Configure git
         if: ${{ inputs.bump-and-tag }}
@@ -99,7 +98,7 @@ jobs:
         run: |
           git add package.json package-lock.json
           git commit -m "chore: release v$NEW_VERSION [skip ci]"
-          git tag -a "v$NEW_VERSION" -m "chore: release v$NEW_VERSION"
+          git tag -a "v$NEW_VERSION" -m "Release v$NEW_VERSION"
           git push --follow-tags
 
   update-dashboard:
