@@ -75,7 +75,7 @@ export function prepareCorpus(
   const corpora = {
     ipHeavy: corpusParts.ipHeavy, // downex instruction/practice trials
     ipLight: corpusParts.ipLight, // older kid instruction/practice
-    start: startItems, // 5 random items to be used in starting block (all under a certain max difficulty)
+    start: startItems, // 5 (or 3 if running math task) random items to be used in starting block, all under max difficulty
     unnormed: unnormedTrials, // all items without IRT parameters
     downexUnnormed: downexUnnormedTrials,
     cat: catCorpus, // all normed items for CAT
