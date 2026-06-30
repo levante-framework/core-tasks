@@ -21,8 +21,8 @@ export function instructions() {
 }
 
 // clicks correct answers
-function selectAnswers(correctFlag, buttonClass) {
-  cy.get('.jspsych-content').then((content) => {
+function selectAnswers(correctFlag, buttonClass, waitForEnabled = false) {
+  const trySelectAnswer = (content) => {
     const responseButtons = content.find(buttonClass);
     const hasDisabledButton = responseButtons.filter(':disabled').length > 0;
 
@@ -39,10 +39,30 @@ function selectAnswers(correctFlag, buttonClass) {
         // use correct class by default
         cy.get('.correct').click({ timeout: 60000 }); // add timeout to handle staggered buttons
       }
-    } else {
-      return;
     }
-  });
+  };
+
+  if (waitForEnabled) {
+    const timeout = 30000;
+    const interval = 100;
+    const startTime = Date.now();
+
+    const pollForEnabledButtons = () => {
+      cy.get('.jspsych-content').then((content) => {
+        const hasDisabledButton = content.find(`${buttonClass}:disabled`).length > 0;
+
+        if (!hasDisabledButton || Date.now() - startTime >= timeout) {
+          trySelectAnswer(content);
+        } else {
+          cy.wait(interval).then(pollForEnabledButtons);
+        }
+      });
+    };
+
+    pollForEnabledButtons();
+  } else {
+    cy.get('.jspsych-content').then(trySelectAnswer);
+  }
 }
 
 function handleMathSlider() {
@@ -62,12 +82,12 @@ function handleMathSlider() {
   return;
 }
 
-function taskLoop(correctFlag, buttonClass) {
+function taskLoop(correctFlag, buttonClass, waitForEnabled = false) {
   // wait for fixation cross to go away
   cy.get('.lev-stimulus-container', { timeout: 60000 }).should('exist');
 
   handleMathSlider();
-  selectAnswers(correctFlag, buttonClass);
+  selectAnswers(correctFlag, buttonClass, waitForEnabled);
   instructions();
 
   cy.get('.lev-stimulus-container', { timeout: 60000 })
@@ -76,14 +96,14 @@ function taskLoop(correctFlag, buttonClass) {
       if (taskCompleted) {
         return;
       } else {
-        taskLoop(correctFlag, buttonClass);
+        taskLoop(correctFlag, buttonClass, waitForEnabled);
       }
     });
 }
 
-export function testAfc(correctFlag, buttonClass) {
+export function testAfc(correctFlag, buttonClass, waitForEnabled = false) {
   // wait for OK button to be visible
   cy.contains('OK', { timeout: 600000 }).should('be.visible');
   cy.contains('OK').realClick(); // real click mimics user gesture so that fullscreen can start
-  taskLoop(correctFlag, buttonClass);
+  taskLoop(correctFlag, buttonClass, waitForEnabled);
 }
