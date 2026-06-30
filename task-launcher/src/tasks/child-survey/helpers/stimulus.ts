@@ -86,7 +86,7 @@ export const surveyItem = ({
       const buttonClass = itemLayoutConfig.classOverrides.buttonClassList[0];
       const responseButtonChildren = document.querySelectorAll(`button.${buttonClass}`);
       const buttonContainer = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
-    
+
       buttonContainer.classList.add('lev-response-row', 'multi-4', 'wide-buttons');
 
       // update progress bar
