@@ -61,7 +61,6 @@ export function prepareCorpus(
       Number(trial.difficulty) <= maxTrialDifficulty,
   );
   const startItems: StimulusType[] = selectNItems(possibleStartItems, numberOfStartItems);
-  console.log(startItems);
 
   // put cat portion of corpus into taskStore
   const catCorpus: StimulusType[] = normedTrials.filter((trial) => !startItems.includes(trial));
