@@ -52,6 +52,13 @@ jobs:
         with:
           token: ${{ steps.checkout_token.outputs.token }}
 
+      - name: Ensure on main
+        if: ${{ inputs.bump-and-tag }}
+        run: |
+          if [[ "$(git rev-parse --abbrev-ref HEAD)" != "main" ]]; then
+            echo "Publish must be run from main" && exit 1
+          fi
+
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
@@ -75,20 +82,25 @@ jobs:
 
       - name: Bump package version
         if: ${{ inputs.bump-and-tag }}
-        run: |
-          npm version ${{ inputs.version-type }} --message "chore: release v%s [skip ci]"
+        run: npm version ${{ inputs.version-type }} --no-git-tag-version
 
       - name: Resolve version
         id: resolve_version
         run: echo "new_version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
 
-      - name: Push version commit and tag
-        if: ${{ inputs.bump-and-tag }}
-        run: git push --follow-tags
-
       - name: Publish to npm
         if: ${{ inputs.bump-and-tag }}
         run: npm publish --access public
+
+      - name: Commit and push version bump and tag
+        if: ${{ inputs.bump-and-tag }}
+        env:
+          NEW_VERSION: ${{ steps.resolve_version.outputs.new_version }}
+        run: |
+          git add package.json package-lock.json
+          git commit -m "chore: release v$NEW_VERSION [skip ci]"
+          git tag -a "v$NEW_VERSION" -m "chore: release v$NEW_VERSION"
+          git push --follow-tags
 
   update-dashboard:
     if: ${{ inputs.update-dashboard }}
