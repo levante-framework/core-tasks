@@ -11,10 +11,10 @@ $breakpoints: (
   'large': (
     max-width: 1400px,
   ),
-  'very-large': (
+  'large-lower-bound': (
     min-width: 1000px,
   ),
-  'huge': (
+  'very-large-lower-bound': (
     min-width: 1200px,
   ),
 );
