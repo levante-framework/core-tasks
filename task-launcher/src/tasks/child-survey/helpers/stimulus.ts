@@ -90,6 +90,7 @@ export const surveyItem = ({
       const pageStateHandler = new PageStateHandler(stim.audioFile, playAudioOnLoad);
       const buttonClass = itemLayoutConfig.classOverrides.buttonClassList[0];
       const buttonContainer = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
+      buttonContainer.classList.add('lev-response-row', 'multi-4', 'wide-buttons');
 
       if (stim.assessmentStage !== 'instructions') {
         Array.from(buttonContainer.querySelectorAll('.jspsych-html-multi-response-button')).forEach((wrapper, index) => {
