@@ -41,7 +41,7 @@ export function displaceAnimation(
     const cursorImg = document.createElement('img');
     cursorImg.src = mediaAssets.images.pointingHand;
     cursorImg.style.position = 'absolute';
-    cursorImg.style.width = rect.width * 0.7 + 'px';
+    cursorImg.style.width = `${rect.width * 0.7}px`;
     cursorImg.style.height = 'auto';
     cursorImg.style.left = `${rect.left + rect.width / 4}px`;
     cursorImg.style.top = `${rect.top + rect.height / 4}px`;

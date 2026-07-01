@@ -288,7 +288,7 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
     if (taskStore().storeItemId) {
       jsPsych.data.addDataToLastTrial({
         corpus: taskStore().corpus,
-        itemId: stimulus.source + '-' + stimulus.origItemNum,
+        itemId: `${stimulus.source}-${stimulus.origItemNum}`,
       });
     }
 

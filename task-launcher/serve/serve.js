@@ -61,7 +61,6 @@ const heavyInstructions = stringToBoolean(urlParams.get('heavyInstructions'), fa
 const experimenterButtons = stringToBoolean(urlParams.get('experimenterButtons'), false);
 const debug = stringToBoolean(urlParams.get('debug'), false);
 
-const emulatorConfig = EMULATORS ? firebaseJSON.emulators : undefined;
 // if running in demo mode, no data will be saved to Firestore
 const demoMode = DEMO;
 
