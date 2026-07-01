@@ -114,6 +114,11 @@ export const surveyItem = ({
                 maxRepetitions: 2,
               },
             });
+
+            const responseItem = (responseButtonChildren[index] as HTMLButtonElement);
+            responseItem.style.animation = 'none';
+            responseItem.offsetHeight; // Force reflow so that animation is applied correctly
+            responseItem.style.animation = 'pulse 2s 0s 1';
           });
         });
       }
@@ -171,22 +176,32 @@ export const surveyItem = ({
             setTimeout(() => {
               (button as HTMLButtonElement).disabled = false;
             }, 10);
-            (button as HTMLButtonElement).classList.remove('success-shadow');
+            (button as HTMLButtonElement).classList.remove('selected');
           });
 
-          (event.target as HTMLButtonElement).classList.add('success-shadow');
+          (event.target as HTMLButtonElement).classList.add('selected');
           selectedButtonIndex = Array.prototype.indexOf.call(responseButtonChildren, event.target as HTMLButtonElement);
         });
       });
+
+      const jsPsychResponseButtons = buttonContainer.children;
+      if (stim.assessmentStage === 'instructions') {
+        // prevents jsPsych from disabling the buttons when clicked, which changes the styling outside of our control
+        Array.from(jsPsychResponseButtons).forEach((btn) => 
+          (btn as HTMLButtonElement).style.pointerEvents = 'none'
+        );
+      }
+      
 
       if (itemLayoutConfig.isStaggered) {
         // Handle the staggered buttons
         await handleStaggeredButtons(
           pageStateHandler,
-          buttonContainer,
+          Array.from(responseButtonChildren as NodeListOf<HTMLButtonElement>),
           responseAudioKeys,
           stim.itemId,
           stim.assessmentStage === 'instructions',
+          true
         );
 
         const replayButtons = document.querySelectorAll('.replay-btn');
@@ -197,6 +212,7 @@ export const surveyItem = ({
           responseButtonChildren.forEach((button) => {
             (button as HTMLButtonElement).disabled = true;
           });
+
           // Add primary OK button under the other buttons
           const okButton = document.createElement('button');
           okButton.className = 'primary';

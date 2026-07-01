@@ -33,7 +33,7 @@ export function setupHafMultiResponseTouchRouting() {
         if (syntheticClick) return;
         if (!e.isTrusted) return;
 
-        triggerToast(taskStore().translations.generalEncourage);
+        triggerToast();
         e.preventDefault();
         e.stopImmediatePropagation();
       },
