@@ -65,8 +65,8 @@ export function addExperimenterButtons() {
   // equalize button widths
   const popupButtons = popupButtonContainer.querySelectorAll('button');
   const standardWidth = popupButtons[0].getBoundingClientRect().width;
-  popupButtons[0].style.width = standardWidth.toString() + 'px';
-  popupButtons[1].style.width = standardWidth.toString() + 'px';
+  popupButtons[0].style.width = `${standardWidth}px`;
+  popupButtons[1].style.width = `${standardWidth}px`;
 
   document.body.appendChild(popup);
 }

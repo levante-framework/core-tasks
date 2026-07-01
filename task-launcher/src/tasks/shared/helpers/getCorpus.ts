@@ -69,7 +69,6 @@ function containsLettersOrSlash(str: string) {
 
 const transformCSV = (csvInput: ParsedRowType[], sequentialStimulus: boolean, task: string) => {
   let currTrialTypeBlock = '';
-  let currPracticeAmount = 0;
 
   const blockThresholds: number[] = [];
 
@@ -135,7 +134,6 @@ const transformCSV = (csvInput: ParsedRowType[], sequentialStimulus: boolean, ta
     const currentTrialType = newRow.trialType;
     if (currentTrialType !== currTrialTypeBlock) {
       currTrialTypeBlock = currentTrialType;
-      currPracticeAmount = 0;
     }
 
     if (newRow.downex) {
@@ -195,7 +193,7 @@ export const getCorpus = async (config: Record<string, any>, isDev: boolean) => 
   }
 
   async function parseCSVs(urls: string[]) {
-    const promises = urls.map((url, i) => downloadCSV(url));
+    const promises = urls.map((url, _i) => downloadCSV(url));
     return Promise.all(promises);
   }
 
