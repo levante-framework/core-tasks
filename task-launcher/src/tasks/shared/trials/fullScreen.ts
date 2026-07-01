@@ -26,14 +26,20 @@ export const enterFullscreen = {
     }
 
     if (isTouchScreen) {
-      continueButton?.addEventListener('click', () => {
-        PageAudioHandler.unlockAudioContext();
-      }),
-        { once: true };
-      continueButton?.addEventListener('touchend', () => {
-        PageAudioHandler.unlockAudioContext();
-      }),
-        { once: true };
+      continueButton?.addEventListener(
+        'click',
+        () => {
+          PageAudioHandler.unlockAudioContext();
+        },
+        { once: true },
+      );
+      continueButton?.addEventListener(
+        'touchend',
+        () => {
+          PageAudioHandler.unlockAudioContext();
+        },
+        { once: true },
+      );
     }
 
     const inputDetector = setupInputDetection();

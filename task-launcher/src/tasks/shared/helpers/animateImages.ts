@@ -13,7 +13,7 @@ export function popAnimation(itemsToAnimate: any, animation: string) {
 }
 
 export function triggerAnimation(item: any, animation: string) {
-  if (item instanceof Array) {
+  if (Array.isArray(item)) {
     item.forEach((item) => {
       item.style.animation = 'none';
       item.offsetHeight; // Force reflow
