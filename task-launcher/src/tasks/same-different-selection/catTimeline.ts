@@ -111,7 +111,7 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
             (stimulus.trialType.includes('something-same') && trialNum === 2)
           );
         } else {
-          return stimulus.trialType === trialNum + '-match';
+          return stimulus.trialType === `${trialNum}-match`;
         }
       },
     };

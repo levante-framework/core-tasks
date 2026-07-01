@@ -455,7 +455,7 @@ export const heavyPractice = practiceData.map((data) => {
           .filter((btn) => !!btn) as HTMLButtonElement[];
 
         practiceBtns.forEach((card, i) => {
-          card.addEventListener('click', async (e) => {
+          card.addEventListener('click', async (_e) => {
             handleButtonFeedback(card, practiceBtns, false, i, data.correctAudio);
           });
         });

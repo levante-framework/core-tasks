@@ -48,7 +48,7 @@ function setUpAudio(cue: string) {
 
 function captureValue(
   btnElement: HTMLButtonElement | null,
-  event: Event & { key?: string },
+  _event: Event & { key?: string },
   i: number,
   isPractice: boolean,
   choice?: string,
@@ -137,14 +137,13 @@ export const slider = (
       startTime = performance.now();
 
       const stim = (trial || taskStore().nextStimulus) as StimulusType;
-      const { distractors } = stim;
       const itemLayoutConfig = layoutConfigMap[stim.itemId];
       const incorrectPracticeResponses: Array<string | null> = [];
       taskStore('incorrectPracticeResponses', incorrectPracticeResponses);
 
       const slider = document.getElementById('jspsych-html-slider-response-response') as HTMLInputElement;
       const sliderLabels = document.getElementsByTagName('span') as HTMLCollectionOf<HTMLSpanElement>;
-      Array.from(sliderLabels).forEach((el, i) => {
+      Array.from(sliderLabels).forEach((el, _i) => {
         //if (i == 1 || i == 2) {
         el.style.fontSize = '1.5rem';
         //}
