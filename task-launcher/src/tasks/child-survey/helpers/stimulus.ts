@@ -177,7 +177,7 @@ export const surveyItem = ({
       // update the trial number
       taskStore.transact('trialNumSubtask', (oldVal: number) => oldVal + 1);
     },
-    on_finish: (_data: any) => {
+    on_finish: (_data: unknown) => {
       disableStagger();
       PageAudioHandler.stopAndDisconnectNode();
 

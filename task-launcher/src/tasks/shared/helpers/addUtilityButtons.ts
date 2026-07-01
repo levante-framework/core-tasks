@@ -136,7 +136,9 @@ function onResume() {
 function onExit() {
   openPopup();
 
-  const popupButtons = document.getElementById('exit-confirmation-popup-buttons')!.querySelectorAll('button');
+  const popupContainer = document.getElementById('exit-confirmation-popup-buttons');
+  if (!popupContainer) return;
+  const popupButtons = popupContainer.querySelectorAll('button');
   popupButtons[0].addEventListener('click', () => {
     document.body.innerHTML = '';
     taskStore('taskComplete', true);
@@ -149,11 +151,12 @@ function onExit() {
     const exitButton = document.getElementById('exit');
     const pauseButton = document.getElementById('pause');
 
-    exitButton!.style.display = 'none';
-    pauseButton!.style.display = 'none';
-
-    menuButton!.classList.remove('open');
-    menuButton!.setAttribute('state', 'closed');
+    if (exitButton) exitButton.style.display = 'none';
+    if (pauseButton) pauseButton.style.display = 'none';
+    if (menuButton) {
+      menuButton.classList.remove('open');
+      menuButton.setAttribute('state', 'closed');
+    }
   });
 }
 
@@ -172,16 +175,14 @@ function onMenuPress(menuButton: HTMLButtonElement) {
   const pauseButton = document.getElementById('pause');
 
   if (menuButton.getAttribute('state') === 'closed') {
-    exitButton!.style.display = 'block';
-    pauseButton!.style.display = 'block';
-
-    menuButton!.classList.add('open');
+    if (exitButton) exitButton.style.display = 'block';
+    if (pauseButton) pauseButton.style.display = 'block';
+    menuButton.classList.add('open');
     menuButton.setAttribute('state', 'open');
   } else {
-    exitButton!.style.display = 'none';
-    pauseButton!.style.display = 'none';
-
-    menuButton!.classList.remove('open');
+    if (exitButton) exitButton.style.display = 'none';
+    if (pauseButton) pauseButton.style.display = 'none';
+    menuButton.classList.remove('open');
     menuButton.setAttribute('state', 'closed');
   }
 }

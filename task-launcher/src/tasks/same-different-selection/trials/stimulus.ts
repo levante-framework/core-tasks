@@ -432,7 +432,7 @@ export const stimulus = (trial?: StimulusType) => {
 
       displayDebugInfo(stimulus);
     },
-    on_finish: (_data: any) => {
+    on_finish: (_data: unknown) => {
       PageAudioHandler.stopAndDisconnectNode();
       currentTrialId = '';
 
