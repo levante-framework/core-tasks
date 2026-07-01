@@ -1,6 +1,5 @@
 import * as Sentry from '@sentry/browser';
 import i18next from 'i18next';
-import firebaseJSON from '../firebase.json';
 import { TaskLauncher } from '../src';
 import { stringToBoolean } from '../src/tasks/shared/helpers/stringToBoolean';
 

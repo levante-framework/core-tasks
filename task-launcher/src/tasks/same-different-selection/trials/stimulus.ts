@@ -424,7 +424,7 @@ export const stimulus = (trial?: StimulusType) => {
         practiceBtns.forEach((card, i) => {
           const eventType = isTouchScreen ? 'touchend' : 'click';
 
-          card.addEventListener(eventType, (e) => {
+          card.addEventListener(eventType, (_e) => {
             handleButtonFeedback(card, practiceBtns, false, i, 'feedbackGoodJob');
           });
         });
@@ -432,12 +432,11 @@ export const stimulus = (trial?: StimulusType) => {
 
       displayDebugInfo(stimulus);
     },
-    on_finish: (data: any) => {
+    on_finish: (_data: any) => {
       PageAudioHandler.stopAndDisconnectNode();
       currentTrialId = '';
 
       const stim = trial || taskStore().nextStimulus;
-      const choices = taskStore().choices;
       const endTime = performance.now();
       const cat = taskStore().runCat;
 

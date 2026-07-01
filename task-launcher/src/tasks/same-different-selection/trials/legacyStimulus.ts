@@ -269,7 +269,7 @@ export const legacyStimulus = (trial?: StimulusType) => {
         practiceBtns.forEach((card, i) => {
           const eventType = isTouchScreen ? 'touchend' : 'click';
 
-          card.addEventListener(eventType, (e) => {
+          card.addEventListener(eventType, (_e) => {
             handleButtonFeedback(card, practiceBtns, false, i, 'feedbackGoodJob');
           });
         });
