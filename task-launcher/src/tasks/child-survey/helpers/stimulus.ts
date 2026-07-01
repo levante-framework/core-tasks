@@ -93,34 +93,36 @@ export const surveyItem = ({
       buttonContainer.classList.add('lev-response-row', 'multi-4', 'wide-buttons');
 
       if (stim.assessmentStage !== 'instructions') {
-        Array.from(buttonContainer.querySelectorAll('.jspsych-html-multi-response-button')).forEach((wrapper, index) => {
-          const stack = document.createElement('div');
-          stack.className = 'multi-button-stack';
+        Array.from(buttonContainer.querySelectorAll('.jspsych-html-multi-response-button')).forEach(
+          (wrapper, index) => {
+            const stack = document.createElement('div');
+            stack.className = 'multi-button-stack';
 
-          const replayBtn = document.createElement('button');
-          replayBtn.className = 'replay-btn utility';
-          replayBtn.innerHTML = replayButtonSvg;
-          replayBtn.disabled = true;
-          stack.appendChild(replayBtn);
+            const replayBtn = document.createElement('button');
+            replayBtn.className = 'replay-btn utility';
+            replayBtn.innerHTML = replayButtonSvg;
+            replayBtn.disabled = true;
+            stack.appendChild(replayBtn);
 
-          buttonContainer.insertBefore(stack, wrapper);
-          stack.appendChild(wrapper);
+            buttonContainer.insertBefore(stack, wrapper);
+            stack.appendChild(wrapper);
 
-          replayBtn.addEventListener('click', (event) => {
-            PageAudioHandler.stopAndDisconnectNode();
-            PageAudioHandler.playAudio(mediaAssets.audio[camelize(responseAudioKeys[index])], {
-              restrictRepetition: {
-                enabled: false,
-                maxRepetitions: 2,
-              },
+            replayBtn.addEventListener('click', (event) => {
+              PageAudioHandler.stopAndDisconnectNode();
+              PageAudioHandler.playAudio(mediaAssets.audio[camelize(responseAudioKeys[index])], {
+                restrictRepetition: {
+                  enabled: false,
+                  maxRepetitions: 2,
+                },
+              });
+
+              const responseItem = responseButtonChildren[index] as HTMLButtonElement;
+              responseItem.style.animation = 'none';
+              responseItem.offsetHeight; // Force reflow so that animation is applied correctly
+              responseItem.style.animation = 'pulse 2s 0s 1';
             });
-
-            const responseItem = (responseButtonChildren[index] as HTMLButtonElement);
-            responseItem.style.animation = 'none';
-            responseItem.offsetHeight; // Force reflow so that animation is applied correctly
-            responseItem.style.animation = 'pulse 2s 0s 1';
-          });
-        });
+          },
+        );
       }
 
       const responseButtonChildren = document.querySelectorAll(`button.${buttonClass}`);
@@ -187,11 +189,8 @@ export const surveyItem = ({
       const jsPsychResponseButtons = buttonContainer.children;
       if (stim.assessmentStage === 'instructions') {
         // prevents jsPsych from disabling the buttons when clicked, which changes the styling outside of our control
-        Array.from(jsPsychResponseButtons).forEach((btn) => 
-          (btn as HTMLButtonElement).style.pointerEvents = 'none'
-        );
+        Array.from(jsPsychResponseButtons).forEach((btn) => ((btn as HTMLButtonElement).style.pointerEvents = 'none'));
       }
-      
 
       if (itemLayoutConfig.isStaggered) {
         // Handle the staggered buttons
@@ -201,11 +200,11 @@ export const surveyItem = ({
           responseAudioKeys,
           stim.itemId,
           stim.assessmentStage === 'instructions',
-          true
+          true,
         );
 
         const replayButtons = document.querySelectorAll('.replay-btn');
-        replayButtons.forEach((btn) => (btn as HTMLButtonElement).disabled = false);
+        replayButtons.forEach((btn) => ((btn as HTMLButtonElement).disabled = false));
 
         // disable demo buttons
         if (stim.assessmentStage === 'instructions') {

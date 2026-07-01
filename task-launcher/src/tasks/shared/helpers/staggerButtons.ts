@@ -46,7 +46,7 @@ export const handleStaggeredButtons = async (
         pageState,
         resolve, // Pass the resolve function to be called when animation completes
         currentTrialId,
-        pulseButtons
+        pulseButtons,
       );
     }, intialDelay);
   });
@@ -100,7 +100,15 @@ const showStaggeredBtnAndPlaySound = (
         onComplete?.();
       } else {
         //recurse
-        showStaggeredBtnAndPlaySound(index + 1, btnList, audioList, pageState, onComplete, currentTrialId, pulseButtons);
+        showStaggeredBtnAndPlaySound(
+          index + 1,
+          btnList,
+          audioList,
+          pageState,
+          onComplete,
+          currentTrialId,
+          pulseButtons,
+        );
       }
     },
   };

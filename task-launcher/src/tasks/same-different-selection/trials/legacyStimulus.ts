@@ -252,10 +252,7 @@ export const legacyStimulus = (trial?: StimulusType) => {
         handleStaggeredButtons(
           pageStateHandler,
           Array.from(buttonContainer.children as HTMLCollectionOf<HTMLButtonElement>),
-          [
-            'same-different-selection-highlight-1',
-            'same-different-selection-highlight-2',
-          ],
+          ['same-different-selection-highlight-1', 'same-different-selection-highlight-2'],
         );
       }
 

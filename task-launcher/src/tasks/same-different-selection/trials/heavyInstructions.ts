@@ -443,10 +443,7 @@ export const heavyPractice = practiceData.map((data) => {
         handleStaggeredButtons(
           pageStateHandler,
           Array.from(buttonContainer.children as HTMLCollectionOf<HTMLButtonElement>),
-          [
-            'same-different-selection-highlight-1',
-            'same-different-selection-highlight-2',
-          ],
+          ['same-different-selection-highlight-1', 'same-different-selection-highlight-2'],
         );
       }
 
