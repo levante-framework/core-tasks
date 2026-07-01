@@ -40,7 +40,6 @@ export const instructions = instructionData.map((data) => {
     prompt_above_buttons: true,
     button_choices: ['Next'],
     button_html: () => {
-      const t = taskStore().translations;
       return [
         `<button class="primary">
             ${[data.buttonText]}

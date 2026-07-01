@@ -65,8 +65,6 @@ const data = [
   },
 ];
 
-let startTime: number;
-
 export const instructions = data.map((data: any) => {
   return {
     type: jsPsychHtmlMultiResponse,
@@ -107,8 +105,6 @@ export const instructions = data.map((data: any) => {
     },
     keyboard_choices: () => 'NO_KEYS',
     on_load: async () => {
-      startTime = performance.now();
-
       addExperimenterButtons();
       setupFullscreenButton();
 
