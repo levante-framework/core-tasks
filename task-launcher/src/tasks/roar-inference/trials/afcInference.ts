@@ -1,16 +1,8 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import _toNumber from 'lodash/toNumber';
 import { taskStore } from '../../../taskStore';
-import {
-  arrowKeyEmojis,
-  PageStateHandler,
-  setSentryContext,
-  setSkipCurrentBlock,
-  //@ts-ignore
-} from '../../shared/helpers';
-// @ts-ignore
+import { arrowKeyEmojis, PageStateHandler, setSentryContext, setSkipCurrentBlock } from '../../shared/helpers';
 import { finishExperiment } from '../../shared/trials';
-// @ts-ignore
 import { isTouchScreen, jsPsych } from '../../taskSetup';
 import type { LayoutConfigTypeInference } from '../types/inferenceTypes';
 

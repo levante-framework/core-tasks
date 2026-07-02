@@ -1,5 +1,5 @@
 import { Cat } from '@bdelab/jscat';
-//@ts-ignore
+//@ts-expect-error
 import { getDevice } from '@bdelab/roar-utils';
 import { initJsPsych } from 'jspsych';
 import '../i18n/i18n';
