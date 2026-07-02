@@ -21,4 +21,4 @@ const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
 packageJson.main = path.join(outputDir, outputFile);
 packageJson.module = path.join(outputDir, outputFile);
 
-fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2));
+fs.writeFileSync(packageJsonPath, `${JSON.stringify(packageJson, null, 2)}\n`);
