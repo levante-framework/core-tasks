@@ -10,6 +10,7 @@ import {
   handleStaggeredButtons,
   PageAudioHandler,
   PageStateHandler,
+  replayButtonSvg,
   setSentryContext,
   setupFullscreenButton,
   setupReplayAudio,
@@ -19,6 +20,12 @@ import { updateProgressBar } from '../../shared/helpers/updateProgressBar';
 import { jsPsych } from '../../taskSetup';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
+const responseAudioKeys = [
+  'child-survey-response1',
+  'child-survey-response2',
+  'child-survey-response3',
+  'child-survey-response4',
+];
 let startTime: number;
 let selectedButtonIndex: number;
 
@@ -69,12 +76,10 @@ export const surveyItem = ({
     button_html: () => {
       const stim = taskStore().nextStimulus;
       const itemLayoutConfig: LayoutConfigType = layoutConfigMap?.[stim.itemId];
+      const buttonClasses = itemLayoutConfig.classOverrides.buttonClassList.join(' ');
+      const disabled = stim.assessmentStage === 'test_response' ? ' disabled' : '';
 
-      return `<button 
-                  class='${itemLayoutConfig.classOverrides.buttonClassList.join(' ')}' 
-                  ${stim.assessmentStage === 'test_response' ? 'disabled' : ''}>
-                  %choice%
-                </button>`;
+      return `<button class='${buttonClasses}'${disabled}>%choice%</button>`;
     },
     on_load: async () => {
       startTime = performance.now();
@@ -84,10 +89,43 @@ export const surveyItem = ({
       const playAudioOnLoad = itemLayoutConfig?.playAudioOnLoad;
       const pageStateHandler = new PageStateHandler(stim.audioFile, playAudioOnLoad);
       const buttonClass = itemLayoutConfig.classOverrides.buttonClassList[0];
-      const responseButtonChildren = document.querySelectorAll(`button.${buttonClass}`);
       const buttonContainer = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
-
       buttonContainer.classList.add('lev-response-row', 'multi-4', 'wide-buttons');
+
+      if (stim.assessmentStage !== 'instructions') {
+        Array.from(buttonContainer.querySelectorAll('.jspsych-html-multi-response-button')).forEach(
+          (wrapper, index) => {
+            const stack = document.createElement('div');
+            stack.className = 'multi-button-stack';
+
+            const replayBtn = document.createElement('button');
+            replayBtn.className = 'replay-btn utility';
+            replayBtn.innerHTML = replayButtonSvg;
+            replayBtn.disabled = true;
+            stack.appendChild(replayBtn);
+
+            buttonContainer.insertBefore(stack, wrapper);
+            stack.appendChild(wrapper);
+
+            replayBtn.addEventListener('click', (event) => {
+              PageAudioHandler.stopAndDisconnectNode();
+              PageAudioHandler.playAudio(mediaAssets.audio[camelize(responseAudioKeys[index])], {
+                restrictRepetition: {
+                  enabled: false,
+                  maxRepetitions: 2,
+                },
+              });
+
+              const responseItem = responseButtonChildren[index] as HTMLButtonElement;
+              responseItem.style.animation = 'none';
+              responseItem.offsetHeight; // Force reflow so that animation is applied correctly
+              responseItem.style.animation = 'pulse 2s 0s 1';
+            });
+          },
+        );
+      }
+
+      const responseButtonChildren = document.querySelectorAll(`button.${buttonClass}`);
 
       // update progress bar
       const progress = (taskStore().testTrialCount / taskStore().totalTrials) * 100;
@@ -140,35 +178,40 @@ export const surveyItem = ({
             setTimeout(() => {
               (button as HTMLButtonElement).disabled = false;
             }, 10);
-            (button as HTMLButtonElement).classList.remove('success-shadow');
+            (button as HTMLButtonElement).classList.remove('selected');
           });
 
-          (event.target as HTMLButtonElement).classList.add('success-shadow');
+          (event.target as HTMLButtonElement).classList.add('selected');
           selectedButtonIndex = Array.prototype.indexOf.call(responseButtonChildren, event.target as HTMLButtonElement);
         });
       });
 
+      const jsPsychResponseButtons = buttonContainer.children;
+      if (stim.assessmentStage === 'instructions') {
+        // prevents jsPsych from disabling the buttons when clicked, which changes the styling outside of our control
+        Array.from(jsPsychResponseButtons).forEach((btn) => ((btn as HTMLButtonElement).style.pointerEvents = 'none'));
+      }
+
       if (itemLayoutConfig.isStaggered) {
         // Handle the staggered buttons
-        const audioKeys: string[] = [
-          'child-survey-response1',
-          'child-survey-response2',
-          'child-survey-response3',
-          'child-survey-response4',
-        ];
         await handleStaggeredButtons(
           pageStateHandler,
-          buttonContainer,
-          audioKeys,
+          Array.from(responseButtonChildren as NodeListOf<HTMLButtonElement>),
+          responseAudioKeys,
           stim.itemId,
           stim.assessmentStage === 'instructions',
+          true,
         );
+
+        const replayButtons = document.querySelectorAll('.replay-btn');
+        replayButtons.forEach((btn) => ((btn as HTMLButtonElement).disabled = false));
 
         // disable demo buttons
         if (stim.assessmentStage === 'instructions') {
           responseButtonChildren.forEach((button) => {
             (button as HTMLButtonElement).disabled = true;
           });
+
           // Add primary OK button under the other buttons
           const okButton = document.createElement('button');
           okButton.className = 'primary';
