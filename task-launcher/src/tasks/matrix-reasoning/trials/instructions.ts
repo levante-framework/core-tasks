@@ -143,12 +143,12 @@ export const downexInstructions1 = {
     const t = taskStore().translations;
     const stimImage = mediaAssets.images[downexData1.image];
 
-    const itemText = downexData1.audio.map((file: string) => t[camelize(file)]).join(' ');
+    const itemText = t[camelize(downexData1.audio[0])];
 
     return `<div class="lev-stimulus-container">
                   ${getParticipantUtilityButtonsHtml(replayButtonHtmlId)}
                   <div class="lev-row-container instruction-small">
-                      <p>${itemText}</p>
+                      <p id="prompt-text">${itemText}</p>
                   </div>
 
                   <div id="stim-container" class="lev-stim-content-x-2">
@@ -205,6 +205,7 @@ export const downexInstructions1 = {
       });
     }
 
+    const t = taskStore().translations;
     const stimContainer = document.getElementById('stim-container');
     const stimImage = stimContainer?.querySelector('img');
     const buttonContainer = document.getElementById('choices-container');
@@ -257,11 +258,16 @@ export const downexInstructions1 = {
           };
           itemsToAnimate = popAnimation(itemsToAnimate, `pulse 2s ${delay}s 2`) as any;
           PageAudioHandler.playAudio(audioUri, configWithCallback);
+
+          const promptText = document.getElementById("prompt-text");
+          if (promptText) {
+            promptText.textContent = t[camelize(audioFile)];
+          }
         });
       }
 
-      const lastAudioUri =
-        mediaAssets.audio[camelize(trialAudio[trialAudio.length - 1])] || mediaAssets.audio.nullAudio;
+      const lastAudioKey = camelize(trialAudio[trialAudio.length - 1]);
+      const lastAudioUri = mediaAssets.audio[lastAudioKey] || mediaAssets.audio.nullAudio;
 
       // animate the target button to the center of stimImage
       if (stimImage && target && !taskStore().isPaused && thisCycleId === cycleId) {
@@ -282,7 +288,16 @@ export const downexInstructions1 = {
         };
 
         setTimeout(
-          () => (!taskStore().isPaused ? PageAudioHandler.playAudio(lastAudioUri, lastAudioConfig) : null),
+          () => {
+            const promptText = document.getElementById("prompt-text");
+            if (promptText) {
+              promptText.textContent = t[lastAudioKey];
+            }
+
+            if (!taskStore().isPaused) {
+              PageAudioHandler.playAudio(lastAudioUri, lastAudioConfig)
+            }
+          },
           5000,
         );
       } else {
@@ -366,12 +381,12 @@ export const downexInstructions3 = {
   stimulus: () => {
     const t = taskStore().translations;
 
-    const itemText = downexData3.audio.map((file: string) => t[camelize(file)]).join(' ');
+    const itemText = t[camelize(downexData3.audio[0])];
 
     return `<div class="lev-stimulus-container">
                   ${getParticipantUtilityButtonsHtml(replayButtonHtmlId)}
                   <div class="lev-row-container instruction-small">
-                      <p>${itemText}</p>
+                      <p id="prompt-text">${itemText}</p>
                   </div>
 
                   <div id="stim-container" class="lev-stim-content-x-2">
@@ -401,6 +416,8 @@ export const downexInstructions3 = {
     addExperimenterButtons();
     setupFullscreenButton();
 
+    const t = taskStore().translations;
+
     // set up replay audio
     const trialAudio = downexData3.audio;
 
@@ -429,6 +446,11 @@ export const downexInstructions3 = {
       PageAudioHandler.stopAndDisconnectNode();
       cycleId++;
 
+      const promptText = document.getElementById('prompt-text');
+      if (promptText) {
+        promptText.textContent = t.feedbackRightOne;
+      }
+
       PageAudioHandler.playAudio(mediaAssets.audio.feedbackRightOne);
     }
 
@@ -440,6 +462,11 @@ export const downexInstructions3 = {
         targetButton.style.animation = 'none';
         targetButton.offsetHeight; // Force reflow
         targetButton.style.animation = 'pulse 2s 0s 2';
+      }
+
+      const promptText = document.getElementById('prompt-text');
+      if (promptText) {
+        promptText.textContent = t.matrixReasoningFeedbackIncorrectDownex;
       }
 
       PageAudioHandler.playAudio(mediaAssets.audio.matrixReasoningFeedbackIncorrectDownex);
@@ -505,6 +532,11 @@ export const downexInstructions3 = {
           }
 
           PageAudioHandler.playAudio(audioUri, configWithCallback);
+
+          const promptText = document.getElementById('prompt-text');
+          if (promptText) {
+            promptText.textContent = t[camelize(audioFile)];
+          }
         });
       }
 
@@ -534,12 +566,12 @@ export const downexInstructions4 = {
   stimulus: () => {
     const t = taskStore().translations;
 
-    const itemText = downexData4.audio.map((file: string) => t[camelize(file)]).join(' ');
+    const itemText = t[camelize(downexData4.audio[0])];
 
     return `<div class="lev-stimulus-container">
                   ${getParticipantUtilityButtonsHtml(replayButtonHtmlId)}
                   <div class="lev-row-container instruction-small">
-                      <p>${itemText}</p>
+                      <p id="prompt-text">${itemText}</p>
                   </div>
 
                   <div id="stim-container" class="lev-stim-content-x-3">
@@ -567,6 +599,8 @@ export const downexInstructions4 = {
 
     addExperimenterButtons();
     setupFullscreenButton();
+
+    const t = taskStore().translations;
 
     // set up replay audio
     const trialAudio = downexData4.audio;
@@ -596,6 +630,11 @@ export const downexInstructions4 = {
       PageAudioHandler.stopAndDisconnectNode();
       cycleId++;
 
+      const promptText = document.getElementById('prompt-text');
+      if (promptText) {
+        promptText.textContent = t.feedbackRightOne;
+      }
+
       PageAudioHandler.playAudio(mediaAssets.audio.feedbackRightOne);
     }
 
@@ -607,6 +646,11 @@ export const downexInstructions4 = {
         targetButton.style.animation = 'none';
         targetButton.offsetHeight; // Force reflow
         targetButton.style.animation = 'pulse 2s 0s 2';
+      }
+
+      const promptText = document.getElementById('prompt-text');
+      if (promptText) {
+        promptText.textContent = t.matrixReasoningFeedbackSmBlueDownex;
       }
 
       PageAudioHandler.playAudio(mediaAssets.audio.matrixReasoningFeedbackSmBlueDownex);
@@ -658,6 +702,11 @@ export const downexInstructions4 = {
           }
 
           PageAudioHandler.playAudio(audioUri, configWithCallback);
+
+          const promptText = document.getElementById('prompt-text');
+          if (promptText) {
+            promptText.textContent = t[camelize(audioFile)];
+          }
         });
       }
 

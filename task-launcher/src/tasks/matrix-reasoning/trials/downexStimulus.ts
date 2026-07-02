@@ -46,7 +46,7 @@ export const downexStimulus = (
       let itemText;
       const audioFile = stim.audioFile;
       if (typeof audioFile !== 'string') {
-        itemText = audioFile.map((file: string) => t[camelize(file)]).join(' ');
+        itemText = t[camelize(audioFile[0])];
       } else {
         itemText = t[camelize(audioFile)];
       }
@@ -54,7 +54,7 @@ export const downexStimulus = (
       return `<div class="lev-stimulus-container">
                         ${getParticipantUtilityButtonsHtml(replayButtonHtmlId)}
                         <div class="lev-row-container instruction-small">
-                            <p>${itemText}</p>
+                            <p id="prompt-text">${itemText}</p>
                         </div>
                         <div class="lev-stim-content-x-2">
                         <img
@@ -93,6 +93,7 @@ export const downexStimulus = (
       startTime = performance.now();
 
       const stim = trial || taskStore().nextStimulus;
+      const t = taskStore().translations;
 
       // set up replay audio with animations
       const trialAudio = stim.audioFile;
@@ -126,6 +127,12 @@ export const downexStimulus = (
       function onCorrect() {
         PageAudioHandler.stopAndDisconnectNode();
         cycleId++;
+
+        const promptText = document.getElementById('prompt-text');
+        if (promptText) {
+          promptText.textContent = t.feedbackRightOne;
+        }
+
         PageAudioHandler.playAudio(mediaAssets.audio.feedbackRightOne);
       }
 
@@ -150,6 +157,11 @@ export const downexStimulus = (
             maxRepetitions: 2,
           },
         };
+
+        const promptText = document.getElementById('prompt-text');
+        if (promptText) {
+          promptText.textContent = t.matrixReasoningFeedbackIncorrectDownex;
+        }
 
         PageAudioHandler.playAudio(mediaAssets.audio.matrixReasoningFeedbackIncorrectDownex, audioConfig);
       }
@@ -205,6 +217,11 @@ export const downexStimulus = (
                 itemsToAnimate = popAnimation(itemsToAnimate, 'pulse 2s 0s') as any;
               }
               PageAudioHandler.playAudio(audioUri, configWithCallback);
+
+              const promptText = document.getElementById("prompt-text");
+              if (promptText) {
+                promptText.textContent = t[camelize(audioFile)];
+              }
             });
           }
         }
