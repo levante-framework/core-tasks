@@ -6,11 +6,8 @@ import {
   PageStateHandler,
   setSentryContext,
   setSkipCurrentBlock,
-  //@ts-ignore
 } from '../../shared/helpers';
-// @ts-ignore
 import { finishExperiment } from '../../shared/trials';
-// @ts-ignore
 import { isTouchScreen, jsPsych } from '../../taskSetup';
 import type { LayoutConfigTypeInference } from '../types/inferenceTypes';
 
