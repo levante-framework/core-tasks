@@ -1,6 +1,6 @@
 import store from 'store2';
-import { InputCapability } from '../utils/detectInput';
 import { isLanguageAllowedDownex } from '../tasks/shared/helpers/checkLocale';
+import type { InputCapability } from '../utils/detectInput';
 
 /**
  * @typedef {Object} TaskStore

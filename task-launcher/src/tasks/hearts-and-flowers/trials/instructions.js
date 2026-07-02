@@ -13,7 +13,7 @@ import {
 import { disableOkButton } from '../../shared/helpers/disableOkButton';
 import { enableOkButton } from '../../shared/helpers/enableButtons';
 import { jsPsych } from '../../taskSetup';
-import { getInputInstructPrompt, InputKey } from '../helpers/utils';
+import { getInputInstructPrompt } from '../helpers/utils';
 
 let continueTrialConfig;
 let cleanupInstructionInputListeners = [];
@@ -78,8 +78,6 @@ function buildInstructionTrial(mascotImage, getPromptKey, showResponseButton = f
   if (!getPromptKey()) {
     console.error(`buildInstructionTrial: Missing prompt audio or text`);
   }
-
-  const replayButtonHtmlId = 'replay-btn-revisited';
 
   const trial = {
     type: jsPsychHtmlMultiResponse,

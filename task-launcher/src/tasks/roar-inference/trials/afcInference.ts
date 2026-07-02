@@ -1,23 +1,18 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
-// @ts-ignore
-import { isTouchScreen, jsPsych } from '../../taskSetup';
+import _toNumber from 'lodash/toNumber';
+import { taskStore } from '../../../taskStore';
 import {
   arrowKeyEmojis,
   PageStateHandler,
   setSentryContext,
   setSkipCurrentBlock,
-  //@ts-ignore
 } from '../../shared/helpers';
-import { camelize } from '../../shared/helpers/camelize';
-import _toNumber from 'lodash/toNumber';
-// @ts-ignore
 import { finishExperiment } from '../../shared/trials';
+import { isTouchScreen, jsPsych } from '../../taskSetup';
 import type { LayoutConfigTypeInference } from '../types/inferenceTypes';
-import { taskStore } from '../../../taskStore';
 
 // Previously chosen responses for current practice trial
 let practiceResponses = [];
-let trialsOfCurrentType = 0;
 let keyboardFeedbackHandler: (ev: KeyboardEvent) => void;
 const incorrectPracticeResponses: Array<string | null> = [];
 
@@ -69,7 +64,6 @@ const getPromptTemplate = (prompt: string, story?: string | null, useStimText?: 
 function getPrompt(layoutConfigMap: Record<string, LayoutConfigTypeInference>) {
   // showItem itemIsImage
   const stim = taskStore().nextStimulus;
-  const t = taskStore().translations;
 
   const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
 
@@ -115,7 +109,9 @@ function getButtonHtml(layoutConfigMap: Record<string, LayoutConfigTypeInference
 }
 
 function enableBtns(btnElements: NodeListOf<HTMLButtonElement>) {
-  btnElements.forEach((btn) => (btn.disabled = false));
+  btnElements.forEach((btn) => {
+    btn.disabled = false;
+  });
 }
 
 function handlePracticeButtonPress(
@@ -168,7 +164,6 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigTypeInference>) {
   const playAudioOnLoad = itemLayoutConfig?.playAudioOnLoad;
   const pageStateHandler = new PageStateHandler(stim.audioFile, playAudioOnLoad); // this falls to nullAudio
   const isPracticeTrial = stim.assessmentStage === 'practice_response';
-  const isInstructionTrial = stim.trialType === 'instructions';
   // Handle the staggered buttons
   handleStaggeredButtons(itemLayoutConfig, pageStateHandler);
   // Setup Sentry Context
@@ -181,20 +176,16 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigTypeInference>) {
   if (isPracticeTrial) {
     const practiceBtns: NodeListOf<HTMLButtonElement> = document.querySelectorAll('.practice-btn');
 
-    practiceBtns.forEach((btn, i) =>
-      btn.addEventListener('click', async (e) => {
+    practiceBtns.forEach((btn, i) => {
+      btn.addEventListener('click', async (_e) => {
         handlePracticeButtonPress(btn, stim, practiceBtns, false, i);
-      }),
-    );
+      });
+    });
 
     if (!isTouchScreen) {
       //   keyboardFeedbackHandler = (e: KeyboardEvent) => keyboardBtnFeedback(e, practiceBtns, stim, itemLayoutConfig);
       document.addEventListener('keydown', keyboardFeedbackHandler);
     }
-  }
-
-  if (!isPracticeTrial && !isInstructionTrial) {
-    trialsOfCurrentType += 1;
   }
 
   if (itemLayoutConfig?.classOverrides.stimulusContainerClassList.includes('inference-scroll')) {
@@ -232,7 +223,7 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigTypeInference>) {
   }
 }
 
-function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, LayoutConfigTypeInference>) {
+function doOnFinish(data: any, _task: string, layoutConfigMap: Record<string, LayoutConfigTypeInference>) {
   // note: nextStimulus is actually the current stimulus
   const stimulus = taskStore().nextStimulus;
   const itemLayoutConfig = layoutConfigMap?.[stimulus.itemId];
@@ -287,7 +278,7 @@ function doOnFinish(data: any, task: string, layoutConfigMap: Record<string, Lay
     if (taskStore().storeItemId) {
       jsPsych.data.addDataToLastTrial({
         corpus: taskStore().corpus,
-        itemId: stimulus.source + '-' + stimulus.origItemNum,
+        itemId: `${stimulus.source}-${stimulus.origItemNum}`,
       });
     }
 

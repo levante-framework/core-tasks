@@ -1,9 +1,7 @@
 import {
   convertItemToString,
   DEFAULT_LAYOUT_CONFIG,
-  fractionToMathML,
   mapDistractorsToString,
-  prepareChoices,
   validateLayoutConfig,
 } from '../../shared/helpers';
 
@@ -16,9 +14,9 @@ export const getLayoutConfig = (
   stimulus: StimulusType,
   translations: Record<string, string>,
   mediaAssets: MediaAssetsType,
-  trialNumber: number,
+  _trialNumber: number,
 ): GetConfigReturnType => {
-  const { answer, distractors, trialType } = stimulus;
+  const { distractors } = stimulus;
   const defaultConfig: LayoutConfigType = JSON.parse(JSON.stringify(DEFAULT_LAYOUT_CONFIG));
   const stimItem = convertItemToString(stimulus.item);
   defaultConfig.isPracticeTrial = stimulus.assessmentStage === 'practice_response';

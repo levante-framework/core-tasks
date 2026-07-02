@@ -170,7 +170,9 @@ export const somethingSameDemo2 = {
     }
 
     function animateBottomButtons() {
-      bottomImages.forEach((button) => (button.style.animation = 'pulse 2s 1s'));
+      bottomImages.forEach((button) => {
+        button.style.animation = 'pulse 2s 1s';
+      });
 
       const audioConfig: AudioConfigType = {
         restrictRepetition: {
@@ -452,11 +454,11 @@ export const heavyPractice = practiceData.map((data) => {
           .map((btnDiv) => btnDiv.firstChild)
           .filter((btn) => !!btn) as HTMLButtonElement[];
 
-        practiceBtns.forEach((card, i) =>
-          card.addEventListener('click', async (e) => {
+        practiceBtns.forEach((card, i) => {
+          card.addEventListener('click', async (_e) => {
             handleButtonFeedback(card, practiceBtns, false, i, data.correctAudio);
-          }),
-        );
+          });
+        });
       }
     },
     on_finish: (data: any) => {

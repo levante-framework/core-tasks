@@ -1,10 +1,8 @@
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
 import { mediaAssets } from '../../..';
-// @ts-ignore
-import { PageAudioHandler, PageStateHandler, replayButtonSvg, setupReplayAudio } from '../../shared/helpers';
-// @ts-ignore
-import { jsPsych } from '../../taskSetup';
 import { taskStore } from '../../../taskStore';
+import { PageAudioHandler, PageStateHandler, replayButtonSvg, setupReplayAudio } from '../../shared/helpers';
+import { jsPsych } from '../../taskSetup';
 
 const instructionData = [
   {
@@ -40,7 +38,6 @@ export const instructions = instructionData.map((data) => {
     prompt_above_buttons: true,
     button_choices: ['Next'],
     button_html: () => {
-      const t = taskStore().translations;
       return [
         `<button class="primary">
             ${[data.buttonText]}

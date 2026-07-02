@@ -146,11 +146,10 @@ function getHeartOrFlowerSubtimelines(adminConfig, stimulusType) {
 }
 
 //TODO: check if we need to repeat the whole pair when user gets it wrong or if getting right on the feedback trial is enough
-function getHeartOrFlowerInstructionsSection(adminConfig, stimulusType) {
+function getHeartOrFlowerInstructionsSection(_adminConfig, stimulusType) {
   // To build our trials for the Instruction section, let's first gather all the static data
   let instructionPracticeStimulusSide1, instructionPracticePromptText1, instructionPracticePromptAudio1;
   let instructionPracticeStimulusSide2, instructionPracticePromptText2, instructionPracticePromptAudio2;
-  const audioAsset = mediaAssets.audio.heartInstruct1;
   if (stimulusType === StimulusType.Heart) {
     //First instruction practice
     instructionPracticeStimulusSide1 = StimulusSideType.Left;
@@ -240,7 +239,7 @@ function getHeartOrFlowerPracticeSection(adminConfig, stimulusType) {
   const onStimulusTrialFinishTimelineCallback = (data) => {
     practiceWinStreakCount = data.correct ? practiceWinStreakCount + 1 : 0;
   };
-  const onFeedbackTrialFinishTimelineCallback = (data) => {
+  const onFeedbackTrialFinishTimelineCallback = (_data) => {
     if (practiceWinStreakCount >= adminConfig.correctPracticeTrial) {
       // console.log(`practice block shortcut ready: win streak=${practiceWinStreakCount}`);
       jsPsych.endCurrentTimeline();
@@ -308,7 +307,7 @@ function getHeartOrFlowerTestSection(adminConfig, stimulusType) {
   return subtimeline;
 }
 
-function getMixedInstructionsSection(adminConfig) {
+function getMixedInstructionsSection(_adminConfig) {
   // feedback-good-job, "Good job!" //TODO: double-check ok to use feedback-good-job instead of "Great! That's right!" which is absent from item bank anyway
   const instructionPracticeFeedback = buildStimulusInvariantPracticeFeedback(
     'heartsAndFlowersTryAgain',
@@ -337,11 +336,11 @@ function getMixedInstructionsSection(adminConfig) {
   // Instruction practice trials do not advance until user gets it right
   subtimeline.push({
     timeline: [instructionPractice1, instructionPracticeFeedback],
-    loop_function: (data) => taskStore().isCorrect === false,
+    loop_function: (_data) => taskStore().isCorrect === false,
   });
   subtimeline.push({
     timeline: [instructionPractice2, instructionPracticeFeedback],
-    loop_function: (data) => taskStore().isCorrect === false,
+    loop_function: (_data) => taskStore().isCorrect === false,
   });
 
   return subtimeline;
@@ -353,7 +352,7 @@ function getMixedPracticeSection(adminConfig) {
   const onStimulusTrialFinishTimelineCallback = (data) => {
     practiceWinStreakCount = data.correct ? practiceWinStreakCount + 1 : 0;
   };
-  const onFeedbackTrialFinishTimelineCallback = (data) => {
+  const onFeedbackTrialFinishTimelineCallback = (_data) => {
     if (practiceWinStreakCount >= adminConfig.correctPracticeTrial) {
       // console.info(`Ending practice block early: win streak=${practiceWinStreakCount}`);
       jsPsych.endCurrentTimeline();

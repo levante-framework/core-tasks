@@ -1,8 +1,6 @@
 //@ts-expect-error
 import { camelize } from '@bdelab/roar-utils';
 import HTMLSliderResponse from '@jspsych/plugin-html-slider-response';
-import _range from 'lodash/range';
-import _shuffle from 'lodash/shuffle';
 import _toNumber from 'lodash/toNumber';
 import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
@@ -19,7 +17,7 @@ import {
   shouldTerminateCat,
   updateTheta,
 } from '../../shared/helpers';
-import { cat, isTouchScreen, jsPsych } from '../../taskSetup';
+import { isTouchScreen, jsPsych } from '../../taskSetup';
 
 let chosenAnswer: number;
 let responseIdx: number;
@@ -50,7 +48,7 @@ function setUpAudio(cue: string) {
 
 function captureValue(
   btnElement: HTMLButtonElement | null,
-  event: Event & { key?: string },
+  _event: Event & { key?: string },
   i: number,
   isPractice: boolean,
   choice?: string,
@@ -101,7 +99,7 @@ export const slider = (
               ? `<div class="lev-row-container instruction">
                 <p>
                   ${t[camelize(stim.audioFile)]}
-                  ${isSlider ? '<br /> ' + stim.answer : ''}
+                  ${isSlider ? `<br /> ${stim.answer}` : ''}
                 </p> 
               </div>`
               : ''
@@ -139,14 +137,13 @@ export const slider = (
       startTime = performance.now();
 
       const stim = (trial || taskStore().nextStimulus) as StimulusType;
-      const { distractors } = stim;
       const itemLayoutConfig = layoutConfigMap[stim.itemId];
       const incorrectPracticeResponses: Array<string | null> = [];
       taskStore('incorrectPracticeResponses', incorrectPracticeResponses);
 
       const slider = document.getElementById('jspsych-html-slider-response-response') as HTMLInputElement;
       const sliderLabels = document.getElementsByTagName('span') as HTMLCollectionOf<HTMLSpanElement>;
-      Array.from(sliderLabels).forEach((el, i) => {
+      Array.from(sliderLabels).forEach((el, _i) => {
         //if (i == 1 || i == 2) {
         el.style.fontSize = '1.5rem';
         //}
