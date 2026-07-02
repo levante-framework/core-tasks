@@ -1,10 +1,10 @@
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
 import { mediaAssets } from '../../..';
+import { taskStore } from '../../../taskStore';
 // @ts-ignore
 import { PageAudioHandler, PageStateHandler, replayButtonSvg, setupReplayAudio } from '../../shared/helpers';
 // @ts-ignore
 import { jsPsych } from '../../taskSetup';
-import { taskStore } from '../../../taskStore';
 
 const instructionData = [
   {

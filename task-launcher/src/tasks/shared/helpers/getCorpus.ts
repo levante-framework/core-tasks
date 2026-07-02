@@ -1,15 +1,12 @@
 // Required to use top level await
 import 'regenerator-runtime/runtime';
 import '../../../i18n/i18n';
-import _compact from 'lodash/compact';
-import _shuffle from 'lodash/shuffle';
 import _toNumber from 'lodash/toNumber';
 import Papa from 'papaparse';
 import { taskStore } from '../../../taskStore';
 import { shuffleStories } from '../../roar-inference/helpers/shuffleRoarInferenceStories';
 import { camelize } from './camelize';
 import { getChildSurveyResponses } from './childSurveyResponses';
-import { dashToCamelCase } from './dashToCamelCase';
 import { getBucketName } from './getBucketName';
 import { shuffleStimulusTrials } from './randomizeStimulusBlocks';
 import { stringToNumberArray } from './stringToNumArray';

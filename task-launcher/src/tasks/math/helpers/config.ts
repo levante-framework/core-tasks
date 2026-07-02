@@ -58,9 +58,11 @@ export const getLayoutConfig = (
     }
   } else {
     defaultConfig.classOverrides.buttonClassList = ['primary'];
-    stimulus.trialType === 'instructions'
-      ? (defaultConfig.classOverrides.stimulusContainerClassList = ['lev-instructions-container'])
-      : (defaultConfig.classOverrides.stimulusContainerClassList = ['lev-row-container']);
+    if (stimulus.trialType === 'instructions') {
+      defaultConfig.classOverrides.stimulusContainerClassList = ['lev-instructions-container'];
+    } else {
+      defaultConfig.classOverrides.stimulusContainerClassList = ['lev-row-container'];
+    }
   }
 
   const messages = validateLayoutConfig(defaultConfig, mediaAssets, translations, stimulus);

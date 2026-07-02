@@ -1,6 +1,6 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
-// @ts-ignore
-import { isTouchScreen, jsPsych } from '../../taskSetup';
+import _toNumber from 'lodash/toNumber';
+import { taskStore } from '../../../taskStore';
 import {
   arrowKeyEmojis,
   PageStateHandler,
@@ -8,12 +8,11 @@ import {
   setSkipCurrentBlock,
   //@ts-ignore
 } from '../../shared/helpers';
-import { camelize } from '../../shared/helpers/camelize';
-import _toNumber from 'lodash/toNumber';
 // @ts-ignore
 import { finishExperiment } from '../../shared/trials';
+// @ts-ignore
+import { isTouchScreen, jsPsych } from '../../taskSetup';
 import type { LayoutConfigTypeInference } from '../types/inferenceTypes';
-import { taskStore } from '../../../taskStore';
 
 // Previously chosen responses for current practice trial
 let practiceResponses = [];
@@ -115,7 +114,9 @@ function getButtonHtml(layoutConfigMap: Record<string, LayoutConfigTypeInference
 }
 
 function enableBtns(btnElements: NodeListOf<HTMLButtonElement>) {
-  btnElements.forEach((btn) => (btn.disabled = false));
+  btnElements.forEach((btn) => {
+    btn.disabled = false;
+  });
 }
 
 function handlePracticeButtonPress(
@@ -181,11 +182,11 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigTypeInference>) {
   if (isPracticeTrial) {
     const practiceBtns: NodeListOf<HTMLButtonElement> = document.querySelectorAll('.practice-btn');
 
-    practiceBtns.forEach((btn, i) =>
+    practiceBtns.forEach((btn, i) => {
       btn.addEventListener('click', async (e) => {
         handlePracticeButtonPress(btn, stim, practiceBtns, false, i);
-      }),
-    );
+      });
+    });
 
     if (!isTouchScreen) {
       //   keyboardFeedbackHandler = (e: KeyboardEvent) => keyboardBtnFeedback(e, practiceBtns, stim, itemLayoutConfig);

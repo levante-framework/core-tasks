@@ -1,8 +1,6 @@
 //@ts-expect-error
 import { camelize } from '@bdelab/roar-utils';
 import HTMLSliderResponse from '@jspsych/plugin-html-slider-response';
-import _range from 'lodash/range';
-import _shuffle from 'lodash/shuffle';
 import _toNumber from 'lodash/toNumber';
 import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
@@ -19,7 +17,7 @@ import {
   shouldTerminateCat,
   updateTheta,
 } from '../../shared/helpers';
-import { cat, isTouchScreen, jsPsych } from '../../taskSetup';
+import { isTouchScreen, jsPsych } from '../../taskSetup';
 
 let chosenAnswer: number;
 let responseIdx: number;

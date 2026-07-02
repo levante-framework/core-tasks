@@ -4,7 +4,9 @@ import { jsPsych } from '../../taskSetup';
 import { PageAudioHandler } from './audioHandler';
 
 function enableBtns(btnElements: NodeListOf<HTMLButtonElement>) {
-  btnElements.forEach((btn) => (btn.disabled = false));
+  btnElements.forEach((btn) => {
+    btn.disabled = false;
+  });
 }
 
 export function addPracticeButtonListeners(

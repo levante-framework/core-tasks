@@ -58,7 +58,7 @@ export default function buildAdultReasoningTimeline(config: Record<string, any>,
     };
   };
 
-  let numOfTrials;
+  let numOfTrials: number;
 
   if (cat) {
     const fullCorpus = prepareCorpus(corpus, 0);

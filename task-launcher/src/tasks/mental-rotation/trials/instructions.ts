@@ -1,19 +1,19 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
+import { taskStore } from '../../../taskStore';
 import {
   addExperimenterButtons,
-  getParticipantUtilityButtonsHtml,
-  PageStateHandler,
-  PageAudioHandler,
-  setupReplayAudio,
-  disableOkButton,
   camelize,
-  pulseOkButton,
+  disableOkButton,
   enableOkButton,
+  getParticipantUtilityButtonsHtml,
+  PageAudioHandler,
+  PageStateHandler,
+  pulseOkButton,
   setupFullscreenButton,
+  setupReplayAudio,
 } from '../../shared/helpers';
 import { jsPsych } from '../../taskSetup';
-import { taskStore } from '../../../taskStore';
 import { animate } from '../helpers/animate';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
