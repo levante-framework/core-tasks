@@ -15,6 +15,7 @@ import {
   setupReplayAudio,
   shouldTerminateCat,
   updateTheta,
+  isTaskFinished,
 } from '../../shared/helpers';
 import { sdsProgressComponentEmpty, sdsProgressComponentFilled } from '../../shared/helpers/components';
 import { displayDebugInfo } from '../../shared/helpers/displayDebugInfo';
@@ -303,8 +304,12 @@ export const afcMatch = (trial?: StimulusType) => {
           // linear button layout
           buttonContainer.classList.add('lev-response-row', 'multi-4');
         }
-        responseBtns.forEach((card, i) =>
-          card.addEventListener('click', async (e) => {
+
+        let firstClick = true; // only need to reenable buttons on first click
+        responseBtns.forEach((card, i) => {
+          let suppressClick = false;
+
+          const handleCardSelect = async () => {
             const answer = ((card as HTMLButtonElement)?.firstChild as HTMLImageElement)?.alt;
 
             if (!card) {
@@ -335,9 +340,24 @@ export const afcMatch = (trial?: StimulusType) => {
               }
             }
 
-            setTimeout(() => enableBtns(responseBtns), 500);
-          }),
-        );
+            if (firstClick) {
+              await isTaskFinished(() => card.disabled, 10).then(() => enableBtns(responseBtns));
+              firstClick = false;
+            }
+          };
+
+          card.addEventListener('touchend', () => {
+            suppressClick = true;
+            void handleCardSelect();
+          });
+          card.addEventListener('click', () => {
+            if (suppressClick) {
+              suppressClick = false;
+              return;
+            }
+            void handleCardSelect();
+          });
+        });
       }
 
       displayDebugInfo(stim);
