@@ -71,8 +71,7 @@ jobs:
 
       - name: Run checks
         run: |
-          # TODO: switch to npm run check after linting errors are fixed
-          npm run format:check
+          npm run check
 
       - name: Configure git
         if: ${{ inputs.bump-and-tag }}
@@ -82,10 +81,7 @@ jobs:
 
       - name: Bump package version
         if: ${{ inputs.bump-and-tag }}
-        run: |
-          npm version ${{ inputs.version-type }} --no-git-tag-version
-          # npm version strips the trailing newline; re-format so future PRs pass the check
-          npm run check:fix -- package.json
+        run: npm version ${{ inputs.version-type }} --no-git-tag-version
 
       - name: Resolve version
         id: resolve_version
