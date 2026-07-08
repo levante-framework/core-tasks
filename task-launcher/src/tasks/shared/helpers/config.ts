@@ -36,8 +36,8 @@ export const DEFAULT_LAYOUT_CONFIG: LayoutConfigType = {
   showStimImage: true,
   response: {
     target: '',
-    displayValues: ['OK'],
-    values: ['OK'],
+    displayValues: [],
+    values: [],
     targetIndex: 0,
   },
   inCorrectTrialConfig: {

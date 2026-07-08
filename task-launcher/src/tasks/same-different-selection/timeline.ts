@@ -12,7 +12,6 @@ import {
   taskFinished,
 } from '../shared/trials';
 // trials
-import { dataQualityScreen } from '../shared/trials/dataQuality';
 import { initializeCat, jsPsych } from '../taskSetup';
 import { setTrialBlock } from './helpers/setTrialBlock';
 import { afcMatch } from './trials/afcMatch';
@@ -86,13 +85,6 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
     timeline: [afcMatch(), feedbackBlock],
   };
 
-  const dataQualityBlock = {
-    timeline: [dataQualityScreen],
-    conditional_function: () => {
-      return taskStore().numIncorrect >= taskStore().maxIncorrect && heavy;
-    },
-  };
-
   // create list of numbers of trials per block
   const { blockCountList, blockOperations } = setTrialBlock(false);
 
@@ -120,14 +112,12 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
     timeline.push({ ...setupStimulus, stimulus: '', trial_duration: setupTrialDuration });
     timeline.push(stimulusBlock);
     timeline.push(buttonNoise);
-    timeline.push(dataQualityBlock);
   };
 
   const updateMatching = () => {
     timeline.push({ ...setupStimulus, stimulus: '', trial_duration: setupTrialDuration });
     timeline.push(afcBlock);
     timeline.push(buttonNoise);
-    timeline.push(dataQualityBlock);
   };
 
   // map of block operation functions

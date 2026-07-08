@@ -128,7 +128,7 @@ export const surveyItem = ({
           if (!okButton) {
             const okButton = document.createElement('button');
             okButton.className = 'primary';
-            okButton.textContent = 'OK';
+            okButton.textContent = taskStore().translations.continueButtonText;
             okButton.style.marginTop = '16px';
             okButton.addEventListener('click', () => {
               jsPsych.finishTrial();
@@ -171,7 +171,7 @@ export const surveyItem = ({
           // Add primary OK button under the other buttons
           const okButton = document.createElement('button');
           okButton.className = 'primary';
-          okButton.textContent = 'OK';
+          okButton.textContent = taskStore().translations.continueButtonText;
           okButton.style.marginTop = '16px';
           okButton.addEventListener('click', () => {
             jsPsych.finishTrial();
