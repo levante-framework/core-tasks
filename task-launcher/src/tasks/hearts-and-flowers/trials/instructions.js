@@ -13,7 +13,7 @@ import {
 import { disableOkButton } from '../../shared/helpers/disableOkButton';
 import { enableOkButton } from '../../shared/helpers/enableButtons';
 import { jsPsych } from '../../taskSetup';
-import { getInputInstructPrompt, InputKey } from '../helpers/utils';
+import { getInputInstructPrompt } from '../helpers/utils';
 
 let continueTrialConfig;
 let cleanupInstructionInputListeners = [];
