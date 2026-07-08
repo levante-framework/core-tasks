@@ -161,7 +161,7 @@ export function getCorsiBlocks({
         return 500;
       }
 
-      let cue;
+      let cue: string;
       const defaultCue = getMemoryGamePrompt(mode, reverse);
 
       // downex practice trials have custom audio cues
@@ -244,7 +244,9 @@ export function getCorsiBlocks({
         const numOfBlocks = taskStore().numOfBlocks;
 
         if (!isPractice) {
-          timeoutIDs.forEach((id) => clearTimeout(id));
+          timeoutIDs.forEach((id) => {
+            clearTimeout(id);
+          });
           timeoutIDs = [];
 
           taskStore.transact('testTrialCount', (oldVal: number) => oldVal + 1);
@@ -392,7 +394,9 @@ function doOnLoad(
         if (!isPractice) {
           // Avoid stacking timeouts
           if (timeoutIDs.length) {
-            timeoutIDs.forEach((id) => clearTimeout(id));
+            timeoutIDs.forEach((id) => {
+              clearTimeout(id);
+            });
             timeoutIDs = [];
           }
 
@@ -430,7 +434,7 @@ function doOnLoad(
 
   const defaultCue = getMemoryGamePrompt(mode, reverse);
 
-  let cue;
+  let cue: string;
 
   // downex practice trials have custom audio cues
   if (taskStore().heavyInstructions && !reverse && isPractice) {

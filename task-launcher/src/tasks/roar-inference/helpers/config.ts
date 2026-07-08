@@ -1,5 +1,4 @@
 import {
-  convertItemToString,
   DEFAULT_LAYOUT_CONFIG,
   mapDistractorsToString,
   prepareChoices,

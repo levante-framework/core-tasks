@@ -1,12 +1,6 @@
 import { mediaAssets } from '../..';
 import { taskStore } from '../../taskStore';
-import {
-  checkFallbackCriteria,
-  createPreloadTrials,
-  initTimeline,
-  initTrialSaving,
-  PageAudioHandler,
-} from '../shared/helpers';
+import { checkFallbackCriteria, createPreloadTrials, initTimeline, initTrialSaving } from '../shared/helpers';
 // trials
 import { enterFullscreen, exitFullscreen, feedback, repeatInstructionsMessage, taskFinished } from '../shared/trials';
 // setup

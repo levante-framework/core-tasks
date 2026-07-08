@@ -43,7 +43,7 @@ export const downexStimulus = (
       const t = taskStore().translations;
       const imageSrc = mediaAssets.images[camelize(stim.item)];
 
-      let itemText;
+      let itemText: string;
       const audioFile = stim.audioFile;
       if (typeof audioFile !== 'string') {
         itemText = audioFile.map((file: string) => t[camelize(file)]).join(' ');
