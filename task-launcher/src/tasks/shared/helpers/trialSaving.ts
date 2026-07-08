@@ -135,7 +135,7 @@ export const initTrialSaving = (config: Record<string, any>) => {
     taskStore('totalTrialCount', taskStore().totalTrialCount + 1);
 
     if (taskStore().inputCapability) {
-      let inputType;
+      let inputType: string | undefined;
       if (taskStore().inputCapability.mouse) {
         inputType = 'mouse/keyboard';
       } else if (taskStore().inputCapability.touch) {
