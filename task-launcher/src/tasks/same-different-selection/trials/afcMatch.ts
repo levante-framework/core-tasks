@@ -16,6 +16,7 @@ import {
   shouldTerminateCat,
   updateTheta,
   isTaskFinished,
+  wrapListeners
 } from '../../shared/helpers';
 import { sdsProgressComponentEmpty, sdsProgressComponentFilled } from '../../shared/helpers/components';
 import { displayDebugInfo } from '../../shared/helpers/displayDebugInfo';
@@ -311,8 +312,6 @@ export const afcMatch = (trial?: StimulusType) => {
 
         let firstClick = true; // only need to reenable buttons on first click
         responseBtns.forEach((card, i) => {
-          let suppressClick = false;
-
           const handleCardSelect = async () => {
             const answer = ((card as HTMLButtonElement)?.firstChild as HTMLImageElement)?.alt;
 
@@ -350,17 +349,7 @@ export const afcMatch = (trial?: StimulusType) => {
             }
           };
 
-          card.addEventListener('touchend', () => {
-            suppressClick = true;
-            void handleCardSelect();
-          });
-          card.addEventListener('click', () => {
-            if (suppressClick) {
-              suppressClick = false;
-              return;
-            }
-            void handleCardSelect();
-          });
+          wrapListeners(card, handleCardSelect);
         });
       }
 
