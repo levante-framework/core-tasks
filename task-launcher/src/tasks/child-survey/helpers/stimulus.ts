@@ -4,6 +4,7 @@ import { taskStore } from '../../../taskStore';
 import {
   addExperimenterButtons,
   camelize,
+  enableOkButton,
   equalizeButtonSizes,
   getChildSurveyResponses,
   getParticipantUtilityButtonsHtml,
@@ -92,7 +93,18 @@ export const surveyItem = ({
       const buttonContainer = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
       buttonContainer.classList.add('lev-response-row', 'multi-4', 'wide-buttons');
 
-      if (stim.assessmentStage !== 'instructions') {
+      // Add primary OK button under the other buttons
+      const okButton = document.createElement('button');
+      okButton.className = 'primary';
+      okButton.textContent = 'OK';
+      okButton.style.marginTop = '16px';
+      okButton.style.visibility = 'hidden';
+      okButton.addEventListener('click', () => {
+        jsPsych.finishTrial();
+      });
+      buttonContainer.parentNode?.insertBefore(okButton, buttonContainer.nextSibling);
+
+      if (!itemLayoutConfig.isInstructionTrial) {
         Array.from(buttonContainer.querySelectorAll('.jspsych-html-multi-response-button')).forEach(
           (wrapper, index) => {
             const stack = document.createElement('div');
@@ -155,6 +167,11 @@ export const surveyItem = ({
           responseButtonChildren.forEach((button) => {
             (button as HTMLButtonElement).disabled = false;
           });
+
+          const replayButtons = document.querySelectorAll('.replay-btn');
+          if (!layoutConfigMap.isStagged) {
+            replayButtons.forEach((btn) => ((btn as HTMLButtonElement).disabled = false));
+          }
         },
       };
 
@@ -163,17 +180,12 @@ export const surveyItem = ({
 
       responseButtonChildren.forEach((button) => {
         (button as HTMLButtonElement).addEventListener('click', (event: MouseEvent) => {
-          const okButton = document.querySelector('.primary');
-          if (!okButton) {
-            const okButton = document.createElement('button');
-            okButton.className = 'primary';
-            okButton.textContent = 'OK';
-            okButton.style.marginTop = '16px';
-            okButton.addEventListener('click', () => {
-              jsPsych.finishTrial();
-            });
-            buttonContainer.parentNode?.insertBefore(okButton, buttonContainer.nextSibling);
+          const okButton: HTMLButtonElement | null = document.querySelector('.primary');
+          if (okButton) {
+            enableOkButton();
+            okButton.style.visibility = 'visible';
           }
+
           responseButtonChildren.forEach((button) => {
             setTimeout(() => {
               (button as HTMLButtonElement).disabled = false;
@@ -187,7 +199,7 @@ export const surveyItem = ({
       });
 
       const jsPsychResponseButtons = buttonContainer.children;
-      if (stim.assessmentStage === 'instructions') {
+      if (itemLayoutConfig.isInstructionTrial) {
         // prevents jsPsych from disabling the buttons when clicked, which changes the styling outside of our control
         Array.from(jsPsychResponseButtons).forEach((btn) => ((btn as HTMLButtonElement).style.pointerEvents = 'none'));
       }
@@ -199,7 +211,7 @@ export const surveyItem = ({
           Array.from(responseButtonChildren as NodeListOf<HTMLButtonElement>),
           responseAudioKeys,
           stim.itemId,
-          stim.assessmentStage === 'instructions',
+          itemLayoutConfig.isInstructionTrial,
           true,
         );
 
@@ -207,22 +219,19 @@ export const surveyItem = ({
         replayButtons.forEach((btn) => ((btn as HTMLButtonElement).disabled = false));
 
         // disable demo buttons
-        if (stim.assessmentStage === 'instructions') {
+        if (itemLayoutConfig.isInstructionTrial) {
           responseButtonChildren.forEach((button) => {
             (button as HTMLButtonElement).disabled = true;
           });
 
-          // Add primary OK button under the other buttons
-          const okButton = document.createElement('button');
-          okButton.className = 'primary';
-          okButton.textContent = 'OK';
-          okButton.style.marginTop = '16px';
-          okButton.addEventListener('click', () => {
-            jsPsych.finishTrial();
-          });
-          buttonContainer.parentNode?.insertBefore(okButton, buttonContainer.nextSibling);
+          const okButton: HTMLButtonElement | null = document.querySelector('.primary');
+          if (okButton) {
+            enableOkButton();
+            okButton.style.visibility = 'visible';
+          }
         }
       }
+      
       // update the trial number
       taskStore.transact('trialNumSubtask', (oldVal: number) => oldVal + 1);
     },
@@ -238,17 +247,14 @@ export const surveyItem = ({
       const stim = taskStore().nextStimulus;
       const itemLayoutConfig: LayoutConfigType = layoutConfigMap?.[stim.itemId];
 
-      if (stim.trialType !== 'instructions') {
-        if (itemLayoutConfig) {
-          const { response } = itemLayoutConfig;
-
-          if (!response) {
-            throw new Error('Choices not defined in the config');
-          }
-          responseIndex = data.button_response;
-          responseValue = response.values[responseIndex];
+      if (!itemLayoutConfig.isInstructionTrial) {
+        const { response } = itemLayoutConfig;
+        if (!response) {
+          throw new Error('Choices not defined in the config');
         }
-
+        responseIndex = data.button_response;
+        responseValue = response.values[responseIndex];
+      
         jsPsych.data.addDataToLastTrial({
           // specific to this trial
           item: stim.item,
