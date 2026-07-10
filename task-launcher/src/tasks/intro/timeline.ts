@@ -1,10 +1,11 @@
 import 'regenerator-runtime/runtime';
 // setup
-import { createPreloadTrials, initTimeline, initTrialSaving } from '../shared/helpers';
+import { initTrialSaving, initTimeline, createPreloadTrials } from '../shared/helpers';
+import { firstInstruction, bubblePoppingInstruction, bubblePracticeFeedbackInstruction, remainingInstructions } from './trials/instructions';
+import { jsPsych } from '../taskSetup';
 // trials
 import { enterFullscreen, exitFullscreen, taskFinished } from '../shared/trials';
-import { jsPsych } from '../taskSetup';
-import { instructions } from './trials/instructions';
+import { bubblePoppingPractice } from './trials/bubblePopping';
 
 export default function buildIntroTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
@@ -12,7 +13,15 @@ export default function buildIntroTimeline(config: Record<string, any>, mediaAss
   initTrialSaving(config);
   const initialTimeline = initTimeline(config, enterFullscreen);
 
-  const timeline = [preloadTrials, initialTimeline, ...instructions];
+  const timeline = [
+    preloadTrials, 
+    initialTimeline, 
+    firstInstruction, 
+    bubblePoppingInstruction,
+    bubblePoppingPractice,
+    bubblePracticeFeedbackInstruction,
+    ...remainingInstructions,
+  ];
 
   timeline.push(taskFinished('introFinished'));
   timeline.push(exitFullscreen);

@@ -34,3 +34,31 @@
     transform: scale(1.1);
   }
 }
+
+.float {
+  animation: float 5s linear infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(20px, -18px);
+  }
+  50% {
+    transform: translate(-18px, 20px);
+  }
+  75% {
+    transform: translate(18px, 20px);
+  }
+}
+
+$delays: -0.3s, -1.2s, -2.7s, -0.8s, -3.4s, -1.9s, -4.1s;
+
+@each $delay in $delays {
+  $i: index($delays, $delay);
+  .float:nth-child(#{$i}) {
+    animation-delay: $delay;
+  }
+}

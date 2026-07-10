@@ -351,3 +351,22 @@
   justify-content: flex-end;
   gap: min(8px, 1vh);
 }
+
+
+.image-grid-x5 {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  width: calc(5 * $response-size-default);
+  height: calc(5 * $response-size-default);
+
+  @include respond-to('small-medium') {
+    width: calc(5 * $response-size-sm);
+    height: calc(5 * $response-size-sm);
+  }
+
+  @include respond-to('small') {
+    width: 5 * $response-size-s;
+    height: 5 * $response-size-s;
+  }
+}

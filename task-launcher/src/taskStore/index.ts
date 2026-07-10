@@ -29,6 +29,7 @@ import type { InputCapability } from '../utils/detectInput';
  * @property {boolean} demoMode - Whether the task is running in demo mode (no interaction with Firestore), default is false.
  * @property {boolean} debug - Shows theta estimate on the screen for cat debugging when enabled.
  * @property {boolean} experimenterButtons - When true, experimenter utility controls (pause, exit) are available.
+ * @property {boolean} bubblePractice - When true, run the bubble popping practice trial in the intro task.
  * @property {number} currentCatBlock - The current block number to select trials from in a CAT.
  * @property {number[]} blockThresholds - Array of theta thresholds.
  * @property {number} totalTrialCount - Total number of trials, including practice and instructions.
@@ -100,6 +101,7 @@ export type TaskStoreDataType = {
   demoMode: boolean;
   experimenterButtons: boolean;
   debug: boolean;
+  bubblePractice: boolean;
   version: number;
   currentCatBlock?: number;
   blockThresholds?: number[];
@@ -162,6 +164,7 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     demoMode: config.demoMode,
     experimenterButtons: config.experimenterButtons && effectiveHeavyInstructions,
     debug: config.debug,
+    bubblePractice: config.bubblePractice,
     version: config.version || 1,
     currentStoryGroup: 0,
     taskTimer: null,

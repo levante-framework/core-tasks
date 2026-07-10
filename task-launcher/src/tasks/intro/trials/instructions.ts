@@ -18,10 +18,16 @@ const instructionData = [
     image: 'avatarOwl', // GIF?
     buttonText: 'continueButtonText',
   },
-  // prompt: 'generalIntro2', // "First, you get to choose a buddy to play along with you. ..."
-  // prompt: 'generalIntro3', // "Now that you have your buddy, we want to explain how the games work."
-  // prompt: 'pickBuddy',
-  // images: ['avatar_owl', 'avatar_cat', 'avatar_penguin'],
+  {
+    prompt: 'instructBubblePoppingMouse',
+    image: 'avatarOwl',
+    buttonText: 'continueButtonText',
+  },
+  {
+    prompt: 'feedbackGoodJob',
+    image: 'avatarOwl',
+    buttonText: 'continueButtonText',
+  },
   {
     prompt: 'generalIntro4',
     image: 'avatarOwl', // ToDo: replay button with arrow?
@@ -43,7 +49,7 @@ if (!isTouchScreen) {
   });
 }
 
-export const instructions = instructionData.map((data) => {
+const instructions = instructionData.map((data) => {
   return {
     type: jsPsychHtmlMultiResponse,
     stimulus: () => {
@@ -52,7 +58,7 @@ export const instructions = instructionData.map((data) => {
         <div class="lev-stimulus-container">
             ${getParticipantUtilityButtonsHtml('replay-btn-revisited')}
             <div class="lev-row-container instruction-small">
-                <p>${t[data.prompt]}</p>
+                <p>${t[data.prompt] || `Looks like you have a mouse. Let's practice using it! Click on the bubbles to pop them.`}</p>
             </div>
             <div class="lev-stim-content-x-3">
                 <img
@@ -83,7 +89,7 @@ export const instructions = instructionData.map((data) => {
         onEnded: enableOkButton,
       };
 
-      PageAudioHandler.playAudio(mediaAssets.audio[data.prompt], audioConfig);
+      PageAudioHandler.playAudio((mediaAssets.audio[data.prompt] || mediaAssets.audio.inputAudioCue), audioConfig);
 
       const pageStateHandler = new PageStateHandler(data.prompt, true);
       setupReplayAudio(pageStateHandler);
@@ -101,3 +107,14 @@ export const instructions = instructionData.map((data) => {
     },
   };
 });
+
+export const firstInstruction = instructions.shift();
+export const bubblePoppingInstruction = {
+  timeline: [instructions.shift()],
+  conditional_function: () => taskStore().bubblePractice === true,
+};
+export const bubblePracticeFeedbackInstruction = {
+  timeline: [instructions.shift()],
+  conditional_function: () => taskStore().bubblePractice === true,
+};
+export const remainingInstructions = instructions;

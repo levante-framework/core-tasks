@@ -60,6 +60,7 @@ const cat = stringToBoolean(urlParams.get('cat'), false);
 const heavyInstructions = stringToBoolean(urlParams.get('heavyInstructions'), false);
 const experimenterButtons = stringToBoolean(urlParams.get('experimenterButtons'), false);
 const debug = stringToBoolean(urlParams.get('debug'), false);
+const bubblePractice = stringToBoolean(urlParams.get('bubblePractice'));
 
 const emulatorConfig = EMULATORS ? firebaseJSON.emulators : undefined;
 // if running in demo mode, no data will be saved to Firestore
@@ -93,6 +94,7 @@ async function startWebApp() {
     version,
     debug,
     experimenterButtons,
+    bubblePractice,
   };
   const userParams = {
     pid,

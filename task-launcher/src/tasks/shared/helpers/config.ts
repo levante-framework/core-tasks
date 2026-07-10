@@ -99,6 +99,7 @@ export const setSharedConfig = async (
     version,
     taskVersion, // deprecated; use `version` — kept for backward compatibility
     isPaused,
+    bubblePractice,
   } = cleanParams;
 
   const config = {
@@ -132,6 +133,7 @@ export const setSharedConfig = async (
     startingTheta: Number(startingTheta),
     demoMode: !!demoMode,
     debug: !!debug,
+    bubblePractice: !!bubblePractice,
     version: Number((version ?? taskVersion) || 1),
     displayPromptDurations: {},
     taskTimer: null,
