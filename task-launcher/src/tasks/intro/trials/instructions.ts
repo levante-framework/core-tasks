@@ -20,6 +20,10 @@ const instructionData = [
   },
   {
     prompt: 'instructBubblePoppingMouse',
+    resolvePrompt: () =>
+      taskStore().inputCapability?.touch
+        ? 'instructBubblePoppingTouch'
+        : 'instructBubblePoppingMouse',
     image: 'avatarOwl',
     buttonText: 'continueButtonText',
   },
@@ -50,15 +54,18 @@ if (!isTouchScreen) {
 }
 
 const instructions = instructionData.map((data) => {
+  const getPrompt = () => data.resolvePrompt?.() ?? data.prompt;
+
   return {
     type: jsPsychHtmlMultiResponse,
     stimulus: () => {
       const t = taskStore().translations;
+      const prompt = getPrompt();
       return `
         <div class="lev-stimulus-container">
             ${getParticipantUtilityButtonsHtml('replay-btn-revisited')}
             <div class="lev-row-container instruction-small">
-                <p>${t[data.prompt] || `Looks like you have a mouse. Let's practice using it! Click on the bubbles to pop them.`}</p>
+                <p>${t[prompt] || prompt}</p>
             </div>
             <div class="lev-stim-content-x-3">
                 <img
@@ -81,6 +88,7 @@ const instructions = instructionData.map((data) => {
     },
     keyboard_choices: 'NO_KEYS',
     on_load: () => {
+      const prompt = getPrompt();
       const audioConfig: AudioConfigType = {
         restrictRepetition: {
           enabled: true,
@@ -89,9 +97,9 @@ const instructions = instructionData.map((data) => {
         onEnded: enableOkButton,
       };
 
-      PageAudioHandler.playAudio((mediaAssets.audio[data.prompt] || mediaAssets.audio.inputAudioCue), audioConfig);
+      PageAudioHandler.playAudio((mediaAssets.audio[prompt] || mediaAssets.audio.inputAudioCue), audioConfig);
 
-      const pageStateHandler = new PageStateHandler(data.prompt, true);
+      const pageStateHandler = new PageStateHandler(prompt, true);
       setupReplayAudio(pageStateHandler);
       addExperimenterButtons();
       setupFullscreenButton();
