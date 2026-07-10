@@ -10,8 +10,6 @@ export const isTouchScreen = getDevice() === 'mobile';
 
 export let cat: any;
 
-const { _runCat } = taskStore();
-
 export const initializeCat = () => {
   cat = new Cat({
     method: 'MLE',
