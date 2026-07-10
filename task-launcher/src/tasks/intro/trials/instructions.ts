@@ -17,6 +17,7 @@ const instructionData = [
     prompt: 'generalIntro1',
     image: 'avatarOwl', // GIF?
     buttonText: 'continueButtonText',
+    autoAdvanceWhenBubblePractice: true,
   },
   {
     prompt: 'instructBubblePoppingMouse',
@@ -26,11 +27,19 @@ const instructionData = [
         : 'instructBubblePoppingMouse',
     image: 'avatarOwl',
     buttonText: 'continueButtonText',
+    autoAdvanceWhenBubblePractice: true,
   },
   {
     prompt: 'feedbackGoodJob',
     image: 'avatarOwl',
     buttonText: 'continueButtonText',
+    autoAdvanceWhenBubblePractice: true,
+  },
+  {
+    prompt: 'instructButtonIntro',
+    image: 'avatarOwl',
+    buttonText: 'continueButtonText',
+    pulseOkOnEnable: true,
   },
   {
     prompt: 'generalIntro4',
@@ -55,6 +64,8 @@ if (!isTouchScreen) {
 
 const instructions = instructionData.map((data) => {
   const getPrompt = () => data.resolvePrompt?.() ?? data.prompt;
+  const shouldAutoAdvanceOnAudioEnd = () =>
+    data.autoAdvanceWhenBubblePractice && taskStore().bubblePractice === true;
 
   return {
     type: jsPsychHtmlMultiResponse,
@@ -77,8 +88,12 @@ const instructions = instructionData.map((data) => {
       `;
     },
     prompt_above_buttons: true,
-    button_choices: ['Next'],
+    button_choices: () => (shouldAutoAdvanceOnAudioEnd() ? [] : ['Next']),
     button_html: () => {
+      if (shouldAutoAdvanceOnAudioEnd()) {
+        return;
+      }
+
       const t = taskStore().translations;
       return [
         `<button class="primary" disabled>
@@ -94,7 +109,21 @@ const instructions = instructionData.map((data) => {
           enabled: true,
           maxRepetitions: 2,
         },
-        onEnded: enableOkButton,
+        onEnded: () => {
+          if (shouldAutoAdvanceOnAudioEnd()) {
+            setTimeout(() => {
+              jsPsych.finishTrial();
+            }, 2000);
+          } else if (data.pulseOkOnEnable) {
+            enableOkButton();
+            const okButton = document.querySelector('.primary') as HTMLButtonElement;
+            if (okButton) {
+              okButton.style.animation = 'pulse 1s infinite';
+            }
+          } else {
+            enableOkButton();
+          }
+        },
       };
 
       PageAudioHandler.playAudio((mediaAssets.audio[prompt] || mediaAssets.audio.inputAudioCue), audioConfig);
@@ -122,6 +151,10 @@ export const bubblePoppingInstruction = {
   conditional_function: () => taskStore().bubblePractice === true,
 };
 export const bubblePracticeFeedbackInstruction = {
+  timeline: [instructions.shift()],
+  conditional_function: () => taskStore().bubblePractice === true,
+};
+export const buttonIntroInstruction = {
   timeline: [instructions.shift()],
   conditional_function: () => taskStore().bubblePractice === true,
 };
