@@ -319,25 +319,14 @@ button {
     background: transparent;
     border: none;
     cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
 
     img {
       border: none;
-      width: $response-size-default;
+      width: $bubble-grid-cell-size;
       height: auto;
       padding: 0;
       margin: 0;
-    }
-
-    @include respond-to('small-medium') {
-      img {
-        width: $response-size-sm;
-      }
-    }
-
-    @include respond-to('small') {
-      img {
-        width: $response-size-s;
-      }
     }
   }
 

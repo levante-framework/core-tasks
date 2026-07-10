@@ -76,7 +76,7 @@ const instructions = instructionData.map((data) => {
         <div class="lev-stimulus-container">
             ${getParticipantUtilityButtonsHtml('replay-btn-revisited')}
             <div class="lev-row-container instruction-small">
-                <p>${t[prompt] || prompt}</p>
+                <p>${t[prompt]}</p>
             </div>
             <div class="lev-stim-content-x-3">
                 <img

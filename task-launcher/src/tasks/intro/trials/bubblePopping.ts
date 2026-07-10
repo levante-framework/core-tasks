@@ -15,7 +15,7 @@ const bubblePoppingPracticeTrial = {
       stimulus: () => {
         return `
           <div class="lev-stimulus-container">
-              <div id="bubble-container" class="image-grid-x5">
+              <div id="bubble-container" class="image-grid-x4">
                 <button class="img-transparent float"> 
                   <img src=${mediaAssets.images.bubble}>
                 </button>
@@ -57,7 +57,7 @@ const bubblePoppingPracticeTrial = {
         let remainingBubbles = bubbles.length;
 
         bubbles.forEach((bubble) => {
-            bubble.addEventListener("click", () => {
+            bubble.addEventListener('click', () => {
                 PageAudioHandler.playAudio(mediaAssets.audio.pop, popAudioConfig);
                 bubble.style.visibility = 'hidden';
 
@@ -67,6 +67,10 @@ const bubblePoppingPracticeTrial = {
                     jsPsych.finishTrial();
                 }
             });
+
+            bubble.addEventListener('dragstart', (event) => {
+              event.preventDefault();
+            })
         });
 
         spreadBubbles(bubbles);
