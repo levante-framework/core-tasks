@@ -18,13 +18,12 @@ import { updateProgressBar } from '../../shared/helpers/updateProgressBar';
 import { jsPsych } from '../../taskSetup';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
-let startTime: number;
 let selectedButtonIndex: number;
 
 export const surveyItem = ({
-  responseAllowed,
+  responseAllowed: _responseAllowed,
   promptAboveButtons,
-  task,
+  task: _task,
   layoutConfigMap,
 }: {
   responseAllowed: boolean;
@@ -76,8 +75,6 @@ export const surveyItem = ({
                 </button>`;
     },
     on_load: async () => {
-      startTime = performance.now();
-
       const stim = taskStore().nextStimulus;
       const itemLayoutConfig: LayoutConfigType = layoutConfigMap?.[stim.itemId];
       const playAudioOnLoad = itemLayoutConfig?.playAudioOnLoad;
@@ -182,14 +179,10 @@ export const surveyItem = ({
       // update the trial number
       taskStore.transact('trialNumSubtask', (oldVal: number) => oldVal + 1);
     },
-    on_finish: (data: any) => {
+    on_finish: (_data: unknown) => {
       disableStagger();
       PageAudioHandler.stopAndDisconnectNode();
 
-      let responseValue = null;
-      let responseIndex = null;
-
-      const t = taskStore().translations;
       const corpus = taskStore().corpus;
       const stim = taskStore().nextStimulus;
       const itemLayoutConfig: LayoutConfigType = layoutConfigMap?.[stim.itemId];
@@ -201,8 +194,6 @@ export const surveyItem = ({
           if (!response) {
             throw new Error('Choices not defined in the config');
           }
-          responseIndex = data.button_response;
-          responseValue = response.values[responseIndex];
         }
 
         jsPsych.data.addDataToLastTrial({

@@ -3,7 +3,6 @@ import { taskStore } from '../../../taskStore';
 import { jsPsych } from '../../taskSetup';
 import { finishExperiment } from './finishExperiment';
 
-const t = taskStore().translations;
 const buttonText = ['dataQuestionnaireButtonText1', 'dataQuestionnaireButtonText2', 'dataQuestionnaireButtonText3'];
 
 export const dataQualityScreen = {

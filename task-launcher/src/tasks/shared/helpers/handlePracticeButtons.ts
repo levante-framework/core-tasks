@@ -21,7 +21,7 @@ export function addPracticeButtonListeners(
   practiceBtns.forEach((btn, i) => {
     const eventType = isTouchScreen ? 'touchend' : 'click';
 
-    btn.addEventListener(eventType, (e) => {
+    btn.addEventListener(eventType, (_e) => {
       handlePracticeButtonPress(btn, answer, practiceBtns, i, choices, onCorrect, onIncorrect);
     });
   });

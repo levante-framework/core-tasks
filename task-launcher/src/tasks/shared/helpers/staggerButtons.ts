@@ -14,7 +14,6 @@ export const handleStaggeredButtons = async (
   disableButtons = true,
 ) => {
   const parentResponseDiv = buttonContainer;
-  const i = 0;
   const stimulusDuration = await pageState.getStimulusDurationMs();
   const intialDelay = stimulusDuration + 300;
 

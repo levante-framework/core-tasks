@@ -36,7 +36,7 @@ export function createPreloadTrials(categorizedObjects: MediaAssetsType, blocks:
 
   // Distribute URLs into the appropriate blocks
   Object.entries(categorizedObjects).forEach(([category, files]) => {
-    Object.entries(files).forEach(([fileName, url]) => {
+    Object.entries(files).forEach(([_fileName, url]) => {
       let fileAdded = false;
 
       for (const block of blocks) {
