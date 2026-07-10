@@ -9,6 +9,7 @@ import {
   getRealTrials,
   initTimeline,
   initTrialSaving,
+  prepareMultiBlockCat,
 } from '../shared/helpers';
 import { getLeftoverAssets } from '../shared/helpers/batchPreloading';
 import { prepareCorpus, selectNItems } from '../shared/helpers/prepareCat';
@@ -122,12 +123,12 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
     },
   };
 
-  const downexBlock = (animate: boolean) => {
+  const downexBlock = () => {
     return {
       timeline: [
         { ...setupDownex, stimulus: '' },
-        practiceTransition(),
-        downexStimulus(layoutConfigMap, animate),
+        ...(runCat ? [] : [practiceTransition()]),
+        downexStimulus(layoutConfigMap),
         ifRealTrialResponse,
       ],
     };
@@ -145,7 +146,7 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
         .slice(0, secondPhaseIndex)
         .map((trial) => [
           { ...fixationOnly, stimulus: '' },
-          downexStimulus(layoutConfigMap, true, trial),
+          downexStimulus(layoutConfigMap, trial),
           ifRealTrialResponse,
         ])
         .flat(),
@@ -156,7 +157,7 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
         .slice(secondPhaseIndex)
         .map((trial) => [
           { ...fixationOnly, stimulus: '' },
-          downexStimulus(layoutConfigMap, false, trial),
+          downexStimulus(layoutConfigMap, trial),
           ifRealTrialResponse,
         ])
         .flat(),
@@ -180,7 +181,58 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
 
   if (runCat) {
     // seperate out corpus to get cat/non-cat blocks
-    const corpora = prepareCorpus(defaultCorpus);
+    const corpora = prepareCorpus(defaultCorpus, 0, downexCorpus);
+
+    let ranPhase2Instructions = false;
+    const phase2InstructBlock = {
+      timeline: [
+        downexInstructions2,
+        downexInstructions3,
+        practiceTransition(undefined, true),
+      ], 
+      conditional_function: () => {
+        const run = taskStore().nextStimulus.trialType !== 'single-shape' && !ranPhase2Instructions;
+        if (run) {
+          ranPhase2Instructions = true;
+        }
+
+        return run;
+      }
+    };
+
+    const downexCatBlock = () => {
+      return {
+        timeline: [
+          { ...setupDownex, stimulus: '' },
+          phase2InstructBlock,
+          downexStimulus(layoutConfigMap),
+          ifRealTrialResponse,
+        ],
+      };
+    };
+
+    if (heavyInstructions) {
+      const youngerKidBlock = corpora.downexCat;
+      const numOfDownexTrials = youngerKidBlock.length;
+
+      corpora.ipHeavy.forEach((trial: StimulusType) => {
+        timeline.push({ ...fixationOnly, stimulus: '' });
+        timeline.push(downexStimulus(layoutConfigMap, trial));
+      });
+
+      for (let i = 0; i < numOfDownexTrials; i++) {
+        timeline.push(downexCatBlock());
+      }
+
+      timeline.push(downexInstructions4);
+      timeline.push(downexInstructions5);
+    }
+
+
+
+
+
+    ///////////////////////////////////////////
 
     // push in instruction block
     corpora.ipLight.forEach((trial: StimulusType) => {
@@ -220,15 +272,13 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
 
     if (heavyInstructions) {
       for (let i = 0; i < numOfDownexTrials; i++) {
-        const animate = i < secondPhaseIndex;
-
         if (i === secondPhaseIndex) {
           timeline.push(downexInstructions2);
           timeline.push(downexInstructions3);
           timeline.push(practiceTransition(undefined, true));
         }
 
-        timeline.push(downexBlock(animate));
+        timeline.push(downexBlock());
       }
 
       timeline.push(downexInstructions4);

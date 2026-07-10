@@ -12,6 +12,7 @@ import {
   popAnimation,
   setupFullscreenButton,
   setupReplayAudio,
+  updateTheta,
 } from '../../shared/helpers';
 import { isTouchScreen, jsPsych } from '../../taskSetup';
 
@@ -22,7 +23,6 @@ let cycleId = 0; // disable audio if the trial has changed since the loop starte
 
 export const downexStimulus = (
   layoutConfigMap: Record<string, LayoutConfigType>,
-  animate: boolean,
   trial?: StimulusType,
 ) => {
   return {
@@ -97,6 +97,7 @@ export const downexStimulus = (
 
       // set up replay audio with animations
       const trialAudio = stim.audioFile;
+      const animate = typeof trialAudio !== 'string';
 
       addExperimenterButtons();
       setupFullscreenButton();
@@ -315,6 +316,8 @@ export const downexStimulus = (
       if (stimulus.assessmentStage === 'test_response') {
         taskStore.transact('testTrialCount', (oldVal: number) => oldVal + 1);
       }
+
+      updateTheta(stimulus, data.correct);
     },
     response_ends_trial: () => {
       const stim = trial || taskStore().nextStimulus;
