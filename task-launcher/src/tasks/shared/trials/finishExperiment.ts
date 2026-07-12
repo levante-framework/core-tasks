@@ -2,6 +2,7 @@ import { jsPsych } from '../../taskSetup';
 import { PageAudioHandler } from '../helpers';
 import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
+import { Logger } from '../../../utils';
 
 export function finishExperiment() {
   const t = taskStore().translations;
@@ -24,6 +25,11 @@ export function finishExperiment() {
     };
     window.addEventListener('click', removeDOMElements);
     window.addEventListener('keydown', removeDOMElements);
+    const logger = Logger.getInstance();
+    logger.capture('Task Finished', {
+      taskName: taskStore().task,
+      taskFinished: taskStore().taskComplete,
+    });
   }, 50); // delay so that previous key presses are not captured
 
   jsPsych.endExperiment(
