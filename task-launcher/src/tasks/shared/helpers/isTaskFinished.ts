@@ -1,12 +1,12 @@
 // Previously named waitFor
 
-export const isTaskFinished = (conditionFunction: () => boolean) => {
+export const isTaskFinished = (conditionFunction: () => boolean, frequency = 400) => {
   return new Promise<void>((resolve) => {
     const poll = () => {
       if (conditionFunction()) {
         resolve();
       } else {
-        setTimeout(poll, 400);
+        setTimeout(poll, frequency);
       }
     };
     poll();

@@ -7,6 +7,7 @@ import {
   disableOkButton,
   enableOkButton,
   getParticipantUtilityButtonsHtml,
+  isTaskFinished,
   PageAudioHandler,
   PageStateHandler,
   prepareChoices,
@@ -15,6 +16,7 @@ import {
   setupReplayAudio,
   shouldTerminateCat,
   updateTheta,
+  wrapListeners,
 } from '../../shared/helpers';
 import { sdsProgressComponentEmpty, sdsProgressComponentFilled } from '../../shared/helpers/components';
 import { displayDebugInfo } from '../../shared/helpers/displayDebugInfo';
@@ -307,8 +309,10 @@ export const afcMatch = (trial?: StimulusType) => {
           // linear button layout
           buttonContainer.classList.add('lev-response-row', 'multi-4');
         }
+
+        let firstClick = true; // only need to reenable buttons on first click
         responseBtns.forEach((card, i) => {
-          card.addEventListener('click', async (_e) => {
+          const handleCardSelect = async () => {
             const answer = ((card as HTMLButtonElement)?.firstChild as HTMLImageElement)?.alt;
 
             if (!card) {
@@ -339,8 +343,13 @@ export const afcMatch = (trial?: StimulusType) => {
               }
             }
 
-            setTimeout(() => enableBtns(responseBtns), 500);
-          });
+            if (firstClick) {
+              await isTaskFinished(() => card.disabled, 10).then(() => enableBtns(responseBtns));
+              firstClick = false;
+            }
+          };
+
+          wrapListeners(card, handleCardSelect);
         });
       }
 

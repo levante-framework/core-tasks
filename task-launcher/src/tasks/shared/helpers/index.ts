@@ -49,3 +49,4 @@ export * from './stringToBoolean';
 export * from './stringToNumArray';
 export * from './trialSaving';
 export { validateLayoutConfig } from './validateLayoutConfig';
+export { wrapListeners } from './wrapListeners';
