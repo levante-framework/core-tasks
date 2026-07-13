@@ -60,7 +60,7 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
 
   // used for instruction and practice trials
   const ipBlock = (trial: StimulusType) => {
-    let trialGenerator;
+    let trialGenerator: typeof afcMatch | typeof stimulus | typeof legacyStimulus;
     if (trial.trialType.includes('match')) {
       trialGenerator = afcMatch;
     } else if (taskStore().version === 2) {
@@ -111,7 +111,7 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
             (stimulus.trialType.includes('something-same') && trialNum === 2)
           );
         } else {
-          return stimulus.trialType === trialNum + '-match';
+          return stimulus.trialType === `${trialNum}-match`;
         }
       },
     };
@@ -140,8 +140,7 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
   // returns practice + instruction trials for a given block
   function getPracticeInstructions(blockNum: number): StimulusType[] {
     return instructionPractice.filter((trial) => {
-      if (Number.isNaN(trial.block_index)) return;
-
+      if (Number.isNaN(trial.block_index)) return false;
       return trial.block_index === blockNum;
     });
   }

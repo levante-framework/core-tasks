@@ -1,33 +1,33 @@
 import 'regenerator-runtime/runtime';
-// setup
-import { jsPsych, initializeCat, cat } from '../taskSetup';
+import { taskStore } from '../../taskStore';
 import {
-  createPreloadTrials,
-  initTrialSaving,
-  initTimeline,
   batchMediaAssets,
-  prepareMultiBlockCat,
   checkFallbackCriteria,
+  createPreloadTrials,
+  initTimeline,
+  initTrialSaving,
+  prepareMultiBlockCat,
 } from '../shared/helpers';
-// trials
-import { threeDimInstructions, instructions } from './trials/instructions';
-import { legacyInstructions } from './trials/legacyInstructions';
+import { getLeftoverAssets } from '../shared/helpers/batchPreloading';
+import { prepareCorpus } from '../shared/helpers/prepareCat';
 import {
   afcStimulusTemplate,
-  taskFinished,
+  enterFullscreen,
   exitFullscreen,
   fixationOnly,
   getAudioResponse,
-  enterFullscreen,
   practiceTransition,
-  setupStimulusFromCurrentCatBlock,
-  setupNextBlock,
   repeatInstructionsMessage,
+  setupNextBlock,
+  setupStimulusFromCurrentCatBlock,
+  taskFinished,
 } from '../shared/trials';
+// setup
+import { initializeCat, jsPsych } from '../taskSetup';
 import { getLayoutConfig } from './helpers/config';
-import { prepareCorpus } from '../shared/helpers/prepareCat';
-import { taskStore } from '../../taskStore';
-import { getLeftoverAssets } from '../shared/helpers/batchPreloading';
+// trials
+import { instructions, threeDimInstructions } from './trials/instructions';
+import { legacyInstructions } from './trials/legacyInstructions';
 
 export default function buildMentalRotationCatTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   initTrialSaving(config);
@@ -133,7 +133,8 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
 
   const instructionPracticeBlock = (blockNum: number) => {
     const trials = getPracticeInstructions(blockNum);
-    const practiceTransitionPrompt = blockNum === 1 ? 'mentalRotationInstruct5Downex' : 'generalYourTurn';
+    const practiceTransitionPrompt =
+      blockNum === 1 && taskStore().version === 2 ? 'mentalRotationInstruct5Downex' : 'generalYourTurn';
 
     return {
       timeline: [
@@ -179,7 +180,7 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
   };
 
   function addInstructionPractice() {
-    batchedCorpus.forEach((block, index) => {
+    batchedCorpus.forEach((_block, index) => {
       timeline.push(instructionPracticeBlock(index + 1));
     });
   }

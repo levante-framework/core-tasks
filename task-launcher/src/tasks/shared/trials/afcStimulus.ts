@@ -3,7 +3,7 @@ import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-respons
 import _toNumber from 'lodash/toNumber';
 import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
-import { cat, isTouchScreen, jsPsych } from '../../taskSetup';
+import { isTouchScreen, jsPsych } from '../../taskSetup';
 import {
   addExperimenterButtons,
   addPracticeButtonListeners,
@@ -27,9 +27,7 @@ import { finishExperiment } from '.';
 const replayButtonHtmlId = 'replay-btn-revisited';
 // Previously chosen responses for current practice trial
 let practiceResponses = [];
-let trialsOfCurrentType = 0;
 let startTime: number;
-const incorrectPracticeResponses: Array<string | null> = [];
 
 function getStimulus(layoutConfigMap: Record<string, LayoutConfigType>, trial?: StimulusType) {
   const stim = trial || taskStore().nextStimulus;
@@ -207,7 +205,7 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
   const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
   const playAudioOnLoad = itemLayoutConfig?.playAudioOnLoad;
 
-  let pageStateHandler;
+  let pageStateHandler: PageStateHandler;
   if (typeof stim.audioFile === 'string') {
     // no need to handle array case since it's not supported yet
     pageStateHandler = new PageStateHandler(stim.audioFile, playAudioOnLoad);
@@ -231,9 +229,6 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
     handleStaggeredButtons(pageStateHandler, imgButtons, audioKeys);
   }
 
-  const currentTrialIndex = jsPsych.getProgress().current_trial_global;
-  let twoTrialsAgoIndex = currentTrialIndex - 2;
-
   // Setup Sentry Context
   setSentryContext({
     itemId: stim.itemId,
@@ -242,34 +237,18 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
   });
 
   if (stim.task === 'math') {
-    twoTrialsAgoIndex = currentTrialIndex - 3; // math has a fixation or something
-
     // flag correct answers with alt text for math if running a Cypress test
     if (window.Cypress && !isInstructionTrial) {
       const choices: NodeListOf<HTMLButtonElement> = document.querySelectorAll('.secondary, .image-medium, .primary');
       choices[itemLayoutConfig.response.targetIndex].setAttribute('aria-label', 'correct');
     }
   }
-  const twoTrialsAgoStimulus = jsPsych.data.get().filter({ trial_index: twoTrialsAgoIndex }).values();
 
   if (isPracticeTrial) {
     const answer = stim.answer.toString();
     const choices = layoutConfigMap?.[stim.itemId].response.values;
 
     addPracticeButtonListeners(answer, isTouchScreen, choices);
-  }
-
-  // should log trialsOfCurrentType - race condition
-  if (stim.task === 'math') {
-    if (twoTrialsAgoStimulus !== undefined && stim.trialType === twoTrialsAgoStimulus[0]?.trialType) {
-      trialsOfCurrentType += 1;
-    } else {
-      trialsOfCurrentType = 0;
-    }
-  } else {
-    if (!isPracticeTrial && !isInstructionTrial) {
-      trialsOfCurrentType += 1;
-    }
   }
 
   if (stim.trialType !== 'instructions') {
@@ -302,7 +281,7 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
 
 function doOnFinish(
   data: any,
-  task: string,
+  _task: string,
   layoutConfigMap: Record<string, LayoutConfigType>,
   terminateCat: boolean,
   trial?: StimulusType,

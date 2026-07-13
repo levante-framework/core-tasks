@@ -1,17 +1,17 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
-import { jsPsych } from '../../taskSetup';
 import { mediaAssets } from '../../..';
+import { taskStore } from '../../../taskStore';
 import {
   addExperimenterButtons,
-  PageStateHandler,
-  PageAudioHandler,
-  getParticipantUtilityButtonsHtml,
-  setupReplayAudio,
-  setupFullscreenButton,
-  isLanguageAllowedDownex,
   enableOkButton,
+  getParticipantUtilityButtonsHtml,
+  isLanguageAllowedDownex,
+  PageAudioHandler,
+  PageStateHandler,
+  setupFullscreenButton,
+  setupReplayAudio,
 } from '../../shared/helpers';
-import { taskStore } from '../../../taskStore';
+import { jsPsych } from '../../taskSetup';
 
 let setPromptDurations = false;
 

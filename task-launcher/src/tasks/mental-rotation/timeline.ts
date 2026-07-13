@@ -1,32 +1,32 @@
 import 'regenerator-runtime/runtime';
-// setup
-import { jsPsych, initializeCat, cat } from '../taskSetup';
+import { taskStore } from '../../taskStore';
 import {
-  createPreloadTrials,
-  initTrialSaving,
-  initTimeline,
-  getRealTrials,
-  batchTrials,
   batchMediaAssets,
+  batchTrials,
   checkFallbackCriteria,
+  createPreloadTrials,
+  getRealTrials,
+  initTimeline,
+  initTrialSaving,
 } from '../shared/helpers';
+import { getLeftoverAssets } from '../shared/helpers/batchPreloading';
 // trials
 import {
   afcStimulusTemplate,
-  taskFinished,
+  enterFullscreen,
   exitFullscreen,
-  setupStimulus,
   fixationOnly,
   getAudioResponse,
-  enterFullscreen,
-  repeatInstructionsMessage,
   practiceTransition,
+  repeatInstructionsMessage,
+  setupStimulus,
+  taskFinished,
 } from '../shared/trials';
+// setup
+import { cat, initializeCat, jsPsych } from '../taskSetup';
+import { getLayoutConfig } from './helpers/config';
 import { instructions, threeDimInstructions } from './trials/instructions';
 import { legacyInstructions } from './trials/legacyInstructions';
-import { getLayoutConfig } from './helpers/config';
-import { taskStore } from '../../taskStore';
-import { getLeftoverAssets } from '../shared/helpers/batchPreloading';
 
 export default function buildMentalRotationTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const { runCat, semThreshold } = taskStore();

@@ -1,25 +1,25 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
+import { taskStore } from '../../../taskStore';
 import {
+  addExperimenterButtons,
+  camelize,
+  disableOkButton,
+  enableOkButton,
+  getParticipantUtilityButtonsHtml,
+  PageAudioHandler,
   PageStateHandler,
   prepareChoices,
-  getParticipantUtilityButtonsHtml,
-  setupReplayAudio,
-  PageAudioHandler,
-  camelize,
-  shouldTerminateCat,
   selectNextSequentialTrial,
-  addExperimenterButtons,
   setupFullscreenButton,
-  enableOkButton,
-  disableOkButton,
+  setupReplayAudio,
+  shouldTerminateCat,
+  updateTheta,
 } from '../../shared/helpers';
+import { displayDebugInfo } from '../../shared/helpers/displayDebugInfo';
+import { handleStaggeredButtons } from '../../shared/helpers/staggerButtons';
 import { finishExperiment } from '../../shared/trials';
 import { isTouchScreen, jsPsych } from '../../taskSetup';
-import { taskStore } from '../../../taskStore';
-import { handleStaggeredButtons } from '../../shared/helpers/staggerButtons';
-import { updateTheta } from '../../shared/helpers';
-import { displayDebugInfo } from '../../shared/helpers/displayDebugInfo';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 let incorrectPracticeResponses: string[] = [];
@@ -33,7 +33,9 @@ export const generateImageChoices = (choices: string[]) => {
 };
 
 function enableBtns(btnElements: HTMLButtonElement[]) {
-  btnElements.forEach((btn) => btn.removeAttribute('disabled'));
+  btnElements.forEach((btn) => {
+    btn.removeAttribute('disabled');
+  });
 }
 
 export function handleButtonFeedback(
@@ -47,7 +49,7 @@ export function handleButtonFeedback(
   const answer = taskStore().correctResponseIdx.toString();
 
   const isCorrectChoice = choice.includes(answer);
-  let feedbackAudio;
+  let feedbackAudio: string;
   if (isCorrectChoice) {
     btn.classList.add('success-shadow');
     feedbackAudio = mediaAssets.audio[correctAudio];
@@ -268,7 +270,7 @@ export const legacyStimulus = (trial?: StimulusType) => {
         practiceBtns.forEach((card, i) => {
           const eventType = isTouchScreen ? 'touchend' : 'click';
 
-          card.addEventListener(eventType, (e) => {
+          card.addEventListener(eventType, (_e) => {
             handleButtonFeedback(card, practiceBtns, false, i, 'feedbackGoodJob');
           });
         });
@@ -289,7 +291,7 @@ export const legacyStimulus = (trial?: StimulusType) => {
       // Always need to write correct key because of firekit.
       // TODO: Discuss with ROAR team to remove this check
       if (stim.assessmentStage !== 'instructions') {
-        let isCorrect;
+        let isCorrect: boolean;
         if (stim.trialType === 'test-dimensions' || stim.assessmentStage === 'practice_response') {
           // if no incorrect answers were clicked, that trial is correct
           isCorrect = incorrectPracticeResponses.length === 0;

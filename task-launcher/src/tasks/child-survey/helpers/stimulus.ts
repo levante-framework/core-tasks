@@ -6,7 +6,6 @@ import {
   camelize,
   enableOkButton,
   equalizeButtonSizes,
-  getChildSurveyResponses,
   getParticipantUtilityButtonsHtml,
   handleStaggeredButtons,
   PageAudioHandler,
@@ -31,9 +30,9 @@ let startTime: number;
 let selectedButtonIndex: number;
 
 export const surveyItem = ({
-  responseAllowed,
+  responseAllowed: _responseAllowed,
   promptAboveButtons,
-  task,
+  task: _task,
   layoutConfigMap,
 }: {
   responseAllowed: boolean;
@@ -83,8 +82,6 @@ export const surveyItem = ({
       return `<button class='${buttonClasses}'${disabled}>%choice%</button>`;
     },
     on_load: async () => {
-      startTime = performance.now();
-
       const stim = taskStore().nextStimulus;
       const itemLayoutConfig: LayoutConfigType = layoutConfigMap?.[stim.itemId];
       const playAudioOnLoad = itemLayoutConfig?.playAudioOnLoad;
@@ -239,10 +236,8 @@ export const surveyItem = ({
       disableStagger();
       PageAudioHandler.stopAndDisconnectNode();
 
-      let responseValue = null;
-      let responseIndex = null;
+      let responseIndex, responseValue;
 
-      const t = taskStore().translations;
       const corpus = taskStore().corpus;
       const stim = taskStore().nextStimulus;
       const itemLayoutConfig: LayoutConfigType = layoutConfigMap?.[stim.itemId];

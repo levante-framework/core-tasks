@@ -58,7 +58,7 @@ function triggerToast() {
         toast.classList.remove('show');
       }
     }, 5000);
-  } else if (toast && toast.classList.contains('show')) {
+  } else if (toast?.classList.contains('show')) {
     clearTimeout(timeoutID);
 
     timeoutID = setTimeout(() => {

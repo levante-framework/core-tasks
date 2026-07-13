@@ -4,7 +4,9 @@ import { jsPsych } from '../../taskSetup';
 import { PageAudioHandler } from './audioHandler';
 
 function enableBtns(btnElements: NodeListOf<HTMLButtonElement>) {
-  btnElements.forEach((btn) => (btn.disabled = false));
+  btnElements.forEach((btn) => {
+    btn.disabled = false;
+  });
 }
 
 export function addPracticeButtonListeners(
@@ -19,7 +21,7 @@ export function addPracticeButtonListeners(
   practiceBtns.forEach((btn, i) => {
     const eventType = isTouchScreen ? 'touchend' : 'click';
 
-    btn.addEventListener(eventType, (e) => {
+    btn.addEventListener(eventType, (_e) => {
       handlePracticeButtonPress(btn, answer, practiceBtns, i, choices, onCorrect, onIncorrect);
     });
   });

@@ -22,7 +22,7 @@ import './commands';
 import 'cypress-real-events';
 
 // prevent firestore error from failing test
-Cypress.on('uncaught:exception', (err, runnable) => {
+Cypress.on('uncaught:exception', (err, _runnable) => {
   if (err.message.includes('user not in Firestore')) {
     return false;
   }
