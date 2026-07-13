@@ -167,7 +167,9 @@ export const surveyItem = ({
 
           const replayButtons = document.querySelectorAll('.replay-btn');
           if (!layoutConfigMap.isStaggered) {
-            replayButtons.forEach((btn) => ((btn as HTMLButtonElement).disabled = false));
+            replayButtons.forEach((btn) => {
+              (btn as HTMLButtonElement).disabled = false;
+            });
           }
         },
       };
@@ -198,7 +200,9 @@ export const surveyItem = ({
       const jsPsychResponseButtons = buttonContainer.children;
       if (itemLayoutConfig.isInstructionTrial) {
         // prevents jsPsych from disabling the buttons when clicked, which changes the styling outside of our control
-        Array.from(jsPsychResponseButtons).forEach((btn) => ((btn as HTMLButtonElement).style.pointerEvents = 'none'));
+        Array.from(jsPsychResponseButtons).forEach((btn) => {
+          (btn as HTMLButtonElement).style.pointerEvents = 'none';
+        });
       }
 
       if (itemLayoutConfig.isStaggered) {
@@ -213,7 +217,9 @@ export const surveyItem = ({
         );
 
         const replayButtons = document.querySelectorAll('.replay-btn');
-        replayButtons.forEach((btn) => ((btn as HTMLButtonElement).disabled = false));
+        replayButtons.forEach((btn) => {
+          (btn as HTMLButtonElement).disabled = false;
+        });
 
         // disable demo buttons
         if (itemLayoutConfig.isInstructionTrial) {
@@ -228,7 +234,7 @@ export const surveyItem = ({
           }
         }
       }
-      
+
       // update the trial number
       taskStore.transact('trialNumSubtask', (oldVal: number) => oldVal + 1);
     },
@@ -236,7 +242,7 @@ export const surveyItem = ({
       disableStagger();
       PageAudioHandler.stopAndDisconnectNode();
 
-      let responseIndex, responseValue;
+      let responseIndex: number, responseValue: string;
 
       const corpus = taskStore().corpus;
       const stim = taskStore().nextStimulus;
@@ -249,7 +255,7 @@ export const surveyItem = ({
         }
         responseIndex = data.button_response;
         responseValue = response.values[responseIndex];
-      
+
         jsPsych.data.addDataToLastTrial({
           // specific to this trial
           item: stim.item,
