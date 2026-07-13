@@ -226,7 +226,7 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
       audioKeys.push(audioKey);
     }
 
-    handleStaggeredButtons(pageStateHandler, buttonContainer, audioKeys);
+    handleStaggeredButtons(pageStateHandler, imgButtons, audioKeys);
   }
 
   // Setup Sentry Context
