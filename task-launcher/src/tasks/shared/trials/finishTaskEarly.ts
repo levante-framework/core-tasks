@@ -30,7 +30,7 @@ export function finishTaskEarly(effectiveStoppingRule: 'time' | 'max-incorrect')
       effectiveStoppingRule === 'time'
         ? 'Task finished early: user timed out'
         : 'Task finished early: user reached max incorrect answers';
-        console.log(message);
+
     logger.capture(message, {
       taskName: taskStore().task,
       taskFinished: taskStore().taskComplete,
