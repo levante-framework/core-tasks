@@ -1,5 +1,5 @@
 import { jsPsych } from '../../taskSetup';
-import { finishExperiment } from '../trials/finishExperiment';
+import { finishTaskEarly } from '../trials/finishTaskEarly';
 
 const exemptTrialTypes = ['something-same-1'];
 const eligibleAssessmentStages = [
@@ -22,6 +22,6 @@ export function shouldTerminateCat() {
   const terminate = incorrectTrials.count() > 6;
 
   if (terminate) {
-    finishExperiment();
+    finishTaskEarly('max-incorrect');
   }
 }

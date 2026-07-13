@@ -3,7 +3,7 @@ import _mapValues from 'lodash/mapValues';
 import { taskStore } from '../../../taskStore';
 import { Logger } from '../../../utils/logger';
 import { jsPsych } from '../../taskSetup';
-import { finishExperiment } from '../trials';
+import { finishTaskEarly } from '../trials';
 import { recordCompletion } from './recordCompletion';
 
 /**
@@ -124,7 +124,7 @@ export const initTrialSaving = (config: Record<string, any>) => {
   // @ts-expect-error
   jsPsych.opts.on_trial_finish = extend(jsPsych.opts.on_trial_finish, () => {
     if (taskStore().maxTimeReached) {
-      finishExperiment();
+      finishTaskEarly('time');
     }
 
     // record completion at 80%

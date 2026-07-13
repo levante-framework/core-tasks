@@ -10,7 +10,7 @@ import {
   setupFullscreenButton,
   setupReplayAudio,
 } from '../../shared/helpers';
-import { finishExperiment } from '../../shared/trials';
+import { finishTaskEarly } from '../../shared/trials';
 import { jsPsych } from '../../taskSetup';
 import { getMemoryGamePrompt } from '../helpers/getMemoryGamePrompt';
 import { getMemoryGameType } from '../helpers/getMemoryGameType';
@@ -230,7 +230,7 @@ export function getCorsiBlocks({
 
         if (taskStore().numIncorrect === taskStore().maxIncorrect) {
           if (reverse) {
-            finishExperiment();
+            finishTaskEarly('max-incorrect');
           } else {
             sequenceLength = 2;
             // update total trials to account for skipped forward block

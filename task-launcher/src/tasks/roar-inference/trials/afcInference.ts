@@ -2,7 +2,7 @@ import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-respons
 import _toNumber from 'lodash/toNumber';
 import { taskStore } from '../../../taskStore';
 import { arrowKeyEmojis, PageStateHandler, setSentryContext, setSkipCurrentBlock } from '../../shared/helpers';
-import { finishExperiment } from '../../shared/trials';
+import { finishTaskEarly } from '../../shared/trials';
 import { isTouchScreen, jsPsych } from '../../taskSetup';
 import type { LayoutConfigTypeInference } from '../types/inferenceTypes';
 
@@ -301,7 +301,7 @@ function doOnFinish(data: any, _task: string, layoutConfigMap: Record<string, La
   if (itemLayoutConfig.inCorrectTrialConfig.onIncorrectTrial === 'skip') {
     setSkipCurrentBlock(stimulus.trialType);
   } else if (taskStore().numIncorrect >= taskStore().maxIncorrect) {
-    finishExperiment();
+    finishTaskEarly('max-incorrect');
   }
   document.querySelector('.jspsych-content')?.classList.remove('inference-scroll');
 }

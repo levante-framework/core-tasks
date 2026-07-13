@@ -22,7 +22,7 @@ import {
   updateTheta,
 } from '../helpers';
 import { displayDebugInfo } from '../helpers/displayDebugInfo';
-import { finishExperiment } from '.';
+import { finishTaskEarly } from '.';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 // Previously chosen responses for current practice trial
@@ -397,7 +397,7 @@ function doOnFinish(
   if (itemLayoutConfig.inCorrectTrialConfig.onIncorrectTrial === 'skip' && !runCat) {
     setSkipCurrentBlock(stimulus.trialType);
   } else if (taskStore().numIncorrect >= taskStore().maxIncorrect && !runCat) {
-    finishExperiment();
+    finishTaskEarly('max-incorrect');
   }
 
   if (terminateCat) {

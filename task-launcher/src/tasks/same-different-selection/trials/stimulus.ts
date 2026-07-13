@@ -17,7 +17,7 @@ import {
 } from '../../shared/helpers';
 import { displayDebugInfo } from '../../shared/helpers/displayDebugInfo';
 import { shouldTerminateCat } from '../../shared/helpers/shouldTerminateCat';
-import { finishExperiment } from '../../shared/trials';
+import { finishTaskEarly } from '../../shared/trials';
 import { isTouchScreen, jsPsych } from '../../taskSetup';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
@@ -499,7 +499,7 @@ export const stimulus = (trial?: StimulusType) => {
         }
         // if heavy instructions is true, show data quality screen before ending
         if (taskStore().numIncorrect >= taskStore().maxIncorrect && !taskStore().heavyInstructions && !cat) {
-          finishExperiment();
+          finishTaskEarly('max-incorrect');
         }
 
         if (stim.trialType !== 'something-same-1' && stim.trialType !== 'instructions') {
