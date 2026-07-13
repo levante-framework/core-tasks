@@ -166,7 +166,7 @@ export const surveyItem = ({
           });
 
           const replayButtons = document.querySelectorAll('.replay-btn');
-          if (!layoutConfigMap.isStagged) {
+          if (!layoutConfigMap.isStaggered) {
             replayButtons.forEach((btn) => ((btn as HTMLButtonElement).disabled = false));
           }
         },
