@@ -33,7 +33,7 @@ export const taskFinished = (endMessage = 'taskFinished') => {
     button_choices: [`Continue`],
     keyboard_choices: 'ALL_KEYS',
     button_html: () => {
-      return `<button class="primary" style=margin-top:10%>${taskStore().translations.generalExit}</button>`
+      return `<button class="primary" style=margin-top:10%>${taskStore().translations.generalExit}</button>`;
     },
     on_load: () => {
       window.addEventListener('click', endTask);

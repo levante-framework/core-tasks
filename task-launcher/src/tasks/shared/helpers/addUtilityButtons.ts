@@ -57,8 +57,8 @@ export function addExperimenterButtons() {
   popupButtonContainer.id = 'exit-confirmation-popup-buttons';
   popupButtonContainer.classList.add('exit-confirmation-popup-buttons');
   popupButtonContainer.innerHTML = `
-        <button class="primary small">${taskStore().translations.generalYes}</button>
-        <button class="primary small">${taskStore().translations.generalNo}</button>
+        <button class="primary small">${taskStore().translations.generalYes || 'Yes'}</button>
+        <button class="primary small">${taskStore().translations.generalNo || 'No'}</button>
     `;
   popup.appendChild(popupButtonContainer);
 
