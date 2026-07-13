@@ -98,7 +98,7 @@ export const setSharedConfig = async (
     debug,
     version,
     taskVersion, // deprecated; use `version` — kept for backward compatibility
-    isPaused,
+    _isPaused,
   } = cleanParams;
 
   const config = {

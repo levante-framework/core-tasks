@@ -73,7 +73,7 @@ function compareSelections(selections: string[], previousSelections: string[][],
   function sharedTrait(selections: string[], ignoreDims: string[]) {
     const sets: Record<string, Set<string>> = {};
     // Initialize sets for each non-ignored dimension
-    for (const [dim, index] of Object.entries(dimensionIndices)) {
+    for (const [dim, _index] of Object.entries(dimensionIndices)) {
       if (!ignoreDims.includes(dim)) {
         sets[dim] = new Set();
       }

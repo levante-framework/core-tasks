@@ -1,6 +1,5 @@
 import * as Sentry from '@sentry/browser';
 import i18next from 'i18next';
-import firebaseJSON from '../firebase.json';
 import { TaskLauncher } from '../src';
 import { stringToBoolean } from '../src/tasks/shared/helpers/stringToBoolean';
 
@@ -61,7 +60,6 @@ const heavyInstructions = stringToBoolean(urlParams.get('heavyInstructions'), fa
 const experimenterButtons = stringToBoolean(urlParams.get('experimenterButtons'), false);
 const debug = stringToBoolean(urlParams.get('debug'), false);
 
-const emulatorConfig = EMULATORS ? firebaseJSON.emulators : undefined;
 // if running in demo mode, no data will be saved to Firestore
 const demoMode = DEMO;
 

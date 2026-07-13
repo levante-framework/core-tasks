@@ -173,7 +173,6 @@ function buildPracticeFeedback(
   flowerfeedbackPromptCorrectKey,
   onFinishTimelineCallback,
 ) {
-  const hfV2 = taskStore().version === 2;
   const validAnswerButtonHtmlIdentifier = 'valid-answer-btn';
   const feedbackTexts = {
     IncorrectHeart: taskStore().translations[heartFeedbackPromptIncorrectKey],
