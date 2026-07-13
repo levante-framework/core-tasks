@@ -130,6 +130,12 @@ export const initTrialSaving = (config: Record<string, any>) => {
     // record completion at 80%
     if (taskStore().testTrialCount >= taskStore().totalTestTrials * 0.8) {
       recordCompletion(config);
+
+      const logger = Logger.getInstance();
+      logger.capture('80% completion threshold reached', {
+        taskName: taskStore().task,
+        taskFinished: taskStore().taskComplete,
+      });
     }
 
     taskStore('totalTrialCount', taskStore().totalTrialCount + 1);

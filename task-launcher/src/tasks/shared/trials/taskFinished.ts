@@ -43,7 +43,7 @@ export const taskFinished = (endMessage = 'taskFinished') => {
         PageAudioHandler.playAudio(mediaAssets.audio[endMessage]);
       }
       const logger = Logger.getInstance();
-      logger.capture('Task Finished', {
+      logger.capture('Task finished: user finished all trials', {
         taskName: taskStore().task,
         taskFinished: taskStore().taskComplete,
       });
