@@ -65,9 +65,9 @@ export const somethingSameDemo1 = {
         </div>`;
   },
   prompt_above_buttons: true,
-  button_choices: ['OK'],
+  button_choices: () => [taskStore().translations.continueButtonText],
   button_html: () => {
-    return `<button disabled class='primary'>OK</button>`;
+    return `<button disabled class='primary'>${taskStore().translations.continueButtonText}</button>`;
   },
   response_ends_trial: true,
   post_trial_gap: 350,
@@ -142,9 +142,9 @@ export const somethingSameDemo2 = {
         </div>`;
   },
   prompt_above_buttons: true,
-  button_choices: ['OK'],
+  button_choices: () => [taskStore().translations.continueButtonText],
   button_html: () => {
-    return `<button class='primary' disabled>OK</button>`;
+    return `<button class='primary' disabled>${taskStore().translations.continueButtonText}</button>`;
   },
   response_ends_trial: true,
   post_trial_gap: 350,
@@ -398,7 +398,7 @@ export const heavyPractice = practiceData.map((data) => {
     post_trial_gap: 350,
     button_choices: () => {
       if (data.trialType === 'instructions' || data.trialType === 'something-same-1') {
-        return ['OK'];
+        return [taskStore().translations.continueButtonText];
       } else {
         const randomize = data.answer ? 'yes' : 'no';
         // Randomize choices if there is an answer
