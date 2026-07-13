@@ -19,8 +19,6 @@ import {
 import { pulseOkButton } from '../../shared/helpers/pulseOkButton';
 import { isTouchScreen, jsPsych } from '../../taskSetup';
 
-let startTime: number;
-
 export const instructionData = [
   {
     prompt: 'matrixReasoningInstruct1',
@@ -184,8 +182,6 @@ export const downexInstructions1 = {
   },
   keyboard_choices: () => 'NO_KEYS',
   on_load: async () => {
-    startTime = performance.now();
-
     addExperimenterButtons();
     setupFullscreenButton();
 
@@ -398,8 +394,6 @@ export const downexInstructions3 = {
   button_html: () => '<button class="image-matrix practice-btn"; disabled>%choice%</button>',
   keyboard_choices: () => 'NO_KEYS',
   on_load: async () => {
-    startTime = performance.now();
-
     addExperimenterButtons();
     setupFullscreenButton();
 
@@ -565,8 +559,6 @@ export const downexInstructions4 = {
   button_html: () => '<button class="image-matrix practice-btn" disabled>%choice%</button>',
   keyboard_choices: () => 'NO_KEYS',
   on_load: async () => {
-    startTime = performance.now();
-
     addExperimenterButtons();
     setupFullscreenButton();
 

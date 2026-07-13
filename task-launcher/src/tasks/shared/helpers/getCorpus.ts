@@ -69,13 +69,12 @@ function containsLettersOrSlash(str: string) {
 
 const transformCSV = (csvInput: ParsedRowType[], sequentialStimulus: boolean, task: string) => {
   let currTrialTypeBlock = '';
-  let currPracticeAmount = 0;
 
   const blockThresholds: number[] = [];
 
   csvInput.forEach((row) => {
     // Leaving this here for quick testing of a certain type of trial
-    // if (!row.trial_type.includes('Number Line')) return;
+    //if (!row.trial_type.includes('-match')) return;
 
     if (row.block_threshold && !blockThresholds.includes(row.block_threshold)) {
       blockThresholds.push(row.block_threshold);
@@ -135,7 +134,6 @@ const transformCSV = (csvInput: ParsedRowType[], sequentialStimulus: boolean, ta
     const currentTrialType = newRow.trialType;
     if (currentTrialType !== currTrialTypeBlock) {
       currTrialTypeBlock = currentTrialType;
-      currPracticeAmount = 0;
     }
 
     if (newRow.downex) {
@@ -175,7 +173,7 @@ export const getCorpus = async (config: Record<string, any>, isDev: boolean) => 
 
   const bucketName = getBucketName(task, isDev, 'corpus');
 
-  const corpusUrl = `https://storage.googleapis.com/${bucketName}/${corpus}.csv?alt=media`;
+  const corpusUrl = `https://storage.googleapis.com/${bucketName}/${corpus}.csv?alt=media&v=3`;
 
   function downloadCSV(url: string) {
     return new Promise((resolve, reject) => {
@@ -195,7 +193,7 @@ export const getCorpus = async (config: Record<string, any>, isDev: boolean) => 
   }
 
   async function parseCSVs(urls: string[]) {
-    const promises = urls.map((url, i) => downloadCSV(url));
+    const promises = urls.map((url, _i) => downloadCSV(url));
     return Promise.all(promises);
   }
 

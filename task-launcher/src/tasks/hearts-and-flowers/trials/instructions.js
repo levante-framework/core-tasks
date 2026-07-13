@@ -79,8 +79,6 @@ function buildInstructionTrial(mascotImage, getPromptKey, showResponseButton = f
     console.error(`buildInstructionTrial: Missing prompt audio or text`);
   }
 
-  const replayButtonHtmlId = 'replay-btn-revisited';
-
   const trial = {
     type: jsPsychHtmlMultiResponse,
     stimulus: () => {

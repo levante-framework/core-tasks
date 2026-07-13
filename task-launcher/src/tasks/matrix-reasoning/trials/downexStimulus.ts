@@ -16,7 +16,6 @@ import {
 import { isTouchScreen, jsPsych } from '../../taskSetup';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
-let practiceResponses = [];
 let startTime: number;
 let cycleId = 0; // disable audio if the trial has changed since the loop started - prevent overlapping audio
 
@@ -185,7 +184,7 @@ export const downexStimulus = (
           const audioUri = mediaAssets.audio[camelize(trialAudio)] || mediaAssets.audio.nullAudio;
           PageAudioHandler.playAudio(audioUri);
         } else {
-          for (const [index, audioFile] of trialAudio.entries()) {
+          for (const [_index, audioFile] of trialAudio.entries()) {
             const audioUri = mediaAssets.audio[camelize(audioFile)] || mediaAssets.audio.nullAudio;
 
             // make sure the trial has not changed since the loop started
@@ -249,7 +248,6 @@ export const downexStimulus = (
           taskStore.transact('totalCorrect', (oldVal: number) => oldVal + 1);
           taskStore('numIncorrect', 0); // reset incorrect trial count
         }
-        practiceResponses = [];
       } else {
         // Only increase incorrect trials if response is incorrect not a practice trial
         if (stimulus.assessmentStage !== 'practice_response') {

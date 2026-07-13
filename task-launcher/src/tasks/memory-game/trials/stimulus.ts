@@ -193,7 +193,6 @@ export function getCorsiBlocks({
       }
 
       const gridSize = taskStore().gridSize;
-      const heavyInstructions = taskStore().heavyInstructions;
 
       // save itemUid for data analysis
       const itemUid =
@@ -240,8 +239,6 @@ export function getCorsiBlocks({
         }
 
         selectedCoordinates = [];
-
-        const numOfBlocks = taskStore().numOfBlocks;
 
         if (!isPractice) {
           timeoutIDs.forEach((id) => {

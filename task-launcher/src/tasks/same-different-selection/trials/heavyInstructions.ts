@@ -442,10 +442,11 @@ export const heavyPractice = practiceData.map((data) => {
       }
 
       if (data.trialType === 'something-same-2' && taskStore().heavyInstructions) {
-        handleStaggeredButtons(pageStateHandler, buttonContainer, [
-          'same-different-selection-highlight-1',
-          'same-different-selection-highlight-2',
-        ]);
+        handleStaggeredButtons(
+          pageStateHandler,
+          Array.from(buttonContainer.children as HTMLCollectionOf<HTMLButtonElement>),
+          ['same-different-selection-highlight-1', 'same-different-selection-highlight-2'],
+        );
       }
 
       if (trialType === 'something-same-2') {
@@ -455,7 +456,7 @@ export const heavyPractice = practiceData.map((data) => {
           .filter((btn) => !!btn) as HTMLButtonElement[];
 
         practiceBtns.forEach((card, i) => {
-          card.addEventListener('click', async (e) => {
+          card.addEventListener('click', async (_e) => {
             handleButtonFeedback(card, practiceBtns, false, i, data.correctAudio);
           });
         });
