@@ -7,6 +7,7 @@ import {
   disableOkButton,
   enableOkButton,
   getParticipantUtilityButtonsHtml,
+  isTaskFinished,
   PageAudioHandler,
   PageStateHandler,
   prepareChoices,
@@ -15,8 +16,7 @@ import {
   setupReplayAudio,
   shouldTerminateCat,
   updateTheta,
-  isTaskFinished,
-  wrapListeners
+  wrapListeners,
 } from '../../shared/helpers';
 import { sdsProgressComponentEmpty, sdsProgressComponentFilled } from '../../shared/helpers/components';
 import { displayDebugInfo } from '../../shared/helpers/displayDebugInfo';
