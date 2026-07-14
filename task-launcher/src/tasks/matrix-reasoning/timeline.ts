@@ -247,7 +247,7 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
       if (i % batchSize === 0) {
         preloadBatch();
       }
-      if (i <= fallbackIndex) {
+      if (i <= fallbackIndex && !heavyInstructions) {
         timeline.push(fallbackBlock);
       }
       timeline.push(stimulusBlock);
