@@ -363,9 +363,9 @@ export const legacyStimulus = (trial?: StimulusType) => {
           shouldTerminateCat();
           const allSequentialTrials = taskStore().sequentialTrials;
           const nextTrials = allSequentialTrials.filter((trial: StimulusType) => {
-            const equivalentTrialType = 
+            const equivalentTrialType =
               stim.trialType === trial.trialType ||
-              stim.trialType.includes("something-same") && trial.trialType.includes("something-same");
+              (stim.trialType.includes('something-same') && trial.trialType.includes('something-same'));
 
             return trial.trialNumber === stim.trialNumber && equivalentTrialType;
           });
