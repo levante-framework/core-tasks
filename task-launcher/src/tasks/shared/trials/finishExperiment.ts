@@ -26,7 +26,7 @@ export function finishExperiment() {
     window.addEventListener('click', removeDOMElements);
     window.addEventListener('keydown', removeDOMElements);
     const logger = Logger.getInstance();
-    logger.capture('Task Aborted', {
+    logger.capture('Task Finished', {
       taskName: taskStore().task,
       taskFinished: taskStore().taskComplete,
     });
