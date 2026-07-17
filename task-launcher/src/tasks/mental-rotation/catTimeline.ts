@@ -1,49 +1,35 @@
 import 'regenerator-runtime/runtime';
-// setup
-import { jsPsych, initializeCat, cat } from '../taskSetup';
+import { taskStore } from '../../taskStore';
 import {
-  createPreloadTrials,
-  initTrialSaving,
-  initTimeline,
-  getRealTrials,
-  batchTrials,
   batchMediaAssets,
-  combineMediaAssets,
-  filterMedia,
-  prepareMultiBlockCat,
   checkFallbackCriteria,
-  isEnglish,
+  createPreloadTrials,
+  initTimeline,
+  initTrialSaving,
+  prepareMultiBlockCat,
 } from '../shared/helpers';
-// trials
-import {
-  imageInstructions,
-  polygonInstructions,
-  threeDimInstructions,
-  videoInstructionsFit,
-  videoInstructionsMisfit,
-} from './trials/instructions';
+import { getLeftoverAssets } from '../shared/helpers/batchPreloading';
+import { prepareCorpus } from '../shared/helpers/prepareCat';
 import {
   afcStimulusTemplate,
-  taskFinished,
+  enterFullscreen,
   exitFullscreen,
   fixationOnly,
   getAudioResponse,
-  enterFullscreen,
   practiceTransition,
-  setupStimulusFromCurrentCatBlock,
-  setupNextBlock,
   repeatInstructionsMessage,
+  setupNextBlock,
+  setupStimulusFromCurrentCatBlock,
+  taskFinished,
 } from '../shared/trials';
+// setup
+import { initializeCat, jsPsych } from '../taskSetup';
 import { getLayoutConfig } from './helpers/config';
-import { prepareCorpus } from '../shared/helpers/prepareCat';
-import { taskStore } from '../../taskStore';
-import { getLeftoverAssets } from '../shared/helpers/batchPreloading';
-import { downexInstructions } from './trials/downexInstructions';
+// trials
+import { instructions, threeDimInstructions } from './trials/instructions';
+import { legacyInstructions } from './trials/legacyInstructions';
 
 export default function buildMentalRotationCatTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
-  const { heavyInstructions } = taskStore();
-  const { semThreshold } = taskStore();
-
   initTrialSaving(config);
   const initialTimeline = initTimeline(config, enterFullscreen);
 
@@ -51,7 +37,7 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
     timeline: [getAudioResponse(mediaAssets)],
   };
 
-  let corpus: StimulusType[] = taskStore().corpora.stimulus;
+  const corpus: StimulusType[] = taskStore().corpora.stimulus;
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {};
 
@@ -86,11 +72,11 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
   const initialMedia = getLeftoverAssets(batchedMediaAssets, mediaAssets);
 
   const initialPreload = createPreloadTrials(initialMedia).default;
-  const instructions = heavyInstructions
-    ? downexInstructions
-    : [imageInstructions, videoInstructionsMisfit, videoInstructionsFit];
 
-  const timeline = [initialPreload, initialTimeline, ...instructions];
+  // latest instructions are behind version 2 flag in variant doc
+  const selectedInstructions = taskStore().version === 2 ? instructions : legacyInstructions;
+
+  const timeline = [initialPreload, initialTimeline, ...selectedInstructions];
 
   const trialConfig = {
     trialType: 'audio',
@@ -120,13 +106,6 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
     };
   };
 
-  const polygonInstructBlock = {
-    timeline: [polygonInstructions],
-    conditional_function: () => {
-      return taskStore().currentCatBlock === 1 && isEnglish(taskStore().language);
-    },
-  };
-
   const threeDimInstructBlock = {
     timeline: [threeDimInstructions],
     conditional_function: () => {
@@ -154,16 +133,18 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
 
   const instructionPracticeBlock = (blockNum: number) => {
     const trials = getPracticeInstructions(blockNum);
+    const practiceTransitionPrompt =
+      blockNum === 1 && taskStore().version === 2 ? 'mentalRotationInstruct5Downex' : 'generalYourTurn';
 
     return {
       timeline: [
-        polygonInstructBlock,
         threeDimInstructBlock,
         ...trials.map((trial) => {
           return {
             timeline: [{ ...fixationOnly, stimulus: '' }, afcStimulusTemplate(trialConfig, trial)],
           };
         }),
+        ...(trials.length > 0 ? [practiceTransition(() => practiceTransitionPrompt)] : []),
       ],
       conditional_function: () => {
         const run = taskStore().currentCatBlock === blockNum - 1 && !presentedInstructions.includes(blockNum);
@@ -185,7 +166,7 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
   const fallbackInstructions = {
     timeline: [
       repeatInstructionsMessage,
-      ...downexInstructions,
+      ...instructions,
       ...firstBlockPractice.map((trial) => afcStimulusTemplate(trialConfig, trial)),
     ],
     conditional_function: () => {
@@ -199,7 +180,7 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
   };
 
   function addInstructionPractice() {
-    batchedCorpus.forEach((block, index) => {
+    batchedCorpus.forEach((_block, index) => {
       timeline.push(instructionPracticeBlock(index + 1));
     });
   }
@@ -215,24 +196,21 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
     addInstructionPractice();
 
     if (index === 0) {
-      timeline.push(practiceTransition(heavyInstructions ? () => 'mentalRotationInstruct5Downex' : undefined));
-
       // push in starting block
-      corpora.start.forEach((trial: StimulusType) => {
+      const fallBackIndex = 4;
+      corpora.start.forEach((trial: StimulusType, i: number) => {
         timeline.push({ ...fixationOnly, stimulus: '' });
         timeline.push(afcStimulusTemplate(trialConfig, trial));
         timeline.push(ifRealTrialResponse);
+
+        if (i < fallBackIndex) {
+          timeline.push(fallbackInstructions);
+        }
       });
-    } else {
-      timeline.push(practiceTransition(() => 'generalYourTurn'));
     }
 
     const numOfTrials = block.length / 3;
-    const fallBackIndex = 4;
     for (let i = 0; i < numOfTrials; i++) {
-      if (i <= fallBackIndex && index === 0) {
-        timeline.push(fallbackInstructions);
-      }
       timeline.push(stimulusBlock(index));
     }
 

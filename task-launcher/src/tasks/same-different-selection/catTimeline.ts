@@ -1,5 +1,4 @@
 import { taskStore } from '../../taskStore';
-import { setupSds } from './helpers/prepareSdsCorpus';
 import {
   createPreloadTrials,
   initTimeline,
@@ -7,8 +6,6 @@ import {
   prepareCorpus,
   prepareMultiBlockCat,
 } from '../shared/helpers';
-import { stimulus } from './trials/stimulus';
-import { afcMatch } from './trials/afcMatch';
 import {
   enterFullscreen,
   exitFullscreen,
@@ -18,16 +15,19 @@ import {
   setupStimulusFromBlock,
   taskFinished,
 } from '../shared/trials';
-import { setTrialBlock } from './helpers/setTrialBlock';
 import { initializeCat, jsPsych } from '../taskSetup';
+import { setupSds } from './helpers/prepareSdsCorpus';
+import { setTrialBlock } from './helpers/setTrialBlock';
+import { afcMatch } from './trials/afcMatch';
 import { legacyStimulus } from './trials/legacyStimulus';
+import { stimulus } from './trials/stimulus';
 
 export default function buildSameDifferentTimelineCat(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
   const heavy: boolean = taskStore().heavyInstructions;
 
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
-  const preparedCorpus = prepareCorpus(corpus, false, undefined, true);
+  const preparedCorpus = prepareCorpus(corpus, 0, undefined, true);
 
   const catCorpus = setupSds(taskStore().corpora.stimulus);
   const allBlocks = prepareMultiBlockCat(catCorpus);
@@ -60,7 +60,7 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
 
   // used for instruction and practice trials
   const ipBlock = (trial: StimulusType) => {
-    let trialGenerator;
+    let trialGenerator: typeof afcMatch | typeof stimulus | typeof legacyStimulus;
     if (trial.trialType.includes('match')) {
       trialGenerator = afcMatch;
     } else if (taskStore().version === 2) {
@@ -111,7 +111,7 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
             (stimulus.trialType.includes('something-same') && trialNum === 2)
           );
         } else {
-          return stimulus.trialType === trialNum + '-match';
+          return stimulus.trialType === `${trialNum}-match`;
         }
       },
     };
@@ -140,8 +140,7 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
   // returns practice + instruction trials for a given block
   function getPracticeInstructions(blockNum: number): StimulusType[] {
     return instructionPractice.filter((trial) => {
-      if (Number.isNaN(trial.block_index)) return;
-
+      if (Number.isNaN(trial.block_index)) return false;
       return trial.block_index === blockNum;
     });
   }

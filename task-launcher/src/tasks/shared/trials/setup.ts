@@ -1,7 +1,7 @@
 import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
-import { getStimulus } from '../helpers';
 import { taskStore } from '../../../taskStore';
 import { cat } from '../../taskSetup';
+import { getStimulus } from '../helpers';
 
 // choosing the next stimulus from the corpus occurs during the fixation trial
 // prior to the actual display of the stimulus, where user response is collected
@@ -19,7 +19,7 @@ const fixationTrial = (corpusType?: string, blockNum?: number) => {
     },
     on_finish: () => {
       if (corpusType) {
-        if (blockNum != undefined) {
+        if (blockNum !== undefined) {
           getStimulus(corpusType, blockNum);
         } else {
           getStimulus(corpusType);

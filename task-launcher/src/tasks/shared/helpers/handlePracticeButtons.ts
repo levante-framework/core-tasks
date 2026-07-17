@@ -1,10 +1,12 @@
 import { mediaAssets } from '../../..';
+import { taskStore } from '../../../taskStore';
 import { jsPsych } from '../../taskSetup';
 import { PageAudioHandler } from './audioHandler';
-import { taskStore } from '../../../taskStore';
 
 function enableBtns(btnElements: NodeListOf<HTMLButtonElement>) {
-  btnElements.forEach((btn) => (btn.disabled = false));
+  btnElements.forEach((btn) => {
+    btn.disabled = false;
+  });
 }
 
 export function addPracticeButtonListeners(
@@ -19,7 +21,7 @@ export function addPracticeButtonListeners(
   practiceBtns.forEach((btn, i) => {
     const eventType = isTouchScreen ? 'touchend' : 'click';
 
-    btn.addEventListener(eventType, (e) => {
+    btn.addEventListener(eventType, (_e) => {
       handlePracticeButtonPress(btn, answer, practiceBtns, i, choices, onCorrect, onIncorrect);
     });
   });
@@ -49,7 +51,7 @@ function handlePracticeButtonPress(
   const incorrectPromptKey =
     taskStore().task === 'mental-rotation' &&
     taskStore().heavyInstructions &&
-    taskStore().nextStimulus?.trialType == '2D'
+    taskStore().nextStimulus?.trialType === '2D'
       ? 'mentalRotationFeedbackIncorrectDownex'
       : 'feedbackTryAgain';
 
@@ -73,7 +75,7 @@ function handlePracticeButtonPress(
     // jspysch disables the buttons for some reason, so re-enable them
     setTimeout(() => enableBtns(practiceBtns), 500);
 
-    let incorrectPracticeResponses = taskStore().incorrectPracticeResponses;
+    const incorrectPracticeResponses = taskStore().incorrectPracticeResponses;
     incorrectPracticeResponses.push(choice);
     taskStore('incorrectPracticeResponses', incorrectPracticeResponses);
 

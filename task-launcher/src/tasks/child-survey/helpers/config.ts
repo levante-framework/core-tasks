@@ -1,10 +1,8 @@
 import {
   convertItemToString,
-  validateLayoutConfig,
-  prepareChoices,
   DEFAULT_LAYOUT_CONFIG,
   mapDistractorsToString,
-  fractionToMathML,
+  validateLayoutConfig,
 } from '../../shared/helpers';
 
 type GetConfigReturnType = {
@@ -16,20 +14,20 @@ export const getLayoutConfig = (
   stimulus: StimulusType,
   translations: Record<string, string>,
   mediaAssets: MediaAssetsType,
-  trialNumber: number,
+  _trialNumber: number,
 ): GetConfigReturnType => {
-  const { answer, distractors, trialType } = stimulus;
+  const { distractors } = stimulus;
   const defaultConfig: LayoutConfigType = JSON.parse(JSON.stringify(DEFAULT_LAYOUT_CONFIG));
   const stimItem = convertItemToString(stimulus.item);
   defaultConfig.isPracticeTrial = stimulus.assessmentStage === 'practice_response';
-  defaultConfig.isInstructionTrial = stimulus.trialType === 'instructions';
+  defaultConfig.isInstructionTrial = stimulus.assessmentStage === 'instructions';
   defaultConfig.showStimImage = false;
   defaultConfig.stimText = {
     value: stimItem,
     displayValue: undefined,
   };
   defaultConfig.classOverrides.buttonClassList = ['secondary--wide'];
-  defaultConfig.isStaggered = true;
+  defaultConfig.isStaggered = defaultConfig.isInstructionTrial || defaultConfig.isPracticeTrial;
   const mappedDistractors = mapDistractorsToString(distractors);
   defaultConfig.prompt.enabled = true;
   defaultConfig.isImageButtonResponse = false;

@@ -1,16 +1,17 @@
 // setup
-import { initTrialSaving, initTimeline, createPreloadTrials, getRealTrials, prepareCorpus } from '../shared/helpers';
-import { jsPsych, initializeCat } from '../taskSetup';
+
 import { taskStore } from '../../taskStore';
+import { createPreloadTrials, getRealTrials, initTimeline, initTrialSaving, prepareCorpus } from '../shared/helpers';
 // trials
 import {
   afcStimulusTemplate,
+  enterFullscreen,
   exitFullscreen,
+  fixationOnly,
   setupStimulus,
   taskFinished,
-  enterFullscreen,
-  fixationOnly,
 } from '../shared/trials';
+import { initializeCat, jsPsych } from '../taskSetup';
 import { getLayoutConfig } from './helpers/config';
 
 export default function buildAdultReasoningTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
@@ -57,10 +58,10 @@ export default function buildAdultReasoningTimeline(config: Record<string, any>,
     };
   };
 
-  let numOfTrials;
+  let numOfTrials: number;
 
   if (cat) {
-    const fullCorpus = prepareCorpus(corpus, false);
+    const fullCorpus = prepareCorpus(corpus, 0);
     const practice = [...fullCorpus.ipLight, ...fullCorpus.ipHeavy];
     numOfTrials = 8;
 

@@ -1,5 +1,5 @@
-import { getParticipantUtilityButtonsHtml } from '../../shared/helpers';
 import { taskStore } from '../../../taskStore';
+import { getParticipantUtilityButtonsHtml } from '../../shared/helpers';
 
 export const StimulusType = Object.freeze({
   Heart: 'heart',

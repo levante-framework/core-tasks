@@ -1,21 +1,21 @@
 import { taskStore } from '../taskStore';
-import { getCorpus, setSharedConfig, getTranslations } from './shared/helpers';
-import mathTimeline from './math/timeline';
-import matrixTimeline from './matrix-reasoning/timeline';
-import mentalRotationTimeline from './mental-rotation/timeline';
-// @ts-ignore
-import heartsAndFlowersTimeline from './hearts-and-flowers/timeline';
-import memoryGameTimeline from './memory-game/timeline';
-import sameDifferentSelectionTimeline from './same-different-selection/timeline';
-import sameDifferentSelectionTimelineCat from './same-different-selection/catTimeline';
-import vocabTimeline from './vocab/timeline';
-import tomTimeline from './theory-of-mind/timeline';
-import introTimeline from './intro/timeline';
-import tROGTimeline from './trog/timeline';
-import inferenceTimeline from './roar-inference/timeline';
 import adultReasoningTimeline from './adult-reasoning/timeline';
 import childSurveyTimeline from './child-survey/timeline';
+// @ts-expect-error
+import heartsAndFlowersTimeline from './hearts-and-flowers/timeline';
+import introTimeline from './intro/timeline';
+import mathTimeline from './math/timeline';
+import matrixTimeline from './matrix-reasoning/timeline';
+import memoryGameTimeline from './memory-game/timeline';
 import buildMentalRotationCatTimeline from './mental-rotation/catTimeline';
+import mentalRotationTimeline from './mental-rotation/timeline';
+import inferenceTimeline from './roar-inference/timeline';
+import sameDifferentSelectionTimelineCat from './same-different-selection/catTimeline';
+import sameDifferentSelectionTimeline from './same-different-selection/timeline';
+import { getCorpus, getTranslations, setSharedConfig } from './shared/helpers';
+import tomTimeline from './theory-of-mind/timeline';
+import tROGTimeline from './trog/timeline';
+import vocabTimeline from './vocab/timeline';
 
 // TODO: Abstract to import config from specifc task folder
 // Will allow for multiple devs to work on the repo without merge conflicts

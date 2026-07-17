@@ -1,8 +1,8 @@
-import { jsPsych } from '../../taskSetup';
-import { PageAudioHandler } from '../helpers';
 import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
 import { Logger } from '../../../utils';
+import { jsPsych } from '../../taskSetup';
+import { PageAudioHandler } from '../helpers';
 
 export function finishExperiment() {
   const t = taskStore().translations;
@@ -38,7 +38,7 @@ export function finishExperiment() {
                 <h1>${t.taskFinished}</h1>
             </div>
             <footer>${t.generalFooter}</footer>
-            <button id="exit-button" class="primary" style=margin-top:5%>Exit</button>
+            <button id="exit-button" class="primary" style=margin-top:5%>${t.generalExit}</button>
         </div>`,
     PageAudioHandler.playAudio(mediaAssets.audio.taskFinished),
   );

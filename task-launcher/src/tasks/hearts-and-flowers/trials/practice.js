@@ -1,19 +1,18 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
-import { isTouchScreen } from '../../taskSetup';
-import { StimulusType, StimulusSideType, InputKey, getCorrectInputSide, getStimulusLayout } from '../helpers/utils';
+import { taskStore } from '../../../taskStore';
 import {
   addExperimenterButtons,
-  PageStateHandler,
-  setupReplayAudio,
-  PageAudioHandler,
-  setupFullscreenButton,
-  getParticipantUtilityButtonsHtml,
   addKeyHelpers,
+  getParticipantUtilityButtonsHtml,
+  PageAudioHandler,
+  PageStateHandler,
+  setupFullscreenButton,
+  setupReplayAudio,
 } from '../../shared/helpers';
-import { jsPsych } from '../../taskSetup';
-import { taskStore } from '../../../taskStore';
+import { isTouchScreen, jsPsych } from '../../taskSetup';
 import { setupHafMultiResponseTouchRouting } from '../helpers/touchResponseRouting';
+import { getCorrectInputSide, getStimulusLayout, InputKey, StimulusSideType, StimulusType } from '../helpers/utils';
 
 /**
  * Builds a practice trial for the Instruction sections.
@@ -174,7 +173,6 @@ function buildPracticeFeedback(
   flowerfeedbackPromptCorrectKey,
   onFinishTimelineCallback,
 ) {
-  const hfV2 = taskStore().version === 2;
   const validAnswerButtonHtmlIdentifier = 'valid-answer-btn';
   const feedbackTexts = {
     IncorrectHeart: taskStore().translations[heartFeedbackPromptIncorrectKey],

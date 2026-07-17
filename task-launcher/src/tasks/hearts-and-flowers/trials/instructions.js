@@ -1,19 +1,19 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
-import { InputKey, getInputInstructPrompt } from '../helpers/utils';
+import { taskStore } from '../../../taskStore';
 import {
   addExperimenterButtons,
-  setupReplayAudio,
-  getParticipantUtilityButtonsHtml,
-  PageStateHandler,
-  PageAudioHandler,
   addKeyHelpers,
+  getParticipantUtilityButtonsHtml,
+  PageAudioHandler,
+  PageStateHandler,
   setupFullscreenButton,
+  setupReplayAudio,
 } from '../../shared/helpers';
-import { jsPsych } from '../../taskSetup';
-import { taskStore } from '../../../taskStore';
 import { disableOkButton } from '../../shared/helpers/disableOkButton';
 import { enableOkButton } from '../../shared/helpers/enableButtons';
+import { jsPsych } from '../../taskSetup';
+import { getInputInstructPrompt } from '../helpers/utils';
 
 let continueTrialConfig;
 let cleanupInstructionInputListeners = [];
@@ -78,8 +78,6 @@ function buildInstructionTrial(mascotImage, getPromptKey, showResponseButton = f
   if (!getPromptKey()) {
     console.error(`buildInstructionTrial: Missing prompt audio or text`);
   }
-
-  const replayButtonHtmlId = 'replay-btn-revisited';
 
   const trial = {
     type: jsPsychHtmlMultiResponse,
@@ -180,26 +178,19 @@ function buildInstructionTrial(mascotImage, getPromptKey, showResponseButton = f
             if (continueTrialConfig.type === 'bottomText') {
               const audioUri = mediaAssets.audio[continueTrialConfig.text];
 
-              const secondAudioConfig = {
-                restrictRepetition: {
-                  enabled: false,
-                  maxRepetitions: 2,
-                },
-                onEnded: () => {
-                  const onSpacebarPress = (event) => {
-                    if (event.key === ' ') {
-                      jsPsych.finishTrial();
-                    }
-                  };
-
-                  window.addEventListener('keydown', onSpacebarPress);
-                  cleanupInstructionInputListeners.push(() => {
-                    window.removeEventListener('keydown', onSpacebarPress);
-                  });
-                },
+              const onSpacebarPress = (event) => {
+                if (event.key === ' ') {
+                  jsPsych.finishTrial();
+                  PageAudioHandler.stopAndDisconnectNode();
+                }
               };
 
-              PageAudioHandler.playAudio(audioUri, secondAudioConfig);
+              window.addEventListener('keydown', onSpacebarPress);
+              cleanupInstructionInputListeners.push(() => {
+                window.removeEventListener('keydown', onSpacebarPress);
+              });
+
+              PageAudioHandler.playAudio(audioUri);
             } else {
               enableOkButton();
             }

@@ -1,25 +1,22 @@
 // setup
 import 'regenerator-runtime/runtime';
-import { jsPsych } from '../taskSetup';
-import { initTrialSaving, initTimeline, createPreloadTrials, batchMediaAssets } from '../shared/helpers';
-import { initializeCat } from '../taskSetup';
-// trials
-import { dataQualityScreen } from '../shared/trials/dataQuality';
-import {
-  setupStimulus,
-  exitFullscreen,
-  taskFinished,
-  getAudioResponse,
-  enterFullscreen,
-  practiceTransition,
-  feedback,
-} from '../shared/trials';
-import { afcMatch } from './trials/afcMatch';
-import { stimulus } from './trials/stimulus';
-import { legacyStimulus } from './trials/legacyStimulus';
 import { taskStore } from '../../taskStore';
-import { setTrialBlock } from './helpers/setTrialBlock';
+import { batchMediaAssets, createPreloadTrials, initTimeline, initTrialSaving } from '../shared/helpers';
 import { batchTrials, getLeftoverAssets } from '../shared/helpers/batchPreloading';
+import {
+  enterFullscreen,
+  exitFullscreen,
+  feedback,
+  getAudioResponse,
+  setupStimulus,
+  taskFinished,
+} from '../shared/trials';
+// trials
+import { initializeCat, jsPsych } from '../taskSetup';
+import { setTrialBlock } from './helpers/setTrialBlock';
+import { afcMatch } from './trials/afcMatch';
+import { legacyStimulus } from './trials/legacyStimulus';
+import { stimulus } from './trials/stimulus';
 
 export default function buildSameDifferentTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const heavy: boolean = taskStore().heavyInstructions;
@@ -88,13 +85,6 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
     timeline: [afcMatch(), feedbackBlock],
   };
 
-  const dataQualityBlock = {
-    timeline: [dataQualityScreen],
-    conditional_function: () => {
-      return taskStore().numIncorrect >= taskStore().maxIncorrect && heavy;
-    },
-  };
-
   // create list of numbers of trials per block
   const { blockCountList, blockOperations } = setTrialBlock(false);
 
@@ -122,14 +112,12 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
     timeline.push({ ...setupStimulus, stimulus: '', trial_duration: setupTrialDuration });
     timeline.push(stimulusBlock);
     timeline.push(buttonNoise);
-    timeline.push(dataQualityBlock);
   };
 
   const updateMatching = () => {
     timeline.push({ ...setupStimulus, stimulus: '', trial_duration: setupTrialDuration });
     timeline.push(afcBlock);
     timeline.push(buttonNoise);
-    timeline.push(dataQualityBlock);
   };
 
   // map of block operation functions

@@ -1,19 +1,19 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
-import {
-  PageStateHandler,
-  getParticipantUtilityButtonsHtml,
-  setupReplayAudio,
-  PageAudioHandler,
-  camelize,
-  handleStaggeredButtons,
-  prepareChoices,
-  addExperimenterButtons,
-  setupFullscreenButton,
-} from '../../shared/helpers';
-import { generateImageChoices, handleButtonFeedback } from '../trials/stimulus';
-import { jsPsych } from '../../taskSetup';
 import { taskStore } from '../../../taskStore';
+import {
+  addExperimenterButtons,
+  camelize,
+  getParticipantUtilityButtonsHtml,
+  handleStaggeredButtons,
+  PageAudioHandler,
+  PageStateHandler,
+  prepareChoices,
+  setupFullscreenButton,
+  setupReplayAudio,
+} from '../../shared/helpers';
+import { jsPsych } from '../../taskSetup';
+import { generateImageChoices, handleButtonFeedback } from '../trials/stimulus';
 
 function enableOkBtn() {
   const okButton: HTMLButtonElement | null = document.querySelector('.primary');
@@ -65,9 +65,9 @@ export const somethingSameDemo1 = {
         </div>`;
   },
   prompt_above_buttons: true,
-  button_choices: ['OK'],
+  button_choices: () => [taskStore().translations.continueButtonText],
   button_html: () => {
-    return `<button disabled class='primary'>OK</button>`;
+    return `<button disabled class='primary'>${taskStore().translations.continueButtonText}</button>`;
   },
   response_ends_trial: true,
   post_trial_gap: 350,
@@ -142,9 +142,9 @@ export const somethingSameDemo2 = {
         </div>`;
   },
   prompt_above_buttons: true,
-  button_choices: ['OK'],
+  button_choices: () => [taskStore().translations.continueButtonText],
   button_html: () => {
-    return `<button class='primary' disabled>OK</button>`;
+    return `<button class='primary' disabled>${taskStore().translations.continueButtonText}</button>`;
   },
   response_ends_trial: true,
   post_trial_gap: 350,
@@ -170,7 +170,9 @@ export const somethingSameDemo2 = {
     }
 
     function animateBottomButtons() {
-      bottomImages.forEach((button) => (button.style.animation = 'pulse 2s 1s'));
+      bottomImages.forEach((button) => {
+        button.style.animation = 'pulse 2s 1s';
+      });
 
       const audioConfig: AudioConfigType = {
         restrictRepetition: {
@@ -181,7 +183,7 @@ export const somethingSameDemo2 = {
       };
 
       setTimeout(() => {
-        PageAudioHandler.playAudio(mediaAssets.audio['sdsPrompt3DemoHeavyPart2'], audioConfig);
+        PageAudioHandler.playAudio(mediaAssets.audio.sdsPrompt3DemoHeavyPart2, audioConfig);
       }, 2500);
     }
 
@@ -193,7 +195,7 @@ export const somethingSameDemo2 = {
       onEnded: animateBottomButtons,
     };
 
-    PageAudioHandler.playAudio(mediaAssets.audio['sdsPrompt3DemoHeavyPart1'], audioConfig);
+    PageAudioHandler.playAudio(mediaAssets.audio.sdsPrompt3DemoHeavyPart1, audioConfig);
   },
   on_finish: () => {
     PageAudioHandler.stopAndDisconnectNode();
@@ -337,7 +339,7 @@ export const heavyPractice = practiceData.map((data) => {
       };
     },
     stimulus: () => {
-      let prompt = data.audioFile;
+      const prompt = data.audioFile;
 
       const t = taskStore().translations;
       return `<div class="lev-stimulus-container">
@@ -395,10 +397,10 @@ export const heavyPractice = practiceData.map((data) => {
     prompt_above_buttons: true,
     post_trial_gap: 350,
     button_choices: () => {
-      if (data.trialType === 'instructions' || data.trialType == 'something-same-1') {
-        return ['OK'];
+      if (data.trialType === 'instructions' || data.trialType === 'something-same-1') {
+        return [taskStore().translations.continueButtonText];
       } else {
-        const randomize = !!data.answer ? 'yes' : 'no';
+        const randomize = data.answer ? 'yes' : 'no';
         // Randomize choices if there is an answer
         const { choices } = prepareChoices(data.answer, data.distractors, randomize);
         return generateImageChoices(choices);
@@ -414,7 +416,7 @@ export const heavyPractice = practiceData.map((data) => {
     },
     on_load: () => {
       startTime = performance.now();
-      let audioFile = data.audioFile;
+      const audioFile = data.audioFile;
 
       PageAudioHandler.playAudio(mediaAssets.audio[audioFile]);
 
@@ -440,10 +442,11 @@ export const heavyPractice = practiceData.map((data) => {
       }
 
       if (data.trialType === 'something-same-2' && taskStore().heavyInstructions) {
-        handleStaggeredButtons(pageStateHandler, buttonContainer, [
-          'same-different-selection-highlight-1',
-          'same-different-selection-highlight-2',
-        ]);
+        handleStaggeredButtons(
+          pageStateHandler,
+          Array.from(buttonContainer.children as HTMLCollectionOf<HTMLButtonElement>),
+          ['same-different-selection-highlight-1', 'same-different-selection-highlight-2'],
+        );
       }
 
       if (trialType === 'something-same-2') {
@@ -452,11 +455,11 @@ export const heavyPractice = practiceData.map((data) => {
           .map((btnDiv) => btnDiv.firstChild)
           .filter((btn) => !!btn) as HTMLButtonElement[];
 
-        practiceBtns.forEach((card, i) =>
-          card.addEventListener('click', async (e) => {
+        practiceBtns.forEach((card, i) => {
+          card.addEventListener('click', async (_e) => {
             handleButtonFeedback(card, practiceBtns, false, i, data.correctAudio);
-          }),
-        );
+          });
+        });
       }
     },
     on_finish: (data: any) => {
@@ -470,7 +473,7 @@ export const heavyPractice = practiceData.map((data) => {
       });
 
       if (data.trialType !== 'something-same-2') {
-        let isCorrect = incorrectPracticeResponses.length === 0;
+        const isCorrect = incorrectPracticeResponses.length === 0;
 
         incorrectPracticeResponses = [];
 

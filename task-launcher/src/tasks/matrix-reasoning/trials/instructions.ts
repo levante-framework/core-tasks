@@ -1,22 +1,23 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
+import { taskStore } from '../../../taskStore';
 import {
   addExperimenterButtons,
-  PageStateHandler,
-  PageAudioHandler,
-  getParticipantUtilityButtonsHtml,
-  setupReplayAudio,
-  setupFullscreenButton,
-  camelize,
   addPracticeButtonListeners,
+  camelize,
   disableOkButton,
+  displaceAnimation,
+  enableAllButtons,
+  enableOkButton,
+  getParticipantUtilityButtonsHtml,
+  PageAudioHandler,
+  PageStateHandler,
+  popAnimation,
+  setupFullscreenButton,
+  setupReplayAudio,
 } from '../../shared/helpers';
-import { isTouchScreen, jsPsych } from '../../taskSetup';
-import { taskStore } from '../../../taskStore';
-import { displaceAnimation, enableAllButtons, popAnimation } from '../../shared/helpers';
 import { pulseOkButton } from '../../shared/helpers/pulseOkButton';
-
-let startTime: number;
+import { isTouchScreen, jsPsych } from '../../taskSetup';
 
 export const instructionData = [
   {
@@ -53,14 +54,22 @@ export const instructions = instructionData.map((data) => {
     button_html: () => {
       const t = taskStore().translations;
       return [
-        `<button class="primary">
+        `<button class="primary" disabled>
                 ${t[data.buttonText]}
             </button>`,
       ];
     },
     keyboard_choices: () => 'NO_KEYS',
     on_load: () => {
-      PageAudioHandler.playAudio(mediaAssets.audio[data.prompt]);
+      const audioConfig: AudioConfigType = {
+        restrictRepetition: {
+          enabled: true,
+          maxRepetitions: 2,
+        },
+        onEnded: enableOkButton,
+      };
+
+      PageAudioHandler.playAudio(mediaAssets.audio[data.prompt], audioConfig);
 
       const pageStateHandler = new PageStateHandler(data.prompt, true);
       setupReplayAudio(pageStateHandler);
@@ -81,7 +90,7 @@ export const instructions = instructionData.map((data) => {
 const downexData1 = {
   audio: [
     'matrix-reasoning-instruct1-part1-downex',
-    'matrix-reasoning-instruct1-part2-downex',
+    'matrix-reasoning-prompt1-part2-downex',
     'matrix-reasoning-instruct1-part3-downex',
     'matrix-reasoning-instruct1-part4-downex',
   ],
@@ -173,8 +182,6 @@ export const downexInstructions1 = {
   },
   keyboard_choices: () => 'NO_KEYS',
   on_load: async () => {
-    startTime = performance.now();
-
     addExperimenterButtons();
     setupFullscreenButton();
 
@@ -387,8 +394,6 @@ export const downexInstructions3 = {
   button_html: () => '<button class="image-matrix practice-btn"; disabled>%choice%</button>',
   keyboard_choices: () => 'NO_KEYS',
   on_load: async () => {
-    startTime = performance.now();
-
     addExperimenterButtons();
     setupFullscreenButton();
 
@@ -554,8 +559,6 @@ export const downexInstructions4 = {
   button_html: () => '<button class="image-matrix practice-btn" disabled>%choice%</button>',
   keyboard_choices: () => 'NO_KEYS',
   on_load: async () => {
-    startTime = performance.now();
-
     addExperimenterButtons();
     setupFullscreenButton();
 
@@ -638,7 +641,9 @@ export const downexInstructions4 = {
             },
           };
           if (index === 4) {
-            buttons.forEach((button) => (button.style.animation = 'pulse 2s 0s 3'));
+            buttons.forEach((button) => {
+              button.style.animation = 'pulse 2s 0s 3';
+            });
           }
 
           if (stimContainer) {
@@ -660,6 +665,9 @@ export const downexInstructions4 = {
     }
 
     animateAndPlayAudio();
+
+    // reset incorrect counter so that task doesn't end prematurely in later trials
+    taskStore('numIncorrect', 0);
   },
   response_ends_trial: false,
   on_finish: () => {

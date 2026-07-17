@@ -1,25 +1,23 @@
-import HTMLSliderResponse from '@jspsych/plugin-html-slider-response';
-import _shuffle from 'lodash/shuffle';
-import _toNumber from 'lodash/toNumber';
-import _range from 'lodash/range';
-import { jsPsych, isTouchScreen, cat } from '../../taskSetup';
-//@ts-ignore
+//@ts-expect-error
 import { camelize } from '@bdelab/roar-utils';
+import HTMLSliderResponse from '@jspsych/plugin-html-slider-response';
+import _toNumber from 'lodash/toNumber';
+import { mediaAssets } from '../../..';
+import { taskStore } from '../../../taskStore';
 import {
   addExperimenterButtons,
-  setSkipCurrentBlock,
+  addPracticeButtonListeners,
   getParticipantUtilityButtonsHtml,
-  setupReplayAudio,
   PageAudioHandler,
   PageStateHandler,
   setSentryContext,
-  updateTheta,
-  addPracticeButtonListeners,
-  shouldTerminateCat,
+  setSkipCurrentBlock,
   setupFullscreenButton,
+  setupReplayAudio,
+  shouldTerminateCat,
+  updateTheta,
 } from '../../shared/helpers';
-import { mediaAssets } from '../../..';
-import { taskStore } from '../../../taskStore';
+import { isTouchScreen, jsPsych } from '../../taskSetup';
 
 let chosenAnswer: number;
 let responseIdx: number;
@@ -50,7 +48,7 @@ function setUpAudio(cue: string) {
 
 function captureValue(
   btnElement: HTMLButtonElement | null,
-  event: Event & { key?: string },
+  _event: Event & { key?: string },
   i: number,
   isPractice: boolean,
   choice?: string,
@@ -90,7 +88,7 @@ export const slider = (
     },
     stimulus: () => {
       const stim = trial || taskStore().nextStimulus;
-      let t = taskStore().translations;
+      const t = taskStore().translations;
 
       const isSlider = stim.trialType === 'Number Line Slider';
       return `
@@ -101,7 +99,7 @@ export const slider = (
               ? `<div class="lev-row-container instruction">
                 <p>
                   ${t[camelize(stim.audioFile)]}
-                  ${isSlider ? '<br /> ' + stim.answer : ''}
+                  ${isSlider ? `<br /> ${stim.answer}` : ''}
                 </p> 
               </div>`
               : ''
@@ -110,6 +108,7 @@ export const slider = (
     `;
     },
     labels: () => (trial || taskStore().nextStimulus).item,
+    button_label: () => taskStore().translations.continueButtonText,
     // button_label: 'OK',
     require_movement: () => (trial || taskStore().nextStimulus).trialType === 'Number Line Slider',
     // slider_width: 800,
@@ -139,14 +138,13 @@ export const slider = (
       startTime = performance.now();
 
       const stim = (trial || taskStore().nextStimulus) as StimulusType;
-      const { distractors } = stim;
       const itemLayoutConfig = layoutConfigMap[stim.itemId];
       const incorrectPracticeResponses: Array<string | null> = [];
       taskStore('incorrectPracticeResponses', incorrectPracticeResponses);
 
       const slider = document.getElementById('jspsych-html-slider-response-response') as HTMLInputElement;
       const sliderLabels = document.getElementsByTagName('span') as HTMLCollectionOf<HTMLSpanElement>;
-      Array.from(sliderLabels).forEach((el, i) => {
+      Array.from(sliderLabels).forEach((el, _i) => {
         //if (i == 1 || i == 2) {
         el.style.fontSize = '1.5rem';
         //}
@@ -207,7 +205,7 @@ export const slider = (
           btn.textContent = responseChoices[i];
 
           // flag correct answer if running in cypress
-          if (window.Cypress && _toNumber(btn.textContent) == answer) {
+          if (window.Cypress && _toNumber(btn.textContent) === answer) {
             btn.setAttribute('aria-label', 'correct');
           }
 
@@ -278,11 +276,10 @@ export const slider = (
       }
 
       if (isPractice) {
-        let feedbackHandler;
         const answer = stim.answer.toString();
         const choices = layoutConfigMap?.[stim.itemId].response.values;
 
-        feedbackHandler = addPracticeButtonListeners(answer, isTouchScreen, choices);
+        addPracticeButtonListeners(answer, isTouchScreen, choices);
       }
     },
     on_finish: (data: any) => {
@@ -324,8 +321,8 @@ export const slider = (
       const responseType = stimulus.trialType.includes('Slider')
         ? 'slider'
         : stimulus.trialType.includes('4afc')
-        ? 'button'
-        : 'slider-button';
+          ? 'button'
+          : 'slider-button';
       const answer = stimulus.answer;
 
       jsPsych.data.addDataToLastTrial({

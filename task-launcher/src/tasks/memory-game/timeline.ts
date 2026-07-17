@@ -1,25 +1,18 @@
-import {
-  initTimeline,
-  initTrialSaving,
-  createPreloadTrials,
-  checkFallbackCriteria,
-  PageAudioHandler,
-} from '../shared/helpers';
-// setup
-import { jsPsych } from '../taskSetup';
-import { initializeCat } from '../taskSetup';
+import { mediaAssets } from '../..';
+import { taskStore } from '../../taskStore';
+import { checkFallbackCriteria, createPreloadTrials, initTimeline, initTrialSaving } from '../shared/helpers';
 // trials
 import { enterFullscreen, exitFullscreen, feedback, repeatInstructionsMessage, taskFinished } from '../shared/trials';
-import { getCorsiBlocks } from './trials/stimulus';
+// setup
+import { initializeCat, jsPsych } from '../taskSetup';
 import {
-  readyToPlay,
-  reverseOrderPrompt,
-  reverseOrderInstructions,
   defaultInstructions,
   downexInstructions,
+  readyToPlay,
+  reverseOrderInstructions,
+  reverseOrderPrompt,
 } from './trials/instructions';
-import { taskStore } from '../../taskStore';
-import { mediaAssets } from '../..';
+import { getCorsiBlocks } from './trials/stimulus';
 
 const generatePracticeTrialTimeline = (reverse: boolean, tryAgainText: string, repetitions: number) => {
   const basicBlock = [

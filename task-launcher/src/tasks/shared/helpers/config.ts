@@ -1,14 +1,14 @@
 // Used in Math and Matrix-reasoning so far
-import _omitBy from 'lodash/omitBy';
+
+import type { RoarAppkit } from '@levante-framework/firekit';
+import i18next from 'i18next';
 import _isNull from 'lodash/isNull';
 import _isUndefined from 'lodash/isUndefined';
-import _toNumber from 'lodash/toNumber';
-import i18next from 'i18next';
-import { isRoarApp } from './isRoarApp';
+import _omitBy from 'lodash/omitBy';
+import type { TaskStoreDataType } from '../../../taskStore';
 import { camelize } from './camelize';
-import { RoarAppkit } from '@levante-framework/firekit';
-import { TaskStoreDataType } from '../../../taskStore';
 import { getAge } from './getAge';
+import { isRoarApp } from './isRoarApp';
 
 export const DEFAULT_LAYOUT_CONFIG: LayoutConfigType = {
   playAudioOnLoad: true,
@@ -36,15 +36,15 @@ export const DEFAULT_LAYOUT_CONFIG: LayoutConfigType = {
   showStimImage: true,
   response: {
     target: '',
-    displayValues: ['OK'],
-    values: ['OK'],
+    displayValues: [],
+    values: [],
     targetIndex: 0,
   },
   inCorrectTrialConfig: {
     onIncorrectTrial: 'end',
   },
-  disableOkButton: false,
   multiStimImage: false,
+  disableOkButton: true,
 };
 
 const defaultCorpus: Record<string, string> = {
@@ -99,7 +99,7 @@ export const setSharedConfig = async (
     debug,
     version,
     taskVersion, // deprecated; use `version` — kept for backward compatibility
-    isPaused,
+    _isPaused,
   } = cleanParams;
 
   const config = {

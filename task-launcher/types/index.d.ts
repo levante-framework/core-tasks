@@ -1,7 +1,5 @@
 import { JsPsych } from 'jspsych';
 
-export {};
-
 declare global {
   // Per trial layout config that can be preprocessed when creating timeline
   // and validated for assets

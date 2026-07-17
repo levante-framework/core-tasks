@@ -1,25 +1,27 @@
 import jsPsychAudioMultiResponse from '@jspsych-contrib/plugin-audio-multi-response';
 import { mediaAssets } from '../../..';
-import { jsPsych } from '../../taskSetup';
-import {
-  prepareChoices,
-  getParticipantUtilityButtonsHtml,
-  setupReplayAudio,
-  PageStateHandler,
-  PageAudioHandler,
-  camelize,
-  enableOkButton,
-  disableOkButton,
-  shouldTerminateCat,
-  selectNextSequentialTrial,
-  addExperimenterButtons,
-  setupFullscreenButton,
-} from '../../shared/helpers';
-import { finishExperiment } from '../../shared/trials';
 import { taskStore } from '../../../taskStore';
-import { updateTheta } from '../../shared/helpers';
-import { sdsProgressComponentFilled, sdsProgressComponentEmpty } from '../../shared/helpers/components';
+import {
+  addExperimenterButtons,
+  camelize,
+  disableOkButton,
+  enableOkButton,
+  getParticipantUtilityButtonsHtml,
+  isTaskFinished,
+  PageAudioHandler,
+  PageStateHandler,
+  prepareChoices,
+  selectNextSequentialTrial,
+  setupFullscreenButton,
+  setupReplayAudio,
+  shouldTerminateCat,
+  updateTheta,
+  wrapListeners,
+} from '../../shared/helpers';
+import { sdsProgressComponentEmpty, sdsProgressComponentFilled } from '../../shared/helpers/components';
 import { displayDebugInfo } from '../../shared/helpers/displayDebugInfo';
+import { finishExperiment } from '../../shared/trials';
+import { jsPsych } from '../../taskSetup';
 
 let selectedCards: string[] = [];
 let selectedCardIdxs: number[] = [];
@@ -37,7 +39,9 @@ const generateImageChoices = (choices: string[]) => {
 };
 
 function enableBtns(btnElements: HTMLButtonElement[]) {
-  btnElements.forEach((btn) => btn.removeAttribute('disabled'));
+  btnElements.forEach((btn) => {
+    btn.removeAttribute('disabled');
+  });
 }
 
 function cleanAttributes(attributes: string[]) {
@@ -46,7 +50,7 @@ function cleanAttributes(attributes: string[]) {
   if (!attributes.some((item) => nonWhiteBackgrounds.includes(item))) {
     attributes.push('white');
   }
-  if (!attributes.some((item) => !isNaN(Number(item)))) {
+  if (!attributes.some((item) => !Number.isNaN(Number(item)))) {
     attributes.splice(3, 0, '1');
   }
 
@@ -69,7 +73,7 @@ function compareSelections(selections: string[], previousSelections: string[][],
   function sharedTrait(selections: string[], ignoreDims: string[]) {
     const sets: Record<string, Set<string>> = {};
     // Initialize sets for each non-ignored dimension
-    for (const [dim, index] of Object.entries(dimensionIndices)) {
+    for (const [dim, _index] of Object.entries(dimensionIndices)) {
       if (!ignoreDims.includes(dim)) {
         sets[dim] = new Set();
       }
@@ -126,7 +130,7 @@ export const afcMatch = (trial?: StimulusType) => {
     type: jsPsychAudioMultiResponse,
     data: () => {
       const stim = trial || taskStore().nextStimulus;
-      let isPracticeTrial = stim.assessmentStage === 'practice_response';
+      const isPracticeTrial = stim.assessmentStage === 'practice_response';
       return {
         save_trial: stim.trialType !== 'instructions',
         assessment_stage: stim.assessmentStage,
@@ -153,9 +157,9 @@ export const afcMatch = (trial?: StimulusType) => {
     button_choices: () => {
       const stim = trial || taskStore().nextStimulus;
       if (stim.assessmentStage === 'instructions') {
-        return ['OK'];
+        return [taskStore().translations.continueButtonText];
       } else {
-        const randomize = !!stim.answser ? 'yes' : 'no';
+        const randomize = stim.answser ? 'yes' : 'no';
         // Randomize choices if there is an answer
         const { choices } = prepareChoices(stim.answer, stim.distractors, randomize);
         return generateImageChoices(choices);
@@ -164,7 +168,8 @@ export const afcMatch = (trial?: StimulusType) => {
     button_html: () => {
       const stim = trial || taskStore().nextStimulus;
       const buttonClass = stim.assessmentStage === 'instructions' ? 'primary' : 'image-medium';
-      return `<button class="${buttonClass}">%choice%</button>`;
+      const disabled = stim.assessmentStage === 'instructions' ? ' disabled' : '';
+      return `<button class="${buttonClass}"${disabled}>%choice%</button>`;
     },
     on_load: () => {
       // create img elements and arrange in grid as cards
@@ -180,6 +185,7 @@ export const afcMatch = (trial?: StimulusType) => {
           enabled: false,
           maxRepetitions: 2,
         },
+        ...(stim.assessmentStage === 'instructions' ? { onEnded: enableOkButton } : {}),
       };
       PageAudioHandler.playAudio(mediaAssets.audio[camelize(audioFile)], audioConfig);
 
@@ -194,6 +200,10 @@ export const afcMatch = (trial?: StimulusType) => {
         .filter((btn) => !!btn);
 
       let numberOfErrors = 0;
+
+      if (stim.assessmentStage === 'instructions') {
+        disableOkButton();
+      }
 
       if (stim.trialType !== 'instructions') {
         if (taskStore().version === 2) {
@@ -223,7 +233,7 @@ export const afcMatch = (trial?: StimulusType) => {
           // Add primary OK button under the other buttons
           const okButton = document.createElement('button');
           okButton.className = 'primary';
-          okButton.textContent = 'OK';
+          okButton.textContent = taskStore().translations.continueButtonText;
           okButton.style.marginTop = '16px';
           okButton.disabled = true;
           okButton.addEventListener('click', () => {
@@ -255,7 +265,9 @@ export const afcMatch = (trial?: StimulusType) => {
               PageAudioHandler.stopAndDisconnectNode();
               PageAudioHandler.playAudio(mediaAssets.audio.feedbackNotQuiteRight, audioConfig);
 
-              responseBtns.forEach((btn) => btn.classList.remove(SELECT_CLASS_NAME));
+              responseBtns.forEach((btn) => {
+                btn.classList.remove(SELECT_CLASS_NAME);
+              });
               selectedCards = [];
               disableOkButton();
 
@@ -297,8 +309,10 @@ export const afcMatch = (trial?: StimulusType) => {
           // linear button layout
           buttonContainer.classList.add('lev-response-row', 'multi-4');
         }
-        responseBtns.forEach((card, i) =>
-          card.addEventListener('click', async (e) => {
+
+        let firstClick = true; // only need to reenable buttons on first click
+        responseBtns.forEach((card, i) => {
+          const handleCardSelect = async () => {
             const answer = ((card as HTMLButtonElement)?.firstChild as HTMLImageElement)?.alt;
 
             if (!card) {
@@ -329,9 +343,14 @@ export const afcMatch = (trial?: StimulusType) => {
               }
             }
 
-            setTimeout(() => enableBtns(responseBtns), 500);
-          }),
-        );
+            if (firstClick) {
+              await isTaskFinished(() => card.disabled, 10).then(() => enableBtns(responseBtns));
+              firstClick = false;
+            }
+          };
+
+          wrapListeners(card, handleCardSelect);
+        });
       }
 
       displayDebugInfo(stim);

@@ -1,11 +1,11 @@
+import { taskStore } from '../../../taskStore';
 import {
   convertItemToString,
-  validateLayoutConfig,
-  prepareChoices,
   DEFAULT_LAYOUT_CONFIG,
   mapDistractorsToString,
+  prepareChoices,
+  validateLayoutConfig,
 } from '../../shared/helpers';
-import { taskStore } from '../../../taskStore';
 
 type GetConfigReturnType = {
   itemConfig: LayoutConfigType;

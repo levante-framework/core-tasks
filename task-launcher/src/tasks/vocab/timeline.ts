@@ -1,28 +1,28 @@
 import 'regenerator-runtime/runtime';
+import { taskStore } from '../../taskStore';
 // setup
 import {
-  initTrialSaving,
-  initTimeline,
+  batchMediaAssets,
+  batchTrials,
   createPreloadTrials,
+  getRealTrials,
+  initTimeline,
+  initTrialSaving,
   prepareCorpus,
   selectNItems,
-  getRealTrials,
-  batchTrials,
-  batchMediaAssets,
 } from '../shared/helpers';
-import { jsPsych, initializeCat, cat } from '../taskSetup';
+import { preloadSharedAudio } from '../shared/helpers/preloadSharedAudio';
 // trials
 import {
   afcStimulusTemplate,
-  exitFullscreen,
-  setupStimulus,
-  fixationOnly,
-  taskFinished,
   enterFullscreen,
+  exitFullscreen,
+  fixationOnly,
+  setupStimulus,
+  taskFinished,
 } from '../shared/trials';
+import { cat, initializeCat, jsPsych } from '../taskSetup';
 import { getLayoutConfig } from './helpers/config';
-import { taskStore } from '../../taskStore';
-import { preloadSharedAudio } from '../shared/helpers/preloadSharedAudio';
 
 export default function buildVocabTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   initTrialSaving(config);

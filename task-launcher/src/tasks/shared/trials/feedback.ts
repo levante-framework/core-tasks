@@ -1,8 +1,7 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
-import { PageAudioHandler } from '../helpers';
 import { taskStore } from '../../../taskStore';
-import { enableOkButton } from '../helpers/enableButtons';
+import { PageAudioHandler } from '../helpers';
 
 // isPractice parameter is for tasks that don't have a corpus (e.g. memory game)
 export const feedback = (
@@ -19,7 +18,7 @@ export const feedback = (
           const t = taskStore().translations;
           const isCorrect = taskStore().isCorrect;
           const imageUrl = isCorrect ? mediaAssets.images['smilingFace@2x'] : mediaAssets.images['sadFace@2x'];
-          let promptOnIncorrect; // prompt displayed at bottom if incorrect, differs by task
+          let promptOnIncorrect: string; // prompt displayed at bottom if incorrect, differs by task
 
           switch (taskStore().task) {
             case 'same-different-selection':
@@ -29,7 +28,7 @@ export const feedback = (
               if (inCorrectFeedbackAudioKey.toUpperCase().includes('BACKWARD')) {
                 promptOnIncorrect = t.memoryGameBackwardPrompt;
               } else {
-                promptOnIncorrect = t.memoryGameForwardPrompt;
+                promptOnIncorrect = t.memoryGameInput;
               }
               break;
             case 'egma-math':

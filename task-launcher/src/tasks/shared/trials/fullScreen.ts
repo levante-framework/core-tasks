@@ -1,9 +1,9 @@
 import jsPsychFullScreen from '@jspsych/plugin-fullscreen';
 import fscreen from 'fscreen';
 import { taskStore } from '../../../taskStore';
+import { setupInputDetection } from '../../../utils/detectInput';
 import { isTouchScreen } from '../../taskSetup';
 import { PageAudioHandler } from '../helpers/audioHandler';
-import { setupInputDetection } from '../../../utils/detectInput';
 
 export const enterFullscreen = {
   type: jsPsychFullScreen,
@@ -12,12 +12,12 @@ export const enterFullscreen = {
   message: () => {
     const t = taskStore().translations;
     return `<div class="lev-row-container header">
-        <p>${t.generalFullscreen || 'Switch to full screen mode'}</p>
+        <p>${t.generalFullscreen}</p>
       </div>
       `;
   },
   delay_after: 0,
-  button_label: () => `${taskStore().translations.continueButtonText || 'Continue'}`,
+  button_label: () => `${taskStore().translations.continueButtonText}`,
   on_load: () => {
     const continueButton = document.getElementById('jspsych-fullscreen-btn');
     if (continueButton) {
@@ -26,14 +26,20 @@ export const enterFullscreen = {
     }
 
     if (isTouchScreen) {
-      continueButton?.addEventListener('click', () => {
-        PageAudioHandler.unlockAudioContext();
-      }),
-        { once: true };
-      continueButton?.addEventListener('touchend', () => {
-        PageAudioHandler.unlockAudioContext();
-      }),
-        { once: true };
+      continueButton?.addEventListener(
+        'click',
+        () => {
+          PageAudioHandler.unlockAudioContext();
+        },
+        { once: true },
+      );
+      continueButton?.addEventListener(
+        'touchend',
+        () => {
+          PageAudioHandler.unlockAudioContext();
+        },
+        { once: true },
+      );
     }
 
     const inputDetector = setupInputDetection();

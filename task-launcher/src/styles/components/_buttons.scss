@@ -160,14 +160,12 @@ button {
     padding: $button-primary-padding;
     border-color: $bg-accent_secondary;
     box-shadow: $button-default-box-shadow rgba($bg-accent_secondary, 0.5) inset;
-    font-size: $font-size-xs;
+    font-size: $font-size-xs-em;
     font-weight: $font-weight-dark;
     color: $txt-white;
 
     @include respond-to('small') {
-      font-size: $font-size-xxs;
       font-weight: $font-weight-normal;
-      color: $txt-white;
       padding: $button-primary-padding-small;
       border-radius: $button-default-border-radius-small;
     }
@@ -202,6 +200,12 @@ button {
       background: $bg-button-primary;
       border-color: $bg-accent_secondary;
       box-shadow: $button-default-box-shadow rgba($bg-accent_secondary, 0.5) inset;
+    }
+
+    &.selected {
+      background: $bg-button-dark;
+      border-color: $bg-accent_dark;
+      box-shadow: $button-secondary-inner-shadow $bg-button-secondary inset,
     }
   }
 
@@ -400,15 +404,18 @@ button {
     padding: 0;
     box-sizing: border-box;
     border-color: $border-grey;
+    aspect-ratio: 1 / 1;
 
     img {
       border: none;
       width: $response-size-m;
-      height: $response-size-m;
+      height: auto;
       padding: 0;
       margin: 0;
       border-radius: $button-default-border-radius-small;
       float: left;
+      object-fit: contain;
+      aspect-ratio: 1 / 1;
     }
 
     @include respond-to('small') {
@@ -420,8 +427,10 @@ button {
       }
     }
 
-    &:hover {
-      border-color: $bg-accent_secondary;
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        border-color: $border-button-primary-clicked;
+      }
     }
 
     &:active {

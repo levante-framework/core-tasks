@@ -1,20 +1,20 @@
 import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
-import { mediaAssets } from '../../..';
-import { jsPsych, isTouchScreen } from '../../taskSetup';
-import {
-  StimulusType,
-  StimulusSideType,
-  ResponseSideType,
-  InputKey,
-  getCorrectInputSide,
-  getStimulusLayout,
-} from '../helpers/utils';
 import shuffle from 'lodash/shuffle';
-import { finishExperiment } from '../../shared/trials';
+import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
 import { addExperimenterButtons, addKeyHelpers, PageAudioHandler, setupFullscreenButton } from '../../shared/helpers';
-import { setupHafMultiResponseTouchRouting } from '../helpers/touchResponseRouting';
 import { shouldTerminateCat } from '../../shared/helpers/shouldTerminateCat';
+import { finishExperiment } from '../../shared/trials';
+import { isTouchScreen, jsPsych } from '../../taskSetup';
+import { setupHafMultiResponseTouchRouting } from '../helpers/touchResponseRouting';
+import {
+  getCorrectInputSide,
+  getStimulusLayout,
+  InputKey,
+  ResponseSideType,
+  StimulusSideType,
+  StimulusType,
+} from '../helpers/utils';
 /**
  *TODO: we should perhaps allow {@link https://www.jspsych.org/7.2/overview/media-preloading/#automatic-preloading automatic preload}
   of the stimulus image and modify the DOM nodes that jsPsych creates in on_load?
@@ -122,7 +122,7 @@ export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrial
 
         const maxIncorrect = taskStore().maxIncorrect;
 
-        if (taskStore().numIncorrect == maxIncorrect) {
+        if (taskStore().numIncorrect === maxIncorrect) {
           finishExperiment();
         }
       }
@@ -133,8 +133,7 @@ export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrial
       taskStore('stimulusSide', stimuluSide);
 
       // save item uid for data analysis
-      const itemUid =
-        'hf_' + `${trialType === 'hearts and flowers' ? 'heartsflowers' : trialType}` + '_' + stimulusType;
+      const itemUid = `hf_${trialType === 'hearts and flowers' ? 'heartsflowers' : trialType}_${stimulusType}`;
 
       jsPsych.data.addDataToLastTrial({
         item: stimulusType,

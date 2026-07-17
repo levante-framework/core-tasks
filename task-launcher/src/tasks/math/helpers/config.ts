@@ -1,10 +1,10 @@
 import {
   convertItemToString,
-  validateLayoutConfig,
-  prepareChoices,
   DEFAULT_LAYOUT_CONFIG,
-  mapDistractorsToString,
   fractionToMathML,
+  mapDistractorsToString,
+  prepareChoices,
+  validateLayoutConfig,
 } from '../../shared/helpers';
 
 type GetConfigReturnType = {
@@ -16,7 +16,7 @@ export const getLayoutConfig = (
   stimulus: StimulusType,
   translations: Record<string, string>,
   mediaAssets: MediaAssetsType,
-  trialNumber: number,
+  _trialNumber: number,
 ): GetConfigReturnType => {
   const { answer, distractors, trialType } = stimulus;
   const defaultConfig: LayoutConfigType = JSON.parse(JSON.stringify(DEFAULT_LAYOUT_CONFIG));
@@ -42,8 +42,8 @@ export const getLayoutConfig = (
       trialType === 'Non-symbolic Number Identification' || trialType === 'Non-symbolic Number Comparison'
         ? ['image-medium']
         : trialType === 'Counting'
-        ? ['primary']
-        : ['secondary'];
+          ? ['primary']
+          : ['secondary'];
     defaultConfig.response = {
       target: prepChoices.target,
       displayValues: prepChoices.choices,
@@ -58,9 +58,11 @@ export const getLayoutConfig = (
     }
   } else {
     defaultConfig.classOverrides.buttonClassList = ['primary'];
-    stimulus.trialType === 'instructions'
-      ? (defaultConfig.classOverrides.stimulusContainerClassList = ['lev-instructions-container'])
-      : (defaultConfig.classOverrides.stimulusContainerClassList = ['lev-row-container']);
+    if (stimulus.trialType === 'instructions') {
+      defaultConfig.classOverrides.stimulusContainerClassList = ['lev-instructions-container'];
+    } else {
+      defaultConfig.classOverrides.stimulusContainerClassList = ['lev-row-container'];
+    }
   }
 
   const messages = validateLayoutConfig(defaultConfig, mediaAssets, translations, stimulus);

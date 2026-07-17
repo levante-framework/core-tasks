@@ -1,18 +1,16 @@
-import _isEqual from 'lodash/isEqual';
 import { mediaAssets } from '../../..';
-import { camelize } from './camelize';
 import { taskStore } from '../../../taskStore';
 import { cat, jsPsych } from '../../taskSetup';
 import { checkEndTaskEarly, getActiveTaskElapsedMs } from './appTimer';
+import { camelize } from './camelize';
 
 // This function reads the corpus, calls the adaptive algorithm to select
 // the next item, stores it in a session variable, and removes it from the corpus
 // corpusType is the name of the subTask's corpus within corpusLetterAll[]
 
 export const getStimulus = (corpusType: string, blockNumber?: number, storyGroup?: number, randomize = false) => {
-  let corpus, itemSuggestion;
-
-  corpus = taskStore().corpora;
+  let itemSuggestion: any;
+  const corpus = taskStore().corpora;
 
   if (blockNumber != null) {
     // if block number is specified, get next item from only the indicated block of the corpus
@@ -71,9 +69,10 @@ export const getStimulus = (corpusType: string, blockNumber?: number, storyGroup
   }
 
   // update the corpus with the remaining unused items
-  blockNumber != null
-    ? (corpus[corpusType][blockNumber] = itemSuggestion.remainingStimuli)
-    : (corpus[corpusType] = itemSuggestion.remainingStimuli);
-
+  if (blockNumber != null) {
+    corpus[corpusType][blockNumber] = itemSuggestion.remainingStimuli;
+  } else {
+    corpus[corpusType] = itemSuggestion.remainingStimuli;
+  }
   taskStore('corpora', corpus);
 };
