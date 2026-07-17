@@ -19,7 +19,7 @@ import {
 } from '../../shared/helpers';
 import { displayDebugInfo } from '../../shared/helpers/displayDebugInfo';
 import { handleStaggeredButtons } from '../../shared/helpers/staggerButtons';
-import { finishExperiment } from '../../shared/trials';
+import { finishTaskEarly } from '../../shared/trials';
 import { jsPsych } from '../../taskSetup';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
@@ -352,7 +352,7 @@ export const legacyStimulus = (trial?: StimulusType) => {
         }
         // if heavy instructions is true, show data quality screen before ending
         if (taskStore().numIncorrect >= taskStore().maxIncorrect && !taskStore().heavyInstructions && !cat) {
-          finishExperiment();
+          finishTaskEarly('errorOut');
         }
 
         if (stim.trialType !== 'something-same-1' && stim.trialType !== 'instructions') {

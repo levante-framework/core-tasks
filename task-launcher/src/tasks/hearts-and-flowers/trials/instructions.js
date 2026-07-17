@@ -1,6 +1,7 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
+import { Logger } from '../../../utils';
 import {
   addExperimenterButtons,
   addKeyHelpers,
@@ -56,7 +57,7 @@ export function getGoingFasterInstructions() {
 }
 
 export function getEndGame() {
-  return buildInstructionTrial(mediaAssets.images.animalBodySq, () => 'heartsAndFlowersEnd');
+  return buildInstructionTrial(mediaAssets.images.animalBodySq, () => 'heartsAndFlowersEnd', false, null, true);
 }
 
 export function getInputInstructions() {
@@ -71,7 +72,13 @@ export function getRightButtonDemo() {
   return buildInstructionTrial(mediaAssets.images.animalBodySq, getInputInstructPrompt, true, 'right');
 }
 
-function buildInstructionTrial(mascotImage, getPromptKey, showResponseButton = false, buttonSide = null) {
+function buildInstructionTrial(
+  mascotImage, 
+  getPromptKey, 
+  showResponseButton = false, 
+  buttonSide = null, 
+  endOfTask = false,
+) {
   if (!mascotImage) {
     console.error(`buildInstructionTrial: Missing mascot image`);
   }
@@ -119,6 +126,16 @@ function buildInstructionTrial(mascotImage, getPromptKey, showResponseButton = f
     on_load: () => {
       let responseButtons;
       let onButtonPress;
+
+      if (endOfTask) {
+        taskStore('effectiveStoppingRule', 'earlyCompletion');
+
+        const logger = Logger.getInstance();
+        logger.capture('Task finished: user finished all trials', {
+          taskName: taskStore().task,
+          taskFinished: taskStore().taskComplete,
+        });
+      }
 
       if (showResponseButton) {
         if (continueTrialConfig.type === 'button') {
@@ -241,7 +258,7 @@ function buildInstructionTrial(mascotImage, getPromptKey, showResponseButton = f
 
       PageAudioHandler.stopAndDisconnectNode();
 
-      if (getPromptKey() === 'heartsAndFlowersEnd') {
+      if (endOfTask) {
         taskStore('taskComplete', true);
       }
 

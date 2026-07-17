@@ -20,7 +20,7 @@ import {
 } from '../../shared/helpers';
 import { sdsProgressComponentEmpty, sdsProgressComponentFilled } from '../../shared/helpers/components';
 import { displayDebugInfo } from '../../shared/helpers/displayDebugInfo';
-import { finishExperiment } from '../../shared/trials';
+import { finishTaskEarly } from '../../shared/trials';
 import { jsPsych } from '../../taskSetup';
 
 let selectedCards: string[] = [];
@@ -418,7 +418,7 @@ export const afcMatch = (trial?: StimulusType) => {
 
       // if heavy instructions is true, show data quality screen before ending
       if (taskStore().numIncorrect >= taskStore().maxIncorrect && !taskStore().heavyInstructions && !cat) {
-        finishExperiment();
+        finishTaskEarly('errorOut');
       }
 
       if (cat) {

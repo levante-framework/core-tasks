@@ -1,5 +1,5 @@
 import { taskStore } from '../../../taskStore';
-import { finishExperiment } from '../trials';
+import { finishTaskEarly } from '../trials';
 import { PageStateHandler } from './PageStateHandler';
 
 // This feature allows the task configurator to set a time limit for the app,
@@ -54,6 +54,6 @@ export async function checkEndTaskEarly(timeRemaining: number, stimAudio: string
 
   if (timeRemaining < minTrialDuration) {
     clearTimeout(taskStore().taskTimer);
-    finishExperiment();
+    finishTaskEarly('timeOut');
   }
 }

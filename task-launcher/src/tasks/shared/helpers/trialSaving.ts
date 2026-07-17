@@ -3,7 +3,7 @@ import _mapValues from 'lodash/mapValues';
 import { taskStore } from '../../../taskStore';
 import { Logger } from '../../../utils/logger';
 import { jsPsych } from '../../taskSetup';
-import { finishExperiment } from '../trials';
+import { finishTaskEarly } from '../trials';
 import { recordCompletion } from './recordCompletion';
 
 /**
@@ -124,12 +124,21 @@ export const initTrialSaving = (config: Record<string, any>) => {
   // @ts-expect-error
   jsPsych.opts.on_trial_finish = extend(jsPsych.opts.on_trial_finish, () => {
     if (taskStore().maxTimeReached) {
-      finishExperiment();
+      finishTaskEarly('timeOut');
     }
 
     // record completion at 80%
-    if (taskStore().testTrialCount >= taskStore().totalTestTrials * 0.8) {
+    if (taskStore().testTrialCount >= taskStore().totalTestTrials * 0.8 && taskStore().effectiveStoppingRule === 'taskAbort') {
       recordCompletion(config);
+
+      const logger = Logger.getInstance();
+      logger.capture('80% completion threshold reached', {
+        taskName: taskStore().task,
+        taskFinished: taskStore().taskComplete,
+      });
+
+      taskStore('effectiveStoppingRule', 'sufficientTrials');
+      config.firekit.updateStopType(taskStore().effectiveStoppingRule);
     }
 
     taskStore('totalTrialCount', taskStore().totalTrialCount + 1);
