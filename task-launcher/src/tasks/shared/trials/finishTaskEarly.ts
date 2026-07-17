@@ -30,8 +30,8 @@ export function finishTaskEarly(effectiveStoppingRule: 'timeOut' | 'errorOut') {
     const logger = Logger.getInstance();
     const message =
       effectiveStoppingRule === 'timeOut'
-        ? 'Task finished early: user timed out'
-        : 'Task finished early: user reached max incorrect answers';
+        ? 'Task finished: user reached max time'
+        : 'Task finished: user reached max incorrect answers';
 
     logger.capture(message, {
       taskName: taskStore().task,
