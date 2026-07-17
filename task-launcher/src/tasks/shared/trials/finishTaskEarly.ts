@@ -4,7 +4,9 @@ import { Logger } from '../../../utils';
 import { jsPsych } from '../../taskSetup';
 import { PageAudioHandler } from '../helpers';
 
-export function finishTaskEarly(effectiveStoppingRule: 'time' | 'max-incorrect') {
+export function finishTaskEarly(effectiveStoppingRule: 'timeOut' | 'errorOut') {
+  taskStore('effectiveStoppingRule', effectiveStoppingRule);
+
   const t = taskStore().translations;
   setTimeout(() => {
     const removeDOMElements = (event: Event) => {
@@ -27,7 +29,7 @@ export function finishTaskEarly(effectiveStoppingRule: 'time' | 'max-incorrect')
     window.addEventListener('keydown', removeDOMElements);
     const logger = Logger.getInstance();
     const message =
-      effectiveStoppingRule === 'time'
+      effectiveStoppingRule === 'timeOut'
         ? 'Task finished early: user timed out'
         : 'Task finished early: user reached max incorrect answers';
 

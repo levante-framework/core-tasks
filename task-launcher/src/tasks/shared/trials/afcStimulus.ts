@@ -397,7 +397,7 @@ function doOnFinish(
   if (itemLayoutConfig.inCorrectTrialConfig.onIncorrectTrial === 'skip' && !runCat) {
     setSkipCurrentBlock(stimulus.trialType);
   } else if (taskStore().numIncorrect >= taskStore().maxIncorrect && !runCat) {
-    finishTaskEarly('max-incorrect');
+    finishTaskEarly('errorOut');
   }
 
   if (terminateCat) {

@@ -81,6 +81,8 @@ export class TaskLauncher {
 
     setTaskStore(config);
 
+    this.firekit?.updateStopType(taskStore().effectiveStoppingRule);
+
     await getTranslations(isDev, taskName, language);
 
     // TODO: make hearts and flowers corpus? make list of tasks that don't need corpora?
@@ -131,5 +133,7 @@ export class TaskLauncher {
         : () => this.firekit?.run?.completed === true && taskStore().taskComplete;
 
     await isTaskFinished(checkTaskFinished);
+
+    this.firekit?.updateStopType(taskStore().effectiveStoppingRule);
   }
 }

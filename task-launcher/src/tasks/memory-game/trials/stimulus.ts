@@ -230,7 +230,7 @@ export function getCorsiBlocks({
 
         if (taskStore().numIncorrect === taskStore().maxIncorrect) {
           if (reverse) {
-            finishTaskEarly('max-incorrect');
+            finishTaskEarly('errorOut');
           } else {
             sequenceLength = 2;
             // update total trials to account for skipped forward block

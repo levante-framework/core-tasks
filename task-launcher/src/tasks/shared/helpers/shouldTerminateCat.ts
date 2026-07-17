@@ -22,6 +22,6 @@ export function shouldTerminateCat() {
   const terminate = incorrectTrials.count() > 6;
 
   if (terminate) {
-    finishTaskEarly('max-incorrect');
+    finishTaskEarly('errorOut');
   }
 }

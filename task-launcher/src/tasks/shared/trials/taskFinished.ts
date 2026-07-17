@@ -36,6 +36,8 @@ export const taskFinished = (endMessage = 'taskFinished') => {
       return `<button class="primary" style=margin-top:10%>${taskStore().translations.generalExit}</button>`;
     },
     on_load: () => {
+      taskStore('effectiveStoppingRule', 'earlyCompletion');
+
       window.addEventListener('click', endTask);
       window.addEventListener('keydown', endTask);
 

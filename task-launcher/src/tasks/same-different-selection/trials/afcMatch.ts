@@ -418,7 +418,7 @@ export const afcMatch = (trial?: StimulusType) => {
 
       // if heavy instructions is true, show data quality screen before ending
       if (taskStore().numIncorrect >= taskStore().maxIncorrect && !taskStore().heavyInstructions && !cat) {
-        finishTaskEarly('max-incorrect');
+        finishTaskEarly('errorOut');
       }
 
       if (cat) {

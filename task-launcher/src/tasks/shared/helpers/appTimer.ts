@@ -54,6 +54,6 @@ export async function checkEndTaskEarly(timeRemaining: number, stimAudio: string
 
   if (timeRemaining < minTrialDuration) {
     clearTimeout(taskStore().taskTimer);
-    finishTaskEarly('time');
+    finishTaskEarly('timeOut');
   }
 }

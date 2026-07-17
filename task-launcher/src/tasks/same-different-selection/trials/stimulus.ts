@@ -499,7 +499,7 @@ export const stimulus = (trial?: StimulusType) => {
         }
         // if heavy instructions is true, show data quality screen before ending
         if (taskStore().numIncorrect >= taskStore().maxIncorrect && !taskStore().heavyInstructions && !cat) {
-          finishTaskEarly('max-incorrect');
+          finishTaskEarly('errorOut');
         }
 
         if (stim.trialType !== 'something-same-1' && stim.trialType !== 'instructions') {
