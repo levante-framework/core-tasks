@@ -15,6 +15,7 @@ import {
   afcStimulusTemplate,
   enterFullscreen,
   exitFullscreen,
+  setupDownex,
   setupStimulus,
   setupStimulusFromStoryGroup,
   taskFinished,
@@ -25,8 +26,9 @@ import { prepareStoryGroups, prepareTomCorpus } from './helpers/prepareTomCorpus
 
 export default function buildTOMTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   initTrialSaving(config);
+  const downex = taskStore().heavyInstructions;
   const initialTimeline = initTimeline(config, enterFullscreen);
-  const corpus: StimulusType[] = taskStore().corpora.stimulus;
+  const corpus: StimulusType[] = downex ? taskStore().corpora.downex : taskStore().corpora.stimulus;
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {};
 
@@ -85,9 +87,11 @@ export default function buildTOMTimeline(config: Record<string, any>, mediaAsset
         if (taskStore().skipCurrentTrial) {
           taskStore('skipCurrentTrial', false);
           return false;
-        } else {
-          return true;
         }
+
+        // filter trials to only the current branch of the story
+        const stim = trial || taskStore().nextStimulus;
+        return (!stim.storyBranch || stim.storyBranch === taskStore().currentStoryBranch);
       },
     };
   };
@@ -127,7 +131,7 @@ export default function buildTOMTimeline(config: Record<string, any>, mediaAsset
       preloadBlock();
 
       for (let i = 0; i < block.length; i++) {
-        timeline.push({ ...setupStimulus, stimulus: '' });
+        timeline.push({...(downex ? setupDownex : setupStimulus), stimulus: '' });
         timeline.push(stimulusBlock());
       }
     });

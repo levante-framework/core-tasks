@@ -23,10 +23,15 @@ export const getLayoutConfig = (
   const defaultConfig: LayoutConfigType = JSON.parse(JSON.stringify(DEFAULT_LAYOUT_CONFIG));
   defaultConfig.isPracticeTrial = stimulus.assessmentStage === 'practice_response';
   defaultConfig.isInstructionTrial = stimulus.trialType === 'instructions';
-  defaultConfig.stimText = {
+  defaultConfig.stimText = 
+  typeof stimulus.item === 'string' ? {
     value: convertItemToString(stimulus.item),
     displayValue: undefined,
+  } : {
+    value: stimulus.item.join(', '),
+    displayValue: undefined,
   };
+  defaultConfig.multiStimImage = Array.isArray(stimulus.item);
   defaultConfig.classOverrides.promptClassList = ['lev-row-container', 'instruction-small'];
   if (!defaultConfig.isInstructionTrial) {
     const mappedDistractors = mapDistractorsToString(distractors);
