@@ -24,7 +24,9 @@
     "deploy": "npm run build:demo && firebase deploy --only hosting:core-tasks",
     "patchPackages": "node patchPackages.js",
     "postinstall": "npm run patchPackages",
-    "prepare": "cd .. && husky task-launcher/.husky"
+    "prepare": "cd .. && husky task-launcher/.husky",
+    "build:audio-sprites": "node scripts/build-audio-sprites.mjs",
+    "build:audio-sprites:upload": "node scripts/build-audio-sprites.mjs --upload"
   },
   "lint-staged": {
     "*": "biome check --write --no-errors-on-unmatched --files-ignore-unknown=true"

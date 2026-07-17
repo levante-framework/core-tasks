@@ -4,13 +4,17 @@ import { taskStore } from '../../taskStore';
 import {
   batchMediaAssets,
   batchTrials,
+  createAwaitBackgroundBankTrial,
   createPreloadTrials,
+  createProgressiveCatInitialPreload,
   getRealTrials,
   initTimeline,
   initTrialSaving,
   prepareCorpus,
   selectNItems,
 } from '../shared/helpers';
+import { hasAudioSprites } from '../shared/helpers/audioSprites';
+import { createTaskSpriteInitialPreload } from '../shared/helpers/createAudioSpritePreload';
 import { preloadSharedAudio } from '../shared/helpers/preloadSharedAudio';
 // trials
 import {
@@ -32,6 +36,7 @@ export default function buildVocabTimeline(config: Record<string, any>, mediaAss
   const validationErrorMap: Record<string, string> = {};
   const { runCat } = taskStore();
   const { semThreshold } = taskStore();
+  const locale = taskStore().language || 'en-US';
 
   const layoutConfigMap: Record<string, LayoutConfigType> = {};
   for (const c of corpus) {
@@ -56,7 +61,25 @@ export default function buildVocabTimeline(config: Record<string, any>, mediaAss
   // counter for next batch to preload
   let currPreloadBatch = 0;
 
-  const initialPreload = runCat ? createPreloadTrials(mediaAssets).default : preloadSharedAudio();
+  const audioSpritesEnabled = taskStore().audioSprites !== false;
+  // CAT: critical pack (instructions/practice) then background bank. Non-CAT: existing sprite/batch path.
+  const corpora = runCat ? prepareCorpus(corpus) : null;
+  const initialPreloadTrials = runCat
+    ? createProgressiveCatInitialPreload(mediaAssets, {
+        locale,
+        task: 'vocab',
+        criticalTrials: corpora!.ipLight,
+        imageFields: ['answer', 'distractors'],
+        audioFields: ['audioFile'],
+        audioSpritesEnabled,
+      })
+    : createTaskSpriteInitialPreload(mediaAssets, {
+        locale,
+        task: 'vocab',
+        runCat: false,
+        fallbackPreload: preloadSharedAudio(),
+        audioSpritesEnabled,
+      });
 
   // does not matter if trial has properties that don't belong to that type
   const trialConfig = {
@@ -72,7 +95,12 @@ export default function buildVocabTimeline(config: Record<string, any>, mediaAss
   };
 
   function preloadBatch() {
-    timeline.push(createPreloadTrials(batchedMediaAssets[currPreloadBatch]).default);
+    const batch = batchedMediaAssets[currPreloadBatch];
+    // Evaluated at runtime: skip per-file audio batches when sprites already loaded
+    timeline.push({
+      timeline: [createPreloadTrials(batch).default],
+      conditional_function: () => !hasAudioSprites(),
+    });
     currPreloadBatch++;
   }
 
@@ -91,17 +119,17 @@ export default function buildVocabTimeline(config: Record<string, any>, mediaAss
     },
   };
 
-  const timeline = [initialPreload, initialTimeline];
+  const timeline = [...initialPreloadTrials, initialTimeline];
 
-  if (runCat) {
-    // seperate out corpus to get cat/non-cat blocks
-    const corpora = prepareCorpus(corpus);
-
-    // instruction block (non-cat)
+  if (runCat && corpora) {
+    // instruction / practice (critical pack already loaded)
     corpora.ipLight.forEach((trial: StimulusType) => {
       timeline.push({ ...fixationOnly, stimulus: '' });
       timeline.push(afcStimulusTemplate(trialConfig, trial));
     });
+
+    // Wait for full sprite + remaining images before scored items
+    timeline.push(createAwaitBackgroundBankTrial());
 
     // push in starting block
     corpora.start.forEach((trial: StimulusType) => {

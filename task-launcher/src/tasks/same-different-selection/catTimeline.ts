@@ -1,6 +1,7 @@
 import { taskStore } from '../../taskStore';
 import {
-  createPreloadTrials,
+  createAwaitBackgroundBankTrial,
+  createProgressiveCatInitialPreload,
   initTimeline,
   initTrialSaving,
   prepareCorpus,
@@ -23,11 +24,22 @@ import { legacyStimulus } from './trials/legacyStimulus';
 import { stimulus } from './trials/stimulus';
 
 export default function buildSameDifferentTimelineCat(config: Record<string, any>, mediaAssets: MediaAssetsType) {
-  const preloadTrials = createPreloadTrials(mediaAssets).default;
+  const locale = taskStore().language || 'en-US';
+  const audioSpritesEnabled = taskStore().audioSprites !== false;
   const heavy: boolean = taskStore().heavyInstructions;
 
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
   const preparedCorpus = prepareCorpus(corpus, 0, undefined, true);
+
+  // Critical pack = instructions/practice only; full sprite + test images load in background.
+  const preloadTrials = createProgressiveCatInitialPreload(mediaAssets, {
+    locale,
+    task: 'same-different-selection',
+    criticalTrials: preparedCorpus.ipLight,
+    imageFields: ['image', 'answer', 'distractors'],
+    audioFields: ['audioFile'],
+    audioSpritesEnabled,
+  });
 
   const catCorpus = setupSds(taskStore().corpora.stimulus);
   const allBlocks = prepareMultiBlockCat(catCorpus);
@@ -117,7 +129,7 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
     };
   }
 
-  const timeline = [preloadTrials, initialTimeline];
+  const timeline = [...preloadTrials, initialTimeline];
 
   // all instructions + practice trials
   let instructionPractice: StimulusType[] = preparedCorpus.ipLight;
@@ -151,6 +163,7 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
   const totalRealTrials = blockCountList.reduce((acc, total) => acc + total, 0);
   taskStore('totalTestTrials', totalRealTrials);
 
+  let bankAwaitInserted = false;
   blockCountList.forEach((count, index) => {
     const currentBlockInstructionPractice = getPracticeInstructions(index);
 
@@ -161,6 +174,12 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
     // only younger kids get something-same blocks
     if (!heavy && index === 1 && taskStore().version === 2) {
       return;
+    }
+
+    // Ensure sprite + test images are ready before the first scored item.
+    if (!bankAwaitInserted) {
+      timeline.push(createAwaitBackgroundBankTrial());
+      bankAwaitInserted = true;
     }
 
     const numOfTrials = index === 0 ? count : count / 2; // change this based on simulation results?

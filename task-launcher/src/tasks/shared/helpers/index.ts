@@ -5,6 +5,27 @@ export { addExperimenterButtons, setupFullscreenButton } from './addUtilityButto
 export { displaceAnimation, popAnimation, triggerAnimation } from './animateImages';
 export * from './appTimer';
 export { PageAudioHandler } from './audioHandler';
+export {
+  clearAudioSprites,
+  getSpriteClip,
+  hasAudioSprites,
+  loadAudioSprites,
+} from './audioSprites';
+export {
+  createAudioSpriteLoadTrial,
+  createTaskSpriteInitialPreload,
+  createVocabInitialPreload,
+  stripAudioIfSprites,
+} from './createAudioSpritePreload';
+export {
+  awaitBackgroundBankLoad,
+  createAwaitBackgroundBankTrial,
+  createKickBackgroundBankTrial,
+  createProgressiveCatInitialPreload,
+  partitionCriticalMedia,
+  resetBackgroundBankLoad,
+  startBackgroundBankLoad,
+} from './progressivePreload';
 export * from './baseTimeline';
 export { batchMediaAssets, batchTrials } from './batchPreloading';
 export { camelize } from './camelize';

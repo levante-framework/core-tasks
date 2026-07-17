@@ -1,5 +1,6 @@
 import { mediaAssets } from '../../..';
 import { jsPsych } from '../../taskSetup';
+import { getSpriteClip } from './audioSprites';
 
 export class PageAudioHandler {
   constructor() {
@@ -28,6 +29,10 @@ export class PageAudioHandler {
   }
 
   static async getAudioDuration(audioUri: string) {
+    const sprite = getSpriteClip(audioUri);
+    if (sprite) {
+      return sprite.duration;
+    }
     const audioBuffer = (await jsPsych.pluginAPI.getAudioBuffer(audioUri)) as AudioBuffer | null;
     return audioBuffer?.duration;
   }
@@ -58,13 +63,18 @@ export class PageAudioHandler {
 
     try {
       const jsPsychAudioCtx = jsPsych.pluginAPI.audioContext();
-
-      // Returns a promise of the AudioBuffer of the preloaded file path.
-      const audioBuffer = (await jsPsych.pluginAPI.getAudioBuffer(audioUri)) as AudioBuffer | null;
-
       const audioSource: AudioBufferSourceNode = jsPsychAudioCtx.createBufferSource();
       PageAudioHandler.audioSource = audioSource;
-      audioSource.buffer = audioBuffer;
+
+      const sprite = getSpriteClip(audioUri);
+      if (sprite) {
+        audioSource.buffer = sprite.buffer;
+      } else {
+        // Returns a promise of the AudioBuffer of the preloaded file path.
+        const audioBuffer = (await jsPsych.pluginAPI.getAudioBuffer(audioUri)) as AudioBuffer | null;
+        audioSource.buffer = audioBuffer;
+      }
+
       audioSource.connect(jsPsychAudioCtx.destination);
       audioSource.onended = () => {
         if (PageAudioHandler.replays === maxRepetitions && enabled) {
@@ -83,7 +93,12 @@ export class PageAudioHandler {
           if (onEnded) onEnded();
         }
       };
-      audioSource.start(0);
+
+      if (sprite) {
+        audioSource.start(0, sprite.start, sprite.duration);
+      } else {
+        audioSource.start(0);
+      }
     } catch {
       // Swallow errors to avoid test/runtime crashes when audio cannot be played
       return;

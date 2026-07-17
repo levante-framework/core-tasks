@@ -98,6 +98,7 @@ export const setSharedConfig = async (
     debug,
     version,
     taskVersion, // deprecated; use `version` — kept for backward compatibility
+    audioSprites,
     _isPaused,
   } = cleanParams;
 
@@ -133,6 +134,12 @@ export const setSharedConfig = async (
     demoMode: !!demoMode,
     debug: !!debug,
     version: Number((version ?? taskVersion) || 1),
+    // gameParams are usually strings from the URL; default enabled
+    audioSprites: (() => {
+      if (audioSprites === undefined || audioSprites === null) return true;
+      const v = String(audioSprites).trim().toLowerCase();
+      return v !== 'false' && v !== '0';
+    })(),
     displayPromptDurations: {},
     taskTimer: null,
     isPaused: false,
