@@ -114,6 +114,30 @@ npm run check:fix  # auto-fix format issues
 Pre-commit runs `lint-staged` → `biome check --write` on staged files so format
 mismatches are fixed before they hit CI.
 
+## Progressive critical-pack preload (vocab / SDS CAT)
+
+On branch `feat/critical-pack-preload`, CAT timelines for **vocab** and
+**same-different-selection** no longer wait for the full media bank before the
+start UI:
+
+1. **Critical pack** — instructions/practice corpus media, shared assets, plugin
+   SFX, and (for SDS) demo videos. This is the only blocking jsPsych preload at
+   launch.
+2. **Background bank** — remaining images/audio start loading immediately after
+   (per-file; no audio-sprite packaging required).
+3. **Await gate** — before the first scored items, the timeline waits until the
+   background bank finishes so test trials do not race missing media.
+
+Non-CAT paths keep the existing batched preload behavior from `main`.
+
+Implementation: `src/tasks/shared/helpers/progressivePreload.ts`, wired from
+`src/tasks/vocab/timeline.ts` and
+`src/tasks/same-different-selection/catTimeline.ts`.
+
+Cold-load measurement (BrowserStack / local): see
+[`levante-support/scripts/README_TASK_PRELOAD.md`](../../levante-support/scripts/README_TASK_PRELOAD.md)
+in a sibling clone.
+
 ## Theory of Mind
 
 ## How ROAR / LEVANTE Tasks work within the greater ROAD infrastructure
