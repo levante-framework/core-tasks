@@ -2,9 +2,7 @@
 import 'regenerator-runtime/runtime';
 import { taskStore } from '../../taskStore';
 import { batchMediaAssets, createPreloadTrials, initTimeline, initTrialSaving } from '../shared/helpers';
-import { hasAudioSprites } from '../shared/helpers/audioSprites';
 import { batchTrials, getLeftoverAssets } from '../shared/helpers/batchPreloading';
-import { createTaskSpriteInitialPreload } from '../shared/helpers/createAudioSpritePreload';
 import {
   enterFullscreen,
   exitFullscreen,
@@ -22,8 +20,6 @@ import { stimulus } from './trials/stimulus';
 
 export default function buildSameDifferentTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const heavy: boolean = taskStore().heavyInstructions;
-  const locale = taskStore().language || 'en-US';
-  const audioSpritesEnabled = taskStore().audioSprites !== false;
 
   let corpus: StimulusType[] = taskStore().corpora.stimulus;
 
@@ -46,18 +42,12 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
   const initialMediaAssets = getLeftoverAssets(batchedMediaAssets, mediaAssets);
   initialMediaAssets.images = {}; // all sds images used in the task are specifed in corpus
 
-  const initialPreloadTrials = createTaskSpriteInitialPreload(mediaAssets, {
-    locale,
-    task: 'same-different-selection',
-    runCat: false,
-    fallbackPreload: createPreloadTrials(initialMediaAssets).default,
-    audioSpritesEnabled,
-  });
+  const initialPreload = createPreloadTrials(initialMediaAssets).default;
 
   initTrialSaving(config);
 
   const initialTimeline = initTimeline(config, enterFullscreen);
-  const timeline = [...initialPreloadTrials, initialTimeline];
+  const timeline = [initialPreload, initialTimeline];
 
   const buttonNoise = {
     timeline: [getAudioResponse(mediaAssets)],
@@ -106,19 +96,7 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
 
   // function to preload assets in batches at the beginning of each task block
   function preloadBlock() {
-    const batch = batchedMediaAssets[currPreloadBatch];
-    // Full audio+images when sprites unavailable (evaluated at runtime)
-    timeline.push({
-      timeline: [createPreloadTrials(batch).default],
-      conditional_function: () => !hasAudioSprites(),
-    });
-    // Images only when sprites already cover audio (plugin SFX loaded in initial preload)
-    timeline.push({
-      timeline: [
-        createPreloadTrials({ images: batch.images, audio: {}, video: batch.video || {} }).default,
-      ],
-      conditional_function: () => hasAudioSprites(),
-    });
+    timeline.push(createPreloadTrials(batchedMediaAssets[currPreloadBatch]).default);
     currPreloadBatch++;
   }
 

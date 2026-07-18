@@ -1,11 +1,10 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { jsPsych } from '../../taskSetup';
-import { hasAudioSprites, loadAudioSprites } from './audioSprites';
 import { batchMediaAssets } from './batchPreloading';
 import { createPreloadTrials } from './createPreloadTrials';
 import { filterMedia } from './filterMedia';
 
-/** jsPsych audio plugins still need a few per-file buffers (not sprite offsets). */
+/** jsPsych audio plugins still need a few per-file buffers. */
 const PLUGIN_AUDIO_KEYS = ['select', 'coin', 'fail', 'inputAudioCue', 'nullAudio', 'pop'];
 
 let bankPromise: Promise<void> | null = null;
@@ -76,10 +75,7 @@ export function partitionCriticalMedia(
   return { critical, rest };
 }
 
-function preloadWithPluginApi(
-  kind: 'images' | 'audio' | 'video',
-  urls: string[],
-): Promise<void> {
+function preloadWithPluginApi(kind: 'images' | 'audio' | 'video', urls: string[]): Promise<void> {
   if (!urls.length) return Promise.resolve();
   const api = jsPsych.pluginAPI as {
     preloadImages?: (files: string[], callback: () => void) => void;
@@ -116,35 +112,18 @@ function preloadWithPluginApi(
 }
 
 /**
- * Start loading the full task audio sprite + remaining images/audio (non-blocking).
+ * Start loading remaining images/audio/video (non-blocking).
  * Safe to call multiple times; returns the same Promise.
  */
-export function startBackgroundBankLoad(options: {
-  locale: string;
-  task: string;
-  rest: MediaAssetsType;
-  audioSpritesEnabled?: boolean;
-}): Promise<void> {
+export function startBackgroundBankLoad(options: { rest: MediaAssetsType }): Promise<void> {
   if (bankPromise) return bankPromise;
 
-  const { locale, task, rest, audioSpritesEnabled = true } = options;
+  const { rest } = options;
 
   bankPromise = (async () => {
-    let spritesOk = false;
-    try {
-      if (audioSpritesEnabled) {
-        spritesOk = await loadAudioSprites({ locale, task, enabled: true });
-      }
-    } catch (error) {
-      console.warn('Background audio sprite load failed', error);
-    }
-
     try {
       await preloadWithPluginApi('images', Object.values(rest.images));
-      // When sprites cover corpus audio, skip per-file bank audio; otherwise preload it.
-      if (!spritesOk) {
-        await preloadWithPluginApi('audio', Object.values(rest.audio));
-      }
+      await preloadWithPluginApi('audio', Object.values(rest.audio));
       await preloadWithPluginApi('video', Object.values(rest.video));
     } catch (error) {
       console.warn('Background media bank preload failed', error);
@@ -164,12 +143,7 @@ export async function awaitBackgroundBankLoad(): Promise<void> {
   await bankPromise;
 }
 
-export function createKickBackgroundBankTrial(options: {
-  locale: string;
-  task: string;
-  rest: MediaAssetsType;
-  audioSpritesEnabled?: boolean;
-}): Record<string, unknown> {
+export function createKickBackgroundBankTrial(options: { rest: MediaAssetsType }): Record<string, unknown> {
   return {
     type: jsPsychHtmlMultiResponse,
     stimulus: '<div class="lev-stimulus-container"></div>',
@@ -198,10 +172,7 @@ export function createAwaitBackgroundBankTrial(): Record<string, unknown> {
       } catch (error) {
         console.warn('Await background bank failed', error);
       }
-      jsPsych.finishTrial({
-        backgroundBankReady: true,
-        spritesLoaded: hasAudioSprites(),
-      });
+      jsPsych.finishTrial({ backgroundBankReady: true });
     },
   };
 }
@@ -213,22 +184,12 @@ export function createAwaitBackgroundBankTrial(): Record<string, unknown> {
 export function createProgressiveCatInitialPreload(
   mediaAssets: MediaAssetsType,
   options: {
-    locale: string;
-    task: string;
     criticalTrials: StimulusType[];
     imageFields: string[];
     audioFields?: string[];
-    audioSpritesEnabled?: boolean;
   },
 ): Record<string, unknown>[] {
-  const {
-    locale,
-    task,
-    criticalTrials,
-    imageFields,
-    audioFields = ['audioFile'],
-    audioSpritesEnabled = true,
-  } = options;
+  const { criticalTrials, imageFields, audioFields = ['audioFile'] } = options;
 
   resetBackgroundBankLoad();
 
@@ -239,16 +200,12 @@ export function createProgressiveCatInitialPreload(
     audioFields,
   );
 
-  // Ensure plugin SFX from full map even if somehow missing
   const criticalWithPlugins = withPluginAudio(critical, mediaAssets);
 
   return [
     createPreloadTrials(criticalWithPlugins).default,
     createKickBackgroundBankTrial({
-      locale,
-      task,
       rest: mergeMedia(rest, emptyMedia()),
-      audioSpritesEnabled,
     }),
   ];
 }

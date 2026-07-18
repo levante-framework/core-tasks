@@ -101,8 +101,6 @@ export type TaskStoreDataType = {
   experimenterButtons: boolean;
   debug: boolean;
   version: number;
-  /** When false, skip audio sprites and use per-file preload (A/B / BrowserStack). */
-  audioSprites: boolean;
   currentCatBlock?: number;
   blockThresholds?: number[];
   displayPromptDurations: Record<string, number>;
@@ -165,7 +163,6 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     experimenterButtons: config.experimenterButtons && effectiveHeavyInstructions,
     debug: config.debug,
     version: config.version || 1,
-    audioSprites: config.audioSprites ?? true,
     currentStoryGroup: 0,
     taskTimer: null,
     taskTimerPausedMs: 0,

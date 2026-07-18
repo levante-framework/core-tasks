@@ -6,18 +6,6 @@ export { displaceAnimation, popAnimation, triggerAnimation } from './animateImag
 export * from './appTimer';
 export { PageAudioHandler } from './audioHandler';
 export {
-  clearAudioSprites,
-  getSpriteClip,
-  hasAudioSprites,
-  loadAudioSprites,
-} from './audioSprites';
-export {
-  createAudioSpriteLoadTrial,
-  createTaskSpriteInitialPreload,
-  createVocabInitialPreload,
-  stripAudioIfSprites,
-} from './createAudioSpritePreload';
-export {
   awaitBackgroundBankLoad,
   createAwaitBackgroundBankTrial,
   createKickBackgroundBankTrial,

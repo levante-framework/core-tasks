@@ -7,7 +7,6 @@
 import { camelize } from '@bdelab/roar-utils';
 import { mediaAssets } from '../../..';
 import { jsPsych } from '../../taskSetup';
-import { getSpriteClip } from './audioSprites';
 
 export class PageStateHandler {
   audioFile: string | string[];
@@ -33,39 +32,17 @@ export class PageStateHandler {
       return this.audioBuffer;
     }
     if (typeof this.audioUri === 'string') {
-      const sprite = getSpriteClip(this.audioUri);
-      if (sprite) {
-        // Duration is taken from the sprite clip; buffer retained for API compatibility
-        this.audioBuffer = sprite.buffer;
-        return this.audioBuffer;
-      }
       this.audioBuffer = (await jsPsych.pluginAPI.getAudioBuffer(this.audioUri)) as AudioBuffer;
       return this.audioBuffer;
     } else {
       this.audioBuffer = (await Promise.all(
-        this.audioUri.map(async (audio: string) => {
-          const sprite = getSpriteClip(audio);
-          if (sprite) return sprite.buffer;
-          return jsPsych.pluginAPI.getAudioBuffer(audio);
-        }),
+        this.audioUri.map(async (audio: string) => jsPsych.pluginAPI.getAudioBuffer(audio)),
       )) as AudioBuffer[];
       return this.audioBuffer;
     }
   }
 
   async getStimulusDurationMs() {
-    if (typeof this.audioUri === 'string') {
-      const sprite = getSpriteClip(this.audioUri);
-      if (sprite) {
-        return sprite.duration * 1000;
-      }
-    } else if (Array.isArray(this.audioUri)) {
-      const spriteDurations = this.audioUri.map((uri) => getSpriteClip(uri)?.duration);
-      if (spriteDurations.every((d) => typeof d === 'number')) {
-        return (spriteDurations as number[]).reduce((acc, curr) => acc + curr * 1000, 0);
-      }
-    }
-
     const buffer = await this.getbuffer();
 
     if (buffer instanceof AudioBuffer) {

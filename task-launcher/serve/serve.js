@@ -59,10 +59,6 @@ const cat = stringToBoolean(urlParams.get('cat'), false);
 const heavyInstructions = stringToBoolean(urlParams.get('heavyInstructions'), false);
 const experimenterButtons = stringToBoolean(urlParams.get('experimenterButtons'), false);
 const debug = stringToBoolean(urlParams.get('debug'), false);
-// Default on; pass audioSprites=false (or 0) to force per-file audio preload for A/B tests
-const audioSpritesParam = urlParams.get('audioSprites');
-const audioSprites =
-  audioSpritesParam === null ? true : !(audioSpritesParam.trim().toLowerCase() === 'false' || audioSpritesParam === '0');
 
 // if running in demo mode, no data will be saved to Firestore
 const demoMode = DEMO;
@@ -95,7 +91,6 @@ async function startWebApp() {
     version,
     debug,
     experimenterButtons,
-    audioSprites,
   };
   const userParams = {
     pid,

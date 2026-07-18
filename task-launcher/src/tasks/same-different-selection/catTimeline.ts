@@ -24,21 +24,16 @@ import { legacyStimulus } from './trials/legacyStimulus';
 import { stimulus } from './trials/stimulus';
 
 export default function buildSameDifferentTimelineCat(config: Record<string, any>, mediaAssets: MediaAssetsType) {
-  const locale = taskStore().language || 'en-US';
-  const audioSpritesEnabled = taskStore().audioSprites !== false;
   const heavy: boolean = taskStore().heavyInstructions;
 
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
   const preparedCorpus = prepareCorpus(corpus, 0, undefined, true);
 
-  // Critical pack = instructions/practice only; full sprite + test images load in background.
+  // Critical pack = instructions/practice only; remaining assets load in background.
   const preloadTrials = createProgressiveCatInitialPreload(mediaAssets, {
-    locale,
-    task: 'same-different-selection',
     criticalTrials: preparedCorpus.ipLight,
     imageFields: ['image', 'answer', 'distractors'],
     audioFields: ['audioFile'],
-    audioSpritesEnabled,
   });
 
   const catCorpus = setupSds(taskStore().corpora.stimulus);
@@ -176,7 +171,7 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
       return;
     }
 
-    // Ensure sprite + test images are ready before the first scored item.
+    // Ensure remaining bank is ready before the first scored item.
     if (!bankAwaitInserted) {
       timeline.push(createAwaitBackgroundBankTrial());
       bankAwaitInserted = true;
