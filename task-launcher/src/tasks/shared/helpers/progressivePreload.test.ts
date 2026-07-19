@@ -134,7 +134,8 @@ describe('createProgressiveCatInitialPreload', () => {
     });
 
     expect(trialsOut).toHaveLength(2);
-    expect(trialsOut[0]).toEqual({ type: 'preload-mock' });
+    expect(trialsOut[0].type).toBe('preload-mock');
+    expect(typeof trialsOut[0].on_finish).toBe('function');
     expect(trialsOut[1]).toMatchObject({
       trial_duration: null,
       response_ends_trial: false,

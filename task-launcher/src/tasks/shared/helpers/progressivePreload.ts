@@ -9,6 +9,12 @@ const PLUGIN_AUDIO_KEYS = ['select', 'coin', 'fail', 'inputAudioCue', 'nullAudio
 
 let bankPromise: Promise<void> | null = null;
 
+function markCriticalPack(partial: Record<string, unknown>): void {
+  if (typeof window === 'undefined') return;
+  const w = window as Window & { __criticalPack?: Record<string, unknown> };
+  w.__criticalPack = { ...(w.__criticalPack || {}), ...partial };
+}
+
 function emptyMedia(): MediaAssetsType {
   return { images: {}, audio: {}, video: {} };
 }
@@ -120,13 +126,20 @@ export function startBackgroundBankLoad(options: { rest: MediaAssetsType }): Pro
 
   const { rest } = options;
 
+  markCriticalPack({ bankStartedAt: Date.now() });
+
   bankPromise = (async () => {
     try {
       await preloadWithPluginApi('images', Object.values(rest.images));
       await preloadWithPluginApi('audio', Object.values(rest.audio));
       await preloadWithPluginApi('video', Object.values(rest.video));
+      markCriticalPack({ bankReadyAt: Date.now(), bankError: null });
     } catch (error) {
       console.warn('Background media bank preload failed', error);
+      markCriticalPack({
+        bankReadyAt: Date.now(),
+        bankError: error instanceof Error ? error.message : String(error),
+      });
     }
   })();
 
@@ -136,6 +149,13 @@ export function startBackgroundBankLoad(options: { rest: MediaAssetsType }): Pro
 /** Reset module state (tests / task re-entry). */
 export function resetBackgroundBankLoad(): void {
   bankPromise = null;
+  markCriticalPack({
+    resetAt: Date.now(),
+    criticalDoneAt: null,
+    bankStartedAt: null,
+    bankReadyAt: null,
+    bankError: null,
+  });
 }
 
 export async function awaitBackgroundBankLoad(): Promise<void> {
@@ -202,8 +222,15 @@ export function createProgressiveCatInitialPreload(
 
   const criticalWithPlugins = withPluginAudio(critical, mediaAssets);
 
+  const criticalTrial = createPreloadTrials(criticalWithPlugins).default;
+  const previousOnFinish = criticalTrial.on_finish;
+  criticalTrial.on_finish = (...args: unknown[]) => {
+    markCriticalPack({ criticalDoneAt: Date.now() });
+    if (typeof previousOnFinish === 'function') previousOnFinish(...args);
+  };
+
   return [
-    createPreloadTrials(criticalWithPlugins).default,
+    criticalTrial,
     createKickBackgroundBankTrial({
       rest: mergeMedia(rest, emptyMedia()),
     }),
