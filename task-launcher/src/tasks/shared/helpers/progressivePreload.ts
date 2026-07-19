@@ -1,4 +1,5 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
+import { taskStore } from '../../../taskStore';
 import { jsPsych } from '../../taskSetup';
 import { batchMediaAssets } from './batchPreloading';
 import { createPreloadTrials } from './createPreloadTrials';
@@ -39,14 +40,25 @@ function isSharedAssetUrl(url: string): boolean {
   return /\/(?:audio|visual)\/shared\//.test(url);
 }
 
+/**
+ * Shared UI/feedback assets for the critical pack.
+ * - URL heuristic: `/audio|visual/shared/` bucket paths
+ * - Key list: `assetsPerTask.shared.audio` (language-bucket clips like feedbackGoodJob)
+ */
 function pickSharedAssets(mediaAssets: MediaAssetsType): MediaAssetsType {
-  const pick = (map: Record<string, string>) =>
+  const pickByUrl = (map: Record<string, string>) =>
     Object.fromEntries(Object.entries(map).filter(([, url]) => isSharedAssetUrl(url)));
-  return {
-    images: pick(mediaAssets.images),
-    audio: pick(mediaAssets.audio),
-    video: pick(mediaAssets.video),
+
+  const byUrl: MediaAssetsType = {
+    images: pickByUrl(mediaAssets.images),
+    audio: pickByUrl(mediaAssets.audio),
+    video: pickByUrl(mediaAssets.video),
   };
+
+  const sharedAudioKeys = taskStore().assetsPerTask?.shared?.audio ?? [];
+  const bySharedKeys = filterMedia(mediaAssets, [], sharedAudioKeys, []);
+
+  return mergeMedia(byUrl, bySharedKeys);
 }
 
 /**

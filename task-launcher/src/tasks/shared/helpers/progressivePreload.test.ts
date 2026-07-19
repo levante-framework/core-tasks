@@ -19,6 +19,16 @@ vi.mock('./createPreloadTrials', () => ({
   createPreloadTrials: () => ({ default: { type: 'preload-mock' } }),
 }));
 
+vi.mock('../../../taskStore', () => ({
+  taskStore: () => ({
+    assetsPerTask: {
+      shared: {
+        audio: ['feedbackGoodJob', 'feedbackCorrect', 'feedbackNotQuiteRight'],
+      },
+    },
+  }),
+}));
+
 import {
   awaitBackgroundBankLoad,
   createProgressiveCatInitialPreload,
@@ -38,6 +48,10 @@ function mediaFixture(): MediaAssetsType {
       practiceAudio: 'https://cdn.example/audio/practice.mp3',
       bankAudio: 'https://cdn.example/audio/bank.mp3',
       sharedPrompt: 'https://cdn.example/audio/shared/prompt.mp3',
+      // Language-bucket shared feedback (not under /audio/shared/)
+      feedbackGoodJob: 'https://cdn.example/audio/en-US/feedbackGoodJob.mp3',
+      feedbackCorrect: 'https://cdn.example/audio/en-US/feedbackCorrect.mp3',
+      feedbackNotQuiteRight: 'https://cdn.example/audio/en-US/feedbackNotQuiteRight.mp3',
       select: 'https://cdn.example/audio/select.mp3',
       coin: 'https://cdn.example/audio/coin.mp3',
       fail: 'https://cdn.example/audio/fail.mp3',
@@ -82,6 +96,18 @@ describe('partitionCriticalMedia', () => {
     expect(critical.audio.coin).toBe(media.audio.coin);
     expect(rest.images.sharedIcon).toBeUndefined();
     expect(rest.audio.select).toBeUndefined();
+  });
+
+  it('keeps assetsPerTask.shared.audio on the critical pack even under language buckets', () => {
+    const media = mediaFixture();
+    const { critical, rest } = partitionCriticalMedia(media, [], ['item'], ['audioFile']);
+
+    expect(critical.audio.feedbackGoodJob).toBe(media.audio.feedbackGoodJob);
+    expect(critical.audio.feedbackCorrect).toBe(media.audio.feedbackCorrect);
+    expect(critical.audio.feedbackNotQuiteRight).toBe(media.audio.feedbackNotQuiteRight);
+    expect(rest.audio.feedbackGoodJob).toBeUndefined();
+    expect(rest.audio.feedbackCorrect).toBeUndefined();
+    expect(rest.audio.bankAudio).toBe(media.audio.bankAudio);
   });
 
   it('keeps all videos on the critical pack', () => {
