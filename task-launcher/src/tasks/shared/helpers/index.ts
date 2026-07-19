@@ -5,15 +5,6 @@ export { addExperimenterButtons, setupFullscreenButton } from './addUtilityButto
 export { displaceAnimation, popAnimation, triggerAnimation } from './animateImages';
 export * from './appTimer';
 export { PageAudioHandler } from './audioHandler';
-export {
-  awaitBackgroundBankLoad,
-  createAwaitBackgroundBankTrial,
-  createKickBackgroundBankTrial,
-  createProgressiveCatInitialPreload,
-  partitionCriticalMedia,
-  resetBackgroundBankLoad,
-  startBackgroundBankLoad,
-} from './progressivePreload';
 export * from './baseTimeline';
 export { batchMediaAssets, batchTrials } from './batchPreloading';
 export { camelize } from './camelize';
@@ -47,6 +38,15 @@ export { mapDistractorsToString } from './mapDistractorsToString';
 export { PageStateHandler } from './PageStateHandler';
 export { prepareCorpus, prepareMultiBlockCat, selectNItems, updateTheta } from './prepareCat';
 export * from './prepareChoices';
+export {
+  awaitBackgroundBankLoad,
+  createAwaitBackgroundBankTrial,
+  createKickBackgroundBankTrial,
+  createProgressiveCatInitialPreload,
+  partitionCriticalMedia,
+  resetBackgroundBankLoad,
+  startBackgroundBankLoad,
+} from './progressivePreload';
 export { pulseOkButton } from './pulseOkButton';
 export { setupReplayAudio } from './replayAudio';
 export { selectNextSequentialTrial } from './selectNextSequentialTrial';

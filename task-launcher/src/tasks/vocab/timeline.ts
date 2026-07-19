@@ -60,13 +60,14 @@ export default function buildVocabTimeline(config: Record<string, any>, mediaAss
 
   // CAT: critical pack (instructions/practice) then background bank. Non-CAT: shared audio only.
   const corpora = runCat ? prepareCorpus(corpus) : null;
-  const initialPreloadTrials = runCat
-    ? createProgressiveCatInitialPreload(mediaAssets, {
-        criticalTrials: corpora!.ipLight,
-        imageFields: ['answer', 'distractors'],
-        audioFields: ['audioFile'],
-      })
-    : [preloadSharedAudio()];
+  const initialPreloadTrials =
+    runCat && corpora
+      ? createProgressiveCatInitialPreload(mediaAssets, {
+          criticalTrials: corpora.ipLight,
+          imageFields: ['answer', 'distractors'],
+          audioFields: ['audioFile'],
+        })
+      : [preloadSharedAudio()];
 
   // does not matter if trial has properties that don't belong to that type
   const trialConfig = {

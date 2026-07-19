@@ -60,9 +60,7 @@ export function partitionCriticalMedia(
   audioFields: string[] = ['audioFile'],
 ): { critical: MediaAssetsType; rest: MediaAssetsType } {
   const fromTrials =
-    trials.length > 0
-      ? batchMediaAssets(mediaAssets, [trials], imageFields, audioFields)[0]
-      : emptyMedia();
+    trials.length > 0 ? batchMediaAssets(mediaAssets, [trials], imageFields, audioFields)[0] : emptyMedia();
 
   let critical = withPluginAudio(mergeMedia(fromTrials, pickSharedAssets(mediaAssets)), mediaAssets);
   // Demo / instruction videos are few; keep them on the launch path.
@@ -213,12 +211,7 @@ export function createProgressiveCatInitialPreload(
 
   resetBackgroundBankLoad();
 
-  const { critical, rest } = partitionCriticalMedia(
-    mediaAssets,
-    criticalTrials,
-    imageFields,
-    audioFields,
-  );
+  const { critical, rest } = partitionCriticalMedia(mediaAssets, criticalTrials, imageFields, audioFields);
 
   const criticalWithPlugins = withPluginAudio(critical, mediaAssets);
 
