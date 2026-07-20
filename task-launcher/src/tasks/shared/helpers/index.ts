@@ -45,6 +45,7 @@ export {
   createProgressiveCatInitialPreload,
   partitionCriticalMedia,
   resetBackgroundBankLoad,
+  selectInstructionPracticeTrials,
   startBackgroundBankLoad,
 } from './progressivePreload';
 export { pulseOkButton } from './pulseOkButton';

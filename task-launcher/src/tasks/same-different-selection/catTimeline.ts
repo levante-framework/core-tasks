@@ -6,6 +6,7 @@ import {
   initTrialSaving,
   prepareCorpus,
   prepareMultiBlockCat,
+  selectInstructionPracticeTrials,
 } from '../shared/helpers';
 import {
   enterFullscreen,
@@ -27,11 +28,12 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
   const heavy: boolean = taskStore().heavyInstructions;
 
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
-  const preparedCorpus = prepareCorpus(corpus, 0, undefined, true);
+  const preparedCorpus = prepareCorpus(corpus, 0, taskStore().corpora.downex, true);
+  const instructionPracticeTrials = selectInstructionPracticeTrials(preparedCorpus, heavy);
 
-  // Critical pack = instructions/practice only; remaining assets load in background.
+  // Critical pack = instructions/practice for launched variant; remaining assets load in background.
   const preloadTrials = createProgressiveCatInitialPreload(mediaAssets, {
-    criticalTrials: preparedCorpus.ipLight,
+    criticalTrials: instructionPracticeTrials,
     imageFields: ['image', 'answer', 'distractors'],
     audioFields: ['audioFile'],
   });
@@ -126,8 +128,8 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
 
   const timeline = [...preloadTrials, initialTimeline];
 
-  // all instructions + practice trials
-  let instructionPractice: StimulusType[] = preparedCorpus.ipLight;
+  // all instructions + practice trials for the launched variant
+  let instructionPractice: StimulusType[] = instructionPracticeTrials;
 
   let fiveBlockIntroTrial: StimulusType;
   let fiveBlockIntro: any;

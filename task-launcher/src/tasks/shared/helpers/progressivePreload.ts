@@ -10,6 +10,18 @@ const PLUGIN_AUDIO_KEYS = ['select', 'coin', 'fail', 'inputAudioCue', 'nullAudio
 
 let bankPromise: Promise<void> | null = null;
 
+/**
+ * Instruction/practice trials for the launched variant.
+ * Heavy variants use ipHeavy when present; otherwise fall back to ipLight.
+ */
+export function selectInstructionPracticeTrials(
+  corpora: { ipLight: StimulusType[]; ipHeavy: StimulusType[] },
+  heavyInstructions: boolean,
+): StimulusType[] {
+  if (heavyInstructions && corpora.ipHeavy.length > 0) return corpora.ipHeavy;
+  return corpora.ipLight;
+}
+
 function markCriticalPack(partial: Record<string, unknown>): void {
   if (typeof window === 'undefined') return;
   const w = window as Window & { __criticalPack?: Record<string, unknown> };
@@ -62,8 +74,9 @@ function pickSharedAssets(mediaAssets: MediaAssetsType): MediaAssetsType {
 }
 
 /**
- * Split media into a small critical pack (instructions/practice) and the remaining bank.
- * All videos go into critical (SDS demos are few); plugin SFX + shared assets are always critical.
+ * Split media into a small critical pack (instructions/practice for the launched
+ * variant) and the remaining bank. All videos go into critical (SDS demos are few);
+ * plugin SFX + shared assets are always critical.
  */
 export function partitionCriticalMedia(
   mediaAssets: MediaAssetsType,

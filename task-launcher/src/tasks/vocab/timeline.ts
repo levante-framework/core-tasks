@@ -11,6 +11,7 @@ import {
   initTimeline,
   initTrialSaving,
   prepareCorpus,
+  selectInstructionPracticeTrials,
   selectNItems,
 } from '../shared/helpers';
 import { preloadSharedAudio } from '../shared/helpers/preloadSharedAudio';
@@ -32,8 +33,7 @@ export default function buildVocabTimeline(config: Record<string, any>, mediaAss
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {};
-  const { runCat } = taskStore();
-  const { semThreshold } = taskStore();
+  const { runCat, heavyInstructions, semThreshold } = taskStore();
 
   const layoutConfigMap: Record<string, LayoutConfigType> = {};
   for (const c of corpus) {
@@ -58,12 +58,15 @@ export default function buildVocabTimeline(config: Record<string, any>, mediaAss
   // counter for next batch to preload
   let currPreloadBatch = 0;
 
-  // CAT: critical pack (instructions/practice) then background bank. Non-CAT: shared audio only.
-  const corpora = runCat ? prepareCorpus(corpus) : null;
+  // CAT: critical pack (instructions/practice for launched variant) then background bank.
+  // Non-CAT: shared audio only.
+  const corpora = runCat ? prepareCorpus(corpus, 5, taskStore().corpora.downex) : null;
+  const instructionPractice =
+    runCat && corpora ? selectInstructionPracticeTrials(corpora, !!heavyInstructions) : [];
   const initialPreloadTrials =
     runCat && corpora
       ? createProgressiveCatInitialPreload(mediaAssets, {
-          criticalTrials: corpora.ipLight,
+          criticalTrials: instructionPractice,
           imageFields: ['answer', 'distractors'],
           audioFields: ['audioFile'],
         })
@@ -105,8 +108,8 @@ export default function buildVocabTimeline(config: Record<string, any>, mediaAss
   const timeline = [...initialPreloadTrials, initialTimeline];
 
   if (runCat && corpora) {
-    // instruction / practice (critical pack already loaded)
-    corpora.ipLight.forEach((trial: StimulusType) => {
+    // instruction / practice (critical pack already loaded; matches launched variant)
+    instructionPractice.forEach((trial: StimulusType) => {
       timeline.push({ ...fixationOnly, stimulus: '' });
       timeline.push(afcStimulusTemplate(trialConfig, trial));
     });

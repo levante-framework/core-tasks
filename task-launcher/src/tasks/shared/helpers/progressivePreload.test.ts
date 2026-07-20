@@ -34,6 +34,7 @@ import {
   createProgressiveCatInitialPreload,
   partitionCriticalMedia,
   resetBackgroundBankLoad,
+  selectInstructionPracticeTrials,
   startBackgroundBankLoad,
 } from './progressivePreload';
 
@@ -65,6 +66,23 @@ function mediaFixture(): MediaAssetsType {
     },
   };
 }
+
+describe('selectInstructionPracticeTrials', () => {
+  const light = [{ itemId: 'light-1' }] as StimulusType[];
+  const heavy = [{ itemId: 'heavy-1' }] as StimulusType[];
+
+  it('uses ipLight for standard variants', () => {
+    expect(selectInstructionPracticeTrials({ ipLight: light, ipHeavy: heavy }, false)).toBe(light);
+  });
+
+  it('uses ipHeavy when heavyInstructions is set and heavy trials exist', () => {
+    expect(selectInstructionPracticeTrials({ ipLight: light, ipHeavy: heavy }, true)).toBe(heavy);
+  });
+
+  it('falls back to ipLight when heavyInstructions is set but ipHeavy is empty', () => {
+    expect(selectInstructionPracticeTrials({ ipLight: light, ipHeavy: [] }, true)).toBe(light);
+  });
+});
 
 describe('partitionCriticalMedia', () => {
   it('puts instruction/practice trial assets on the critical pack', () => {
