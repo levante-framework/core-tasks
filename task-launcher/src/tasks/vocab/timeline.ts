@@ -61,8 +61,7 @@ export default function buildVocabTimeline(config: Record<string, any>, mediaAss
   // CAT: critical pack (instructions/practice for launched variant) then background bank.
   // Non-CAT: shared audio only.
   const corpora = runCat ? prepareCorpus(corpus, 5, taskStore().corpora.downex) : null;
-  const instructionPractice =
-    runCat && corpora ? selectInstructionPracticeTrials(corpora, !!heavyInstructions) : [];
+  const instructionPractice = runCat && corpora ? selectInstructionPracticeTrials(corpora, !!heavyInstructions) : [];
   const initialPreloadTrials =
     runCat && corpora
       ? createProgressiveCatInitialPreload(mediaAssets, {
