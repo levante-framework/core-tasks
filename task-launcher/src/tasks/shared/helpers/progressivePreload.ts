@@ -292,4 +292,3 @@ export function createCatCriticalLaunch(
   });
   return { instructionPractice, preloadTrials };
 }
-

@@ -230,15 +230,13 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
           ),
           ...allCorpusParts.ipHeavy.filter(
             (trial) =>
-              trial.assessmentStage === 'practice_response' &&
-              !excludedDownexPracticeTypes.includes(trial.trialType),
+              trial.assessmentStage === 'practice_response' && !excludedDownexPracticeTypes.includes(trial.trialType),
           ),
         ]
       : [
           ...allCorpusParts.ipLight.filter(
             (trial) =>
-              trial.trialType === 'instructions' &&
-              ['math-instructions1', 'math-intro1'].includes(trial.itemId),
+              trial.trialType === 'instructions' && ['math-instructions1', 'math-intro1'].includes(trial.itemId),
           ),
           ...allCorpusParts.ipLight.filter(
             (trial) => trial.assessmentStage === 'practice_response' && Number(trial.block_index) === 0,
