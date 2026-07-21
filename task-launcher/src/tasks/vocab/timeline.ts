@@ -5,13 +5,12 @@ import {
   batchMediaAssets,
   batchTrials,
   createAwaitBackgroundBankTrial,
+  createCatCriticalLaunch,
   createPreloadTrials,
-  createProgressiveCatInitialPreload,
   getRealTrials,
   initTimeline,
   initTrialSaving,
   prepareCorpus,
-  selectInstructionPracticeTrials,
   selectNItems,
 } from '../shared/helpers';
 import { preloadSharedAudio } from '../shared/helpers/preloadSharedAudio';
@@ -61,15 +60,16 @@ export default function buildVocabTimeline(config: Record<string, any>, mediaAss
   // CAT: critical pack (instructions/practice for launched variant) then background bank.
   // Non-CAT: shared audio only.
   const corpora = runCat ? prepareCorpus(corpus, 5, taskStore().corpora.downex) : null;
-  const instructionPractice = runCat && corpora ? selectInstructionPracticeTrials(corpora, !!heavyInstructions) : [];
-  const initialPreloadTrials =
+  const { instructionPractice, preloadTrials: progressivePreloadTrials } =
     runCat && corpora
-      ? createProgressiveCatInitialPreload(mediaAssets, {
-          criticalTrials: instructionPractice,
+      ? createCatCriticalLaunch(mediaAssets, {
+          corpora,
+          heavyInstructions: !!heavyInstructions,
           imageFields: ['answer', 'distractors'],
           audioFields: ['audioFile'],
         })
-      : [preloadSharedAudio()];
+      : { instructionPractice: [] as StimulusType[], preloadTrials: [preloadSharedAudio()] };
+  const initialPreloadTrials = progressivePreloadTrials;
 
   // does not matter if trial has properties that don't belong to that type
   const trialConfig = {

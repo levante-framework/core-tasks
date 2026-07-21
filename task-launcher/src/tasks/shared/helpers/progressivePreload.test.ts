@@ -31,6 +31,7 @@ vi.mock('../../../taskStore', () => ({
 
 import {
   awaitBackgroundBankLoad,
+  createCatCriticalLaunch,
   createProgressiveCatInitialPreload,
   partitionCriticalMedia,
   resetBackgroundBankLoad,
@@ -185,5 +186,48 @@ describe('createProgressiveCatInitialPreload', () => {
       response_ends_trial: false,
     });
     expect(typeof trialsOut[1].on_load).toBe('function');
+  });
+});
+
+describe('createCatCriticalLaunch', () => {
+  const light = [{ itemId: 'light-1', answer: 'practice-img', audioFile: 'practice-audio' }] as StimulusType[];
+  const heavy = [{ itemId: 'heavy-1', answer: 'practice-img', audioFile: 'practice-audio' }] as StimulusType[];
+
+  it('selects heavy practice and returns preload plus kick trials', () => {
+    const media = mediaFixture();
+    const { instructionPractice, preloadTrials } = createCatCriticalLaunch(media, {
+      corpora: { ipLight: light, ipHeavy: heavy },
+      heavyInstructions: true,
+      imageFields: ['answer'],
+      audioFields: ['audioFile'],
+    });
+
+    expect(instructionPractice).toBe(heavy);
+    expect(preloadTrials).toHaveLength(2);
+    expect(preloadTrials[0].type).toBe('preload-mock');
+    expect(typeof preloadTrials[1].on_load).toBe('function');
+  });
+
+  it('selects light practice when heavyInstructions is false', () => {
+    const media = mediaFixture();
+    const { instructionPractice, preloadTrials } = createCatCriticalLaunch(media, {
+      corpora: { ipLight: light, ipHeavy: heavy },
+      heavyInstructions: false,
+      imageFields: ['answer'],
+    });
+
+    expect(instructionPractice).toBe(light);
+    expect(preloadTrials).toHaveLength(2);
+  });
+
+  it('falls back to light practice when heavy is empty', () => {
+    const media = mediaFixture();
+    const { instructionPractice } = createCatCriticalLaunch(media, {
+      corpora: { ipLight: light, ipHeavy: [] },
+      heavyInstructions: true,
+      imageFields: ['answer'],
+    });
+
+    expect(instructionPractice).toBe(light);
   });
 });

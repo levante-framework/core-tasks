@@ -1,12 +1,11 @@
 import { taskStore } from '../../taskStore';
 import {
   createAwaitBackgroundBankTrial,
-  createProgressiveCatInitialPreload,
+  createCatCriticalLaunch,
   initTimeline,
   initTrialSaving,
   prepareCorpus,
   prepareMultiBlockCat,
-  selectInstructionPracticeTrials,
 } from '../shared/helpers';
 import {
   enterFullscreen,
@@ -29,15 +28,12 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
 
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
   const preparedCorpus = prepareCorpus(corpus, 0, taskStore().corpora.downex, true);
-  const instructionPracticeTrials = selectInstructionPracticeTrials(preparedCorpus, heavy);
-
-  // Critical pack = instructions/practice for launched variant; remaining assets load in background.
-  const preloadTrials = createProgressiveCatInitialPreload(mediaAssets, {
-    criticalTrials: instructionPracticeTrials,
+  const { instructionPractice: instructionPracticeTrials, preloadTrials } = createCatCriticalLaunch(mediaAssets, {
+    corpora: preparedCorpus,
+    heavyInstructions: heavy,
     imageFields: ['image', 'answer', 'distractors'],
     audioFields: ['audioFile'],
   });
-
   const catCorpus = setupSds(taskStore().corpora.stimulus);
   const allBlocks = prepareMultiBlockCat(catCorpus);
 

@@ -41,6 +41,7 @@ export * from './prepareChoices';
 export {
   awaitBackgroundBankLoad,
   createAwaitBackgroundBankTrial,
+  createCatCriticalLaunch,
   createKickBackgroundBankTrial,
   createProgressiveCatInitialPreload,
   partitionCriticalMedia,

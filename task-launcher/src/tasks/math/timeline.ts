@@ -3,6 +3,8 @@ import store from 'store2';
 import { taskStore } from '../../taskStore';
 // setup
 import {
+  createAwaitBackgroundBankTrial,
+  createCatCriticalLaunch,
   createPreloadTrials,
   getRealTrials,
   initTimeline,
@@ -28,8 +30,6 @@ import { getLayoutConfig } from './helpers/config';
 import { slider } from './trials/sliderStimulus';
 
 export default function buildMathTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
-  const preloadTrials = createPreloadTrials(mediaAssets).default;
-
   initTrialSaving(config);
   const initialTimeline = initTimeline(config, enterFullscreen);
 
@@ -53,14 +53,15 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
     };
   };
 
-  const timeline = [preloadTrials, initialTimeline];
-
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
   const downexCorpus: StimulusType[] = taskStore().corpora.downex;
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {};
 
   const { runCat, heavyInstructions } = taskStore();
+
+  // CAT: critical pack for launched variant, then background bank. Non-CAT: full preload.
+  const timeline: any[] = runCat ? [initialTimeline] : [createPreloadTrials(mediaAssets).default, initialTimeline];
 
   taskStore('totalTrials', corpus.length);
 
@@ -210,6 +211,49 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
   if (runCat) {
     // puts the CAT portion of the corpus into taskStore and removes instructions
     const allCorpusParts = prepareCorpus(corpus, 3, downexCorpus, false, -3);
+
+    const excludedDownexPracticeTypes = [
+      'Addition',
+      'Number Comparison',
+      'Number Identification',
+      'Counting',
+      'Counting AFC',
+    ];
+
+    // Critical pack = only media needed before the first scored block (not later block intros).
+    const criticalTrials: StimulusType[] = heavyInstructions
+      ? [
+          ...allCorpusParts.ipHeavy.filter(
+            (trial) =>
+              trial.trialType === 'instructions' &&
+              ['math-instructions1-heavy', 'math-intro1-heavy'].includes(trial.itemId),
+          ),
+          ...allCorpusParts.ipHeavy.filter(
+            (trial) =>
+              trial.assessmentStage === 'practice_response' &&
+              !excludedDownexPracticeTypes.includes(trial.trialType),
+          ),
+        ]
+      : [
+          ...allCorpusParts.ipLight.filter(
+            (trial) =>
+              trial.trialType === 'instructions' &&
+              ['math-instructions1', 'math-intro1'].includes(trial.itemId),
+          ),
+          ...allCorpusParts.ipLight.filter(
+            (trial) => trial.assessmentStage === 'practice_response' && Number(trial.block_index) === 0,
+          ),
+        ];
+
+    const { preloadTrials } = createCatCriticalLaunch(mediaAssets, {
+      corpora: allCorpusParts,
+      heavyInstructions: !!heavyInstructions,
+      imageFields: ['answer', 'distractors'],
+      audioFields: ['audioFile'],
+      criticalTrials,
+    });
+    timeline.unshift(...preloadTrials);
+
     const olderKidInstructionPractice: StimulusType[] = allCorpusParts.ipLight;
     const olderKidInstructions: StimulusType[] = olderKidInstructionPractice.filter(
       (trial: StimulusType) => trial.trialType === 'instructions',
@@ -245,15 +289,6 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
         return !nonDownexIds.includes(trial.itemId as string);
       });
 
-      // filter practice trials to only include appropriate trial types if downward extension
-      const excludedDownexPracticeTypes = [
-        'Addition',
-        'Number Comparison',
-        'Number Identification',
-        'Counting',
-        'Counting AFC',
-      ];
-
       downexPractice = downexPractice.filter((trial) => !excludedDownexPracticeTypes.includes(trial.trialType));
 
       const allowedIds = ['math-instructions1-heavy', 'math-intro1-heavy'];
@@ -271,6 +306,8 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
       });
 
       timeline.push(practiceTransition());
+      // Wait for remaining bank before first scored (downex) items
+      timeline.push(createAwaitBackgroundBankTrial());
 
       const numOfTrials = Math.floor(downexBlock.length / 2);
       taskStore.transact('totalTestTrials', (oldVal: number) => (oldVal += numOfTrials));
@@ -336,6 +373,11 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
 
       // practice transition screen
       timeline.push(practiceTransition());
+
+      // Wait for remaining bank before first scored items (non-heavy path)
+      if (i === 0 && !heavyInstructions) {
+        timeline.push(createAwaitBackgroundBankTrial());
+      }
 
       // push in random items at start of first block (after practice trials)
       if (i === 0) {

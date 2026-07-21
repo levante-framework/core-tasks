@@ -254,3 +254,42 @@ export function createProgressiveCatInitialPreload(
     }),
   ];
 }
+
+/**
+ * Thin CAT wiring: pick practice trials for the launched variant, then build
+ * critical-pack preload + background bank kick trials.
+ *
+ * Optional `criticalTrials` overrides which media enter the critical pack
+ * (e.g. math only needs the first instruction/practice block, not all later intros).
+ */
+export function createCatCriticalLaunch(
+  mediaAssets: MediaAssetsType,
+  options: {
+    corpora: { ipLight: StimulusType[]; ipHeavy: StimulusType[] };
+    heavyInstructions: boolean;
+    imageFields: string[];
+    audioFields?: string[];
+    criticalTrials?: StimulusType[];
+  },
+): { instructionPractice: StimulusType[]; preloadTrials: Record<string, unknown>[] } {
+  const { corpora, heavyInstructions, imageFields, audioFields = ['audioFile'], criticalTrials } = options;
+  const instructionPractice = selectInstructionPracticeTrials(corpora, heavyInstructions);
+  const criticalForPreload = criticalTrials ?? instructionPractice;
+  markCriticalPack({
+    heavyInstructions,
+    usedHeavyPractice: heavyInstructions && corpora.ipHeavy.length > 0,
+    ipLightCount: corpora.ipLight.length,
+    ipHeavyCount: corpora.ipHeavy.length,
+    instructionPracticeCount: instructionPractice.length,
+    instructionPracticeIds: instructionPractice.map((t) => t.itemId).slice(0, 40),
+    criticalTrialCount: criticalForPreload.length,
+    criticalTrialIds: criticalForPreload.map((t) => t.itemId).slice(0, 40),
+  });
+  const preloadTrials = createProgressiveCatInitialPreload(mediaAssets, {
+    criticalTrials: criticalForPreload,
+    imageFields,
+    audioFields,
+  });
+  return { instructionPractice, preloadTrials };
+}
+
