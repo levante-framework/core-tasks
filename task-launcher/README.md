@@ -102,6 +102,18 @@ pid: [string] (optional) {Default: random generated string}
 
 ### TROG
 
+# Development
+
+```bash
+cd task-launcher
+npm install          # also installs the Biome pre-commit hook via husky
+npm run check        # same check CI runs (npm-lint)
+npm run check:fix  # auto-fix format issues
+```
+
+Pre-commit runs `lint-staged` → `biome check --write` on staged files so format
+mismatches are fixed before they hit CI.
+
 ## Theory of Mind
 
 ## How ROAR / LEVANTE Tasks work within the greater ROAD infrastructure
