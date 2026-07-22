@@ -44,6 +44,7 @@ export {
   createCatCriticalLaunch,
   createKickBackgroundBankTrial,
   createProgressiveCatInitialPreload,
+  isBackgroundBankReady,
   partitionCriticalMedia,
   resetBackgroundBankLoad,
   selectInstructionPracticeTrials,

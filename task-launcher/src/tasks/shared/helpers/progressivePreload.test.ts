@@ -29,10 +29,20 @@ vi.mock('../../../taskStore', () => ({
   }),
 }));
 
+const logoMocks = vi.hoisted(() => ({
+  showLevanteLogoLoading: vi.fn(),
+  hideLevanteLogoLoading: vi.fn(),
+}));
+
+vi.mock('./loadingScreen', () => logoMocks);
+
+import { jsPsych } from '../../taskSetup';
 import {
   awaitBackgroundBankLoad,
+  createAwaitBackgroundBankTrial,
   createCatCriticalLaunch,
   createProgressiveCatInitialPreload,
+  isBackgroundBankReady,
   partitionCriticalMedia,
   resetBackgroundBankLoad,
   selectInstructionPracticeTrials,
@@ -141,10 +151,14 @@ describe('partitionCriticalMedia', () => {
 describe('background bank load', () => {
   beforeEach(() => {
     resetBackgroundBankLoad();
+    logoMocks.showLevanteLogoLoading.mockClear();
+    logoMocks.hideLevanteLogoLoading.mockClear();
+    vi.mocked(jsPsych.finishTrial).mockClear();
   });
 
   it('await is a no-op when the bank was never started', async () => {
     await expect(awaitBackgroundBankLoad()).resolves.toBeUndefined();
+    expect(isBackgroundBankReady()).toBe(false);
   });
 
   it('reuses one promise across startBackgroundBankLoad calls', async () => {
@@ -159,6 +173,72 @@ describe('background bank load', () => {
     const second = startBackgroundBankLoad({ rest });
     expect(first).toBe(second);
     await expect(awaitBackgroundBankLoad()).resolves.toBeUndefined();
+    expect(isBackgroundBankReady()).toBe(true);
+  });
+
+  it('marks bank ready after load settles and clears on reset', async () => {
+    const media = mediaFixture();
+    expect(isBackgroundBankReady()).toBe(false);
+    startBackgroundBankLoad({
+      rest: { images: { bankImg: media.images.bankImg }, audio: {}, video: {} },
+    });
+    await awaitBackgroundBankLoad();
+    expect(isBackgroundBankReady()).toBe(true);
+    resetBackgroundBankLoad();
+    expect(isBackgroundBankReady()).toBe(false);
+  });
+
+  it('await trial skips logo when bank is already ready', async () => {
+    const media = mediaFixture();
+    startBackgroundBankLoad({
+      rest: { images: { bankImg: media.images.bankImg }, audio: {}, video: {} },
+    });
+    await awaitBackgroundBankLoad();
+
+    const trial = createAwaitBackgroundBankTrial();
+    await (trial.on_load as () => Promise<void>)();
+
+    expect(logoMocks.showLevanteLogoLoading).not.toHaveBeenCalled();
+    expect(logoMocks.hideLevanteLogoLoading).not.toHaveBeenCalled();
+    expect(jsPsych.finishTrial).toHaveBeenCalledWith({
+      backgroundBankReady: true,
+      waitedForBank: false,
+    });
+  });
+
+  it('await trial shows logo while waiting for the bank', async () => {
+    let resolveImages!: () => void;
+    const preloadImages = vi.fn((_files: string[], cb: () => void) => {
+      resolveImages = cb;
+    });
+    const previousPreload = jsPsych.pluginAPI.preloadImages;
+    vi.mocked(jsPsych.pluginAPI).preloadImages = preloadImages;
+
+    try {
+      const media = mediaFixture();
+      startBackgroundBankLoad({
+        rest: { images: { bankImg: media.images.bankImg }, audio: {}, video: {} },
+      });
+      expect(isBackgroundBankReady()).toBe(false);
+
+      const trial = createAwaitBackgroundBankTrial();
+      const onLoadPromise = (trial.on_load as () => Promise<void>)();
+
+      expect(logoMocks.showLevanteLogoLoading).toHaveBeenCalledTimes(1);
+      expect(logoMocks.hideLevanteLogoLoading).not.toHaveBeenCalled();
+
+      resolveImages();
+      await onLoadPromise;
+
+      expect(isBackgroundBankReady()).toBe(true);
+      expect(logoMocks.hideLevanteLogoLoading).toHaveBeenCalledTimes(1);
+      expect(jsPsych.finishTrial).toHaveBeenCalledWith({
+        backgroundBankReady: true,
+        waitedForBank: true,
+      });
+    } finally {
+      vi.mocked(jsPsych.pluginAPI).preloadImages = previousPreload;
+    }
   });
 });
 

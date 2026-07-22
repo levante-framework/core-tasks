@@ -4,11 +4,13 @@ import { jsPsych } from '../../taskSetup';
 import { batchMediaAssets } from './batchPreloading';
 import { createPreloadTrials } from './createPreloadTrials';
 import { filterMedia } from './filterMedia';
+import { hideLevanteLogoLoading, showLevanteLogoLoading } from './loadingScreen';
 
 /** jsPsych audio plugins still need a few per-file buffers. */
 const PLUGIN_AUDIO_KEYS = ['select', 'coin', 'fail', 'inputAudioCue', 'nullAudio', 'pop'];
 
 let bankPromise: Promise<void> | null = null;
+let bankSettled = false;
 
 /**
  * Instruction/practice trials for the launched variant.
@@ -151,6 +153,7 @@ export function startBackgroundBankLoad(options: { rest: MediaAssetsType }): Pro
 
   markCriticalPack({ bankStartedAt: Date.now() });
 
+  bankSettled = false;
   bankPromise = (async () => {
     try {
       await preloadWithPluginApi('images', Object.values(rest.images));
@@ -163,6 +166,8 @@ export function startBackgroundBankLoad(options: { rest: MediaAssetsType }): Pro
         bankReadyAt: Date.now(),
         bankError: error instanceof Error ? error.message : String(error),
       });
+    } finally {
+      bankSettled = true;
     }
   })();
 
@@ -172,6 +177,7 @@ export function startBackgroundBankLoad(options: { rest: MediaAssetsType }): Pro
 /** Reset module state (tests / task re-entry). */
 export function resetBackgroundBankLoad(): void {
   bankPromise = null;
+  bankSettled = false;
   markCriticalPack({
     resetAt: Date.now(),
     criticalDoneAt: null,
@@ -179,6 +185,10 @@ export function resetBackgroundBankLoad(): void {
     bankReadyAt: null,
     bankError: null,
   });
+}
+
+export function isBackgroundBankReady(): boolean {
+  return bankSettled;
 }
 
 export async function awaitBackgroundBankLoad(): Promise<void> {
@@ -210,12 +220,20 @@ export function createAwaitBackgroundBankTrial(): Record<string, unknown> {
     trial_duration: null,
     response_ends_trial: false,
     on_load: async () => {
+      if (isBackgroundBankReady()) {
+        jsPsych.finishTrial({ backgroundBankReady: true, waitedForBank: false });
+        return;
+      }
+
+      showLevanteLogoLoading();
       try {
         await awaitBackgroundBankLoad();
       } catch (error) {
         console.warn('Await background bank failed', error);
+      } finally {
+        hideLevanteLogoLoading();
       }
-      jsPsych.finishTrial({ backgroundBankReady: true });
+      jsPsych.finishTrial({ backgroundBankReady: true, waitedForBank: true });
     },
   };
 }
