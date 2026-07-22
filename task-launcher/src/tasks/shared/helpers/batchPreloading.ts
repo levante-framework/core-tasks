@@ -27,12 +27,14 @@ export function batchMediaAssets(
       audioFields.forEach((string) => {
         const trialField = trial[string as 'audioFile' | 'distractors'] as any;
 
-        if (trialField !== undefined && trialField.length !== 0) {
+        if (trialField !== undefined && trialField !== null && trialField.length !== 0) {
           if (typeof trialField === 'string') {
             blockAudio.push(camelize(trialField));
-          } else {
-            const trialFieldCamelized = (trialField as string[]).map((key: string) => camelize(key));
+          } else if (Array.isArray(trialField)) {
+            const trialFieldCamelized = trialField.map((key: string) => camelize(String(key)));
             blockAudio.push(...trialFieldCamelized);
+          } else {
+            blockAudio.push(camelize(String(trialField)));
           }
         }
       });
@@ -43,12 +45,15 @@ export function batchMediaAssets(
       imageFields.forEach((string) => {
         const trialField = trial[string as 'image' | 'distractors' | 'answer' | 'item'] as any;
 
-        if (trialField !== undefined && trialField.length !== 0) {
+        if (trialField !== undefined && trialField !== null && trialField !== '') {
           if (typeof trialField === 'string') {
             blockImages.push(camelize(trialField));
-          } else {
-            const trialFieldCamelized = (trialField as string[]).map((key: string) => camelize(key));
+          } else if (Array.isArray(trialField)) {
+            if (trialField.length === 0) return;
+            const trialFieldCamelized = trialField.map((key: string | number) => camelize(String(key)));
             blockImages.push(...trialFieldCamelized);
+          } else {
+            blockImages.push(camelize(String(trialField)));
           }
         }
       });

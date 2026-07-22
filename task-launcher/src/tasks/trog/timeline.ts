@@ -4,13 +4,16 @@ import { taskStore } from '../../taskStore';
 import {
   batchMediaAssets,
   batchTrials,
+  createAwaitBackgroundBankTrial,
+  createCatCriticalLaunch,
   createPreloadTrials,
   getRealTrials,
   initTimeline,
   initTrialSaving,
+  prepareCorpus,
+  selectNItems,
 } from '../shared/helpers';
 import { preloadSharedAudio } from '../shared/helpers/preloadSharedAudio';
-import { prepareCorpus, selectNItems } from '../shared/helpers/prepareCat';
 // trials
 import {
   afcStimulusTemplate,
@@ -30,8 +33,7 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {};
-  const { runCat } = taskStore();
-  const { semThreshold } = taskStore();
+  const { runCat, heavyInstructions, semThreshold } = taskStore();
 
   const layoutConfigMap: Record<string, LayoutConfigType> = {};
   for (const c of corpus) {
@@ -56,9 +58,21 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
   // counter for next batch to preload (skipping the initial preload)
   let currPreloadBatch = 0;
 
-  const initialPreload = runCat ? createPreloadTrials(mediaAssets).default : preloadSharedAudio();
+  // CAT: critical pack (instructions/practice for launched variant) then background bank.
+  // Non-CAT: shared audio only.
+  const corpora = runCat ? prepareCorpus(corpus, 5, taskStore().corpora.downex) : null;
+  const { instructionPractice, preloadTrials: progressivePreloadTrials } =
+    runCat && corpora
+      ? createCatCriticalLaunch(mediaAssets, {
+          corpora,
+          heavyInstructions: !!heavyInstructions,
+          imageFields: ['answer', 'distractors'],
+          audioFields: ['audioFile'],
+        })
+      : { instructionPractice: [] as StimulusType[], preloadTrials: [preloadSharedAudio()] };
+  const initialPreloadTrials = progressivePreloadTrials;
 
-  const timeline = [initialPreload, initialTimeline];
+  const timeline = [...initialPreloadTrials, initialTimeline];
 
   // does not matter if trial has properties that don't belong to that type
   const trialConfig = {
@@ -93,20 +107,19 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
     currPreloadBatch++;
   }
 
-  if (runCat) {
-    // seperate out corpus to get cat/non-cat blocks
-    const corpora = prepareCorpus(corpus);
-
-    // instruction block (non-cat)
-    corpora.ipLight.forEach((trial: StimulusType) => {
+  if (runCat && corpora) {
+    // instruction / practice (critical pack already loaded; matches launched variant)
+    instructionPractice.forEach((trial: StimulusType) => {
       timeline.push({ ...fixationOnly, stimulus: '' });
       timeline.push(afcStimulusTemplate(trialConfig, trial));
     });
 
-    // push in practice transition
-    if (corpora.ipLight.filter((trial) => trial.assessmentStage === 'practice_response').length > 0) {
+    if (instructionPractice.filter((trial) => trial.assessmentStage === 'practice_response').length > 0) {
       timeline.push(practiceTransition());
     }
+
+    // Wait for remaining bank before scored items
+    timeline.push(createAwaitBackgroundBankTrial());
 
     // push in starting block
     corpora.start.forEach((trial: StimulusType) => {

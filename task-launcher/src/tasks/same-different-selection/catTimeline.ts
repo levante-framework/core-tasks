@@ -1,6 +1,7 @@
 import { taskStore } from '../../taskStore';
 import {
-  createPreloadTrials,
+  createAwaitBackgroundBankTrial,
+  createCatCriticalLaunch,
   initTimeline,
   initTrialSaving,
   prepareCorpus,
@@ -23,12 +24,16 @@ import { legacyStimulus } from './trials/legacyStimulus';
 import { stimulus } from './trials/stimulus';
 
 export default function buildSameDifferentTimelineCat(config: Record<string, any>, mediaAssets: MediaAssetsType) {
-  const preloadTrials = createPreloadTrials(mediaAssets).default;
   const heavy: boolean = taskStore().heavyInstructions;
 
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
-  const preparedCorpus = prepareCorpus(corpus, 0, undefined, true);
-
+  const preparedCorpus = prepareCorpus(corpus, 0, taskStore().corpora.downex, true);
+  const { instructionPractice: instructionPracticeTrials, preloadTrials } = createCatCriticalLaunch(mediaAssets, {
+    corpora: preparedCorpus,
+    heavyInstructions: heavy,
+    imageFields: ['image', 'answer', 'distractors'],
+    audioFields: ['audioFile'],
+  });
   const catCorpus = setupSds(taskStore().corpora.stimulus);
   const allBlocks = prepareMultiBlockCat(catCorpus);
 
@@ -117,10 +122,10 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
     };
   }
 
-  const timeline = [preloadTrials, initialTimeline];
+  const timeline = [...preloadTrials, initialTimeline];
 
-  // all instructions + practice trials
-  let instructionPractice: StimulusType[] = preparedCorpus.ipLight;
+  // all instructions + practice trials for the launched variant
+  let instructionPractice: StimulusType[] = instructionPracticeTrials;
 
   let fiveBlockIntroTrial: StimulusType;
   let fiveBlockIntro: any;
@@ -151,6 +156,7 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
   const totalRealTrials = blockCountList.reduce((acc, total) => acc + total, 0);
   taskStore('totalTestTrials', totalRealTrials);
 
+  let bankAwaitInserted = false;
   blockCountList.forEach((count, index) => {
     const currentBlockInstructionPractice = getPracticeInstructions(index);
 
@@ -161,6 +167,12 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
     // only younger kids get something-same blocks
     if (!heavy && index === 1 && taskStore().version === 2) {
       return;
+    }
+
+    // Ensure remaining bank is ready before the first scored item.
+    if (!bankAwaitInserted) {
+      timeline.push(createAwaitBackgroundBankTrial());
+      bankAwaitInserted = true;
     }
 
     const numOfTrials = index === 0 ? count : count / 2; // change this based on simulation results?
