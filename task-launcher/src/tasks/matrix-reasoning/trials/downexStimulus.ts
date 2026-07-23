@@ -122,13 +122,19 @@ export const downexStimulus = (
       const incorrectPracticeResponses: Array<string | null> = [];
       taskStore('incorrectPracticeResponses', incorrectPracticeResponses);
 
-      function onCorrect() {
+      function onCorrect(onFeedbackEnded: () => void) {
         PageAudioHandler.stopAndDisconnectNode();
         cycleId++;
-        PageAudioHandler.playAudio(mediaAssets.audio.feedbackRightOne);
+        PageAudioHandler.playAudio(mediaAssets.audio.feedbackRightOne, {
+          restrictRepetition: {
+            enabled: false,
+            maxRepetitions: 2,
+          },
+          onEnded: onFeedbackEnded,
+        });
       }
 
-      function onIncorrect() {
+      function onIncorrect(onFeedbackEnded: () => void) {
         PageAudioHandler.stopAndDisconnectNode();
         cycleId++;
 
@@ -148,6 +154,7 @@ export const downexStimulus = (
             enabled: true,
             maxRepetitions: 2,
           },
+          onEnded: onFeedbackEnded,
         };
 
         PageAudioHandler.playAudio(mediaAssets.audio.matrixReasoningFeedbackIncorrectDownex, audioConfig);
