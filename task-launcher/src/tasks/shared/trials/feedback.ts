@@ -1,15 +1,10 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
-import { PageAudioHandler } from '../helpers';
+import { camelize, PageAudioHandler } from '../helpers';
 
 // isPractice parameter is for tasks that don't have a corpus (e.g. memory game)
-export const feedback = (
-  isPractice = false,
-  correctFeedbackAudioKey: string,
-  inCorrectFeedbackAudioKey: string,
-  showPrompt: boolean = false,
-) => {
+export const feedback = (isPractice = false, promptOnIncorrect?: string) => {
   return {
     timeline: [
       {
@@ -18,25 +13,6 @@ export const feedback = (
           const t = taskStore().translations;
           const isCorrect = taskStore().isCorrect;
           const imageUrl = isCorrect ? mediaAssets.images['smilingFace@2x'] : mediaAssets.images['sadFace@2x'];
-          let promptOnIncorrect: string; // prompt displayed at bottom if incorrect, differs by task
-
-          switch (taskStore().task) {
-            case 'same-different-selection':
-              promptOnIncorrect = t.sds2matchPrompt1;
-              break;
-            case 'memory-game':
-              if (inCorrectFeedbackAudioKey.toUpperCase().includes('BACKWARD')) {
-                promptOnIncorrect = t.memoryGameBackwardPrompt;
-              } else {
-                promptOnIncorrect = t.memoryGameInput;
-              }
-              break;
-            case 'egma-math':
-              promptOnIncorrect = t.numberLineSliderPrompt1;
-              break;
-            default:
-              promptOnIncorrect = '';
-          }
 
           return `<div class="lev-stimulus-container">
                             <div class="lev-row-container instruction">
@@ -47,10 +23,10 @@ export const feedback = (
                             </div>
                     
                             ${
-                              isCorrect || !showPrompt
+                              isCorrect || !promptOnIncorrect
                                 ? ''
                                 : `<div class="lev-row-container instruction"'>
-                                <p>${promptOnIncorrect}</p>
+                                <p>${taskStore().translations[camelize(promptOnIncorrect)]}</p>
                               </div>`
                             }
                         </div>`;
@@ -64,19 +40,22 @@ export const feedback = (
         },
         on_load: () => {
           const isCorrect = taskStore().isCorrect;
-          const stimulusPath = isCorrect
-            ? mediaAssets.audio[correctFeedbackAudioKey]
-            : mediaAssets.audio[inCorrectFeedbackAudioKey];
+          const feedbackAudio = isCorrect ? mediaAssets.audio.feedbackCorrect : mediaAssets.audio.feedbackNotQuiteRight;
 
           const audioConfig: AudioConfigType = {
             restrictRepetition: {
               enabled: false,
               maxRepetitions: 2,
             },
+            onEnded: () => {
+              if (promptOnIncorrect && !isCorrect) {
+                PageAudioHandler.playAudio(mediaAssets.audio[promptOnIncorrect]);
+              }
+            },
           };
 
           PageAudioHandler.stopAndDisconnectNode();
-          PageAudioHandler.playAudio(stimulusPath || mediaAssets.audio.nullAudio, audioConfig);
+          PageAudioHandler.playAudio(feedbackAudio || mediaAssets.audio.nullAudio, audioConfig);
         },
         on_finish: () => {
           PageAudioHandler.stopAndDisconnectNode();

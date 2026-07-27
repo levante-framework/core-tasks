@@ -54,7 +54,7 @@ const instructionData = [
     buttonText: 'continueButtonText',
   },
   {
-    prompt: 'memoryGameInstruct3',
+    prompt: 'memoryGameInstruct8Downex',
     video: 'selectSequence',
     buttonText: 'continueButtonText',
   },
@@ -74,7 +74,7 @@ const instructionData = [
     buttonText: 'continueButtonText',
   },
   {
-    prompt: 'memoryGameBackwardPrompt',
+    prompt: 'memoryGameInstruct11Downex',
     video: 'selectSequenceReverse',
     buttonText: 'continueButtonText',
   },

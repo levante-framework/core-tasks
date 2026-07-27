@@ -210,7 +210,7 @@ export function getCorsiBlocks({
           corpusTrialType: getMemoryGameType(mode, reverse, gridSize),
           responseLocation: data.response,
           itemUid: itemUid,
-          audioFile: reverse ? 'memory-game-backward-prompt' : 'memory-game-input',
+          audioFile: reverse ? 'memory-game-instruct-11-downex' : 'memory-game-instruct-8-downex',
         });
         taskStore('isCorrect', data.correct);
 
