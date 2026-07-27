@@ -18,6 +18,13 @@ import { getInputInstructPrompt } from '../helpers/utils';
 let continueTrialConfig;
 let cleanupInstructionInputListeners = [];
 
+function detachInstructionInputListeners() {
+  cleanupInstructionInputListeners.forEach((listenerCleanup) => {
+    listenerCleanup?.();
+  });
+  cleanupInstructionInputListeners = [];
+}
+
 function isHfV2() {
   return taskStore().version === 2;
 }
@@ -119,6 +126,7 @@ function buildInstructionTrial(mascotImage, getPromptKey, showResponseButton = f
     on_load: () => {
       let responseButtons;
       let onButtonPress;
+      let hasResponded = false;
 
       if (showResponseButton) {
         if (continueTrialConfig.type === 'button') {
@@ -148,11 +156,18 @@ function buildInstructionTrial(mascotImage, getPromptKey, showResponseButton = f
         responseButtons = buttonContainer.querySelectorAll('.secondary--green');
 
         onButtonPress = (button, i, event) => {
+          if (hasResponded) {
+            return;
+          }
+
           if (
             (i === 0 && event.key === 'ArrowLeft') ||
             (i === 1 && event.key === 'ArrowRight') ||
             event.type === 'touchend'
           ) {
+            hasResponded = true;
+            detachInstructionInputListeners();
+
             PageAudioHandler.playAudio(mediaAssets.audio.coin);
             button.classList.add('info-shadow');
             setTimeout(() => {
@@ -179,10 +194,14 @@ function buildInstructionTrial(mascotImage, getPromptKey, showResponseButton = f
               const audioUri = mediaAssets.audio[continueTrialConfig.text];
 
               const onSpacebarPress = (event) => {
-                if (event.key === ' ') {
-                  jsPsych.finishTrial();
-                  PageAudioHandler.stopAndDisconnectNode();
+                if (event.key !== ' ' || hasResponded) {
+                  return;
                 }
+
+                hasResponded = true;
+                detachInstructionInputListeners();
+                PageAudioHandler.stopAndDisconnectNode();
+                jsPsych.finishTrial();
               };
 
               window.addEventListener('keydown', onSpacebarPress);
@@ -234,10 +253,7 @@ function buildInstructionTrial(mascotImage, getPromptKey, showResponseButton = f
       setupFullscreenButton();
     },
     on_finish: () => {
-      cleanupInstructionInputListeners?.forEach((listenerCleanup) => {
-        listenerCleanup?.();
-      });
-      cleanupInstructionInputListeners = [];
+      detachInstructionInputListeners();
 
       PageAudioHandler.stopAndDisconnectNode();
 
