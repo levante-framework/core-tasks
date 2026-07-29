@@ -1,5 +1,6 @@
 import { taskStore } from '../../../taskStore';
 import { Logger } from '../../../utils/logger';
+import { resolveAssetsRootUrl } from './assetBase';
 import { camelize } from './camelize';
 
 import 'regenerator-runtime/runtime';
@@ -13,7 +14,6 @@ function parseTranslations(translationData: Record<string, string>[]) {
 }
 
 export const getTranslations = async (isDev: boolean, taskName: string, configLanguage?: string) => {
-  // adult reasoning strings are in the math item bank
   if (taskName === 'adult-reasoning') {
     taskName = 'egma-math';
   }
@@ -36,20 +36,16 @@ export const getTranslations = async (isDev: boolean, taskName: string, configLa
 
   async function fetchData() {
     const urls = [
-      `https://storage.googleapis.com/levante-assets-${
-        isDev ? 'dev' : 'prod'
-      }/translations/itembank/${taskName}/${configLanguage}/item-bank-translations.json`,
-      `https://storage.googleapis.com/levante-assets-${
-        isDev ? 'dev' : 'prod'
-      }/translations/itembank/general/${configLanguage}/item-bank-translations.json`,
+      resolveAssetsRootUrl(isDev, `translations/itembank/${taskName}/${configLanguage}/item-bank-translations.json`),
+      resolveAssetsRootUrl(isDev, `translations/itembank/general/${configLanguage}/item-bank-translations.json`),
     ];
 
-    // hostile attribution requires some strings in the theory of mind item bank
     if (taskName === 'hostile-attribution') {
       urls.push(
-        `https://storage.googleapis.com/levante-assets-${
-          isDev ? 'dev' : 'prod'
-        }/translations/itembank/theory-of-mind/${configLanguage}/item-bank-translations.json`,
+        resolveAssetsRootUrl(
+          isDev,
+          `translations/itembank/theory-of-mind/${configLanguage}/item-bank-translations.json`,
+        ),
       );
     }
     try {

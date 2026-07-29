@@ -4,6 +4,7 @@ export { addKeyHelpers } from './addKeyHelpers';
 export { addExperimenterButtons, setupFullscreenButton } from './addUtilityButtons';
 export { displaceAnimation, popAnimation, triggerAnimation } from './animateImages';
 export * from './appTimer';
+export * from './assetBase';
 export { PageAudioHandler } from './audioHandler';
 export { appendAudioKey, ensureAudioKeysContainer, getAudioKeysContainerHtml } from './audioKeysContainer';
 export * from './baseTimeline';

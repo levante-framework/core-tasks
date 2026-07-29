@@ -6,6 +6,7 @@ import Papa from 'papaparse';
 import { taskStore } from '../../../taskStore';
 import { Logger } from '../../../utils/logger';
 import { shuffleStories } from '../../roar-inference/helpers/shuffleRoarInferenceStories';
+import { resolveBucketFileUrl } from './assetBase';
 import { camelize } from './camelize';
 import { getChildSurveyResponses } from './childSurveyResponses';
 import { getBucketName } from './getBucketName';
@@ -174,7 +175,7 @@ export const getCorpus = async (config: Record<string, any>, isDev: boolean) => 
 
   const bucketName = getBucketName(task, isDev, 'corpus');
 
-  const corpusUrl = `https://storage.googleapis.com/${bucketName}/${corpus}.csv?alt=media&v=3`;
+  const corpusUrl = resolveBucketFileUrl(bucketName, `${corpus}.csv`);
 
   function downloadCSV(url: string) {
     return new Promise((resolve, reject) => {
