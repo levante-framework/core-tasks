@@ -1,3 +1,4 @@
+import { isOfflineAssets, resolveListUrl, resolveObjectUrl } from './assetBase';
 import { camelize } from './camelize';
 
 type CategorizedObjectsType = {
@@ -12,8 +13,14 @@ type ResponseItemType = {
 };
 
 type ResponseDataType = {
-  items: ResponseItemType[];
-  nextPageToken: string;
+  items?: ResponseItemType[];
+  nextPageToken?: string;
+};
+
+const AUDIO_FOLDER_FALLBACKS: Record<string, string> = {
+  'audio/en-US': 'audio/en',
+  'audio/de-DE': 'audio/de',
+  'audio/zh-CN': 'audio/zh',
 };
 
 export async function getMediaAssets(
@@ -27,35 +34,33 @@ export async function getMediaAssets(
   const parts = bucketName.split('/');
   const bucket = parts[0];
   const folder = parts.slice(1).join('/');
-  const baseUrl = `https://storage.googleapis.com/storage/v1/b/${bucket}/o?prefix=${folder}/`;
-
-  let url = baseUrl;
-  if (nextPageToken) {
-    url += `&pageToken=${nextPageToken}`;
-  }
+  const url = resolveListUrl(bucket, folder, nextPageToken);
 
   let data: ResponseDataType;
   let response: Response;
 
   response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch media list (${response.status}): ${url}`);
+  }
   data = await response.json();
 
-  // add temporary fallback for en-US and de-DE until we have the correct folders in the bucket
   if (!data.items || data.items.length === 0) {
-    if (folder === 'audio/en-US') {
-      response = await fetch(`https://storage.googleapis.com/storage/v1/b/${bucket}/o?prefix=audio/en/`);
-      data = await response.json();
-    } else if (folder === 'audio/de-DE') {
-      response = await fetch(`https://storage.googleapis.com/storage/v1/b/${bucket}/o?prefix=audio/de/`);
+    const fallbackFolder = AUDIO_FOLDER_FALLBACKS[folder];
+    if (fallbackFolder) {
+      response = await fetch(resolveListUrl(bucket, fallbackFolder));
+      if (!response.ok) {
+        throw new Error(`Failed to fetch media list (${response.status}): ${resolveListUrl(bucket, fallbackFolder)}`);
+      }
       data = await response.json();
     }
   }
 
-  data.items.forEach((item) => {
+  (data.items || []).forEach((item) => {
     if (isLanguageAndDeviceValid(item.name, language, taskName) && isWhitelisted(item.name, whitelist)) {
       const contentType = item.contentType;
       const id = item.name;
-      const path = `https://storage.googleapis.com/${bucket}/${id}`;
+      const path = resolveObjectUrl(bucket, id);
       const fileName = id.split('/').pop()?.split('.')[0] || '';
       const camelCaseFileName = camelize(fileName);
 
@@ -69,11 +74,10 @@ export async function getMediaAssets(
     }
   });
 
-  if (data.nextPageToken) {
+  if (data.nextPageToken && !isOfflineAssets()) {
     return getMediaAssets(bucketName, whitelist, language, taskName, data.nextPageToken, categorizedObjects);
-  } else {
-    return categorizedObjects;
   }
+  return categorizedObjects;
 }
 
 function isLanguageAndDeviceValid(filePath: string, languageCode: string, taskName: string) {
@@ -82,17 +86,14 @@ function isLanguageAndDeviceValid(filePath: string, languageCode: string, taskNa
   if (parts.length !== 3) {
     return false;
   } else if (parts[0] === 'visual') {
-    // visual assets have task prefix
     return parts[1] === taskName && parts[2].length !== 0;
   } else if (parts[0] === 'audio') {
-    // audio assets have language prefix
     return (parts[1] === languageCode || parts[1] === languageCode.slice(0, 2)) && parts[2].length !== 0;
   }
 
-  return false; // Not a valid path
+  return false;
 }
 
-// TODO: allow nested whitelisting (whitelisting within an already whitelisted folder)
 function isWhitelisted(filePath: string, whitelist: Record<string, string[]>) {
   const parts = filePath.split('/');
   for (const [parent, children] of Object.entries(whitelist)) {
@@ -102,9 +103,9 @@ function isWhitelisted(filePath: string, whitelist: Record<string, string[]>) {
       if (children.includes(childFolder)) {
         return true;
       } else {
-        return false; // Whitelist applies, but this folder is not allowed
+        return false;
       }
     }
   }
-  return true; // Whitelist does not apply to this file's level
+  return true;
 }

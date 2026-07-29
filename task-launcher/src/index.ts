@@ -6,6 +6,7 @@ import {
   getMediaAssets,
   hideLevanteLogoLoading,
   isTaskFinished,
+  setAssetBaseUrl,
   showLevanteLogoLoading,
 } from './tasks/shared/helpers';
 import './styles/index.scss';
@@ -14,6 +15,8 @@ import { setTaskStore, taskStore } from './taskStore';
 import { getBucketName } from './tasks/shared/helpers/getBucketName';
 import taskConfig from './tasks/taskConfig';
 import { InitPageSetup, Logger } from './utils';
+
+export { setAssetBaseUrl } from './tasks/shared/helpers/assetBase';
 
 export let mediaAssets: MediaAssetsType;
 let languageAudioAssets: MediaAssetsType;
@@ -43,6 +46,8 @@ export class TaskLauncher {
       await this.firekit.startRun();
     }
 
+    setAssetBaseUrl(this.gameParams.assetBaseUrl || null);
+
     const { taskName } = this.gameParams;
     let { language } = this.gameParams;
     taskStore('language', language);
@@ -54,6 +59,8 @@ export class TaskLauncher {
       language = 'en-US';
     } else if (language === 'de') {
       language = 'de-DE';
+    } else if (language === 'zh') {
+      language = 'zh-CN';
     }
 
     const { setConfig, getCorpus, buildTaskTimeline, getTranslations } =
