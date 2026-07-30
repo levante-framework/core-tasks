@@ -44,7 +44,8 @@ export const startAppTimer = (maxTimeInMinutes: number) => {
 };
 
 // function for ending the task if the next trial
-export async function checkEndTaskEarly(timeRemaining: number, stimAudio: string) {
+// returns true if the experiment was ended early, false otherwise
+export async function checkEndTaskEarly(timeRemaining: number, stimAudio: string): Promise<boolean> {
   const pageStateHandler = new PageStateHandler(stimAudio, false);
   let minTrialDuration = (await pageStateHandler.getStimulusDurationMs()) + RESPONSE_BUFFER;
 
@@ -55,5 +56,8 @@ export async function checkEndTaskEarly(timeRemaining: number, stimAudio: string
   if (timeRemaining < minTrialDuration) {
     clearTimeout(taskStore().taskTimer);
     finishExperiment();
+    return true;
   }
+
+  return false;
 }
