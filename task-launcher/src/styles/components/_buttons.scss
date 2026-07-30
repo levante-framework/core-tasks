@@ -31,10 +31,12 @@ button {
       border-radius: $button-default-border-radius-small;
     }
 
-    &:hover {
-      background: $bg-button-primary-hover;
-      border-color: $border-button-primary-hover;
-      box-shadow: $button-default-box-shadow rgba($border-button-primary-hover, 0.5) inset;
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        background: $bg-button-primary-hover;
+        border-color: $border-button-primary-hover;
+        box-shadow: $button-default-box-shadow rgba($border-button-primary-hover, 0.5) inset;
+      }
     }
 
     &:active {
@@ -92,10 +94,12 @@ button {
       height: 3 * $font-size-m;
     }
 
-    &:hover {
-      background: $bg-button-primary-hover;
-      border-color: $border-button-primary-hover;
-      box-shadow: $bg-button-secondary inset;
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        background: $bg-button-primary-hover;
+        border-color: $border-button-primary-hover;
+        box-shadow: $bg-button-secondary inset;
+      }
     }
 
     &:active {
@@ -137,12 +141,14 @@ button {
       min-height: 40px;
     }
 
-    &:hover {
-      background: $bg-green-base-hover;
-      border-color: $border-button-green-hover;
-      box-shadow:
-        $button-secondary-box-shadow $border-button-green-hover inset,
-        $button-secondary-inner-shadow $bg-green-gradient inset;
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        background: $bg-green-base-hover;
+        border-color: $border-button-green-hover;
+        box-shadow:
+          $button-secondary-box-shadow $border-button-green-hover inset,
+          $button-secondary-inner-shadow $bg-green-gradient inset;
+      }
     }
 
     &:active {
@@ -170,10 +176,12 @@ button {
       border-radius: $button-default-border-radius-small;
     }
 
-    &:hover {
-      background: $bg-button-primary-hover;
-      border-color: $border-button-primary-hover;
-      box-shadow: $bg-button-secondary inset;
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        background: $bg-button-primary-hover;
+        border-color: $border-button-primary-hover;
+        box-shadow: $bg-button-secondary inset;
+      }
     }
 
     &:active {
@@ -239,9 +247,11 @@ button {
       padding: 9px;
     }
 
-    &:hover {
-      background-color: rgba($bg-button-primary-hover, 0.4);
-      border: 2px solid $border-button-primary-hover;
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        background-color: rgba($bg-button-primary-hover, 0.4);
+        border: 2px solid $border-button-primary-hover;
+      }
     }
 
     &:active {
@@ -310,8 +320,10 @@ button {
       }
     }
 
-    &:hover {
-      border-color: $bg-accent_secondary;
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        border-color: $bg-accent_secondary;
+      }
     }
 
     &:active {
@@ -354,8 +366,10 @@ button {
       }
     }
 
-    &:hover {
-      border-color: $bg-accent_secondary;
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        border-color: $bg-accent_secondary;
+      }
     }
 
     &:active {
@@ -390,8 +404,10 @@ button {
       float: left;
     }
 
-    &:hover {
-      border-color: $bg-accent_secondary;
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        border-color: $bg-accent_secondary;
+      }
     }
 
     &:active {
