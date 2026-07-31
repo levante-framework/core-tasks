@@ -81,7 +81,7 @@ export class TaskLauncher {
 
     setTaskStore(config);
 
-    this.firekit?.updateStopType(taskStore().effectiveStoppingRule);
+    this.firekit?.updateStopReason(taskStore().effectiveStoppingRule);
 
     await getTranslations(isDev, taskName, language);
 
@@ -134,6 +134,6 @@ export class TaskLauncher {
 
     await isTaskFinished(checkTaskFinished);
 
-    this.firekit?.updateStopType(taskStore().effectiveStoppingRule);
+    this.firekit?.updateStopReason(taskStore().effectiveStoppingRule);
   }
 }

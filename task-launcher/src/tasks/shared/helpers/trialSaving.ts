@@ -128,7 +128,10 @@ export const initTrialSaving = (config: Record<string, any>) => {
     }
 
     // record completion at 80%
-    if (taskStore().testTrialCount >= taskStore().totalTestTrials * 0.8 && taskStore().effectiveStoppingRule === 'taskAbort') {
+    if (
+      taskStore().testTrialCount >= taskStore().totalTestTrials * 0.8 &&
+      taskStore().effectiveStoppingRule === 'taskAbort'
+    ) {
       recordCompletion(config);
 
       const logger = Logger.getInstance();
@@ -138,7 +141,7 @@ export const initTrialSaving = (config: Record<string, any>) => {
       });
 
       taskStore('effectiveStoppingRule', 'sufficientTrials');
-      config.firekit.updateStopType(taskStore().effectiveStoppingRule);
+      config.firekit.updateStopReason(taskStore().effectiveStoppingRule);
     }
 
     taskStore('totalTrialCount', taskStore().totalTrialCount + 1);
