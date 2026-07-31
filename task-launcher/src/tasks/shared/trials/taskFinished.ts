@@ -41,7 +41,7 @@ export const taskFinished = (endMessage = 'taskFinished') => {
       setTimeout(() => {
         window.addEventListener('click', endTask);
         window.addEventListener('keydown', endTask);
-      }, 50);
+      }, 50); // delay so that previous key presses are not captured
 
       if (mediaAssets.audio[endMessage]) {
         PageAudioHandler.playAudio(mediaAssets.audio[endMessage]);
