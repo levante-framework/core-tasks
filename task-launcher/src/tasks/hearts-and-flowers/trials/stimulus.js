@@ -4,7 +4,7 @@ import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
 import { addExperimenterButtons, addKeyHelpers, PageAudioHandler, setupFullscreenButton } from '../../shared/helpers';
 import { shouldTerminateCat } from '../../shared/helpers/shouldTerminateCat';
-import { finishExperiment } from '../../shared/trials';
+import { finishTaskEarly } from '../../shared/trials';
 import { isTouchScreen, jsPsych } from '../../taskSetup';
 import { setupHafMultiResponseTouchRouting } from '../helpers/touchResponseRouting';
 import {
@@ -123,7 +123,7 @@ export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrial
         const maxIncorrect = taskStore().maxIncorrect;
 
         if (taskStore().numIncorrect === maxIncorrect) {
-          finishExperiment();
+          finishTaskEarly('errorOut');
         }
       }
 
