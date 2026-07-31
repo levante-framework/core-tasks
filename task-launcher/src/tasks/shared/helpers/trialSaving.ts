@@ -141,7 +141,7 @@ export const initTrialSaving = (config: Record<string, any>) => {
       });
 
       taskStore('effectiveStoppingRule', 'sufficientTrials');
-      config.firekit.updateStopReason(taskStore().effectiveStoppingRule);
+      config.firekit?.updateStopReason(taskStore().effectiveStoppingRule);
     }
 
     taskStore('totalTrialCount', taskStore().totalTrialCount + 1);
