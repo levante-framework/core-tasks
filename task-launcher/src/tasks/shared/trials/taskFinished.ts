@@ -36,6 +36,8 @@ export const taskFinished = (endMessage = 'taskFinished') => {
       return `<button class="primary" style=margin-top:10%>${taskStore().translations.generalExit}</button>`;
     },
     on_load: () => {
+      taskStore('effectiveStoppingRule', 'earlyCompletion');
+
       setTimeout(() => {
         window.addEventListener('click', endTask);
         window.addEventListener('keydown', endTask);
@@ -45,7 +47,7 @@ export const taskFinished = (endMessage = 'taskFinished') => {
         PageAudioHandler.playAudio(mediaAssets.audio[endMessage]);
       }
       const logger = Logger.getInstance();
-      logger.capture('Task Finished', {
+      logger.capture('Task finished: user finished all trials', {
         taskName: taskStore().task,
         taskFinished: taskStore().taskComplete,
       });

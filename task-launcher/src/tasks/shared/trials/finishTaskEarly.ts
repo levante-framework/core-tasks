@@ -4,7 +4,9 @@ import { Logger } from '../../../utils';
 import { jsPsych } from '../../taskSetup';
 import { PageAudioHandler } from '../helpers';
 
-export function finishExperiment() {
+export function finishTaskEarly(effectiveStoppingRule: 'timeOut' | 'errorOut') {
+  taskStore('effectiveStoppingRule', effectiveStoppingRule);
+
   const t = taskStore().translations;
   setTimeout(() => {
     const removeDOMElements = (event: Event) => {
@@ -26,7 +28,12 @@ export function finishExperiment() {
     window.addEventListener('click', removeDOMElements);
     window.addEventListener('keydown', removeDOMElements);
     const logger = Logger.getInstance();
-    logger.capture('Task Aborted', {
+    const message =
+      effectiveStoppingRule === 'timeOut'
+        ? 'Task finished: user reached max time'
+        : 'Task finished: user reached max incorrect answers';
+
+    logger.capture(message, {
       taskName: taskStore().task,
       taskFinished: taskStore().taskComplete,
     });
