@@ -23,7 +23,11 @@
     "dev:db": "webpack serve --mode development --env dbmode=development --env demo=true",
     "deploy": "npm run build:demo && firebase deploy --only hosting:core-tasks",
     "patchPackages": "node patchPackages.js",
-    "postinstall": "npm run patchPackages"
+    "postinstall": "npm run patchPackages",
+    "prepare": "cd .. && husky task-launcher/.husky"
+  },
+  "lint-staged": {
+    "*": "biome check --write --no-errors-on-unmatched --files-ignore-unknown=true"
   },
   "repository": {
     "type": "git",
@@ -76,6 +80,8 @@
     "cypress": "^13.13.3",
     "file-loader": "^6.2.0",
     "html-webpack-plugin": "^5.5.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.1.0",
     "path-browserify": "^1.0.1",
     "process": "^0.11.10",
     "rimraf": "^5.0.1",

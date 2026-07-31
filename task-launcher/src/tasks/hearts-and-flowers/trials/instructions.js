@@ -19,6 +19,13 @@ import { getInputInstructPrompt } from '../helpers/utils';
 let continueTrialConfig;
 let cleanupInstructionInputListeners = [];
 
+function detachInstructionInputListeners() {
+  cleanupInstructionInputListeners.forEach((listenerCleanup) => {
+    listenerCleanup?.();
+  });
+  cleanupInstructionInputListeners = [];
+}
+
 function isHfV2() {
   return taskStore().version === 2;
 }
@@ -73,10 +80,10 @@ export function getRightButtonDemo() {
 }
 
 function buildInstructionTrial(
-  mascotImage, 
-  getPromptKey, 
-  showResponseButton = false, 
-  buttonSide = null, 
+  mascotImage,
+  getPromptKey,
+  showResponseButton = false,
+  buttonSide = null,
   endOfTask = false,
 ) {
   if (!mascotImage) {
@@ -126,6 +133,7 @@ function buildInstructionTrial(
     on_load: () => {
       let responseButtons;
       let onButtonPress;
+      let hasResponded = false;
 
       if (endOfTask) {
         taskStore('effectiveStoppingRule', 'earlyCompletion');
@@ -165,11 +173,18 @@ function buildInstructionTrial(
         responseButtons = buttonContainer.querySelectorAll('.secondary--green');
 
         onButtonPress = (button, i, event) => {
+          if (hasResponded) {
+            return;
+          }
+
           if (
             (i === 0 && event.key === 'ArrowLeft') ||
             (i === 1 && event.key === 'ArrowRight') ||
             event.type === 'touchend'
           ) {
+            hasResponded = true;
+            detachInstructionInputListeners();
+
             PageAudioHandler.playAudio(mediaAssets.audio.coin);
             button.classList.add('info-shadow');
             setTimeout(() => {
@@ -196,10 +211,14 @@ function buildInstructionTrial(
               const audioUri = mediaAssets.audio[continueTrialConfig.text];
 
               const onSpacebarPress = (event) => {
-                if (event.key === ' ') {
-                  jsPsych.finishTrial();
-                  PageAudioHandler.stopAndDisconnectNode();
+                if (event.key !== ' ' || hasResponded) {
+                  return;
                 }
+
+                hasResponded = true;
+                detachInstructionInputListeners();
+                PageAudioHandler.stopAndDisconnectNode();
+                jsPsych.finishTrial();
               };
 
               window.addEventListener('keydown', onSpacebarPress);
@@ -251,10 +270,7 @@ function buildInstructionTrial(
       setupFullscreenButton();
     },
     on_finish: () => {
-      cleanupInstructionInputListeners?.forEach((listenerCleanup) => {
-        listenerCleanup?.();
-      });
-      cleanupInstructionInputListeners = [];
+      detachInstructionInputListeners();
 
       PageAudioHandler.stopAndDisconnectNode();
 
