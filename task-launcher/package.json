@@ -15,6 +15,8 @@
     "build:demo": "webpack --mode production --env dbmode=development --env demo=true",
     "check": "biome check",
     "check:fix": "biome check --write",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "prepackage": "rimraf lib/",
     "package": "rollup -c",
     "postpackage": "node postBuildPackage.js",

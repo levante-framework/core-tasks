@@ -38,6 +38,18 @@ export { mapDistractorsToString } from './mapDistractorsToString';
 export { PageStateHandler } from './PageStateHandler';
 export { prepareCorpus, prepareMultiBlockCat, selectNItems, updateTheta } from './prepareCat';
 export * from './prepareChoices';
+export {
+  awaitBackgroundBankLoad,
+  createAwaitBackgroundBankTrial,
+  createCatCriticalLaunch,
+  createKickBackgroundBankTrial,
+  createProgressiveCatInitialPreload,
+  isBackgroundBankReady,
+  partitionCriticalMedia,
+  resetBackgroundBankLoad,
+  selectInstructionPracticeTrials,
+  startBackgroundBankLoad,
+} from './progressivePreload';
 export { pulseOkButton } from './pulseOkButton';
 export { setupReplayAudio } from './replayAudio';
 export { selectNextSequentialTrial } from './selectNextSequentialTrial';

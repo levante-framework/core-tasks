@@ -126,6 +126,8 @@ const developmentConfig = merge(webConfig, {
   devtool: 'inline-source-map',
   devServer: {
     static: './dist',
+    // BrowserStack Local tunnels with Host: bs-local.com
+    allowedHosts: 'all',
   },
 });
 

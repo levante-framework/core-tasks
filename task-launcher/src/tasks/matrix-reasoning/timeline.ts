@@ -5,13 +5,16 @@ import {
   batchMediaAssets,
   batchTrials,
   checkFallbackCriteria,
+  createAwaitBackgroundBankTrial,
+  createCatCriticalLaunch,
   createPreloadTrials,
   getRealTrials,
   initTimeline,
   initTrialSaving,
+  prepareCorpus,
+  selectNItems,
 } from '../shared/helpers';
 import { getLeftoverAssets } from '../shared/helpers/batchPreloading';
-import { prepareCorpus, selectNItems } from '../shared/helpers/prepareCat';
 // trials
 import {
   afcStimulusTemplate,
@@ -89,9 +92,23 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
   let currPreloadBatch = 0;
 
   const initialMedia = getLeftoverAssets(batchedMediaAssets, mediaAssets);
-  const initialPreload = createPreloadTrials(runCat ? mediaAssets : initialMedia).default;
 
-  const timeline = [initialPreload, initialTimeline, ...(heavyInstructions ? [downexInstructions1] : instructions)];
+  const corpora = runCat ? prepareCorpus(defaultCorpus, 5, downexCorpus) : null;
+  const catLaunch =
+    runCat && corpora
+      ? createCatCriticalLaunch(mediaAssets, {
+          corpora,
+          heavyInstructions: !!heavyInstructions,
+          imageFields: ['item', 'answer', 'distractors'],
+          audioFields: ['audioFile'],
+        })
+      : null;
+
+  const timeline = [
+    ...(catLaunch ? catLaunch.preloadTrials : [createPreloadTrials(initialMedia).default]),
+    initialTimeline,
+    ...(heavyInstructions ? [downexInstructions1] : instructions),
+  ];
 
   const trialConfig = {
     trialType: 'audio',
@@ -176,20 +193,20 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
     currPreloadBatch++;
   }
 
-  if (runCat) {
-    // seperate out corpus to get cat/non-cat blocks
-    const corpora = prepareCorpus(defaultCorpus);
-
-    // push in instruction block
-    corpora.ipLight.forEach((trial: StimulusType) => {
+  if (runCat && corpora && catLaunch) {
+    // push in instruction / practice for launched variant (critical pack already loading bank)
+    catLaunch.instructionPractice.forEach((trial: StimulusType) => {
       timeline.push({ ...fixationOnly, stimulus: '' });
       timeline.push(afcStimulusTemplate(trialConfig, trial));
     });
 
     // push in practice transition
-    if (corpora.ipLight.filter((trial) => trial.assessmentStage === 'practice_response').length > 0) {
+    if (catLaunch.instructionPractice.filter((trial) => trial.assessmentStage === 'practice_response').length > 0) {
       timeline.push(practiceTransition());
     }
+
+    // Wait for remaining bank before scored items
+    timeline.push(createAwaitBackgroundBankTrial());
 
     // push in starting block
     corpora.start.forEach((trial: StimulusType) => {

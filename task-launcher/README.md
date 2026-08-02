@@ -114,6 +114,40 @@ npm run check:fix  # auto-fix format issues
 Pre-commit runs `lint-staged` → `biome check --write` on staged files so format
 mismatches are fixed before they hit CI.
 
+## Progressive critical-pack preload (vocab / SDS / math / matrix CAT)
+
+On branch `feat/critical-pack-preload`, CAT timelines for **vocab**,
+**same-different-selection**, **egma-math**, and **matrix-reasoning** no longer
+wait for the full media bank before the start UI:
+
+1. **Critical pack** — instructions/practice corpus media for the launched
+   variant (`ipHeavy` when present, else `ipLight`), shared assets, plugin SFX,
+   and (for SDS) demo videos. This is the only blocking jsPsych preload at
+   launch. Math further narrows the pack to trials shown before the first scored
+   block.
+2. **Background bank** — remaining images/audio start loading immediately after
+   (per-file; no audio-sprite packaging required).
+3. **Await gate** — before the first scored items, the timeline waits until the
+   background bank finishes so test trials do not race missing media.
+
+Shared helpers: `createCatCriticalLaunch`, `selectInstructionPracticeTrials`,
+`partitionCriticalMedia`, `createAwaitBackgroundBankTrial` in
+`src/tasks/shared/helpers/progressivePreload.ts`.
+
+Wired from:
+`src/tasks/vocab/timeline.ts`,
+`src/tasks/same-different-selection/catTimeline.ts`,
+`src/tasks/math/timeline.ts`,
+`src/tasks/matrix-reasoning/timeline.ts`.
+
+Non-CAT paths keep the existing batched preload behavior from `main`. Vocab/SDS
+corpora currently have empty `ipHeavy` instruction/practice sets, so heavy
+variants fall back to `ipLight` for the critical pack (math has real downex IP).
+
+Cold-load measurement (BrowserStack / local): see
+[`levante-support/scripts/README_TASK_PRELOAD.md`](../../levante-support/scripts/README_TASK_PRELOAD.md)
+in a sibling clone.
+
 ## Theory of Mind
 
 ## How ROAR / LEVANTE Tasks work within the greater ROAD infrastructure
