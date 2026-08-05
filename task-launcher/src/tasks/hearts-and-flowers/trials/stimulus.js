@@ -74,11 +74,7 @@ export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrial
       const stimulusPosition = jsPsych.timelineVariable('position');
       const stimulusType = jsPsych.timelineVariable('stimulus');
 
-      if (data.button_response === null && data.keyboard_response === null) {
-        data.timedOut = true;
-      } else {
-        data.timedOut = false;
-      }
+      data.timedOut = data.button_response === null && data.keyboard_response === null;
 
       // get response position
       let response;
