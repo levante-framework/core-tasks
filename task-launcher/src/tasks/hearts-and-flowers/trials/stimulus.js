@@ -74,6 +74,8 @@ export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrial
       const stimulusPosition = jsPsych.timelineVariable('position');
       const stimulusType = jsPsych.timelineVariable('stimulus');
 
+      // Only hfV2 (non-practice) trials have a trial_duration and can actually time out;
+      // for other trials this just flags an absent response.
       data.timedOut = data.button_response === null && data.keyboard_response === null;
 
       // get response position
