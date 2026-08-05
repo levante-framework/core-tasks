@@ -185,7 +185,7 @@ function buildInstructionTrial(
             hasResponded = true;
             detachInstructionInputListeners();
 
-            PageAudioHandler.playAudio(mediaAssets.audio.coin);
+            PageAudioHandler.playAudio('coin');
             button.classList.add('info-shadow');
             setTimeout(() => {
               button.classList.remove('info-shadow');
@@ -208,7 +208,7 @@ function buildInstructionTrial(
         onEnded: () => {
           if (!showResponseButton) {
             if (continueTrialConfig.type === 'bottomText') {
-              const audioUri = mediaAssets.audio[continueTrialConfig.text];
+              const audioKey = continueTrialConfig.text;
 
               const onSpacebarPress = (event) => {
                 if (event.key !== ' ' || hasResponded) {
@@ -226,7 +226,7 @@ function buildInstructionTrial(
                 window.removeEventListener('keydown', onSpacebarPress);
               });
 
-              PageAudioHandler.playAudio(audioUri);
+              PageAudioHandler.playAudio(audioKey);
             } else {
               enableOkButton();
             }
@@ -262,7 +262,7 @@ function buildInstructionTrial(
       };
 
       const promptAudioKey = showResponseButton ? getPromptKey(true) : getPromptKey(false);
-      PageAudioHandler.playAudio(mediaAssets.audio[promptAudioKey] || mediaAssets.audio.inputAudioCue, audioConfig);
+      PageAudioHandler.playAudio(promptAudioKey || 'inputAudioCue', audioConfig);
 
       const pageStateHandler = new PageStateHandler(promptAudioKey);
       setupReplayAudio(pageStateHandler);

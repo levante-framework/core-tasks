@@ -1,4 +1,3 @@
-import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
 import { jsPsych } from '../../taskSetup';
 import { PageAudioHandler } from './audioHandler';
@@ -98,7 +97,7 @@ function handlePracticeButtonPress(
         // Trial finish is still driven by the existing timeout so correct timing is preserved.
       });
     } else {
-      PageAudioHandler.playAudio(mediaAssets.audio.feedbackGoodJob, {
+      PageAudioHandler.playAudio('feedbackGoodJob', {
         restrictRepetition: {
           enabled: false,
           maxRepetitions: 2,
@@ -122,7 +121,7 @@ function handlePracticeButtonPress(
     if (onIncorrect) {
       onIncorrect(unlockPracticeButtons);
     } else {
-      PageAudioHandler.playAudio(mediaAssets.audio[incorrectPromptKey], {
+      PageAudioHandler.playAudio(incorrectPromptKey, {
         restrictRepetition: {
           enabled: false,
           maxRepetitions: 2,

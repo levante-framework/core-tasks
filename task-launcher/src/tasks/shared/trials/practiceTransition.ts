@@ -74,7 +74,7 @@ export const practiceTransition = (getPrompt?: () => string, forceRun = false) =
             },
           };
 
-          PageAudioHandler.playAudio(mediaAssets.audio[camelize(audioKey)], audioConfig);
+          PageAudioHandler.playAudio(audioKey, audioConfig);
 
           const pageStateHandler = new PageStateHandler(camelize(audioKey), true);
           setupReplayAudio(pageStateHandler);

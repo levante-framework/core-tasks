@@ -25,8 +25,6 @@ let sliderStart: number;
 let startTime: number;
 
 function setUpAudio(cue: string) {
-  const audioFile = mediaAssets.audio[camelize(cue)] || '';
-
   const audioConfig: AudioConfigType = {
     restrictRepetition: {
       enabled: true,
@@ -43,7 +41,7 @@ function setUpAudio(cue: string) {
     },
   };
 
-  PageAudioHandler.playAudio(audioFile, audioConfig);
+  PageAudioHandler.playAudio(cue, audioConfig);
 }
 
 function captureValue(

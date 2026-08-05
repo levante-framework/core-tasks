@@ -90,6 +90,7 @@ export const setSharedConfig = async (
     cat,
     heavyInstructions,
     experimenterButtons,
+    showAudioKeys,
     inferenceNumStories,
     numberOfStories,
     semThreshold,
@@ -126,6 +127,7 @@ export const setSharedConfig = async (
     cat: !!cat, // defaults to false
     heavyInstructions: !!heavyInstructions,
     experimenterButtons: !!experimenterButtons,
+    showAudioKeys: !!showAudioKeys,
     inferenceNumStories: Number(inferenceNumStories) || undefined,
     numberOfStories: Number(numberOfStories) || 3,
     semThreshold: Number(semThreshold),

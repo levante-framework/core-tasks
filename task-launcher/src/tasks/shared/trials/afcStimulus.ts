@@ -9,6 +9,7 @@ import {
   addPracticeButtonListeners,
   camelize,
   enableOkButton,
+  getAudioKeysContainerHtml,
   getParticipantUtilityButtonsHtml,
   handleStaggeredButtons,
   PageAudioHandler,
@@ -33,12 +34,12 @@ function getStimulus(layoutConfigMap: Record<string, LayoutConfigType>, trial?: 
   const stim = trial || taskStore().nextStimulus;
   const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
   if (itemLayoutConfig) {
-    const audioPath = itemLayoutConfig?.playAudioOnLoad ? camelize(stim.audioFile) : 'nullAudio';
-    return mediaAssets.audio[audioPath];
+    return itemLayoutConfig?.playAudioOnLoad ? camelize(stim.audioFile) : 'nullAudio';
   }
 }
 
 const getPromptTemplate = (
+  promptKey: string | null,
   prompt: string,
   mediaSrc: string | null,
   mediaAlt: string,
@@ -47,7 +48,13 @@ const getPromptTemplate = (
   stimulusContainerClassList: string[],
   promptClassList: string[],
 ) => {
+  if (promptKey) {
+    prompt = taskStore().translations[camelize(promptKey)];
+  }
+
   let template = '<div class="lev-stimulus-container">';
+
+  template += getAudioKeysContainerHtml();
 
   template += getParticipantUtilityButtonsHtml(replayButtonHtmlId);
 
@@ -111,11 +118,13 @@ function getPrompt(layoutConfigMap: Record<string, LayoutConfigType>, trial?: St
     const mediaAsset = stimulusTextConfig?.value
       ? mediaAssets.images[camelize(stimulusTextConfig.value)] || mediaAssets.images.blank
       : null;
-    const prompt = promptEnabled ? t[camelize(stim.audioFile)] : null;
+    const promptKey = stim.audioFile;
+    const prompt = promptEnabled ? t[camelize(promptKey)] : null;
     const mediaSrc = showStimImage ? mediaAsset : null;
     const mediaAlt = stimulusTextConfig?.value || `Image not loading: ${mediaSrc}. Please continue the task.`;
     const stimText = stimulusTextConfig ? stimulusTextConfig.displayValue : null;
     return getPromptTemplate(
+      promptKey,
       prompt,
       mediaSrc,
       mediaAlt,

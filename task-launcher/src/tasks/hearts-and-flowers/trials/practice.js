@@ -67,7 +67,14 @@ export function buildInstructionPracticeTrial(
       }
       buttons[validAnswer].style.animation = 'pulse 2s infinite';
 
-      PageAudioHandler.playAudio(promptAudioAsset);
+      const audioConfig = {
+        restrictRepetition: {
+          enabled: true,
+          maxRepetitions: 2,
+        },
+      };
+
+      PageAudioHandler.playAudio(audioAssetKey, audioConfig, true, '.haf-stimulus-holder');
       const pageStateHandler = new PageStateHandler(audioAssetKey);
       setupReplayAudio(pageStateHandler);
       addExperimenterButtons();
@@ -256,7 +263,7 @@ function buildPracticeFeedback(
           jsPsych.finishTrial();
         },
       };
-      PageAudioHandler.playAudio(mediaAssets.audio[audioAssetKey], audioConfig);
+      PageAudioHandler.playAudio(audioAssetKey, audioConfig, true, '.haf-stimulus-holder');
       const pageStateHandler = new PageStateHandler(audioAssetKey);
       setupReplayAudio(pageStateHandler);
     },

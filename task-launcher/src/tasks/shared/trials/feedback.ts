@@ -64,9 +64,7 @@ export const feedback = (
         },
         on_load: () => {
           const isCorrect = taskStore().isCorrect;
-          const stimulusPath = isCorrect
-            ? mediaAssets.audio[correctFeedbackAudioKey]
-            : mediaAssets.audio[inCorrectFeedbackAudioKey];
+          const audioKey = isCorrect ? correctFeedbackAudioKey : inCorrectFeedbackAudioKey;
 
           const audioConfig: AudioConfigType = {
             restrictRepetition: {
@@ -76,7 +74,7 @@ export const feedback = (
           };
 
           PageAudioHandler.stopAndDisconnectNode();
-          PageAudioHandler.playAudio(stimulusPath || mediaAssets.audio.nullAudio, audioConfig);
+          PageAudioHandler.playAudio(audioKey || 'nullAudio', audioConfig);
         },
         on_finish: () => {
           PageAudioHandler.stopAndDisconnectNode();

@@ -44,7 +44,7 @@ export const taskFinished = (endMessage = 'taskFinished') => {
       }, 50); // delay so that previous key presses are not captured
 
       if (mediaAssets.audio[endMessage]) {
-        PageAudioHandler.playAudio(mediaAssets.audio[endMessage]);
+        PageAudioHandler.playAudio(endMessage);
       }
       const logger = Logger.getInstance();
       logger.capture('Task finished: user finished all trials', {

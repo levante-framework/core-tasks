@@ -70,7 +70,6 @@ export function setUpAudio(
     setupFullscreenButton();
   }
 
-  const audioFile = mediaAssets.audio[cue];
   const audioConfig: AudioConfigType = {
     restrictRepetition: {
       enabled: true,
@@ -85,7 +84,7 @@ export function setUpAudio(
     },
   };
 
-  PageAudioHandler.playAudio(audioFile, audioConfig);
+  PageAudioHandler.playAudio(cue, audioConfig);
 }
 
 // This function produces both the display and input trials for the corsi blocks

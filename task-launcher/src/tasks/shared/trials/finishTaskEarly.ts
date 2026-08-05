@@ -47,6 +47,6 @@ export function finishTaskEarly(effectiveStoppingRule: 'timeOut' | 'errorOut') {
             <footer>${t.generalFooter}</footer>
             <button id="exit-button" class="primary" style=margin-top:5%>${t.generalExit}</button>
         </div>`,
-    PageAudioHandler.playAudio(mediaAssets.audio.taskFinished),
+    PageAudioHandler.playAudio('taskFinished'),
   );
 }

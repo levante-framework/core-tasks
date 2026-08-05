@@ -125,7 +125,7 @@ export const downexStimulus = (
       function onCorrect(onFeedbackEnded: () => void) {
         PageAudioHandler.stopAndDisconnectNode();
         cycleId++;
-        PageAudioHandler.playAudio(mediaAssets.audio.feedbackRightOne, {
+        PageAudioHandler.playAudio('feedbackRightOne', {
           restrictRepetition: {
             enabled: false,
             maxRepetitions: 2,
@@ -157,7 +157,7 @@ export const downexStimulus = (
           onEnded: onFeedbackEnded,
         };
 
-        PageAudioHandler.playAudio(mediaAssets.audio.matrixReasoningFeedbackIncorrectDownex, audioConfig);
+        PageAudioHandler.playAudio('matrixReasoningFeedbackIncorrectDownex', audioConfig);
       }
 
       addPracticeButtonListeners(
@@ -188,12 +188,9 @@ export const downexStimulus = (
         };
 
         if (typeof trialAudio === 'string') {
-          const audioUri = mediaAssets.audio[camelize(trialAudio)] || mediaAssets.audio.nullAudio;
-          PageAudioHandler.playAudio(audioUri);
+          PageAudioHandler.playAudio(trialAudio, audioConfig);
         } else {
           for (const [_index, audioFile] of trialAudio.entries()) {
-            const audioUri = mediaAssets.audio[camelize(audioFile)] || mediaAssets.audio.nullAudio;
-
             // make sure the trial has not changed since the loop started
             if (thisCycleId !== cycleId || taskStore().isPaused) {
               break;
@@ -210,7 +207,7 @@ export const downexStimulus = (
               if (animate && camelize(audioFile) !== 'sdsYourTurn') {
                 itemsToAnimate = popAnimation(itemsToAnimate, 'pulse 2s 0s') as any;
               }
-              PageAudioHandler.playAudio(audioUri, configWithCallback);
+              PageAudioHandler.playAudio(audioFile, configWithCallback);
             });
           }
         }
