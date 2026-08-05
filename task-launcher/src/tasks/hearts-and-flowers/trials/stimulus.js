@@ -74,6 +74,12 @@ export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrial
       const stimulusPosition = jsPsych.timelineVariable('position');
       const stimulusType = jsPsych.timelineVariable('stimulus');
 
+      if (data.button_response === null && data.keyboard_response === null) {
+        data.timedOut = true;
+      } else {
+        data.timedOut = false;
+      }
+
       // get response position
       let response;
       if (data.button_response === 0 || data.button_response === 1) {
@@ -135,10 +141,19 @@ export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrial
       // save item uid for data analysis
       const itemUid = `hf_${trialType === 'hearts and flowers' ? 'heartsflowers' : trialType}_${stimulusType}`;
 
+      let responseData;
+      if (response === 0) {
+        responseData = ResponseSideType.Left;
+      } else if (response === 1) {
+        responseData = ResponseSideType.Right;
+      } else {
+        responseData = null;
+      }
+
       jsPsych.data.addDataToLastTrial({
         item: stimulusType,
         answer: validAnswer === 0 ? ResponseSideType.Left : ResponseSideType.Right,
-        response: response === 0 ? ResponseSideType.Left : ResponseSideType.Right,
+        response: responseData,
         responseLocation: response,
         itemUid: itemUid,
         presentationTime: hfV2 ? stimulusDuration : null,
