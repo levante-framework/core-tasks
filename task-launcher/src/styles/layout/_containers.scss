@@ -165,6 +165,10 @@
     max-width: 100%;
     width: calc(3 * $response-size-default);
     height: calc(3 * $response-size-default);
+    -webkit-user-drag: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
   }
 }
 
