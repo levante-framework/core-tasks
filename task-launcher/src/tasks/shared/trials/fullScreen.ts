@@ -40,23 +40,25 @@ export const enterFullscreen = {
       continueButton?.removeEventListener('click', handleContinue);
       continueButton?.removeEventListener('touchend', handleContinue);
 
-      // Resume the audio context so the next trial's audio can autoplay, then
-      // request fullscreen.
-      // NB: browsers (notably Safari) only honor resume() when it is *called*
-      // synchronously during a user gesture. Awaiting it doesn't change that
-      // (the call still happens synchronously here) but it holds off advancing
-      // until the context is actually running, which narrows the race with the
-      // next trial's audio autoplay. The key constraint is that nothing may be
-      // awaited *before* this line: after the first await the handler
-      // continues on a later microtask, by which point the gesture's
-      // activation has expired and resume() is ignored.
-      await jsPsych.pluginAPI.audioContext().resume();
-      if (fscreen.fullscreenEnabled) {
-        fscreen.requestFullscreen(document.documentElement);
+      try {
+        // Resume the audio context so the next trial's audio can autoplay.
+        // NB: browsers (notably Safari) only honor resume() when it is
+        // *called* synchronously during a user gesture. Awaiting it doesn't
+        // change that (the call still happens synchronously here) but it holds
+        // off advancing until the context is actually running, which narrows
+        // the race with the next trial's audio autoplay. The key constraint is
+        // that nothing may be awaited *before* this line: after the first
+        // await the handler continues on a later microtask, by which point the
+        // gesture's activation has expired and resume() is ignored.
+        await jsPsych.pluginAPI.audioContext()?.resume();
+      } finally {
+        // Request fullscreen.
+        if (fscreen.fullscreenEnabled) {
+          fscreen.requestFullscreen(document.documentElement);
+        }
+        // Manually advance the trial.
+        jsPsych.finishTrial({ success: true, rt: Math.round(performance.now() - startTime) });
       }
-
-      // Manually advance the trial.
-      jsPsych.finishTrial({ success: true, rt: Math.round(performance.now() - startTime) });
     };
     continueButton?.addEventListener('click', handleContinue);
     continueButton?.addEventListener('touchend', handleContinue);
