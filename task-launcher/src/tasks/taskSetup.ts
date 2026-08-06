@@ -1,5 +1,5 @@
 import { Cat } from '@bdelab/jscat';
-//@ts-ignore
+//@ts-expect-error
 import { getDevice } from '@bdelab/roar-utils';
 import { initJsPsych } from 'jspsych';
 import '../i18n/i18n';
@@ -9,8 +9,6 @@ import { Logger } from '../utils';
 export const isTouchScreen = getDevice() === 'mobile';
 
 export let cat: any;
-
-const { runCat } = taskStore();
 
 export const initializeCat = () => {
   cat = new Cat({

@@ -74,12 +74,14 @@ export class TaskLauncher {
       taskVisualAssets = await getMediaAssets(taskVisualBucket, {}, language, taskName);
       sharedVisualAssets = await getMediaAssets(sharedVisualBucket, {}, language, 'shared');
     } catch (error) {
-      throw new Error('Error fetching media assets: ' + error);
+      throw new Error(`Error fetching media assets: ${error}`);
     }
 
     const config = await setConfig(this.firekit, this.gameParams, this.userParams);
 
     setTaskStore(config);
+
+    this.firekit?.updateStopReason(taskStore().effectiveStoppingRule);
 
     await getTranslations(isDev, taskName, language);
 
@@ -131,5 +133,7 @@ export class TaskLauncher {
         : () => this.firekit?.run?.completed === true && taskStore().taskComplete;
 
     await isTaskFinished(checkTaskFinished);
+
+    this.firekit?.updateStopReason(taskStore().effectiveStoppingRule);
   }
 }

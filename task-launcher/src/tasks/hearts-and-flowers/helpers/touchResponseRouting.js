@@ -33,7 +33,7 @@ export function setupHafMultiResponseTouchRouting() {
         if (syntheticClick) return;
         if (!e.isTrusted) return;
 
-        triggerToast(taskStore().translations.generalEncourage);
+        triggerToast();
         e.preventDefault();
         e.stopImmediatePropagation();
       },
@@ -58,7 +58,7 @@ function triggerToast() {
         toast.classList.remove('show');
       }
     }, 5000);
-  } else if (toast && toast.classList.contains('show')) {
+  } else if (toast?.classList.contains('show')) {
     clearTimeout(timeoutID);
 
     timeoutID = setTimeout(() => {

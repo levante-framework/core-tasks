@@ -143,23 +143,21 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
       downexInstructions1,
       ...downexCorpus
         .slice(0, secondPhaseIndex)
-        .map((trial) => [
+        .flatMap((trial) => [
           { ...fixationOnly, stimulus: '' },
           downexStimulus(layoutConfigMap, true, trial),
           ifRealTrialResponse,
-        ])
-        .flat(),
+        ]),
       downexInstructions2,
       downexInstructions3,
       practiceTransition(undefined, true),
       ...downexCorpus
         .slice(secondPhaseIndex)
-        .map((trial) => [
+        .flatMap((trial) => [
           { ...fixationOnly, stimulus: '' },
           downexStimulus(layoutConfigMap, false, trial),
           ifRealTrialResponse,
-        ])
-        .flat(),
+        ]),
       downexInstructions4,
       downexInstructions5,
     ],
@@ -249,7 +247,7 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
       if (i % batchSize === 0) {
         preloadBatch();
       }
-      if (i <= fallbackIndex) {
+      if (i <= fallbackIndex && !heavyInstructions) {
         timeline.push(fallbackBlock);
       }
       timeline.push(stimulusBlock);

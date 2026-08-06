@@ -7,6 +7,7 @@ import {
   disableOkButton,
   enableOkButton,
   getParticipantUtilityButtonsHtml,
+  isTaskFinished,
   PageAudioHandler,
   PageStateHandler,
   prepareChoices,
@@ -15,10 +16,11 @@ import {
   setupReplayAudio,
   shouldTerminateCat,
   updateTheta,
+  wrapListeners,
 } from '../../shared/helpers';
 import { sdsProgressComponentEmpty, sdsProgressComponentFilled } from '../../shared/helpers/components';
 import { displayDebugInfo } from '../../shared/helpers/displayDebugInfo';
-import { finishExperiment } from '../../shared/trials';
+import { finishTaskEarly } from '../../shared/trials';
 import { jsPsych } from '../../taskSetup';
 
 let selectedCards: string[] = [];
@@ -71,7 +73,7 @@ function compareSelections(selections: string[], previousSelections: string[][],
   function sharedTrait(selections: string[], ignoreDims: string[]) {
     const sets: Record<string, Set<string>> = {};
     // Initialize sets for each non-ignored dimension
-    for (const [dim, index] of Object.entries(dimensionIndices)) {
+    for (const [dim, _index] of Object.entries(dimensionIndices)) {
       if (!ignoreDims.includes(dim)) {
         sets[dim] = new Set();
       }
@@ -155,7 +157,7 @@ export const afcMatch = (trial?: StimulusType) => {
     button_choices: () => {
       const stim = trial || taskStore().nextStimulus;
       if (stim.assessmentStage === 'instructions') {
-        return ['OK'];
+        return [taskStore().translations.continueButtonText];
       } else {
         const randomize = stim.answser ? 'yes' : 'no';
         // Randomize choices if there is an answer
@@ -231,7 +233,7 @@ export const afcMatch = (trial?: StimulusType) => {
           // Add primary OK button under the other buttons
           const okButton = document.createElement('button');
           okButton.className = 'primary';
-          okButton.textContent = 'OK';
+          okButton.textContent = taskStore().translations.continueButtonText;
           okButton.style.marginTop = '16px';
           okButton.disabled = true;
           okButton.addEventListener('click', () => {
@@ -307,8 +309,10 @@ export const afcMatch = (trial?: StimulusType) => {
           // linear button layout
           buttonContainer.classList.add('lev-response-row', 'multi-4');
         }
+
+        let firstClick = true; // only need to reenable buttons on first click
         responseBtns.forEach((card, i) => {
-          card.addEventListener('click', async (e) => {
+          const handleCardSelect = async () => {
             const answer = ((card as HTMLButtonElement)?.firstChild as HTMLImageElement)?.alt;
 
             if (!card) {
@@ -339,8 +343,13 @@ export const afcMatch = (trial?: StimulusType) => {
               }
             }
 
-            setTimeout(() => enableBtns(responseBtns), 500);
-          });
+            if (firstClick) {
+              await isTaskFinished(() => card.disabled, 10).then(() => enableBtns(responseBtns));
+              firstClick = false;
+            }
+          };
+
+          wrapListeners(card, handleCardSelect);
         });
       }
 
@@ -409,7 +418,7 @@ export const afcMatch = (trial?: StimulusType) => {
 
       // if heavy instructions is true, show data quality screen before ending
       if (taskStore().numIncorrect >= taskStore().maxIncorrect && !taskStore().heavyInstructions && !cat) {
-        finishExperiment();
+        finishTaskEarly('errorOut');
       }
 
       if (cat) {
@@ -421,7 +430,9 @@ export const afcMatch = (trial?: StimulusType) => {
           return trial.trialNumber === stim.trialNumber && trial.trialType === stim.trialType;
         });
 
-        selectNextSequentialTrial(nextTrials);
+        if (stim.assessmentStage !== 'practice_response') {
+          selectNextSequentialTrial(nextTrials);
+        }
       }
     },
   };

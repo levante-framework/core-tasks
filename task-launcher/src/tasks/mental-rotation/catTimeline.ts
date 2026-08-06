@@ -180,7 +180,7 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
   };
 
   function addInstructionPractice() {
-    batchedCorpus.forEach((block, index) => {
+    batchedCorpus.forEach((_block, index) => {
       timeline.push(instructionPracticeBlock(index + 1));
     });
   }

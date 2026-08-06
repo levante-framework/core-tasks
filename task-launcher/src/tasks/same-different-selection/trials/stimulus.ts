@@ -17,7 +17,7 @@ import {
 } from '../../shared/helpers';
 import { displayDebugInfo } from '../../shared/helpers/displayDebugInfo';
 import { shouldTerminateCat } from '../../shared/helpers/shouldTerminateCat';
-import { finishExperiment } from '../../shared/trials';
+import { finishTaskEarly } from '../../shared/trials';
 import { isTouchScreen, jsPsych } from '../../taskSetup';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
@@ -26,6 +26,7 @@ let startTime: number;
 let selection: string | null = null;
 let selectionIdx: number | null = null;
 let currentTrialId: string = ''; // used to prevent audio from overlapping between trials
+let isFeedbackPlaying = false;
 
 const SELECT_CLASS_NAME = 'info-shadow';
 
@@ -138,6 +139,12 @@ export function handleButtonFeedback(
   responsevalue: number,
   correctAudio: string,
 ) {
+  if (isFeedbackPlaying) {
+    return;
+  }
+
+  isFeedbackPlaying = true;
+
   const choice = btn?.parentElement?.id || '';
   const answer = taskStore().correctResponseIdx.toString();
 
@@ -149,12 +156,11 @@ export function handleButtonFeedback(
   } else {
     btn.classList.add('error-shadow');
     feedbackAudio = mediaAssets.audio.feedbackTryAgain;
-    // renable buttons
-    setTimeout(() => enableBtns(cards), 500);
     incorrectPracticeResponses.push(choice);
   }
 
   function finishTrial() {
+    isFeedbackPlaying = false;
     jsPsych.finishTrial({
       response: choice,
       incorrectPracticeResponses,
@@ -176,8 +182,16 @@ export function handleButtonFeedback(
       enabled: false,
       maxRepetitions: 2,
     },
+    onEnded: () => {
+      isFeedbackPlaying = false;
+      enableBtns(cards);
+    },
   };
 
+  // Clear onended before stop so an interrupted clip cannot unlock early
+  if (PageAudioHandler.audioSource) {
+    PageAudioHandler.audioSource.onended = null;
+  }
   PageAudioHandler.stopAndDisconnectNode(); // disconnect first to avoid overlap
   isCorrectChoice
     ? PageAudioHandler.playAudio(feedbackAudio, correctAudioConfig)
@@ -211,7 +225,7 @@ export const stimulus = (trial?: StimulusType) => {
         const { choices } = prepareChoices(stim.answer, stim.distractors, randomize);
         return generateImageChoices(choices);
       } else {
-        return ['OK'];
+        return [taskStore().translations.continueButtonText];
       }
     },
     button_html: () => {
@@ -417,6 +431,7 @@ export const stimulus = (trial?: StimulusType) => {
 
       if (trialType === 'test-dimensions') {
         // cards should give feedback during test dimensions block
+        isFeedbackPlaying = false;
         const practiceBtns = Array.from(jspsychButtonContainer.children)
           .map((btnDiv) => btnDiv.firstChild)
           .filter((btn) => !!btn) as HTMLButtonElement[];
@@ -424,7 +439,7 @@ export const stimulus = (trial?: StimulusType) => {
         practiceBtns.forEach((card, i) => {
           const eventType = isTouchScreen ? 'touchend' : 'click';
 
-          card.addEventListener(eventType, (e) => {
+          card.addEventListener(eventType, (_e) => {
             handleButtonFeedback(card, practiceBtns, false, i, 'feedbackGoodJob');
           });
         });
@@ -432,12 +447,11 @@ export const stimulus = (trial?: StimulusType) => {
 
       displayDebugInfo(stimulus);
     },
-    on_finish: (data: any) => {
+    on_finish: (_data: unknown) => {
       PageAudioHandler.stopAndDisconnectNode();
       currentTrialId = '';
 
       const stim = trial || taskStore().nextStimulus;
-      const choices = taskStore().choices;
       const endTime = performance.now();
       const cat = taskStore().runCat;
 
@@ -500,7 +514,7 @@ export const stimulus = (trial?: StimulusType) => {
         }
         // if heavy instructions is true, show data quality screen before ending
         if (taskStore().numIncorrect >= taskStore().maxIncorrect && !taskStore().heavyInstructions && !cat) {
-          finishExperiment();
+          finishTaskEarly('errorOut');
         }
 
         if (stim.trialType !== 'something-same-1' && stim.trialType !== 'instructions') {

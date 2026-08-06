@@ -19,8 +19,6 @@ import {
 import { pulseOkButton } from '../../shared/helpers/pulseOkButton';
 import { isTouchScreen, jsPsych } from '../../taskSetup';
 
-let startTime: number;
-
 export const instructionData = [
   {
     prompt: 'matrixReasoningInstruct1',
@@ -92,7 +90,7 @@ export const instructions = instructionData.map((data) => {
 const downexData1 = {
   audio: [
     'matrix-reasoning-instruct1-part1-downex',
-    'matrix-reasoning-instruct1-part2-downex',
+    'matrix-reasoning-prompt1-part2-downex',
     'matrix-reasoning-instruct1-part3-downex',
     'matrix-reasoning-instruct1-part4-downex',
   ],
@@ -184,8 +182,6 @@ export const downexInstructions1 = {
   },
   keyboard_choices: () => 'NO_KEYS',
   on_load: async () => {
-    startTime = performance.now();
-
     addExperimenterButtons();
     setupFullscreenButton();
 
@@ -398,8 +394,6 @@ export const downexInstructions3 = {
   button_html: () => '<button class="image-matrix practice-btn"; disabled>%choice%</button>',
   keyboard_choices: () => 'NO_KEYS',
   on_load: async () => {
-    startTime = performance.now();
-
     addExperimenterButtons();
     setupFullscreenButton();
 
@@ -427,14 +421,20 @@ export const downexInstructions3 = {
       targetButton = buttons[targetImageIdx];
     }
 
-    function onCorrect() {
+    function onCorrect(onFeedbackEnded: () => void) {
       PageAudioHandler.stopAndDisconnectNode();
       cycleId++;
 
-      PageAudioHandler.playAudio(mediaAssets.audio.feedbackRightOne);
+      PageAudioHandler.playAudio(mediaAssets.audio.feedbackRightOne, {
+        restrictRepetition: {
+          enabled: false,
+          maxRepetitions: 2,
+        },
+        onEnded: onFeedbackEnded,
+      });
     }
 
-    function onIncorrect() {
+    function onIncorrect(onFeedbackEnded: () => void) {
       PageAudioHandler.stopAndDisconnectNode();
       cycleId++;
 
@@ -444,7 +444,13 @@ export const downexInstructions3 = {
         targetButton.style.animation = 'pulse 2s 0s 2';
       }
 
-      PageAudioHandler.playAudio(mediaAssets.audio.matrixReasoningFeedbackIncorrectDownex);
+      PageAudioHandler.playAudio(mediaAssets.audio.matrixReasoningFeedbackIncorrectDownex, {
+        restrictRepetition: {
+          enabled: false,
+          maxRepetitions: 2,
+        },
+        onEnded: onFeedbackEnded,
+      });
     }
 
     addPracticeButtonListeners(downexData3.choices[1], isTouchScreen, downexData3.choices, onCorrect, onIncorrect);
@@ -565,8 +571,6 @@ export const downexInstructions4 = {
   button_html: () => '<button class="image-matrix practice-btn" disabled>%choice%</button>',
   keyboard_choices: () => 'NO_KEYS',
   on_load: async () => {
-    startTime = performance.now();
-
     addExperimenterButtons();
     setupFullscreenButton();
 
@@ -594,14 +598,20 @@ export const downexInstructions4 = {
       targetButton = buttons[targetImageIdx];
     }
 
-    function onCorrect() {
+    function onCorrect(onFeedbackEnded: () => void) {
       PageAudioHandler.stopAndDisconnectNode();
       cycleId++;
 
-      PageAudioHandler.playAudio(mediaAssets.audio.feedbackRightOne);
+      PageAudioHandler.playAudio(mediaAssets.audio.feedbackRightOne, {
+        restrictRepetition: {
+          enabled: false,
+          maxRepetitions: 2,
+        },
+        onEnded: onFeedbackEnded,
+      });
     }
 
-    function onIncorrect() {
+    function onIncorrect(onFeedbackEnded: () => void) {
       PageAudioHandler.stopAndDisconnectNode();
       cycleId++;
 
@@ -611,7 +621,13 @@ export const downexInstructions4 = {
         targetButton.style.animation = 'pulse 2s 0s 2';
       }
 
-      PageAudioHandler.playAudio(mediaAssets.audio.matrixReasoningFeedbackSmBlueDownex);
+      PageAudioHandler.playAudio(mediaAssets.audio.matrixReasoningFeedbackSmBlueDownex, {
+        restrictRepetition: {
+          enabled: false,
+          maxRepetitions: 2,
+        },
+        onEnded: onFeedbackEnded,
+      });
     }
 
     addPracticeButtonListeners(downexData4.choices[2], isTouchScreen, downexData4.choices, onCorrect, onIncorrect);
@@ -673,6 +689,9 @@ export const downexInstructions4 = {
     }
 
     animateAndPlayAudio();
+
+    // reset incorrect counter so that task doesn't end prematurely in later trials
+    taskStore('numIncorrect', 0);
   },
   response_ends_trial: false,
   on_finish: () => {

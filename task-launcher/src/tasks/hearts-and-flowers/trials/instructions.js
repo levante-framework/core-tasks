@@ -1,6 +1,7 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
+import { Logger } from '../../../utils';
 import {
   addExperimenterButtons,
   addKeyHelpers,
@@ -17,6 +18,13 @@ import { getInputInstructPrompt } from '../helpers/utils';
 
 let continueTrialConfig;
 let cleanupInstructionInputListeners = [];
+
+function detachInstructionInputListeners() {
+  cleanupInstructionInputListeners.forEach((listenerCleanup) => {
+    listenerCleanup?.();
+  });
+  cleanupInstructionInputListeners = [];
+}
 
 function isHfV2() {
   return taskStore().version === 2;
@@ -56,7 +64,7 @@ export function getGoingFasterInstructions() {
 }
 
 export function getEndGame() {
-  return buildInstructionTrial(mediaAssets.images.animalBodySq, () => 'heartsAndFlowersEnd');
+  return buildInstructionTrial(mediaAssets.images.animalBodySq, () => 'heartsAndFlowersEnd', false, null, true);
 }
 
 export function getInputInstructions() {
@@ -71,15 +79,19 @@ export function getRightButtonDemo() {
   return buildInstructionTrial(mediaAssets.images.animalBodySq, getInputInstructPrompt, true, 'right');
 }
 
-function buildInstructionTrial(mascotImage, getPromptKey, showResponseButton = false, buttonSide = null) {
+function buildInstructionTrial(
+  mascotImage,
+  getPromptKey,
+  showResponseButton = false,
+  buttonSide = null,
+  endOfTask = false,
+) {
   if (!mascotImage) {
     console.error(`buildInstructionTrial: Missing mascot image`);
   }
   if (!getPromptKey()) {
     console.error(`buildInstructionTrial: Missing prompt audio or text`);
   }
-
-  const replayButtonHtmlId = 'replay-btn-revisited';
 
   const trial = {
     type: jsPsychHtmlMultiResponse,
@@ -121,6 +133,17 @@ function buildInstructionTrial(mascotImage, getPromptKey, showResponseButton = f
     on_load: () => {
       let responseButtons;
       let onButtonPress;
+      let hasResponded = false;
+
+      if (endOfTask) {
+        taskStore('effectiveStoppingRule', 'earlyCompletion');
+
+        const logger = Logger.getInstance();
+        logger.capture('Task finished: user finished all trials', {
+          taskName: taskStore().task,
+          taskFinished: taskStore().taskComplete,
+        });
+      }
 
       if (showResponseButton) {
         if (continueTrialConfig.type === 'button') {
@@ -150,11 +173,18 @@ function buildInstructionTrial(mascotImage, getPromptKey, showResponseButton = f
         responseButtons = buttonContainer.querySelectorAll('.secondary--green');
 
         onButtonPress = (button, i, event) => {
+          if (hasResponded) {
+            return;
+          }
+
           if (
             (i === 0 && event.key === 'ArrowLeft') ||
             (i === 1 && event.key === 'ArrowRight') ||
             event.type === 'touchend'
           ) {
+            hasResponded = true;
+            detachInstructionInputListeners();
+
             PageAudioHandler.playAudio(mediaAssets.audio.coin);
             button.classList.add('info-shadow');
             setTimeout(() => {
@@ -181,10 +211,14 @@ function buildInstructionTrial(mascotImage, getPromptKey, showResponseButton = f
               const audioUri = mediaAssets.audio[continueTrialConfig.text];
 
               const onSpacebarPress = (event) => {
-                if (event.key === ' ') {
-                  jsPsych.finishTrial();
-                  PageAudioHandler.stopAndDisconnectNode();
+                if (event.key !== ' ' || hasResponded) {
+                  return;
                 }
+
+                hasResponded = true;
+                detachInstructionInputListeners();
+                PageAudioHandler.stopAndDisconnectNode();
+                jsPsych.finishTrial();
               };
 
               window.addEventListener('keydown', onSpacebarPress);
@@ -236,14 +270,11 @@ function buildInstructionTrial(mascotImage, getPromptKey, showResponseButton = f
       setupFullscreenButton();
     },
     on_finish: () => {
-      cleanupInstructionInputListeners?.forEach((listenerCleanup) => {
-        listenerCleanup?.();
-      });
-      cleanupInstructionInputListeners = [];
+      detachInstructionInputListeners();
 
       PageAudioHandler.stopAndDisconnectNode();
 
-      if (getPromptKey() === 'heartsAndFlowersEnd') {
+      if (endOfTask) {
         taskStore('taskComplete', true);
       }
 

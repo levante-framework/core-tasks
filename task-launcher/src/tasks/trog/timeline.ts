@@ -25,8 +25,6 @@ import { cat, initializeCat, jsPsych } from '../taskSetup';
 import { getLayoutConfig } from './helpers/config';
 
 export default function buildTROGTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
-  const preloadTrials = createPreloadTrials(mediaAssets).default;
-
   initTrialSaving(config);
   const initialTimeline = initTimeline(config, enterFullscreen);
   const corpus: StimulusType[] = taskStore().corpora.stimulus;

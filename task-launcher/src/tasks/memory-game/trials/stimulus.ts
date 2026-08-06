@@ -10,7 +10,7 @@ import {
   setupFullscreenButton,
   setupReplayAudio,
 } from '../../shared/helpers';
-import { finishExperiment } from '../../shared/trials';
+import { finishTaskEarly } from '../../shared/trials';
 import { jsPsych } from '../../taskSetup';
 import { getMemoryGamePrompt } from '../helpers/getMemoryGamePrompt';
 import { getMemoryGameType } from '../helpers/getMemoryGameType';
@@ -193,7 +193,6 @@ export function getCorsiBlocks({
       }
 
       const gridSize = taskStore().gridSize;
-      const heavyInstructions = taskStore().heavyInstructions;
 
       // save itemUid for data analysis
       const itemUid =
@@ -231,7 +230,7 @@ export function getCorsiBlocks({
 
         if (taskStore().numIncorrect === taskStore().maxIncorrect) {
           if (reverse) {
-            finishExperiment();
+            finishTaskEarly('errorOut');
           } else {
             sequenceLength = 2;
             // update total trials to account for skipped forward block
@@ -240,8 +239,6 @@ export function getCorsiBlocks({
         }
 
         selectedCoordinates = [];
-
-        const numOfBlocks = taskStore().numOfBlocks;
 
         if (!isPractice) {
           timeoutIDs.forEach((id) => {

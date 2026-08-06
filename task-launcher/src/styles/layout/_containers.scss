@@ -360,3 +360,11 @@
   width: calc(4 * $bubble-grid-cell-size);
   height: calc(4 * $bubble-grid-cell-size);
 }
+
+.multi-button-stack {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
