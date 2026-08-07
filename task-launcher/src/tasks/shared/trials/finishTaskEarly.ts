@@ -1,4 +1,3 @@
-import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
 import { Logger } from '../../../utils';
 import { jsPsych } from '../../taskSetup';

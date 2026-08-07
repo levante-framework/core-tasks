@@ -1,6 +1,5 @@
 import jsPsychCorsiBlocks from '@jspsych-contrib/plugin-corsi-blocks';
 import _isEqual from 'lodash/isEqual';
-import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
 import {
   addExperimenterButtons,

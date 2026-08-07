@@ -39,7 +39,6 @@ function getStimulus(layoutConfigMap: Record<string, LayoutConfigType>, trial?: 
 }
 
 const getPromptTemplate = (
-  promptKey: string | null,
   prompt: string,
   mediaSrc: string | null,
   mediaAlt: string,
@@ -48,10 +47,6 @@ const getPromptTemplate = (
   stimulusContainerClassList: string[],
   promptClassList: string[],
 ) => {
-  if (promptKey) {
-    prompt = taskStore().translations[camelize(promptKey)];
-  }
-
   let template = '<div class="lev-stimulus-container">';
 
   template += getAudioKeysContainerHtml();
@@ -118,13 +113,11 @@ function getPrompt(layoutConfigMap: Record<string, LayoutConfigType>, trial?: St
     const mediaAsset = stimulusTextConfig?.value
       ? mediaAssets.images[camelize(stimulusTextConfig.value)] || mediaAssets.images.blank
       : null;
-    const promptKey = stim.audioFile;
-    const prompt = promptEnabled ? t[camelize(promptKey)] : null;
+    const prompt = promptEnabled ? t[camelize(stim.audioFile)] : null;
     const mediaSrc = showStimImage ? mediaAsset : null;
     const mediaAlt = stimulusTextConfig?.value || `Image not loading: ${mediaSrc}. Please continue the task.`;
     const stimText = stimulusTextConfig ? stimulusTextConfig.displayValue : null;
     return getPromptTemplate(
-      promptKey,
       prompt,
       mediaSrc,
       mediaAlt,

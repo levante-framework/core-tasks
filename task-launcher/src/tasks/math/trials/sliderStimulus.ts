@@ -2,7 +2,6 @@
 import { camelize } from '@bdelab/roar-utils';
 import HTMLSliderResponse from '@jspsych/plugin-html-slider-response';
 import _toNumber from 'lodash/toNumber';
-import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
 import {
   addExperimenterButtons,

@@ -46,7 +46,7 @@ export class PageAudioHandler {
     const { onEnded } = config;
 
     let resolvedAudioKey = audioKey;
-    let audioUri = mediaAssets.audio[camelize(audioKey)];
+    let audioUri = mediaAssets.audio[camelize(audioKey)] || mediaAssets.audio.nullAudio;
 
     // check for repeat audio
     if (PageAudioHandler.audioKey === audioKey && enabled) {
