@@ -1,4 +1,5 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
+import { driver } from 'driver.js';
 import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
 import {
@@ -10,21 +11,26 @@ import {
   setupFullscreenButton,
   setupReplayAudio,
 } from '../../shared/helpers';
-import { isTouchScreen, jsPsych } from '../../taskSetup';
+import { jsPsych } from '../../taskSetup';
+
+const buttonIntroDriverObj = driver({
+  disableActiveInteraction: false,
+  advanceOnClick: true,
+  popoverClass: 'driver-popover--hidden',
+  allowClose: false,
+  steps: [{ element: '#replay-btn-revisited' }, { element: '.primary' }],
+});
 
 const instructionData = [
   {
     prompt: 'generalIntro1',
-    image: 'avatarOwl', // GIF?
+    image: 'avatarOwl',
     buttonText: 'continueButtonText',
     autoAdvanceWhenBubblePractice: true,
   },
   {
-    prompt: 'instructBubblePoppingMouse',
-    resolvePrompt: () =>
-      taskStore().inputCapability?.touch
-        ? 'instructBubblePoppingTouch'
-        : 'instructBubblePoppingMouse',
+    prompt: 'instructBubble1Mouse',
+    resolvePrompt: () => (taskStore().inputCapability?.touch ? 'instructBubble1Touch' : 'instructBubble1Mouse'),
     image: 'avatarOwl',
     buttonText: 'continueButtonText',
     autoAdvanceWhenBubblePractice: true,
@@ -36,36 +42,29 @@ const instructionData = [
     autoAdvanceWhenBubblePractice: true,
   },
   {
-    prompt: 'instructButtonIntro',
+    prompt: 'instructBubble2',
     image: 'avatarOwl',
     buttonText: 'continueButtonText',
-    pulseOkOnEnable: true,
+    autoAdvanceWhenBubblePractice: true,
+  },
+  {
+    prompt: 'instructBubble3',
+    image: 'avatarOwl',
+    buttonText: 'continueButtonText',
+    autoAdvanceWhenBubblePractice: true,
   },
   {
     prompt: 'generalIntro4',
-    image: 'avatarOwl', // ToDo: replay button with arrow?
-    buttonText: 'continueButtonText',
-  },
-  {
-    prompt: 'generalIntro5',
     image: 'avatarOwl',
     buttonText: 'continueButtonText',
+    driveButtonIntroWhenBubblePractice: true,
   },
 ];
 
-// additional keyboard instructions for those not using a tablet
-if (!isTouchScreen) {
-  instructionData.push({
-    prompt: 'generalKeyboardInstructions',
-    image: 'avatarOwl',
-    buttonText: 'continueButtonText',
-  });
-}
-
 const instructions = instructionData.map((data) => {
   const getPrompt = () => data.resolvePrompt?.() ?? data.prompt;
-  const shouldAutoAdvanceOnAudioEnd = () =>
-    data.autoAdvanceWhenBubblePractice && taskStore().bubblePractice === true;
+  const shouldAutoAdvanceOnAudioEnd = () => data.autoAdvanceWhenBubblePractice && taskStore().bubblePractice === true;
+  const shouldDriveButtonIntro = () => data.driveButtonIntroWhenBubblePractice && taskStore().bubblePractice === true;
 
   return {
     type: jsPsychHtmlMultiResponse,
@@ -114,19 +113,16 @@ const instructions = instructionData.map((data) => {
             setTimeout(() => {
               jsPsych.finishTrial();
             }, 2000);
-          } else if (data.pulseOkOnEnable) {
-            enableOkButton();
-            const okButton = document.querySelector('.primary') as HTMLButtonElement;
-            if (okButton) {
-              okButton.style.animation = 'pulse 1s infinite';
-            }
           } else {
             enableOkButton();
+            if (shouldDriveButtonIntro()) {
+              buttonIntroDriverObj.drive();
+            }
           }
         },
       };
 
-      PageAudioHandler.playAudio((mediaAssets.audio[prompt] || mediaAssets.audio.inputAudioCue), audioConfig);
+      PageAudioHandler.playAudio(mediaAssets.audio[prompt] || mediaAssets.audio.inputAudioCue, audioConfig);
 
       const pageStateHandler = new PageStateHandler(prompt, true);
       setupReplayAudio(pageStateHandler);
@@ -134,6 +130,10 @@ const instructions = instructionData.map((data) => {
       setupFullscreenButton();
     },
     on_finish: () => {
+      if (shouldDriveButtonIntro()) {
+        buttonIntroDriverObj.destroy();
+      }
+
       PageAudioHandler.stopAndDisconnectNode();
 
       jsPsych.data.addDataToLastTrial({

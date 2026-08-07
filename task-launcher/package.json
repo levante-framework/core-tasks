@@ -52,6 +52,7 @@
     "@levante-framework/firekit": "^9.7.0",
     "@sentry/browser": "^8.7.0",
     "cypress-real-events": "^1.13.0",
+    "driver.js": "^1.8.0",
     "fscreen": "^1.2.0",
     "i18next": "^22.4.15",
     "i18next-browser-languagedetector": "^7.0.1",
