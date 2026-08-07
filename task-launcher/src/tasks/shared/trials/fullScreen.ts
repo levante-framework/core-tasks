@@ -34,7 +34,14 @@ export const enterFullscreen = {
     // ensures the trial only advances once when both fire for the same tap.
     const continueButton = document.querySelector<HTMLButtonElement>('#jspsych-html-multi-response-btngroup button');
     let handled = false;
-    const handleContinue = async () => {
+    const handleContinue = async (event: Event) => {
+      // We manage advancement ourselves (finishTrial below), so stop the event
+      // from reaching the html-multi-response plugin's own button handler, which
+      // would otherwise run against the DOM we've just torn down and throw.
+      // preventDefault on touchend also suppresses the synthesized ghost click.
+      event.preventDefault();
+      event.stopImmediatePropagation();
+
       if (handled) return;
       handled = true;
       continueButton?.removeEventListener('click', handleContinue);
