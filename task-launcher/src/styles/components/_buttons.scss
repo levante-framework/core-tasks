@@ -1,6 +1,13 @@
 @use '../abstracts' as *;
 
 button {
+  img {
+    -webkit-user-drag: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
   &.button-base {
     border-radius: $button-default-border-radius;
     border-width: $button-default-border-width;
