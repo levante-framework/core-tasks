@@ -55,7 +55,7 @@ export const feedback = (isPractice = false, promptOnIncorrect?: string) => {
             },
             onEnded: () => {
               if (!trialFinished && promptOnIncorrect && !isCorrect) {
-                PageAudioHandler.playAudio(camelize(promptOnIncorrect) || mediaAssets.audio.nullAudio);
+                PageAudioHandler.playAudio(promptOnIncorrect);
               }
             },
           };
