@@ -6,5 +6,5 @@ export type SentryContextType = {
 };
 
 export const setSentryContext = (context: SentryContextType) => {
-  Sentry.setContext('LevanteContext', context);
+  Sentry.setContext('TaskContext', context);
 };

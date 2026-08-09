@@ -10,6 +10,8 @@ import {
 } from './tasks/shared/helpers';
 import './styles/index.scss';
 import type { RoarAppkit } from '@levante-framework/firekit';
+// @ts-expect-error: keep sentry as .js for the function-based browser API
+import { initSentry } from './sentry.js';
 import { setTaskStore, taskStore } from './taskStore';
 import { getBucketName } from './tasks/shared/helpers/getBucketName';
 import taskConfig from './tasks/taskConfig';
@@ -39,6 +41,8 @@ export class TaskLauncher {
   }
 
   async init() {
+    initSentry();
+
     if (!this.gameParams.demoMode && this.firekit) {
       await this.firekit.startRun();
     }
