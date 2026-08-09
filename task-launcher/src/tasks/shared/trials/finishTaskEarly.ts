@@ -1,4 +1,3 @@
-import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
 import { Logger } from '../../../utils';
 import { jsPsych } from '../../taskSetup';
@@ -47,6 +46,6 @@ export function finishTaskEarly(effectiveStoppingRule: 'timeOut' | 'errorOut') {
             <footer>${t.generalFooter}</footer>
             <button id="exit-button" class="primary" style=margin-top:5%>${t.generalExit}</button>
         </div>`,
-    PageAudioHandler.playAudio(mediaAssets.audio.taskFinished),
+    PageAudioHandler.playAudio('taskFinished'),
   );
 }

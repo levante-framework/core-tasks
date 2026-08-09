@@ -1,6 +1,5 @@
 import jsPsychCorsiBlocks from '@jspsych-contrib/plugin-corsi-blocks';
 import _isEqual from 'lodash/isEqual';
-import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
 import {
   addExperimenterButtons,
@@ -70,7 +69,6 @@ export function setUpAudio(
     setupFullscreenButton();
   }
 
-  const audioFile = mediaAssets.audio[cue];
   const audioConfig: AudioConfigType = {
     restrictRepetition: {
       enabled: true,
@@ -85,7 +83,7 @@ export function setUpAudio(
     },
   };
 
-  PageAudioHandler.playAudio(audioFile, audioConfig);
+  PageAudioHandler.playAudio(cue, audioConfig);
 }
 
 // This function produces both the display and input trials for the corsi blocks

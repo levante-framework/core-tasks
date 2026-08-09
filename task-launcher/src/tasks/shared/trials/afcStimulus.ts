@@ -9,6 +9,7 @@ import {
   addPracticeButtonListeners,
   camelize,
   enableOkButton,
+  getAudioKeysContainerHtml,
   getParticipantUtilityButtonsHtml,
   handleStaggeredButtons,
   PageAudioHandler,
@@ -33,8 +34,7 @@ function getStimulus(layoutConfigMap: Record<string, LayoutConfigType>, trial?: 
   const stim = trial || taskStore().nextStimulus;
   const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
   if (itemLayoutConfig) {
-    const audioPath = itemLayoutConfig?.playAudioOnLoad ? camelize(stim.audioFile) : 'nullAudio';
-    return mediaAssets.audio[audioPath];
+    return itemLayoutConfig?.playAudioOnLoad ? camelize(stim.audioFile) : 'nullAudio';
   }
 }
 
@@ -48,6 +48,8 @@ const getPromptTemplate = (
   promptClassList: string[],
 ) => {
   let template = '<div class="lev-stimulus-container">';
+
+  template += getAudioKeysContainerHtml();
 
   template += getParticipantUtilityButtonsHtml(replayButtonHtmlId);
 

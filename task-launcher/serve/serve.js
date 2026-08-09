@@ -58,6 +58,7 @@ const storeItemId = stringToBoolean(urlParams.get('storeItemId'), false);
 const cat = stringToBoolean(urlParams.get('cat'), false);
 const heavyInstructions = stringToBoolean(urlParams.get('heavyInstructions'), false);
 const experimenterButtons = stringToBoolean(urlParams.get('experimenterButtons'), false);
+const showAudioKeys = stringToBoolean(urlParams.get('showAudioKeys'), false);
 const debug = stringToBoolean(urlParams.get('debug'), false);
 
 // if running in demo mode, no data will be saved to Firestore
@@ -91,6 +92,7 @@ async function startWebApp() {
     version,
     debug,
     experimenterButtons,
+    showAudioKeys,
   };
   const userParams = {
     pid,
