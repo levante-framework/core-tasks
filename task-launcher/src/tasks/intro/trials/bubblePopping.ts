@@ -4,6 +4,7 @@ import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
 import {
   addExperimenterButtons,
+  enableOkButton,
   getParticipantUtilityButtonsHtml,
   PageAudioHandler,
   setupFullscreenButton,
@@ -67,7 +68,7 @@ const bubblePoppingPracticeTrial = {
     let remainingBubbles = bubbles.length;
 
     bubbles.forEach((bubble) => {
-      bubble.addEventListener('click', () => {
+      wrapListeners(bubble, () => {
         PageAudioHandler.playAudio(mediaAssets.audio.pop, popAudioConfig);
         bubble.style.visibility = 'hidden';
 
@@ -98,6 +99,100 @@ const bubblePoppingPracticeTrial = {
 
 export const bubblePoppingPractice = {
   timeline: [bubblePoppingPracticeTrial],
+  conditional_function: () => taskStore().bubblePractice === true,
+};
+
+const bubbleOverButtonDriverObj = driver({
+  disableActiveInteraction: false,
+  advanceOnClick: true,
+  popoverClass: 'driver-popover--hidden',
+  allowClose: false,
+});
+
+const bubbleOverButtonPracticeTrial = {
+  type: jsPsychHtmlMultiResponse,
+  stimulus: () => {
+    const t = taskStore().translations;
+    const prompt = 'instructBubble2';
+
+    return `
+      <div class="lev-stimulus-container">
+        ${getParticipantUtilityButtonsHtml('replay-btn-revisited', false)}
+        <div class="lev-row-container instruction-small">
+          <p>${t[prompt]}</p>
+        </div>
+        <div class="lev-stim-content-x-3">
+          <img
+            src=${mediaAssets.images.avatarOwl}
+            alt='Instruction graphic'
+          />
+        </div>
+      </div>
+    `;
+  },
+  prompt_above_buttons: true,
+  button_choices: ['Next'],
+  button_html: () => {
+    const t = taskStore().translations;
+
+    return [
+      `<div id="bubble-button-stack" class="stack-overlay">
+        <button class="primary" disabled>${t.continueButtonText}</button>
+          <button class="img-transparent float" style="pointer-events: none"> 
+            <img src=${mediaAssets.images.bubble}>
+          </button>
+        </div>
+      </div>`,
+    ];
+  },
+  keyboard_choices: 'NO_KEYS',
+  on_load: () => {
+    const prompt = 'instructBubble2';
+
+    addExperimenterButtons();
+    setupFullscreenButton();
+
+    const popAudioConfig: AudioConfigType = {
+      restrictRepetition: {
+        enabled: false,
+        maxRepetitions: 2,
+      },
+    };
+
+    const continueButton = document.querySelector('.primary') as HTMLButtonElement;
+
+    wrapListeners(continueButton, () => {
+      PageAudioHandler.playAudio(mediaAssets.audio.pop, popAudioConfig);
+    });
+
+    const audioConfig: AudioConfigType = {
+      restrictRepetition: {
+        enabled: true,
+        maxRepetitions: 2,
+      },
+      onEnded: () => {
+        enableOkButton();
+        bubbleOverButtonDriverObj.highlight({ element: '.primary' });
+      },
+    };
+
+    PageAudioHandler.playAudio(mediaAssets.audio[prompt] || mediaAssets.audio.inputAudioCue, audioConfig);
+  },
+  on_finish: () => {
+    bubbleOverButtonDriverObj.destroy();
+
+    PageAudioHandler.stopAndDisconnectNode();
+
+    jsPsych.data.addDataToLastTrial({
+      audioButtonPresses: PageAudioHandler.replayPresses,
+      assessment_stage: 'instructions',
+    });
+    PageAudioHandler.stopAndDisconnectNode();
+  },
+};
+
+export const bubbleOverButtonPractice = {
+  timeline: [bubbleOverButtonPracticeTrial],
   conditional_function: () => taskStore().bubblePractice === true,
 };
 

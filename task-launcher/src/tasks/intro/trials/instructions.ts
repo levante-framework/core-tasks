@@ -27,6 +27,7 @@ const instructionData = [
     image: 'avatarOwl',
     buttonText: 'continueButtonText',
     autoAdvanceWhenBubblePractice: true,
+    includeReplayButton: false,
   },
   {
     prompt: 'instructBubble1Mouse',
@@ -34,30 +35,42 @@ const instructionData = [
     image: 'avatarOwl',
     buttonText: 'continueButtonText',
     autoAdvanceWhenBubblePractice: true,
-  },
-  {
-    prompt: 'feedbackGoodJob',
-    image: 'avatarOwl',
-    buttonText: 'continueButtonText',
-    autoAdvanceWhenBubblePractice: true,
+    includeReplayButton: false,
   },
   {
     prompt: 'instructBubble2',
     image: 'avatarOwl',
     buttonText: 'continueButtonText',
     autoAdvanceWhenBubblePractice: true,
+    includeReplayButton: false,
   },
   {
     prompt: 'instructBubble3',
     image: 'avatarOwl',
     buttonText: 'continueButtonText',
     autoAdvanceWhenBubblePractice: true,
+    includeReplayButton: false,
+  },
+  {
+    prompt: 'feedbackGoodJob',
+    image: 'avatarOwl',
+    buttonText: 'continueButtonText',
+    autoAdvanceWhenBubblePractice: true,
+    includeReplayButton: false,
+  },
+  {
+    prompt: 'instructBubble4',
+    image: 'avatarOwl',
+    buttonText: 'continueButtonText',
+    autoAdvanceWhenBubblePractice: true,
+    includeReplayButton: false,
   },
   {
     prompt: 'generalIntro4',
     image: 'avatarOwl',
     buttonText: 'continueButtonText',
     driveButtonIntroWhenBubblePractice: true,
+    includeReplayButton: true,
   },
 ];
 
@@ -71,9 +84,10 @@ const instructions = instructionData.map((data) => {
     stimulus: () => {
       const t = taskStore().translations;
       const prompt = getPrompt();
+
       return `
         <div class="lev-stimulus-container">
-            ${getParticipantUtilityButtonsHtml('replay-btn-revisited')}
+            ${getParticipantUtilityButtonsHtml('replay-btn-revisited', data.includeReplayButton)}
             <div class="lev-row-container instruction-small">
                 <p>${t[prompt]}</p>
             </div>
@@ -124,8 +138,11 @@ const instructions = instructionData.map((data) => {
 
       PageAudioHandler.playAudio(mediaAssets.audio[prompt] || mediaAssets.audio.inputAudioCue, audioConfig);
 
-      const pageStateHandler = new PageStateHandler(prompt, true);
-      setupReplayAudio(pageStateHandler);
+      if (data.includeReplayButton) {
+        const pageStateHandler = new PageStateHandler(prompt, true);
+        setupReplayAudio(pageStateHandler);
+      }
+
       addExperimenterButtons();
       setupFullscreenButton();
     },

@@ -368,3 +368,13 @@
   justify-content: center;
   gap: 10px;
 }
+
+.stack-overlay {
+  display: grid;
+  grid-template-areas: overlay;
+  place-items: center;
+
+  button {
+    grid-area: overlay;
+  }
+}
