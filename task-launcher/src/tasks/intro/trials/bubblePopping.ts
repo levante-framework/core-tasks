@@ -15,7 +15,6 @@ import { spreadBubbles } from '../helpers/bubbleHelpers';
 
 const driverObj = driver({
   disableActiveInteraction: false,
-  advanceOnClick: true,
   popoverClass: 'driver-popover--hidden',
   allowClose: false,
   steps: [{ element: '#button0' }, { element: '#button1' }, { element: '#button2' }],
@@ -152,19 +151,6 @@ const bubbleOverButtonPracticeTrial = {
     addExperimenterButtons();
     setupFullscreenButton();
 
-    const popAudioConfig: AudioConfigType = {
-      restrictRepetition: {
-        enabled: false,
-        maxRepetitions: 2,
-      },
-    };
-
-    const continueButton = document.querySelector('.primary') as HTMLButtonElement;
-
-    wrapListeners(continueButton, () => {
-      PageAudioHandler.playAudio(mediaAssets.audio.pop, popAudioConfig);
-    });
-
     const audioConfig: AudioConfigType = {
       restrictRepetition: {
         enabled: true,
@@ -219,9 +205,21 @@ const buttonPressPracticeTrial = {
 
     driverObj.drive();
 
+    let buttonsEnabled = true;
     let remainingButtons = buttons.length;
     buttons.forEach((button) => {
       wrapListeners(button, () => {
+        if (!buttonsEnabled) {
+          return;
+        }
+
+        driverObj.moveNext();
+
+        buttonsEnabled = false;
+        setTimeout(() => {
+          buttonsEnabled = true;
+        }, 500);
+
         PageAudioHandler.playAudio(mediaAssets.audio.select);
 
         button.style.visibility = 'hidden';
