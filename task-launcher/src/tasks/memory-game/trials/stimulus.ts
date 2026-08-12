@@ -178,7 +178,10 @@ export function getCorsiBlocks({
       return durationMs;
     },
     on_load: () => {
-      doOnLoad(mode, isPractice, reverse, animation, prompt);
+      const cue = doOnLoad(mode, isPractice, reverse, animation, prompt);
+      jsPsych.data.addDataToLastTrial({
+        audioFile: cue,
+      });
     },
     on_finish: (data: any) => {
       PageAudioHandler.stopAndDisconnectNode();
@@ -209,7 +212,6 @@ export function getCorsiBlocks({
           corpusTrialType: getMemoryGameType(mode, reverse, gridSize),
           responseLocation: data.response,
           itemUid: itemUid,
-          audioFile: reverse ? 'memory-game-instruct-11-downex' : 'memory-game-instruct-8-downex',
         });
         taskStore('isCorrect', data.correct);
 
@@ -453,4 +455,6 @@ function doOnLoad(
   contentWrapper.insertBefore(promptContainer, corsiBlocksHTML);
 
   setUpAudio(contentWrapper, promptContainer, cue, mode);
+
+  return cue;
 }
