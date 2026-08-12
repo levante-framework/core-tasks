@@ -3,6 +3,7 @@ import _isEqual from 'lodash/isEqual';
 import { taskStore } from '../../../taskStore';
 import {
   addExperimenterButtons,
+  camelToKebab,
   getParticipantUtilityButtonsHtml,
   PageAudioHandler,
   PageStateHandler,
@@ -97,6 +98,8 @@ export function getCorsiBlocks({
   animation,
   prompt,
 }: CorsiBlocksArgs) {
+  let playedCue = '';
+
   return {
     type: jsPsychCorsiBlocks,
     sequence: () => {
@@ -178,10 +181,7 @@ export function getCorsiBlocks({
       return durationMs;
     },
     on_load: () => {
-      const cue = doOnLoad(mode, isPractice, reverse, animation, prompt);
-      jsPsych.data.addDataToLastTrial({
-        audioFile: cue,
-      });
+      playedCue = doOnLoad(mode, isPractice, reverse, animation, prompt);
     },
     on_finish: (data: any) => {
       PageAudioHandler.stopAndDisconnectNode();
@@ -212,6 +212,7 @@ export function getCorsiBlocks({
           corpusTrialType: getMemoryGameType(mode, reverse, gridSize),
           responseLocation: data.response,
           itemUid: itemUid,
+          audioFile: camelToKebab(playedCue),
         });
         taskStore('isCorrect', data.correct);
 
@@ -252,7 +253,7 @@ export function getCorsiBlocks({
       } else {
         jsPsych.data.addDataToLastTrial({
           correct: false, // default to false for display trials. Firekit requires this field to be non null.
-          audioFile: 'memory-game-display',
+          audioFile: camelToKebab(playedCue),
         });
       }
     },
