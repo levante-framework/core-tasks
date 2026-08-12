@@ -83,7 +83,7 @@ export const instructions = instructionData.map((data) => {
         onEnded: enableOkButton,
       };
 
-      PageAudioHandler.playAudio(mediaAssets.audio[data.prompt], audioConfig);
+      PageAudioHandler.playAudio(data.prompt, audioConfig);
 
       const pageStateHandler = new PageStateHandler(data.prompt, true);
       setupReplayAudio(pageStateHandler);

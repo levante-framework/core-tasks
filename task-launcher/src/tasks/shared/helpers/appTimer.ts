@@ -1,5 +1,5 @@
 import { taskStore } from '../../../taskStore';
-import { finishExperiment } from '../trials';
+import { finishTaskEarly } from '../trials';
 import { PageStateHandler } from './PageStateHandler';
 
 // This feature allows the task configurator to set a time limit for the app,
@@ -44,7 +44,8 @@ export const startAppTimer = (maxTimeInMinutes: number) => {
 };
 
 // function for ending the task if the next trial
-export async function checkEndTaskEarly(timeRemaining: number, stimAudio: string) {
+// returns true if the experiment was ended early, false otherwise
+export async function checkEndTaskEarly(timeRemaining: number, stimAudio: string): Promise<boolean> {
   const pageStateHandler = new PageStateHandler(stimAudio, false);
   let minTrialDuration = (await pageStateHandler.getStimulusDurationMs()) + RESPONSE_BUFFER;
 
@@ -54,6 +55,9 @@ export async function checkEndTaskEarly(timeRemaining: number, stimAudio: string
 
   if (timeRemaining < minTrialDuration) {
     clearTimeout(taskStore().taskTimer);
-    finishExperiment();
+    finishTaskEarly('timeOut');
+    return true;
   }
+
+  return false;
 }

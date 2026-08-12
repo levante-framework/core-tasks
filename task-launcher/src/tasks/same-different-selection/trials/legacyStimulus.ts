@@ -19,7 +19,7 @@ import {
 } from '../../shared/helpers';
 import { displayDebugInfo } from '../../shared/helpers/displayDebugInfo';
 import { handleStaggeredButtons } from '../../shared/helpers/staggerButtons';
-import { finishExperiment } from '../../shared/trials';
+import { finishTaskEarly } from '../../shared/trials';
 import { jsPsych } from '../../taskSetup';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
@@ -57,13 +57,13 @@ export function handleButtonFeedback(
   const answer = taskStore().correctResponseIdx.toString();
 
   const isCorrectChoice = choice.includes(answer);
-  let feedbackAudio: string;
+  let feedbackAudioKey: string;
   if (isCorrectChoice) {
     btn.classList.add('success-shadow');
-    feedbackAudio = mediaAssets.audio[correctAudio];
+    feedbackAudioKey = correctAudio;
   } else {
     btn.classList.add('error-shadow');
-    feedbackAudio = mediaAssets.audio.feedbackTryAgain;
+    feedbackAudioKey = 'feedbackTryAgain';
     incorrectPracticeResponses.push(choice);
   }
 
@@ -102,8 +102,8 @@ export function handleButtonFeedback(
   }
   PageAudioHandler.stopAndDisconnectNode(); // disconnect first to avoid overlap
   isCorrectChoice
-    ? PageAudioHandler.playAudio(feedbackAudio, correctAudioConfig)
-    : PageAudioHandler.playAudio(feedbackAudio, incorrectAudioConfig);
+    ? PageAudioHandler.playAudio(feedbackAudioKey, correctAudioConfig)
+    : PageAudioHandler.playAudio(feedbackAudioKey, incorrectAudioConfig);
 }
 
 export const legacyStimulus = (trial?: StimulusType) => {
@@ -237,7 +237,7 @@ export const legacyStimulus = (trial?: StimulusType) => {
               },
             };
 
-      PageAudioHandler.playAudio(mediaAssets.audio[camelize(audioFile)], audioConfig);
+      PageAudioHandler.playAudio(audioFile, audioConfig);
 
       if (stimulus.trialType === 'instructions') {
         disableOkButton();
@@ -352,7 +352,7 @@ export const legacyStimulus = (trial?: StimulusType) => {
         }
         // if heavy instructions is true, show data quality screen before ending
         if (taskStore().numIncorrect >= taskStore().maxIncorrect && !taskStore().heavyInstructions && !cat) {
-          finishExperiment();
+          finishTaskEarly('errorOut');
         }
 
         if (stim.trialType !== 'something-same-1' && stim.trialType !== 'instructions') {

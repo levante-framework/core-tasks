@@ -74,10 +74,9 @@ const showStaggeredBtnAndPlaySound = (
     btn.style.animation = 'pulse 2s 0s 1';
   }
 
-  let audioAsset = mediaAssets.audio[camelize(audioList[index])];
-  if (!audioAsset) {
+  const audioKey = camelize(audioList[index]);
+  if (!mediaAssets.audio[audioKey]) {
     console.error('Audio Asset not available for:', audioList[index]);
-    audioAsset = mediaAssets.audio.nullAudio;
   }
 
   const audioConfig: AudioConfigType = {
@@ -113,7 +112,7 @@ const showStaggeredBtnAndPlaySound = (
     },
   };
 
-  PageAudioHandler.playAudio(audioAsset, audioConfig);
+  PageAudioHandler.playAudio(audioKey, audioConfig);
 };
 
 export const disableStagger = () => {

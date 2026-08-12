@@ -17,7 +17,7 @@ import {
 } from '../../shared/helpers';
 import { displayDebugInfo } from '../../shared/helpers/displayDebugInfo';
 import { shouldTerminateCat } from '../../shared/helpers/shouldTerminateCat';
-import { finishExperiment } from '../../shared/trials';
+import { finishTaskEarly } from '../../shared/trials';
 import { isTouchScreen, jsPsych } from '../../taskSetup';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
@@ -149,13 +149,13 @@ export function handleButtonFeedback(
   const answer = taskStore().correctResponseIdx.toString();
 
   const isCorrectChoice = choice.includes(answer);
-  let feedbackAudio: string;
+  let feedbackAudioKey: string;
   if (isCorrectChoice) {
     btn.classList.add('success-shadow');
-    feedbackAudio = mediaAssets.audio[correctAudio];
+    feedbackAudioKey = correctAudio;
   } else {
     btn.classList.add('error-shadow');
-    feedbackAudio = mediaAssets.audio.feedbackTryAgain;
+    feedbackAudioKey = 'feedbackTryAgain';
     incorrectPracticeResponses.push(choice);
   }
 
@@ -194,8 +194,8 @@ export function handleButtonFeedback(
   }
   PageAudioHandler.stopAndDisconnectNode(); // disconnect first to avoid overlap
   isCorrectChoice
-    ? PageAudioHandler.playAudio(feedbackAudio, correctAudioConfig)
-    : PageAudioHandler.playAudio(feedbackAudio, incorrectAudioConfig);
+    ? PageAudioHandler.playAudio(feedbackAudioKey, correctAudioConfig)
+    : PageAudioHandler.playAudio(feedbackAudioKey, incorrectAudioConfig);
 }
 
 export const stimulus = (trial?: StimulusType) => {
@@ -267,12 +267,12 @@ export const stimulus = (trial?: StimulusType) => {
             }
 
             if (audioFiles.length) {
-              PageAudioHandler.playAudio(mediaAssets.audio[camelize(audioFiles.shift() as string)], audioConfig);
+              PageAudioHandler.playAudio(audioFiles.shift() as string, audioConfig);
             }
           },
         };
 
-        PageAudioHandler.playAudio(mediaAssets.audio[camelize(audioFiles.shift() as string)], audioConfig);
+        PageAudioHandler.playAudio(audioFiles.shift() as string, audioConfig);
       } else {
         const audioConfig: AudioConfigType =
           stimulus.assessmentStage === 'instructions'
@@ -290,7 +290,7 @@ export const stimulus = (trial?: StimulusType) => {
                 },
               };
 
-        PageAudioHandler.playAudio(mediaAssets.audio[camelize(audioFile)], audioConfig);
+        PageAudioHandler.playAudio(audioFile, audioConfig);
 
         if (stimulus.assessmentStage === 'instructions') {
           disableOkButton();
@@ -399,7 +399,7 @@ export const stimulus = (trial?: StimulusType) => {
               };
 
               PageAudioHandler.stopAndDisconnectNode();
-              PageAudioHandler.playAudio(mediaAssets.audio.feedbackNotQuiteRight, audioConfig);
+              PageAudioHandler.playAudio('feedbackNotQuiteRight', audioConfig);
 
               responseBtns.forEach((btn) => {
                 btn.classList.remove(SELECT_CLASS_NAME);
@@ -514,7 +514,7 @@ export const stimulus = (trial?: StimulusType) => {
         }
         // if heavy instructions is true, show data quality screen before ending
         if (taskStore().numIncorrect >= taskStore().maxIncorrect && !taskStore().heavyInstructions && !cat) {
-          finishExperiment();
+          finishTaskEarly('errorOut');
         }
 
         if (stim.trialType !== 'something-same-1' && stim.trialType !== 'instructions') {

@@ -5,6 +5,11 @@ import { camelize, PageAudioHandler } from '../helpers';
 
 // isPractice parameter is for tasks that don't have a corpus (e.g. memory game)
 export const feedback = (isPractice = false, promptOnIncorrect?: string) => {
+  // Guards against the chained prompt audio bleeding into the next trial when
+  // the user clicks Continue before the first feedback audio finishes playing.
+  // stopAndDisconnectNode() in on_finish calls stop(), which fires onended.
+  let trialFinished = false;
+
   return {
     timeline: [
       {
@@ -39,8 +44,9 @@ export const feedback = (isPractice = false, promptOnIncorrect?: string) => {
           return `<button class="primary">${t.continueButtonText}</button>`;
         },
         on_load: () => {
+          trialFinished = false;
           const isCorrect = taskStore().isCorrect;
-          const feedbackAudio = isCorrect ? mediaAssets.audio.feedbackCorrect : mediaAssets.audio.feedbackNotQuiteRight;
+          const audioKey = isCorrect ? 'feedbackCorrect' : 'feedbackNotQuiteRight';
 
           const audioConfig: AudioConfigType = {
             restrictRepetition: {
@@ -48,16 +54,17 @@ export const feedback = (isPractice = false, promptOnIncorrect?: string) => {
               maxRepetitions: 2,
             },
             onEnded: () => {
-              if (promptOnIncorrect && !isCorrect) {
-                PageAudioHandler.playAudio(mediaAssets.audio[promptOnIncorrect]);
+              if (!trialFinished && promptOnIncorrect && !isCorrect) {
+                PageAudioHandler.playAudio(promptOnIncorrect);
               }
             },
           };
 
           PageAudioHandler.stopAndDisconnectNode();
-          PageAudioHandler.playAudio(feedbackAudio || mediaAssets.audio.nullAudio, audioConfig);
+          PageAudioHandler.playAudio(audioKey || 'nullAudio', audioConfig);
         },
         on_finish: () => {
+          trialFinished = true;
           PageAudioHandler.stopAndDisconnectNode();
         },
       },

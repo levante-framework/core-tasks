@@ -5,6 +5,7 @@ export { addExperimenterButtons, setupFullscreenButton } from './addUtilityButto
 export { displaceAnimation, popAnimation, triggerAnimation } from './animateImages';
 export * from './appTimer';
 export { PageAudioHandler } from './audioHandler';
+export { appendAudioKey, ensureAudioKeysContainer, getAudioKeysContainerHtml } from './audioKeysContainer';
 export * from './baseTimeline';
 export { batchMediaAssets, batchTrials } from './batchPreloading';
 export { camelize } from './camelize';

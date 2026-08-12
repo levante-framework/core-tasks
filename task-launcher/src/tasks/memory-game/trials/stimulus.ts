@@ -1,6 +1,5 @@
 import jsPsychCorsiBlocks from '@jspsych-contrib/plugin-corsi-blocks';
 import _isEqual from 'lodash/isEqual';
-import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
 import {
   addExperimenterButtons,
@@ -10,7 +9,7 @@ import {
   setupFullscreenButton,
   setupReplayAudio,
 } from '../../shared/helpers';
-import { finishExperiment } from '../../shared/trials';
+import { finishTaskEarly } from '../../shared/trials';
 import { jsPsych } from '../../taskSetup';
 import { getMemoryGamePrompt } from '../helpers/getMemoryGamePrompt';
 import { getMemoryGameType } from '../helpers/getMemoryGameType';
@@ -70,7 +69,6 @@ export function setUpAudio(
     setupFullscreenButton();
   }
 
-  const audioFile = mediaAssets.audio[cue];
   const audioConfig: AudioConfigType = {
     restrictRepetition: {
       enabled: true,
@@ -85,7 +83,7 @@ export function setUpAudio(
     },
   };
 
-  PageAudioHandler.playAudio(audioFile, audioConfig);
+  PageAudioHandler.playAudio(cue, audioConfig);
 }
 
 // This function produces both the display and input trials for the corsi blocks
@@ -230,7 +228,7 @@ export function getCorsiBlocks({
 
         if (taskStore().numIncorrect === taskStore().maxIncorrect) {
           if (reverse) {
-            finishExperiment();
+            finishTaskEarly('errorOut');
           } else {
             sequenceLength = 2;
             // update total trials to account for skipped forward block

@@ -20,7 +20,7 @@ import {
 } from '../../shared/helpers';
 import { sdsProgressComponentEmpty, sdsProgressComponentFilled } from '../../shared/helpers/components';
 import { displayDebugInfo } from '../../shared/helpers/displayDebugInfo';
-import { finishExperiment } from '../../shared/trials';
+import { finishTaskEarly } from '../../shared/trials';
 import { jsPsych } from '../../taskSetup';
 
 let selectedCards: string[] = [];
@@ -187,7 +187,7 @@ export const afcMatch = (trial?: StimulusType) => {
         },
         ...(stim.assessmentStage === 'instructions' ? { onEnded: enableOkButton } : {}),
       };
-      PageAudioHandler.playAudio(mediaAssets.audio[camelize(audioFile)], audioConfig);
+      PageAudioHandler.playAudio(audioFile, audioConfig);
 
       const pageStateHandler = new PageStateHandler(audioFile, true);
       setupReplayAudio(pageStateHandler);
@@ -257,13 +257,13 @@ export const afcMatch = (trial?: StimulusType) => {
                 onEnded: () => {
                   if (numberOfErrorsThisCall === numberOfErrors) {
                     // don't overlap audio
-                    PageAudioHandler.playAudio(mediaAssets.audio[camelize(audioFile)]);
+                    PageAudioHandler.playAudio(audioFile);
                   }
                 },
               };
 
               PageAudioHandler.stopAndDisconnectNode();
-              PageAudioHandler.playAudio(mediaAssets.audio.feedbackNotQuiteRight, audioConfig);
+              PageAudioHandler.playAudio('feedbackNotQuiteRight', audioConfig);
 
               responseBtns.forEach((btn) => {
                 btn.classList.remove(SELECT_CLASS_NAME);
@@ -418,7 +418,7 @@ export const afcMatch = (trial?: StimulusType) => {
 
       // if heavy instructions is true, show data quality screen before ending
       if (taskStore().numIncorrect >= taskStore().maxIncorrect && !taskStore().heavyInstructions && !cat) {
-        finishExperiment();
+        finishTaskEarly('errorOut');
       }
 
       if (cat) {
@@ -430,7 +430,9 @@ export const afcMatch = (trial?: StimulusType) => {
           return trial.trialNumber === stim.trialNumber && trial.trialType === stim.trialType;
         });
 
-        selectNextSequentialTrial(nextTrials);
+        if (stim.assessmentStage !== 'practice_response') {
+          selectNextSequentialTrial(nextTrials);
+        }
       }
     },
   };

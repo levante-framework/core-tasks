@@ -69,7 +69,7 @@ export const instructions = instructionData.map((data) => {
         onEnded: enableOkButton,
       };
 
-      PageAudioHandler.playAudio(mediaAssets.audio[data.prompt], audioConfig);
+      PageAudioHandler.playAudio(data.prompt, audioConfig);
 
       const pageStateHandler = new PageStateHandler(data.prompt, true);
       setupReplayAudio(pageStateHandler);
@@ -239,7 +239,6 @@ export const downexInstructions1 = {
       };
 
       for (const [index, audioFile] of trialAudio.slice(0, -1).entries()) {
-        const audioUri = mediaAssets.audio[camelize(audioFile)] || mediaAssets.audio.nullAudio;
         const delay = index === 2 ? 2 : 0;
 
         if (thisCycleId !== cycleId || taskStore().isPaused) {
@@ -254,12 +253,11 @@ export const downexInstructions1 = {
             },
           };
           itemsToAnimate = popAnimation(itemsToAnimate, `pulse 2s ${delay}s 2`) as any;
-          PageAudioHandler.playAudio(audioUri, configWithCallback);
+          PageAudioHandler.playAudio(audioFile, configWithCallback);
         });
       }
 
-      const lastAudioUri =
-        mediaAssets.audio[camelize(trialAudio[trialAudio.length - 1])] || mediaAssets.audio.nullAudio;
+      const lastAudioKey = trialAudio[trialAudio.length - 1];
 
       // animate the target button to the center of stimImage
       if (stimImage && target && !taskStore().isPaused && thisCycleId === cycleId) {
@@ -280,7 +278,7 @@ export const downexInstructions1 = {
         };
 
         setTimeout(
-          () => (!taskStore().isPaused ? PageAudioHandler.playAudio(lastAudioUri, lastAudioConfig) : null),
+          () => (!taskStore().isPaused ? PageAudioHandler.playAudio(lastAudioKey, lastAudioConfig) : null),
           5000,
         );
       } else {
@@ -338,7 +336,7 @@ const textOnlyDownexInstruction = textOnlyDownexInstructionData.map((data) => {
         },
       };
 
-      PageAudioHandler.playAudio(mediaAssets.audio[camelize(data.audio)], audioConfig);
+      PageAudioHandler.playAudio(data.audio, audioConfig);
 
       const pageStateHandler = new PageStateHandler(data.audio, true);
       setupReplayAudio(pageStateHandler);
@@ -421,14 +419,20 @@ export const downexInstructions3 = {
       targetButton = buttons[targetImageIdx];
     }
 
-    function onCorrect() {
+    function onCorrect(onFeedbackEnded: () => void) {
       PageAudioHandler.stopAndDisconnectNode();
       cycleId++;
 
-      PageAudioHandler.playAudio(mediaAssets.audio.feedbackRightOne);
+      PageAudioHandler.playAudio('feedbackRightOne', {
+        restrictRepetition: {
+          enabled: false,
+          maxRepetitions: 2,
+        },
+        onEnded: onFeedbackEnded,
+      });
     }
 
-    function onIncorrect() {
+    function onIncorrect(onFeedbackEnded: () => void) {
       PageAudioHandler.stopAndDisconnectNode();
       cycleId++;
 
@@ -438,7 +442,13 @@ export const downexInstructions3 = {
         targetButton.style.animation = 'pulse 2s 0s 2';
       }
 
-      PageAudioHandler.playAudio(mediaAssets.audio.matrixReasoningFeedbackIncorrectDownex);
+      PageAudioHandler.playAudio('matrixReasoningFeedbackIncorrectDownex', {
+        restrictRepetition: {
+          enabled: false,
+          maxRepetitions: 2,
+        },
+        onEnded: onFeedbackEnded,
+      });
     }
 
     addPracticeButtonListeners(downexData3.choices[1], isTouchScreen, downexData3.choices, onCorrect, onIncorrect);
@@ -461,7 +471,6 @@ export const downexInstructions3 = {
 
       // switch the stim image after each audio file to highlight each set of items
       for (const [index, audioFile] of trialAudio.entries()) {
-        const audioUri = mediaAssets.audio[camelize(audioFile)];
         const image = index > 2 ? downexData3.image[0] : downexData3.image[index]; // keep the image after the fourth audio file
 
         if (thisCycleId !== cycleId || taskStore().isPaused) {
@@ -500,7 +509,7 @@ export const downexInstructions3 = {
             });
           }
 
-          PageAudioHandler.playAudio(audioUri, configWithCallback);
+          PageAudioHandler.playAudio(audioFile, configWithCallback);
         });
       }
 
@@ -586,14 +595,20 @@ export const downexInstructions4 = {
       targetButton = buttons[targetImageIdx];
     }
 
-    function onCorrect() {
+    function onCorrect(onFeedbackEnded: () => void) {
       PageAudioHandler.stopAndDisconnectNode();
       cycleId++;
 
-      PageAudioHandler.playAudio(mediaAssets.audio.feedbackRightOne);
+      PageAudioHandler.playAudio('feedbackRightOne', {
+        restrictRepetition: {
+          enabled: false,
+          maxRepetitions: 2,
+        },
+        onEnded: onFeedbackEnded,
+      });
     }
 
-    function onIncorrect() {
+    function onIncorrect(onFeedbackEnded: () => void) {
       PageAudioHandler.stopAndDisconnectNode();
       cycleId++;
 
@@ -603,7 +618,13 @@ export const downexInstructions4 = {
         targetButton.style.animation = 'pulse 2s 0s 2';
       }
 
-      PageAudioHandler.playAudio(mediaAssets.audio.matrixReasoningFeedbackSmBlueDownex);
+      PageAudioHandler.playAudio('matrixReasoningFeedbackSmBlueDownex', {
+        restrictRepetition: {
+          enabled: false,
+          maxRepetitions: 2,
+        },
+        onEnded: onFeedbackEnded,
+      });
     }
 
     addPracticeButtonListeners(downexData4.choices[2], isTouchScreen, downexData4.choices, onCorrect, onIncorrect);
@@ -626,7 +647,7 @@ export const downexInstructions4 = {
 
       // switch the stim image after each audio file to highlight each set of items
       for (const [index, audioFile] of trialAudio.entries()) {
-        const audioUri = mediaAssets.audio[camelize(audioFile)];
+        const audioKey = audioFile;
         const image = index > 3 ? downexData4.image[0] : downexData4.image[index]; // keep the image after the fourth audio file
 
         if (thisCycleId !== cycleId || taskStore().isPaused) {
@@ -653,7 +674,7 @@ export const downexInstructions4 = {
                     />`;
           }
 
-          PageAudioHandler.playAudio(audioUri, configWithCallback);
+          PageAudioHandler.playAudio(audioKey, configWithCallback);
         });
       }
 
