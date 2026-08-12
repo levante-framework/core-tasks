@@ -14,6 +14,7 @@ import { jsPsych } from '../../taskSetup';
 import { getMemoryGamePrompt } from '../helpers/getMemoryGamePrompt';
 import { getMemoryGameType } from '../helpers/getMemoryGameType';
 import { createGrid, disableBlock, enableBlock, generateRandomSequence } from '../helpers/grid';
+import { resolveMemoryGamePrompt } from '../helpers/resolveMemoryGamePrompt';
 
 type CorsiBlocksArgs = {
   mode: 'display' | 'input';
@@ -433,7 +434,9 @@ function doOnLoad(
 
   // downex practice trials have custom audio cues
   if (taskStore().heavyInstructions && !reverse && isPractice) {
-    cue = prompt || downexPracticeAudioCues.pop() || defaultCue;
+    cue = resolveMemoryGamePrompt(prompt || downexPracticeAudioCues.pop() || defaultCue);
+  } else if (prompt) {
+    cue = resolveMemoryGamePrompt(prompt);
   } else {
     cue = defaultCue;
   }
