@@ -9,7 +9,6 @@ export * from './baseTimeline';
 export { batchMediaAssets, batchTrials } from './batchPreloading';
 export { camelize } from './camelize';
 export { checkFallbackCriteria } from './checkFallbackCriteria';
-export { isLanguageAllowedDownex } from './checkLocale';
 export { getChildSurveyResponses } from './childSurveyResponses';
 export { combineMediaAssets } from './combineMediaAssets';
 export * from './components';
