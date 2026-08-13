@@ -11,6 +11,7 @@ import {
   setupReplayAudio,
 } from '../../shared/helpers';
 import { jsPsych } from '../../taskSetup';
+import { resolveMemoryGamePrompt } from '../helpers/resolveMemoryGamePrompt';
 
 let setPromptDurations = false;
 
@@ -53,7 +54,7 @@ const instructionData = [
     buttonText: 'continueButtonText',
   },
   {
-    prompt: 'memoryGameInstruct3',
+    prompt: 'memoryGameInstruct8Downex',
     video: 'selectSequence',
     buttonText: 'continueButtonText',
   },
@@ -73,7 +74,7 @@ const instructionData = [
     buttonText: 'continueButtonText',
   },
   {
-    prompt: 'memoryGameBackwardPrompt',
+    prompt: 'memoryGameInstruct11Downex',
     video: 'selectSequenceReverse',
     buttonText: 'continueButtonText',
   },
@@ -86,11 +87,12 @@ const instructions = instructionData.map((data) => {
     type: jsPsychHtmlMultiResponse,
     stimulus: () => {
       const t = taskStore().translations;
+      const promptKey = resolveMemoryGamePrompt(data.prompt);
       const mediaSrc = data.video ? mediaAssets.video[data.video] : mediaAssets.images[data.image as string];
       return `<div class="lev-stimulus-container">
                         ${getParticipantUtilityButtonsHtml(replayButtonHtmlId)}
                         <div class="lev-row-container instruction">
-                            <p>${t[data.prompt]}</p>
+                            <p>${t[promptKey]}</p>
                         </div>
                         <div class="lev-stim-content-x-3">
                             ${
@@ -122,6 +124,7 @@ const instructions = instructionData.map((data) => {
     keyboard_choices: 'NO_KEYS',
     post_trial_gap: 500,
     on_load: async () => {
+      const promptKey = resolveMemoryGamePrompt(data.prompt);
       const audioConfig: AudioConfigType = {
         restrictRepetition: {
           enabled: false,
@@ -136,8 +139,8 @@ const instructions = instructionData.map((data) => {
         },
       };
 
-      PageAudioHandler.playAudio(mediaAssets.audio[data.prompt], audioConfig);
-      const pageStateHandler = new PageStateHandler(data.prompt, true);
+      PageAudioHandler.playAudio(promptKey, audioConfig);
+      const pageStateHandler = new PageStateHandler(promptKey, true);
       setupReplayAudio(pageStateHandler);
       addExperimenterButtons();
       setupFullscreenButton();

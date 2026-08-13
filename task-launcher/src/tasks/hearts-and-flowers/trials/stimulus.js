@@ -114,7 +114,7 @@ export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrial
           },
         };
 
-        PageAudioHandler.playAudio(data.correct ? mediaAssets.audio.coin : mediaAssets.audio.fail, audioConfig);
+        PageAudioHandler.playAudio(data.correct ? 'coin' : 'fail', audioConfig);
 
         shouldTerminateCat();
       } else if (!isPractice) {

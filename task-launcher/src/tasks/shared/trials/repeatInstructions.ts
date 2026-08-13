@@ -45,7 +45,7 @@ export const repeatInstructionsMessage = {
       onEnded: enableOkButton,
     };
 
-    PageAudioHandler.playAudio(mediaAssets.audio.generalRepeatInstructions, audioConfig);
+    PageAudioHandler.playAudio('generalRepeatInstructions', audioConfig);
 
     const pageStateHandler = new PageStateHandler('generalRepeatInstructions', true);
     setupReplayAudio(pageStateHandler);

@@ -28,6 +28,7 @@ import type { InputCapability } from '../utils/detectInput';
  * @property {Object} assetsPerTask - Object containing list of assets belonging to each task.
  * @property {boolean} demoMode - Whether the task is running in demo mode (no interaction with Firestore), default is false.
  * @property {boolean} debug - Shows theta estimate on the screen for cat debugging when enabled.
+ * @property {boolean} showAudioKeys - When true, displays audio keys on screen for debugging.
  * @property {boolean} experimenterButtons - When true, experimenter utility controls (pause, exit) are available.
  * @property {number} currentCatBlock - The current block number to select trials from in a CAT.
  * @property {number[]} blockThresholds - Array of theta thresholds.
@@ -99,6 +100,7 @@ export type TaskStoreDataType = {
   maxTime?: number;
   demoMode: boolean;
   experimenterButtons: boolean;
+  showAudioKeys: boolean;
   debug: boolean;
   version: number;
   currentCatBlock?: number;
@@ -162,6 +164,7 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     maxTime: config.maxTime,
     demoMode: config.demoMode,
     experimenterButtons: config.experimenterButtons && effectiveHeavyInstructions,
+    showAudioKeys: config.showAudioKeys,
     debug: config.debug,
     version: config.version || 1,
     currentStoryGroup: 0,

@@ -187,7 +187,7 @@ export const afcMatch = (trial?: StimulusType) => {
         },
         ...(stim.assessmentStage === 'instructions' ? { onEnded: enableOkButton } : {}),
       };
-      PageAudioHandler.playAudio(mediaAssets.audio[camelize(audioFile)], audioConfig);
+      PageAudioHandler.playAudio(audioFile, audioConfig);
 
       const pageStateHandler = new PageStateHandler(audioFile, true);
       setupReplayAudio(pageStateHandler);
@@ -257,13 +257,13 @@ export const afcMatch = (trial?: StimulusType) => {
                 onEnded: () => {
                   if (numberOfErrorsThisCall === numberOfErrors) {
                     // don't overlap audio
-                    PageAudioHandler.playAudio(mediaAssets.audio[camelize(audioFile)]);
+                    PageAudioHandler.playAudio(audioFile);
                   }
                 },
               };
 
               PageAudioHandler.stopAndDisconnectNode();
-              PageAudioHandler.playAudio(mediaAssets.audio.feedbackNotQuiteRight, audioConfig);
+              PageAudioHandler.playAudio('feedbackNotQuiteRight', audioConfig);
 
               responseBtns.forEach((btn) => {
                 btn.classList.remove(SELECT_CLASS_NAME);
