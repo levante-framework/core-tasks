@@ -1,9 +1,9 @@
 {
   "name": "@levante-framework/core-tasks",
-  "version": "1.3.14",
+  "version": "1.3.15",
   "description": "",
-  "main": "lib/index.77d4b13d.js",
-  "module": "lib/index.77d4b13d.js",
+  "main": "lib/index.6919c188.js",
+  "module": "lib/index.6919c188.js",
   "type": "module",
   "files": [
     "lib",
