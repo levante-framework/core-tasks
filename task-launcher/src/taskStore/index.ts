@@ -1,5 +1,4 @@
 import store from 'store2';
-import { isLanguageAllowedDownex } from '../tasks/shared/helpers/checkLocale';
 import type { InputCapability } from '../utils/detectInput';
 
 /**
@@ -143,7 +142,7 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     maxIncorrect: config.maxIncorrect,
     keyHelpers: config.keyHelpers,
     runCat: config.cat,
-    heavyInstructions: effectiveHeavyInstructions && isLanguageAllowedDownex(config.language),
+    heavyInstructions: effectiveHeavyInstructions,
     semThreshold: config.semThreshold,
     startingTheta: config.startingTheta,
     storeItemId: config.storeItemId,

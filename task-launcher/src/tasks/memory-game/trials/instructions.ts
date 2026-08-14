@@ -5,7 +5,6 @@ import {
   addExperimenterButtons,
   enableOkButton,
   getParticipantUtilityButtonsHtml,
-  isLanguageAllowedDownex,
   PageAudioHandler,
   PageStateHandler,
   setupFullscreenButton,
@@ -156,22 +155,18 @@ const instructions = instructionData.map((data) => {
       if (!setPromptDurations) {
         setPromptDurations = true;
 
-        const displayPromptDurations = isLanguageAllowedDownex(taskStore().language)
-          ? {
-              memoryGameInstruct7Downex: await PageAudioHandler.getAudioDuration(
-                mediaAssets.audio.memoryGameInstruct7Downex,
-              ),
-              memoryGameDisplay: await PageAudioHandler.getAudioDuration(mediaAssets.audio.memoryGameDisplay),
-              memoryGameInstruct2Downex: await PageAudioHandler.getAudioDuration(
-                mediaAssets.audio.memoryGameInstruct2Downex,
-              ),
-              memoryGameInstruct4Downex: await PageAudioHandler.getAudioDuration(
-                mediaAssets.audio.memoryGameInstruct4Downex,
-              ),
-            }
-          : {
-              memoryGameDisplay: await PageAudioHandler.getAudioDuration(mediaAssets.audio.memoryGameDisplay),
-            };
+        const displayPromptDurations = {
+          memoryGameInstruct7Downex: await PageAudioHandler.getAudioDuration(
+            mediaAssets.audio.memoryGameInstruct7Downex,
+          ),
+          memoryGameDisplay: await PageAudioHandler.getAudioDuration(mediaAssets.audio.memoryGameDisplay),
+          memoryGameInstruct2Downex: await PageAudioHandler.getAudioDuration(
+            mediaAssets.audio.memoryGameInstruct2Downex,
+          ),
+          memoryGameInstruct4Downex: await PageAudioHandler.getAudioDuration(
+            mediaAssets.audio.memoryGameInstruct4Downex,
+          ),
+        };
 
         taskStore('displayPromptDurations', displayPromptDurations);
       }
