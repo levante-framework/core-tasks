@@ -6,7 +6,9 @@ import {
   createPreloadTrials,
   initTimeline,
   initTrialSaving,
+  isCatBlockTimeExpired,
   prepareMultiBlockCat,
+  setCatBlockTimeLimit,
 } from '../shared/helpers';
 import { getLeftoverAssets } from '../shared/helpers/batchPreloading';
 import { prepareCorpus } from '../shared/helpers/prepareCat';
@@ -20,6 +22,7 @@ import {
   repeatInstructionsMessage,
   setupNextBlock,
   setupStimulusFromCurrentCatBlock,
+  startCatBlock,
   taskFinished,
 } from '../shared/trials';
 // setup
@@ -90,7 +93,7 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
     terminateCat: true, // if running cat, stop if 4 of last 10 trials have been incorrect
   };
 
-  const stimulusBlock = (index: number) => {
+  const stimulusBlock = (index: number, isLastBlock = false) => {
     return {
       timeline: [
         { ...setupStimulusFromCurrentCatBlock, stimulus: '' },
@@ -99,6 +102,9 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
       ],
       conditional_function: () => {
         if (taskStore().skipBlock === index) {
+          return false;
+        }
+        if (isCatBlockTimeExpired(isLastBlock)) {
           return false;
         }
         return true;
@@ -170,7 +176,7 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
       ...firstBlockPractice.map((trial) => afcStimulusTemplate(trialConfig, trial)),
     ],
     conditional_function: () => {
-      const run = checkFallbackCriteria() && !fellBack;
+      const run = checkFallbackCriteria() && !fellBack && !isCatBlockTimeExpired(false);
       if (run) {
         fellBack = true;
       }
@@ -187,9 +193,12 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
 
   taskStore('currentCatBlock', 0);
 
-  const numOfCatTrials = corpora.cat.length;
-  taskStore('totalTestTrials', numOfCatTrials);
+  setCatBlockTimeLimit(taskStore().maxTime, batchedCorpus.length);
+
+  const totalTestTrials = batchedCorpus.reduce((acc, block) => acc + block.length, 0);
+  taskStore('totalTestTrials', totalTestTrials);
   batchedCorpus.forEach((block, index) => {
+    timeline.push(startCatBlock);
     preloadBatch();
 
     // add in instructions for all blocks each time: only the correct one will run based on currentCatBlock in taskStore
@@ -200,8 +209,14 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
       const fallBackIndex = 4;
       corpora.start.forEach((trial: StimulusType, i: number) => {
         timeline.push({ ...fixationOnly, stimulus: '' });
-        timeline.push(afcStimulusTemplate(trialConfig, trial));
-        timeline.push(ifRealTrialResponse);
+        timeline.push({
+          timeline: [afcStimulusTemplate(trialConfig, trial)],
+          conditional_function: () => !isCatBlockTimeExpired(false),
+        });
+        timeline.push({
+          ...ifRealTrialResponse,
+          conditional_function: () => !isCatBlockTimeExpired(false),
+        });
 
         if (i < fallBackIndex) {
           timeline.push(fallbackInstructions);
@@ -209,9 +224,10 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
       });
     }
 
-    const numOfTrials = block.length / 3;
+    const numOfTrials = block.length;
+    const isLastBlock = index === batchedCorpus.length - 1;
     for (let i = 0; i < numOfTrials; i++) {
-      timeline.push(stimulusBlock(index));
+      timeline.push(stimulusBlock(index, isLastBlock));
     }
 
     // check the participant's theta and assign next block

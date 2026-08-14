@@ -9,6 +9,7 @@ export { appendAudioKey, ensureAudioKeysContainer, getAudioKeysContainerHtml } f
 export * from './baseTimeline';
 export { batchMediaAssets, batchTrials } from './batchPreloading';
 export { camelize } from './camelize';
+export * from './catBlockTimer';
 export { checkFallbackCriteria } from './checkFallbackCriteria';
 export { isLanguageAllowedDownex } from './checkLocale';
 export { getChildSurveyResponses } from './childSurveyResponses';
