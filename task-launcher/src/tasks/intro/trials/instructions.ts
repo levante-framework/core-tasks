@@ -38,7 +38,7 @@ const instructionData = [
     includeReplayButton: false,
   },
   {
-    prompt: 'instructBubble2',
+    prompt: 'feedbackGoodJob',
     image: 'avatarOwl',
     buttonText: 'continueButtonText',
     autoAdvanceWhenBubblePractice: true,
@@ -46,13 +46,6 @@ const instructionData = [
   },
   {
     prompt: 'instructBubble3',
-    image: 'avatarOwl',
-    buttonText: 'continueButtonText',
-    autoAdvanceWhenBubblePractice: true,
-    includeReplayButton: false,
-  },
-  {
-    prompt: 'feedbackGoodJob',
     image: 'avatarOwl',
     buttonText: 'continueButtonText',
     autoAdvanceWhenBubblePractice: true,
@@ -172,6 +165,10 @@ export const bubblePracticeFeedbackInstruction = {
   conditional_function: () => taskStore().bubblePractice === true,
 };
 export const buttonIntroInstruction = {
+  timeline: [instructions.shift()],
+  conditional_function: () => taskStore().bubblePractice === true,
+};
+export const bubblePracticeOutro = {
   timeline: [instructions.shift()],
   conditional_function: () => taskStore().bubblePractice === true,
 };
