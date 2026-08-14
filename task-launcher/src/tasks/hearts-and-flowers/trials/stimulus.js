@@ -2,6 +2,7 @@ import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-respons
 import shuffle from 'lodash/shuffle';
 import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
+import { Logger } from '../../../utils/logger';
 import { addExperimenterButtons, addKeyHelpers, PageAudioHandler, setupFullscreenButton } from '../../shared/helpers';
 import { shouldTerminateCat } from '../../shared/helpers/shouldTerminateCat';
 import { finishTaskEarly } from '../../shared/trials';
@@ -88,7 +89,7 @@ export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrial
         response = null;
       } else {
         const errorMessage = `Invalid response: ${data.button_response} or ${data.keyboard_response} in ${data}`;
-        console.error(errorMessage);
+        Logger.getInstance().error(new Error(errorMessage));
       }
 
       // get stimulus side
@@ -99,7 +100,7 @@ export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrial
         stimuluSide = StimulusSideType.Right;
       } else {
         const errorMessage = `Invalid stimuluSide: ${data.button_response} or ${data.keyboard_response} in ${data}`;
-        console.error(errorMessage);
+        Logger.getInstance().error(new Error(errorMessage));
       }
 
       // record whether answer was correct or not
@@ -114,7 +115,7 @@ export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrial
           },
         };
 
-        PageAudioHandler.playAudio(data.correct ? mediaAssets.audio.coin : mediaAssets.audio.fail, audioConfig);
+        PageAudioHandler.playAudio(data.correct ? 'coin' : 'fail', audioConfig);
 
         shouldTerminateCat();
       } else if (!isPractice) {
@@ -183,7 +184,7 @@ const randomPosition = () => Math.round(Math.random());
 export function buildHeartsOrFlowersTimelineVariables(trialCount, stimulusType) {
   if (stimulusType !== StimulusType.Heart && stimulusType !== StimulusType.Flower) {
     const errorMessage = `Invalid stimulusType: ${stimulusType} for buildSubtimelineVariables()`;
-    console.error(errorMessage);
+    Logger.getInstance().error(new Error(errorMessage));
     throw new Error(errorMessage);
   }
   const jsPsychTimelineVariablesArray = [];

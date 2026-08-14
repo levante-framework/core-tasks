@@ -1,9 +1,9 @@
 import jsPsychCorsiBlocks from '@jspsych-contrib/plugin-corsi-blocks';
 import _isEqual from 'lodash/isEqual';
-import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
 import {
   addExperimenterButtons,
+  camelToKebab,
   getParticipantUtilityButtonsHtml,
   PageAudioHandler,
   PageStateHandler,
@@ -15,6 +15,7 @@ import { jsPsych } from '../../taskSetup';
 import { getMemoryGamePrompt } from '../helpers/getMemoryGamePrompt';
 import { getMemoryGameType } from '../helpers/getMemoryGameType';
 import { createGrid, disableBlock, enableBlock, generateRandomSequence } from '../helpers/grid';
+import { resolveMemoryGamePrompt } from '../helpers/resolveMemoryGamePrompt';
 
 type CorsiBlocksArgs = {
   mode: 'display' | 'input';
@@ -70,7 +71,6 @@ export function setUpAudio(
     setupFullscreenButton();
   }
 
-  const audioFile = mediaAssets.audio[cue];
   const audioConfig: AudioConfigType = {
     restrictRepetition: {
       enabled: true,
@@ -85,7 +85,7 @@ export function setUpAudio(
     },
   };
 
-  PageAudioHandler.playAudio(audioFile, audioConfig);
+  PageAudioHandler.playAudio(cue, audioConfig);
 }
 
 // This function produces both the display and input trials for the corsi blocks
@@ -98,6 +98,8 @@ export function getCorsiBlocks({
   animation,
   prompt,
 }: CorsiBlocksArgs) {
+  let playedCue = '';
+
   return {
     type: jsPsychCorsiBlocks,
     sequence: () => {
@@ -179,7 +181,7 @@ export function getCorsiBlocks({
       return durationMs;
     },
     on_load: () => {
-      doOnLoad(mode, isPractice, reverse, animation, prompt);
+      playedCue = doOnLoad(mode, isPractice, reverse, animation, prompt);
     },
     on_finish: (data: any) => {
       PageAudioHandler.stopAndDisconnectNode();
@@ -210,7 +212,7 @@ export function getCorsiBlocks({
           corpusTrialType: getMemoryGameType(mode, reverse, gridSize),
           responseLocation: data.response,
           itemUid: itemUid,
-          audioFile: reverse ? 'memory-game-backward-prompt' : 'memory-game-input',
+          audioFile: camelToKebab(playedCue),
         });
         taskStore('isCorrect', data.correct);
 
@@ -251,7 +253,7 @@ export function getCorsiBlocks({
       } else {
         jsPsych.data.addDataToLastTrial({
           correct: false, // default to false for display trials. Firekit requires this field to be non null.
-          audioFile: 'memory-game-display',
+          audioFile: camelToKebab(playedCue),
         });
       }
     },
@@ -435,7 +437,9 @@ function doOnLoad(
 
   // downex practice trials have custom audio cues
   if (taskStore().heavyInstructions && !reverse && isPractice) {
-    cue = prompt || downexPracticeAudioCues.pop() || defaultCue;
+    cue = resolveMemoryGamePrompt(prompt || downexPracticeAudioCues.pop() || defaultCue);
+  } else if (prompt) {
+    cue = resolveMemoryGamePrompt(prompt);
   } else {
     cue = defaultCue;
   }
@@ -452,4 +456,6 @@ function doOnLoad(
   contentWrapper.insertBefore(promptContainer, corsiBlocksHTML);
 
   setUpAudio(contentWrapper, promptContainer, cue, mode);
+
+  return cue;
 }

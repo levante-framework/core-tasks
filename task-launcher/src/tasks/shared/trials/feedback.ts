@@ -46,7 +46,7 @@ export const feedback = (isPractice = false, promptOnIncorrect?: string) => {
         on_load: () => {
           trialFinished = false;
           const isCorrect = taskStore().isCorrect;
-          const feedbackAudio = isCorrect ? mediaAssets.audio.feedbackCorrect : mediaAssets.audio.feedbackNotQuiteRight;
+          const audioKey = isCorrect ? 'feedbackCorrect' : 'feedbackNotQuiteRight';
 
           const audioConfig: AudioConfigType = {
             restrictRepetition: {
@@ -55,15 +55,13 @@ export const feedback = (isPractice = false, promptOnIncorrect?: string) => {
             },
             onEnded: () => {
               if (!trialFinished && promptOnIncorrect && !isCorrect) {
-                PageAudioHandler.playAudio(
-                  mediaAssets.audio[camelize(promptOnIncorrect)] || mediaAssets.audio.nullAudio,
-                );
+                PageAudioHandler.playAudio(promptOnIncorrect);
               }
             },
           };
 
           PageAudioHandler.stopAndDisconnectNode();
-          PageAudioHandler.playAudio(feedbackAudio || mediaAssets.audio.nullAudio, audioConfig);
+          PageAudioHandler.playAudio(audioKey || 'nullAudio', audioConfig);
         },
         on_finish: () => {
           trialFinished = true;

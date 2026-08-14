@@ -129,8 +129,7 @@ const instructions = instructionData.map((data) => {
         },
       };
 
-      PageAudioHandler.playAudio(mediaAssets.audio[prompt] || mediaAssets.audio.inputAudioCue, audioConfig);
-
+      PageAudioHandler.playAudio(data.prompt, audioConfig);
       if (data.includeReplayButton) {
         const pageStateHandler = new PageStateHandler(prompt, true);
         setupReplayAudio(pageStateHandler);

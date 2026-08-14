@@ -1,6 +1,12 @@
 import { taskStore } from '../../taskStore';
 import { getLayoutConfig } from '../child-survey/helpers/config';
-import { createPreloadTrials, getRealTrials, initTimeline, initTrialSaving } from '../shared/helpers';
+import {
+  createPreloadTrials,
+  getRealTrials,
+  initTimeline,
+  initTrialSaving,
+  reportCorpusValidationErrors,
+} from '../shared/helpers';
 import { enterFullscreen, exitFullscreen, setupStimulus, taskFinished } from '../shared/trials';
 import { initializeCat, jsPsych } from '../taskSetup';
 import { surveyItem } from './helpers/stimulus';
@@ -30,11 +36,7 @@ export default function buildChildSurveyTimeline(config: Record<string, any>, me
     i += 1;
   }
 
-  if (Object.keys(validationErrorMap).length) {
-    console.error('The following errors were found');
-    console.table(validationErrorMap);
-    throw new Error('Something went wrong. Please look in the console for error details');
-  }
+  reportCorpusValidationErrors(validationErrorMap);
 
   const trialConfig = {
     trialType: 'audio',
