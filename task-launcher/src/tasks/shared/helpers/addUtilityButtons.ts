@@ -1,5 +1,6 @@
 import { taskStore } from '../../../taskStore';
 import { InitPageSetup } from '../../../utils/initPageSetup';
+import { Logger } from '../../../utils/logger';
 import { jsPsych } from '../../taskSetup';
 import { finalizeCurrentPauseSegment, getActiveTaskElapsedMs } from './appTimer';
 import { PageAudioHandler } from './audioHandler';
@@ -166,7 +167,7 @@ function onFullscreen() {
   }
 
   document.documentElement.requestFullscreen().catch((err) => {
-    console.error(`Error enabling fullscreen: ${err.message}`);
+    Logger.getInstance().error(err, { source: 'requestFullscreen' });
   });
 }
 

@@ -1,6 +1,7 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
+import { Logger } from '../../../utils/logger';
 import {
   addExperimenterButtons,
   addKeyHelpers,
@@ -30,11 +31,11 @@ export function buildInstructionPracticeTrial(
 ) {
   if (!promptAudioAsset) {
     // throw new Error(`Missing prompt audio for instruction practice trial`);
-    console.error(`buildInstructionPracticeTrial: Missing prompt audio`);
+    Logger.getInstance().error(new Error('buildInstructionPracticeTrial: Missing prompt audio'));
   }
   if (!promptText) {
     // throw new Error(`Missing prompt text for instruction practice trial`);
-    console.error(`buildInstructionPracticeTrial: Missing prompt text`);
+    Logger.getInstance().error(new Error('buildInstructionPracticeTrial: Missing prompt text'));
   }
   const hfV2 = taskStore().version === 2;
   const replayButtonHtmlId = 'replay-btn-revisited';
@@ -63,7 +64,9 @@ export function buildInstructionPracticeTrial(
       //TODO: use alt tag to query the proper button directly
       const buttons = document.querySelectorAll('.secondary--green');
       if (buttons.length !== 2) {
-        console.error(`There are ${buttons.length} instead of 2 wrappers in the practice trials`);
+        Logger.getInstance().error(
+          new Error(`There are ${buttons.length} instead of 2 wrappers in the practice trials`),
+        );
       }
       buttons[validAnswer].style.animation = 'pulse 2s infinite';
 
@@ -109,7 +112,7 @@ export function buildInstructionPracticeTrial(
         response = data.keyboard_response === InputKey.ArrowLeft ? 0 : 1;
       } else {
         const errorMessage = `Invalid response: ${data.button_response} or ${data.keyboard_response} in ${data}`;
-        console.error(errorMessage);
+        Logger.getInstance().error(new Error(errorMessage));
       }
 
       if (response === validAnswer) {
@@ -196,13 +199,13 @@ function buildPracticeFeedback(
   Object.entries(feedbackTexts).forEach(([key, value]) => {
     if (!value) {
       // throw new Error(`Missing feedback text for ${key}`);
-      console.error(`buildPracticeFeedback: Missing feedback text for ${key}`);
+      Logger.getInstance().error(new Error(`buildPracticeFeedback: Missing feedback text for ${key}`));
     }
   });
   Object.entries(feedbackAudio).forEach(([key, value]) => {
     if (!value) {
       // throw new Error(`Missing feedback audio for ${key}`);
-      console.error(`buildPracticeFeedback: Missing feedback audio for ${key}`);
+      Logger.getInstance().error(new Error(`buildPracticeFeedback: Missing feedback audio for ${key}`));
     }
   });
 

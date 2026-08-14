@@ -9,6 +9,7 @@ import {
   getRealTrials,
   initTimeline,
   initTrialSaving,
+  reportCorpusValidationErrors,
 } from '../shared/helpers';
 import { getLeftoverAssets } from '../shared/helpers/batchPreloading';
 import { prepareCorpus, selectNItems } from '../shared/helpers/prepareCat';
@@ -74,11 +75,7 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
     i += 1;
   }
 
-  if (Object.keys(validationErrorMap).length) {
-    console.error('The following errors were found');
-    console.table(validationErrorMap);
-    throw new Error('Something went wrong. Please look in the console for error details');
-  }
+  reportCorpusValidationErrors(validationErrorMap);
 
   // organize media assets into batches for preloading
   const batchSize = 25;

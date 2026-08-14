@@ -7,6 +7,7 @@ import {
   initTimeline,
   initTrialSaving,
   prepareMultiBlockCat,
+  reportCorpusValidationErrors,
 } from '../shared/helpers';
 import { getLeftoverAssets } from '../shared/helpers/batchPreloading';
 import { prepareCorpus } from '../shared/helpers/prepareCat';
@@ -50,11 +51,7 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
     }
   }
 
-  if (Object.keys(validationErrorMap).length) {
-    console.error('The following errors were found');
-    console.table(validationErrorMap);
-    throw new Error('Something went wrong. Please look in the console for error details');
-  }
+  reportCorpusValidationErrors(validationErrorMap);
 
   const corpora = prepareCorpus(corpus);
 

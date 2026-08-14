@@ -87,10 +87,10 @@ function buildInstructionTrial(
   endOfTask = false,
 ) {
   if (!mascotImage) {
-    console.error(`buildInstructionTrial: Missing mascot image`);
+    Logger.getInstance().error(new Error('buildInstructionTrial: Missing mascot image'));
   }
   if (!getPromptKey()) {
-    console.error(`buildInstructionTrial: Missing prompt audio or text`);
+    Logger.getInstance().error(new Error('buildInstructionTrial: Missing prompt audio or text'));
   }
 
   const trial = {

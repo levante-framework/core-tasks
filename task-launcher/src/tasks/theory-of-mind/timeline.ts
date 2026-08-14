@@ -8,6 +8,7 @@ import {
   initTimeline,
   initTrialSaving,
   prepareMultiBlockCat,
+  reportCorpusValidationErrors,
 } from '../shared/helpers';
 import { preloadSharedAudio } from '../shared/helpers/preloadSharedAudio';
 // trials
@@ -39,11 +40,7 @@ export default function buildTOMTimeline(config: Record<string, any>, mediaAsset
     }
   }
 
-  if (Object.keys(validationErrorMap).length) {
-    console.error('The following errors were found');
-    console.table(validationErrorMap);
-    throw new Error('Something went wrong. Please look in the console for error details');
-  }
+  reportCorpusValidationErrors(validationErrorMap);
 
   // does not matter if trial has properties that don't belong to that type
   const trialConfig = {

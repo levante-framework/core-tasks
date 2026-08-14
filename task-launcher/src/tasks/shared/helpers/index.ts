@@ -50,5 +50,5 @@ export { handleStaggeredButtons } from './staggerButtons';
 export * from './stringToBoolean';
 export * from './stringToNumArray';
 export * from './trialSaving';
-export { validateLayoutConfig } from './validateLayoutConfig';
+export { reportCorpusValidationErrors, validateLayoutConfig } from './validateLayoutConfig';
 export { wrapListeners } from './wrapListeners';
