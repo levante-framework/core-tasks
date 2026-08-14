@@ -24,10 +24,9 @@ export const jsPsych = initJsPsych({
   on_data_update: (data: Record<string, any>) => {
     // Removing stimulus from data to avoid sending large html files to Levante
     const { stimulus, task, ...rest } = data;
-    const logger = Logger.getInstance();
     // Avoid logging fixation trials
     if (task !== 'fixation') {
-      logger.capture('JsPsych Data Update', rest);
+      Logger.getInstance().capture('JsPsych Data Update', rest);
     }
   },
 });

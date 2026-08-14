@@ -2,6 +2,7 @@
 
 import { mediaAssets } from '../..';
 import { taskStore } from '../../taskStore';
+import { Logger } from '../../utils/logger';
 import { createPreloadTrials, initTimeline, initTrialSaving } from '../shared/helpers';
 // trials
 import { enterFullscreen, exitFullscreen } from '../shared/trials';
@@ -127,7 +128,7 @@ export default function buildHeartsAndFlowersTimeline(config, mediaAssets) {
 function getHeartOrFlowerSubtimelines(adminConfig, stimulusType) {
   if (stimulusType !== StimulusType.Heart && stimulusType !== StimulusType.Flower) {
     const errorMessage = `Invalid type: ${stimulusType} for getHeartOrFlowerSubtimeline`;
-    console.error(errorMessage);
+    Logger.getInstance().error(new Error(errorMessage));
     throw new Error(errorMessage);
   }
 
@@ -170,7 +171,7 @@ function getHeartOrFlowerInstructionsSection(_adminConfig, stimulusType) {
     instructionPracticePromptAudio2 = mediaAssets.audio.flowerPracticeFeedback1;
   } else {
     const errorMessage = `Invalid type: ${stimulusType} for getHeartOrFlowerInstructionsSection`;
-    console.error(errorMessage);
+    Logger.getInstance().error(new Error(errorMessage));
     throw new Error(errorMessage);
   }
 
@@ -225,7 +226,7 @@ function getHeartOrFlowerPracticeSection(adminConfig, stimulusType) {
     feedbackKeyIncorrect = 'flowerPracticeFeedback2'; // flower-practice-feedback2, "When you see a FLOWER, press the button on the OPPOSITE side."
   } else {
     const errorMessage = `Invalid type: ${stimulusType} for getHeartOrFlowerPracticeSection`;
-    console.error(errorMessage);
+    Logger.getInstance().error(new Error(errorMessage));
     throw new Error(errorMessage);
   }
 
@@ -291,7 +292,7 @@ function getHeartOrFlowerTestSection(adminConfig, stimulusType) {
     jsPsychCorpusTrialType = CorpusTrialType.FlowersStimulus;
   } else {
     const errorMessage = `Invalid type: ${stimulusType} for getHeartOrFlowerTestSection`;
-    console.error(errorMessage);
+    Logger.getInstance().error(new Error(errorMessage));
     throw new Error(errorMessage);
   }
 

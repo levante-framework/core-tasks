@@ -4,6 +4,7 @@ import '../../../i18n/i18n';
 import _toNumber from 'lodash/toNumber';
 import Papa from 'papaparse';
 import { taskStore } from '../../../taskStore';
+import { Logger } from '../../../utils/logger';
 import { shuffleStories } from '../../roar-inference/helpers/shuffleRoarInferenceStories';
 import { camelize } from './camelize';
 import { getChildSurveyResponses } from './childSurveyResponses';
@@ -204,7 +205,7 @@ export const getCorpus = async (config: Record<string, any>, isDev: boolean) => 
       taskStore('totalTrials', totalTrials);
       taskStore('totalDownexTrials', totalDownexTrials);
     } catch (error) {
-      console.error('Error:', error);
+      Logger.getInstance().error(error, { source: 'getCorpus' });
     }
   }
 

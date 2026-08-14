@@ -183,7 +183,7 @@ export const initTrialSaving = (config: Record<string, any>) => {
       } else {
         config.firekit.writeTrial(dataCopy).catch((error: any) => {
           delete dataCopy.stimulus; // remove stimulus from data to avoid logging large html elements
-          Logger.getInstance().capture('Error writing trial to Firestore', { error: error, data: dataCopy });
+          Logger.getInstance().error(error, { source: 'writeTrial', data: dataCopy });
         });
       }
     }

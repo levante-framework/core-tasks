@@ -1,4 +1,5 @@
 import { taskStore } from '../../../taskStore';
+import { Logger } from '../../../utils/logger';
 import { getParticipantUtilityButtonsHtml } from '../../shared/helpers';
 
 export const StimulusType = Object.freeze({
@@ -56,7 +57,7 @@ export function getCorrectInputSide(stimulusType, stimulusSideType) {
     } else if (stimulusSideType === StimulusSideType.Right) {
       return 1;
     } else {
-      console.error('Invalid stimulus side');
+      Logger.getInstance().error(new Error('Invalid stimulus side'));
     }
   } else if (stimulusType === StimulusType.Flower) {
     if (stimulusSideType === StimulusSideType.Left) {

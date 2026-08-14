@@ -10,6 +10,7 @@ import {
   isCatBlockTimeExpired,
   prepareCorpus,
   prepareMultiBlockCat,
+  reportCorpusValidationErrors,
   setCatBlockTimeLimit,
 } from '../shared/helpers';
 import {
@@ -78,11 +79,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
     i += 1;
   }
 
-  if (Object.keys(validationErrorMap).length) {
-    console.error('The following errors were found');
-    console.table(validationErrorMap);
-    throw new Error('Something went wrong. Please look in the console for error details');
-  }
+  reportCorpusValidationErrors(validationErrorMap);
 
   const terminateCat = runCat;
 

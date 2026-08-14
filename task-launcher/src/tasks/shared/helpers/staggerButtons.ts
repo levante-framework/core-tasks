@@ -1,5 +1,6 @@
 import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
+import { Logger } from '../../../utils/logger';
 import { PageAudioHandler } from './audioHandler';
 import { camelize } from './camelize';
 import type { PageStateHandler } from './PageStateHandler';
@@ -76,7 +77,10 @@ const showStaggeredBtnAndPlaySound = (
 
   const audioKey = camelize(audioList[index]);
   if (!mediaAssets.audio[audioKey]) {
-    console.error('Audio Asset not available for:', audioList[index]);
+    Logger.getInstance().error(new Error(`Audio Asset not available for: ${audioList[index]}`), {
+      source: 'handleStaggeredButtons',
+      audio: audioList[index],
+    });
   }
 
   const audioConfig: AudioConfigType = {

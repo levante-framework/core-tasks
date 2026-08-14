@@ -9,6 +9,7 @@ export { appendAudioKey, ensureAudioKeysContainer, getAudioKeysContainerHtml } f
 export * from './baseTimeline';
 export { batchMediaAssets, batchTrials } from './batchPreloading';
 export { camelize } from './camelize';
+export { camelToKebab } from './camelToKebab';
 export * from './catBlockTimer';
 export { checkFallbackCriteria } from './checkFallbackCriteria';
 export { isLanguageAllowedDownex } from './checkLocale';
@@ -50,5 +51,5 @@ export { handleStaggeredButtons } from './staggerButtons';
 export * from './stringToBoolean';
 export * from './stringToNumArray';
 export * from './trialSaving';
-export { validateLayoutConfig } from './validateLayoutConfig';
+export { reportCorpusValidationErrors, validateLayoutConfig } from './validateLayoutConfig';
 export { wrapListeners } from './wrapListeners';

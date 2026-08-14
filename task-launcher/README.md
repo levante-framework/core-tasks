@@ -114,6 +114,20 @@ npm run check:fix  # auto-fix format issues
 Pre-commit runs `lint-staged` → `biome check --write` on staged files so format
 mismatches are fixed before they hit CI.
 
+## Error reporting (Sentry)
+
+Handled failures should use `Logger.getInstance().error(...)` (analytics:
+`Logger.getInstance().capture(...)`). That forwards to an injected `LevanteLogger` when the
+host provides one (e.g. dashboard `TaskLevante.vue` passes `logger`, which sends to Sentry in
+production builds). With no injected logger (standalone), CoreTask only `console.error`s /
+`console.log`s.
+
+### Unit tests
+
+```bash
+npm test -- src/utils/logger.test.ts
+```
+
 ## Theory of Mind
 
 ## How ROAR / LEVANTE Tasks work within the greater ROAD infrastructure

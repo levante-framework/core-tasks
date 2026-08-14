@@ -5,6 +5,7 @@ import { checkFallbackCriteria, createPreloadTrials, initTimeline, initTrialSavi
 import { enterFullscreen, exitFullscreen, feedback, repeatInstructionsMessage, taskFinished } from '../shared/trials';
 // setup
 import { initializeCat, jsPsych } from '../taskSetup';
+import { resolveMemoryGamePrompt } from './helpers/resolveMemoryGamePrompt';
 import {
   defaultInstructions,
   downexInstructions,
@@ -50,16 +51,19 @@ const getSecondRoundPracticeTrials = (reverse: boolean, tryAgainText: string) =>
 export default function buildMemoryTimeline(config: Record<string, any>) {
   const { heavyInstructions } = taskStore();
 
+  const forwardTryAgainPrompt = resolveMemoryGamePrompt('memoryGameInstruct8Downex');
+  const backwardTryAgainPrompt = resolveMemoryGamePrompt('memoryGameInstruct11Downex');
+
   initTrialSaving(config);
   const preloadTrials = createPreloadTrials(mediaAssets).default;
   const initialTimeline = initTimeline(config, enterFullscreen);
 
   const corsiBlocksPractice = {
-    timeline: [...generatePracticeTrialTimeline(false, 'memoryGameInput', 3)],
+    timeline: [...generatePracticeTrialTimeline(false, forwardTryAgainPrompt, 3)],
   };
 
   const corsiBlocksPracticeReverse = {
-    timeline: [...generatePracticeTrialTimeline(true, 'memoryGameBackwardPrompt', 3)],
+    timeline: [...generatePracticeTrialTimeline(true, backwardTryAgainPrompt, 3)],
   };
 
   const forwardTrial = () => {
@@ -168,7 +172,7 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
     timeline: [
       reverseOrderPrompt,
       corsiBlocksPracticeReverse,
-      getSecondRoundPracticeTrials(true, 'memoryGameBackwardPrompt'),
+      getSecondRoundPracticeTrials(true, backwardTryAgainPrompt),
     ],
   };
 
@@ -176,7 +180,7 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
     timeline: [
       ...defaultInstructions,
       corsiBlocksPractice,
-      getSecondRoundPracticeTrials(false, 'memoryGameInput'),
+      getSecondRoundPracticeTrials(false, forwardTryAgainPrompt),
       readyToPlay,
     ],
   };

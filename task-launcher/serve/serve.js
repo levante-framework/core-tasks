@@ -8,9 +8,10 @@ import 'regenerator-runtime/runtime';
 
 /**
  * Initialize Sentry first!
+ * DSN is the core-tasks project (4507376476618752); client key rotated from the revoked legacy key.
  */
 Sentry.init({
-  dsn: 'https://9d67b24a405feffb49477ca8002cc033@o4507250485035008.ingest.us.sentry.io/4507376476618752',
+  dsn: 'https://7213d8479765bec6c3bb73cc25fae1dd@o4507250485035008.ingest.us.sentry.io/4507376476618752',
   integrations: [Sentry.browserTracingIntegration(), Sentry.replayIntegration()],
   // Performance Monitoring
   tracesSampleRate: 1.0, //  Capture 100% of the transactions
