@@ -1,4 +1,5 @@
 import { taskStore } from '../../../taskStore';
+import { Logger } from '../../../utils/logger';
 
 export async function getAssetsPerTask(isDev: boolean) {
   try {
@@ -13,6 +14,6 @@ export async function getAssetsPerTask(isDev: boolean) {
     const assetsPerTask = await response.json();
     taskStore('assetsPerTask', assetsPerTask);
   } catch (error) {
-    console.error('Error fetching JSON:', error);
+    Logger.getInstance().error(error, { source: 'getAssetsPerTask' });
   }
 }

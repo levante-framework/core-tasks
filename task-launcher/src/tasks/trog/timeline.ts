@@ -8,6 +8,7 @@ import {
   getRealTrials,
   initTimeline,
   initTrialSaving,
+  reportCorpusValidationErrors,
 } from '../shared/helpers';
 import { preloadSharedAudio } from '../shared/helpers/preloadSharedAudio';
 import { prepareCorpus, selectNItems } from '../shared/helpers/prepareCat';
@@ -42,11 +43,7 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
     }
   }
 
-  if (Object.keys(validationErrorMap).length) {
-    console.error('The following errors were found');
-    console.table(validationErrorMap);
-    throw new Error('Something went wrong. Please look in the console for error details');
-  }
+  reportCorpusValidationErrors(validationErrorMap);
 
   // organize media assets into batches for preloading
   const batchSize = 25;

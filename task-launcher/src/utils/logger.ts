@@ -23,6 +23,12 @@ export class Logger {
     return Logger.instance;
   }
 
+  /** @internal Test-only: clear the singleton between tests. */
+  public static resetInstanceForTests() {
+    // biome-ignore lint/suspicious/noExplicitAny: test-only singleton reset
+    (Logger as any).instance = undefined;
+  }
+
   public capture(name: string, context?: Record<string, any>) {
     const finalProperties = {
       gameParams: this.gameParams,
