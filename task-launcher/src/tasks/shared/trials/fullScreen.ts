@@ -64,8 +64,15 @@ export const enterFullscreen = {
         // prevent the trial from ever advancing.
         const resumePromise = jsPsych.pluginAPI.audioContext()?.resume();
 
-        if (fscreen.fullscreenEnabled) {
-          fscreen.requestFullscreen(document.documentElement);
+        // fscreen.fullscreenEnabled only reflects document.fullscreenEnabled;
+        // it does not guarantee the element actually has a requestFullscreen
+        // method, e.g., Mobile Safari 26.x on iOS 18.x reports fullscreen as
+        // enabled but leaves document.documentElement.requestFullscreen
+        // undefined, so calling it throws "requestFullscreen is not a
+        // function". Guard on the resolved request function instead.
+        const fullscreenElement = document.documentElement;
+        if (fscreen.fullscreenEnabled && typeof fscreen.requestFullscreenFunction(fullscreenElement) === 'function') {
+          fscreen.requestFullscreen(fullscreenElement);
         }
 
         // Await resume() so the audio context is actually running before we
