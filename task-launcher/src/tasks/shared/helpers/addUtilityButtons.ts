@@ -1,3 +1,4 @@
+import fscreen from 'fscreen';
 import { taskStore } from '../../../taskStore';
 import { InitPageSetup } from '../../../utils/initPageSetup';
 import { Logger } from '../../../utils/logger';
@@ -162,13 +163,14 @@ function onExit() {
 }
 
 function onFullscreen() {
-  if (document.fullscreenElement) {
+  if (fscreen.fullscreenElement) {
     return;
   }
 
-  document.documentElement.requestFullscreen().catch((err) => {
-    Logger.getInstance().error(err, { source: 'requestFullscreen' });
-  });
+  const fullscreenElement = document.documentElement;
+  if (fscreen.fullscreenEnabled && typeof fscreen.requestFullscreenFunction(fullscreenElement) === 'function') {
+    fscreen.requestFullscreen(fullscreenElement);
+  }
 }
 
 function onMenuPress(menuButton: HTMLButtonElement) {
