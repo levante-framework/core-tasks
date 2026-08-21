@@ -176,7 +176,7 @@ function onFullscreen() {
       userActivationIsActive: navigator.userActivation?.isActive ?? null,
       userActivationHasBeenActive: navigator.userActivation?.hasBeenActive ?? null,
     };
-    void Promise.resolve(fscreen.requestFullscreen(fullscreenElement)).catch((error: unknown) => {
+    Promise.resolve(fscreen.requestFullscreen(fullscreenElement)).catch((error: unknown) => {
       Logger.getInstance().error(error instanceof Error ? error : new Error(String(error)), diagnostics);
     });
   }
