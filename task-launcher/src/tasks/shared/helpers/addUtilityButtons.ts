@@ -5,7 +5,7 @@ import { jsPsych } from '../../taskSetup';
 import { finalizeCurrentPauseSegment, getActiveTaskElapsedMs } from './appTimer';
 import { PageAudioHandler } from './audioHandler';
 import { exitButtonSvg, menuButtonSvg, pauseButtonSvg } from './components';
-import { requestFullscreen } from './requestFullscreen';
+import { activateFullscreen } from './activateFullscreen';
 
 let pageSetup: InitPageSetup | null = null;
 export function addExperimenterButtons() {
@@ -167,7 +167,7 @@ function onFullscreen() {
     return;
   }
 
-  requestFullscreen('utilityButton');
+  activateFullscreen('utilityButton');
 }
 
 function onMenuPress(menuButton: HTMLButtonElement) {

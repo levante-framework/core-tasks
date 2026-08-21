@@ -2,12 +2,12 @@ import fscreen from 'fscreen';
 import { Logger } from '../../../utils/logger';
 
 /**
- * Requests fullscreen and logs any rejection.
+ * Activates fullscreen and logs any rejection.
  *
  * Must be called synchronously within a user gesture: requestFullscreen
  * requires transient activation, which expires across an await/microtask.
  */
-export function requestFullscreen(source: string) {
+export function activateFullscreen(source: string) {
   // fscreen.fullscreenEnabled only reflects document.fullscreenEnabled; it does
   // not guarantee the element actually has a requestFullscreen method, e.g.,
   // Mobile Safari 26.x on iOS 18.x reports fullscreen as enabled but leaves

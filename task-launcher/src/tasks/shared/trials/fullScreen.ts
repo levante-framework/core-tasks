@@ -3,7 +3,7 @@ import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-respons
 import { taskStore } from '../../../taskStore';
 import { setupInputDetection } from '../../../utils/detectInput';
 import { jsPsych } from '../../taskSetup';
-import { requestFullscreen } from '../helpers/requestFullscreen';
+import { activateFullscreen } from '../helpers/activateFullscreen';
 
 export const enterFullscreen = {
   type: jsPsychHtmlMultiResponse,
@@ -65,7 +65,7 @@ export const enterFullscreen = {
         const resumePromise = jsPsych.pluginAPI.audioContext()?.resume();
 
         // Request fullscreen synchronously during the user gesture.
-        requestFullscreen('enterFullscreen');
+        activateFullscreen('enterFullscreen');
 
         // Await resume() so the audio context is actually running before we
         // advance; otherwise the next trial's audio fails to autoplay.
