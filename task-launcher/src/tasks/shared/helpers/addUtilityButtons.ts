@@ -1,11 +1,11 @@
 import fscreen from 'fscreen';
 import { taskStore } from '../../../taskStore';
 import { InitPageSetup } from '../../../utils/initPageSetup';
+import { Logger } from '../../../utils/logger';
 import { jsPsych } from '../../taskSetup';
 import { finalizeCurrentPauseSegment, getActiveTaskElapsedMs } from './appTimer';
 import { PageAudioHandler } from './audioHandler';
 import { exitButtonSvg, menuButtonSvg, pauseButtonSvg } from './components';
-import { requestTaskFullscreen } from './requestTaskFullscreen';
 
 let pageSetup: InitPageSetup | null = null;
 export function addExperimenterButtons() {
@@ -167,7 +167,19 @@ function onFullscreen() {
     return;
   }
 
-  requestTaskFullscreen('utilityButton');
+  const fullscreenElement = document.documentElement;
+  if (fscreen.fullscreenEnabled && typeof fscreen.requestFullscreenFunction(fullscreenElement) === 'function') {
+    const diagnostics = {
+      source: 'utilityButton',
+      fullscreenEnabled: document.fullscreenEnabled,
+      hasFullscreenElement: Boolean(document.fullscreenElement),
+      userActivationIsActive: navigator.userActivation?.isActive ?? null,
+      userActivationHasBeenActive: navigator.userActivation?.hasBeenActive ?? null,
+    };
+    void fscreen.requestFullscreen(fullscreenElement).catch((error: unknown) => {
+      Logger.getInstance().error(error instanceof Error ? error : new Error(String(error)), diagnostics);
+    });
+  }
 }
 
 function onMenuPress(menuButton: HTMLButtonElement) {

@@ -41,7 +41,6 @@ export { prepareCorpus, prepareMultiBlockCat, selectNItems, updateTheta } from '
 export * from './prepareChoices';
 export { pulseOkButton } from './pulseOkButton';
 export { setupReplayAudio } from './replayAudio';
-export { requestTaskFullscreen } from './requestTaskFullscreen';
 export { selectNextSequentialTrial } from './selectNextSequentialTrial';
 export { setSentryContext } from './setSentryContext';
 export * from './setSkipCurrentBlock';

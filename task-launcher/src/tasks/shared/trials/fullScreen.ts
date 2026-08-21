@@ -1,9 +1,10 @@
 import jsPsychFullScreen from '@jspsych/plugin-fullscreen';
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
+import fscreen from 'fscreen';
 import { taskStore } from '../../../taskStore';
 import { setupInputDetection } from '../../../utils/detectInput';
+import { Logger } from '../../../utils/logger';
 import { jsPsych } from '../../taskSetup';
-import { requestTaskFullscreen } from '../helpers/requestTaskFullscreen';
 
 export const enterFullscreen = {
   type: jsPsychHtmlMultiResponse,
@@ -70,7 +71,19 @@ export const enterFullscreen = {
         // enabled but leaves document.documentElement.requestFullscreen
         // undefined, so calling it throws "requestFullscreen is not a
         // function". Guard on the resolved request function instead.
-        requestTaskFullscreen('enterFullscreen');
+        const fullscreenElement = document.documentElement;
+        if (fscreen.fullscreenEnabled && typeof fscreen.requestFullscreenFunction(fullscreenElement) === 'function') {
+          const diagnostics = {
+            source: 'enterFullscreen',
+            fullscreenEnabled: document.fullscreenEnabled,
+            hasFullscreenElement: Boolean(document.fullscreenElement),
+            userActivationIsActive: navigator.userActivation?.isActive ?? null,
+            userActivationHasBeenActive: navigator.userActivation?.hasBeenActive ?? null,
+          };
+          void fscreen.requestFullscreen(fullscreenElement).catch((error: unknown) => {
+            Logger.getInstance().error(error instanceof Error ? error : new Error(String(error)), diagnostics);
+          });
+        }
 
         // Await resume() so the audio context is actually running before we
         // advance; otherwise the next trial's audio fails to autoplay.
