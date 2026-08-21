@@ -2,10 +2,10 @@ import fscreen from 'fscreen';
 import { taskStore } from '../../../taskStore';
 import { InitPageSetup } from '../../../utils/initPageSetup';
 import { jsPsych } from '../../taskSetup';
+import { activateFullscreen } from './activateFullscreen';
 import { finalizeCurrentPauseSegment, getActiveTaskElapsedMs } from './appTimer';
 import { PageAudioHandler } from './audioHandler';
 import { exitButtonSvg, menuButtonSvg, pauseButtonSvg } from './components';
-import { activateFullscreen } from './activateFullscreen';
 
 let pageSetup: InitPageSetup | null = null;
 export function addExperimenterButtons() {
