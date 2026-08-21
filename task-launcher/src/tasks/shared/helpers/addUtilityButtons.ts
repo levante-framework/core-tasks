@@ -171,7 +171,7 @@ function onFullscreen() {
   if (fscreen.fullscreenEnabled && typeof fscreen.requestFullscreenFunction(fullscreenElement) === 'function') {
     const diagnostics = {
       source: 'utilityButton',
-      fullscreenEnabled: document.fullscreenEnabled,
+      fullscreenEnabled: fscreen.fullscreenEnabled,
       hasFullscreenElement: Boolean(document.fullscreenElement),
       userActivationIsActive: navigator.userActivation?.isActive ?? null,
       userActivationHasBeenActive: navigator.userActivation?.hasBeenActive ?? null,

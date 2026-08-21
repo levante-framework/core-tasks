@@ -75,7 +75,7 @@ export const enterFullscreen = {
         if (fscreen.fullscreenEnabled && typeof fscreen.requestFullscreenFunction(fullscreenElement) === 'function') {
           const diagnostics = {
             source: 'enterFullscreen',
-            fullscreenEnabled: document.fullscreenEnabled,
+            fullscreenEnabled: fscreen.fullscreenEnabled,
             hasFullscreenElement: Boolean(document.fullscreenElement),
             userActivationIsActive: navigator.userActivation?.isActive ?? null,
             userActivationHasBeenActive: navigator.userActivation?.hasBeenActive ?? null,
