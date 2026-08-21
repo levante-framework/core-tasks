@@ -1,8 +1,8 @@
 import fscreen from 'fscreen';
 import { taskStore } from '../../../taskStore';
 import { InitPageSetup } from '../../../utils/initPageSetup';
-import { Logger } from '../../../utils/logger';
 import { jsPsych } from '../../taskSetup';
+import { activateFullscreen } from './activateFullscreen';
 import { finalizeCurrentPauseSegment, getActiveTaskElapsedMs } from './appTimer';
 import { PageAudioHandler } from './audioHandler';
 import { exitButtonSvg, menuButtonSvg, pauseButtonSvg } from './components';
@@ -167,10 +167,7 @@ function onFullscreen() {
     return;
   }
 
-  const fullscreenElement = document.documentElement;
-  if (fscreen.fullscreenEnabled && typeof fscreen.requestFullscreenFunction(fullscreenElement) === 'function') {
-    fscreen.requestFullscreen(fullscreenElement);
-  }
+  activateFullscreen('utilityButton');
 }
 
 function onMenuPress(menuButton: HTMLButtonElement) {
