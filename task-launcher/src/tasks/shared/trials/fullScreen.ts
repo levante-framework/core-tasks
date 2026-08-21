@@ -1,10 +1,9 @@
 import jsPsychFullScreen from '@jspsych/plugin-fullscreen';
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
-import fscreen from 'fscreen';
 import { taskStore } from '../../../taskStore';
 import { setupInputDetection } from '../../../utils/detectInput';
-import { Logger } from '../../../utils/logger';
 import { jsPsych } from '../../taskSetup';
+import { requestFullscreen } from '../helpers/requestFullscreen';
 
 export const enterFullscreen = {
   type: jsPsychHtmlMultiResponse,
@@ -65,25 +64,8 @@ export const enterFullscreen = {
         // prevent the trial from ever advancing.
         const resumePromise = jsPsych.pluginAPI.audioContext()?.resume();
 
-        // fscreen.fullscreenEnabled only reflects document.fullscreenEnabled;
-        // it does not guarantee the element actually has a requestFullscreen
-        // method, e.g., Mobile Safari 26.x on iOS 18.x reports fullscreen as
-        // enabled but leaves document.documentElement.requestFullscreen
-        // undefined, so calling it throws "requestFullscreen is not a
-        // function". Guard on the resolved request function instead.
-        const fullscreenElement = document.documentElement;
-        if (fscreen.fullscreenEnabled && typeof fscreen.requestFullscreenFunction(fullscreenElement) === 'function') {
-          const diagnostics = {
-            source: 'enterFullscreen',
-            fullscreenEnabled: fscreen.fullscreenEnabled,
-            hasFullscreenElement: Boolean(document.fullscreenElement),
-            userActivationIsActive: navigator.userActivation?.isActive ?? null,
-            userActivationHasBeenActive: navigator.userActivation?.hasBeenActive ?? null,
-          };
-          Promise.resolve(fscreen.requestFullscreen(fullscreenElement)).catch((error: unknown) => {
-            Logger.getInstance().error(error instanceof Error ? error : new Error(String(error)), diagnostics);
-          });
-        }
+        // Request fullscreen synchronously during the user gesture.
+        requestFullscreen('enterFullscreen');
 
         // Await resume() so the audio context is actually running before we
         // advance; otherwise the next trial's audio fails to autoplay.
