@@ -1,11 +1,11 @@
 import fscreen from 'fscreen';
 import { taskStore } from '../../../taskStore';
 import { InitPageSetup } from '../../../utils/initPageSetup';
-import { Logger } from '../../../utils/logger';
 import { jsPsych } from '../../taskSetup';
 import { finalizeCurrentPauseSegment, getActiveTaskElapsedMs } from './appTimer';
 import { PageAudioHandler } from './audioHandler';
 import { exitButtonSvg, menuButtonSvg, pauseButtonSvg } from './components';
+import { requestTaskFullscreen } from './requestTaskFullscreen';
 
 let pageSetup: InitPageSetup | null = null;
 export function addExperimenterButtons() {
@@ -167,10 +167,7 @@ function onFullscreen() {
     return;
   }
 
-  const fullscreenElement = document.documentElement;
-  if (fscreen.fullscreenEnabled && typeof fscreen.requestFullscreenFunction(fullscreenElement) === 'function') {
-    fscreen.requestFullscreen(fullscreenElement);
-  }
+  requestTaskFullscreen('utilityButton');
 }
 
 function onMenuPress(menuButton: HTMLButtonElement) {
