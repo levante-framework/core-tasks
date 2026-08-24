@@ -55,7 +55,6 @@ const bubblePoppingPracticeTrial = {
 
     bubbles.forEach((bubble) => {
       wrapListeners(bubble, () => {
-        console.log('pop');
         PageAudioHandler.playAudio('pop', popAudioConfig);
         bubble.style.visibility = 'hidden';
 
