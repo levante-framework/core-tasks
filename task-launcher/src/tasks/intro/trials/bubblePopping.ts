@@ -20,33 +20,20 @@ const driverObj = driver({
   steps: [{ element: '#button0' }, { element: '#button1' }, { element: '#button2' }],
 });
 
+const BUBBLE_COUNT = 7;
+
 const bubblePoppingPracticeTrial = {
   type: jsPsychHtmlMultiResponse,
   stimulus: () => {
     return `
           <div class="lev-stimulus-container">
               <div id="bubble-container" class="image-grid-x4">
-                <button class="img-transparent float"> 
-                  <img src=${mediaAssets.images.bubble}>
-                </button>
-                <button class="img-transparent float"> 
-                  <img src=${mediaAssets.images.bubble}>
-                </button>
-                <button class="img-transparent float"> 
-                  <img src=${mediaAssets.images.bubble}>
-                </button>
-                <button class="img-transparent float"> 
-                  <img src=${mediaAssets.images.bubble}>
-                </button>
-                <button class="img-transparent float"> 
-                  <img src=${mediaAssets.images.bubble}>
-                </button>
-                <button class="img-transparent float"> 
-                  <img src=${mediaAssets.images.bubble}>
-                </button>
-                <button class="img-transparent float"> 
-                  <img src=${mediaAssets.images.bubble}>
-                </button>
+                ${Array.from(
+                  { length: BUBBLE_COUNT },
+                  () => `<button class="img-transparent float"> 
+                          <img src=${mediaAssets.images.bubble}>
+                        </button>`,
+                ).join('')}
               </div>
           </div>
         `;
@@ -64,11 +51,12 @@ const bubblePoppingPracticeTrial = {
     };
 
     const bubbles = Array.from(document.getElementById('bubble-container')?.children as unknown as HTMLButtonElement[]);
-    let remainingBubbles = bubbles.length;
+    let remainingBubbles = BUBBLE_COUNT;
 
     bubbles.forEach((bubble) => {
       wrapListeners(bubble, () => {
-        PageAudioHandler.playAudio(mediaAssets.audio.pop, popAudioConfig);
+        console.log('pop');
+        PageAudioHandler.playAudio('pop', popAudioConfig);
         bubble.style.visibility = 'hidden';
 
         remainingBubbles--;
@@ -92,7 +80,6 @@ const bubblePoppingPracticeTrial = {
       audioButtonPresses: PageAudioHandler.replayPresses,
       assessment_stage: 'instructions',
     });
-    PageAudioHandler.stopAndDisconnectNode();
   },
 };
 
@@ -136,11 +123,10 @@ const bubbleOverButtonPracticeTrial = {
 
     return [
       `<div id="bubble-button-stack" class="stack-overlay">
-        <button class="primary" disabled>${t.continueButtonText}</button>
+        <button class="primary" id="ok-button" disabled>${t.continueButtonText}</button>
           <button class="img-transparent float" style="pointer-events: none"> 
             <img src=${mediaAssets.images.bubble}>
           </button>
-        </div>
       </div>`,
     ];
   },
@@ -158,11 +144,11 @@ const bubbleOverButtonPracticeTrial = {
       },
       onEnded: () => {
         enableOkButton();
-        bubbleOverButtonDriverObj.highlight({ element: '.primary' });
+        bubbleOverButtonDriverObj.highlight({ element: '#ok-button' });
       },
     };
 
-    PageAudioHandler.playAudio(mediaAssets.audio[prompt] || mediaAssets.audio.inputAudioCue, audioConfig);
+    PageAudioHandler.playAudio(prompt, audioConfig);
   },
   on_finish: () => {
     bubbleOverButtonDriverObj.destroy();
@@ -173,7 +159,6 @@ const bubbleOverButtonPracticeTrial = {
       audioButtonPresses: PageAudioHandler.replayPresses,
       assessment_stage: 'instructions',
     });
-    PageAudioHandler.stopAndDisconnectNode();
   },
 };
 
@@ -220,7 +205,7 @@ const buttonPressPracticeTrial = {
           buttonsEnabled = true;
         }, 500);
 
-        PageAudioHandler.playAudio(mediaAssets.audio.select);
+        PageAudioHandler.playAudio('select');
 
         button.style.visibility = 'hidden';
 
@@ -240,7 +225,6 @@ const buttonPressPracticeTrial = {
       audioButtonPresses: PageAudioHandler.replayPresses,
       assessment_stage: 'instructions',
     });
-    PageAudioHandler.stopAndDisconnectNode();
   },
 };
 
