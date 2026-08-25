@@ -66,7 +66,7 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
 
   const layoutConfigMap: Record<string, LayoutConfigType> = {};
   let i = 0;
-  for (const c of heavyInstructions ? fullCorpus : defaultCorpus) {
+  for (const c of fullCorpus) {
     const { itemConfig, errorMessages } = getLayoutConfig(c, translations, mediaAssets, i);
     layoutConfigMap[c.itemId] = itemConfig;
     if (errorMessages.length) {
