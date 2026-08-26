@@ -30,6 +30,7 @@ import type { InputCapability } from '../utils/detectInput';
  * @property {boolean} debug - Shows theta estimate on the screen for cat debugging when enabled.
  * @property {boolean} showAudioKeys - When true, displays audio keys on screen for debugging.
  * @property {boolean} experimenterButtons - When true, experimenter utility controls (pause, exit) are available.
+ * @property {boolean} experimenterExit - Whether the task was exited via the experimenter exit button, default is false.
  * @property {number} currentCatBlock - The current block number to select trials from in a CAT.
  * @property {number[]} blockThresholds - Array of theta thresholds.
  * @property {number} totalTrialCount - Total number of trials, including practice and instructions.
@@ -164,6 +165,7 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     maxTime: config.maxTime,
     demoMode: config.demoMode,
     experimenterButtons: config.experimenterButtons && effectiveHeavyInstructions,
+    experimenterExit: false,
     showAudioKeys: config.showAudioKeys,
     debug: config.debug,
     version: config.version || 1,

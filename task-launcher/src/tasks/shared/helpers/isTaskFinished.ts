@@ -1,9 +1,11 @@
-// Previously named waitFor
+import { taskStore } from '../../../taskStore';
 
 export const isTaskFinished = (conditionFunction: () => boolean, frequency = 400) => {
-  return new Promise<void>((resolve) => {
+  return new Promise<void>((resolve, reject) => {
     const poll = () => {
-      if (conditionFunction()) {
+      if (taskStore().experimenterExit) {
+        reject(new DOMException('Experimenter exited task', 'AbortError'));
+      } else if (conditionFunction()) {
         resolve();
       } else {
         setTimeout(poll, frequency);
