@@ -61,6 +61,7 @@ const heavyInstructions = stringToBoolean(urlParams.get('heavyInstructions'), fa
 const experimenterButtons = stringToBoolean(urlParams.get('experimenterButtons'), false);
 const showAudioKeys = stringToBoolean(urlParams.get('showAudioKeys'), false);
 const debug = stringToBoolean(urlParams.get('debug'), false);
+const bubblePractice = stringToBoolean(urlParams.get('bubblePractice'));
 
 // if running in demo mode, no data will be saved to Firestore
 const demoMode = DEMO;
@@ -93,6 +94,7 @@ async function startWebApp() {
     version,
     debug,
     experimenterButtons,
+    bubblePractice,
     showAudioKeys,
   };
   const userParams = {

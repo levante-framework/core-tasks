@@ -31,6 +31,7 @@ import type { InputCapability } from '../utils/detectInput';
  * @property {boolean} showAudioKeys - When true, displays audio keys on screen for debugging.
  * @property {boolean} experimenterButtons - When true, experimenter utility controls (pause, exit) are available.
  * @property {boolean} experimenterExit - Whether the task was exited via the experimenter exit button, default is false.
+ * @property {boolean} bubblePractice - When true, run the bubble popping practice trial in the intro task.
  * @property {number} currentCatBlock - The current block number to select trials from in a CAT.
  * @property {number[]} blockThresholds - Array of theta thresholds.
  * @property {number} totalTrialCount - Total number of trials, including practice and instructions.
@@ -103,6 +104,7 @@ export type TaskStoreDataType = {
   experimenterButtons: boolean;
   showAudioKeys: boolean;
   debug: boolean;
+  bubblePractice: boolean;
   version: number;
   currentCatBlock?: number;
   blockThresholds?: number[];
@@ -168,6 +170,7 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     experimenterExit: false,
     showAudioKeys: config.showAudioKeys,
     debug: config.debug,
+    bubblePractice: config.bubblePractice,
     version: config.version || 1,
     currentStoryGroup: 0,
     taskTimer: null,
