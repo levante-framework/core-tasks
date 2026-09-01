@@ -142,7 +142,6 @@ function onExit() {
   if (!popupContainer) return;
   const popupButtons = popupContainer.querySelectorAll('button');
   popupButtons[0].addEventListener('click', () => {
-    document.body.innerHTML = '';
     taskStore('experimenterExit', true);
     jsPsych.endExperiment();
   });
