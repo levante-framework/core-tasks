@@ -16,6 +16,13 @@ type ResponseDataType = {
   nextPageToken: string;
 };
 
+const AUDIO_PREFIX_FALLBACKS: Record<string, string> = {
+  'audio/en-US': 'audio/en',
+  'audio/de-DE': 'audio/de',
+  'audio/es': 'audio/es-CO',
+  'audio/es-US': 'audio/es-CO',
+};
+
 export async function getMediaAssets(
   bucketName: string,
   whitelist: Record<string, any> = {},
@@ -40,15 +47,16 @@ export async function getMediaAssets(
   response = await fetch(url);
   data = await response.json();
 
-  // add temporary fallback for en-US and de-DE until we have the correct folders in the bucket
   if (!data.items || data.items.length === 0) {
-    if (folder === 'audio/en-US') {
-      response = await fetch(`https://storage.googleapis.com/storage/v1/b/${bucket}/o?prefix=audio/en/`);
-      data = await response.json();
-    } else if (folder === 'audio/de-DE') {
-      response = await fetch(`https://storage.googleapis.com/storage/v1/b/${bucket}/o?prefix=audio/de/`);
+    const fallbackPrefix = AUDIO_PREFIX_FALLBACKS[folder];
+    if (fallbackPrefix) {
+      response = await fetch(`https://storage.googleapis.com/storage/v1/b/${bucket}/o?prefix=${fallbackPrefix}/`);
       data = await response.json();
     }
+  }
+
+  if (!data.items) {
+    data.items = [];
   }
 
   data.items.forEach((item) => {
@@ -76,6 +84,10 @@ export async function getMediaAssets(
   }
 }
 
+function audioFolderMatchesLanguage(folderLang: string, languageCode: string) {
+  return folderLang === languageCode || folderLang.slice(0, 2) === languageCode.slice(0, 2);
+}
+
 function isLanguageAndDeviceValid(filePath: string, languageCode: string, taskName: string) {
   const parts = filePath.split('/');
 
@@ -85,8 +97,7 @@ function isLanguageAndDeviceValid(filePath: string, languageCode: string, taskNa
     // visual assets have task prefix
     return parts[1] === taskName && parts[2].length !== 0;
   } else if (parts[0] === 'audio') {
-    // audio assets have language prefix
-    return (parts[1] === languageCode || parts[1] === languageCode.slice(0, 2)) && parts[2].length !== 0;
+    return audioFolderMatchesLanguage(parts[1], languageCode) && parts[2].length !== 0;
   }
 
   return false; // Not a valid path
