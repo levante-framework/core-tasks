@@ -116,7 +116,19 @@ export const initTrialSaving = (config: Record<string, any>) => {
 
   // @ts-expect-error
   jsPsych.opts.on_finish = extend(jsPsych.opts.on_finish, () => {
-    if (!taskStore().demoMode && config.firekit) {
+    if (taskStore().experimenterExit) {
+      const logger = Logger.getInstance();
+      logger.capture('Task finished: experimenter ended task', {
+        taskName: taskStore().task,
+        taskFinished: taskStore().taskComplete,
+      });
+
+      taskStore('effectiveStoppingRule', 'experimenterExit');
+
+      if (config.firekit) {
+        config.firekit.updateStopReason(taskStore().effectiveStoppingRule);
+      }
+    } else if (!taskStore().demoMode && config.firekit) {
       config.firekit.finishRun();
     }
   });

@@ -158,7 +158,7 @@ export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrial
         presentationTime: hfV2 ? stimulusDuration : null,
       });
 
-      taskStore.transact('testTrialCount', (oldVal) => oldVal + 1);
+      if (!isPractice) taskStore.transact('testTrialCount', (oldVal) => oldVal + 1);
 
       if (onTrialFinishTimelineCallback) {
         onTrialFinishTimelineCallback(data);
