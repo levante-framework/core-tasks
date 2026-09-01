@@ -23,6 +23,8 @@ $response-size-sm: min($response-size-sm-width, $response-size-default-height);
 $response-size-s: 22vw;
 $response-size-m: min($response-size-m-width, $response-size-m-height);
 
+$bubble-grid-cell-size: min(22vw, 22vh);
+
 // replay btn
 $replay_btn_size: min(64px, 8vh);
 $replay_btn_pos: min(8px, 1vh);

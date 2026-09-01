@@ -338,6 +338,23 @@ button {
     }
   }
 
+  &.img-transparent {
+    padding: 0;
+    box-sizing: border-box;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    img {
+      border: none;
+      width: $bubble-grid-cell-size;
+      height: auto;
+      padding: 0;
+      margin: 0;
+    }
+  }
+
   // add padding for matrix reasoning buttons so that the image is not cut off
   &.image-matrix {
     @extend .button-base;
