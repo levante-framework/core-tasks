@@ -127,12 +127,17 @@ export class TaskLauncher {
     taskStore('pageSetup', pageSetup);
 
     pageSetup.init();
-    const checkTaskFinished =
-      this.gameParams.demoMode || this.firekit === null
-        ? () => taskStore().taskComplete
-        : () => this.firekit?.run?.completed === true && taskStore().taskComplete;
+    await isTaskFinished(() => taskStore().taskComplete);
 
-    await isTaskFinished(checkTaskFinished);
+    if (!this.gameParams.demoMode && this.firekit && !this.firekit.run?.completed) {
+      try {
+        await this.firekit.finishRun();
+      } catch (error) {
+        logger.error(error instanceof Error ? error : new Error('Failed to finish run', { cause: error }), {
+          source: 'finishRun',
+        });
+      }
+    }
 
     this.firekit?.updateStopReason(taskStore().effectiveStoppingRule);
   }
