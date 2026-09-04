@@ -1,10 +1,23 @@
-import { testAfc } from './helpers.cy.js';
+import { getParamLists, testAfc } from './helpers.cy.js';
 
-const vocab_url = 'http://localhost:8080/?task=vocab';
+const task = 'vocab';
+const base_url = `http://localhost:8080/?task=${task}`;
+const testUrls = getParamLists(task).map((params) => `${base_url}&${params}`);
 
 describe('test vocab', () => {
-  it('visits vocab and plays game', () => {
-    cy.visit(vocab_url);
-    testAfc('class', '.image-medium');
+  if (testUrls.length === 0) {
+    it('fails when no test URLs are available (see cypress.config.js)', () => {
+      expect(testUrls).to.have.length.greaterThan(0);
+    });
+    return;
+  }
+
+  testUrls.forEach((url) => {
+    const label = url.slice(base_url.length + 1) || 'default';
+
+    it(`visits vocab and plays game (${label})`, () => {
+      cy.visit(url);
+      testAfc('class', '.image-medium');
+    });
   });
 });

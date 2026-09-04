@@ -1,10 +1,23 @@
-import { testAfc } from './helpers.cy.js';
+import { getParamLists, testAfc } from './helpers.cy.js';
 
-const mental_rotation_url = 'http://localhost:8080/?task=mental-rotation';
+const task = 'mental-rotation';
+const base_url = `http://localhost:8080/?task=${task}`;
+const testUrls = getParamLists(task).map((params) => `${base_url}&${params}`);
 
 describe('test mental rotation', () => {
-  it('visits mental rotation and plays game', () => {
-    cy.visit(mental_rotation_url);
-    testAfc('class', '.image-large');
+  if (testUrls.length === 0) {
+    it('fails when no test URLs are available (see cypress.config.js)', () => {
+      expect(testUrls).to.have.length.greaterThan(0);
+    });
+    return;
+  }
+
+  testUrls.forEach((url) => {
+    const label = url.slice(base_url.length + 1) || 'default';
+
+    it(`visits mental rotation and plays game (${label})`, () => {
+      cy.visit(url);
+      testAfc('class', '.image-large');
+    });
   });
 });
