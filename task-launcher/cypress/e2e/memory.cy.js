@@ -13,7 +13,7 @@ describe('test memory game', () => {
     return;
   }
 
-  [testUrls[1]].forEach((url) => {
+  testUrls.forEach((url) => {
     taskCompleted = false;
     backwardPhase = false;
     forwardPhase = false;
