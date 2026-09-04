@@ -105,7 +105,8 @@ export function testAfc(correctFlag, buttonClass, waitForEnabled = false) {
   taskCompleted = false;
 
   // wait for OK button to be visible
-  cy.get('.jspsych-content', { timeout: 600000 }).find('.primary').should('be.visible');
+  cy.get('.jspsych-content .primary', { timeout: 600000 }).should('be.visible');
+
   cy.get('.jspsych-content').find('.primary').realClick(); // real click mimics user gesture so that fullscreen can start
   taskLoop(correctFlag, buttonClass, waitForEnabled);
 }

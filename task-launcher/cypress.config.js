@@ -3,7 +3,7 @@ import { defineConfig } from 'cypress';
 const LANGUAGE_OPTIONS_URL =
   'https://storage.googleapis.com/levante-assets-dev/translations/dashboard-consolidated-flat/languageoptions.json';
 
-const LIVE_TASK_PARAMS_URL = 'https://storage.googleapis.com/levante-assets-dev/live-task-params.json?v=2';
+const LIVE_TASK_PARAMS_URL = 'https://storage.googleapis.com/levante-assets-dev/live-task-params.json';
 
 function taskVariantKey(task, params) {
   return JSON.stringify({ task, params });
