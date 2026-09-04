@@ -68,9 +68,17 @@ export const downexStimulus = (
       const stim = trial || taskStore().nextStimulus;
       const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
       const choices = itemLayoutConfig.response.displayValues;
+      const target = itemLayoutConfig.response.target;
 
       return choices.map((choice) => {
         const imageUrl = mediaAssets.images[camelize(choice)];
+
+        if (window.Cypress) {
+          const isCorrect = choice === target;
+          return isCorrect
+            ? `<img src=${imageUrl} alt=${choice} class='correct' />`
+            : `<img src=${imageUrl} alt=${choice} />`;
+        }
 
         return `<img src=${imageUrl} alt=${choice} />`;
       });

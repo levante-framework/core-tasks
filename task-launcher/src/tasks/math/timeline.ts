@@ -160,15 +160,18 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
   const repeatSliderPracticeBlock = () => {
     const trials: any[] = [];
     sliderPractice.forEach((trial, index) => {
+      trials.push({ ...fixationOnly, stimulus: '' });
       trials.push(slider(layoutConfigMap, terminateCat, trial));
       if (index < sliderPractice.length - 1) {
-        trials.push({
-          ...feedback(true),
-          conditional_function: () => {
-            return true;
+        trials.push(
+          { ...fixationOnly, stimulus: '' },
+          {
+            ...feedback(true),
+            conditional_function: () => {
+              return true;
+            },
           },
-          post_trial_gap: 350,
-        });
+        );
       }
     });
 
@@ -267,6 +270,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
         timeline.push(stimulusBlock(trial));
       });
 
+      timeline.push({ ...fixationOnly, stimulus: '' });
       timeline.push(practiceTransition());
 
       const numOfTrials = Math.floor(downexBlock.length / 2);
@@ -332,11 +336,13 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
       }
 
       // practice transition screen
+      timeline.push({ ...fixationOnly, stimulus: '' });
       timeline.push(practiceTransition());
 
       // push in random items at start of first block (after practice trials)
       if (i === 0) {
         allCorpusParts.start.forEach((trial) => {
+          timeline.push({ ...fixationOnly, stimulus: '' });
           timeline.push(stimulusBlock(trial));
         });
       }

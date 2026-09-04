@@ -8,7 +8,7 @@ export function instructions() {
       // check for end of task
       cy.get('.lev-stimulus-container').then((content) => {
         if (content.find('footer').length === 1) {
-          cy.contains('Exit').click({ timeout: 60000 });
+          cy.get('.jspsych-content').find('.primary').click({ timeout: 60000 });
           taskCompleted = true;
           return;
         } else {
@@ -43,7 +43,7 @@ function selectAnswers(correctFlag, buttonClass, waitForEnabled = false) {
   };
 
   if (waitForEnabled) {
-    const timeout = 30000;
+    const timeout = 90000;
     const interval = 100;
     const startTime = Date.now();
 
@@ -102,8 +102,34 @@ function taskLoop(correctFlag, buttonClass, waitForEnabled = false) {
 }
 
 export function testAfc(correctFlag, buttonClass, waitForEnabled = false) {
+  taskCompleted = false;
+
   // wait for OK button to be visible
-  cy.contains('OK', { timeout: 600000 }).should('be.visible');
-  cy.contains('OK').realClick(); // real click mimics user gesture so that fullscreen can start
+  cy.get('.jspsych-content .primary', { timeout: 600000 }).should('be.visible');
+
+  cy.get('.jspsych-content').find('.primary').realClick(); // real click mimics user gesture so that fullscreen can start
   taskLoop(correctFlag, buttonClass, waitForEnabled);
+}
+
+function getThisTaskVariants(thisTask) {
+  const firstLocalesPerVariant = Cypress.env('firstLocalesPerVariant');
+  if (!firstLocalesPerVariant || typeof firstLocalesPerVariant !== 'object') {
+    return [];
+  }
+
+  return Object.values(firstLocalesPerVariant)
+    .filter(({ task }) => task === thisTask)
+    .map(({ params, locale }) => ({ params, locale }));
+}
+
+export function getParamLists(thisTask) {
+  const variants = getThisTaskVariants(thisTask);
+
+  const paramLists = [];
+  variants.forEach((variant) => {
+    const paramList = [...variant.params, `lng=${variant.locale}`].join('&');
+    paramLists.push(paramList);
+  });
+
+  return paramLists;
 }
