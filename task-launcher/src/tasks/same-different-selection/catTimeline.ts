@@ -3,8 +3,10 @@ import {
   createPreloadTrials,
   initTimeline,
   initTrialSaving,
+  isCatBlockTimeExpired,
   prepareCorpus,
   prepareMultiBlockCat,
+  setCatBlockTimeLimit,
 } from '../shared/helpers';
 import {
   enterFullscreen,
@@ -13,6 +15,7 @@ import {
   fixationOnly,
   getAudioResponse,
   setupStimulusFromBlock,
+  startCatBlock,
   taskFinished,
 } from '../shared/trials';
 import { initializeCat, jsPsych } from '../taskSetup';
@@ -148,10 +151,44 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
   // create list of numbers of trials per block
   const blockCountList = setTrialBlock(true).blockCountList;
 
-  const totalRealTrials = blockCountList.reduce((acc, total) => acc + total, 0);
+  const effectiveBlockCount = !heavy && taskStore().version === 2 ? 2 : 3;
+  setCatBlockTimeLimit(taskStore().maxTime, effectiveBlockCount);
+
+  const totalRealTrials = blockCountList.reduce((acc, count, index) => {
+    if (!heavy && index === 1 && taskStore().version === 2) {
+      return acc;
+    }
+    return acc + count;
+  }, 0);
   taskStore('totalTestTrials', totalRealTrials);
 
+  const catTrialIteration = (index: number, isLastBlock = false) => {
+    const innerTimeline: any[] = [{ ...setupStimulusFromBlock(index), stimulus: '' }];
+
+    if (index === 0) {
+      innerTimeline.push(runCatTrials(1, 'stimulus'));
+    }
+    if (index === 1) {
+      innerTimeline.push(runCatTrials(2, 'stimulus'));
+    }
+    if (index === 2) {
+      if (taskStore().version === 2) {
+        innerTimeline.push(fiveBlockIntro);
+      }
+      innerTimeline.push(runCatTrials(2, 'afc'));
+      innerTimeline.push(runCatTrials(3, 'afc'));
+      innerTimeline.push(runCatTrials(4, 'afc'));
+    }
+
+    return {
+      timeline: innerTimeline,
+      conditional_function: () => !isCatBlockTimeExpired(isLastBlock),
+    };
+  };
+
   blockCountList.forEach((count, index) => {
+    timeline.push(startCatBlock);
+
     const currentBlockInstructionPractice = getPracticeInstructions(index);
 
     currentBlockInstructionPractice.forEach((trial) => {
@@ -163,24 +200,10 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
       return;
     }
 
-    const numOfTrials = index === 0 ? count : count / 2; // change this based on simulation results?
+    const numOfTrials = count;
+    const isLastBlock = index === blockCountList.length - 1;
     for (let i = 0; i < numOfTrials; i++) {
-      timeline.push({ ...setupStimulusFromBlock(index), stimulus: '' });
-
-      if (index === 0) {
-        timeline.push(runCatTrials(1, 'stimulus'));
-      }
-      if (index === 1) {
-        timeline.push(runCatTrials(2, 'stimulus'));
-      }
-      if (index === 2) {
-        if (taskStore().version === 2) {
-          timeline.push(fiveBlockIntro);
-        }
-        timeline.push(runCatTrials(2, 'afc'));
-        timeline.push(runCatTrials(3, 'afc'));
-        timeline.push(runCatTrials(4, 'afc'));
-      }
+      timeline.push(catTrialIteration(index, isLastBlock));
     }
   });
 
