@@ -3,7 +3,17 @@ import { defineConfig } from 'cypress';
 const LANGUAGE_OPTIONS_URL =
   'https://storage.googleapis.com/levante-assets-dev/translations/dashboard-consolidated-flat/languageoptions.json';
 
-async function buildLanguageLocaleTaskMatrix() {
+const LIVE_TASK_PARAMS_URL = 'https://storage.googleapis.com/levante-assets-dev/live-task-params.json?v=2';
+
+function taskVariantKey(task, params) {
+  return JSON.stringify({ task, params });
+}
+
+function taskMatchPresent(task, matrix) {
+  return Object.values(matrix).some((entry) => entry.task === task);
+}
+
+async function buildTaskVariantGroups() {
   const res = await fetch(LANGUAGE_OPTIONS_URL);
   if (!res.ok) {
     throw new Error(`Failed to fetch language options: ${res.status} ${res.statusText}`);
@@ -12,9 +22,6 @@ async function buildLanguageLocaleTaskMatrix() {
   const seen = new Set();
 
   const matrix = Object.entries(languageOptions).flatMap(([locale, cfg]) => {
-    if (locale === 'en-US') {
-      return [];
-    }
     if (!cfg || !Array.isArray(cfg.taskOptions)) {
       return [];
     }
@@ -34,7 +41,44 @@ async function buildLanguageLocaleTaskMatrix() {
     throw new Error('languageoptions.json produced an empty test matrix (no locales with taskOptions).');
   }
 
-  return matrix;
+  const paramsRes = await fetch(LIVE_TASK_PARAMS_URL);
+  if (!paramsRes.ok) {
+    throw new Error(`Failed to fetch live task params for testing: ${paramsRes.status} ${paramsRes.statusText}`);
+  }
+  const liveParams = await paramsRes.json();
+
+  const firstLocalesPerVariant = {};
+  const remainingLocalesPerVariant = {};
+  matrix.forEach(({ locale, task }) => {
+    const variants = liveParams[task]?.variants ?? [];
+    variants.forEach((variant) => {
+      const params = variant[locale];
+      if (params === undefined) {
+        return;
+      }
+      const key = taskVariantKey(task, params);
+      // the first locale in each variant is separated out so that it can be tested end-to-end
+      if (
+        !firstLocalesPerVariant[key] &&
+        // trog and vocab variants only differ by corpus, so no need to run through all of them
+        !((task === 'trog' || task === 'vocab') && taskMatchPresent(task, firstLocalesPerVariant))
+      ) {
+        firstLocalesPerVariant[key] = { task, params, locale: locale };
+      } else {
+        if (!remainingLocalesPerVariant[key]) {
+          remainingLocalesPerVariant[key] = { task, params, locales: [] };
+        }
+
+        remainingLocalesPerVariant[key].locales.push(locale);
+      }
+    });
+  });
+
+  if (Object.keys(remainingLocalesPerVariant).length === 0) {
+    throw new Error('live task params produced an empty test matrix (no task variants).');
+  }
+
+  return { firstLocalesPerVariant, remainingLocalesPerVariant };
 }
 
 export default defineConfig({
@@ -49,13 +93,14 @@ export default defineConfig({
         },
       });
 
-      const matrix = await buildLanguageLocaleTaskMatrix();
+      const { firstLocalesPerVariant, remainingLocalesPerVariant } = await buildTaskVariantGroups();
 
       return {
         ...config,
         env: {
           ...config.env,
-          languageLocaleTaskMatrix: matrix,
+          firstLocalesPerVariant,
+          remainingLocalesPerVariant,
         },
       };
     },
