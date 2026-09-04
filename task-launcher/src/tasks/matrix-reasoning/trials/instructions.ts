@@ -382,9 +382,14 @@ export const downexInstructions3 = {
   prompt_above_buttons: true,
   button_choices: () => {
     const choices = downexData3.choices;
+    const correctChoice = downexData3.choices[1];
 
     return choices.map((choice) => {
       const imageUrl = mediaAssets.images[camelize(choice)];
+
+      if (window.Cypress && choice === correctChoice) {
+        return `<img src=${imageUrl} alt=${choice} class='correct' />`;
+      }
 
       return `<img src=${imageUrl} alt=${choice} />`;
     });
@@ -558,9 +563,14 @@ export const downexInstructions4 = {
   prompt_above_buttons: true,
   button_choices: () => {
     const choices = downexData4.choices;
+    const correctChoice = downexData4.choices[2];
 
     return choices.map((choice) => {
       const imageUrl = mediaAssets.images[camelize(choice)];
+
+      if (window.Cypress && choice === correctChoice) {
+        return `<img src=${imageUrl} alt=${choice} class='correct' />`;
+      }
 
       return `<img src=${imageUrl} alt=${choice} />`;
     });

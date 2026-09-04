@@ -118,7 +118,10 @@ export default function buildVocabTimeline(config: Record<string, any>, mediaAss
 
     // random set of unvalidated items at end
     const unnormedBlock = {
-      timeline: unnormedTrials.map((trial) => afcStimulusTemplate(trialConfig, trial)),
+      timeline: unnormedTrials.flatMap((trial) => [
+        { ...fixationOnly, stimulus: '' },
+        afcStimulusTemplate(trialConfig, trial),
+      ]),
     };
     timeline.push(unnormedBlock);
   } else {

@@ -147,6 +147,7 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
         ]),
       downexInstructions2,
       downexInstructions3,
+      { ...fixationOnly, stimulus: '' },
       practiceTransition(undefined, true),
       ...downexCorpus
         .slice(secondPhaseIndex)
@@ -185,6 +186,7 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
 
     // push in practice transition
     if (corpora.ipLight.filter((trial) => trial.assessmentStage === 'practice_response').length > 0) {
+      timeline.push({ ...fixationOnly, stimulus: '' });
       timeline.push(practiceTransition());
     }
 
@@ -206,7 +208,10 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
     const unnormedTrials: StimulusType[] = selectNItems(corpora.unnormed, 5);
 
     const unnormedBlock = {
-      timeline: unnormedTrials.map((trial) => afcStimulusTemplate(trialConfig, trial)),
+      timeline: unnormedTrials.flatMap((trial) => [
+        { ...fixationOnly, stimulus: '' },
+        afcStimulusTemplate(trialConfig, trial),
+      ]),
     };
 
     timeline.push(unnormedBlock);
@@ -218,15 +223,20 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
         const animate = i < secondPhaseIndex;
 
         if (i === secondPhaseIndex) {
+          timeline.push({ ...fixationOnly, stimulus: '' });
           timeline.push(downexInstructions2);
+          timeline.push({ ...fixationOnly, stimulus: '' });
           timeline.push(downexInstructions3);
+          timeline.push({ ...fixationOnly, stimulus: '' });
           timeline.push(practiceTransition(undefined, true));
         }
 
         timeline.push(downexBlock(animate));
       }
 
+      timeline.push({ ...fixationOnly, stimulus: '' });
       timeline.push(downexInstructions4);
+      timeline.push({ ...fixationOnly, stimulus: '' });
       timeline.push(downexInstructions5);
     }
 
@@ -253,6 +263,7 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
 
   initializeCat();
 
+  timeline.push({ ...fixationOnly, stimulus: '' });
   timeline.push(taskFinished());
   timeline.push(exitFullscreen);
   return { jsPsych, timeline };

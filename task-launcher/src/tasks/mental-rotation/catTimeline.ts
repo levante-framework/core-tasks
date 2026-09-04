@@ -141,6 +141,7 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
             timeline: [{ ...fixationOnly, stimulus: '' }, afcStimulusTemplate(trialConfig, trial)],
           };
         }),
+        { ...fixationOnly, stimulus: '' },
         ...(trials.length > 0 ? [practiceTransition(() => practiceTransitionPrompt)] : []),
       ],
       conditional_function: () => {
@@ -164,7 +165,10 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
     timeline: [
       repeatInstructionsMessage,
       ...instructions,
-      ...firstBlockPractice.map((trial) => afcStimulusTemplate(trialConfig, trial)),
+      ...firstBlockPractice.flatMap((trial) => [
+        { ...fixationOnly, stimulus: '' },
+        afcStimulusTemplate(trialConfig, trial),
+      ]),
     ],
     conditional_function: () => {
       const run = checkFallbackCriteria() && !fellBack;
