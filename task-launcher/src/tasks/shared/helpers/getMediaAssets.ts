@@ -56,7 +56,7 @@ export async function getMediaAssets(
     }
   }
 
-  (data.items || []).forEach((item) => {
+  preferWebpImages(data.items || []).forEach((item) => {
     if (isLanguageAndDeviceValid(item.name, language, taskName) && isWhitelisted(item.name, whitelist)) {
       const contentType = item.contentType;
       const id = item.name;
@@ -65,6 +65,10 @@ export async function getMediaAssets(
       const camelCaseFileName = camelize(fileName);
 
       if (contentType.startsWith('image/')) {
+        const isWebp = contentType === 'image/webp' || id.toLowerCase().endsWith('.webp');
+        const existing = categorizedObjects.images[camelCaseFileName];
+        const existingIsWebp = typeof existing === 'string' && existing.toLowerCase().endsWith('.webp');
+        if (existingIsWebp && !isWebp) return;
         categorizedObjects.images[camelCaseFileName] = path;
       } else if (contentType.startsWith('audio/')) {
         categorizedObjects.audio[camelCaseFileName] = path;
@@ -78,6 +82,15 @@ export async function getMediaAssets(
     return getMediaAssets(bucketName, whitelist, language, taskName, data.nextPageToken, categorizedObjects);
   }
   return categorizedObjects;
+}
+
+export function preferWebpImages<T extends { name: string }>(items: T[]): T[] {
+  const webpStems = new Set<string>();
+  for (const it of items) {
+    if (/\.webp$/i.test(it.name)) webpStems.add(it.name.replace(/\.webp$/i, ''));
+  }
+  if (!webpStems.size) return items;
+  return items.filter((it) => !/\.(png|jpe?g)$/i.test(it.name) || !webpStems.has(it.name.replace(/\.(png|jpe?g)$/i, '')));
 }
 
 function isLanguageAndDeviceValid(filePath: string, languageCode: string, taskName: string) {

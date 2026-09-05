@@ -35,4 +35,31 @@ describe('getMediaAssets offline manifests', () => {
     expect(assets.images.skip).toBeUndefined();
     expect(fetchMock).toHaveBeenCalledOnce();
   });
+
+  it('prefers webp over png for the same stem', async () => {
+    setAssetBaseUrl('/assets');
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({
+          items: [
+            { name: 'visual/hearts-and-flowers/heart.png', contentType: 'image/png' },
+            { name: 'visual/hearts-and-flowers/heart.webp', contentType: 'image/webp' },
+            { name: 'visual/hearts-and-flowers/icon.svg', contentType: 'image/svg+xml' },
+          ],
+        }),
+      })),
+    );
+
+    const assets = await getMediaAssets(
+      'levante-assets-prod/visual/hearts-and-flowers',
+      {},
+      'en-US',
+      'hearts-and-flowers',
+    );
+
+    expect(assets.images.heart).toBe('/assets/visual/hearts-and-flowers/heart.webp');
+    expect(assets.images.icon).toBe('/assets/visual/hearts-and-flowers/icon.svg');
+  });
 });
