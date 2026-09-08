@@ -28,6 +28,11 @@ type PopulationBatchResult = {
   items?: PopulationBatchItem[];
 };
 
+export type GeoPolygon = {
+  type: 'Polygon';
+  coordinates: number[][][];
+};
+
 function parsePopulation(payload: any): number | null {
   const candidates = [
     payload?.data?.total_population,
@@ -44,7 +49,7 @@ function parsePopulation(payload: any): number | null {
   return null;
 }
 
-function buildCellPolygon(cellId: string) {
+function buildCellPolygon(cellId: string): GeoPolygon | null {
   const boundary = cellToBoundary(cellId);
   if (!Array.isArray(boundary) || !boundary.length) return null;
   const ring = boundary.map((pair) => [Number(pair[1]), Number(pair[0])]);
@@ -69,8 +74,7 @@ function parseWorldPopTaskId(payload: any): string | null {
   return null;
 }
 
-async function queryWorldPopDirect(cellId: string, timeoutMs: number): Promise<number | null> {
-  const polygon = buildCellPolygon(cellId);
+export async function queryWorldPopForPolygon(polygon: GeoPolygon, timeoutMs: number): Promise<number | null> {
   if (!polygon) return null;
   const statsUrl = new URL('https://api.worldpop.org/v1/services/stats');
   statsUrl.searchParams.set('dataset', 'wpgppop');
@@ -109,6 +113,12 @@ async function queryWorldPopDirect(cellId: string, timeoutMs: number): Promise<n
   } finally {
     window.clearTimeout(timeout);
   }
+}
+
+async function queryWorldPopDirect(cellId: string, timeoutMs: number): Promise<number | null> {
+  const polygon = buildCellPolygon(cellId);
+  if (!polygon) return null;
+  return queryWorldPopForPolygon(polygon, timeoutMs);
 }
 
 async function fetchPopulation(

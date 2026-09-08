@@ -167,6 +167,7 @@ export async function buildLocationCommitComputationWithPopulation(
       source: populationResult.source,
       privacyMet,
     });
+
     return { cellId, resolution, populationResult, privacyMet };
   };
 
