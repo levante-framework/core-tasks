@@ -1,12 +1,9 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { taskStore } from '../../../taskStore';
-import { setLocationSelectionDraft } from '../helpers/state';
+import { getLocationSelectionDraft, setLocationSelectionDraft } from '../helpers/state';
 import { disableOkButton, enableOkButton } from '../../shared/helpers';
 import { jsPsych } from '../../taskSetup';
 import { buildLocationSavePayload } from '../helpers/locationCommitPreview';
-import { fetchAirQuality } from '../helpers/airQuality';
-import { pickCoarseWeatherQueryPoint, fetchCoarseWeather } from '../helpers/openMeteo';
-import { lookupPopulationDensity } from '../helpers/populationDensity';
 
 interface NominatimResult {
   place_id?: number;
@@ -347,26 +344,11 @@ export const searchCityPostal = {
       },
       on_finish: async () => {
         taskStore('userWentBack', false);
-        const courseLocation = await buildLocationSavePayload();
-          let weather, popDensity, airQuality;
-          
-          const lat = taskStore().locationSelectionDraft?.lat;
-          const lon = taskStore().locationSelectionDraft?.lon;
+        const location = await buildLocationSavePayload();
 
-
-          if (lat && lon) {
-            const queryPoint = pickCoarseWeatherQueryPoint({ gps: { lat, lon } });
-            weather = queryPoint ? await fetchCoarseWeather({ ...queryPoint }) : null;
-            popDensity = lookupPopulationDensity(lat,lon);
-            airQuality = fetchAirQuality(lat,lon);
-          }
-          
-          jsPsych.data.addDataToLastTrial({
-            location: courseLocation, 
-            weather: weather,
-            popDensity: popDensity, 
-            airQuality: airQuality,
-          });
+        jsPsych.data.addDataToLastTrial({
+          location: location
+        });
       },
     },
   ],

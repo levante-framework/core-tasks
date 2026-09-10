@@ -1,12 +1,10 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { taskStore } from '../../../taskStore';
+import { getLocationSelectionDraft } from '../helpers/state';
 import { setupMap } from '../helpers/map';
 import { disableOkButton } from '../../shared/helpers';
 import { buildLocationSavePayload } from '../helpers/locationCommitPreview';
 import { jsPsych } from '../../taskSetup';
-import { fetchAirQuality } from '../helpers/airQuality';
-import { fetchCoarseWeather, pickCoarseWeatherQueryPoint} from '../helpers/openMeteo';
-import { lookupPopulationDensity } from '../helpers/populationDensity';
 
 export const mapPicker = {
   timeline: [
@@ -48,26 +46,11 @@ export const mapPicker = {
       },
       on_finish: async () => {
         taskStore('userWentBack', false);
-        const courseLocation = await buildLocationSavePayload();
-          let weather, popDensity, airQuality;
-          
-          const lat = taskStore().locationSelectionDraft?.lat;
-          const lon = taskStore().locationSelectionDraft?.lon;
+        const location = await buildLocationSavePayload();
 
-
-          if (lat && lon) {
-            const queryPoint = pickCoarseWeatherQueryPoint({ gps: { lat, lon } });
-            weather = queryPoint ? await fetchCoarseWeather({ ...queryPoint }) : null;
-            popDensity = lookupPopulationDensity(lat,lon);
-            airQuality = fetchAirQuality(lat,lon);
-          }
-          
-          jsPsych.data.addDataToLastTrial({
-            location: courseLocation, 
-            weather: weather,
-            popDensity: popDensity, 
-            airQuality: airQuality,
-          });
+        jsPsych.data.addDataToLastTrial({
+          location: location
+        });
       }
     },
   ],

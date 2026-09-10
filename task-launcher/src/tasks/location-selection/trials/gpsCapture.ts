@@ -3,9 +3,6 @@ import { taskStore } from '../../../taskStore';
 import { setLocationSelectionDraft } from '../helpers/state';
 import { jsPsych } from '../../taskSetup';
 import { buildLocationSavePayload } from '../helpers/locationCommitPreview';
-import { fetchAirQuality } from '../helpers/airQuality';
-import { fetchCoarseWeather, pickCoarseWeatherQueryPoint, weatherCodeDescription } from '../helpers/openMeteo';
-import { lookupPopulationDensity } from '../helpers/populationDensity';
 
 async function reverseGeocode(lat: number, lon: number): Promise<string | null> {
   try {
@@ -129,25 +126,10 @@ export const gpsCapture = {
       },
       on_finish: async () => {
         if (!taskStore().userWentBack) {
-          const courseLocation = await buildLocationSavePayload();
-          let weather, popDensity, airQuality;
-          
-          const lat = taskStore().locationSelectionDraft?.lat;
-          const lon = taskStore().locationSelectionDraft?.lon;
+          const location = await buildLocationSavePayload();
 
-
-          if (lat && lon) {
-            const queryPoint = pickCoarseWeatherQueryPoint({ gps: { lat, lon } });
-            weather = queryPoint ? await fetchCoarseWeather({ ...queryPoint }) : null;
-            popDensity = lookupPopulationDensity(lat,lon);
-            airQuality = fetchAirQuality(lat,lon);
-          }
-          
           jsPsych.data.addDataToLastTrial({
-            location: courseLocation, 
-            weather: weather,
-            popDensity: popDensity, 
-            airQuality: airQuality,
+            location: location
           });
         }
       },
