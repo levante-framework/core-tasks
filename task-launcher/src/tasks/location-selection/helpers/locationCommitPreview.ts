@@ -3,29 +3,8 @@ import { type LocationSelectionDraft } from './state';
 import { H3_MAX_RESOLUTION, H3_MIN_RESOLUTION, type LocationSelectionTaskConfig } from './config';
 import { lookupPopulationBatch, lookupPopulationForCell } from './populationApi';
 import { taskStore } from '../../../taskStore';
-
-type LocationCommitPreview = {
-  schemaVersion: 'location_v1';
-  latLon: {
-    lat: number;
-    lon: number;
-    source: 'h3_center';
-  };
-  h3: {
-    scheme: 'h3_v1';
-    baseline: {
-      cellId: string;
-      resolution: number;
-    };
-    effective: {
-      cellId: string;
-      resolution: number;
-    };
-    populationThreshold: number;
-  };
-  populationSource: 'kontur' | 'worldpop' | 'unknown';
-  computedAt: string;
-};
+import { persistLocation } from './persistLocation';
+import { LocationV1 } from '@levante-framework/firekit';
 
 export type PopulationCandidateDebug = {
   resolution: number;
@@ -36,7 +15,7 @@ export type PopulationCandidateDebug = {
 };
 
 export type LocationCommitComputation = {
-  preview: LocationCommitPreview;
+  preview: LocationV1;
   candidates: PopulationCandidateDebug[];
 };
 
@@ -56,7 +35,7 @@ function roundTo(value: number, decimals = 6): number {
 export function buildLocationCommitPreview(
   draft: LocationSelectionDraft | null,
   config: Partial<LocationSelectionTaskConfig> | null | undefined,
-): LocationCommitPreview | null {
+): LocationV1 | null {
   if (!draft) return null;
 
   const baselineResolution = Number(config?.baselineResolution);
@@ -79,18 +58,10 @@ export function buildLocationCommitPreview(
       lon: roundTo(centerLon, 6),
       source: 'h3_center',
     },
-    h3: {
-      scheme: 'h3_v1',
-      baseline: {
-        cellId: baselineCell,
-        resolution: safeBaselineResolution,
-      },
-      effective: {
-        cellId: effectiveCell,
-        resolution: safeBaselineResolution,
-      },
-      populationThreshold: safePopulationThreshold,
-    },
+    scheme: 'h3_v1',
+    h3CellId: effectiveCell,
+    h3Cellresolution: safeBaselineResolution,
+    populationThreshold: safePopulationThreshold,
     populationSource: preferredSource,
     computedAt: draft.selectedAt || new Date().toISOString(),
   };
@@ -99,7 +70,7 @@ export function buildLocationCommitPreview(
 export async function buildLocationCommitPreviewWithPopulation(
   draft: LocationSelectionDraft | null,
   config: Partial<LocationSelectionTaskConfig> | null | undefined,
-): Promise<LocationCommitPreview | null> {
+): Promise<LocationV1 | null> {
   const computed = await buildLocationCommitComputationWithPopulation(draft, config);
   return computed?.preview || null;
 }
@@ -200,25 +171,17 @@ export async function buildLocationCommitComputationWithPopulation(
 
   const [centerLat, centerLon] = cellToLatLng(effectiveCell);
 
-  const preview: LocationCommitPreview = {
+  const preview: LocationV1= {
     schemaVersion: 'location_v1',
     latLon: {
       lat: roundTo(centerLat, 6),
       lon: roundTo(centerLon, 6),
       source: 'h3_center',
     },
-    h3: {
-      scheme: 'h3_v1',
-      baseline: {
-        cellId: baselineCell,
-        resolution: safeBaselineResolution,
-      },
-      effective: {
-        cellId: effectiveCell,
-        resolution: effectiveResolution,
-      },
-      populationThreshold: safePopulationThreshold,
-    },
+    scheme: 'h3_v1',
+    h3CellId: effectiveCell,
+    h3Cellresolution: effectiveResolution,
+    populationThreshold: safePopulationThreshold,
     populationSource:
       effectivePopulationSource !== 'unknown'
         ? effectivePopulationSource
@@ -236,6 +199,11 @@ export async function buildLocationSavePayload() {
   const draft = taskStore().locationSelectionDraft;
   const config = taskStore().locationSelectionConfig;
   const location = await buildLocationCommitPreviewWithPopulation(draft, config);
+
+  if (location) {
+    persistLocation(location);
+  }
   taskStore("locationDataSaved", true);
+
   return location;
 }

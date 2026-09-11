@@ -8,13 +8,14 @@ import { mapPicker } from './trials/mapPicker';
 import { searchCityPostal } from './trials/searchCityPostal';
 import { getLocationSelectionTaskConfig } from './helpers/config';
 import { taskStore } from '../../taskStore';
-import { clearLocationSelectionDraft } from './helpers/state';
 import { waitScreen } from './trials/awaitPopulationInfo';
+import { initLocationPersistence } from './helpers/persistLocation';
 
 export default function buildLocationSelectionTimeline(config: Record<string, any>, _mediaAssets: MediaAssetsType) {
   initTrialSaving(config);
   const initialTimeline = initTimeline(config, enterFullscreen);
   const locationConfig = getLocationSelectionTaskConfig(config);
+  initLocationPersistence(config);
 
   taskStore('locationSelectionConfig', locationConfig);
 
