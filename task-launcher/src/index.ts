@@ -13,8 +13,8 @@ import type { RoarAppkit } from '@levante-framework/firekit';
 import { setTaskStore, taskStore } from './taskStore';
 import { getBucketName } from './tasks/shared/helpers/getBucketName';
 import taskConfig from './tasks/taskConfig';
-import { InitPageSetup, Logger } from './utils';
 import { jsPsych } from './tasks/taskSetup';
+import { InitPageSetup, Logger } from './utils';
 
 export let mediaAssets: MediaAssetsType;
 let languageAudioAssets: MediaAssetsType;
