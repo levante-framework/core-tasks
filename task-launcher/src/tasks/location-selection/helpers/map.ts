@@ -2,8 +2,24 @@ import { setLocationSelectionDraft } from '../helpers/state';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { enableOkButton } from '../../shared/helpers';
+import { taskStore } from '../../../taskStore';
 
 const WORLD_BOUNDS: [[number, number], [number, number]] = [[-90, -180], [90, 180]];
+
+// public tile proxy URLs to firebase cloud functions so api key is not exposed to browser
+const CARTO_BASEMAP_TILE_URL_DEV =
+  'https://us-central1-hs-levante-admin-dev.cloudfunctions.net/cartoBasemapTile/light_all/{z}/{x}/{y}{r}.png';
+const CARTO_BASEMAP_TILE_URL_PROD =
+  'https://us-central1-hs-levante-admin-prod.cloudfunctions.net/cartoBasemapTile/light_all/{z}/{x}/{y}{r}.png';
+
+function getCartoBasemapTileUrlTemplate(): string {
+  const projectId =
+    taskStore().firekit?.firebaseProject?.firebaseApp?.options?.projectId;
+  if (!taskStore().firekit || projectId === 'hs-levante-admin-dev') {
+    return CARTO_BASEMAP_TILE_URL_DEV;
+  }
+  return CARTO_BASEMAP_TILE_URL_PROD;
+}
 
 export async function setupMap() {
   const mapEl = document.getElementById('location-map-picker');
@@ -16,8 +32,7 @@ export async function setupMap() {
     maxBoundsViscosity: 1.0,
     minZoom: 3,
   });
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-    subdomains: 'abcd',
+  L.tileLayer(getCartoBasemapTileUrlTemplate(), {
     attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
     maxZoom: 18,
   }).addTo(map);
