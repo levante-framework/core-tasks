@@ -118,8 +118,6 @@ export class TaskLauncher {
     logger.capture('Task Launched', {
       taskName: this.gameParams.taskName,
       language: this.gameParams.language,
-      gameParams: this.gameParams,
-      userParams: this.userParams,
     });
     jsPsych.run(timeline);
     const translations = taskStore().translations;
