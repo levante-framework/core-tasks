@@ -5,6 +5,7 @@ import { lookupPopulationBatch, lookupPopulationForCell } from './populationApi'
 import { taskStore } from '../../../taskStore';
 import { persistLocation } from './persistLocation';
 import { LocationV1 } from '@levante-framework/firekit';
+import { Logger } from '../../../utils';
 
 export type PopulationCandidateDebug = {
   resolution: number;
@@ -30,41 +31,6 @@ function getPreferredPopulationSource(
 function roundTo(value: number, decimals = 6): number {
   const factor = 10 ** decimals;
   return Math.round(value * factor) / factor;
-}
-
-export function buildLocationCommitPreview(
-  draft: LocationSelectionDraft | null,
-  config: Partial<LocationSelectionTaskConfig> | null | undefined,
-): LocationV1 | null {
-  if (!draft) return null;
-
-  const baselineResolution = Number(config?.baselineResolution);
-  const populationThreshold = Number(config?.populationThreshold);
-  const safeBaselineResolution = Number.isInteger(baselineResolution) ? baselineResolution : 5;
-  const safePopulationThreshold = Number.isFinite(populationThreshold) && populationThreshold > 0
-    ? Math.round(populationThreshold)
-    : 20000;
-  const preferredSource = getPreferredPopulationSource(config);
-
-  const baselineCell = latLngToCell(draft.lat, draft.lon, safeBaselineResolution);
-
-  const effectiveCell = baselineCell;
-  const [centerLat, centerLon] = cellToLatLng(effectiveCell);
-
-  return {
-    schemaVersion: 'location_v1',
-    latLon: {
-      lat: roundTo(centerLat, 6),
-      lon: roundTo(centerLon, 6),
-      source: 'h3_center',
-    },
-    scheme: 'h3_v1',
-    h3CellId: effectiveCell,
-    h3Cellresolution: safeBaselineResolution,
-    populationThreshold: safePopulationThreshold,
-    populationSource: preferredSource,
-    computedAt: draft.selectedAt || new Date().toISOString(),
-  };
 }
 
 export async function buildLocationCommitPreviewWithPopulation(
@@ -109,6 +75,7 @@ export async function buildLocationCommitComputationWithPopulation(
   let effectiveResolution = safeBaselineResolution;
   let effectivePopulationSource: 'kontur' | 'worldpop' | 'unknown' = 'unknown';
   let observedPopulationSource: 'kontur' | 'worldpop' | 'unknown' = 'unknown';
+  let privacyCompliantCellFound = false;
   const candidates: PopulationCandidateDebug[] = [];
   const useBatch = Boolean(config?.populationBatchEnabled);
 
@@ -165,23 +132,42 @@ export async function buildLocationCommitComputationWithPopulation(
       effectiveCell = evaluation.cellId;
       effectiveResolution = evaluation.resolution;
       effectivePopulationSource = evaluation.populationResult.source;
+      privacyCompliantCellFound = true;
       break;
     }
   }
 
+  if (!privacyCompliantCellFound) {
+    const logger = Logger.getInstance(); 
+
+    logger.capture(
+      'No privacy-compliant cell found.',
+      {
+        taskName: taskStore().task
+      }
+    );
+  }
+
   const [centerLat, centerLon] = cellToLatLng(effectiveCell);
 
-  const preview: LocationV1= {
+  const preview: LocationV1 = {
     schemaVersion: 'location_v1',
-    latLon: {
+    privacyMet: privacyCompliantCellFound,
+    latLon: privacyCompliantCellFound ? {
       lat: roundTo(centerLat, 6),
       lon: roundTo(centerLon, 6),
       source: 'h3_center',
+    } : undefined,
+    h3: {
+      scheme: 'h3_v1',
+      baseline: baselineEvaluation?.privacyMet
+        ? { h3Index: baselineCell, resolution: safeBaselineResolution }
+        : undefined,
+      effective: privacyCompliantCellFound
+        ? { h3Index: effectiveCell, resolution: effectiveResolution }
+        : undefined,
+      populationThreshold: safePopulationThreshold,
     },
-    scheme: 'h3_v1',
-    h3CellId: effectiveCell,
-    h3Cellresolution: effectiveResolution,
-    populationThreshold: safePopulationThreshold,
     populationSource:
       effectivePopulationSource !== 'unknown'
         ? effectivePopulationSource
