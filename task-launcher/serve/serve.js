@@ -7,23 +7,15 @@ import { stringToBoolean } from '../src/tasks/shared/helpers/stringToBoolean';
 import 'regenerator-runtime/runtime';
 
 /**
- * Initialize Sentry first!
- * DSN is the core-tasks project (4507376476618752); client key rotated from the revoked legacy key.
+ * Standalone serve only. Dashboard-hosted tasks use the injected host logger.
+ * Frankfurt core-tasks project (4512100188880978); no session replay.
  */
 Sentry.init({
-  dsn: 'https://7213d8479765bec6c3bb73cc25fae1dd@o4507250485035008.ingest.us.sentry.io/4507376476618752',
-  integrations: [Sentry.browserTracingIntegration(), Sentry.replayIntegration()],
-  // Performance Monitoring
-  tracesSampleRate: 1.0, //  Capture 100% of the transactions
-  // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
-
-  // TODO spyne Remove this. For testing sentry. Use this to enable localhost monitoring
-  // tracePropagationTargets: ["localhost", /^https:\/\/yourserver\.io\/api/],
+  dsn: 'https://70bc1316323110803cd88e5ce8c7beb0@o4512100183048192.ingest.de.sentry.io/4512100188880978',
+  integrations: [Sentry.browserTracingIntegration()],
+  tracesSampleRate: 1.0,
+  sendDefaultPii: false,
   tracePropagationTargets: ['https://hs-levante-admin-dev.web.app'],
-
-  // Session Replay
-  replaysSessionSampleRate: 0.1, // This sets the sample rate at 10%. You may want to change it to 100% while in development and then sample at a lower rate in production.
-  replaysOnErrorSampleRate: 1.0, // If you're not already sampling the entire session, change the sample rate to 100% when sampling sessions where errors occur.
 });
 
 // TODO: Add game params for all tasks
