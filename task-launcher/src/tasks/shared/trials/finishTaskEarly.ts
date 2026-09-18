@@ -12,13 +12,11 @@ export function finishTaskEarly(effectiveStoppingRule: 'timeOut' | 'errorOut') {
       if (event.type === 'click') {
         const buttonId = (event.target as HTMLElement)?.id;
         if (buttonId === 'exit-button') {
-          document.body.innerHTML = '';
           taskStore('taskComplete', true);
           window.removeEventListener('click', removeDOMElements);
           window.removeEventListener('keydown', removeDOMElements);
         }
       } else if (event.type === 'keydown') {
-        document.body.innerHTML = '';
         taskStore('taskComplete', true);
         window.removeEventListener('keydown', removeDOMElements);
         window.removeEventListener('click', removeDOMElements);

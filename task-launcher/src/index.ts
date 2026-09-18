@@ -13,6 +13,7 @@ import type { RoarAppkit } from '@levante-framework/firekit';
 import { setTaskStore, taskStore } from './taskStore';
 import { getBucketName } from './tasks/shared/helpers/getBucketName';
 import taskConfig from './tasks/taskConfig';
+import { jsPsych } from './tasks/taskSetup';
 import { InitPageSetup, Logger } from './utils';
 
 export let mediaAssets: MediaAssetsType;
@@ -26,6 +27,8 @@ export class TaskLauncher {
   userParams: UserParamsType;
   firekit: RoarAppkit | null;
   logger?: LevanteLogger;
+  aborted = false;
+  started = false;
   constructor(
     firekit: RoarAppkit | null,
     gameParams: GameParamsType,
@@ -119,6 +122,10 @@ export class TaskLauncher {
       taskName: this.gameParams.taskName,
       language: this.gameParams.language,
     });
+
+    if (this.aborted) return;
+
+    this.started = true;
     jsPsych.run(timeline);
     const translations = taskStore().translations;
     const pageSetup = new InitPageSetup(4000, translations);
@@ -127,11 +134,18 @@ export class TaskLauncher {
     pageSetup.init();
     const checkTaskFinished =
       this.gameParams.demoMode || this.firekit === null
-        ? () => taskStore().taskComplete
-        : () => this.firekit?.run?.completed === true && taskStore().taskComplete;
+        ? () => this.aborted || taskStore().taskComplete
+        : () => this.aborted || (this.firekit?.run?.completed === true && taskStore().taskComplete);
 
     await isTaskFinished(checkTaskFinished);
 
     this.firekit?.updateStopReason(taskStore().effectiveStoppingRule);
+  }
+
+  abort() {
+    this.aborted = true;
+    taskStore('taskComplete', true);
+    if (!this.started) return;
+    jsPsych.endExperiment();
   }
 }
