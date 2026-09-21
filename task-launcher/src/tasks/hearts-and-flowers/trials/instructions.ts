@@ -16,8 +16,9 @@ import { enableOkButton } from '../../shared/helpers/enableButtons';
 import { jsPsych } from '../../taskSetup';
 import { getInputInstructPrompt } from '../helpers/utils';
 
-let continueTrialConfig;
-let cleanupInstructionInputListeners = [];
+type ContinueTrialConfig = { type: 'button' | 'bottomText'; text: string };
+let continueTrialConfig: ContinueTrialConfig;
+let cleanupInstructionInputListeners: Array<(() => void) | undefined> = [];
 
 function detachInstructionInputListeners() {
   cleanupInstructionInputListeners.forEach((listenerCleanup) => {
@@ -80,10 +81,10 @@ export function getRightButtonDemo() {
 }
 
 function buildInstructionTrial(
-  mascotImage,
-  getPromptKey,
-  showResponseButton = false,
-  buttonSide = null,
+  mascotImage: string,
+  getPromptKey: (showButton?: boolean) => string,
+  showResponseButton: boolean = false,
+  buttonSide: 'left' | 'right' | null = null,
   endOfTask = false,
 ) {
   if (!mascotImage) {
@@ -131,8 +132,8 @@ function buildInstructionTrial(
     button_html: () =>
       continueTrialConfig.type === 'button' ? [`<button class="primary" disabled>%choice%</button>`] : undefined,
     on_load: () => {
-      let responseButtons;
-      let onButtonPress;
+      let responseButtons: NodeListOf<HTMLElement> | undefined;
+      let onButtonPress: ((button: HTMLElement, index: number, event: KeyboardEvent | TouchEvent) => void) | undefined;
       let hasResponded = false;
 
       if (endOfTask) {
@@ -148,8 +149,8 @@ function buildInstructionTrial(
       if (showResponseButton) {
         if (continueTrialConfig.type === 'button') {
           disableOkButton();
-          const okButton = document.querySelector('.primary');
-          okButton.style.display = 'none';
+          const okButton = document.querySelector<HTMLElement>('.primary');
+          if (okButton) okButton.style.display = 'none';
         }
 
         const buttonContainer = document.createElement('div');
@@ -168,7 +169,7 @@ function buildInstructionTrial(
           </div>`;
 
         const stimContainer = document.querySelector('.lev-stimulus-container');
-        stimContainer.appendChild(buttonContainer);
+        stimContainer?.appendChild(buttonContainer);
 
         responseButtons = buttonContainer.querySelectorAll('.secondary--green');
 
@@ -177,11 +178,8 @@ function buildInstructionTrial(
             return;
           }
 
-          if (
-            (i === 0 && event.key === 'ArrowLeft') ||
-            (i === 1 && event.key === 'ArrowRight') ||
-            event.type === 'touchend'
-          ) {
+          const key = event instanceof KeyboardEvent ? event.key : null;
+          if ((i === 0 && key === 'ArrowLeft') || (i === 1 && key === 'ArrowRight') || event.type === 'touchend') {
             hasResponded = true;
             detachInstructionInputListeners();
 
@@ -235,13 +233,14 @@ function buildInstructionTrial(
           }
 
           const displayedButtonIndex = buttonSide === 'left' ? 0 : 1;
-          const displayedButton = responseButtons[displayedButtonIndex];
+          const displayedButton = responseButtons?.[displayedButtonIndex];
+          if (!displayedButton) return;
           displayedButton.style.animation = 'pulse 1s infinite';
           addKeyHelpers(displayedButton, displayedButtonIndex);
 
           if (taskStore().inputCapability?.touch) {
             const buttonPressListener = (event) => {
-              onButtonPress(displayedButton, displayedButtonIndex, event);
+              onButtonPress?.(displayedButton, displayedButtonIndex, event);
             };
 
             displayedButton.addEventListener('touchend', buttonPressListener);
@@ -250,7 +249,7 @@ function buildInstructionTrial(
             });
           } else {
             const onWindowKeydown = (event) => {
-              onButtonPress(displayedButton, displayedButtonIndex, event);
+              onButtonPress?.(displayedButton, displayedButtonIndex, event);
             };
 
             window.addEventListener('keydown', onWindowKeydown);
