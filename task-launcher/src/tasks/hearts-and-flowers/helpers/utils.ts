@@ -1,5 +1,4 @@
 import { taskStore } from '../../../taskStore';
-import { Logger } from '../../../utils/logger';
 import { getParticipantUtilityButtonsHtml } from '../../shared/helpers';
 
 export const StimulusType = {
@@ -49,43 +48,15 @@ export const CorpusTrialType = {
 } as const;
 export type CorpusTrialType = (typeof CorpusTrialType)[keyof typeof CorpusTrialType];
 
-// TODO: better Exception/Error handling
-/**
- * Helper function to get expected valid answer (side) for a given stimulus type and side.
- * @param {*} stimulusType the type of stimulus: StimulusType.Heart or StimulusType.Flower
- * @param {*} stimulusSideType the side of the stimulus: StimulusSideType.Left or StimulusSideType.Right
- * @returns 0 for left, 1 for right
- */
-export function getCorrectInputSide(stimulusType: StimulusType, stimulusSideType: StimulusSideType) {
-  if (stimulusType === StimulusType.Heart) {
-    if (stimulusSideType === StimulusSideType.Left) {
-      return 0;
-    } else if (stimulusSideType === StimulusSideType.Right) {
-      return 1;
-    } else {
-      Logger.getInstance().error(new Error('Invalid stimulus side'));
-    }
-  } else if (stimulusType === StimulusType.Flower) {
-    if (stimulusSideType === StimulusSideType.Left) {
-      return 1;
-    } else if (stimulusSideType === StimulusSideType.Right) {
-      return 0;
-    } else {
-      throw new Error('Invalid stimulus side');
-    }
-  } else {
-    throw new Error('Invalid stimulus');
-  }
+export function getCorrectInputSide(stimulusType: StimulusType, stimulusSideType: StimulusSideType): 0 | 1 {
+  const stimulusPosition = stimulusSideType === StimulusSideType.Left ? 0 : 1;
+  return (
+    stimulusType === StimulusType.Heart // same side for heart; opposite for flower
+      ? stimulusPosition
+      : 1 - stimulusPosition
+  ) as 0 | 1;
 }
 
-/**
- * retrieve html for the visual stimulus container
- * @param {*} imageSrc stimulus image source
- * @param {*} isLeft whether the stimulus should be shown on the left side
- * @param {*} promptText if you need to show a prompt text,
- * @param {*} replayButtonHtmlId if you need to show an audio replay button
- * @returns
- */
 export const getStimulusLayout = (
   imageSrc: string,
   isLeft: boolean,
