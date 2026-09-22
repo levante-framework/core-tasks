@@ -208,7 +208,7 @@ function buildInstructionTrial(
             if (continueTrialConfig.type === 'bottomText') {
               const audioKey = continueTrialConfig.text;
 
-              const onSpacebarPress = (event) => {
+              const onSpacebarPress = (event: KeyboardEvent) => {
                 if (event.key !== ' ' || hasResponded) {
                   return;
                 }
@@ -239,7 +239,7 @@ function buildInstructionTrial(
           addKeyHelpers(displayedButton, displayedButtonIndex);
 
           if (taskStore().inputCapability?.touch) {
-            const buttonPressListener = (event) => {
+            const buttonPressListener = (event: TouchEvent) => {
               onButtonPress?.(displayedButton, displayedButtonIndex, event);
             };
 
@@ -248,7 +248,7 @@ function buildInstructionTrial(
               displayedButton.removeEventListener('touchend', buttonPressListener);
             });
           } else {
-            const onWindowKeydown = (event) => {
+            const onWindowKeydown = (event: KeyboardEvent) => {
               onButtonPress?.(displayedButton, displayedButtonIndex, event);
             };
 
@@ -263,7 +263,7 @@ function buildInstructionTrial(
       const promptAudioKey = showResponseButton ? getPromptKey(true) : getPromptKey(false);
       PageAudioHandler.playAudio(promptAudioKey || 'inputAudioCue', audioConfig);
 
-      const pageStateHandler = new PageStateHandler(promptAudioKey);
+      const pageStateHandler = new PageStateHandler(promptAudioKey, true);
       setupReplayAudio(pageStateHandler);
       addExperimenterButtons();
       setupFullscreenButton();
