@@ -23,11 +23,11 @@ import { getCorrectInputSide, getStimulusLayout, InputKey, StimulusSideType, Sti
  * @param {*} stimulusSideType
  */
 export function buildInstructionPracticeTrial(
-  stimulusType,
-  promptText,
-  promptAudioAsset,
-  stimulusSideType,
-  audioAssetKey,
+  stimulusType: StimulusType,
+  promptText: string,
+  promptAudioAsset: string,
+  stimulusSideType: StimulusSideType,
+  audioAssetKey: string,
 ) {
   if (!promptAudioAsset) {
     // throw new Error(`Missing prompt audio for instruction practice trial`);
@@ -56,13 +56,13 @@ export function buildInstructionPracticeTrial(
       taskStore('stimulusSide', stimulusSideType);
     },
     on_load: () => {
-      document.getElementById('jspsych-html-multi-response-stimulus').classList.add('haf-parent-container');
-      document.getElementById('jspsych-html-multi-response-btngroup').classList.add('haf-parent-container');
-      document.getElementById('jspsych-html-multi-response-btngroup').classList.add('lev-response-row');
-      document.getElementById('jspsych-html-multi-response-btngroup').classList.add('linear-4');
+      document.getElementById('jspsych-html-multi-response-stimulus')?.classList.add('haf-parent-container');
+      document.getElementById('jspsych-html-multi-response-btngroup')?.classList.add('haf-parent-container');
+      document.getElementById('jspsych-html-multi-response-btngroup')?.classList.add('lev-response-row');
+      document.getElementById('jspsych-html-multi-response-btngroup')?.classList.add('linear-4');
 
       //TODO: use alt tag to query the proper button directly
-      const buttons = document.querySelectorAll('.secondary--green');
+      const buttons = document.querySelectorAll<HTMLElement>('.secondary--green');
       if (buttons.length !== 2) {
         Logger.getInstance().error(
           new Error(`There are ${buttons.length} instead of 2 wrappers in the practice trials`),
@@ -78,7 +78,7 @@ export function buildInstructionPracticeTrial(
       };
 
       PageAudioHandler.playAudio(audioAssetKey, audioConfig, true, '.haf-stimulus-holder');
-      const pageStateHandler = new PageStateHandler(audioAssetKey);
+      const pageStateHandler = new PageStateHandler(audioAssetKey, true);
       setupReplayAudio(pageStateHandler);
       addExperimenterButtons();
       setupFullscreenButton();
@@ -102,10 +102,10 @@ export function buildInstructionPracticeTrial(
       <button class='secondary--green'></button>
     </div>`,
     ],
-    on_finish: (data) => {
+    on_finish: (data: Record<string, unknown>) => {
       PageAudioHandler.stopAndDisconnectNode();
 
-      let response;
+      let response: number | InputKey | undefined;
       if (data.button_response === 0 || data.button_response === 1) {
         response = data.button_response;
       } else if (data.keyboard_response === InputKey.ArrowLeft || data.keyboard_response === InputKey.ArrowRight) {
@@ -140,9 +140,9 @@ export function buildInstructionPracticeTrial(
  * whether the answer was correct or incorrect.
  */
 export function buildStimulusInvariantPracticeFeedback(
-  feedbackPromptIncorrectKey,
-  feedbackPromptCorrectKey,
-  onFinishTimelineCallback = undefined,
+  feedbackPromptIncorrectKey: string,
+  feedbackPromptCorrectKey: string,
+  onFinishTimelineCallback?: (data: Record<string, unknown>) => void,
 ) {
   return buildPracticeFeedback(
     feedbackPromptIncorrectKey,
@@ -158,11 +158,11 @@ export function buildStimulusInvariantPracticeFeedback(
  * the stimulus type and whether the answer was correct or incorrect.
  */
 export function buildMixedPracticeFeedback(
-  heartFeedbackPromptIncorrectKey,
-  heartfeedbackPromptCorrectKey,
-  flowerFeedbackPromptIncorrectKey,
-  flowerfeedbackPromptCorrectKey,
-  onFinishTimelineCallback = undefined,
+  heartFeedbackPromptIncorrectKey: string,
+  heartfeedbackPromptCorrectKey: string,
+  flowerFeedbackPromptIncorrectKey: string,
+  flowerfeedbackPromptCorrectKey: string,
+  onFinishTimelineCallback?: (data: Record<string, unknown>) => void,
 ) {
   return buildPracticeFeedback(
     heartFeedbackPromptIncorrectKey,
@@ -177,11 +177,11 @@ export function buildMixedPracticeFeedback(
  * Builds a feedback trial for instructions practice trials and practice trials.
  */
 function buildPracticeFeedback(
-  heartFeedbackPromptIncorrectKey,
-  heartfeedbackPromptCorrectKey,
-  flowerFeedbackPromptIncorrectKey,
-  flowerfeedbackPromptCorrectKey,
-  onFinishTimelineCallback,
+  heartFeedbackPromptIncorrectKey: string,
+  heartfeedbackPromptCorrectKey: string,
+  flowerFeedbackPromptIncorrectKey: string,
+  flowerfeedbackPromptCorrectKey: string,
+  onFinishTimelineCallback?: (data: Record<string, unknown>) => void,
 ) {
   const validAnswerButtonHtmlIdentifier = 'valid-answer-btn';
   const feedbackTexts = {
@@ -223,7 +223,8 @@ function buildPracticeFeedback(
       //TODO: now that the 'correct' feedback layout differs significantly from the 'incorrect' feedback layout, we should consider
       // moving them to separate trials and using conditional trials
       if (!incorrect) {
-        const correctPrompt = StimulusType.Heart ? feedbackTexts.CorrectHeart : feedbackTexts.CorrectFlower;
+        const correctPrompt =
+          stimulusType === StimulusType.Heart ? feedbackTexts.CorrectHeart : feedbackTexts.CorrectFlower;
         return `
           <div class='haf-cr-container'>
             <img src='${mediaAssets.images.smilingFace}' />
@@ -236,18 +237,18 @@ function buildPracticeFeedback(
       const imageSrc = mediaAssets.images[stimulusType];
       const promptText =
         stimulusType === StimulusType.Heart ? feedbackTexts.IncorrectHeart : feedbackTexts.IncorrectFlower;
-      return getStimulusLayout(imageSrc, taskStore().stimulusSide === StimulusSideType.Left, promptText, false);
+      return getStimulusLayout(imageSrc, taskStore().stimulusSide === StimulusSideType.Left, promptText, undefined);
     },
     prompt_above_buttons: true,
     on_load: () => {
       addExperimenterButtons();
       setupFullscreenButton();
 
-      document.getElementById('jspsych-html-multi-response-stimulus').classList.add('haf-parent-container');
-      document.getElementById('jspsych-html-multi-response-btngroup').classList.add('haf-parent-container');
-      document.getElementById('jspsych-html-multi-response-btngroup').classList.add('lev-response-row');
-      document.getElementById('jspsych-html-multi-response-btngroup').classList.add('linear-4');
-      const buttons = document.querySelectorAll('.secondary--green');
+      document.getElementById('jspsych-html-multi-response-stimulus')?.classList.add('haf-parent-container');
+      document.getElementById('jspsych-html-multi-response-btngroup')?.classList.add('haf-parent-container');
+      document.getElementById('jspsych-html-multi-response-btngroup')?.classList.add('lev-response-row');
+      document.getElementById('jspsych-html-multi-response-btngroup')?.classList.add('linear-4');
+      const buttons = document.querySelectorAll<HTMLButtonElement>('.secondary--green');
       buttons.forEach((button, i) => {
         button.disabled = true;
         if (button.id === validAnswerButtonHtmlIdentifier) {
@@ -267,7 +268,7 @@ function buildPracticeFeedback(
         },
       };
       PageAudioHandler.playAudio(audioAssetKey, audioConfig, true, '.haf-stimulus-holder');
-      const pageStateHandler = new PageStateHandler(audioAssetKey);
+      const pageStateHandler = new PageStateHandler(audioAssetKey, true);
       setupReplayAudio(pageStateHandler);
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
@@ -304,7 +305,7 @@ function buildPracticeFeedback(
         return `<button class='secondary--green' style='display: none;'></button>`;
       }
     },
-    on_finish: (data) => {
+    on_finish: (data: Record<string, unknown>) => {
       PageAudioHandler.stopAndDisconnectNode();
 
       if (onFinishTimelineCallback) {
