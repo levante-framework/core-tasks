@@ -151,11 +151,12 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
   // create list of numbers of trials per block
   const blockCountList = setTrialBlock(true).blockCountList;
 
-  const effectiveBlockCount = !heavy && taskStore().version === 2 ? 2 : 3;
+  const skipSecondBlock = !heavy && taskStore().version === 2;
+  const effectiveBlockCount = skipSecondBlock ? blockCountList.length - 1 : blockCountList.length;
   setCatBlockTimeLimit(taskStore().maxTime, effectiveBlockCount);
 
   const totalRealTrials = blockCountList.reduce((acc, count, index) => {
-    if (!heavy && index === 1 && taskStore().version === 2) {
+    if (skipSecondBlock && index === 1) {
       return acc;
     }
     return acc + count;
@@ -187,7 +188,11 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
   };
 
   blockCountList.forEach((count, index) => {
-    timeline.push(startCatBlock);
+    // if block index 1 is skipped, that block's instructions (which always run)
+    // should count against the following block's time budget
+    if (!(skipSecondBlock && index === 2)) {
+      timeline.push(startCatBlock);
+    }
 
     const currentBlockInstructionPractice = getPracticeInstructions(index);
 
@@ -196,7 +201,7 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
     });
 
     // only younger kids get something-same blocks
-    if (!heavy && index === 1 && taskStore().version === 2) {
+    if (skipSecondBlock && index === 1) {
       return;
     }
 

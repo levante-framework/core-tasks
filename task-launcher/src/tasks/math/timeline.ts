@@ -208,8 +208,6 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
   };
 
   if (runCat) {
-    setCatBlockTimeLimit(taskStore().maxTime, heavyInstructions ? 4 : 3);
-
     const catTrialIteration = (blockIndex: number, useDownex = false, isLastBlock = false, trial?: StimulusType) => ({
       timeline: [
         useDownex ? { ...setupDownex, stimulus: '' } : { ...setupStimulusFromBlock(blockIndex), stimulus: '' },
@@ -235,6 +233,13 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
 
     // don't repeat instructions
     const usedIds: string[] = [];
+
+    const totalBlockCount = heavyInstructions
+      ? olderKidBlocks.length + 1
+      : // extra block at beginning of task for younger kids
+        olderKidBlocks.length;
+
+    setCatBlockTimeLimit(taskStore().maxTime, totalBlockCount);
 
     // first add downex trials to the timeline
     if (heavyInstructions) {
