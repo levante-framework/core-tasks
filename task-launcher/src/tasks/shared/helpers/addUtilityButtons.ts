@@ -3,7 +3,7 @@ import { taskStore } from '../../../taskStore';
 import { InitPageSetup } from '../../../utils/initPageSetup';
 import { jsPsych } from '../../taskSetup';
 import { activateFullscreen } from './activateFullscreen';
-import { finalizeCurrentPauseSegment, getActiveTaskElapsedMs } from './appTimer';
+import { beginTaskTimerPauseSegment, resumeTaskTimerAfterPauseSegment } from './appTimer';
 import { PageAudioHandler } from './audioHandler';
 import { exitButtonSvg, menuButtonSvg, pauseButtonSvg } from './components';
 
@@ -93,11 +93,7 @@ export function setupFullscreenButton() {
 }
 
 function onPause() {
-  if (taskStore().taskTimer != null) {
-    clearTimeout(taskStore().taskTimer);
-    taskStore('taskTimer', null);
-  }
-  taskStore('taskTimerPauseBeganAt', Date.now());
+  beginTaskTimerPauseSegment();
 
   pageSetup?.onPause();
   const playButton = document.getElementById('play-button');
@@ -112,14 +108,7 @@ function onPause() {
 function onResume() {
   taskStore('isPaused', false);
 
-  finalizeCurrentPauseSegment();
-  const maxTimeInMilliseconds = Math.max(Number(taskStore().maxTime), 1) * 60000;
-  const remainingMs = Math.max(0, maxTimeInMilliseconds - getActiveTaskElapsedMs());
-  const timerId = setTimeout(() => {
-    taskStore('maxTimeReached', true);
-    clearTimeout(timerId);
-  }, remainingMs);
-  taskStore('taskTimer', timerId);
+  resumeTaskTimerAfterPauseSegment();
   // re-enable all buttons
   const buttons = Array.from(document.querySelectorAll('button'));
   buttons.forEach((button: HTMLButtonElement) => {

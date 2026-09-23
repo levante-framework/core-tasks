@@ -1,7 +1,7 @@
 import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { taskStore } from '../../../taskStore';
 import { cat } from '../../taskSetup';
-import { getStimulus } from '../helpers';
+import { getStimulus, startCatBlockTimer } from '../helpers';
 
 // choosing the next stimulus from the corpus occurs during the fixation trial
 // prior to the actual display of the stimulus, where user response is collected
@@ -65,3 +65,14 @@ export const setupStimulusFromCurrentCatBlock = {
 };
 export const fixationOnly = fixationTrial();
 export const setupNextBlock = { ...fixationTrial(), on_finish: assignNextBlock, stimulus: '' };
+
+export const startCatBlock = {
+  type: jsPsychHTMLMultiResponse,
+  stimulus: '',
+  choices: 'NO_KEYS',
+  trial_duration: 0,
+  data: {
+    task: 'startCatBlock',
+  },
+  on_load: () => startCatBlockTimer(),
+};
