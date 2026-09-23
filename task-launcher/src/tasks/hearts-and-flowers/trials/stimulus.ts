@@ -11,7 +11,7 @@ import { setupHafMultiResponseTouchRouting } from '../helpers/touchResponseRouti
 import {
   getCorrectInputSide,
   getStimulusLayout,
-  InputKey,
+  InputKeyType,
   ResponseSideType,
   StimulusSideType,
   StimulusType,
@@ -66,7 +66,7 @@ export function stimulus(
       setupFullscreenButton();
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
-    keyboard_choices: isTouchScreen ? InputKey.NoKeys : [InputKey.ArrowLeft, InputKey.ArrowRight],
+    keyboard_choices: isTouchScreen ? InputKeyType.NoKeys : [InputKeyType.ArrowLeft, InputKeyType.ArrowRight],
     button_html: [
       `
     <div class='response-container--small'>
@@ -89,8 +89,11 @@ export function stimulus(
       let response: number | null;
       if (data.button_response === 0 || data.button_response === 1) {
         response = data.button_response;
-      } else if (data.keyboard_response === InputKey.ArrowLeft || data.keyboard_response === InputKey.ArrowRight) {
-        response = data.keyboard_response === InputKey.ArrowLeft ? 0 : 1;
+      } else if (
+        data.keyboard_response === InputKeyType.ArrowLeft ||
+        data.keyboard_response === InputKeyType.ArrowRight
+      ) {
+        response = data.keyboard_response === InputKeyType.ArrowLeft ? 0 : 1;
       } else if (hfV2 && data.timedOut) {
         response = null;
       } else {
@@ -185,13 +188,22 @@ export function buildHeartsOrFlowersTimelineVariables(trialCount: number, stimul
     Logger.getInstance().error(new Error(errorMessage));
     throw new Error(errorMessage);
   }
-  const jsPsychTimelineVariablesArray: Array<{ stimulus: StimulusType; position: number }> = [];
+  const jsPsychTimelineVariablesArray: Array<{
+    stimulus: StimulusType;
+    position: number;
+  }> = [];
   const setsOfFourCount = Math.floor(trialCount / 4);
   for (let i = 0; i < setsOfFourCount; i++) {
     jsPsychTimelineVariablesArray.push({ stimulus: stimulusType, position: 0 });
     jsPsychTimelineVariablesArray.push({ stimulus: stimulusType, position: 1 });
-    jsPsychTimelineVariablesArray.push({ stimulus: stimulusType, position: randomPosition() });
-    jsPsychTimelineVariablesArray.push({ stimulus: stimulusType, position: randomPosition() });
+    jsPsychTimelineVariablesArray.push({
+      stimulus: stimulusType,
+      position: randomPosition(),
+    });
+    jsPsychTimelineVariablesArray.push({
+      stimulus: stimulusType,
+      position: randomPosition(),
+    });
   }
   const remainderCount = trialCount % 4;
   if (remainderCount >= 1) {
@@ -201,7 +213,10 @@ export function buildHeartsOrFlowersTimelineVariables(trialCount: number, stimul
     jsPsychTimelineVariablesArray.push({ stimulus: stimulusType, position: 1 });
   }
   if (remainderCount >= 3) {
-    jsPsychTimelineVariablesArray.push({ stimulus: stimulusType, position: randomPosition() });
+    jsPsychTimelineVariablesArray.push({
+      stimulus: stimulusType,
+      position: randomPosition(),
+    });
   }
   return jsPsychTimelineVariablesArray;
 }
@@ -213,7 +228,10 @@ export function buildMixedTimelineVariables(trialCount: number) {
   const flowerRight = { stimulus: StimulusType.Flower, position: 1 };
   const optionsToRandomize = [heartLeft, heartRight, flowerLeft, flowerRight];
 
-  const jsPsychTimelineVariablesArray: Array<{ stimulus: StimulusType; position: number }> = [];
+  const jsPsychTimelineVariablesArray: Array<{
+    stimulus: StimulusType;
+    position: number;
+  }> = [];
   let sequence: Array<{ stimulus: StimulusType; position: number }> = [];
   for (let i = 0; i < trialCount; i++) {
     if (sequence.length === 0) {

@@ -7,7 +7,7 @@ import {
   setupFullscreenButton,
 } from '../../shared/helpers';
 import { setupHafMultiResponseTouchRouting } from '../helpers/touchResponseRouting';
-import { InputKey, StimulusSideType } from '../helpers/utils';
+import { InputKeyType, StimulusSideType } from '../helpers/utils';
 
 export function fixation(interStimulusInterval: number) {
   const hfV2 = taskStore().version === 2;
@@ -40,7 +40,7 @@ export function fixation(interStimulusInterval: number) {
       setupFullscreenButton();
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
-    keyboard_choices: InputKey.NoKeys,
+    keyboard_choices: InputKeyType.NoKeys,
     button_html: [
       `
     <div class='response-container--small'>

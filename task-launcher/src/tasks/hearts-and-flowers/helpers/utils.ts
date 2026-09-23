@@ -18,7 +18,7 @@ export const ResponseSideType = StimulusSideType;
 export type ResponseSideType = (typeof ResponseSideType)[keyof typeof ResponseSideType];
 
 // Enum for the jsPsych keyboard inputs
-export const InputKey = {
+export const InputKeyType = {
   ArrowLeft: 'arrowleft',
   ArrowRight: 'arrowright',
   NoKeys: 'NO_KEYS', // aka no key input accepted
@@ -26,7 +26,7 @@ export const InputKey = {
   SpaceBar: ' ',
   Enter: 'enter',
 } as const;
-export type InputKey = (typeof InputKey)[keyof typeof InputKey];
+export type InputKeyType = (typeof InputKeyType)[keyof typeof InputKeyType];
 
 export const AssessmentStageType = {
   HeartsPractice: 'practice_response',
