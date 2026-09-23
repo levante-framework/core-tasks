@@ -12,7 +12,6 @@ export { camelize } from './camelize';
 export { camelToKebab } from './camelToKebab';
 export * from './catBlockTimer';
 export { checkFallbackCriteria } from './checkFallbackCriteria';
-export { isLanguageAllowedDownex } from './checkLocale';
 export { getChildSurveyResponses } from './childSurveyResponses';
 export { combineMediaAssets } from './combineMediaAssets';
 export * from './components';

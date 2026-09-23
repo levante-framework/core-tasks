@@ -1,5 +1,4 @@
 import store from 'store2';
-import { isLanguageAllowedDownex } from '../tasks/shared/helpers/checkLocale';
 import type { InputCapability } from '../utils/detectInput';
 
 /**
@@ -31,6 +30,8 @@ import type { InputCapability } from '../utils/detectInput';
  * @property {boolean} debug - Shows theta estimate on the screen for cat debugging when enabled.
  * @property {boolean} showAudioKeys - When true, displays audio keys on screen for debugging.
  * @property {boolean} experimenterButtons - When true, experimenter utility controls (pause, exit) are available.
+ * @property {boolean} experimenterExit - Whether the task was exited via the experimenter exit button, default is false.
+ * @property {boolean} bubblePractice - When true, run the bubble popping practice trial in the intro task.
  * @property {number} currentCatBlock - The current block number to select trials from in a CAT.
  * @property {number[]} blockThresholds - Array of theta thresholds.
  * @property {number} totalTrialCount - Total number of trials, including practice and instructions.
@@ -105,6 +106,7 @@ export type TaskStoreDataType = {
   experimenterButtons: boolean;
   showAudioKeys: boolean;
   debug: boolean;
+  bubblePractice: boolean;
   version: number;
   currentCatBlock?: number;
   blockThresholds?: number[];
@@ -145,7 +147,7 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     maxIncorrect: config.maxIncorrect,
     keyHelpers: config.keyHelpers,
     runCat: config.cat,
-    heavyInstructions: effectiveHeavyInstructions && isLanguageAllowedDownex(config.language),
+    heavyInstructions: effectiveHeavyInstructions,
     semThreshold: config.semThreshold,
     startingTheta: config.startingTheta,
     storeItemId: config.storeItemId,
@@ -167,8 +169,10 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     maxTime: config.maxTime,
     demoMode: config.demoMode,
     experimenterButtons: config.experimenterButtons && effectiveHeavyInstructions,
+    experimenterExit: false,
     showAudioKeys: config.showAudioKeys,
     debug: config.debug,
+    bubblePractice: config.bubblePractice,
     version: config.version || 1,
     currentStoryGroup: 0,
     taskTimer: null,

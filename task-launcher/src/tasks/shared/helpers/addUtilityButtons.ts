@@ -1,7 +1,8 @@
+import fscreen from 'fscreen';
 import { taskStore } from '../../../taskStore';
 import { InitPageSetup } from '../../../utils/initPageSetup';
-import { Logger } from '../../../utils/logger';
 import { jsPsych } from '../../taskSetup';
+import { activateFullscreen } from './activateFullscreen';
 import { beginTaskTimerPauseSegment, resumeTaskTimerAfterPauseSegment } from './appTimer';
 import { PageAudioHandler } from './audioHandler';
 import { exitButtonSvg, menuButtonSvg, pauseButtonSvg } from './components';
@@ -130,8 +131,7 @@ function onExit() {
   if (!popupContainer) return;
   const popupButtons = popupContainer.querySelectorAll('button');
   popupButtons[0].addEventListener('click', () => {
-    document.body.innerHTML = '';
-    taskStore('taskComplete', true);
+    taskStore('experimenterExit', true);
     jsPsych.endExperiment();
   });
   popupButtons[1].addEventListener('click', () => {
@@ -151,13 +151,11 @@ function onExit() {
 }
 
 function onFullscreen() {
-  if (document.fullscreenElement) {
+  if (fscreen.fullscreenElement) {
     return;
   }
 
-  document.documentElement.requestFullscreen().catch((err) => {
-    Logger.getInstance().error(err, { source: 'requestFullscreen' });
-  });
+  activateFullscreen('utilityButton');
 }
 
 function onMenuPress(menuButton: HTMLButtonElement) {

@@ -1,4 +1,5 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
+import { driver } from 'driver.js';
 import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
 import {
@@ -10,49 +11,78 @@ import {
   setupFullscreenButton,
   setupReplayAudio,
 } from '../../shared/helpers';
-import { isTouchScreen, jsPsych } from '../../taskSetup';
+import { jsPsych } from '../../taskSetup';
+
+const buttonIntroDriverObj = driver({
+  disableActiveInteraction: false,
+  advanceOnClick: true,
+  popoverClass: 'driver-popover--hidden',
+  allowClose: false,
+  steps: [{ element: '#replay-btn-revisited' }, { element: '.primary' }],
+});
 
 const instructionData = [
   {
     prompt: 'generalIntro1',
-    image: 'avatarOwl', // GIF?
-    buttonText: 'continueButtonText',
-  },
-  // prompt: 'generalIntro2', // "First, you get to choose a buddy to play along with you. ..."
-  // prompt: 'generalIntro3', // "Now that you have your buddy, we want to explain how the games work."
-  // prompt: 'pickBuddy',
-  // images: ['avatar_owl', 'avatar_cat', 'avatar_penguin'],
-  {
-    prompt: 'generalIntro4',
-    image: 'avatarOwl', // ToDo: replay button with arrow?
-    buttonText: 'continueButtonText',
-  },
-  {
-    prompt: 'generalIntro5',
     image: 'avatarOwl',
     buttonText: 'continueButtonText',
+    autoAdvanceWhenBubblePractice: true,
+    includeReplayButton: false,
+  },
+  {
+    prompt: 'instructBubble1Mouse',
+    resolvePrompt: () => (taskStore().inputCapability?.touch ? 'instructBubble1Touch' : 'instructBubble1Mouse'),
+    image: 'avatarOwl',
+    buttonText: 'continueButtonText',
+    autoAdvanceWhenBubblePractice: true,
+    includeReplayButton: false,
+  },
+  {
+    prompt: 'feedbackGoodJob',
+    image: 'avatarOwl',
+    buttonText: 'continueButtonText',
+    autoAdvanceWhenBubblePractice: true,
+    includeReplayButton: false,
+  },
+  {
+    prompt: 'instructBubble3',
+    image: 'avatarOwl',
+    buttonText: 'continueButtonText',
+    autoAdvanceWhenBubblePractice: true,
+    includeReplayButton: false,
+  },
+  {
+    prompt: 'instructBubble4',
+    image: 'avatarOwl',
+    buttonText: 'continueButtonText',
+    autoAdvanceWhenBubblePractice: true,
+    includeReplayButton: false,
+  },
+  {
+    prompt: 'generalIntro4',
+    image: 'avatarOwl',
+    buttonText: 'continueButtonText',
+    driveButtonIntroWhenBubblePractice: true,
+    includeReplayButton: true,
   },
 ];
 
-// additional keyboard instructions for those not using a tablet
-if (!isTouchScreen) {
-  instructionData.push({
-    prompt: 'generalKeyboardInstructions',
-    image: 'avatarOwl',
-    buttonText: 'continueButtonText',
-  });
-}
+const instructions = instructionData.map((data) => {
+  const getPrompt = () => data.resolvePrompt?.() ?? data.prompt;
+  const shouldAutoAdvanceOnAudioEnd = () => data.autoAdvanceWhenBubblePractice && taskStore().bubblePractice === true;
+  const shouldDriveButtonIntro = () => data.driveButtonIntroWhenBubblePractice && taskStore().bubblePractice === true;
 
-export const instructions = instructionData.map((data) => {
   return {
     type: jsPsychHtmlMultiResponse,
     stimulus: () => {
       const t = taskStore().translations;
+      const prompt = getPrompt();
+
       return `
         <div class="lev-stimulus-container">
-            ${getParticipantUtilityButtonsHtml('replay-btn-revisited')}
+            ${getParticipantUtilityButtonsHtml('replay-btn-revisited', data.includeReplayButton)}
             <div class="lev-row-container instruction-small">
-                <p>${t[data.prompt]}</p>
+                <p>${t[prompt]}</p>
             </div>
             <div class="lev-stim-content-x-3">
                 <img
@@ -64,8 +94,12 @@ export const instructions = instructionData.map((data) => {
       `;
     },
     prompt_above_buttons: true,
-    button_choices: ['Next'],
+    button_choices: () => (shouldAutoAdvanceOnAudioEnd() ? [] : ['Next']),
     button_html: () => {
+      if (shouldAutoAdvanceOnAudioEnd()) {
+        return;
+      }
+
       const t = taskStore().translations;
       return [
         `<button class="primary" disabled>
@@ -75,22 +109,40 @@ export const instructions = instructionData.map((data) => {
     },
     keyboard_choices: 'NO_KEYS',
     on_load: () => {
+      const prompt = getPrompt();
       const audioConfig: AudioConfigType = {
         restrictRepetition: {
           enabled: true,
           maxRepetitions: 2,
         },
-        onEnded: enableOkButton,
+        onEnded: () => {
+          if (shouldAutoAdvanceOnAudioEnd()) {
+            setTimeout(() => {
+              jsPsych.finishTrial();
+            }, 2000);
+          } else {
+            enableOkButton();
+            if (shouldDriveButtonIntro()) {
+              buttonIntroDriverObj.drive();
+            }
+          }
+        },
       };
 
       PageAudioHandler.playAudio(data.prompt, audioConfig);
+      if (data.includeReplayButton) {
+        const pageStateHandler = new PageStateHandler(prompt, true);
+        setupReplayAudio(pageStateHandler);
+      }
 
-      const pageStateHandler = new PageStateHandler(data.prompt, true);
-      setupReplayAudio(pageStateHandler);
       addExperimenterButtons();
       setupFullscreenButton();
     },
     on_finish: () => {
+      if (shouldDriveButtonIntro()) {
+        buttonIntroDriverObj.destroy();
+      }
+
       PageAudioHandler.stopAndDisconnectNode();
 
       jsPsych.data.addDataToLastTrial({
@@ -101,3 +153,22 @@ export const instructions = instructionData.map((data) => {
     },
   };
 });
+
+export const firstInstruction = instructions.shift();
+export const bubblePoppingInstruction = {
+  timeline: [instructions.shift()],
+  conditional_function: () => taskStore().bubblePractice === true,
+};
+export const bubblePracticeFeedbackInstruction = {
+  timeline: [instructions.shift()],
+  conditional_function: () => taskStore().bubblePractice === true,
+};
+export const buttonIntroInstruction = {
+  timeline: [instructions.shift()],
+  conditional_function: () => taskStore().bubblePractice === true,
+};
+export const bubblePracticeOutro = {
+  timeline: [instructions.shift()],
+  conditional_function: () => taskStore().bubblePractice === true,
+};
+export const remainingInstructions = instructions;

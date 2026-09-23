@@ -3,3 +3,8 @@
 @forward 'base';
 @forward 'layout';
 @forward 'pages';
+@import 'driver.js/dist/driver.css';
+
+.driver-popover--hidden {
+  display: none !important;
+}

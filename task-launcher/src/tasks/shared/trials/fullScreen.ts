@@ -1,9 +1,9 @@
 import jsPsychFullScreen from '@jspsych/plugin-fullscreen';
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
-import fscreen from 'fscreen';
 import { taskStore } from '../../../taskStore';
 import { setupInputDetection } from '../../../utils/detectInput';
 import { jsPsych } from '../../taskSetup';
+import { activateFullscreen } from '../helpers/activateFullscreen';
 
 export const enterFullscreen = {
   type: jsPsychHtmlMultiResponse,
@@ -48,21 +48,29 @@ export const enterFullscreen = {
       continueButton?.removeEventListener('touchend', handleContinue);
 
       try {
-        // Resume the audio context so the next trial's audio can autoplay.
-        // NB: browsers (notably Safari) only honor resume() when it is
-        // *called* synchronously during a user gesture. Awaiting it doesn't
-        // change that (the call still happens synchronously here) but it holds
-        // off advancing until the context is actually running, which narrows
-        // the race with the next trial's audio autoplay. The key constraint is
-        // that nothing may be awaited *before* this line: after the first
+        // Both resume() and requestFullscreen() require transient activation:
+        // some browsers (especially Safari) only honor them when they are
+        // *called* synchronously during a user gesture. Nothing may be awaited
+        // before them within the user gesture handler, since after the first
         // await the handler continues on a later microtask, by which point the
-        // gesture's activation has expired and resume() is ignored.
-        await jsPsych.pluginAPI.audioContext()?.resume();
+        // gesture's activation has expired and the call is rejected, e.g.,
+        // Safari 18.x throws "Cannot request fullscreen without transient
+        // activation" if resume() is awaited before requestFullscreen().
+        //
+        // Ordering matters between these two synchronous calls: we start
+        // resume() *first* and only request fullscreen after. Requesting
+        // fullscreen first begins a transition that leaves resume()'s promise
+        // pending until it completes, which causes the await below to hang and
+        // prevent the trial from ever advancing.
+        const resumePromise = jsPsych.pluginAPI.audioContext()?.resume();
+
+        // Request fullscreen synchronously during the user gesture.
+        activateFullscreen('enterFullscreen');
+
+        // Await resume() so the audio context is actually running before we
+        // advance; otherwise the next trial's audio fails to autoplay.
+        await resumePromise;
       } finally {
-        // Request fullscreen.
-        if (fscreen.fullscreenEnabled) {
-          fscreen.requestFullscreen(document.documentElement);
-        }
         // Manually advance the trial.
         jsPsych.finishTrial({ success: true, rt: Math.round(performance.now() - startTime) });
       }

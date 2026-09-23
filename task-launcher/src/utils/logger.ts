@@ -31,8 +31,6 @@ export class Logger {
 
   public capture(name: string, context?: Record<string, any>) {
     const finalProperties = {
-      gameParams: this.gameParams,
-      userParams: this.userParams,
       context,
     };
     if (this.levanteLogger) {
