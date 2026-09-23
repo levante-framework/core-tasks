@@ -27,13 +27,13 @@ export async function setupMap() {
   const bounds = L.latLngBounds(WORLD_BOUNDS[0], WORLD_BOUNDS[1]);
   const map = L.map(mapEl, {
     zoomControl: true,
-    attributionControl: false,
     maxBounds: bounds.pad(0.12),
     maxBoundsViscosity: 1.0,
     minZoom: 3,
   });
   L.tileLayer(getCartoBasemapTileUrlTemplate(), {
-    attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+    attribution:
+      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/attribution/">CARTO</a>',
     maxZoom: 18,
   }).addTo(map);
   map.fitBounds(bounds.pad(0.02), { padding: [20, 20] });
