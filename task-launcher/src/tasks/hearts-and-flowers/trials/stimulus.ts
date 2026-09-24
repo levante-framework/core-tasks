@@ -21,7 +21,13 @@ import {
   of the stimulus image and modify the DOM nodes that jsPsych creates in on_load?
   */
 
-export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrialFinishTimelineCallback = undefined) {
+export function stimulus(
+  isPractice: boolean,
+  stage: string,
+  trialType: string,
+  stimulusDuration: number,
+  onTrialFinishTimelineCallback: ((data: Record<string, unknown>) => void) | undefined = undefined,
+) {
   const hfV2 = taskStore().version === 2;
   return {
     type: jsPsychHTMLMultiResponse,
@@ -43,14 +49,14 @@ export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrial
     },
     on_load: () => {
       // document.getElementById('jspsych-html-multi-response-btngroup').classList.add('btn-layout-hf');
-      document.getElementById('jspsych-html-multi-response-stimulus').classList.add('haf-parent-container');
-      document.getElementById('jspsych-html-multi-response-btngroup').classList.add('haf-parent-container');
-      document.getElementById('jspsych-html-multi-response-btngroup').classList.add('lev-response-row');
-      document.getElementById('jspsych-html-multi-response-btngroup').classList.add('linear-4');
+      document.getElementById('jspsych-html-multi-response-stimulus')?.classList.add('haf-parent-container');
+      document.getElementById('jspsych-html-multi-response-btngroup')?.classList.add('haf-parent-container');
+      document.getElementById('jspsych-html-multi-response-btngroup')?.classList.add('lev-response-row');
+      document.getElementById('jspsych-html-multi-response-btngroup')?.classList.add('linear-4');
 
       const responseButtons = document.querySelectorAll('.jspsych-html-multi-response-button');
       responseButtons.forEach((button, i) => {
-        addKeyHelpers(button, i);
+        addKeyHelpers(button as HTMLElement, i);
       });
       if (hfV2) {
         setupHafMultiResponseTouchRouting();
@@ -71,7 +77,7 @@ export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrial
     </div>`,
     ],
     ...(hfV2 && !isPractice ? { trial_duration: stimulusDuration } : {}),
-    on_finish: (data) => {
+    on_finish: (data: Record<string, unknown>) => {
       const stimulusPosition = jsPsych.timelineVariable('position');
       const stimulusType = jsPsych.timelineVariable('stimulus');
 
@@ -80,7 +86,7 @@ export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrial
       data.timedOut = data.button_response === null && data.keyboard_response === null;
 
       // get response position
-      let response;
+      let response: number | null;
       if (data.button_response === 0 || data.button_response === 1) {
         response = data.button_response;
       } else if (data.keyboard_response === InputKey.ArrowLeft || data.keyboard_response === InputKey.ArrowRight) {
@@ -88,20 +94,12 @@ export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrial
       } else if (hfV2 && data.timedOut) {
         response = null;
       } else {
-        const errorMessage = `Invalid response: ${data.button_response} or ${data.keyboard_response} in ${data}`;
-        Logger.getInstance().error(new Error(errorMessage));
+        Logger.getInstance().error(new Error(`Invalid response: ${data.button_response} or ${data.keyboard_response}`));
+        response = null;
       }
 
-      // get stimulus side
-      let stimuluSide;
-      if (stimulusPosition === 0) {
-        stimuluSide = StimulusSideType.Left;
-      } else if (stimulusPosition === 1) {
-        stimuluSide = StimulusSideType.Right;
-      } else {
-        const errorMessage = `Invalid stimuluSide: ${data.button_response} or ${data.keyboard_response} in ${data}`;
-        Logger.getInstance().error(new Error(errorMessage));
-      }
+      // get stimulus side; position is always 0 or 1 (see buildHeartsOrFlowersTimelineVariables / buildMixedTimelineVariables)
+      const stimuluSide: StimulusSideType = stimulusPosition === 0 ? StimulusSideType.Left : StimulusSideType.Right;
 
       // record whether answer was correct or not
       const validAnswer = getCorrectInputSide(stimulusType, stimuluSide);
@@ -140,7 +138,7 @@ export function stimulus(isPractice, stage, trialType, stimulusDuration, onTrial
       // save item uid for data analysis
       const itemUid = `hf_${trialType === 'hearts and flowers' ? 'heartsflowers' : trialType}_${stimulusType}`;
 
-      let responseData;
+      let responseData: ResponseSideType | null;
       if (response === 0) {
         responseData = ResponseSideType.Left;
       } else if (response === 1) {
@@ -178,16 +176,16 @@ const randomPosition = () => Math.round(Math.random());
  * From specs: "To maintain balance between right/left stimulus presentation and prevent long sequences,
  * repetitive sequences using only one side, we grouped trials into sets of 4.
  * Within each set, 2 trials are randomly assigned to each side.""
- * @param {*} trialCount
- * @param {*} stimulusType StimulusType.Heart or StimulusType.Flower
+ * @param {number} trialCount
+ * @param {StimulusType} stimulusType StimulusType.Heart or StimulusType.Flower
  */
-export function buildHeartsOrFlowersTimelineVariables(trialCount, stimulusType) {
+export function buildHeartsOrFlowersTimelineVariables(trialCount: number, stimulusType: StimulusType) {
   if (stimulusType !== StimulusType.Heart && stimulusType !== StimulusType.Flower) {
     const errorMessage = `Invalid stimulusType: ${stimulusType} for buildSubtimelineVariables()`;
     Logger.getInstance().error(new Error(errorMessage));
     throw new Error(errorMessage);
   }
-  const jsPsychTimelineVariablesArray = [];
+  const jsPsychTimelineVariablesArray: Array<{ stimulus: StimulusType; position: number }> = [];
   const setsOfFourCount = Math.floor(trialCount / 4);
   for (let i = 0; i < setsOfFourCount; i++) {
     jsPsychTimelineVariablesArray.push({ stimulus: stimulusType, position: 0 });
@@ -208,20 +206,21 @@ export function buildHeartsOrFlowersTimelineVariables(trialCount, stimulusType) 
   return jsPsychTimelineVariablesArray;
 }
 
-export function buildMixedTimelineVariables(trialCount) {
+export function buildMixedTimelineVariables(trialCount: number) {
   const heartLeft = { stimulus: StimulusType.Heart, position: 0 };
   const heartRight = { stimulus: StimulusType.Heart, position: 1 };
   const flowerLeft = { stimulus: StimulusType.Flower, position: 0 };
   const flowerRight = { stimulus: StimulusType.Flower, position: 1 };
   const optionsToRandomize = [heartLeft, heartRight, flowerLeft, flowerRight];
 
-  const jsPsychTimelineVariablesArray = [];
-  let sequence = [];
+  const jsPsychTimelineVariablesArray: Array<{ stimulus: StimulusType; position: number }> = [];
+  let sequence: Array<{ stimulus: StimulusType; position: number }> = [];
   for (let i = 0; i < trialCount; i++) {
     if (sequence.length === 0) {
       sequence = shuffle(optionsToRandomize);
     }
-    jsPsychTimelineVariablesArray.push(sequence.pop());
+    const item = sequence.pop();
+    if (item !== undefined) jsPsychTimelineVariablesArray.push(item);
   }
   return jsPsychTimelineVariablesArray;
 }
