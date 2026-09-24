@@ -62,3 +62,16 @@ $delays: -0.3s, -1.2s, -2.7s, -0.8s, -3.4s, -1.9s, -4.1s;
     animation-delay: $delay;
   }
 }
+
+.rotate {
+  animation: fullRotation 2s infinite;
+}
+
+@keyframes fullRotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
