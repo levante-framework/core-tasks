@@ -1,7 +1,16 @@
 import { taskStore } from '../../../taskStore';
 import { Logger } from '../../../utils';
 import { jsPsych } from '../../taskSetup';
-import { PageAudioHandler } from '../helpers';
+import { loader, PageAudioHandler } from '../helpers';
+
+function addSpinner() {
+  const stimContainer = document.getElementById('stim-container');
+  if (!stimContainer) {
+    return;
+  }
+
+  stimContainer.innerHTML = loader;
+}
 
 export function finishTaskEarly(effectiveStoppingRule: 'timeOut' | 'errorOut') {
   taskStore('effectiveStoppingRule', effectiveStoppingRule);
@@ -15,11 +24,15 @@ export function finishTaskEarly(effectiveStoppingRule: 'timeOut' | 'errorOut') {
           taskStore('taskComplete', true);
           window.removeEventListener('click', removeDOMElements);
           window.removeEventListener('keydown', removeDOMElements);
+
+          addSpinner();
         }
       } else if (event.type === 'keydown') {
         taskStore('taskComplete', true);
         window.removeEventListener('keydown', removeDOMElements);
         window.removeEventListener('click', removeDOMElements);
+
+        addSpinner();
       }
     };
     window.addEventListener('click', removeDOMElements);
@@ -37,12 +50,12 @@ export function finishTaskEarly(effectiveStoppingRule: 'timeOut' | 'errorOut') {
   }, 50); // delay so that previous key presses are not captured
 
   jsPsych.endExperiment(
-    `<div class='lev-stimulus-container'>
+    `<div id="stim-container" class='lev-stimulus-container'>
             <div class='lev-row-container instruction'>
                 <h1>${t.taskFinished}</h1>
             </div>
             <footer>${t.generalFooter}</footer>
-            <button id="exit-button" class="primary" style=margin-top:5%>${t.generalExit}</button>
+            <button id="exit-button" class="primary" style="margin-top:5%">${t.generalExit}</button>
         </div>`,
     PageAudioHandler.playAudio('taskFinished'),
   );
