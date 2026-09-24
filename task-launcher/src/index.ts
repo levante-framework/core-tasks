@@ -136,8 +136,8 @@ export class TaskLauncher {
     pageSetup.init();
     const checkTaskFinished =
       this.gameParams.demoMode || this.firekit === null
-        ? () => this.aborted || taskStore().taskComplete
-        : () => this.aborted || (this.firekit?.run?.completed === true && taskStore().taskComplete);
+        ? () => taskStore().taskComplete
+        : () => this.firekit?.run?.completed === true && taskStore().taskComplete;
 
     await isTaskFinished(checkTaskFinished);
 
@@ -146,6 +146,7 @@ export class TaskLauncher {
 
   abort() {
     this.aborted = true;
+    taskStore('taskAborted', true);
     taskStore('taskComplete', true);
     if (!this.started) return;
     jsPsych.endExperiment();

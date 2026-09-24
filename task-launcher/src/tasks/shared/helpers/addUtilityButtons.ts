@@ -1,5 +1,6 @@
 import fscreen from 'fscreen';
 import { taskStore } from '../../../taskStore';
+import { Logger } from '../../../utils';
 import { InitPageSetup } from '../../../utils/initPageSetup';
 import { jsPsych } from '../../taskSetup';
 import { activateFullscreen } from './activateFullscreen';
@@ -141,10 +142,24 @@ function onExit() {
   const popupContainer = document.getElementById('exit-confirmation-popup-buttons');
   if (!popupContainer) return;
   const popupButtons = popupContainer.querySelectorAll('button');
-  popupButtons[0].addEventListener('click', () => {
-    taskStore('experimenterExit', true);
-    jsPsych.endExperiment();
-  });
+  popupButtons[0].addEventListener(
+    'click',
+    () => {
+      if (taskStore().effectiveStoppingRule !== 'sufficientTrials') {
+        taskStore('effectiveStoppingRule', 'experimenterExit');
+      }
+      taskStore('taskAborted', true);
+
+      const logger = Logger.getInstance();
+      logger.capture('Task finished: experimenter ended task', {
+        taskName: taskStore().task,
+        taskFinished: true,
+      });
+
+      jsPsych.endExperiment();
+    },
+    { once: true },
+  );
   popupButtons[1].addEventListener('click', () => {
     closePopup();
 

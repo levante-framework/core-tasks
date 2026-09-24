@@ -24,13 +24,13 @@ import type { InputCapability } from '../utils/detectInput';
  * @property {number} maxTime - Time limit set for the task.
  * @property {number} startTime - Time at which the task started.
  * @property {boolean} taskComplete - Whether the task has ended - if true, the user should return to dashboard.
- * @property {'timeOut' | 'errorOut' | 'earlyCompletion' | 'taskAbort' | 'sufficientTrials'} effectiveStoppingRule - Why the task finished.
+ * @property {'timeOut' | 'errorOut' | 'earlyCompletion' | 'taskAbort' | 'sufficientTrials' | 'experimenterExit'} effectiveStoppingRule - Why the task finished.
  * @property {Object} assetsPerTask - Object containing list of assets belonging to each task.
  * @property {boolean} demoMode - Whether the task is running in demo mode (no interaction with Firestore), default is false.
  * @property {boolean} debug - Shows theta estimate on the screen for cat debugging when enabled.
  * @property {boolean} showAudioKeys - When true, displays audio keys on screen for debugging.
  * @property {boolean} experimenterButtons - When true, experimenter utility controls (pause, exit) are available.
- * @property {boolean} experimenterExit - Whether the task was exited via the experimenter exit button, default is false.
+ * @property {boolean} taskAborted - Whether the task was exited via the experimenter exit button or aborted by the dashboard, default is false.
  * @property {boolean} bubblePractice - When true, run the bubble popping practice trial in the intro task.
  * @property {number} currentCatBlock - The current block number to select trials from in a CAT.
  * @property {number[]} blockThresholds - Array of theta thresholds.
@@ -167,7 +167,7 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     maxTime: config.maxTime,
     demoMode: config.demoMode,
     experimenterButtons: config.experimenterButtons && effectiveHeavyInstructions,
-    experimenterExit: false,
+    taskAborted: false,
     showAudioKeys: config.showAudioKeys,
     debug: config.debug,
     bubblePractice: config.bubblePractice,
