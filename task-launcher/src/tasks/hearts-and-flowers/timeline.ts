@@ -126,7 +126,7 @@ export default function buildHeartsAndFlowersTimeline(config: Record<string, any
   }
   if (timelineAdminConfig.mixed1) {
     const adminConfig = timelineAdminConfig.mixed1;
-    timeline.push(...getMixedInstructionsSection(adminConfig));
+    timeline.push(...getMixedInstructionsSection());
     timeline.push(...getMixedPracticeSection(adminConfig));
     timeline.push(...getMixedTestSection(adminConfig));
   }
@@ -158,7 +158,7 @@ function getHeartOrFlowerSubtimelines(adminConfig: SectionConfig, stimulusType: 
   const subtimelines = [];
 
   // Instruction and Instruction Practice trials
-  subtimelines.push(...getHeartOrFlowerInstructionsSection(adminConfig, stimulusType));
+  subtimelines.push(...getHeartOrFlowerInstructionsSection(stimulusType));
 
   // Practice trials
   subtimelines.push(...getHeartOrFlowerPracticeSection(adminConfig, stimulusType));
@@ -170,7 +170,7 @@ function getHeartOrFlowerSubtimelines(adminConfig: SectionConfig, stimulusType: 
 }
 
 //TODO: check if we need to repeat the whole pair when user gets it wrong or if getting right on the feedback trial is enough
-function getHeartOrFlowerInstructionsSection(_adminConfig: TestSectionConfig, stimulusType: StimulusType) {
+function getHeartOrFlowerInstructionsSection(stimulusType: StimulusType) {
   // To build our trials for the Instruction section, let's first gather all the static data
   let instructionPracticeStimulusSide1: StimulusSideType,
     instructionPracticePromptText1: string,
@@ -337,7 +337,7 @@ function getHeartOrFlowerTestSection(adminConfig: TestSectionConfig, stimulusTyp
   return subtimeline;
 }
 
-function getMixedInstructionsSection(_adminConfig: TestSectionConfig) {
+function getMixedInstructionsSection() {
   // feedback-good-job, "Good job!" //TODO: double-check ok to use feedback-good-job instead of "Great! That's right!" which is absent from item bank anyway
   const instructionPracticeFeedback = buildStimulusInvariantPracticeFeedback(
     'heartsAndFlowersTryAgain',
