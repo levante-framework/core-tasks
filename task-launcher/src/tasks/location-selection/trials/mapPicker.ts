@@ -1,6 +1,5 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { taskStore } from '../../../taskStore';
-import { getLocationSelectionDraft } from '../helpers/state';
 import { setupMap } from '../helpers/map';
 import { disableOkButton } from '../../shared/helpers';
 import { buildLocationSavePayload } from '../helpers/locationCommitPreview';
@@ -46,11 +45,7 @@ export const mapPicker = {
       },
       on_finish: async () => {
         taskStore('userWentBack', false);
-        const location = await buildLocationSavePayload();
-
-        jsPsych.data.addDataToLastTrial({
-          location: location
-        });
+        await buildLocationSavePayload();
       }
     },
   ],

@@ -7,19 +7,6 @@ import { persistLocation } from './persistLocation';
 import { LocationV1 } from '@levante-framework/firekit';
 import { Logger } from '../../../utils';
 
-export type PopulationCandidateDebug = {
-  resolution: number;
-  cellId: string;
-  population: number | null;
-  source: 'kontur' | 'worldpop' | 'unknown';
-  privacyMet: boolean;
-};
-
-export type LocationCommitComputation = {
-  preview: LocationV1;
-  candidates: PopulationCandidateDebug[];
-};
-
 function getPreferredPopulationSource(
   config: Partial<LocationSelectionTaskConfig> | null | undefined,
 ): 'kontur' | 'worldpop' {
@@ -37,14 +24,6 @@ export async function buildLocationCommitPreviewWithPopulation(
   draft: LocationSelectionDraft | null,
   config: Partial<LocationSelectionTaskConfig> | null | undefined,
 ): Promise<LocationV1 | null> {
-  const computed = await buildLocationCommitComputationWithPopulation(draft, config);
-  return computed?.preview || null;
-}
-
-export async function buildLocationCommitComputationWithPopulation(
-  draft: LocationSelectionDraft | null,
-  config: Partial<LocationSelectionTaskConfig> | null | undefined,
-): Promise<LocationCommitComputation | null> {
   if (!draft) return null;
 
   const baselineResolution = Number(config?.baselineResolution);
@@ -76,7 +55,6 @@ export async function buildLocationCommitComputationWithPopulation(
   let effectivePopulationSource: 'kontur' | 'worldpop' | 'unknown' = 'unknown';
   let observedPopulationSource: 'kontur' | 'worldpop' | 'unknown' = 'unknown';
   let privacyCompliantCellFound = false;
-  const candidates: PopulationCandidateDebug[] = [];
   const useBatch = Boolean(config?.populationBatchEnabled);
 
   const cellIdByResolution = new Map<number, string>();
@@ -98,13 +76,6 @@ export async function buildLocationCommitComputationWithPopulation(
       observedPopulationSource = populationResult.source;
     }
     const privacyMet = typeof population === 'number' ? population >= safePopulationThreshold : false;
-    candidates.push({
-      resolution,
-      cellId,
-      population,
-      source: populationResult.source,
-      privacyMet,
-    });
     return { cellId, resolution, populationResult, privacyMet };
   };
 
@@ -138,7 +109,7 @@ export async function buildLocationCommitComputationWithPopulation(
   }
 
   if (!privacyCompliantCellFound) {
-    const logger = Logger.getInstance(); 
+    const logger = Logger.getInstance();
 
     logger.capture(
       'No privacy-compliant cell found.',
@@ -150,7 +121,7 @@ export async function buildLocationCommitComputationWithPopulation(
 
   const [centerLat, centerLon] = cellToLatLng(effectiveCell);
 
-  const preview: LocationV1 = {
+  return {
     schemaVersion: 'location_v1',
     privacyMet: privacyCompliantCellFound,
     latLon: privacyCompliantCellFound ? {
@@ -174,12 +145,7 @@ export async function buildLocationCommitComputationWithPopulation(
         : (observedPopulationSource !== 'unknown' ? observedPopulationSource : preferredSource),
     computedAt: draft.selectedAt || new Date().toISOString(),
   };
-  return {
-    preview,
-    candidates,
-  };
 }
-
 
 export async function buildLocationSavePayload() {
   const draft = taskStore().locationSelectionDraft;
@@ -190,6 +156,4 @@ export async function buildLocationSavePayload() {
     persistLocation(location);
   }
   taskStore("locationDataSaved", true);
-
-  return location;
 }

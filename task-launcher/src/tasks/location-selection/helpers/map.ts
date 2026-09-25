@@ -49,11 +49,8 @@ export async function setupMap() {
       marker = L.circleMarker([lat, lon]).addTo(map);
     }
     setLocationSelectionDraft({
-      mode: 'map',
       lat,
       lon,
-      label: null,
-      source: 'leaflet_map_click',
       selectedAt: new Date().toISOString(),
     });
     enableOkButton();

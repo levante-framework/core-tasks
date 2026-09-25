@@ -1,6 +1,6 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { taskStore } from '../../../taskStore';
-import { getLocationSelectionDraft, setLocationSelectionDraft } from '../helpers/state';
+import { setLocationSelectionDraft } from '../helpers/state';
 import { disableOkButton, enableOkButton } from '../../shared/helpers';
 import { jsPsych } from '../../taskSetup';
 import { buildLocationSavePayload } from '../helpers/locationCommitPreview';
@@ -79,7 +79,6 @@ async function searchLocations(query: string, countryCode?: string): Promise<Nom
   const params = new URLSearchParams({
     q: query,
     format: 'jsonv2',
-    addressdetails: '1',
     limit: '10',
   });
   if (countryCode) params.set('countrycodes', String(countryCode || '').toLowerCase());
@@ -89,21 +88,13 @@ async function searchLocations(query: string, countryCode?: string): Promise<Nom
   return Array.isArray(payload) ? payload : [];
 }
 
-function buildDraftFromSuggestion(selected: NominatimResult, selectedCountry: string) {
+function buildDraftFromSuggestion(selected: NominatimResult) {
   const lat = Number(selected?.lat);
   const lon = Number(selected?.lon);
   if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
   return {
-    mode: 'city_postal' as const,
     lat,
     lon,
-    label: String(selected.display_name || ''),
-    source: 'nominatim_search',
-    metadata: {
-      placeId: selected.place_id ?? null,
-      resultType: selected.type ?? null,
-      countryCode: selectedCountry,
-    },
     selectedAt: new Date().toISOString(),
   };
 }
@@ -175,7 +166,7 @@ export const searchCityPostal = {
         };
 
         const selectResult = (selected: NominatimResult) => {
-          const draft = buildDraftFromSuggestion(selected, selectedCountry);
+          const draft = buildDraftFromSuggestion(selected);
           if (!draft) return;
           setLocationSelectionDraft(draft);
           taskStore('locationSelectionPendingSuggestion', selected);
@@ -344,11 +335,7 @@ export const searchCityPostal = {
       },
       on_finish: async () => {
         taskStore('userWentBack', false);
-        const location = await buildLocationSavePayload();
-
-        jsPsych.data.addDataToLastTrial({
-          location: location
-        });
+        await buildLocationSavePayload();
       },
     },
   ],

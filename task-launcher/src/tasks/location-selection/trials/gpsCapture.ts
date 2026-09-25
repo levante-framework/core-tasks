@@ -4,24 +4,6 @@ import { setLocationSelectionDraft } from '../helpers/state';
 import { jsPsych } from '../../taskSetup';
 import { buildLocationSavePayload } from '../helpers/locationCommitPreview';
 
-async function reverseGeocode(lat: number, lon: number): Promise<string | null> {
-  try {
-    const params = new URLSearchParams({
-      lat: String(lat),
-      lon: String(lon),
-      format: 'jsonv2',
-      zoom: '10',
-      addressdetails: '1',
-    });
-    const response = await fetch(`https://nominatim.openstreetmap.org/reverse?${params.toString()}`);
-    if (!response.ok) return null;
-    const payload = await response.json();
-    return typeof payload?.display_name === 'string' ? payload.display_name : null;
-  } catch {
-    return null;
-  }
-}
-
 export const gpsCapture = {
   timeline: [
     {
@@ -66,22 +48,12 @@ export const gpsCapture = {
           if (statusEl) statusEl.textContent = t.locationTextBrowser3;
           if (retryButton) retryButton.style.display = 'none';
           navigator.geolocation.getCurrentPosition(
-            async (position) => {
+            (position) => {
               const lat = Number(position.coords.latitude);
               const lon = Number(position.coords.longitude);
-              const accuracyMeters = Number(position.coords.accuracy);
-              const label = await reverseGeocode(lat, lon);
               setLocationSelectionDraft({
-                mode: 'gps',
                 lat,
                 lon,
-                label,
-                source: 'browser_geolocation',
-                accuracyMeters: Number.isFinite(accuracyMeters) ? accuracyMeters : null,
-                metadata: {
-                  altitude: position.coords.altitude ?? null,
-                  speed: position.coords.speed ?? null,
-                },
                 selectedAt: new Date().toISOString(),
               });
               jsPsych.finishTrial();
@@ -126,11 +98,7 @@ export const gpsCapture = {
       },
       on_finish: async () => {
         if (!taskStore().userWentBack) {
-          const location = await buildLocationSavePayload();
-
-          jsPsych.data.addDataToLastTrial({
-            location: location
-          });
+          await buildLocationSavePayload();
         }
       },
     },
