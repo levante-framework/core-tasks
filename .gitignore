@@ -11,3 +11,4 @@ test-results/
 lib/
 .env
 .idea/
+.vscode
