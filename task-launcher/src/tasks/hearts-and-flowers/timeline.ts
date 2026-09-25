@@ -57,7 +57,7 @@ export default function buildHeartsAndFlowersTimeline(config: Record<string, any
     heart: SectionConfig;
     flower: SectionConfig;
     mixed1: SectionConfig;
-    mixed2: SectionConfig;
+    mixed2: TestSectionConfig;
     mixed3: TestSectionConfig;
   } = {
     heart: {
@@ -84,8 +84,6 @@ export default function buildHeartsAndFlowersTimeline(config: Record<string, any
     },
     mixed2: {
       // harder mixed trials
-      practiceTrialCount: 6,
-      correctPracticeTrial: 3,
       testTrialCount: 16,
       stimulusPresentationTime: 2000,
       interStimulusInterval: 500,
