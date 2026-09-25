@@ -1,7 +1,7 @@
 import { cellToLatLng, latLngToCell } from 'h3-js';
 import { type LocationSelectionDraft } from './state';
 import { H3_MAX_RESOLUTION, H3_MIN_RESOLUTION, type LocationSelectionTaskConfig } from './config';
-import { lookupPopulationBatch, lookupPopulationForCell } from './populationApi';
+import { lookupPopulationForCell } from './populationApi';
 import { taskStore } from '../../../taskStore';
 import { persistLocation } from './persistLocation';
 import { LocationV1 } from '@levante-framework/firekit';
@@ -55,22 +55,16 @@ export async function buildLocationCommitPreviewWithPopulation(
   let effectivePopulationSource: 'kontur' | 'worldpop' | 'unknown' = 'unknown';
   let observedPopulationSource: 'kontur' | 'worldpop' | 'unknown' = 'unknown';
   let privacyCompliantCellFound = false;
-  const useBatch = Boolean(config?.populationBatchEnabled);
-
   const cellIdByResolution = new Map<number, string>();
   for (let resolution = safeMinResolution; resolution <= safeMaxResolution; resolution += 1) {
     cellIdByResolution.set(resolution, latLngToCell(draft.lat, draft.lon, resolution));
   }
-  const batchResults = useBatch
-    ? await lookupPopulationBatch([...cellIdByResolution.values()], config)
-    : null;
 
   const evaluateResolution = async (resolution: number) => {
     const cellId = cellIdByResolution.get(resolution);
     if (!cellId) return null;
 
-    const populationResult =
-      batchResults?.[cellId] ?? (await lookupPopulationForCell(cellId, resolution, config));
+    const populationResult = await lookupPopulationForCell(cellId, resolution, config);
     const population = populationResult.population;
     if (populationResult.source !== 'unknown' && observedPopulationSource === 'unknown') {
       observedPopulationSource = populationResult.source;

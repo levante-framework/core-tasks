@@ -1,3 +1,8 @@
+import {
+  getDefaultPopulationKonturH3ApiUrl,
+  getDefaultPopulationWorldpopH3ApiUrl,
+} from './cloudFunctions';
+
 export const H3_MIN_RESOLUTION = 0;
 export const H3_MAX_RESOLUTION = 7;
 
@@ -8,10 +13,7 @@ export type LocationSelectionTaskConfig = {
   maxResolution: number;
   populationSourcePreference: 'kontur' | 'worldpop' | 'auto';
   konturPopulationApiUrl: string;
-  konturPopulationBatchApiUrl: string;
   worldpopPopulationApiUrl: string;
-  populationApiTimeoutMs: number;
-  populationBatchEnabled: boolean;
 };
 
 export function getLocationSelectionTaskConfig(config: Record<string, any>): LocationSelectionTaskConfig {
@@ -20,12 +22,12 @@ export function getLocationSelectionTaskConfig(config: Record<string, any>): Loc
   const minRes = Number(config?.minResolution);
   const maxRes = Number(config?.maxResolution);
   const sourcePreference = String(config?.populationSourcePreference || 'kontur').trim().toLowerCase();
-  const konturPopulationApiUrl = String(config?.konturPopulationApiUrl || '/api/population-kontur-h3').trim();
-  const konturPopulationBatchApiUrl =
-    String(config?.konturPopulationBatchApiUrl || '/api/population-kontur-h3-batch').trim();
-  const worldpopPopulationApiUrl = String(config?.worldpopPopulationApiUrl || '/api/population-worldpop-h3').trim();
-  const populationApiTimeoutMs = Number(config?.populationApiTimeoutMs);
-  const populationBatchEnabled = config?.populationBatchEnabled ?? true;
+  const konturPopulationApiUrl = String(
+    config?.konturPopulationApiUrl || getDefaultPopulationKonturH3ApiUrl(),
+  ).trim();
+  const worldpopPopulationApiUrl = String(
+    config?.worldpopPopulationApiUrl || getDefaultPopulationWorldpopH3ApiUrl(),
+  ).trim();
   const safeBaselineResolution =
     Number.isFinite(baseline) && Number.isInteger(baseline) && baseline >= 0 && baseline <= 15
       ? baseline
@@ -48,12 +50,6 @@ export function getLocationSelectionTaskConfig(config: Record<string, any>): Loc
         ? sourcePreference
         : 'kontur',
     konturPopulationApiUrl,
-    konturPopulationBatchApiUrl,
     worldpopPopulationApiUrl,
-    populationApiTimeoutMs:
-      Number.isFinite(populationApiTimeoutMs) && populationApiTimeoutMs > 0
-        ? Math.round(populationApiTimeoutMs)
-        : 2500,
-    populationBatchEnabled,
   };
 }

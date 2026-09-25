@@ -35,29 +35,6 @@ For testing location saves against the Firebase emulators:
    `http://localhost:8080/?task=locationselection&locationSaveDebug=true`
 3. Click **Save** and confirm a `locations` doc appears in the Emulator UI.
 
-### Kontur Population Cache
-
-The population lookup uses a local Kontur cache if available, otherwise it falls back to WorldPop.
-You can point the dev server at a compressed, sparse Kontur cache stored elsewhere (e.g. GCS) by
-setting one of these environment variables before starting `npm run dev`. The cache is sharded
-by R5 parent cell, so the URL/path should be a *folder* containing `{r5CellId}.json.gz` files:
-
-- `KONTUR_H3_CACHE_URL` (base URL; supports `.gz` shards)
-- `KONTUR_H3_CACHE_PATH` (base folder for local shards)
-
-#### Build the R5 shard cache
-
-We provide a repeatable script to download the Kontur dataset and build R5 shards:
-
-```bash
-cd /home/david/levante/core-tasks/task-launcher
-pip install h3 pyarrow
-python scripts/build_kontur_r5_shards.py --download --gzip --output data/kontur-h3-r5
-```
-
-This uses the latest 400m Kontur dataset from HDX and requires `ogr2ogr` (GDAL) to convert
-the GeoPackage into Parquet/CSV for streaming.
-
 Task details:
 
 1. [Matrix Reasoning](https://hs-levante-assessment-dev.web.app/?task=matrix-reasoning) [George]
