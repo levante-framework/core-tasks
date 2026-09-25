@@ -30,15 +30,18 @@ import {
 } from './trials/practice';
 import { buildHeartsOrFlowersTimelineVariables, buildMixedTimelineVariables, stimulus } from './trials/stimulus';
 
-type TestSectionConfig = {
+type SectionConfig = {
+  practiceTrialCount: number;
+  correctPracticeTrial: number;
   testTrialCount: number;
   stimulusPresentationTime: number;
   interStimulusInterval: number;
 };
 
-type PracticeSectionConfig = TestSectionConfig & {
-  practiceTrialCount: number;
-  correctPracticeTrial: number;
+type TestSectionConfig = {
+  testTrialCount: number;
+  stimulusPresentationTime: number;
+  interStimulusInterval: number;
 };
 
 export default function buildHeartsAndFlowersTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
@@ -50,7 +53,13 @@ export default function buildHeartsAndFlowersTimeline(config: Record<string, any
   const initialTimeline = initTimeline(config, enterFullscreen);
 
   // TODO: parse from user input
-  const timelineAdminConfig = {
+  const timelineAdminConfig: {
+    heart: SectionConfig;
+    flower: SectionConfig;
+    mixed1: SectionConfig;
+    mixed2: SectionConfig;
+    mixed3: TestSectionConfig;
+  } = {
     heart: {
       practiceTrialCount: 6,
       correctPracticeTrial: 2,
@@ -66,6 +75,7 @@ export default function buildHeartsAndFlowersTimeline(config: Record<string, any
       interStimulusInterval: 500,
     },
     mixed1: {
+      // OG mixed trials
       practiceTrialCount: 6,
       correctPracticeTrial: 3,
       testTrialCount: 16,
@@ -73,6 +83,7 @@ export default function buildHeartsAndFlowersTimeline(config: Record<string, any
       interStimulusInterval: 500,
     },
     mixed2: {
+      // harder mixed trials
       practiceTrialCount: 6,
       correctPracticeTrial: 3,
       testTrialCount: 16,
@@ -80,6 +91,7 @@ export default function buildHeartsAndFlowersTimeline(config: Record<string, any
       interStimulusInterval: 500,
     },
     mixed3: {
+      // even harder mixed trials; no practice
       testTrialCount: 16,
       stimulusPresentationTime: 1500,
       interStimulusInterval: 500,
@@ -136,7 +148,7 @@ export default function buildHeartsAndFlowersTimeline(config: Record<string, any
   return { jsPsych, timeline };
 }
 
-function getHeartOrFlowerSubtimelines(adminConfig: PracticeSectionConfig, stimulusType: StimulusType) {
+function getHeartOrFlowerSubtimelines(adminConfig: SectionConfig, stimulusType: StimulusType) {
   if (stimulusType !== StimulusType.Heart && stimulusType !== StimulusType.Flower) {
     const errorMessage = `Invalid type: ${stimulusType} for getHeartOrFlowerSubtimeline`;
     Logger.getInstance().error(new Error(errorMessage));
@@ -158,7 +170,7 @@ function getHeartOrFlowerSubtimelines(adminConfig: PracticeSectionConfig, stimul
 }
 
 //TODO: check if we need to repeat the whole pair when user gets it wrong or if getting right on the feedback trial is enough
-function getHeartOrFlowerInstructionsSection(_adminConfig: PracticeSectionConfig, stimulusType: StimulusType) {
+function getHeartOrFlowerInstructionsSection(_adminConfig: TestSectionConfig, stimulusType: StimulusType) {
   // To build our trials for the Instruction section, let's first gather all the static data
   let instructionPracticeStimulusSide1: StimulusSideType,
     instructionPracticePromptText1: string,
@@ -229,7 +241,7 @@ function getHeartOrFlowerInstructionsSection(_adminConfig: PracticeSectionConfig
   return subtimeline;
 }
 
-function getHeartOrFlowerPracticeSection(adminConfig: PracticeSectionConfig, stimulusType: StimulusType) {
+function getHeartOrFlowerPracticeSection(adminConfig: SectionConfig, stimulusType: StimulusType) {
   let jsPsychAssessmentStage: AssessmentStageType,
     jsPsychCorpusTrialType: CorpusTrialType,
     feedbackKeyIncorrect: string;
@@ -325,7 +337,7 @@ function getHeartOrFlowerTestSection(adminConfig: TestSectionConfig, stimulusTyp
   return subtimeline;
 }
 
-function getMixedInstructionsSection(_adminConfig: PracticeSectionConfig) {
+function getMixedInstructionsSection(_adminConfig: TestSectionConfig) {
   // feedback-good-job, "Good job!" //TODO: double-check ok to use feedback-good-job instead of "Great! That's right!" which is absent from item bank anyway
   const instructionPracticeFeedback = buildStimulusInvariantPracticeFeedback(
     'heartsAndFlowersTryAgain',
@@ -364,7 +376,7 @@ function getMixedInstructionsSection(_adminConfig: PracticeSectionConfig) {
   return subtimeline;
 }
 
-function getMixedPracticeSection(adminConfig: PracticeSectionConfig) {
+function getMixedPracticeSection(adminConfig: SectionConfig) {
   // Let's prepare 2 callbacks to pass to our stimuli and feedback trials in order to manage the practice block shortcut
   let practiceWinStreakCount = 0;
   const onStimulusTrialFinishTimelineCallback = (data: Record<string, unknown>) => {
