@@ -63,19 +63,38 @@ export class TaskLauncher {
     const isDev = this.firekit
       ? this.firekit.firebaseProject?.firebaseApp?.options?.projectId === 'hs-levante-admin-dev'
       : !!this.gameParams.demoMode;
-    const taskVisualBucket = getBucketName(taskName, isDev, 'visual', language);
-    const sharedVisualBucket = getBucketName('shared', isDev, 'visual', language);
-    const languageAudioBucket = getBucketName('shared', isDev, 'audio', language);
-    const sharedAudioBucket = getBucketName('shared', isDev, 'audio', 'shared');
 
-    try {
-      // will avoid language folder if not provided
-      languageAudioAssets = taskName === 'location-selection' ? {images: {}, audio: {}, video: {}} : await getMediaAssets(languageAudioBucket, {}, language, taskName);
-      sharedAudioAssets = taskName === 'location-selection' ? {images: {}, audio: {}, video: {}} : await getMediaAssets(sharedAudioBucket, {}, 'shared', taskName);
-      taskVisualAssets = taskName === 'location-selection' ? {images: {}, audio: {}, video: {}} : await getMediaAssets(taskVisualBucket, {}, language, taskName);
-      sharedVisualAssets = await getMediaAssets(sharedVisualBucket, {}, language, 'shared');
-    } catch (error) {
-      throw new Error('Error fetching media assets: ' + error);
+    const tasksWithoutCorpus = ['hearts-and-flowers', 'memory-game', 'intro', 'location-selection'];
+    const requiresCorpus = !tasksWithoutCorpus.includes(taskName);
+    const requiresMediaAssets = taskName !== 'location-selection';
+
+    if (requiresMediaAssets) {
+      const taskVisualBucket = getBucketName(taskName, isDev, 'visual', language);
+      const sharedVisualBucket = getBucketName('shared', isDev, 'visual', language);
+      const languageAudioBucket = getBucketName('shared', isDev, 'audio', language);
+      const sharedAudioBucket = getBucketName('shared', isDev, 'audio', 'shared');
+
+      try {
+        // will avoid language folder if not provided
+        languageAudioAssets = await getMediaAssets(languageAudioBucket, {}, language, taskName);
+        sharedAudioAssets = await getMediaAssets(sharedAudioBucket, {}, 'shared', taskName);
+        taskVisualAssets = await getMediaAssets(taskVisualBucket, {}, language, taskName);
+        sharedVisualAssets = await getMediaAssets(sharedVisualBucket, {}, language, 'shared');
+      } catch (error) {
+        throw new Error('Error fetching media assets: ' + error);
+      }
+
+      await getAssetsPerTask(isDev);
+
+      const taskAudioAssetNames = [
+        ...taskStore().assetsPerTask[taskName].audio,
+        ...taskStore().assetsPerTask.shared.audio,
+      ];
+
+      // filter out language audio not relevant to current task
+      languageAudioAssets = filterMedia(languageAudioAssets, [], taskAudioAssetNames, []);
+      
+      mediaAssets = combineMediaAssets([languageAudioAssets, sharedAudioAssets, taskVisualAssets, sharedVisualAssets]);
     }
 
     const config = await setConfig(this.firekit, this.gameParams, this.userParams);
@@ -85,25 +104,9 @@ export class TaskLauncher {
     await getTranslations(isDev, taskName, language);
 
     // TODO: make hearts and flowers corpus? make list of tasks that don't need corpora?
-    if (
-      taskName !== 'hearts-and-flowers' &&
-      taskName !== 'memory-game' &&
-      taskName !== 'intro' &&
-      taskName !== 'location-selection'
-    ) {
+    if (requiresCorpus) {
       await getCorpus(config, isDev);
     }
-
-    await getAssetsPerTask(isDev);
-
-    const taskAssetEntry = taskStore().assetsPerTask?.[taskName] || { audio: [] };
-    const sharedAssetEntry = taskStore().assetsPerTask?.shared || { audio: [] };
-    const taskAudioAssetNames = [...(taskAssetEntry.audio || []), ...(sharedAssetEntry.audio || [])];
-
-    // filter out language audio not relevant to current task
-    languageAudioAssets = filterMedia(languageAudioAssets, [], taskAudioAssetNames, []);
-
-    mediaAssets = combineMediaAssets([languageAudioAssets, sharedAudioAssets, taskVisualAssets, sharedVisualAssets]);
 
     // Expose resolved media assets for e2e validation (dev/test only)
     if (typeof window !== 'undefined') {
