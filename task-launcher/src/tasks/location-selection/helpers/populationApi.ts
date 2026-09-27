@@ -5,12 +5,6 @@ import {
 
 type PopulationSource = 'kontur' | 'worldpop';
 
-export type PopulationLookupConfig = {
-  populationSourcePreference?: 'kontur' | 'worldpop' | 'auto';
-  konturPopulationApiUrl?: string;
-  worldpopPopulationApiUrl?: string;
-};
-
 type PopulationLookupResult = {
   population: number | null;
   source: PopulationSource | 'unknown';
@@ -78,18 +72,10 @@ async function fetchPopulation(
 export async function lookupPopulationForCell(
   cellId: string,
   resolution: number,
-  config: PopulationLookupConfig | null | undefined,
 ): Promise<PopulationLookupResult> {
-  const preference = String(config?.populationSourcePreference || 'auto').toLowerCase();
-  const konturUrl = String(config?.konturPopulationApiUrl || getDefaultPopulationKonturH3ApiUrl());
-  const worldpopUrl = String(config?.worldpopPopulationApiUrl || getDefaultPopulationWorldpopH3ApiUrl());
-
-  const orderedSources: PopulationSource[] =
-    preference === 'kontur'
-      ? ['kontur', 'worldpop']
-      : preference === 'worldpop'
-        ? ['worldpop', 'kontur']
-        : ['kontur', 'worldpop'];
+  const konturUrl = getDefaultPopulationKonturH3ApiUrl();
+  const worldpopUrl = getDefaultPopulationWorldpopH3ApiUrl();
+  const orderedSources: PopulationSource[] = ['kontur', 'worldpop'];
 
   let attemptedKnownSource: PopulationSource | 'unknown' = 'unknown';
   for (let i = 0; i < orderedSources.length; i += 1) {

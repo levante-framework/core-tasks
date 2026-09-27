@@ -1,19 +1,11 @@
 import { cellToLatLng, latLngToCell } from 'h3-js';
 import { type LocationSelectionDraft } from './state';
-import { H3_MAX_RESOLUTION, H3_MIN_RESOLUTION, type LocationSelectionTaskConfig } from './config';
+import { getLocationSelectionTaskConfig } from './config';
 import { lookupPopulationForCell } from './populationApi';
 import { taskStore } from '../../../taskStore';
 import { persistLocation } from './persistLocation';
 import { LocationV1 } from '@levante-framework/firekit';
 import { Logger } from '../../../utils';
-
-function getPreferredPopulationSource(
-  config: Partial<LocationSelectionTaskConfig> | null | undefined,
-): 'kontur' | 'worldpop' {
-  const preference = String(config?.populationSourcePreference || 'kontur').toLowerCase();
-  if (preference === 'worldpop') return 'worldpop';
-  return 'kontur';
-}
 
 function roundTo(value: number, decimals = 6): number {
   const factor = 10 ** decimals;
@@ -22,41 +14,19 @@ function roundTo(value: number, decimals = 6): number {
 
 export async function buildLocationCommitPreviewWithPopulation(
   draft: LocationSelectionDraft | null,
-  config: Partial<LocationSelectionTaskConfig> | null | undefined,
 ): Promise<LocationV1 | null> {
   if (!draft) return null;
 
-  const baselineResolution = Number(config?.baselineResolution);
-  const minResolution = Number(config?.minResolution);
-  const maxResolution = Number(config?.maxResolution);
-  const populationThreshold = Number(config?.populationThreshold);
-  const safeBaselineResolution = Number.isInteger(baselineResolution) ? baselineResolution : 5;
-  const safeMinResolution = Math.max(
-    H3_MIN_RESOLUTION,
-    Math.min(
-      safeBaselineResolution,
-      Number.isInteger(minResolution) ? minResolution : H3_MIN_RESOLUTION,
-    ),
-  );
-  const safeMaxResolution = Math.min(
-    H3_MAX_RESOLUTION,
-    Number.isInteger(maxResolution) && maxResolution >= safeBaselineResolution
-      ? maxResolution
-      : Math.max(H3_MAX_RESOLUTION, safeBaselineResolution),
-  );
-  const safePopulationThreshold = Number.isFinite(populationThreshold) && populationThreshold > 0
-    ? Math.round(populationThreshold)
-    : 20000;
-  const preferredSource = getPreferredPopulationSource(config);
-
-  const baselineCell = latLngToCell(draft.lat, draft.lon, safeBaselineResolution);
+  const { baselineResolution, minResolution, maxResolution, populationThreshold } =
+    getLocationSelectionTaskConfig();
+  const baselineCell = latLngToCell(draft.lat, draft.lon, baselineResolution);
   let effectiveCell = baselineCell;
-  let effectiveResolution = safeBaselineResolution;
+  let effectiveResolution = baselineResolution;
   let effectivePopulationSource: 'kontur' | 'worldpop' | 'unknown' = 'unknown';
   let observedPopulationSource: 'kontur' | 'worldpop' | 'unknown' = 'unknown';
   let privacyCompliantCellFound = false;
   const cellIdByResolution = new Map<number, string>();
-  for (let resolution = safeMinResolution; resolution <= safeMaxResolution; resolution += 1) {
+  for (let resolution = minResolution; resolution <= maxResolution; resolution += 1) {
     cellIdByResolution.set(resolution, latLngToCell(draft.lat, draft.lon, resolution));
   }
 
@@ -64,22 +34,22 @@ export async function buildLocationCommitPreviewWithPopulation(
     const cellId = cellIdByResolution.get(resolution);
     if (!cellId) return null;
 
-    const populationResult = await lookupPopulationForCell(cellId, resolution, config);
+    const populationResult = await lookupPopulationForCell(cellId, resolution);
     const population = populationResult.population;
     if (populationResult.source !== 'unknown' && observedPopulationSource === 'unknown') {
       observedPopulationSource = populationResult.source;
     }
-    const privacyMet = typeof population === 'number' ? population >= safePopulationThreshold : false;
+    const privacyMet = typeof population === 'number' ? population >= populationThreshold : false;
     return { cellId, resolution, populationResult, privacyMet };
   };
 
-  const baselineEvaluation = await evaluateResolution(safeBaselineResolution);
+  const baselineEvaluation = await evaluateResolution(baselineResolution);
   if (baselineEvaluation?.privacyMet) {
     effectiveCell = baselineEvaluation.cellId;
     effectiveResolution = baselineEvaluation.resolution;
     effectivePopulationSource = baselineEvaluation.populationResult.source;
 
-    for (let resolution = safeBaselineResolution + 1; resolution <= safeMaxResolution; resolution += 1) {
+    for (let resolution = baselineResolution + 1; resolution <= maxResolution; resolution += 1) {
       const evaluation = await evaluateResolution(resolution);
       if (!evaluation) continue;
       if (evaluation.privacyMet) {
@@ -91,7 +61,7 @@ export async function buildLocationCommitPreviewWithPopulation(
       break;
     }
   } else {
-    for (let resolution = safeBaselineResolution - 1; resolution >= safeMinResolution; resolution -= 1) {
+    for (let resolution = baselineResolution - 1; resolution >= minResolution; resolution -= 1) {
       const evaluation = await evaluateResolution(resolution);
       if (!evaluation?.privacyMet) continue;
       effectiveCell = evaluation.cellId;
@@ -126,25 +96,24 @@ export async function buildLocationCommitPreviewWithPopulation(
     h3: {
       scheme: 'h3_v1',
       baseline: baselineEvaluation?.privacyMet
-        ? { h3Index: baselineCell, resolution: safeBaselineResolution }
+        ? { h3Index: baselineCell, resolution: baselineResolution }
         : undefined,
       effective: privacyCompliantCellFound
         ? { h3Index: effectiveCell, resolution: effectiveResolution }
         : undefined,
-      populationThreshold: safePopulationThreshold,
+      populationThreshold,
     },
     populationSource:
       effectivePopulationSource !== 'unknown'
         ? effectivePopulationSource
-        : (observedPopulationSource !== 'unknown' ? observedPopulationSource : preferredSource),
+        : (observedPopulationSource !== 'unknown' ? observedPopulationSource : 'kontur'),
     computedAt: draft.selectedAt || new Date().toISOString(),
   };
 }
 
 export async function buildLocationSavePayload() {
   const draft = taskStore().locationSelectionDraft;
-  const config = taskStore().locationSelectionConfig;
-  const location = await buildLocationCommitPreviewWithPopulation(draft, config);
+  const location = await buildLocationCommitPreviewWithPopulation(draft);
 
   if (location) {
     persistLocation(location);

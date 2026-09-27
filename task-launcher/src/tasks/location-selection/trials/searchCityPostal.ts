@@ -2,7 +2,6 @@ import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-respons
 import { taskStore } from '../../../taskStore';
 import { setLocationSelectionDraft } from '../helpers/state';
 import { disableOkButton, enableOkButton } from '../../shared/helpers';
-import { jsPsych } from '../../taskSetup';
 import { buildLocationSavePayload } from '../helpers/locationCommitPreview';
 
 interface NominatimResult {

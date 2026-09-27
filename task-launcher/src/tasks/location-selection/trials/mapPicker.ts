@@ -3,7 +3,6 @@ import { taskStore } from '../../../taskStore';
 import { setupMap } from '../helpers/map';
 import { disableOkButton } from '../../shared/helpers';
 import { buildLocationSavePayload } from '../helpers/locationCommitPreview';
-import { jsPsych } from '../../taskSetup';
 
 export const mapPicker = {
   timeline: [

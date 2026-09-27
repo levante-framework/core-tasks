@@ -45,9 +45,6 @@ const inferenceNumStories =
 const numberOfStories = urlParams.get('numberOfStories') === null ? 3 : parseInt(urlParams.get('numberOfStories'), 10);
 const semThreshold = Number(urlParams.get('semThreshold') || '0');
 const startingTheta = Number(urlParams.get('theta') || '0');
-const populationSourcePreference = String(urlParams.get('populationSourcePreference') || 'kontur').trim().toLowerCase();
-const konturPopulationApiUrl = urlParams.get('konturPopulationApiUrl') || undefined;
-const worldpopPopulationApiUrl = urlParams.get('worldpopPopulationApiUrl') || undefined;
 // `taskVersion` is deprecated; prefer `version` when both are present.
 const versionFromQuery = urlParams.get('version') === null ? null : parseInt(urlParams.get('version'), 10);
 const taskVersionFromQuery = urlParams.get('taskVersion') === null ? null : parseInt(urlParams.get('taskVersion'), 10);
@@ -96,9 +93,6 @@ async function startWebApp() {
     version,
     debug,
     experimenterButtons,
-    populationSourcePreference,
-    konturPopulationApiUrl,
-    worldpopPopulationApiUrl,
   };
   const userParams = {
     pid,

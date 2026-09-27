@@ -6,7 +6,6 @@ import { finishTaskMessage, instructions, gpsInstructions, modeSelectInstruction
 import { gpsCapture } from './trials/gpsCapture';
 import { mapPicker } from './trials/mapPicker';
 import { searchCityPostal } from './trials/searchCityPostal';
-import { getLocationSelectionTaskConfig } from './helpers/config';
 import { taskStore } from '../../taskStore';
 import { waitScreen } from './trials/awaitPopulationInfo';
 import { initLocationPersistence } from './helpers/persistLocation';
@@ -14,10 +13,7 @@ import { initLocationPersistence } from './helpers/persistLocation';
 export default function buildLocationSelectionTimeline(config: Record<string, any>, _mediaAssets: MediaAssetsType) {
   initTrialSaving(config);
   const initialTimeline = initTimeline(config, enterFullscreen);
-  const locationConfig = getLocationSelectionTaskConfig(config);
   initLocationPersistence(config);
-
-  taskStore('locationSelectionConfig', locationConfig);
 
   const gpsBlock = {
     timeline: [
