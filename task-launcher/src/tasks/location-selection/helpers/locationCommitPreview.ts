@@ -1,15 +1,30 @@
 import { cellToLatLng, latLngToCell } from 'h3-js';
+import type { LocationV1 } from '@levante-framework/firekit';
+
+type H3Cell = NonNullable<LocationV1['h3']['effective']>;
 import { type LocationSelectionDraft } from './state';
 import { getLocationSelectionTaskConfig } from './config';
 import { lookupPopulationForCell } from './populationApi';
 import { taskStore } from '../../../taskStore';
 import { persistLocation } from './persistLocation';
-import { LocationV1 } from '@levante-framework/firekit';
 import { Logger } from '../../../utils';
 
-function roundTo(value: number, decimals = 6): number {
-  const factor = 10 ** decimals;
-  return Math.round(value * factor) / factor;
+function toH3Cell(h3Index: string, resolution: number): H3Cell {
+  const center = cellToLatLng(h3Index);
+  return {
+    h3Index,
+    resolution,
+    center: [center[0], center[1]],
+  };
+}
+
+function resolvePopulationSource(
+  effective: 'kontur' | 'worldpop' | 'unknown',
+  observed: 'kontur' | 'worldpop' | 'unknown',
+): 'kontur' | 'worldpop' {
+  if (effective !== 'unknown') return effective;
+  if (observed !== 'unknown') return observed;
+  return 'kontur';
 }
 
 export async function buildLocationCommitPreviewWithPopulation(
@@ -45,6 +60,7 @@ export async function buildLocationCommitPreviewWithPopulation(
 
   const baselineEvaluation = await evaluateResolution(baselineResolution);
   if (baselineEvaluation?.privacyMet) {
+    privacyCompliantCellFound = true;
     effectiveCell = baselineEvaluation.cellId;
     effectiveResolution = baselineEvaluation.resolution;
     effectivePopulationSource = baselineEvaluation.populationResult.source;
@@ -83,30 +99,21 @@ export async function buildLocationCommitPreviewWithPopulation(
     );
   }
 
-  const [centerLat, centerLon] = cellToLatLng(effectiveCell);
-
   return {
     schemaVersion: 'location_v1',
-    privacyMet: privacyCompliantCellFound,
-    latLon: privacyCompliantCellFound ? {
-      lat: roundTo(centerLat, 6),
-      lon: roundTo(centerLon, 6),
-      source: 'h3_center',
-    } : undefined,
     h3: {
       scheme: 'h3_v1',
       baseline: baselineEvaluation?.privacyMet
-        ? { h3Index: baselineCell, resolution: baselineResolution }
+        ? toH3Cell(baselineCell, baselineResolution)
         : undefined,
       effective: privacyCompliantCellFound
-        ? { h3Index: effectiveCell, resolution: effectiveResolution }
+        ? toH3Cell(effectiveCell, effectiveResolution)
         : undefined,
-      populationThreshold,
     },
-    populationSource:
-      effectivePopulationSource !== 'unknown'
-        ? effectivePopulationSource
-        : (observedPopulationSource !== 'unknown' ? observedPopulationSource : 'kontur'),
+    population: {
+      source: resolvePopulationSource(effectivePopulationSource, observedPopulationSource),
+      threshold: populationThreshold,
+    },
     computedAt: draft.selectedAt || new Date().toISOString(),
   };
 }
