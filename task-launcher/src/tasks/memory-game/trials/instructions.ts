@@ -1,16 +1,17 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
-import { jsPsych } from '../../taskSetup';
 import { mediaAssets } from '../../..';
+import { taskStore } from '../../../taskStore';
 import {
   addExperimenterButtons,
-  PageStateHandler,
-  PageAudioHandler,
+  enableOkButton,
   getParticipantUtilityButtonsHtml,
-  setupReplayAudio,
+  PageAudioHandler,
+  PageStateHandler,
   setupFullscreenButton,
-  isEnglish,
+  setupReplayAudio,
 } from '../../shared/helpers';
-import { taskStore } from '../../../taskStore';
+import { jsPsych } from '../../taskSetup';
+import { resolveMemoryGamePrompt } from '../helpers/resolveMemoryGamePrompt';
 
 let setPromptDurations = false;
 
@@ -53,7 +54,7 @@ const instructionData = [
     buttonText: 'continueButtonText',
   },
   {
-    prompt: 'memoryGameInstruct3',
+    prompt: 'memoryGameInstruct8Downex',
     video: 'selectSequence',
     buttonText: 'continueButtonText',
   },
@@ -73,7 +74,7 @@ const instructionData = [
     buttonText: 'continueButtonText',
   },
   {
-    prompt: 'memoryGameBackwardPrompt',
+    prompt: 'memoryGameInstruct11Downex',
     video: 'selectSequenceReverse',
     buttonText: 'continueButtonText',
   },
@@ -86,11 +87,12 @@ const instructions = instructionData.map((data) => {
     type: jsPsychHtmlMultiResponse,
     stimulus: () => {
       const t = taskStore().translations;
+      const promptKey = resolveMemoryGamePrompt(data.prompt);
       const mediaSrc = data.video ? mediaAssets.video[data.video] : mediaAssets.images[data.image as string];
       return `<div class="lev-stimulus-container">
                         ${getParticipantUtilityButtonsHtml(replayButtonHtmlId)}
                         <div class="lev-row-container instruction">
-                            <p>${t[data.prompt]}</p>
+                            <p>${t[promptKey]}</p>
                         </div>
                         <div class="lev-stim-content-x-3">
                             ${
@@ -113,7 +115,7 @@ const instructions = instructionData.map((data) => {
 
       if (data.buttonText) {
         return [
-          `<button class="primary">
+          `<button class="primary" disabled>
                   ${t[data.buttonText]}
           </button>`,
         ];
@@ -122,6 +124,7 @@ const instructions = instructionData.map((data) => {
     keyboard_choices: 'NO_KEYS',
     post_trial_gap: 500,
     on_load: async () => {
+      const promptKey = resolveMemoryGamePrompt(data.prompt);
       const audioConfig: AudioConfigType = {
         restrictRepetition: {
           enabled: false,
@@ -130,12 +133,14 @@ const instructions = instructionData.map((data) => {
         onEnded: () => {
           if (!data.buttonText) {
             jsPsych.finishTrial();
+          } else {
+            enableOkButton();
           }
         },
       };
 
-      PageAudioHandler.playAudio(mediaAssets.audio[data.prompt], audioConfig);
-      const pageStateHandler = new PageStateHandler(data.prompt, true);
+      PageAudioHandler.playAudio(promptKey, audioConfig);
+      const pageStateHandler = new PageStateHandler(promptKey, true);
       setupReplayAudio(pageStateHandler);
       addExperimenterButtons();
       setupFullscreenButton();
@@ -150,22 +155,18 @@ const instructions = instructionData.map((data) => {
       if (!setPromptDurations) {
         setPromptDurations = true;
 
-        const displayPromptDurations = isEnglish(taskStore().language)
-          ? {
-              memoryGameInstruct7Downex: await PageAudioHandler.getAudioDuration(
-                mediaAssets.audio.memoryGameInstruct7Downex,
-              ),
-              memoryGameDisplay: await PageAudioHandler.getAudioDuration(mediaAssets.audio.memoryGameDisplay),
-              memoryGameInstruct2Downex: await PageAudioHandler.getAudioDuration(
-                mediaAssets.audio.memoryGameInstruct2Downex,
-              ),
-              memoryGameInstruct4Downex: await PageAudioHandler.getAudioDuration(
-                mediaAssets.audio.memoryGameInstruct4Downex,
-              ),
-            }
-          : {
-              memoryGameDisplay: await PageAudioHandler.getAudioDuration(mediaAssets.audio.memoryGameDisplay),
-            };
+        const displayPromptDurations = {
+          memoryGameInstruct7Downex: await PageAudioHandler.getAudioDuration(
+            mediaAssets.audio.memoryGameInstruct7Downex,
+          ),
+          memoryGameDisplay: await PageAudioHandler.getAudioDuration(mediaAssets.audio.memoryGameDisplay),
+          memoryGameInstruct2Downex: await PageAudioHandler.getAudioDuration(
+            mediaAssets.audio.memoryGameInstruct2Downex,
+          ),
+          memoryGameInstruct4Downex: await PageAudioHandler.getAudioDuration(
+            mediaAssets.audio.memoryGameInstruct4Downex,
+          ),
+        };
 
         taskStore('displayPromptDurations', displayPromptDurations);
       }

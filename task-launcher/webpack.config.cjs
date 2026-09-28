@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require('node:path');
 const webpack = require('webpack');
 const { merge } = require('webpack-merge');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -94,8 +94,8 @@ const commonConfig = {
       },
       {
         test: /\.css$/i,
-        use: ['style-loader', 'css-loader']
-      }
+        use: ['style-loader', 'css-loader'],
+      },
     ],
   },
   experiments: {

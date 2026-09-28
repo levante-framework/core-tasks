@@ -1,14 +1,13 @@
 import { taskStore } from '../../taskStore';
-import { setupSds } from './helpers/prepareSdsCorpus';
 import {
   createPreloadTrials,
   initTimeline,
   initTrialSaving,
+  isCatBlockTimeExpired,
   prepareCorpus,
   prepareMultiBlockCat,
+  setCatBlockTimeLimit,
 } from '../shared/helpers';
-import { stimulus } from './trials/stimulus';
-import { afcMatch } from './trials/afcMatch';
 import {
   enterFullscreen,
   exitFullscreen,
@@ -16,18 +15,22 @@ import {
   fixationOnly,
   getAudioResponse,
   setupStimulusFromBlock,
+  startCatBlock,
   taskFinished,
 } from '../shared/trials';
-import { setTrialBlock } from './helpers/setTrialBlock';
 import { initializeCat, jsPsych } from '../taskSetup';
+import { setupSds } from './helpers/prepareSdsCorpus';
+import { setTrialBlock } from './helpers/setTrialBlock';
+import { afcMatch } from './trials/afcMatch';
 import { legacyStimulus } from './trials/legacyStimulus';
+import { stimulus } from './trials/stimulus';
 
 export default function buildSameDifferentTimelineCat(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
   const heavy: boolean = taskStore().heavyInstructions;
 
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
-  const preparedCorpus = prepareCorpus(corpus, false, undefined, true);
+  const preparedCorpus = prepareCorpus(corpus, 0, undefined, true);
 
   const catCorpus = setupSds(taskStore().corpora.stimulus);
   const allBlocks = prepareMultiBlockCat(catCorpus);
@@ -60,7 +63,7 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
 
   // used for instruction and practice trials
   const ipBlock = (trial: StimulusType) => {
-    let trialGenerator;
+    let trialGenerator: typeof afcMatch | typeof stimulus | typeof legacyStimulus;
     if (trial.trialType.includes('match')) {
       trialGenerator = afcMatch;
     } else if (taskStore().version === 2) {
@@ -81,7 +84,7 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
   };
 
   const feedbackBlock = {
-    timeline: [feedback(true, 'feedbackCorrect', 'feedbackNotQuiteRight')],
+    timeline: [feedback(true)],
     conditional_function: () => {
       return taskStore().version === 2;
     },
@@ -111,7 +114,7 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
             (stimulus.trialType.includes('something-same') && trialNum === 2)
           );
         } else {
-          return stimulus.trialType === trialNum + '-match';
+          return stimulus.trialType === `${trialNum}-match`;
         }
       },
     };
@@ -124,6 +127,8 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
 
   let fiveBlockIntroTrial: StimulusType;
   let fiveBlockIntro: any;
+  let fiveBlockIntroAlreadyRun = false;
+
   if (taskStore().version === 2) {
     // separate this out so that it is inserted at the right place in the timeline
     fiveBlockIntroTrial = instructionPractice.find((trial) => trial.itemId === 'sds-instruct5') as StimulusType;
@@ -132,7 +137,12 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
     fiveBlockIntro = {
       timeline: [ipBlock(fiveBlockIntroTrial)],
       conditional_function: () => {
-        return taskStore().nextStimulus.trialType === '4-match';
+        const runFiveBlockIntro = taskStore().nextStimulus.trialType === '4-match' && !fiveBlockIntroAlreadyRun;
+        if (runFiveBlockIntro) {
+          fiveBlockIntroAlreadyRun = true;
+        }
+
+        return runFiveBlockIntro;
       },
     };
   }
@@ -140,8 +150,7 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
   // returns practice + instruction trials for a given block
   function getPracticeInstructions(blockNum: number): StimulusType[] {
     return instructionPractice.filter((trial) => {
-      if (Number.isNaN(trial.block_index)) return;
-
+      if (Number.isNaN(trial.block_index)) return false;
       return trial.block_index === blockNum;
     });
   }
@@ -149,10 +158,49 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
   // create list of numbers of trials per block
   const blockCountList = setTrialBlock(true).blockCountList;
 
-  const totalRealTrials = blockCountList.reduce((acc, total) => acc + total, 0);
+  const skipSecondBlock = !heavy && taskStore().version === 2;
+  const effectiveBlockCount = skipSecondBlock ? blockCountList.length - 1 : blockCountList.length;
+  setCatBlockTimeLimit(taskStore().maxTime, effectiveBlockCount);
+
+  const totalRealTrials = blockCountList.reduce((acc, count, index) => {
+    if (skipSecondBlock && index === 1) {
+      return acc;
+    }
+    return acc + count;
+  }, 0);
   taskStore('totalTestTrials', totalRealTrials);
 
+  const catTrialIteration = (index: number, isLastBlock = false) => {
+    const innerTimeline: any[] = [{ ...setupStimulusFromBlock(index), stimulus: '' }];
+
+    if (index === 0) {
+      innerTimeline.push(runCatTrials(1, 'stimulus'));
+    }
+    if (index === 1) {
+      innerTimeline.push(runCatTrials(2, 'stimulus'));
+    }
+    if (index === 2) {
+      if (taskStore().version === 2) {
+        innerTimeline.push(fiveBlockIntro);
+      }
+      innerTimeline.push(runCatTrials(2, 'afc'));
+      innerTimeline.push(runCatTrials(3, 'afc'));
+      innerTimeline.push(runCatTrials(4, 'afc'));
+    }
+
+    return {
+      timeline: innerTimeline,
+      conditional_function: () => !isCatBlockTimeExpired(isLastBlock),
+    };
+  };
+
   blockCountList.forEach((count, index) => {
+    // if block index 1 is skipped, that block's instructions (which always run)
+    // should count against the following block's time budget
+    if (!(skipSecondBlock && index === 2)) {
+      timeline.push(startCatBlock);
+    }
+
     const currentBlockInstructionPractice = getPracticeInstructions(index);
 
     currentBlockInstructionPractice.forEach((trial) => {
@@ -160,28 +208,14 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
     });
 
     // only younger kids get something-same blocks
-    if (!heavy && index === 1 && taskStore().version === 2) {
+    if (skipSecondBlock && index === 1) {
       return;
     }
 
-    const numOfTrials = index === 0 ? count : count / 2; // change this based on simulation results?
+    const numOfTrials = count;
+    const isLastBlock = index === blockCountList.length - 1;
     for (let i = 0; i < numOfTrials; i++) {
-      timeline.push({ ...setupStimulusFromBlock(index), stimulus: '' });
-
-      if (index === 0) {
-        timeline.push(runCatTrials(1, 'stimulus'));
-      }
-      if (index === 1) {
-        timeline.push(runCatTrials(2, 'stimulus'));
-      }
-      if (index === 2) {
-        if (taskStore().version === 2) {
-          timeline.push(fiveBlockIntro);
-        }
-        timeline.push(runCatTrials(2, 'afc'));
-        timeline.push(runCatTrials(3, 'afc'));
-        timeline.push(runCatTrials(4, 'afc'));
-      }
+      timeline.push(catTrialIteration(index, isLastBlock));
     }
   });
 

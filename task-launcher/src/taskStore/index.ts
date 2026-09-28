@@ -1,6 +1,5 @@
 import store from 'store2';
-import { InputCapability } from '../utils/detectInput';
-import { isEnglish } from '../tasks/shared/helpers';
+import type { InputCapability } from '../utils/detectInput';
 
 /**
  * @typedef {Object} TaskStore
@@ -25,10 +24,14 @@ import { isEnglish } from '../tasks/shared/helpers';
  * @property {number} maxTime - Time limit set for the task.
  * @property {number} startTime - Time at which the task started.
  * @property {boolean} taskComplete - Whether the task has ended - if true, the user should return to dashboard.
+ * @property {'timeOut' | 'errorOut' | 'earlyCompletion' | 'taskAbort' | 'sufficientTrials'} effectiveStoppingRule - Why the task finished.
  * @property {Object} assetsPerTask - Object containing list of assets belonging to each task.
  * @property {boolean} demoMode - Whether the task is running in demo mode (no interaction with Firestore), default is false.
  * @property {boolean} debug - Shows theta estimate on the screen for cat debugging when enabled.
+ * @property {boolean} showAudioKeys - When true, displays audio keys on screen for debugging.
  * @property {boolean} experimenterButtons - When true, experimenter utility controls (pause, exit) are available.
+ * @property {boolean} experimenterExit - Whether the task was exited via the experimenter exit button, default is false.
+ * @property {boolean} bubblePractice - When true, run the bubble popping practice trial in the intro task.
  * @property {number} currentCatBlock - The current block number to select trials from in a CAT.
  * @property {number[]} blockThresholds - Array of theta thresholds.
  * @property {number} totalTrialCount - Total number of trials, including practice and instructions.
@@ -43,6 +46,8 @@ import { isEnglish } from '../tasks/shared/helpers';
  * @property {number} taskTimerPausedMs - Cumulative ms excluded from max-time while experimenter pause is active.
  * @property {number|null} taskTimerPauseBeganAt - Wall time when the current experimenter pause began, or null.
  * @property {boolean} isPaused - Whether the task is paused, default is false.
+ * @property {number} catBlockTimeLimitMs - Per-block time budget for multi-block CAT tasks (maxTime / effectiveBlockCount).
+ * @property {number|null} catBlockStartElapsedMs - Task elapsed ms when the current CAT block timer started, or null.
  * ------- AFC and SDS only -------
  * @property {string} target - Target item.
  * @property {Array} choices - List of choices.
@@ -103,7 +108,9 @@ export type TaskStoreDataType = {
   maxTime?: number;
   demoMode: boolean;
   experimenterButtons: boolean;
+  showAudioKeys: boolean;
   debug: boolean;
+  bubblePractice: boolean;
   version: number;
   currentCatBlock?: number;
   blockThresholds?: number[];
@@ -144,7 +151,7 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     maxIncorrect: config.maxIncorrect,
     keyHelpers: config.keyHelpers,
     runCat: config.cat,
-    heavyInstructions: effectiveHeavyInstructions && isEnglish(config.language),
+    heavyInstructions: effectiveHeavyInstructions,
     semThreshold: config.semThreshold,
     startingTheta: config.startingTheta,
     storeItemId: config.storeItemId,
@@ -155,6 +162,7 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     gridSize: config.userMetadata.age > 4 ? 3 : 2,
     maxTimeReached: false,
     taskComplete: false,
+    effectiveStoppingRule: 'taskAbort', // start this as task abort, overwrite later if there is a valid task ending
     stimulus: 'heart',
     stimulusSide: 'left',
     stimulusPosition: 0,
@@ -165,7 +173,10 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     maxTime: config.maxTime,
     demoMode: config.demoMode,
     experimenterButtons: config.experimenterButtons && effectiveHeavyInstructions,
+    experimenterExit: false,
+    showAudioKeys: config.showAudioKeys,
     debug: config.debug,
+    bubblePractice: config.bubblePractice,
     version: config.version || 1,
     currentStoryGroup: 0,
     taskTimer: null,
@@ -175,6 +186,8 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     locationDataSaved: false,
     userLocationType: null,
     userWentBack: false,
+    catBlockTimeLimitMs: 0,
+    catBlockStartElapsedMs: null,
   });
 };
 

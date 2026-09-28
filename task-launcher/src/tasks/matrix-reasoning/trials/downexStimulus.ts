@@ -1,22 +1,21 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
-import { taskStore } from '../../../taskStore';
 import { mediaAssets } from '../../..';
+import { taskStore } from '../../../taskStore';
 import {
   addExperimenterButtons,
   addPracticeButtonListeners,
   camelize,
+  enableAllButtons,
+  getParticipantUtilityButtonsHtml,
   PageAudioHandler,
   PageStateHandler,
-  getParticipantUtilityButtonsHtml,
-  setupReplayAudio,
-  setupFullscreenButton,
   popAnimation,
-  enableAllButtons,
+  setupFullscreenButton,
+  setupReplayAudio,
 } from '../../shared/helpers';
 import { isTouchScreen, jsPsych } from '../../taskSetup';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
-let practiceResponses = [];
 let startTime: number;
 let cycleId = 0; // disable audio if the trial has changed since the loop started - prevent overlapping audio
 
@@ -29,7 +28,7 @@ export const downexStimulus = (
     type: jsPsychHtmlMultiResponse,
     data: () => {
       const stim = trial || taskStore().nextStimulus;
-      let isPracticeTrial = stim.assessmentStage === 'practice_response';
+      const isPracticeTrial = stim.assessmentStage === 'practice_response';
       return {
         // not camelCase because firekit
         save_trial: true,
@@ -43,7 +42,7 @@ export const downexStimulus = (
       const t = taskStore().translations;
       const imageSrc = mediaAssets.images[camelize(stim.item)];
 
-      let itemText;
+      let itemText: string;
       const audioFile = stim.audioFile;
       if (typeof audioFile !== 'string') {
         itemText = audioFile.map((file: string) => t[camelize(file)]).join(' ');
@@ -123,13 +122,19 @@ export const downexStimulus = (
       const incorrectPracticeResponses: Array<string | null> = [];
       taskStore('incorrectPracticeResponses', incorrectPracticeResponses);
 
-      function onCorrect() {
+      function onCorrect(onFeedbackEnded: () => void) {
         PageAudioHandler.stopAndDisconnectNode();
         cycleId++;
-        PageAudioHandler.playAudio(mediaAssets.audio.feedbackRightOne);
+        PageAudioHandler.playAudio('feedbackRightOne', {
+          restrictRepetition: {
+            enabled: false,
+            maxRepetitions: 2,
+          },
+          onEnded: onFeedbackEnded,
+        });
       }
 
-      function onIncorrect() {
+      function onIncorrect(onFeedbackEnded: () => void) {
         PageAudioHandler.stopAndDisconnectNode();
         cycleId++;
 
@@ -149,9 +154,10 @@ export const downexStimulus = (
             enabled: true,
             maxRepetitions: 2,
           },
+          onEnded: onFeedbackEnded,
         };
 
-        PageAudioHandler.playAudio(mediaAssets.audio.matrixReasoningFeedbackIncorrectDownex, audioConfig);
+        PageAudioHandler.playAudio('matrixReasoningFeedbackIncorrectDownex', audioConfig);
       }
 
       addPracticeButtonListeners(
@@ -182,12 +188,9 @@ export const downexStimulus = (
         };
 
         if (typeof trialAudio === 'string') {
-          const audioUri = mediaAssets.audio[camelize(trialAudio)] || mediaAssets.audio.nullAudio;
-          PageAudioHandler.playAudio(audioUri);
+          PageAudioHandler.playAudio(trialAudio, audioConfig);
         } else {
-          for (const [index, audioFile] of trialAudio.entries()) {
-            const audioUri = mediaAssets.audio[camelize(audioFile)] || mediaAssets.audio.nullAudio;
-
+          for (const [_index, audioFile] of trialAudio.entries()) {
             // make sure the trial has not changed since the loop started
             if (thisCycleId !== cycleId || taskStore().isPaused) {
               break;
@@ -204,7 +207,7 @@ export const downexStimulus = (
               if (animate && camelize(audioFile) !== 'sdsYourTurn') {
                 itemsToAnimate = popAnimation(itemsToAnimate, 'pulse 2s 0s') as any;
               }
-              PageAudioHandler.playAudio(audioUri, configWithCallback);
+              PageAudioHandler.playAudio(audioFile, configWithCallback);
             });
           }
         }
@@ -249,7 +252,6 @@ export const downexStimulus = (
           taskStore.transact('totalCorrect', (oldVal: number) => oldVal + 1);
           taskStore('numIncorrect', 0); // reset incorrect trial count
         }
-        practiceResponses = [];
       } else {
         // Only increase incorrect trials if response is incorrect not a practice trial
         if (stimulus.assessmentStage !== 'practice_response') {

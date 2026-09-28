@@ -13,7 +13,6 @@ test-results/
 lib/
 .env
 .idea/
-.vscode/
 task-launcher/.venv/
 task-launcher/data/
 task-launcher/firestore-debug.log

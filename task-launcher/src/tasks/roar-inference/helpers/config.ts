@@ -1,9 +1,8 @@
 import {
-  convertItemToString,
-  validateLayoutConfig,
-  prepareChoices,
   DEFAULT_LAYOUT_CONFIG,
   mapDistractorsToString,
+  prepareChoices,
+  validateLayoutConfig,
 } from '../../shared/helpers';
 import type { LayoutConfigTypeInference } from '../types/inferenceTypes';
 
@@ -16,7 +15,7 @@ export const getLayoutConfig = (
   stimulus: StimulusType,
   translations: Record<string, string>,
   mediaAssets: MediaAssetsType,
-  trialNumber: number,
+  _trialNumber: number,
 ): GetConfigReturnType => {
   const { answer, distractors, trialType } = stimulus;
   const defaultConfig: LayoutConfigTypeInference = JSON.parse(JSON.stringify(DEFAULT_LAYOUT_CONFIG));

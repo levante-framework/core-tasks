@@ -1,32 +1,31 @@
 import 'regenerator-runtime/runtime';
+import { taskStore } from '../../taskStore';
 // setup
 import {
-  initTrialSaving,
-  initTimeline,
+  batchMediaAssets,
+  batchTrials,
   createPreloadTrials,
   getRealTrials,
-  batchTrials,
-  batchMediaAssets,
+  initTimeline,
+  initTrialSaving,
+  reportCorpusValidationErrors,
 } from '../shared/helpers';
-import { jsPsych, initializeCat, cat } from '../taskSetup';
+import { preloadSharedAudio } from '../shared/helpers/preloadSharedAudio';
+import { prepareCorpus, selectNItems } from '../shared/helpers/prepareCat';
 // trials
 import {
   afcStimulusTemplate,
+  enterFullscreen,
   exitFullscreen,
   fixationOnly,
+  practiceTransition,
   setupStimulus,
   taskFinished,
-  enterFullscreen,
-  practiceTransition,
 } from '../shared/trials';
+import { cat, initializeCat, jsPsych } from '../taskSetup';
 import { getLayoutConfig } from './helpers/config';
-import { prepareCorpus, selectNItems } from '../shared/helpers/prepareCat';
-import { taskStore } from '../../taskStore';
-import { preloadSharedAudio } from '../shared/helpers/preloadSharedAudio';
 
 export default function buildTROGTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
-  const preloadTrials = createPreloadTrials(mediaAssets).default;
-
   initTrialSaving(config);
   const initialTimeline = initTimeline(config, enterFullscreen);
   const corpus: StimulusType[] = taskStore().corpora.stimulus;
@@ -44,11 +43,7 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
     }
   }
 
-  if (Object.keys(validationErrorMap).length) {
-    console.error('The following errors were found');
-    console.table(validationErrorMap);
-    throw new Error('Something went wrong. Please look in the console for error details');
-  }
+  reportCorpusValidationErrors(validationErrorMap);
 
   // organize media assets into batches for preloading
   const batchSize = 25;

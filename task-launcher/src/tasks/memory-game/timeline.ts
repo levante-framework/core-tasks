@@ -1,31 +1,25 @@
-import {
-  initTimeline,
-  initTrialSaving,
-  createPreloadTrials,
-  checkFallbackCriteria,
-  PageAudioHandler,
-} from '../shared/helpers';
-// setup
-import { jsPsych } from '../taskSetup';
-import { initializeCat } from '../taskSetup';
+import { mediaAssets } from '../..';
+import { taskStore } from '../../taskStore';
+import { checkFallbackCriteria, createPreloadTrials, initTimeline, initTrialSaving } from '../shared/helpers';
 // trials
 import { enterFullscreen, exitFullscreen, feedback, repeatInstructionsMessage, taskFinished } from '../shared/trials';
-import { getCorsiBlocks } from './trials/stimulus';
+// setup
+import { initializeCat, jsPsych } from '../taskSetup';
+import { resolveMemoryGamePrompt } from './helpers/resolveMemoryGamePrompt';
 import {
-  readyToPlay,
-  reverseOrderPrompt,
-  reverseOrderInstructions,
   defaultInstructions,
   downexInstructions,
+  readyToPlay,
+  reverseOrderInstructions,
+  reverseOrderPrompt,
 } from './trials/instructions';
-import { taskStore } from '../../taskStore';
-import { mediaAssets } from '../..';
+import { getCorsiBlocks } from './trials/stimulus';
 
 const generatePracticeTrialTimeline = (reverse: boolean, tryAgainText: string, repetitions: number) => {
   const basicBlock = [
     getCorsiBlocks({ mode: 'display', isPractice: true, reverse }),
     getCorsiBlocks({ mode: 'input', isPractice: true, reverse }),
-    feedback(true, 'feedbackCorrect', tryAgainText, true),
+    feedback(true, tryAgainText),
   ];
 
   const finalTimeline = [];
@@ -42,7 +36,7 @@ const getSecondRoundPracticeTrials = (reverse: boolean, tryAgainText: string) =>
       getCorsiBlocks({ mode: 'display', isPractice: true, reverse }),
       getCorsiBlocks({ mode: 'input', isPractice: true, reverse }),
       {
-        timeline: [feedback(true, 'feedbackCorrect', tryAgainText, true)],
+        timeline: [feedback(true, tryAgainText)],
         conditional_function: () => {
           return taskStore().isCorrect;
         },
@@ -57,16 +51,19 @@ const getSecondRoundPracticeTrials = (reverse: boolean, tryAgainText: string) =>
 export default function buildMemoryTimeline(config: Record<string, any>) {
   const { heavyInstructions } = taskStore();
 
+  const forwardTryAgainPrompt = resolveMemoryGamePrompt('memoryGameInstruct8Downex');
+  const backwardTryAgainPrompt = resolveMemoryGamePrompt('memoryGameInstruct11Downex');
+
   initTrialSaving(config);
   const preloadTrials = createPreloadTrials(mediaAssets).default;
   const initialTimeline = initTimeline(config, enterFullscreen);
 
   const corsiBlocksPractice = {
-    timeline: [...generatePracticeTrialTimeline(false, 'memoryGameForwardTryAgain', 3)],
+    timeline: [...generatePracticeTrialTimeline(false, forwardTryAgainPrompt, 3)],
   };
 
   const corsiBlocksPracticeReverse = {
-    timeline: [...generatePracticeTrialTimeline(true, 'memoryGameBackwardTryAgain', 3)],
+    timeline: [...generatePracticeTrialTimeline(true, backwardTryAgainPrompt, 3)],
   };
 
   const forwardTrial = () => {
@@ -104,7 +101,7 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
   taskStore('totalTestTrials', totalRealTrials);
 
   const downexFeedbackCorrect = {
-    timeline: [feedback(true, 'feedbackCorrect', 'memoryGameForwardTryAgain', true)],
+    timeline: [feedback(true)],
     conditional_function: () => {
       return taskStore().isCorrect;
     },
@@ -175,7 +172,7 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
     timeline: [
       reverseOrderPrompt,
       corsiBlocksPracticeReverse,
-      getSecondRoundPracticeTrials(true, 'memoryGameBackwardTryAgain'),
+      getSecondRoundPracticeTrials(true, backwardTryAgainPrompt),
     ],
   };
 
@@ -183,7 +180,7 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
     timeline: [
       ...defaultInstructions,
       corsiBlocksPractice,
-      getSecondRoundPracticeTrials(false, 'memoryGameForwardTryAgain'),
+      getSecondRoundPracticeTrials(false, forwardTryAgainPrompt),
       readyToPlay,
     ],
   };

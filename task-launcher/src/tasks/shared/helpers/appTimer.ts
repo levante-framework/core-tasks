@@ -1,6 +1,5 @@
 import { taskStore } from '../../../taskStore';
-import { finishExperiment } from '../trials';
-import { camelize } from './camelize';
+import { finishTaskEarly } from '../trials';
 import { PageStateHandler } from './PageStateHandler';
 
 // This feature allows the task configurator to set a time limit for the app,
@@ -9,6 +8,8 @@ import { PageStateHandler } from './PageStateHandler';
 
 // buffer in milliseconds after presentation of stimulus to allow some time to answer
 const RESPONSE_BUFFER = 2000;
+// more than this amount of time must be left to show instructions
+const INSTRUCTIONS_BUFFER = 10000;
 
 export function getActiveTaskElapsedMs(): number {
   const startTime = taskStore().startTime;
@@ -24,6 +25,31 @@ export function finalizeCurrentPauseSegment(): void {
   if (typeof pauseBeganAt !== 'number') return;
   taskStore('taskTimerPausedMs', (taskStore().taskTimerPausedMs ?? 0) + (Date.now() - pauseBeganAt));
   taskStore('taskTimerPauseBeganAt', null);
+}
+
+export function beginTaskTimerPauseSegment(): void {
+  if (taskStore().taskTimer != null) {
+    clearTimeout(taskStore().taskTimer);
+    taskStore('taskTimer', null);
+  }
+  taskStore('taskTimerPauseBeganAt', Date.now());
+}
+
+export function resumeTaskTimerAfterPauseSegment(): void {
+  finalizeCurrentPauseSegment();
+
+  const startTime = taskStore().startTime;
+  if (typeof startTime !== 'number') {
+    return;
+  }
+
+  const maxTimeInMilliseconds = Math.max(Number(taskStore().maxTime), 1) * 60000;
+  const remainingMs = Math.max(0, maxTimeInMilliseconds - getActiveTaskElapsedMs());
+  const timerId = setTimeout(() => {
+    taskStore('maxTimeReached', true);
+    clearTimeout(timerId);
+  }, remainingMs);
+  taskStore('taskTimer', timerId);
 }
 
 export const startAppTimer = (maxTimeInMinutes: number) => {
@@ -43,12 +69,20 @@ export const startAppTimer = (maxTimeInMinutes: number) => {
 };
 
 // function for ending the task if the next trial
-export async function checkEndTaskEarly(timeRemaining: number, stimAudio: string) {
+// returns true if the experiment was ended early, false otherwise
+export async function checkEndTaskEarly(timeRemaining: number, stimAudio: string): Promise<boolean> {
   const pageStateHandler = new PageStateHandler(stimAudio, false);
-  const minTrialDuration = (await pageStateHandler.getStimulusDurationMs()) + RESPONSE_BUFFER;
+  let minTrialDuration = (await pageStateHandler.getStimulusDurationMs()) + RESPONSE_BUFFER;
+
+  if (taskStore().nextStimulus.assessmentStage === 'instructions') {
+    minTrialDuration += INSTRUCTIONS_BUFFER;
+  }
 
   if (timeRemaining < minTrialDuration) {
     clearTimeout(taskStore().taskTimer);
-    finishExperiment();
+    finishTaskEarly('timeOut');
+    return true;
   }
+
+  return false;
 }

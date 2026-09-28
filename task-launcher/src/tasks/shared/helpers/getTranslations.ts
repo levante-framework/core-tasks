@@ -1,9 +1,10 @@
-import { camelize } from './camelize';
 import { taskStore } from '../../../taskStore';
+import { Logger } from '../../../utils/logger';
+import { camelize } from './camelize';
 
 import 'regenerator-runtime/runtime';
 
-let translations: Record<string, string> = {};
+const translations: Record<string, string> = {};
 
 function parseTranslations(translationData: Record<string, string>[]) {
   for (const [key, value] of Object.entries(translationData)) {
@@ -55,7 +56,7 @@ export const getTranslations = async (isDev: boolean, taskName: string, configLa
       await loadTranslationJsons(taskName === 'intro' ? [urls[1]] : urls);
       taskStore('translations', translations);
     } catch (error) {
-      console.error('Error:', error);
+      Logger.getInstance().error(error, { source: 'getTranslations', taskName });
     }
   }
 

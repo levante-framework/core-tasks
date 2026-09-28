@@ -1,5 +1,5 @@
-import { makePid } from './makePID';
 import { startAppTimer } from './appTimer';
+import { makePid } from './makePID';
 
 export const initTimeline = (config: Record<string, any>, enterFullscreen: Record<string, any>) => {
   const initialTimeline = [enterFullscreen];

@@ -1,35 +1,47 @@
 // setup
-import { jsPsych } from '../taskSetup';
-import { fixation } from './trials/fixation';
-import { initTrialSaving, initTimeline, createPreloadTrials } from '../shared/helpers';
+
 import { mediaAssets } from '../..';
 import { taskStore } from '../../taskStore';
-
+import { Logger } from '../../utils/logger';
+import { createPreloadTrials, initTimeline, initTrialSaving } from '../shared/helpers';
 // trials
-import { exitFullscreen, enterFullscreen } from '../shared/trials';
-import { stimulus, buildHeartsOrFlowersTimelineVariables, buildMixedTimelineVariables } from './trials/stimulus';
+import { enterFullscreen, exitFullscreen } from '../shared/trials';
+import { jsPsych } from '../taskSetup';
+import { AssessmentStageType, CorpusTrialType, StimulusSideType, StimulusType } from './helpers/utils';
+import { fixation } from './trials/fixation';
+import {
+  getEndGame,
+  getFlowerInstructions,
+  getGoingFasterInstructions,
+  getHeartInstructions,
+  getInputInstructions,
+  getKeepGoing,
+  getKeepUp,
+  getLeftButtonDemo,
+  getMixedInstructions,
+  getRightButtonDemo,
+  getTimeToPlay,
+  getTimeToPractice,
+} from './trials/instructions';
 import {
   buildInstructionPracticeTrial,
-  buildStimulusInvariantPracticeFeedback,
   buildMixedPracticeFeedback,
+  buildStimulusInvariantPracticeFeedback,
 } from './trials/practice';
-import {
-  getHeartInstructions,
-  getFlowerInstructions,
-  getTimeToPractice,
-  getKeepUp,
-  getKeepGoing,
-  getTimeToPlay,
-  getMixedInstructions,
-  getEndGame,
-  getInputInstructions,
-  getGoingFasterInstructions,
-  getLeftButtonDemo,
-  getRightButtonDemo,
-} from './trials/instructions';
-import { StimulusType, StimulusSideType, AssessmentStageType, CorpusTrialType } from './helpers/utils';
+import { buildHeartsOrFlowersTimelineVariables, buildMixedTimelineVariables, stimulus } from './trials/stimulus';
 
-export default function buildHeartsAndFlowersTimeline(config, mediaAssets) {
+type TestSectionConfig = {
+  testTrialCount: number;
+  stimulusPresentationTime: number;
+  interStimulusInterval: number;
+};
+
+type PracticeSectionConfig = TestSectionConfig & {
+  practiceTrialCount: number;
+  correctPracticeTrial: number;
+};
+
+export default function buildHeartsAndFlowersTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const hfV2 = taskStore().version === 2;
   const { heavyInstructions } = taskStore();
   const preloadTrials = createPreloadTrials(mediaAssets).default;
@@ -87,7 +99,7 @@ export default function buildHeartsAndFlowersTimeline(config, mediaAssets) {
 
   taskStore('totalTestTrials', totalRealTrials);
 
-  let timeline = [preloadTrials, initialTimeline];
+  const timeline = [preloadTrials, initialTimeline];
   if (hfV2) {
     timeline.push(getInputInstructions());
     timeline.push(getLeftButtonDemo());
@@ -124,10 +136,10 @@ export default function buildHeartsAndFlowersTimeline(config, mediaAssets) {
   return { jsPsych, timeline };
 }
 
-function getHeartOrFlowerSubtimelines(adminConfig, stimulusType) {
+function getHeartOrFlowerSubtimelines(adminConfig: PracticeSectionConfig, stimulusType: StimulusType) {
   if (stimulusType !== StimulusType.Heart && stimulusType !== StimulusType.Flower) {
     const errorMessage = `Invalid type: ${stimulusType} for getHeartOrFlowerSubtimeline`;
-    console.error(errorMessage);
+    Logger.getInstance().error(new Error(errorMessage));
     throw new Error(errorMessage);
   }
 
@@ -146,11 +158,14 @@ function getHeartOrFlowerSubtimelines(adminConfig, stimulusType) {
 }
 
 //TODO: check if we need to repeat the whole pair when user gets it wrong or if getting right on the feedback trial is enough
-function getHeartOrFlowerInstructionsSection(adminConfig, stimulusType) {
+function getHeartOrFlowerInstructionsSection(_adminConfig: PracticeSectionConfig, stimulusType: StimulusType) {
   // To build our trials for the Instruction section, let's first gather all the static data
-  let instructionPracticeStimulusSide1, instructionPracticePromptText1, instructionPracticePromptAudio1;
-  let instructionPracticeStimulusSide2, instructionPracticePromptText2, instructionPracticePromptAudio2;
-  const audioAsset = mediaAssets.audio.heartInstruct1;
+  let instructionPracticeStimulusSide1: StimulusSideType,
+    instructionPracticePromptText1: string,
+    instructionPracticePromptAudio1: string;
+  let instructionPracticeStimulusSide2: StimulusSideType,
+    instructionPracticePromptText2: string,
+    instructionPracticePromptAudio2: string;
   if (stimulusType === StimulusType.Heart) {
     //First instruction practice
     instructionPracticeStimulusSide1 = StimulusSideType.Left;
@@ -171,7 +186,7 @@ function getHeartOrFlowerInstructionsSection(adminConfig, stimulusType) {
     instructionPracticePromptAudio2 = mediaAssets.audio.flowerPracticeFeedback1;
   } else {
     const errorMessage = `Invalid type: ${stimulusType} for getHeartOrFlowerInstructionsSection`;
-    console.error(errorMessage);
+    Logger.getInstance().error(new Error(errorMessage));
     throw new Error(errorMessage);
   }
 
@@ -188,14 +203,14 @@ function getHeartOrFlowerInstructionsSection(adminConfig, stimulusType) {
     instructionPracticePromptText1,
     instructionPracticePromptAudio1,
     instructionPracticeStimulusSide1,
-    'heartInstruct2',
+    stimulusType === StimulusType.Heart ? 'heartInstruct2' : 'flowerInstruct2',
   );
   const instructionPractice2 = buildInstructionPracticeTrial(
     stimulusType,
     instructionPracticePromptText2,
     instructionPracticePromptAudio2,
     instructionPracticeStimulusSide2,
-    'heartPracticeFeedback1',
+    stimulusType === StimulusType.Heart ? 'heartPracticeFeedback1' : 'flowerPracticeFeedback1',
   );
 
   // Now let's build our timeline. Notice how we are pairing each practice trials with a feedback trial
@@ -214,8 +229,10 @@ function getHeartOrFlowerInstructionsSection(adminConfig, stimulusType) {
   return subtimeline;
 }
 
-function getHeartOrFlowerPracticeSection(adminConfig, stimulusType) {
-  let jsPsychAssessmentStage, jsPsychCorpusTrialType, feedbackKeyIncorrect;
+function getHeartOrFlowerPracticeSection(adminConfig: PracticeSectionConfig, stimulusType: StimulusType) {
+  let jsPsychAssessmentStage: AssessmentStageType,
+    jsPsychCorpusTrialType: CorpusTrialType,
+    feedbackKeyIncorrect: string;
   if (stimulusType === StimulusType.Heart) {
     jsPsychAssessmentStage = AssessmentStageType.HeartsPractice;
     jsPsychCorpusTrialType = CorpusTrialType.HeartsPractice;
@@ -226,7 +243,7 @@ function getHeartOrFlowerPracticeSection(adminConfig, stimulusType) {
     feedbackKeyIncorrect = 'flowerPracticeFeedback2'; // flower-practice-feedback2, "When you see a FLOWER, press the button on the OPPOSITE side."
   } else {
     const errorMessage = `Invalid type: ${stimulusType} for getHeartOrFlowerPracticeSection`;
-    console.error(errorMessage);
+    Logger.getInstance().error(new Error(errorMessage));
     throw new Error(errorMessage);
   }
 
@@ -237,10 +254,10 @@ function getHeartOrFlowerPracticeSection(adminConfig, stimulusType) {
 
   // Let's prepare 2 callbacks to pass to our stimuli and feedback trials in order to manage the practice block shortcut
   let practiceWinStreakCount = 0;
-  const onStimulusTrialFinishTimelineCallback = (data) => {
+  const onStimulusTrialFinishTimelineCallback = (data: Record<string, unknown>) => {
     practiceWinStreakCount = data.correct ? practiceWinStreakCount + 1 : 0;
   };
-  const onFeedbackTrialFinishTimelineCallback = (data) => {
+  const onFeedbackTrialFinishTimelineCallback = (_data: Record<string, unknown>) => {
     if (practiceWinStreakCount >= adminConfig.correctPracticeTrial) {
       // console.log(`practice block shortcut ready: win streak=${practiceWinStreakCount}`);
       jsPsych.endCurrentTimeline();
@@ -282,8 +299,8 @@ function getHeartOrFlowerPracticeSection(adminConfig, stimulusType) {
   return subtimeline;
 }
 
-function getHeartOrFlowerTestSection(adminConfig, stimulusType) {
-  let jsPsychAssessmentStage, jsPsychCorpusTrialType;
+function getHeartOrFlowerTestSection(adminConfig: TestSectionConfig, stimulusType: StimulusType) {
+  let jsPsychAssessmentStage: AssessmentStageType, jsPsychCorpusTrialType: CorpusTrialType;
   if (stimulusType === StimulusType.Heart) {
     jsPsychAssessmentStage = AssessmentStageType.HeartsStimulus;
     jsPsychCorpusTrialType = CorpusTrialType.HeartsStimulus;
@@ -292,7 +309,7 @@ function getHeartOrFlowerTestSection(adminConfig, stimulusType) {
     jsPsychCorpusTrialType = CorpusTrialType.FlowersStimulus;
   } else {
     const errorMessage = `Invalid type: ${stimulusType} for getHeartOrFlowerTestSection`;
-    console.error(errorMessage);
+    Logger.getInstance().error(new Error(errorMessage));
     throw new Error(errorMessage);
   }
 
@@ -308,7 +325,7 @@ function getHeartOrFlowerTestSection(adminConfig, stimulusType) {
   return subtimeline;
 }
 
-function getMixedInstructionsSection(adminConfig) {
+function getMixedInstructionsSection(_adminConfig: PracticeSectionConfig) {
   // feedback-good-job, "Good job!" //TODO: double-check ok to use feedback-good-job instead of "Great! That's right!" which is absent from item bank anyway
   const instructionPracticeFeedback = buildStimulusInvariantPracticeFeedback(
     'heartsAndFlowersTryAgain',
@@ -337,23 +354,23 @@ function getMixedInstructionsSection(adminConfig) {
   // Instruction practice trials do not advance until user gets it right
   subtimeline.push({
     timeline: [instructionPractice1, instructionPracticeFeedback],
-    loop_function: (data) => taskStore().isCorrect === false,
+    loop_function: (_data: unknown) => taskStore().isCorrect === false,
   });
   subtimeline.push({
     timeline: [instructionPractice2, instructionPracticeFeedback],
-    loop_function: (data) => taskStore().isCorrect === false,
+    loop_function: (_data: unknown) => taskStore().isCorrect === false,
   });
 
   return subtimeline;
 }
 
-function getMixedPracticeSection(adminConfig) {
+function getMixedPracticeSection(adminConfig: PracticeSectionConfig) {
   // Let's prepare 2 callbacks to pass to our stimuli and feedback trials in order to manage the practice block shortcut
   let practiceWinStreakCount = 0;
-  const onStimulusTrialFinishTimelineCallback = (data) => {
+  const onStimulusTrialFinishTimelineCallback = (data: Record<string, unknown>) => {
     practiceWinStreakCount = data.correct ? practiceWinStreakCount + 1 : 0;
   };
-  const onFeedbackTrialFinishTimelineCallback = (data) => {
+  const onFeedbackTrialFinishTimelineCallback = (_data: Record<string, unknown>) => {
     if (practiceWinStreakCount >= adminConfig.correctPracticeTrial) {
       // console.info(`Ending practice block early: win streak=${practiceWinStreakCount}`);
       jsPsych.endCurrentTimeline();
@@ -394,7 +411,7 @@ function getMixedPracticeSection(adminConfig) {
   return [getTimeToPractice(), heartsAndFlowersPracticeTimeline, heartsAndFlowersPostPracticeBlock];
 }
 
-function getMixedTestSection(adminConfig) {
+function getMixedTestSection(adminConfig: TestSectionConfig) {
   const heartsAndFlowersTimeline = {
     timeline: [
       fixation(adminConfig.interStimulusInterval),

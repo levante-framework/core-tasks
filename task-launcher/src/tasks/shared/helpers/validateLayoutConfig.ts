@@ -1,3 +1,4 @@
+import { Logger } from '../../../utils/logger';
 import { camelize } from './camelize';
 
 export const validateLayoutConfig = (
@@ -53,3 +54,20 @@ export const validateLayoutConfig = (
 
   return messages;
 };
+
+/** Report layout/corpus validation failures to Sentry/console and throw. No-ops if empty. */
+export function reportCorpusValidationErrors(validationErrorMap: Record<string, string>): void {
+  const itemIds = Object.keys(validationErrorMap);
+  if (!itemIds.length) {
+    return;
+  }
+
+  const preview = itemIds
+    .slice(0, 3)
+    .map((id) => `${id}: ${validationErrorMap[id]}`)
+    .join(' | ');
+  const more = itemIds.length > 3 ? ` (+${itemIds.length - 3} more)` : '';
+  const error = new Error(`Corpus validation failed (${itemIds.length}): ${preview}${more}`);
+  Logger.getInstance().error(error, { validationErrorMap });
+  throw error;
+}

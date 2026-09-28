@@ -33,6 +33,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - name: Run the linter
-        run: npm run lint
+      - name: Run checks
+        run: |
+          npm run check
         working-directory: ./task-launcher

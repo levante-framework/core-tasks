@@ -1,3 +1,3 @@
 export function dashToCamelCase(str: string) {
-  return str.replace(/-([a-z])/gi, (match, letter) => letter.toUpperCase());
+  return str.replace(/-([a-z])/gi, (_match, letter) => letter.toUpperCase());
 }

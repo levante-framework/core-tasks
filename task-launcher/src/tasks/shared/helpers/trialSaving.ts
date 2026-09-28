@@ -1,10 +1,10 @@
-import { jsPsych } from '../../taskSetup';
 import cloneDeep from 'lodash/cloneDeep';
 import _mapValues from 'lodash/mapValues';
 import { taskStore } from '../../../taskStore';
-import { recordCompletion } from './recordCompletion';
 import { Logger } from '../../../utils/logger';
-import { finishExperiment } from '../trials';
+import { jsPsych } from '../../taskSetup';
+import { finishTaskEarly } from '../trials';
+import { recordCompletion } from './recordCompletion';
 
 /**
  * This function calculates computed scores given raw scores for each subtask.
@@ -95,7 +95,6 @@ export const computedScoreCallback = (rawScores: Record<string, any>) => {
  * @param {*} demographic_data
  * @returns {*} normedScores
  */
-// eslint-disable-next-line no-unused-vars
 export const normedScoreCallback = (computedScores: any) => {
   // TODO: Add table lookup after norms have been collected and established.
   return Object.fromEntries(Object.entries(computedScores).map(([key, val]) => [key, val]));
@@ -103,7 +102,7 @@ export const normedScoreCallback = (computedScores: any) => {
 
 export const initTrialSaving = (config: Record<string, any>) => {
   if (config.displayElement) {
-    // @ts-ignore
+    // @ts-expect-error
     jsPsych.opts.display_element = config.display_element;
   }
 
@@ -111,34 +110,69 @@ export const initTrialSaving = (config: Record<string, any>) => {
   // run as completed and write data to Firestore, respectively.
   const extend = (fn: Function, code: Function) =>
     function () {
-      // eslint-disable-next-line prefer-rest-params
       fn.apply(fn, arguments);
-      // eslint-disable-next-line prefer-rest-params
       code.apply(fn, arguments);
     };
 
-  // @ts-ignore
+  // @ts-expect-error
   jsPsych.opts.on_finish = extend(jsPsych.opts.on_finish, () => {
-    if (!taskStore().demoMode && config.firekit) {
+    if (taskStore().experimenterExit) {
+      const logger = Logger.getInstance();
+      logger.capture('Task finished: experimenter ended task', {
+        taskName: taskStore().task,
+        taskFinished: taskStore().taskComplete,
+      });
+
+      taskStore('effectiveStoppingRule', 'experimenterExit');
+
+      if (config.firekit) {
+        config.firekit.updateStopReason(taskStore().effectiveStoppingRule);
+      }
+    } else if (!taskStore().demoMode && config.firekit) {
       config.firekit.finishRun();
     }
   });
 
-  // @ts-ignore
+  // @ts-expect-error
   jsPsych.opts.on_trial_finish = extend(jsPsych.opts.on_trial_finish, () => {
     if (taskStore().maxTimeReached) {
-      finishExperiment();
+      finishTaskEarly('timeOut');
     }
 
     // record completion at 80%
-    if (taskStore().testTrialCount >= taskStore().totalTestTrials * 0.8) {
+    if (
+      taskStore().testTrialCount >= taskStore().totalTestTrials * 0.8 &&
+      taskStore().effectiveStoppingRule === 'taskAbort'
+    ) {
       recordCompletion(config);
+
+      const logger = Logger.getInstance();
+      logger.capture('80% completion threshold reached', {
+        taskName: taskStore().task,
+        taskFinished: taskStore().taskComplete,
+      });
+
+      taskStore('effectiveStoppingRule', 'sufficientTrials');
+      config.firekit?.updateStopReason(taskStore().effectiveStoppingRule);
     }
 
     taskStore('totalTrialCount', taskStore().totalTrialCount + 1);
+
+    if (taskStore().inputCapability) {
+      let inputType: string | undefined;
+      if (taskStore().inputCapability.mouse) {
+        inputType = 'mouse/keyboard';
+      } else if (taskStore().inputCapability.touch) {
+        inputType = 'touch';
+      }
+
+      jsPsych.data.addDataToLastTrial({
+        inputType: inputType,
+      });
+    }
   });
 
-  // @ts-ignore
+  // @ts-expect-error
   jsPsych.opts.on_data_update = extend(jsPsych.opts.on_data_update, (data) => {
     if (data.save_trial && !taskStore().demoMode && config.firekit) {
       // save_trial is a flag that indicates whether the trial should
@@ -161,7 +195,7 @@ export const initTrialSaving = (config: Record<string, any>) => {
       } else {
         config.firekit.writeTrial(dataCopy).catch((error: any) => {
           delete dataCopy.stimulus; // remove stimulus from data to avoid logging large html elements
-          Logger.getInstance().capture('Error writing trial to Firestore', { error: error, data: dataCopy });
+          Logger.getInstance().error(error, { source: 'writeTrial', data: dataCopy });
         });
       }
     }

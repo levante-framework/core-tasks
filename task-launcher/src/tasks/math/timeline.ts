@@ -1,31 +1,35 @@
 import 'regenerator-runtime/runtime';
 import store from 'store2';
+import { taskStore } from '../../taskStore';
 // setup
 import {
-  initTrialSaving,
-  initTimeline,
   createPreloadTrials,
+  getRealTrials,
+  initTimeline,
+  initTrialSaving,
+  isCatBlockTimeExpired,
   prepareCorpus,
   prepareMultiBlockCat,
-  getRealTrials,
+  reportCorpusValidationErrors,
+  setCatBlockTimeLimit,
 } from '../shared/helpers';
-import { jsPsych, initializeCat } from '../taskSetup';
-import { slider } from './trials/sliderStimulus';
 import {
   afcStimulusTemplate,
   enterFullscreen,
   exitFullscreen,
-  getAudioResponse,
-  setupStimulus,
-  fixationOnly,
-  setupStimulusFromBlock,
-  taskFinished,
-  practiceTransition,
   feedback,
+  fixationOnly,
+  getAudioResponse,
+  practiceTransition,
   setupDownex,
+  setupStimulus,
+  setupStimulusFromBlock,
+  startCatBlock,
+  taskFinished,
 } from '../shared/trials';
+import { initializeCat, jsPsych } from '../taskSetup';
 import { getLayoutConfig } from './helpers/config';
-import { taskStore } from '../../taskStore';
+import { slider } from './trials/sliderStimulus';
 
 export default function buildMathTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const preloadTrials = createPreloadTrials(mediaAssets).default;
@@ -55,7 +59,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
 
   const timeline = [preloadTrials, initialTimeline];
 
-  let corpus: StimulusType[] = taskStore().corpora.stimulus;
+  const corpus: StimulusType[] = taskStore().corpora.stimulus;
   const downexCorpus: StimulusType[] = taskStore().corpora.downex;
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {};
@@ -75,11 +79,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
     i += 1;
   }
 
-  if (Object.keys(validationErrorMap).length) {
-    console.error('The following errors were found');
-    console.table(validationErrorMap);
-    throw new Error('Something went wrong. Please look in the console for error details');
-  }
+  reportCorpusValidationErrors(validationErrorMap);
 
   const terminateCat = runCat;
 
@@ -94,7 +94,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
 
   const feedbackBlock = (trial?: StimulusType) => {
     return {
-      timeline: [feedback(true, 'feedbackCorrect', 'feedbackNotQuiteRight', false)],
+      timeline: [feedback(true)],
       conditional_function: () => {
         return (
           (trial || taskStore().nextStimulus).assessmentStage === 'practice_response' &&
@@ -161,12 +161,12 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
 
   // this block repeats all slider practice trials
   const repeatSliderPracticeBlock = () => {
-    let trials: any[] = [];
+    const trials: any[] = [];
     sliderPractice.forEach((trial, index) => {
       trials.push(slider(layoutConfigMap, terminateCat, trial));
       if (index < sliderPractice.length - 1) {
         trials.push({
-          ...feedback(true, 'feedbackCorrect', 'feedbackNotQuiteRight'),
+          ...feedback(true),
           conditional_function: () => {
             return true;
           },
@@ -208,31 +208,47 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
   };
 
   if (runCat) {
+    const catTrialIteration = (blockIndex: number, useDownex = false, isLastBlock = false, trial?: StimulusType) => ({
+      timeline: [
+        useDownex ? { ...setupDownex, stimulus: '' } : { ...setupStimulusFromBlock(blockIndex), stimulus: '' },
+        stimulusBlock(trial),
+      ],
+      conditional_function: () => !isCatBlockTimeExpired(isLastBlock),
+    });
+
     // puts the CAT portion of the corpus into taskStore and removes instructions
-    const allCorpusParts = prepareCorpus(corpus, true, downexCorpus);
+    const allCorpusParts = prepareCorpus(corpus, 3, downexCorpus, false, -3);
     const olderKidInstructionPractice: StimulusType[] = allCorpusParts.ipLight;
     const olderKidInstructions: StimulusType[] = olderKidInstructionPractice.filter(
-      (trial: StimulusType) => trial.trialType == 'instructions',
+      (trial: StimulusType) => trial.trialType === 'instructions',
     );
-    let olderKidPractice: StimulusType[] = olderKidInstructionPractice.filter(
-      (trial: StimulusType) => trial.assessmentStage == 'practice_response',
+    const olderKidPractice: StimulusType[] = olderKidInstructionPractice.filter(
+      (trial: StimulusType) => trial.assessmentStage === 'practice_response',
     );
 
-    let olderKidBlocks: StimulusType[][] = prepareMultiBlockCat(taskStore().corpora.stimulus);
+    const olderKidBlocks: StimulusType[][] = prepareMultiBlockCat(taskStore().corpora.stimulus);
     taskStore('corpora', { stimulus: olderKidBlocks, downex: taskStore().corpora.downex });
-    taskStore('totalTestTrials', 0); // add to this while building out each block
+    const mainBlockTrialCount = olderKidBlocks.reduce((acc, block) => acc + block.length, 0);
+    let downexBlockLength = 0;
 
     // don't repeat instructions
     const usedIds: string[] = [];
+
+    const totalBlockCount = heavyInstructions
+      ? olderKidBlocks.length + 1
+      : // extra block at beginning of task for younger kids
+        olderKidBlocks.length;
+
+    setCatBlockTimeLimit(taskStore().maxTime, totalBlockCount);
 
     // first add downex trials to the timeline
     if (heavyInstructions) {
       const downexInstructionPractice: StimulusType[] = allCorpusParts.ipHeavy;
       const downexInstructions: StimulusType[] = downexInstructionPractice.filter(
-        (trial) => trial.trialType == 'instructions',
+        (trial) => trial.trialType === 'instructions',
       );
       let downexPractice: StimulusType[] = downexInstructionPractice.filter(
-        (trial) => trial.assessmentStage == 'practice_response',
+        (trial) => trial.assessmentStage === 'practice_response',
       );
 
       let downexBlock: StimulusType[] = allCorpusParts.downexCat;
@@ -244,6 +260,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
       downexBlock = downexBlock.filter((trial: StimulusType) => {
         return !nonDownexIds.includes(trial.itemId as string);
       });
+      downexBlockLength = downexBlock.length;
 
       // filter practice trials to only include appropriate trial types if downward extension
       const excludedDownexPracticeTypes = [
@@ -257,6 +274,8 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
       downexPractice = downexPractice.filter((trial) => !excludedDownexPracticeTypes.includes(trial.trialType));
 
       const allowedIds = ['math-instructions1-heavy', 'math-intro1-heavy'];
+
+      timeline.push(startCatBlock);
 
       downexInstructions.forEach((trial) => {
         if (allowedIds.includes(trial.itemId)) {
@@ -272,17 +291,15 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
 
       timeline.push(practiceTransition());
 
-      const numOfTrials = Math.floor(downexBlock.length / 2);
-      taskStore.transact('totalTestTrials', (oldVal: number) => (oldVal += numOfTrials));
+      const numOfTrials = downexBlock.length;
       for (let j = 0; j < numOfTrials; j++) {
-        timeline.push({ ...setupDownex, stimulus: '' }); // select only from the current block
-        timeline.push(stimulusBlock());
+        timeline.push(catTrialIteration(0, true));
       }
     }
 
     const numOfBlocks = olderKidBlocks.length;
-    const trialProportionsPerBlock = [4, 6, 6]; // divide by these numbers to get trials per block
     for (let i = 0; i < numOfBlocks; i++) {
+      timeline.push(startCatBlock);
       // push in block-specific instructions
       const blockInstructions = olderKidInstructions.filter((trial) => {
         let allowedIDs: string[]; // CAT only uses particular instructions from corpus
@@ -339,28 +356,31 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
 
       // push in random items at start of first block (after practice trials)
       if (i === 0) {
-        allCorpusParts.start.forEach((trial) => timeline.push(stimulusBlock(trial)));
+        allCorpusParts.start.forEach((trial) => {
+          timeline.push(catTrialIteration(i, false, false, trial));
+        });
       }
 
-      const numOfTrials = Math.floor(olderKidBlocks[i].length / trialProportionsPerBlock[i]);
-      taskStore.transact('totalTestTrials', (oldVal: number) => (oldVal += numOfTrials));
+      const numOfTrials = olderKidBlocks[i].length;
       for (let j = 0; j < numOfTrials; j++) {
-        timeline.push({ ...setupStimulusFromBlock(i), stimulus: '' }); // select only from the current block
-        timeline.push(stimulusBlock());
+        timeline.push(catTrialIteration(i, false, i === numOfBlocks - 1));
       }
 
       allCorpusParts.unnormed.forEach((trial) => {
         if (i === Number(trial.block_index)) {
-          timeline.push({ ...fixationOnly, stimulus: '' });
-          timeline.push(stimulusBlock(trial));
+          timeline.push(catTrialIteration(i, false, i === numOfBlocks - 1, trial));
         }
       });
     }
+
+    taskStore('totalTestTrials', downexBlockLength + mainBlockTrialCount);
   } else {
     taskStore('totalTestTrials', getRealTrials(corpus));
 
     // if cat is not running, remove difficulty field from all items
-    corpus.forEach((trial) => (trial.difficulty = NaN));
+    corpus.forEach((trial) => {
+      trial.difficulty = NaN;
+    });
 
     const newCorpora = {
       downex: taskStore().corpora.downex,

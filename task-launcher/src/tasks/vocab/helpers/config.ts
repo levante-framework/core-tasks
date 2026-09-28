@@ -1,8 +1,8 @@
 import {
-  validateLayoutConfig,
-  prepareChoices,
   DEFAULT_LAYOUT_CONFIG,
   mapDistractorsToString,
+  prepareChoices,
+  validateLayoutConfig,
 } from '../../shared/helpers';
 
 type GetConfigReturnType = {

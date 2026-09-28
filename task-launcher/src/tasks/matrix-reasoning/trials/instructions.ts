@@ -1,22 +1,23 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { mediaAssets } from '../../..';
+import { taskStore } from '../../../taskStore';
 import {
   addExperimenterButtons,
-  PageStateHandler,
-  PageAudioHandler,
-  getParticipantUtilityButtonsHtml,
-  setupReplayAudio,
-  setupFullscreenButton,
-  camelize,
   addPracticeButtonListeners,
+  camelize,
   disableOkButton,
+  displaceAnimation,
+  enableAllButtons,
+  enableOkButton,
+  getParticipantUtilityButtonsHtml,
+  PageAudioHandler,
+  PageStateHandler,
+  popAnimation,
+  setupFullscreenButton,
+  setupReplayAudio,
 } from '../../shared/helpers';
-import { isTouchScreen, jsPsych } from '../../taskSetup';
-import { taskStore } from '../../../taskStore';
-import { displaceAnimation, enableAllButtons, popAnimation } from '../../shared/helpers';
 import { pulseOkButton } from '../../shared/helpers/pulseOkButton';
-
-let startTime: number;
+import { isTouchScreen, jsPsych } from '../../taskSetup';
 
 export const instructionData = [
   {
@@ -53,14 +54,22 @@ export const instructions = instructionData.map((data) => {
     button_html: () => {
       const t = taskStore().translations;
       return [
-        `<button class="primary">
+        `<button class="primary" disabled>
                 ${t[data.buttonText]}
             </button>`,
       ];
     },
     keyboard_choices: () => 'NO_KEYS',
     on_load: () => {
-      PageAudioHandler.playAudio(mediaAssets.audio[data.prompt]);
+      const audioConfig: AudioConfigType = {
+        restrictRepetition: {
+          enabled: true,
+          maxRepetitions: 2,
+        },
+        onEnded: enableOkButton,
+      };
+
+      PageAudioHandler.playAudio(data.prompt, audioConfig);
 
       const pageStateHandler = new PageStateHandler(data.prompt, true);
       setupReplayAudio(pageStateHandler);
@@ -81,7 +90,7 @@ export const instructions = instructionData.map((data) => {
 const downexData1 = {
   audio: [
     'matrix-reasoning-instruct1-part1-downex',
-    'matrix-reasoning-instruct1-part2-downex',
+    'matrix-reasoning-prompt1-part2-downex',
     'matrix-reasoning-instruct1-part3-downex',
     'matrix-reasoning-instruct1-part4-downex',
   ],
@@ -173,8 +182,6 @@ export const downexInstructions1 = {
   },
   keyboard_choices: () => 'NO_KEYS',
   on_load: async () => {
-    startTime = performance.now();
-
     addExperimenterButtons();
     setupFullscreenButton();
 
@@ -232,7 +239,6 @@ export const downexInstructions1 = {
       };
 
       for (const [index, audioFile] of trialAudio.slice(0, -1).entries()) {
-        const audioUri = mediaAssets.audio[camelize(audioFile)] || mediaAssets.audio.nullAudio;
         const delay = index === 2 ? 2 : 0;
 
         if (thisCycleId !== cycleId || taskStore().isPaused) {
@@ -247,12 +253,11 @@ export const downexInstructions1 = {
             },
           };
           itemsToAnimate = popAnimation(itemsToAnimate, `pulse 2s ${delay}s 2`) as any;
-          PageAudioHandler.playAudio(audioUri, configWithCallback);
+          PageAudioHandler.playAudio(audioFile, configWithCallback);
         });
       }
 
-      const lastAudioUri =
-        mediaAssets.audio[camelize(trialAudio[trialAudio.length - 1])] || mediaAssets.audio.nullAudio;
+      const lastAudioKey = trialAudio[trialAudio.length - 1];
 
       // animate the target button to the center of stimImage
       if (stimImage && target && !taskStore().isPaused && thisCycleId === cycleId) {
@@ -273,7 +278,7 @@ export const downexInstructions1 = {
         };
 
         setTimeout(
-          () => (!taskStore().isPaused ? PageAudioHandler.playAudio(lastAudioUri, lastAudioConfig) : null),
+          () => (!taskStore().isPaused ? PageAudioHandler.playAudio(lastAudioKey, lastAudioConfig) : null),
           5000,
         );
       } else {
@@ -331,7 +336,7 @@ const textOnlyDownexInstruction = textOnlyDownexInstructionData.map((data) => {
         },
       };
 
-      PageAudioHandler.playAudio(mediaAssets.audio[camelize(data.audio)], audioConfig);
+      PageAudioHandler.playAudio(data.audio, audioConfig);
 
       const pageStateHandler = new PageStateHandler(data.audio, true);
       setupReplayAudio(pageStateHandler);
@@ -387,8 +392,6 @@ export const downexInstructions3 = {
   button_html: () => '<button class="image-matrix practice-btn"; disabled>%choice%</button>',
   keyboard_choices: () => 'NO_KEYS',
   on_load: async () => {
-    startTime = performance.now();
-
     addExperimenterButtons();
     setupFullscreenButton();
 
@@ -416,14 +419,20 @@ export const downexInstructions3 = {
       targetButton = buttons[targetImageIdx];
     }
 
-    function onCorrect() {
+    function onCorrect(onFeedbackEnded: () => void) {
       PageAudioHandler.stopAndDisconnectNode();
       cycleId++;
 
-      PageAudioHandler.playAudio(mediaAssets.audio.feedbackRightOne);
+      PageAudioHandler.playAudio('feedbackRightOne', {
+        restrictRepetition: {
+          enabled: false,
+          maxRepetitions: 2,
+        },
+        onEnded: onFeedbackEnded,
+      });
     }
 
-    function onIncorrect() {
+    function onIncorrect(onFeedbackEnded: () => void) {
       PageAudioHandler.stopAndDisconnectNode();
       cycleId++;
 
@@ -433,7 +442,13 @@ export const downexInstructions3 = {
         targetButton.style.animation = 'pulse 2s 0s 2';
       }
 
-      PageAudioHandler.playAudio(mediaAssets.audio.matrixReasoningFeedbackIncorrectDownex);
+      PageAudioHandler.playAudio('matrixReasoningFeedbackIncorrectDownex', {
+        restrictRepetition: {
+          enabled: false,
+          maxRepetitions: 2,
+        },
+        onEnded: onFeedbackEnded,
+      });
     }
 
     addPracticeButtonListeners(downexData3.choices[1], isTouchScreen, downexData3.choices, onCorrect, onIncorrect);
@@ -456,7 +471,6 @@ export const downexInstructions3 = {
 
       // switch the stim image after each audio file to highlight each set of items
       for (const [index, audioFile] of trialAudio.entries()) {
-        const audioUri = mediaAssets.audio[camelize(audioFile)];
         const image = index > 2 ? downexData3.image[0] : downexData3.image[index]; // keep the image after the fourth audio file
 
         if (thisCycleId !== cycleId || taskStore().isPaused) {
@@ -495,7 +509,7 @@ export const downexInstructions3 = {
             });
           }
 
-          PageAudioHandler.playAudio(audioUri, configWithCallback);
+          PageAudioHandler.playAudio(audioFile, configWithCallback);
         });
       }
 
@@ -554,8 +568,6 @@ export const downexInstructions4 = {
   button_html: () => '<button class="image-matrix practice-btn" disabled>%choice%</button>',
   keyboard_choices: () => 'NO_KEYS',
   on_load: async () => {
-    startTime = performance.now();
-
     addExperimenterButtons();
     setupFullscreenButton();
 
@@ -583,14 +595,20 @@ export const downexInstructions4 = {
       targetButton = buttons[targetImageIdx];
     }
 
-    function onCorrect() {
+    function onCorrect(onFeedbackEnded: () => void) {
       PageAudioHandler.stopAndDisconnectNode();
       cycleId++;
 
-      PageAudioHandler.playAudio(mediaAssets.audio.feedbackRightOne);
+      PageAudioHandler.playAudio('feedbackRightOne', {
+        restrictRepetition: {
+          enabled: false,
+          maxRepetitions: 2,
+        },
+        onEnded: onFeedbackEnded,
+      });
     }
 
-    function onIncorrect() {
+    function onIncorrect(onFeedbackEnded: () => void) {
       PageAudioHandler.stopAndDisconnectNode();
       cycleId++;
 
@@ -600,7 +618,13 @@ export const downexInstructions4 = {
         targetButton.style.animation = 'pulse 2s 0s 2';
       }
 
-      PageAudioHandler.playAudio(mediaAssets.audio.matrixReasoningFeedbackSmBlueDownex);
+      PageAudioHandler.playAudio('matrixReasoningFeedbackSmBlueDownex', {
+        restrictRepetition: {
+          enabled: false,
+          maxRepetitions: 2,
+        },
+        onEnded: onFeedbackEnded,
+      });
     }
 
     addPracticeButtonListeners(downexData4.choices[2], isTouchScreen, downexData4.choices, onCorrect, onIncorrect);
@@ -623,7 +647,7 @@ export const downexInstructions4 = {
 
       // switch the stim image after each audio file to highlight each set of items
       for (const [index, audioFile] of trialAudio.entries()) {
-        const audioUri = mediaAssets.audio[camelize(audioFile)];
+        const audioKey = audioFile;
         const image = index > 3 ? downexData4.image[0] : downexData4.image[index]; // keep the image after the fourth audio file
 
         if (thisCycleId !== cycleId || taskStore().isPaused) {
@@ -638,7 +662,9 @@ export const downexInstructions4 = {
             },
           };
           if (index === 4) {
-            buttons.forEach((button) => (button.style.animation = 'pulse 2s 0s 3'));
+            buttons.forEach((button) => {
+              button.style.animation = 'pulse 2s 0s 3';
+            });
           }
 
           if (stimContainer) {
@@ -648,7 +674,7 @@ export const downexInstructions4 = {
                     />`;
           }
 
-          PageAudioHandler.playAudio(audioUri, configWithCallback);
+          PageAudioHandler.playAudio(audioKey, configWithCallback);
         });
       }
 
@@ -660,6 +686,9 @@ export const downexInstructions4 = {
     }
 
     animateAndPlayAudio();
+
+    // reset incorrect counter so that task doesn't end prematurely in later trials
+    taskStore('numIncorrect', 0);
   },
   response_ends_trial: false,
   on_finish: () => {

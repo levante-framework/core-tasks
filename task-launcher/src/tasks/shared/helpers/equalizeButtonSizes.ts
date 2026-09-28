@@ -11,7 +11,7 @@ export function equalizeButtonSizes(buttons: NodeListOf<HTMLButtonElement>) {
 
   // resize all buttons to smallest width
   for (let i = 0; i < buttons.length; i++) {
-    buttons[i].style.width = Math.min(...buttonWidths).toString() + 'px';
+    buttons[i].style.width = `${Math.min(...buttonWidths)}px`;
   }
 
   // get new button heights (after automatically adjusted to accomdate different text)
@@ -22,7 +22,7 @@ export function equalizeButtonSizes(buttons: NodeListOf<HTMLButtonElement>) {
 
   // resize all buttons to max height and align with top of container
   for (let i = 0; i < buttons.length; i++) {
-    buttons[i].style.height = Math.max(...buttonHeights).toString() + 'px';
+    buttons[i].style.height = `${Math.max(...buttonHeights)}px`;
 
     const parentElement = buttons[i].parentElement;
     if (parentElement) {

@@ -1,14 +1,14 @@
 // Used in Math and Matrix-reasoning so far
-import _omitBy from 'lodash/omitBy';
+
+import type { RoarAppkit } from '@levante-framework/firekit';
+import i18next from 'i18next';
 import _isNull from 'lodash/isNull';
 import _isUndefined from 'lodash/isUndefined';
-import _toNumber from 'lodash/toNumber';
-import i18next from 'i18next';
-import { isRoarApp } from './isRoarApp';
+import _omitBy from 'lodash/omitBy';
+import type { TaskStoreDataType } from '../../../taskStore';
 import { camelize } from './camelize';
-import { RoarAppkit } from '@levante-framework/firekit';
-import { TaskStoreDataType } from '../../../taskStore';
 import { getAge } from './getAge';
+import { isRoarApp } from './isRoarApp';
 
 export const DEFAULT_LAYOUT_CONFIG: LayoutConfigType = {
   playAudioOnLoad: true,
@@ -36,14 +36,14 @@ export const DEFAULT_LAYOUT_CONFIG: LayoutConfigType = {
   showStimImage: true,
   response: {
     target: '',
-    displayValues: ['OK'],
-    values: ['OK'],
+    displayValues: [],
+    values: [],
     targetIndex: 0,
   },
   inCorrectTrialConfig: {
     onIncorrectTrial: 'end',
   },
-  disableOkButton: false,
+  disableOkButton: true,
 };
 
 const defaultCorpus: Record<string, string> = {
@@ -90,6 +90,7 @@ export const setSharedConfig = async (
     cat,
     heavyInstructions,
     experimenterButtons,
+    showAudioKeys,
     inferenceNumStories,
     numberOfStories,
     semThreshold,
@@ -98,7 +99,8 @@ export const setSharedConfig = async (
     debug,
     version,
     taskVersion, // deprecated; use `version` — kept for backward compatibility
-    isPaused,
+    bubblePractice,
+    _isPaused,
   } = cleanParams;
 
   const config = {
@@ -126,12 +128,14 @@ export const setSharedConfig = async (
     cat: !!cat, // defaults to false
     heavyInstructions: !!heavyInstructions,
     experimenterButtons: !!experimenterButtons,
+    showAudioKeys: !!showAudioKeys,
     inferenceNumStories: Number(inferenceNumStories) || undefined,
     numberOfStories: Number(numberOfStories) || 3,
     semThreshold: Number(semThreshold),
     startingTheta: Number(startingTheta),
     demoMode: !!demoMode,
     debug: !!debug,
+    bubblePractice: !!bubblePractice,
     version: Number((version ?? taskVersion) || 1),
     displayPromptDurations: {},
     taskTimer: null,

@@ -1,20 +1,20 @@
-import { PageStateHandler } from './PageStateHandler';
-import { PageAudioHandler } from './audioHandler';
 import { mediaAssets } from '../../..';
-import { camelize } from './camelize';
 import { taskStore } from '../../../taskStore';
+import { Logger } from '../../../utils/logger';
+import { PageAudioHandler } from './audioHandler';
+import { camelize } from './camelize';
+import type { PageStateHandler } from './PageStateHandler';
 
 let staggerEnabled = true;
 
 export const handleStaggeredButtons = async (
   pageState: PageStateHandler,
-  buttonContainer: HTMLDivElement,
+  buttons: HTMLButtonElement[],
   audioList: string[],
   currentTrialId?: string,
   disableButtons = true,
+  pulseButtons = false,
 ) => {
-  const parentResponseDiv = buttonContainer;
-  let i = 0;
   const stimulusDuration = await pageState.getStimulusDurationMs();
   const intialDelay = stimulusDuration + 300;
 
@@ -26,7 +26,7 @@ export const handleStaggeredButtons = async (
   }, stimulusDuration + 110);
 
   if (disableButtons) {
-    for (const jsResponseEl of parentResponseDiv.children) {
+    for (const jsResponseEl of buttons) {
       // disable the buttons so that they are not active during the animation
       jsResponseEl.classList.add(
         'lev-staggered-responses',
@@ -42,11 +42,12 @@ export const handleStaggeredButtons = async (
     setTimeout(() => {
       showStaggeredBtnAndPlaySound(
         0,
-        Array.from(parentResponseDiv?.children as HTMLCollectionOf<HTMLButtonElement>),
+        buttons,
         audioList,
         pageState,
         resolve, // Pass the resolve function to be called when animation completes
         currentTrialId,
+        pulseButtons,
       );
     }, intialDelay);
   });
@@ -59,6 +60,7 @@ const showStaggeredBtnAndPlaySound = (
   pageState: PageStateHandler,
   onComplete?: () => void,
   currentTrialId?: string,
+  pulseButtons: boolean = false,
 ) => {
   // check if the trial id has changed - we don't want overlap between trials
   const actualTrialId = taskStore().nextStimulus?.itemId;
@@ -69,10 +71,16 @@ const showStaggeredBtnAndPlaySound = (
   const btn = btnList[index];
   btn.classList.remove('lev-staggered-grayscale', 'lev-staggered-opacity');
 
-  let audioAsset = mediaAssets.audio[camelize(audioList[index])];
-  if (!audioAsset) {
-    console.error('Audio Asset not available for:', audioList[index]);
-    audioAsset = mediaAssets.audio.nullAudio;
+  if (pulseButtons) {
+    btn.style.animation = 'pulse 2s 0s 1';
+  }
+
+  const audioKey = camelize(audioList[index]);
+  if (!mediaAssets.audio[audioKey]) {
+    Logger.getInstance().error(new Error(`Audio Asset not available for: ${audioList[index]}`), {
+      source: 'handleStaggeredButtons',
+      audio: audioList[index],
+    });
   }
 
   const audioConfig: AudioConfigType = {
@@ -95,12 +103,20 @@ const showStaggeredBtnAndPlaySound = (
         onComplete?.();
       } else {
         //recurse
-        showStaggeredBtnAndPlaySound(index + 1, btnList, audioList, pageState, onComplete, currentTrialId);
+        showStaggeredBtnAndPlaySound(
+          index + 1,
+          btnList,
+          audioList,
+          pageState,
+          onComplete,
+          currentTrialId,
+          pulseButtons,
+        );
       }
     },
   };
 
-  PageAudioHandler.playAudio(audioAsset, audioConfig);
+  PageAudioHandler.playAudio(audioKey, audioConfig);
 };
 
 export const disableStagger = () => {
