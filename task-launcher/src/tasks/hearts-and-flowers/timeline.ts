@@ -52,49 +52,14 @@ export default function buildHeartsAndFlowersTimeline(config: Record<string, any
   initTrialSaving(config);
   const initialTimeline = initTimeline(config, enterFullscreen);
 
-  // TODO: parse from user input
   const timelineAdminConfig: {
     heart: SectionConfig;
     flower: SectionConfig;
     mixed1: SectionConfig;
     mixed2: TestSectionConfig;
     mixed3: TestSectionConfig;
-  } = {
-    heart: {
-      practiceTrialCount: 6,
-      correctPracticeTrial: 2,
-      testTrialCount: 12,
-      stimulusPresentationTime: 3000,
-      interStimulusInterval: 500,
-    },
-    flower: {
-      practiceTrialCount: 6,
-      correctPracticeTrial: 2,
-      testTrialCount: 16,
-      stimulusPresentationTime: 3000,
-      interStimulusInterval: 500,
-    },
-    mixed1: {
-      // OG mixed trials
-      practiceTrialCount: 6,
-      correctPracticeTrial: 3,
-      testTrialCount: 16,
-      stimulusPresentationTime: 3000,
-      interStimulusInterval: 500,
-    },
-    mixed2: {
-      // harder mixed trials
-      testTrialCount: 16,
-      stimulusPresentationTime: 2000,
-      interStimulusInterval: 500,
-    },
-    mixed3: {
-      // even harder mixed trials; no practice
-      testTrialCount: 16,
-      stimulusPresentationTime: 1500,
-      interStimulusInterval: 500,
-    },
-  };
+  } = taskStore().corpora.blockConfig;
+  console.log('timelineAdminConfig:', JSON.stringify(timelineAdminConfig));
 
   let totalRealTrials =
     timelineAdminConfig.heart.testTrialCount +

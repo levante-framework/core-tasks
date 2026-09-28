@@ -30,7 +30,11 @@ export const getCorpus = async (config: Record<string, any>, isDev: boolean): Pr
       download: true,
       header: true,
       skipEmptyLines: true,
+      transformHeader: (header) => header.trim(),
       complete: (results) => {
+        console.log('parsed columns:', Object.keys(results.data[0]));
+        console.log('first row:', JSON.stringify(results.data[0]));
+
         const blockConfig: Record<string, ParsedBlockConfig> = {};
 
         for (const row of results.data) {
@@ -47,6 +51,8 @@ export const getCorpus = async (config: Record<string, any>, isDev: boolean): Pr
         }
 
         taskStore('corpora', { blockConfig });
+        console.log('H&F blockConfig:', JSON.stringify(blockConfig));
+
         resolve();
       },
       error: (error) => {
