@@ -10,6 +10,7 @@ export * from './baseTimeline';
 export { batchMediaAssets, batchTrials } from './batchPreloading';
 export { camelize } from './camelize';
 export { camelToKebab } from './camelToKebab';
+export * from './catBlockTimer';
 export { checkFallbackCriteria } from './checkFallbackCriteria';
 export { getChildSurveyResponses } from './childSurveyResponses';
 export { combineMediaAssets } from './combineMediaAssets';

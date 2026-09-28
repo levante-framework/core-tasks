@@ -27,6 +27,31 @@ export function finalizeCurrentPauseSegment(): void {
   taskStore('taskTimerPauseBeganAt', null);
 }
 
+export function beginTaskTimerPauseSegment(): void {
+  if (taskStore().taskTimer != null) {
+    clearTimeout(taskStore().taskTimer);
+    taskStore('taskTimer', null);
+  }
+  taskStore('taskTimerPauseBeganAt', Date.now());
+}
+
+export function resumeTaskTimerAfterPauseSegment(): void {
+  finalizeCurrentPauseSegment();
+
+  const startTime = taskStore().startTime;
+  if (typeof startTime !== 'number') {
+    return;
+  }
+
+  const maxTimeInMilliseconds = Math.max(Number(taskStore().maxTime), 1) * 60000;
+  const remainingMs = Math.max(0, maxTimeInMilliseconds - getActiveTaskElapsedMs());
+  const timerId = setTimeout(() => {
+    taskStore('maxTimeReached', true);
+    clearTimeout(timerId);
+  }, remainingMs);
+  taskStore('taskTimer', timerId);
+}
+
 export const startAppTimer = (maxTimeInMinutes: number) => {
   // Minimum time is 1 minute
   const maxTimeInMilliseconds = Math.max(maxTimeInMinutes, 1) * 60000;
