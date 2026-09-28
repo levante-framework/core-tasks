@@ -5,7 +5,6 @@ import { taskStore } from '../../../taskStore';
 import { Logger } from '../../../utils/logger';
 import { addExperimenterButtons, addKeyHelpers, PageAudioHandler, setupFullscreenButton } from '../../shared/helpers';
 import { shouldTerminateCat } from '../../shared/helpers/shouldTerminateCat';
-import { finishTaskEarly } from '../../shared/trials';
 import { isTouchScreen, jsPsych } from '../../taskSetup';
 import { setupHafMultiResponseTouchRouting } from '../helpers/touchResponseRouting';
 import {
@@ -28,7 +27,6 @@ export function stimulus(
   stimulusDuration: number,
   onTrialFinishTimelineCallback: ((data: Record<string, unknown>) => void) | undefined = undefined,
 ) {
-  const hfV2 = taskStore().version === 2;
   return {
     type: jsPsychHTMLMultiResponse,
     data: () => {
@@ -58,9 +56,7 @@ export function stimulus(
       responseButtons.forEach((button, i) => {
         addKeyHelpers(button as HTMLElement, i);
       });
-      if (hfV2) {
-        setupHafMultiResponseTouchRouting();
-      }
+      setupHafMultiResponseTouchRouting();
 
       addExperimenterButtons();
       setupFullscreenButton();
@@ -76,13 +72,12 @@ export function stimulus(
       <button class='secondary--green'></button>
     </div>`,
     ],
-    ...(hfV2 && !isPractice ? { trial_duration: stimulusDuration } : {}),
+    ...(!isPractice ? { trial_duration: stimulusDuration } : {}),
     on_finish: (data: Record<string, unknown>) => {
       const stimulusPosition = jsPsych.timelineVariable('position');
       const stimulusType = jsPsych.timelineVariable('stimulus');
 
-      // Only hfV2 (non-practice) trials have a trial_duration and can actually time out;
-      // for other trials this just flags an absent response.
+      // Non-practice trials have a trial_duration and can time out; for practice trials this just flags an absent response.
       data.timedOut = data.button_response === null && data.keyboard_response === null;
 
       // get response position
@@ -94,7 +89,7 @@ export function stimulus(
         data.keyboard_response === InputKeyType.ArrowRight
       ) {
         response = data.keyboard_response === InputKeyType.ArrowLeft ? 0 : 1;
-      } else if (hfV2 && data.timedOut) {
+      } else if (data.timedOut) {
         response = null;
       } else {
         Logger.getInstance().error(new Error(`Invalid response: ${data.button_response} or ${data.keyboard_response}`));
@@ -108,30 +103,16 @@ export function stimulus(
       const validAnswer = getCorrectInputSide(stimulusType, stimuluSide);
       data.correct = validAnswer === response;
 
-      if (hfV2) {
-        const audioConfig = {
-          restrictRepetition: {
-            enabled: false,
-            maxRepetitions: 2,
-          },
-        };
+      const audioConfig = {
+        restrictRepetition: {
+          enabled: false,
+          maxRepetitions: 2,
+        },
+      };
 
-        PageAudioHandler.playAudio(data.correct ? 'coin' : 'fail', audioConfig);
+      PageAudioHandler.playAudio(data.correct ? 'coin' : 'fail', audioConfig);
 
-        shouldTerminateCat();
-      } else if (!isPractice) {
-        if (!data.correct) {
-          taskStore.transact('numIncorrect', (oldVal) => oldVal + 1);
-        } else {
-          taskStore('numIncorrect', 0);
-        }
-
-        const maxIncorrect = taskStore().maxIncorrect;
-
-        if (taskStore().numIncorrect === maxIncorrect) {
-          finishTaskEarly('errorOut');
-        }
-      }
+      shouldTerminateCat();
 
       //TODO: move these to timeline-level callback/variables
       taskStore('isCorrect', data.correct);
@@ -156,7 +137,7 @@ export function stimulus(
         response: responseData,
         responseLocation: response,
         itemUid: itemUid,
-        presentationTime: hfV2 ? stimulusDuration : null,
+        presentationTime: stimulusDuration,
       });
 
       if (!isPractice) taskStore.transact('testTrialCount', (oldVal) => oldVal + 1);

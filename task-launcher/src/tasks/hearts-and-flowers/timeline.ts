@@ -45,7 +45,6 @@ type TestSectionConfig = {
 };
 
 export default function buildHeartsAndFlowersTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
-  const hfV2 = taskStore().version === 2;
   const { heavyInstructions } = taskStore();
   const preloadTrials = createPreloadTrials(mediaAssets).default;
 
@@ -59,51 +58,35 @@ export default function buildHeartsAndFlowersTimeline(config: Record<string, any
     mixed2: TestSectionConfig;
     mixed3: TestSectionConfig;
   } = taskStore().corpora.blockConfig;
-  console.log('timelineAdminConfig:', JSON.stringify(timelineAdminConfig));
-
   let totalRealTrials =
     timelineAdminConfig.heart.testTrialCount +
     timelineAdminConfig.flower.testTrialCount +
     timelineAdminConfig.mixed1.testTrialCount;
 
-  if (!hfV2) {
-    totalRealTrials += timelineAdminConfig.mixed2.testTrialCount;
-  } else if (!heavyInstructions) {
+  if (!heavyInstructions) {
     totalRealTrials += timelineAdminConfig.mixed2.testTrialCount + timelineAdminConfig.mixed3.testTrialCount;
   }
 
   taskStore('totalTestTrials', totalRealTrials);
 
   const timeline = [preloadTrials, initialTimeline];
-  if (hfV2) {
-    timeline.push(getInputInstructions());
-    timeline.push(getLeftButtonDemo());
-    timeline.push(getRightButtonDemo());
-  }
+  timeline.push(getInputInstructions());
+  timeline.push(getLeftButtonDemo());
+  timeline.push(getRightButtonDemo());
 
-  if (timelineAdminConfig.heart) {
-    timeline.push(...getHeartOrFlowerSubtimelines(timelineAdminConfig.heart, StimulusType.Heart));
-  }
-  if (timelineAdminConfig.flower) {
-    timeline.push(...getHeartOrFlowerSubtimelines(timelineAdminConfig.flower, StimulusType.Flower));
-  }
-  if (timelineAdminConfig.mixed1) {
-    const adminConfig = timelineAdminConfig.mixed1;
-    timeline.push(...getMixedInstructionsSection());
-    timeline.push(...getMixedPracticeSection(adminConfig));
-    timeline.push(...getMixedTestSection(adminConfig));
-  }
-  if (hfV2) {
-    if (timelineAdminConfig.mixed2 && !heavyInstructions) {
-      timeline.push(getGoingFasterInstructions());
-      timeline.push(...getMixedTestSection(timelineAdminConfig.mixed2));
-    }
-    if (timelineAdminConfig.mixed3 && !heavyInstructions) {
-      timeline.push(getGoingFasterInstructions());
-      timeline.push(...getMixedTestSection(timelineAdminConfig.mixed3));
-    }
-  } else if (timelineAdminConfig.mixed2) {
+  timeline.push(...getHeartOrFlowerSubtimelines(timelineAdminConfig.heart, StimulusType.Heart));
+  timeline.push(...getHeartOrFlowerSubtimelines(timelineAdminConfig.flower, StimulusType.Flower));
+
+  const mixed1Config = timelineAdminConfig.mixed1;
+  timeline.push(...getMixedInstructionsSection());
+  timeline.push(...getMixedPracticeSection(mixed1Config));
+  timeline.push(...getMixedTestSection(mixed1Config));
+
+  if (!heavyInstructions) {
+    timeline.push(getGoingFasterInstructions());
     timeline.push(...getMixedTestSection(timelineAdminConfig.mixed2));
+    timeline.push(getGoingFasterInstructions());
+    timeline.push(...getMixedTestSection(timelineAdminConfig.mixed3));
   }
   timeline.push(getEndGame());
   timeline.push(exitFullscreen);

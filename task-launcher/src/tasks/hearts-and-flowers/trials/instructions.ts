@@ -27,10 +27,6 @@ function detachInstructionInputListeners() {
   cleanupInstructionInputListeners = [];
 }
 
-function isHfV2() {
-  return taskStore().version === 2;
-}
-
 // These are the instruction "trials" they are full screen with no stimulus
 export function getHeartInstructions() {
   return buildInstructionTrial(mediaAssets.images.animalBodySq, () => 'heartInstruct1');
@@ -99,8 +95,8 @@ function buildInstructionTrial(
     stimulus: () => {
       // set the continue trial config based on the input capability
       continueTrialConfig = {
-        type: taskStore().inputCapability?.touch || !isHfV2() ? 'button' : 'bottomText',
-        text: taskStore().inputCapability?.touch || !isHfV2() ? 'continueButtonText' : 'heartsAndFlowersPressAnyKey',
+        type: taskStore().inputCapability?.touch ? 'button' : 'bottomText',
+        text: taskStore().inputCapability?.touch ? 'continueButtonText' : 'heartsAndFlowersPressAnyKey',
       };
 
       return `

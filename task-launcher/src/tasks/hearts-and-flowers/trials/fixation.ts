@@ -1,5 +1,4 @@
 import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
-import { taskStore } from '../../../taskStore';
 import {
   addExperimenterButtons,
   addKeyHelpers,
@@ -10,7 +9,6 @@ import { setupHafMultiResponseTouchRouting } from '../helpers/touchResponseRouti
 import { InputKeyType, StimulusSideType } from '../helpers/utils';
 
 export function fixation(interStimulusInterval: number) {
-  const hfV2 = taskStore().version === 2;
   return {
     type: jsPsychHTMLMultiResponse,
     stimulus: () => {
@@ -32,9 +30,7 @@ export function fixation(interStimulusInterval: number) {
         addKeyHelpers(button as HTMLElement, i);
       });
 
-      if (hfV2) {
-        setupHafMultiResponseTouchRouting();
-      }
+      setupHafMultiResponseTouchRouting();
 
       addExperimenterButtons();
       setupFullscreenButton();
