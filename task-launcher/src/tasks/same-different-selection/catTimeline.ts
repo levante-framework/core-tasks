@@ -127,6 +127,8 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
 
   let fiveBlockIntroTrial: StimulusType;
   let fiveBlockIntro: any;
+  let fiveBlockIntroAlreadyRun = false;
+
   if (taskStore().version === 2) {
     // separate this out so that it is inserted at the right place in the timeline
     fiveBlockIntroTrial = instructionPractice.find((trial) => trial.itemId === 'sds-instruct5') as StimulusType;
@@ -135,7 +137,12 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
     fiveBlockIntro = {
       timeline: [ipBlock(fiveBlockIntroTrial)],
       conditional_function: () => {
-        return taskStore().nextStimulus.trialType === '4-match';
+        const runFiveBlockIntro = taskStore().nextStimulus.trialType === '4-match' && !fiveBlockIntroAlreadyRun;
+        if (runFiveBlockIntro) {
+          fiveBlockIntroAlreadyRun = true;
+        }
+
+        return runFiveBlockIntro;
       },
     };
   }
