@@ -1,8 +1,33 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { taskStore } from '../../../taskStore';
-import { setLocationSelectionDraft } from '../helpers/state';
 import { jsPsych } from '../../taskSetup';
 import { buildLocationSavePayload } from '../helpers/locationCommitPreview';
+import { setLocationSelectionDraft } from '../helpers/state';
+
+function addBackButton() {
+  const t = taskStore().translations;
+  let backButton = document.getElementById('back-button');
+  if (!backButton) {
+    backButton = document.createElement('button');
+    backButton.id = 'back-button';
+
+    const container = document.getElementById('container');
+
+    backButton.classList.add('primary');
+    backButton.textContent = t.locationButtonBack;
+    container?.appendChild(backButton);
+
+    backButton.addEventListener('click', () => {
+      taskStore('userWentBack', true);
+      jsPsych.finishTrial();
+    });
+  }
+
+  const retryButtonWidth = document.getElementById('gps-retry-btn')?.getBoundingClientRect().width;
+  if (retryButtonWidth) {
+    backButton.style.width = `${retryButtonWidth}px`;
+  }
+}
 
 export const gpsCapture = {
   timeline: [
@@ -20,7 +45,7 @@ export const gpsCapture = {
               </div>
             </div>
           </div>
-        `
+        `;
       },
       keyboard_choices: 'NO_KEYS',
       on_load: () => {
@@ -36,11 +61,9 @@ export const gpsCapture = {
         }
 
         if (!navigator.geolocation) {
-          if (statusEl) statusEl.textContent = t.locationTextBroswer5;
-          if (retryButton) {
-            retryButton.textContent = t.locationButtonBack;
-            retryButton.style.display = 'inline-block';
-          }
+          if (statusEl) statusEl.textContent = t.locationTextBrowser5;
+          addBackButton();
+
           return;
         }
 
@@ -62,28 +85,7 @@ export const gpsCapture = {
               if (statusEl) statusEl.textContent = t.locationTextBrowser4;
               if (retryButton) retryButton.style.display = 'inline-block';
 
-              let backButton = document.getElementById("back-button");
-              if (!backButton) {
-                backButton = document.createElement('button');
-                backButton.id = "back-button";
-
-                const container = document.getElementById("container");
-
-                backButton.classList.add("primary");
-                backButton.textContent = t.locationButtonBack;
-                container?.appendChild(backButton);
-
-                backButton.addEventListener('click', () => {
-                  taskStore('userWentBack', true);
-                  jsPsych.finishTrial();
-                });
-              }
-
-              const retryButtonWidth = document.getElementById("gps-retry-btn")?.getBoundingClientRect().width;
-              if (retryButtonWidth) {
-                backButton.style.width = `${retryButtonWidth}px`;
-              }
-              
+              addBackButton();
             },
             {
               enableHighAccuracy: true,
