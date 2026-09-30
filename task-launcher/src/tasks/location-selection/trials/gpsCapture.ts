@@ -49,6 +49,7 @@ export const gpsCapture = {
       },
       keyboard_choices: 'NO_KEYS',
       on_load: () => {
+        document.querySelector('.jspsych-display-element')?.classList.add('location-selection-scroll-enabled');
         taskStore('userWentBack', false);
 
         const t = taskStore().translations;
@@ -99,6 +100,7 @@ export const gpsCapture = {
         requestGps();
       },
       on_finish: async () => {
+        document.querySelector('.jspsych-display-element')?.classList.remove('location-selection-scroll-enabled');
         if (!taskStore().userWentBack) {
           await buildLocationSavePayload();
         }

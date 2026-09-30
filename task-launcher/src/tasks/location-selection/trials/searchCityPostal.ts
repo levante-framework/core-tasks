@@ -134,6 +134,7 @@ export const searchCityPostal = {
       button_html: '<button class="primary">%choice%</button>',
       keyboard_choices: 'NO_KEYS',
       on_load: () => {
+        document.querySelector('.jspsych-display-element')?.classList.add('location-selection-scroll-enabled');
         const btnGroup = document.getElementById('jspsych-html-multi-response-btngroup');
         const container = document.querySelector('.lev-row-container.location-selection');
 
@@ -344,6 +345,7 @@ export const searchCityPostal = {
         });
       },
       on_finish: async () => {
+        document.querySelector('.jspsych-display-element')?.classList.remove('location-selection-scroll-enabled');
         taskStore('userWentBack', false);
         await buildLocationSavePayload();
       },
