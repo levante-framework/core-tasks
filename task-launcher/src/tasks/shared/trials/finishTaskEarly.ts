@@ -5,6 +5,7 @@ import { PageAudioHandler } from '../helpers';
 
 export function finishTaskEarly(effectiveStoppingRule: 'timeOut' | 'errorOut') {
   taskStore('effectiveStoppingRule', effectiveStoppingRule);
+  taskStore('taskComplete', true);
 
   const t = taskStore().translations;
   setTimeout(() => {
