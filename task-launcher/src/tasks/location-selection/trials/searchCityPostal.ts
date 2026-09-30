@@ -1,8 +1,8 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { taskStore } from '../../../taskStore';
-import { setLocationSelectionDraft } from '../helpers/state';
 import { disableOkButton, enableOkButton } from '../../shared/helpers';
 import { buildLocationSavePayload } from '../helpers/locationCommitPreview';
+import { setLocationSelectionDraft } from '../helpers/state';
 
 interface NominatimResult {
   place_id?: number;
@@ -53,7 +53,9 @@ function highlightLabel(label: string, query: string): string {
 }
 
 function getCountryLabel(code: string): string {
-  const iso = String(code || '').trim().toUpperCase();
+  const iso = String(code || '')
+    .trim()
+    .toUpperCase();
   const explicitName = SUPPORTED_COUNTRY_NAMES[iso];
   if (explicitName) return explicitName;
   try {
@@ -116,17 +118,17 @@ export const searchCityPostal = {
               </div>
               <div class="location-selection-field">
                 <label for="location-query-input"><strong>${t.locationButtonZip}</strong></label>
-                <input id="location-query-input" class="location-search-control" type="text" placeholder=${t.locationTextZip3} autocomplete="off" />
+                <input id="location-query-input" class="location-search-control" type="text" placeholder="${t.locationTextZip3}" autocomplete="off" />
                 <div id="location-autocomplete-dropdown" class="location-autocomplete-dropdown"></div>
               </div>
             </div>
           </div>
-        `
+        `;
       },
       prompt_above_buttons: true,
       button_choices: () => {
         const t = taskStore().translations;
-  
+
         return [t.continueButtonText];
       },
       button_html: '<button class="primary">%choice%</button>',
@@ -134,11 +136,11 @@ export const searchCityPostal = {
       on_load: () => {
         const btnGroup = document.getElementById('jspsych-html-multi-response-btngroup');
         const container = document.querySelector('.lev-row-container.location-selection');
-  
+
         if (btnGroup && container) {
           container.appendChild(btnGroup);
         }
-        btnGroup?.classList.add("lev-response-row", "multi-4");
+        btnGroup?.classList.add('lev-response-row', 'multi-4');
         disableOkButton();
 
         const continueButton = document.querySelector<HTMLButtonElement>('#jspsych-html-multi-response-button-0');
@@ -170,7 +172,8 @@ export const searchCityPostal = {
           setLocationSelectionDraft(draft);
           taskStore('locationSelectionPendingSuggestion', selected);
           hasExplicitSelection = true;
-          if (statusEl) statusEl.textContent = `Selected: ${selected.display_name || `${draft.lat.toFixed(5)}, ${draft.lon.toFixed(5)}`}`;
+          if (statusEl)
+            statusEl.textContent = `Selected: ${selected.display_name || `${draft.lat.toFixed(5)}, ${draft.lon.toFixed(5)}`}`;
           if (inputEl) inputEl.value = String(selected.display_name || inputEl.value);
           hideDropdown();
           if (continueButton) continueButton.disabled = false;
@@ -198,7 +201,9 @@ export const searchCityPostal = {
             .join('');
           dropdownEl.classList.add('is-open');
           if (highlightedIndex >= 0) {
-            const active = dropdownEl.querySelector<HTMLButtonElement>(`button[data-result-index="${highlightedIndex}"]`);
+            const active = dropdownEl.querySelector<HTMLButtonElement>(
+              `button[data-result-index="${highlightedIndex}"]`,
+            );
             active?.scrollIntoView({ block: 'nearest' });
           }
           dropdownEl.querySelectorAll<HTMLButtonElement>('button[data-result-index]').forEach((button) => {
@@ -237,14 +242,18 @@ export const searchCityPostal = {
           if (requestId !== latestRequestId) return;
           highlightedIndex = results.length ? 0 : -1;
           renderResults(results);
-          if (statusEl) statusEl.textContent = results.length ? 'Pick the best match from the dropdown.' : 'No matches found.';
+          if (statusEl)
+            statusEl.textContent = results.length ? 'Pick the best match from the dropdown.' : 'No matches found.';
         };
 
         loadCountryOptions()
           .then((countries) => {
             if (!countryEl) return;
             countryEl.innerHTML = countries
-              .map((country) => `<option value="${country.code}" ${country.code === 'US' ? 'selected' : ''}>${country.label}</option>`)
+              .map(
+                (country) =>
+                  `<option value="${country.code}" ${country.code === 'US' ? 'selected' : ''}>${country.label}</option>`,
+              )
               .join('');
             selectedCountry = countryEl.value || 'US';
             taskStore('locationSelectionPendingCountry', selectedCountry);
@@ -290,7 +299,9 @@ export const searchCityPostal = {
         document.addEventListener('click', (event) => {
           const target = event.target as HTMLElement | null;
           if (!target) return;
-          const clickedInside = Boolean(target.closest('#location-autocomplete-dropdown') || target.closest('#location-query-input'));
+          const clickedInside = Boolean(
+            target.closest('#location-autocomplete-dropdown') || target.closest('#location-query-input'),
+          );
           if (!clickedInside) hideDropdown();
         });
 

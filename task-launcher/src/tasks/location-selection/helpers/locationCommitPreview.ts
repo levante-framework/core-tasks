@@ -122,7 +122,7 @@ export async function buildLocationSavePayload() {
   const location = await buildLocationCommitPreviewWithPopulation(draft);
 
   if (location) {
-    persistLocation(location);
+    await persistLocation(location);
   }
   taskStore('locationDataSaved', true);
 }

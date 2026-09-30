@@ -8,8 +8,8 @@ export function initLocationPersistence(config: Record<string, any>) {
   firekit = config.firekit;
 }
 
-export function persistLocation(location: CoarseLocation) {
+export async function persistLocation(location: CoarseLocation) {
   if (!taskStore().demoMode && location && firekit) {
-    firekit.updateUser({ location });
+    await firekit.updateUser({ location });
   }
 }
