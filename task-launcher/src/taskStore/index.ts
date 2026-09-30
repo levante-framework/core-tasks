@@ -35,6 +35,7 @@ import type { InputCapability } from '../utils/detectInput';
  * @property {number} currentCatBlock - The current block number to select trials from in a CAT.
  * @property {number[]} blockThresholds - Array of theta thresholds.
  * @property {number} totalTrialCount - Total number of trials, including practice and instructions.
+ * @property {boolean} isDev - Whether the dev firebase project is being used for the run.
  * ------- Added after config is parsed -------
  * @property {number} totalTrials - Total number trials, including practice and instructions.
  * @property {number} totalTestTrials - Total number of test trials in the experiment timeline.

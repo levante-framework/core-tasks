@@ -62,6 +62,7 @@ export class TaskLauncher {
     const isDev = this.firekit
       ? this.firekit.firebaseProject?.firebaseApp?.options?.projectId === 'hs-levante-admin-dev'
       : !!this.gameParams.demoMode;
+    taskStore('isDev', isDev);
 
     const tasksWithoutCorpus = ['hearts-and-flowers', 'memory-game', 'intro', 'location-selection'];
     const requiresCorpus = !tasksWithoutCorpus.includes(taskName);

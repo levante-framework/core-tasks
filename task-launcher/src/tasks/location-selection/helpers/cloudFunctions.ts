@@ -1,14 +1,11 @@
 import { taskStore } from '../../../taskStore';
 
-export const LEVANTE_ADMIN_CLOUD_FUNCTIONS_DEV =
-  'https://us-central1-hs-levante-admin-dev.cloudfunctions.net';
-export const LEVANTE_ADMIN_CLOUD_FUNCTIONS_PROD =
-  'https://us-central1-hs-levante-admin-prod.cloudfunctions.net';
+export const LEVANTE_ADMIN_CLOUD_FUNCTIONS_DEV = 'https://us-central1-hs-levante-admin-dev.cloudfunctions.net';
+export const LEVANTE_ADMIN_CLOUD_FUNCTIONS_PROD = 'https://us-central1-hs-levante-admin-prod.cloudfunctions.net';
 
 /** Resolves dev vs prod admin cloud function host from the active Firebase project. */
 export function getLevanteAdminCloudFunctionsBaseUrl(): string {
-  const projectId = taskStore().firekit?.firebaseProject?.firebaseApp?.options?.projectId;
-  if (!taskStore().firekit || projectId === 'hs-levante-admin-dev') {
+  if (taskStore().isDev) {
     return LEVANTE_ADMIN_CLOUD_FUNCTIONS_DEV;
   }
   return LEVANTE_ADMIN_CLOUD_FUNCTIONS_PROD;
