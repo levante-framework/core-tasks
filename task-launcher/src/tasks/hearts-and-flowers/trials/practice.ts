@@ -37,7 +37,6 @@ export function buildInstructionPracticeTrial(
     // throw new Error(`Missing prompt text for instruction practice trial`);
     Logger.getInstance().error(new Error('buildInstructionPracticeTrial: Missing prompt text'));
   }
-  const hfV2 = taskStore().version === 2;
   const replayButtonHtmlId = 'replay-btn-revisited';
   const validAnswer = getCorrectInputSide(stimulusType, stimulusSideType);
   const trial = {
@@ -87,9 +86,7 @@ export function buildInstructionPracticeTrial(
         addKeyHelpers(button, i);
       });
 
-      if (hfV2) {
-        setupHafMultiResponseTouchRouting();
-      }
+      setupHafMultiResponseTouchRouting();
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
     keyboard_choices: isTouchScreen ? InputKeyType.NoKeys : [InputKeyType.ArrowLeft, InputKeyType.ArrowRight],
