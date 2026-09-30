@@ -1,13 +1,11 @@
+import { type CoarseLocation, CoarseLocationSchema, type H3Cell } from '@levante-framework/levante-zod';
 import { cellToLatLng, latLngToCell } from 'h3-js';
-import type { LocationV1 } from '@levante-framework/firekit';
-
-type H3Cell = NonNullable<LocationV1['h3']['effective']>;
-import { type LocationSelectionDraft } from './state';
-import { getLocationSelectionTaskConfig } from './config';
-import { lookupPopulationForCell } from './populationApi';
 import { taskStore } from '../../../taskStore';
-import { persistLocation } from './persistLocation';
 import { Logger } from '../../../utils';
+import { getLocationSelectionTaskConfig } from './config';
+import { persistLocation } from './persistLocation';
+import { lookupPopulationForCell } from './populationApi';
+import type { LocationSelectionDraft } from './state';
 
 function toH3Cell(h3Index: string, resolution: number): H3Cell {
   const center = cellToLatLng(h3Index);
@@ -29,11 +27,10 @@ function resolvePopulationSource(
 
 export async function buildLocationCommitPreviewWithPopulation(
   draft: LocationSelectionDraft | null,
-): Promise<LocationV1 | null> {
+): Promise<CoarseLocation | null> {
   if (!draft) return null;
 
-  const { baselineResolution, minResolution, maxResolution, populationThreshold } =
-    getLocationSelectionTaskConfig();
+  const { baselineResolution, minResolution, maxResolution, populationThreshold } = getLocationSelectionTaskConfig();
   const baselineCell = latLngToCell(draft.lat, draft.lon, baselineResolution);
   let effectiveCell = baselineCell;
   let effectiveResolution = baselineResolution;
@@ -91,31 +88,33 @@ export async function buildLocationCommitPreviewWithPopulation(
   if (!privacyCompliantCellFound) {
     const logger = Logger.getInstance();
 
-    logger.capture(
-      'No privacy-compliant cell found.',
-      {
-        taskName: taskStore().task
-      }
-    );
+    logger.capture('No privacy-compliant cell found.', {
+      taskName: taskStore().task,
+    });
   }
 
-  return {
+  const parsed = CoarseLocationSchema.safeParse({
     schemaVersion: 'location_v1',
     h3: {
-      scheme: 'h3_v1',
-      baseline: baselineEvaluation?.privacyMet
-        ? toH3Cell(baselineCell, baselineResolution)
-        : undefined,
-      effective: privacyCompliantCellFound
-        ? toH3Cell(effectiveCell, effectiveResolution)
-        : undefined,
+      baseline: baselineEvaluation?.privacyMet ? toH3Cell(baselineCell, baselineResolution) : undefined,
+      effective: privacyCompliantCellFound ? toH3Cell(effectiveCell, effectiveResolution) : undefined,
     },
     population: {
       source: resolvePopulationSource(effectivePopulationSource, observedPopulationSource),
       threshold: populationThreshold,
     },
     computedAt: draft.selectedAt || new Date().toISOString(),
-  };
+  });
+
+  if (!parsed.success) {
+    Logger.getInstance().capture('Failed to parse CoarseLocation', {
+      taskName: taskStore().task,
+      issues: parsed.error.issues,
+    });
+    return null;
+  }
+
+  return parsed.data;
 }
 
 export async function buildLocationSavePayload() {
@@ -125,5 +124,5 @@ export async function buildLocationSavePayload() {
   if (location) {
     persistLocation(location);
   }
-  taskStore("locationDataSaved", true);
+  taskStore('locationDataSaved', true);
 }
