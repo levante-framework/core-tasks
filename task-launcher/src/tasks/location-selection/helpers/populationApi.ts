@@ -1,7 +1,6 @@
-import {
-  getDefaultPopulationKonturH3ApiUrl,
-  getDefaultPopulationWorldpopH3ApiUrl,
-} from './cloudFunctions';
+import type { RoarAppkit } from '@levante-framework/firekit';
+import { taskStore } from '../../../taskStore';
+import { getDefaultPopulationKonturH3ApiUrl, getDefaultPopulationWorldpopH3ApiUrl } from './cloudFunctions';
 
 type PopulationSource = 'kontur' | 'worldpop';
 
@@ -11,6 +10,21 @@ type PopulationLookupResult = {
 };
 
 const POPULATION_LOOKUP_TIMEOUT_MS = 25000;
+
+let firekit: RoarAppkit | null = null;
+export function initPopulationApi(config: Record<string, any>): void {
+  firekit = config.firekit ?? null;
+}
+
+async function getAuthHeaders(): Promise<Record<string, string>> {
+  if (taskStore().demoMode || !firekit) return {};
+
+  const user = firekit.firebaseProject?.auth?.currentUser;
+  if (!user) return {};
+
+  const token = await user.getIdToken();
+  return { Authorization: `Bearer ${token}` };
+}
 
 function parsePopulation(payload: any): number | null {
   const candidates = [
@@ -40,12 +54,14 @@ async function fetchPopulation(
     const url = new URL(endpoint, window.location.origin);
     url.searchParams.set('cellId', cellId);
     url.searchParams.set('resolution', String(resolution));
+    const headers = await getAuthHeaders();
 
     const controller = new AbortController();
     const timeout = window.setTimeout(() => controller.abort(), POPULATION_LOOKUP_TIMEOUT_MS);
     const response = await fetch(url.toString(), {
       method: 'GET',
       signal: controller.signal,
+      headers,
     });
     window.clearTimeout(timeout);
 
@@ -54,11 +70,11 @@ async function fetchPopulation(
     }
 
     const payload = await response.json().catch(() => ({}));
-    const resolvedSourceRaw = String(payload?.source || '').trim().toLowerCase();
+    const resolvedSourceRaw = String(payload?.source || '')
+      .trim()
+      .toLowerCase();
     const resolvedSource: PopulationSource | 'unknown' =
-      resolvedSourceRaw === 'kontur' || resolvedSourceRaw === 'worldpop'
-        ? resolvedSourceRaw
-        : source;
+      resolvedSourceRaw === 'kontur' || resolvedSourceRaw === 'worldpop' ? resolvedSourceRaw : source;
     const parsed = parsePopulation(payload);
     if (typeof parsed === 'number') {
       return { population: parsed, source: resolvedSource };
@@ -69,10 +85,7 @@ async function fetchPopulation(
   }
 }
 
-export async function lookupPopulationForCell(
-  cellId: string,
-  resolution: number,
-): Promise<PopulationLookupResult> {
+export async function lookupPopulationForCell(cellId: string, resolution: number): Promise<PopulationLookupResult> {
   const konturUrl = getDefaultPopulationKonturH3ApiUrl();
   const worldpopUrl = getDefaultPopulationWorldpopH3ApiUrl();
   const orderedSources: PopulationSource[] = ['kontur', 'worldpop'];
