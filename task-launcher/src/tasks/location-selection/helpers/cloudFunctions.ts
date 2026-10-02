@@ -22,3 +22,9 @@ export function getDefaultPopulationWorldpopH3ApiUrl(): string {
 export function getCartoBasemapTileUrlTemplate(): string {
   return `${getLevanteAdminCloudFunctionsBaseUrl()}/cartoBasemapTile/light_all/{z}/{x}/{y}{r}.png`;
 }
+
+/** Static country autocomplete bundles. The search query is not part of this URL. */
+export function getGeocoderIndexBaseUrl(): string {
+  const bucket = taskStore().isDev ? 'levante-assets-dev' : 'levante-assets-prod';
+  return `https://storage.googleapis.com/${bucket}/maps/geocoder-index`;
+}

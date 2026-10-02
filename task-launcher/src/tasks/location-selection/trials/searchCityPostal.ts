@@ -2,15 +2,8 @@ import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-respons
 import { taskStore } from '../../../taskStore';
 import { disableOkButton, enableOkButton } from '../../shared/helpers';
 import { buildLocationSavePayload } from '../helpers/locationCommitPreview';
+import { type PlaceMatch, preloadPlaceIndex, searchPlaces } from '../helpers/placeSearch';
 import { setLocationSelectionDraft } from '../helpers/state';
-
-interface NominatimResult {
-  place_id?: number;
-  display_name?: string;
-  lat?: string;
-  lon?: string;
-  type?: string;
-}
 
 interface CountryOption {
   code: string;
@@ -76,20 +69,7 @@ async function loadCountryOptions(): Promise<CountryOption[]> {
   }));
 }
 
-async function searchLocations(query: string, countryCode?: string): Promise<NominatimResult[]> {
-  const params = new URLSearchParams({
-    q: query,
-    format: 'jsonv2',
-    limit: '10',
-  });
-  if (countryCode) params.set('countrycodes', String(countryCode || '').toLowerCase());
-  const response = await fetch(`https://nominatim.openstreetmap.org/search?${params.toString()}`);
-  if (!response.ok) return [];
-  const payload = await response.json();
-  return Array.isArray(payload) ? payload : [];
-}
-
-function buildDraftFromSuggestion(selected: NominatimResult) {
+function buildDraftFromSuggestion(selected: PlaceMatch) {
   const lat = Number(selected?.lat);
   const lon = Number(selected?.lon);
   if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
@@ -155,7 +135,7 @@ export const searchCityPostal = {
         taskStore('locationSelectionPendingCountry', selectedCountry);
         let debounceHandle: number | null = null;
         let latestRequestId = 0;
-        let latestResults: NominatimResult[] = [];
+        let latestResults: PlaceMatch[] = [];
         let highlightedIndex = -1;
         let latestQuery = '';
         let hasExplicitSelection = false;
@@ -167,7 +147,7 @@ export const searchCityPostal = {
           highlightedIndex = -1;
         };
 
-        const selectResult = (selected: NominatimResult) => {
+        const selectResult = (selected: PlaceMatch) => {
           const draft = buildDraftFromSuggestion(selected);
           if (!draft) return;
           setLocationSelectionDraft(draft);
@@ -182,7 +162,7 @@ export const searchCityPostal = {
           enableOkButton();
         };
 
-        const renderResults = (results: NominatimResult[]) => {
+        const renderResults = (results: PlaceMatch[]) => {
           if (!dropdownEl) return;
           latestResults = results.slice();
           taskStore('locationSelectionPendingSuggestion', null);
@@ -239,7 +219,7 @@ export const searchCityPostal = {
           if (statusEl) statusEl.textContent = `Searching in ${selectedCountry}…`;
           const requestId = latestRequestId + 1;
           latestRequestId = requestId;
-          const results = await searchLocations(query, selectedCountry);
+          const results = await searchPlaces(query, selectedCountry);
           if (requestId !== latestRequestId) return;
           highlightedIndex = results.length ? 0 : -1;
           renderResults(results);
@@ -258,6 +238,7 @@ export const searchCityPostal = {
               .join('');
             selectedCountry = countryEl.value || 'US';
             taskStore('locationSelectionPendingCountry', selectedCountry);
+            preloadPlaceIndex(selectedCountry);
             if (statusEl) statusEl.textContent = 'Country selected. Start typing a city or postal code.';
           })
           .catch((error: any) => {
@@ -267,6 +248,7 @@ export const searchCityPostal = {
         countryEl?.addEventListener('change', () => {
           selectedCountry = String(countryEl.value || '').toUpperCase();
           taskStore('locationSelectionPendingCountry', selectedCountry);
+          preloadPlaceIndex(selectedCountry);
           hasExplicitSelection = false;
           if (continueButton) continueButton.disabled = true;
           hideDropdown();
