@@ -66,7 +66,7 @@ async function readGzipJson(url: string): Promise<unknown> {
 
 async function loadMeta(): Promise<IndexMeta> {
   if (!metaPromise) {
-    metaPromise = fetch(`${getGeocoderIndexBaseUrl()}/meta.json`, { cache: 'force-cache' }).then(async (response) => {
+    metaPromise = fetch(`${getGeocoderIndexBaseUrl()}/meta.json`).then(async (response) => {
       if (!response.ok) throw new Error(`Place index metadata request failed (${response.status})`);
       return (await response.json()) as IndexMeta;
     });
@@ -75,6 +75,20 @@ async function loadMeta(): Promise<IndexMeta> {
     });
   }
   return metaPromise;
+}
+
+/** True when this country has an on-device city and postal index. */
+export async function countryHasPlaceIndex(countryCode: string): Promise<boolean> {
+  const code = String(countryCode || '')
+    .trim()
+    .toUpperCase();
+  if (!code) return false;
+  try {
+    const meta = await loadMeta();
+    return Boolean(meta.countries?.[code]?.files?.lite?.file);
+  } catch {
+    return false;
+  }
 }
 
 async function loadIndex(countryCode: string, tier: 'lite' | 'full'): Promise<PlaceIndex> {

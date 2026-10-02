@@ -1,8 +1,9 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { taskStore } from '../../../taskStore';
 import { disableOkButton, enableOkButton } from '../../shared/helpers';
+import { preloadBoundaryPack, searchAdminAreas } from '../helpers/boundaryPackSearch';
 import { buildLocationSavePayload } from '../helpers/locationCommitPreview';
-import { type PlaceMatch, preloadPlaceIndex, searchPlaces } from '../helpers/placeSearch';
+import { countryHasPlaceIndex, type PlaceMatch, preloadPlaceIndex, searchPlaces } from '../helpers/placeSearch';
 import { setLocationSelectionDraft } from '../helpers/state';
 
 interface CountryOption {
@@ -10,19 +11,23 @@ interface CountryOption {
   label: string;
 }
 
-const SUPPORTED_COUNTRY_CODES: string[] = ['US', 'DE', 'GB', 'NL', 'CA', 'CO', 'IN', 'AR', 'GH', 'CH'];
-const SUPPORTED_COUNTRY_NAMES: Record<string, string> = {
-  US: 'United States',
-  DE: 'Germany',
-  GB: 'United Kingdom',
-  NL: 'Netherlands',
-  CA: 'Canada',
-  CO: 'Colombia',
-  IN: 'India',
-  AR: 'Argentina',
-  GH: 'Ghana',
-  CH: 'Switzerland',
-};
+/** Original Locate Me countries, plus Peru, Israel, Portugal, and Brazil. */
+const DROPDOWN_COUNTRY_CODES: string[] = [
+  'US',
+  'DE',
+  'GB',
+  'NL',
+  'CA',
+  'CO',
+  'IN',
+  'AR',
+  'GH',
+  'CH',
+  'PE',
+  'IL',
+  'PT',
+  'BR',
+];
 
 function escapeHtml(value: string): string {
   return String(value || '')
@@ -49,8 +54,6 @@ function getCountryLabel(code: string): string {
   const iso = String(code || '')
     .trim()
     .toUpperCase();
-  const explicitName = SUPPORTED_COUNTRY_NAMES[iso];
-  if (explicitName) return explicitName;
   try {
     if (typeof Intl !== 'undefined' && (Intl as any).DisplayNames) {
       const dn = new Intl.DisplayNames(['en'], { type: 'region' });
@@ -63,10 +66,23 @@ function getCountryLabel(code: string): string {
 }
 
 async function loadCountryOptions(): Promise<CountryOption[]> {
-  return SUPPORTED_COUNTRY_CODES.map((code) => ({
+  return DROPDOWN_COUNTRY_CODES.map((code) => ({
     code,
     label: `${getCountryLabel(code)} — ${code}`,
-  }));
+  })).sort((a, b) => a.label.localeCompare(b.label));
+}
+
+async function preloadCountry(countryCode: string) {
+  if (await countryHasPlaceIndex(countryCode)) {
+    preloadPlaceIndex(countryCode);
+    return;
+  }
+  preloadBoundaryPack(countryCode);
+}
+
+async function searchCountry(query: string, countryCode: string): Promise<PlaceMatch[]> {
+  if (await countryHasPlaceIndex(countryCode)) return searchPlaces(query, countryCode);
+  return searchAdminAreas(query, countryCode);
 }
 
 function buildDraftFromSuggestion(selected: PlaceMatch) {
@@ -219,7 +235,7 @@ export const searchCityPostal = {
           if (statusEl) statusEl.textContent = `Searching in ${selectedCountry}…`;
           const requestId = latestRequestId + 1;
           latestRequestId = requestId;
-          const results = await searchPlaces(query, selectedCountry);
+          const results = await searchCountry(query, selectedCountry);
           if (requestId !== latestRequestId) return;
           highlightedIndex = results.length ? 0 : -1;
           renderResults(results);
@@ -238,7 +254,7 @@ export const searchCityPostal = {
               .join('');
             selectedCountry = countryEl.value || 'US';
             taskStore('locationSelectionPendingCountry', selectedCountry);
-            preloadPlaceIndex(selectedCountry);
+            void preloadCountry(selectedCountry);
             if (statusEl) statusEl.textContent = 'Country selected. Start typing a city or postal code.';
           })
           .catch((error: any) => {
@@ -248,7 +264,7 @@ export const searchCityPostal = {
         countryEl?.addEventListener('change', () => {
           selectedCountry = String(countryEl.value || '').toUpperCase();
           taskStore('locationSelectionPendingCountry', selectedCountry);
-          preloadPlaceIndex(selectedCountry);
+          void preloadCountry(selectedCountry);
           hasExplicitSelection = false;
           if (continueButton) continueButton.disabled = true;
           hideDropdown();

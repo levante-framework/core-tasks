@@ -28,3 +28,9 @@ export function getGeocoderIndexBaseUrl(): string {
   const bucket = taskStore().isDev ? 'levante-assets-dev' : 'levante-assets-prod';
   return `https://storage.googleapis.com/${bucket}/maps/geocoder-index`;
 }
+
+/** Static admin-boundary packs. The search query is not part of this URL. */
+export function getBoundaryPackBaseUrl(): string {
+  const bucket = taskStore().isDev ? 'levante-assets-dev' : 'levante-assets-prod';
+  return `https://storage.googleapis.com/${bucket}/maps/boundaries`;
+}
