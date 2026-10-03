@@ -79,6 +79,7 @@ const data = [
     buttonHtml: '<button class="primary">%choice%</button>',
     setMode: false,
     setLocationType: false,
+    endTask: true,
   },
 ];
 
@@ -129,6 +130,10 @@ const allInstructions = data.map((instructionData) => {
         jsPsych.data.addDataToLastTrial({
           response: locationType,
         });
+      }
+
+      if (instructionData.endTask) {
+        taskStore('taskComplete', true);
       }
     },
   };

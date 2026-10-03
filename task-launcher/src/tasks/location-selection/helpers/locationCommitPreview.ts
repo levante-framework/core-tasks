@@ -93,12 +93,16 @@ export async function buildLocationCommitPreviewWithPopulation(
     });
   }
 
+  const h3Baseline = baselineEvaluation?.privacyMet ? toH3Cell(baselineCell, baselineResolution) : undefined;
+  const h3Effective = privacyCompliantCellFound ? toH3Cell(effectiveCell, effectiveResolution) : undefined;
+  const h3: { baseline?: H3Cell; effective?: H3Cell } = {};
+
+  if (h3Baseline) h3.baseline = h3Baseline;
+  if (h3Effective) h3.effective = h3Effective;
+
   const parsed = CoarseLocationSchema.safeParse({
     schemaVersion: 'location_v1',
-    h3: {
-      baseline: baselineEvaluation?.privacyMet ? toH3Cell(baselineCell, baselineResolution) : undefined,
-      effective: privacyCompliantCellFound ? toH3Cell(effectiveCell, effectiveResolution) : undefined,
-    },
+    h3: h3,
     population: {
       source: resolvePopulationSource(effectivePopulationSource, observedPopulationSource),
       threshold: populationThreshold,
