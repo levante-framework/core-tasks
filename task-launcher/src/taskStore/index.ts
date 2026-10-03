@@ -35,6 +35,7 @@ import type { InputCapability } from '../utils/detectInput';
  * @property {number} currentCatBlock - The current block number to select trials from in a CAT.
  * @property {number[]} blockThresholds - Array of theta thresholds.
  * @property {number} totalTrialCount - Total number of trials, including practice and instructions.
+ * @property {boolean} isDev - Whether the dev firebase project is being used for the run.
  * ------- Added after config is parsed -------
  * @property {number} totalTrials - Total number trials, including practice and instructions.
  * @property {number} totalTestTrials - Total number of test trials in the experiment timeline.
@@ -77,6 +78,10 @@ import type { InputCapability } from '../utils/detectInput';
  * ------- SDS only -------
  * @property {StimulusType[]} sequentialTrials - Should be run sequentially in blocks by trial number in an SDS CAT.
  * @property {number} version - A version number for the task, default is 1. Can be used as a feature flag.
+ * ------- Location Selection only -------
+ * @property {boolean} locationDataSaved - Whether location data has been saved, default is false.
+ * @property {string} userLocationType - 'Home" or 'Other".
+ * @property {boolean} userWentBack - Whether the user pressed the back button to change their preferred method of location selection.
  */
 
 export type TaskStoreDataType = {
@@ -179,6 +184,9 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     taskTimerPausedMs: 0,
     taskTimerPauseBeganAt: null,
     isPaused: false,
+    locationDataSaved: false,
+    userLocationType: null,
+    userWentBack: false,
     catBlockTimeLimitMs: 0,
     catBlockStartElapsedMs: null,
   });

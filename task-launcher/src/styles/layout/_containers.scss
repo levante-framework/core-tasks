@@ -150,6 +150,19 @@
       }
     }
   }
+
+  &.location-selection {
+    @extend .lev-row-container, .instruction;
+    width: 30vw;
+    display: flex;
+    flex-direction: column; 
+    gap: 40px;
+    padding: 40px;
+
+    > * {
+      margin: 0
+    }
+  }
 }
 
 .lev-stimulus-container {
