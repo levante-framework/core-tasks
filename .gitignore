@@ -12,3 +12,4 @@ lib/
 .env
 .idea/
 .vscode
+*.csv
