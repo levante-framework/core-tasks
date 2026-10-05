@@ -1,10 +1,13 @@
-import { setLocationSelectionDraft } from '../helpers/state';
 import L from 'leaflet';
+import { setLocationSelectionDraft } from '../helpers/state';
 import 'leaflet/dist/leaflet.css';
 import { enableOkButton } from '../../shared/helpers';
 import { getCartoBasemapTileUrlTemplate } from './cloudFunctions';
 
-const WORLD_BOUNDS: [[number, number], [number, number]] = [[-90, -180], [90, 180]];
+const WORLD_BOUNDS: [[number, number], [number, number]] = [
+  [-90, -180],
+  [90, 180],
+];
 
 export async function setupMap() {
   const mapEl = document.getElementById('location-map-picker');

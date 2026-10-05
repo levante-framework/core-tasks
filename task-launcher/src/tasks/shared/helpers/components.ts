@@ -87,7 +87,7 @@ export const mapIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="48" heigh
   <path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M3 7l6 -3l6 3l6 -3v13l-6 3l-6 -3l-6 3v-13" />
   <path d="M9 4v13" />
   <path d="M15 7v13" />
-</svg>`;    
+</svg>`;
 
 export const pointerIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="currentColor" class="icon icon-tabler icons-tabler-filled icon-tabler-map-pin">
   <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -97,7 +97,7 @@ export const pointerIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="48" h
 export const keyboardIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="currentColor" class="icon icon-tabler icons-tabler-filled icon-tabler-keyboard">
   <path stroke="none" d="M0 0h24v24H0z" fill="none" />
   <path d="M20 5a3 3 0 0 1 3 3v8a3 3 0 0 1 -3 3h-16a3 3 0 0 1 -3 -3v-8a3 3 0 0 1 3 -3zm-14 8a1 1 0 0 0 -1 1v.01a1 1 0 0 0 2 0v-.01a1 1 0 0 0 -1 -1m12 0a1 1 0 0 0 -1 1v.01a1 1 0 0 0 2 0v-.01a1 1 0 0 0 -1 -1m-7.998 0a1 1 0 0 0 -.004 2l4 .01a1 1 0 0 0 .005 -2zm-4.002 -4a1 1 0 0 0 -1 1v.01a1 1 0 0 0 2 0v-.01a1 1 0 0 0 -1 -1m4 0a1 1 0 0 0 -1 1v.01a1 1 0 0 0 2 0v-.01a1 1 0 0 0 -1 -1m4 0a1 1 0 0 0 -1 1v.01a1 1 0 0 0 2 0v-.01a1 1 0 0 0 -1 -1m4 0a1 1 0 0 0 -1 1v.01a1 1 0 0 0 2 0v-.01a1 1 0 0 0 -1 -1" />
-</svg>`
+</svg>`;
 
 export const worldSearchIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-world-search">
   <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -108,12 +108,12 @@ export const worldSearchIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="7
   <path d="M12.5 3a16.984 16.984 0 0 1 2.574 8.62" />
   <path d="M15 18a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
   <path d="M20.2 20.2l1.8 1.8" />
-</svg>`
+</svg>`;
 
 export const loader = `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-loader-2 rotate">
   <path stroke="none" d="M0 0h24v24H0z" fill="none" />
   <path d="M12 3a9 9 0 1 0 9 9" />
-</svg>`
+</svg>`;
 
 // fullscreen and replay button html
 export function getParticipantUtilityButtonsHtml(replayButtonHtmlId: string, includeReplayButton = true): string {

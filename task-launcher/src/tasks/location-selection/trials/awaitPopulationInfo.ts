@@ -1,18 +1,16 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
 import { taskStore } from '../../../taskStore';
-import { worldSearchIcon, isTaskFinished, loader } from '../../shared/helpers';
+import { isTaskFinished, loader, worldSearchIcon } from '../../shared/helpers';
 import { jsPsych } from '../../taskSetup';
 
-
 export const waitScreen = {
-        timeline: [
-            {
-                type: jsPsychHtmlMultiResponse,
-                stimulus: () => {
-                  const t = taskStore().translations;
+  timeline: [
+    {
+      type: jsPsychHtmlMultiResponse,
+      stimulus: () => {
+        const t = taskStore().translations;
 
-                  return (
-                    `
+        return `
                       <div class="lev-stimulus-container">
                         <div class="lev-row-container location-selection">
                           ${worldSearchIcon}
@@ -20,15 +18,13 @@ export const waitScreen = {
                           ${loader}
                         </div>
                       </div>
-                    `
-                  )
-                },
-                keyboard_choices: 'NO_KEYS',
-                on_load: async () => {
-                    await isTaskFinished(() => taskStore().locationDataSaved);
-                    jsPsych.finishTrial();
-                },
-            }
-        ]
-        
+                    `;
+      },
+      keyboard_choices: 'NO_KEYS',
+      on_load: async () => {
+        await isTaskFinished(() => taskStore().locationDataSaved);
+        jsPsych.finishTrial();
+      },
+    },
+  ],
 };
