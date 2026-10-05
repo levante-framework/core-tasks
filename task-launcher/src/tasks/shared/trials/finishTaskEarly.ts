@@ -17,26 +17,26 @@ export function finishTaskEarly(effectiveStoppingRule: 'timeOut' | 'errorOut') {
 
   const t = taskStore().translations;
   setTimeout(() => {
-    const removeDOMElements = (event: Event) => {
+    const handleExit = (event: Event) => {
       if (event.type === 'click') {
         const buttonId = (event.target as HTMLElement)?.id;
         if (buttonId === 'exit-button') {
           taskStore('taskComplete', true);
-          window.removeEventListener('click', removeDOMElements);
-          window.removeEventListener('keydown', removeDOMElements);
+          window.removeEventListener('click', handleExit);
+          window.removeEventListener('keydown', handleExit);
 
           addSpinner();
         }
       } else if (event.type === 'keydown') {
         taskStore('taskComplete', true);
-        window.removeEventListener('keydown', removeDOMElements);
-        window.removeEventListener('click', removeDOMElements);
+        window.removeEventListener('keydown', handleExit);
+        window.removeEventListener('click', handleExit);
 
         addSpinner();
       }
     };
-    window.addEventListener('click', removeDOMElements);
-    window.addEventListener('keydown', removeDOMElements);
+    window.addEventListener('click', handleExit);
+    window.addEventListener('keydown', handleExit);
     const logger = Logger.getInstance();
     const message =
       effectiveStoppingRule === 'timeOut'
