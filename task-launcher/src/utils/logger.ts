@@ -25,9 +25,7 @@ export class Logger {
 
   /** Clear the singleton between runs. */
   public static resetInstance() {
-    if (Logger.instance) {
-      Logger.instance = undefined;
-    }
+    Logger.instance = undefined;
   }
 
   public capture(name: string, context?: Record<string, any>) {
