@@ -38,6 +38,7 @@ export class TaskLauncher {
     this.gameParams = gameParams;
     this.userParams = userParams;
     this.firekit = firekit;
+    Logger.resetInstance();
     Logger.setInstance(logger, gameParams, userParams);
   }
 
