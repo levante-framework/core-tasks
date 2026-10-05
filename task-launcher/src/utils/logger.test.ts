@@ -3,13 +3,13 @@ import { Logger } from './logger';
 
 describe('Logger', () => {
   beforeEach(() => {
-    Logger.resetInstanceForTests();
+    Logger.resetInstance();
     vi.spyOn(console, 'error').mockImplementation(() => {});
     vi.spyOn(console, 'log').mockImplementation(() => {});
   });
 
   afterEach(() => {
-    Logger.resetInstanceForTests();
+    Logger.resetInstance();
     vi.restoreAllMocks();
   });
 

@@ -15,6 +15,9 @@ import {
 } from './trials/instructions';
 import { getCorsiBlocks } from './trials/stimulus';
 
+export const TOTAL_FORWARD_TRIALS = 14;
+const TOTAL_BACKWARD_TRIALS = 12;
+
 const generatePracticeTrialTimeline = (reverse: boolean, tryAgainText: string, repetitions: number) => {
   const basicBlock = [
     getCorsiBlocks({ mode: 'display', isPractice: true, reverse }),
@@ -77,10 +80,10 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
 
   const corsiBlocksStimulus = {
     timeline: [forwardTrial()],
-    repetitions: 16,
+    repetitions: TOTAL_FORWARD_TRIALS - 5, // subtract to account for firstFourTestTrials and forwardTrialResetSeq
   };
 
-  // last forward trial by itself in order to reset sequence length back to 2 for backward phase
+  // last forward trial by itself in order to reset sequence length for backward phase
   const forwardTrialResetSeq = {
     timeline: [getCorsiBlocks({ mode: 'display' }), getCorsiBlocks({ mode: 'input', resetSeq: true })],
     conditional_function: () => {
@@ -94,10 +97,10 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
 
   const corsiBlocksReverse = {
     timeline: [getCorsiBlocks({ mode: 'display', reverse: true }), getCorsiBlocks({ mode: 'input', reverse: true })],
-    repetitions: 21,
+    repetitions: TOTAL_BACKWARD_TRIALS,
   };
 
-  const totalRealTrials = corsiBlocksStimulus.repetitions + corsiBlocksReverse.repetitions;
+  const totalRealTrials = TOTAL_FORWARD_TRIALS + TOTAL_BACKWARD_TRIALS;
   taskStore('totalTestTrials', totalRealTrials);
 
   const downexFeedbackCorrect = {

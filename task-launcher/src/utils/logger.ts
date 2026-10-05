@@ -1,5 +1,5 @@
 export class Logger {
-  private static instance: Logger;
+  private static instance?: Logger;
   private levanteLogger?: LevanteLogger;
   private gameParams?: GameParamsType;
   private userParams?: UserParamsType;
@@ -23,10 +23,9 @@ export class Logger {
     return Logger.instance;
   }
 
-  /** @internal Test-only: clear the singleton between tests. */
-  public static resetInstanceForTests() {
-    // biome-ignore lint/suspicious/noExplicitAny: test-only singleton reset
-    (Logger as any).instance = undefined;
+  /** Clear the singleton between runs. */
+  public static resetInstance() {
+    Logger.instance = undefined;
   }
 
   public capture(name: string, context?: Record<string, any>) {

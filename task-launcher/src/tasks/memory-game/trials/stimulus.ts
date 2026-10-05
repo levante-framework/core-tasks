@@ -16,6 +16,7 @@ import { getMemoryGamePrompt } from '../helpers/getMemoryGamePrompt';
 import { getMemoryGameType } from '../helpers/getMemoryGameType';
 import { createGrid, disableBlock, enableBlock, generateRandomSequence } from '../helpers/grid';
 import { resolveMemoryGamePrompt } from '../helpers/resolveMemoryGamePrompt';
+import { TOTAL_FORWARD_TRIALS } from '../timeline';
 
 type CorsiBlocksArgs = {
   mode: 'display' | 'input';
@@ -37,6 +38,8 @@ let selectedCoordinates: [number, number][] = [];
 let numCorrect = 0;
 const HIGHLIGHT_COLOR = '#8CAEDF';
 const INCORRECT_COLOR = '#f00';
+const correctStreakToIncrementSequence = 2; // increment sequence length after this many correct in a row
+let backwardsStartingSequenceLength = 2; // reset to this sequence length when starting the backward phase
 
 // edit this list to change the audio cues/prompts for downex practice trials (in reverse order)
 const downexPracticeAudioCues = [
@@ -190,10 +193,6 @@ export function getCorsiBlocks({
         audioButtonPresses: PageAudioHandler.replayPresses,
       });
 
-      if (resetSeq) {
-        sequenceLength = 2;
-      }
-
       const gridSize = taskStore().gridSize;
 
       // save itemUid for data analysis
@@ -219,10 +218,19 @@ export function getCorsiBlocks({
         if (data.correct && !isPractice) {
           numCorrect++;
 
-          if (numCorrect === 3 && !customSeqLength) {
+          if (numCorrect === correctStreakToIncrementSequence && !customSeqLength) {
             sequenceLength++;
             numCorrect = 0;
           }
+        }
+
+        // start backwards at sequence length 3 only if child cleared seq length 3 in forward block
+        if (sequenceLength > 3 && backwardsStartingSequenceLength === 2) {
+          backwardsStartingSequenceLength = 3;
+        }
+
+        if (resetSeq) {
+          sequenceLength = backwardsStartingSequenceLength;
         }
 
         if (!data.correct && !isPractice) {
@@ -234,9 +242,9 @@ export function getCorsiBlocks({
           if (reverse) {
             finishTaskEarly('errorOut');
           } else {
-            sequenceLength = 2;
+            sequenceLength = backwardsStartingSequenceLength;
             // update total trials to account for skipped forward block
-            taskStore('testTrialCount', 21);
+            taskStore('testTrialCount', TOTAL_FORWARD_TRIALS);
           }
         }
 
