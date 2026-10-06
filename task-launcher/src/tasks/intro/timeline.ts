@@ -11,6 +11,7 @@ import {
   bubblePracticeOutro,
   buttonIntroInstruction,
   firstInstruction,
+  pressIntroInstructions,
   remainingInstructions,
 } from './trials/instructions';
 
@@ -28,6 +29,7 @@ export default function buildIntroTimeline(config: Record<string, any>, mediaAss
     bubblePoppingPractice,
     bubblePracticeFeedbackInstruction,
     bubbleOverButtonPractice,
+    pressIntroInstructions,
     buttonIntroInstruction,
     buttonPressPractice,
     bubblePracticeOutro,
