@@ -8,6 +8,7 @@ import { shouldTerminateCat } from '../../shared/helpers/shouldTerminateCat';
 import { isTouchScreen, jsPsych } from '../../taskSetup';
 import { setupHafMultiResponseTouchRouting } from '../helpers/touchResponseRouting';
 import {
+  type CorpusRow,
   getCorrectInputSide,
   getStimulusLayout,
   InputKeyType,
@@ -15,28 +16,36 @@ import {
   StimulusSideType,
   StimulusType,
 } from '../helpers/utils';
+
+/** The corpus row this trial was built from (see buildBlockTimelineVariables in timeline.ts) */
+const getCorpusRow = (): CorpusRow => jsPsych.timelineVariable('corpusRow');
+const isPracticeRow = (row: CorpusRow) => row.assessmentStage === 'practice_response';
+// Practice trials are not timed, so they have no presentation time (null means no time limit)
+const getPresentationTime = (row: CorpusRow) => (isPracticeRow(row) ? null : Number(row.timeLimit));
+
 /**
  *TODO: we should perhaps allow {@link https://www.jspsych.org/7.2/overview/media-preloading/#automatic-preloading automatic preload}
   of the stimulus image and modify the DOM nodes that jsPsych creates in on_load?
   */
 
+/**
+ * A practice or test trial. Its settings come from its corpus row (timeline variable `corpusRow`);
+ * the stimulus and its side come from the timeline variables `stimulus` and `position`.
+ */
 export function stimulus(
-  isPractice: boolean,
-  stage: string,
-  trialType: string,
-  stimulusDuration: number,
   onTrialFinishTimelineCallback: ((data: Record<string, unknown>) => void) | undefined = undefined,
 ) {
   return {
     type: jsPsychHTMLMultiResponse,
     data: () => {
+      const row = getCorpusRow();
       return {
         // not camelCase because firekit
         save_trial: true,
-        assessment_stage: stage,
-        corpus_trial_type: trialType,
+        assessment_stage: row.assessmentStage,
+        corpus_trial_type: row.trialType,
         // not for firekit
-        isPracticeTrial: isPractice,
+        isPracticeTrial: isPracticeRow(row),
       };
     },
     stimulus: () => {
@@ -72,8 +81,11 @@ export function stimulus(
       <button class='secondary--green'></button>
     </div>`,
     ],
-    ...(!isPractice ? { trial_duration: stimulusDuration } : {}),
+    trial_duration: () => getPresentationTime(getCorpusRow()),
     on_finish: (data: Record<string, unknown>) => {
+      const row = getCorpusRow();
+      const isPractice = isPracticeRow(row);
+      const trialType = row.trialType;
       const stimulusPosition = jsPsych.timelineVariable('position');
       const stimulusType = jsPsych.timelineVariable('stimulus');
 
@@ -137,7 +149,7 @@ export function stimulus(
         response: responseData,
         responseLocation: response,
         itemUid: itemUid,
-        presentationTime: stimulusDuration,
+        presentationTime: getPresentationTime(row),
       });
 
       if (!isPractice) taskStore.transact('testTrialCount', (oldVal) => oldVal + 1);

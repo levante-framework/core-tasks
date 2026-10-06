@@ -27,39 +27,8 @@ function detachInstructionInputListeners() {
   cleanupInstructionInputListeners = [];
 }
 
-// These are the instruction "trials" they are full screen with no stimulus
-export function getHeartInstructions() {
-  return buildInstructionTrial(mediaAssets.images.animalBodySq, () => 'heartInstruct1');
-}
-
-export function getFlowerInstructions() {
-  return buildInstructionTrial(mediaAssets.images.animalBodySq, () => 'flowerInstruct1');
-}
-
-export function getTimeToPractice() {
-  return buildInstructionTrial(mediaAssets.images.animalBodySq, () => 'heartsAndFlowersPracticeTime');
-}
-
-export function getKeepUp() {
-  return buildInstructionTrial(mediaAssets.images.keepupSq, () => 'heartsAndFlowersInstruct1');
-}
-
-export function getKeepGoing() {
-  return buildInstructionTrial(mediaAssets.images.rocketSq, () => 'heartsAndFlowersInstruct2');
-}
-
-export function getTimeToPlay() {
-  return buildInstructionTrial(mediaAssets.images.animalBodySq, () => 'heartsAndFlowersPlayTime');
-}
-
-export function getMixedInstructions() {
-  return buildInstructionTrial(mediaAssets.images.animalBodySq, () => 'heartsAndFlowersInstruct3');
-}
-
-export function getGoingFasterInstructions() {
-  return buildInstructionTrial(mediaAssets.images.animalBodySq, () => 'heartsAndFlowersInstruct4');
-}
-
+// These are the instruction "trials" they are full screen with no stimulus.
+// All other instruction screens come from the corpus; input instructions depend on the device, so they stay here.
 export function getEndGame() {
   return buildInstructionTrial(mediaAssets.images.animalBodySq, () => 'heartsAndFlowersEnd', false, null, true);
 }
@@ -76,7 +45,7 @@ export function getRightButtonDemo() {
   return buildInstructionTrial(mediaAssets.images.animalBodySq, getInputInstructPrompt, true, 'right');
 }
 
-function buildInstructionTrial(
+export function buildInstructionTrial(
   mascotImage: string,
   getPromptKey: (showButton?: boolean) => string,
   showResponseButton: boolean = false,
