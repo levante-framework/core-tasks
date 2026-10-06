@@ -133,7 +133,7 @@ export class TaskLauncher {
       try {
         await this.firekit.finishRun();
       } catch (error) {
-        logger.error(error instanceof Error ? error : new Error('Failed to finish run', { cause: error }), {
+        logger.error(error instanceof Error ? error : new Error(`Failed to finish run: ${String(error)}`), {
           source: 'finishRun',
         });
       }
