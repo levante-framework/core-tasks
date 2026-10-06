@@ -1,7 +1,6 @@
 import { taskStore } from '../taskStore';
 import adultReasoningTimeline from './adult-reasoning/timeline';
 import childSurveyTimeline from './child-survey/timeline';
-import { getCorpus as getHeartsAndFlowersCorpus } from './hearts-and-flowers/helpers/getCorpus';
 import heartsAndFlowersTimeline from './hearts-and-flowers/timeline';
 import introTimeline from './intro/timeline';
 import mathTimeline from './math/timeline';
@@ -52,7 +51,7 @@ export default {
   },
   heartsAndFlowers: {
     setConfig: setSharedConfig,
-    getCorpus: getHeartsAndFlowersCorpus,
+    getCorpus: getCorpus,
     getTranslations: getTranslations,
     buildTaskTimeline: heartsAndFlowersTimeline,
     variants: {},
