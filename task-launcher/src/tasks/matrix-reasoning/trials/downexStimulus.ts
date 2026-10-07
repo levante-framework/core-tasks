@@ -151,7 +151,7 @@ export const downexStimulus = (
 
         const audioConfig: AudioConfigType = {
           restrictRepetition: {
-            enabled: true,
+            enabled: false,
             maxRepetitions: 2,
           },
           onEnded: onFeedbackEnded,
