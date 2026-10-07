@@ -407,6 +407,11 @@ function doOnLoad(
             timeoutIDs = [];
           }
 
+          const toast = document.getElementById('lev-toast-default') as HTMLDivElement;
+          if (toast) {
+            toast.classList.remove('show');
+          }
+
           // start a timer for toast notification
           const toastTimer = setTimeout(() => {
             const toast = document.getElementById('lev-toast-default') as HTMLDivElement;
