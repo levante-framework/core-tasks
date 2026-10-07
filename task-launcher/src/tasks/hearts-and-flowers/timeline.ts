@@ -26,31 +26,25 @@ import {
 } from './trials/practice';
 import { buildHeartsOrFlowersTimelineVariables, buildMixedTimelineVariables, stimulus } from './trials/stimulus';
 
-// trial_type of practice and test rows. Heart and flower blocks show one stimulus type;
-// mixed blocks pick heart or flower at runtime. The side is always picked at runtime.
 const BlockType = {
   Hearts: 'hearts',
   Flowers: 'flowers',
   Mixed: 'hearts and flowers',
 } as const;
 type BlockType = (typeof BlockType)[keyof typeof BlockType];
-
 const BLOCK_STIMULUS_TYPE: Record<string, StimulusType> = {
   [BlockType.Hearts]: StimulusType.Heart,
   [BlockType.Flowers]: StimulusType.Flower,
 };
 
 const INTER_STIMULUS_INTERVAL = 500;
-// Correct practice trials in a row that end a practice block early
 const PRACTICE_WIN_STREAK: Record<BlockType, number> = {
   [BlockType.Hearts]: 2,
   [BlockType.Flowers]: 2,
   [BlockType.Mixed]: 3,
 };
-// The faster mixed blocks and their going-faster screens
-const HEAVY_INSTRUCTIONS_SKIPPED_BLOCKS = [3, 4];
-
-// Instruction screens use the default mascot image unless listed here (keyed by item_id)
+// The faster mixed blocks
+const FASTER_MIXED_BLOCKS = [3, 4];
 const DEFAULT_SCREEN_IMAGE = 'animalBodySq';
 const SCREEN_IMAGES: Record<string, string> = {
   'keep-up': 'keepupSq',
@@ -60,10 +54,10 @@ const SCREEN_IMAGES: Record<string, string> = {
 // Instruction practice trials show the stimulus on a fixed side, because the prompt audio names it.
 // Keyed by the camelized audio_file of the row.
 const INSTRUCTION_PRACTICE_SIDES: Record<string, StimulusSideType> = {
-  heartInstruct2: StimulusSideType.Left, // "When you see a heart, press the button on the same side."
-  heartPracticeFeedback1: StimulusSideType.Right, // "The heart is on the right side. Press the right button."
-  flowerInstruct2: StimulusSideType.Right, // "When you see a flower, press the button on the opposite side."
-  flowerPracticeFeedback1: StimulusSideType.Left, // "The flower is on the left side. Press the right button."
+  heartInstruct2: StimulusSideType.Left,
+  heartPracticeFeedback1: StimulusSideType.Right,
+  flowerInstruct2: StimulusSideType.Right,
+  flowerPracticeFeedback1: StimulusSideType.Left,
 };
 
 export default function buildHeartsAndFlowersTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
@@ -74,7 +68,7 @@ export default function buildHeartsAndFlowersTimeline(config: Record<string, any
   const initialTimeline = initTimeline(config, enterFullscreen);
 
   const corpus: CorpusRow[] = taskStore().corpora.stimulus.filter(
-    (row: CorpusRow) => !(heavyInstructions && HEAVY_INSTRUCTIONS_SKIPPED_BLOCKS.includes(row.block_index)),
+    (row: CorpusRow) => !(heavyInstructions && FASTER_MIXED_BLOCKS.includes(row.block_index)),
   );
 
   taskStore('totalTestTrials', corpus.filter((row) => row.assessmentStage === 'test_response').length);
@@ -133,11 +127,11 @@ function getAudioKey(row: CorpusRow) {
   return camelize(String(row.audioFile ?? ''));
 }
 
-function isScreenRow(row: CorpusRow) {
+function isInstructionRow(row: CorpusRow) {
   return row.assessmentStage === 'instructions' && row.trialType === 'instructions';
 }
 
-function isInstructionPracticeRow(row: CorpusRow) {
+function isPracticeInstructionRow(row: CorpusRow) {
   return row.assessmentStage === 'instructions' && row.trialType in BLOCK_STIMULUS_TYPE;
 }
 
@@ -145,10 +139,10 @@ function isInstructionPracticeRow(row: CorpusRow) {
 function getRowsError(rows: CorpusRow[]): string | null {
   const [row] = rows;
 
-  if (isScreenRow(row)) {
+  if (isInstructionRow(row)) {
     return getAudioKey(row) ? null : 'missing audio_file';
   }
-  if (isInstructionPracticeRow(row)) {
+  if (isPracticeInstructionRow(row)) {
     return getAudioKey(row) in INSTRUCTION_PRACTICE_SIDES
       ? null
       : `no stimulus side defined for instruction practice audio_file "${row.audioFile}"`;
@@ -175,29 +169,26 @@ function buildRowsTimeline(rows: CorpusRow[], mediaAssets: MediaAssetsType) {
   const [row] = rows;
   const audioKey = getAudioKey(row);
 
-  if (isScreenRow(row)) {
+  if (isInstructionRow(row)) {
     const image = mediaAssets.images[SCREEN_IMAGES[row.itemId] ?? DEFAULT_SCREEN_IMAGE];
     return buildInstructionTrial(image, () => audioKey);
   }
 
-  if (isInstructionPracticeRow(row)) {
-    return buildInstructionPracticeBlock(row, mediaAssets);
+  if (isPracticeInstructionRow(row)) {
+    return buildPracticeInstructionBlock(row, mediaAssets);
   }
 
   return row.assessmentStage === 'practice_response' ? buildPracticeBlock(rows) : buildTestBlock(rows);
 }
 
-//TODO: check if we need to repeat the whole pair when user gets it wrong or if getting right on the feedback trial is enough
-function buildInstructionPracticeBlock(row: CorpusRow, mediaAssets: MediaAssetsType) {
+function buildPracticeInstructionBlock(row: CorpusRow, mediaAssets: MediaAssetsType) {
   const audioKey = getAudioKey(row);
 
-  // feedback-good-job, "Good job!" //TODO: double-check ok to use feedback-good-job instead of "Great! That's right!" which is absent from item bank anyway
   const instructionPracticeFeedback = buildStimulusInvariantPracticeFeedback(
     'heartsAndFlowersTryAgain',
     'feedbackGoodJob',
-  ); // hearts-and-flowers-try-again, "That's not right. Try again."
+  );
 
-  // Instruction practice trials do not advance until user gets it right
   return {
     timeline: [
       buildInstructionPracticeTrial(
@@ -217,7 +208,6 @@ function buildPracticeBlock(rows: CorpusRow[]) {
   const [row] = rows;
   const blockType = row.trialType as BlockType;
 
-  // Let's prepare 2 callbacks to pass to our stimuli and feedback trials in order to manage the practice block shortcut
   let practiceWinStreakCount = 0;
   const onStimulusTrialFinishTimelineCallback = (data: Record<string, unknown>) => {
     practiceWinStreakCount = data.correct ? practiceWinStreakCount + 1 : 0;
@@ -228,9 +218,6 @@ function buildPracticeBlock(rows: CorpusRow[]) {
     }
   };
 
-  // feedback-good-job, "Good job!" //TODO: double-check ok to use feedback-good-job instead of "Great! That's right!" which is absent from item bank anyway
-  // heart-practice-feedback2, "Remember! When you see a HEART... on the SAME side."
-  // flower-practice-feedback2, "When you see a FLOWER, press the button on the OPPOSITE side."
   const practiceFeedback =
     blockType === BlockType.Mixed
       ? buildMixedPracticeFeedback(
