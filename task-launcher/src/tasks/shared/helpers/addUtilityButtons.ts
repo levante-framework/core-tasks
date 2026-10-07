@@ -95,6 +95,8 @@ export function setupFullscreenButton() {
 
 function onPause() {
   beginTaskTimerPauseSegment();
+  taskStore('isPaused', true);
+  jsPsych.pauseExperiment();
 
   pageSetup?.onPause();
   const playButton = document.getElementById('play-button');
@@ -103,11 +105,11 @@ function onPause() {
   });
 
   PageAudioHandler.stopAndDisconnectNode();
-  taskStore('isPaused', true);
 }
 
 function onResume() {
   taskStore('isPaused', false);
+  jsPsych.resumeExperiment();
 
   resumeTaskTimerAfterPauseSegment();
   // re-enable all buttons

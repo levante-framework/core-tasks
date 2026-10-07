@@ -60,16 +60,18 @@ export const getStimulus = (corpusType: string, blockNumber?: number, storyGroup
   const timeRemaining = maxTimeInMilliseconds - timeElapsed;
 
   // pause the experiment while we asynchronously check whether there is enough
-  // time for the next trial, so a live trial can't start (and be aborted) mid-check
+  // time for the next trial, so a live trial can't start (and be aborted) mid-check.
+  // An experimenter pause owns the same flag; do not resume over it.
   jsPsych.pauseExperiment();
+  const resumeUnlessExperimenterPaused = () => {
+    if (!taskStore().isPaused) jsPsych.resumeExperiment();
+  };
   void checkEndTaskEarly(timeRemaining, stimAudio)
-    .then(() => {
-      jsPsych.resumeExperiment();
-    })
+    .then(resumeUnlessExperimenterPaused)
     .catch((error) => {
       // fail open so a buffer-load error can't leave the task paused forever
       console.error('checkEndTaskEarly failed:', error);
-      jsPsych.resumeExperiment();
+      resumeUnlessExperimenterPaused();
     });
 
   // store the item for use in the trial
