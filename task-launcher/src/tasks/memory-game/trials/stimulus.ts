@@ -255,6 +255,7 @@ export function getCorsiBlocks({
             clearTimeout(id);
           });
           timeoutIDs = [];
+          document.getElementById('lev-toast-default')?.classList.remove('show');
 
           taskStore.transact('testTrialCount', (oldVal: number) => oldVal + 1);
         }
