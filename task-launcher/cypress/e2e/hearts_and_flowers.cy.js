@@ -1,5 +1,4 @@
 const hearts_and_flowers_url = 'http://localhost:8080/?task=hearts-and-flowers';
-const hearts_and_flowers_v2_url = 'http://localhost:8080/?task=hearts-and-flowers&version=2';
 
 // keep track of game phase (true means it has started)
 let heart_phase = false;
@@ -20,24 +19,14 @@ describe('test hearts and flowers', () => {
   it('visits hearts and flowers and plays game', () => {
     cy.visit(hearts_and_flowers_url);
 
-    // wait for OK button to appear
     cy.contains('OK', { timeout: 300000 }).should('be.visible');
     cy.contains('OK').realClick(); // start fullscreen
 
     hafLoop();
   });
-
-  it('visits hearts and flowers v2 and plays game', () => {
-    cy.visit(hearts_and_flowers_v2_url);
-
-    cy.contains('OK', { timeout: 300000 }).should('be.visible');
-    cy.contains('OK').realClick(); // start fullscreen
-
-    hafLoop(true);
-  });
 });
 
-function hafLoop(isV2 = false) {
+function hafLoop() {
   // end if the there are no elements inside jspsych content
   cy.get('.jspsych-content').then((content) => {
     if (content.children().length) {
@@ -45,12 +34,12 @@ function hafLoop(isV2 = false) {
       cy.get('.haf-cr-container').should('not.exist');
 
       // Make the decision here to handle instructions or pick an answer
-      if (isInstructionScreen(content, isV2)) {
-        handleInstructions(isV2);
+      if (isInstructionScreen(content)) {
+        handleInstructions();
       } else {
-        pickAnswer(isV2);
+        pickAnswer();
       }
-      hafLoop(isV2);
+      hafLoop();
     } else {
       // make sure that the game has progressed through major phases before passing
       assert.isTrue(heart_phase && flower_phase && mixed_test);
@@ -58,19 +47,15 @@ function hafLoop(isV2 = false) {
   });
 }
 
-function isInstructionScreen(content, isV2) {
+function isInstructionScreen(content) {
   if (content.find('.primary:visible').length) {
     return true;
-  }
-
-  if (!isV2) {
-    return false;
   }
 
   return content.find('#instruction-text').length > 0 && !content.find('.haf-stimulus-holder').length;
 }
 
-function handleInstructions(isV2 = false) {
+function handleInstructions() {
   cy.get('.jspsych-content').then((content) => {
     const okButton = content.find('.primary:visible');
 
@@ -80,23 +65,19 @@ function handleInstructions(isV2 = false) {
       return;
     }
 
-    if (!isV2) {
-      return;
-    }
-
     if (content.find('#instruction-text').length && content.find('.lev-response-row').length) {
-      handleV2ResponseButtonDemo();
+      handleResponseButtonDemo();
       return;
     }
 
-    continueV2Instruction();
+    continueInstruction();
     final_instructions = mixed_practice;
   });
 
   return;
 }
 
-function handleV2ResponseButtonDemo() {
+function handleResponseButtonDemo() {
   cy.get('.lev-response-row .secondary--green', { timeout: 120000 })
     .filter(':not([style*="visibility: hidden"])')
     .first()
@@ -123,9 +104,9 @@ function handleV2ResponseButtonDemo() {
   cy.wait(2500);
 }
 
-function continueV2Instruction(retryCount = 0) {
+function continueInstruction(retryCount = 0) {
   if (retryCount > 30) {
-    throw new Error('Failed to advance v2 instruction trial');
+    throw new Error('Failed to advance instruction trial');
   }
 
   cy.get('.jspsych-content').then(($content) => {
@@ -146,13 +127,13 @@ function continueV2Instruction(retryCount = 0) {
         !$nextContent.find('.haf-stimulus-holder').length;
 
       if (stillOnSameTrial) {
-        continueV2Instruction(retryCount + 1);
+        continueInstruction(retryCount + 1);
       }
     });
   });
 }
 
-function pickAnswer(isV2 = false) {
+function pickAnswer() {
   // wait for feedback screen to end
   cy.get('.haf-stimulus-holder').should('exist');
 
@@ -169,14 +150,9 @@ function pickAnswer(isV2 = false) {
       // get stimulus image itself and then click button based on src and pos
       const stim = cy.get('[alt="heart or flower"]');
       stim.invoke('attr', 'src').then((src) => {
-        if (isV2) {
-          // press the correct arrow key
-          const index = getCorrectButtonIdx(src, pos);
-          cy.realPress(index === 0 ? 'ArrowLeft' : 'ArrowRight');
-        } else {
-          // click the correct button
-          cy.get('.secondary--green').eq(getCorrectButtonIdx(src, pos)).realClick();
-        }
+        // press the correct arrow key
+        const index = getCorrectButtonIdx(src, pos);
+        cy.realPress(index === 0 ? 'ArrowLeft' : 'ArrowRight');
       });
     }
   });
