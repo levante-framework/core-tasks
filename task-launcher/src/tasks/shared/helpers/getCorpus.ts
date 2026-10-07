@@ -177,7 +177,7 @@ export const getCorpus = async (config: Record<string, any>, isDev: boolean) => 
   const bucketName =
     isDev && task === 'hearts-and-flowers' ? 'levante-assets-draft/corpus' : getBucketName(task, isDev, 'corpus');
 
-  const corpusUrl = `https://storage.googleapis.com/${bucketName}/${corpus}.csv?alt=media&v=3`;
+  const corpusUrl = `https://storage.googleapis.com/${bucketName}/${corpus}.csv?alt=media`;
 
   function downloadCSV(url: string) {
     return new Promise((resolve, reject) => {

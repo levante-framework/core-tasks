@@ -1,9 +1,10 @@
 import fscreen from 'fscreen';
 import { taskStore } from '../../../taskStore';
+import { Logger } from '../../../utils';
 import { InitPageSetup } from '../../../utils/initPageSetup';
 import { jsPsych } from '../../taskSetup';
 import { activateFullscreen } from './activateFullscreen';
-import { finalizeCurrentPauseSegment, getActiveTaskElapsedMs } from './appTimer';
+import { beginTaskTimerPauseSegment, resumeTaskTimerAfterPauseSegment } from './appTimer';
 import { PageAudioHandler } from './audioHandler';
 import { exitButtonSvg, menuButtonSvg, pauseButtonSvg } from './components';
 
@@ -93,11 +94,7 @@ export function setupFullscreenButton() {
 }
 
 function onPause() {
-  if (taskStore().taskTimer != null) {
-    clearTimeout(taskStore().taskTimer);
-    taskStore('taskTimer', null);
-  }
-  taskStore('taskTimerPauseBeganAt', Date.now());
+  beginTaskTimerPauseSegment();
 
   pageSetup?.onPause();
   const playButton = document.getElementById('play-button');
@@ -112,14 +109,7 @@ function onPause() {
 function onResume() {
   taskStore('isPaused', false);
 
-  finalizeCurrentPauseSegment();
-  const maxTimeInMilliseconds = Math.max(Number(taskStore().maxTime), 1) * 60000;
-  const remainingMs = Math.max(0, maxTimeInMilliseconds - getActiveTaskElapsedMs());
-  const timerId = setTimeout(() => {
-    taskStore('maxTimeReached', true);
-    clearTimeout(timerId);
-  }, remainingMs);
-  taskStore('taskTimer', timerId);
+  resumeTaskTimerAfterPauseSegment();
   // re-enable all buttons
   const buttons = Array.from(document.querySelectorAll('button'));
   buttons.forEach((button: HTMLButtonElement) => {
@@ -141,10 +131,24 @@ function onExit() {
   const popupContainer = document.getElementById('exit-confirmation-popup-buttons');
   if (!popupContainer) return;
   const popupButtons = popupContainer.querySelectorAll('button');
-  popupButtons[0].addEventListener('click', () => {
-    taskStore('experimenterExit', true);
-    jsPsych.endExperiment();
-  });
+  popupButtons[0].addEventListener(
+    'click',
+    () => {
+      if (taskStore().effectiveStoppingRule !== 'sufficientTrials') {
+        taskStore('effectiveStoppingRule', 'experimenterExit');
+      }
+      taskStore('taskAborted', true);
+
+      const logger = Logger.getInstance();
+      logger.capture('Task finished: experimenter ended task', {
+        taskName: taskStore().task,
+        taskFinished: true,
+      });
+
+      jsPsych.endExperiment();
+    },
+    { once: true },
+  );
   popupButtons[1].addEventListener('click', () => {
     closePopup();
 

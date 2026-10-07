@@ -3,13 +3,13 @@ import { Logger } from './logger';
 
 describe('Logger', () => {
   beforeEach(() => {
-    Logger.resetInstanceForTests();
+    Logger.resetInstance();
     vi.spyOn(console, 'error').mockImplementation(() => {});
     vi.spyOn(console, 'log').mockImplementation(() => {});
   });
 
   afterEach(() => {
-    Logger.resetInstanceForTests();
+    Logger.resetInstance();
     vi.restoreAllMocks();
   });
 
@@ -47,10 +47,11 @@ describe('Logger', () => {
     expect(levanteLogger.capture).toHaveBeenCalledWith(
       'Task Launched',
       expect.objectContaining({
-        gameParams: { taskName: 'vocab' },
         context: { source: 'test' },
       }),
     );
+    expect(levanteLogger.capture.mock.calls[0][1]).not.toHaveProperty('gameParams');
+    expect(levanteLogger.capture.mock.calls[0][1]).not.toHaveProperty('userParams');
   });
 
   it('error falls back to console when no LevanteLogger is injected', () => {

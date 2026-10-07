@@ -27,11 +27,6 @@ const getPresentationTime = (row: CorpusRow) => (isPracticeRow(row) ? null : Num
  *TODO: we should perhaps allow {@link https://www.jspsych.org/7.2/overview/media-preloading/#automatic-preloading automatic preload}
   of the stimulus image and modify the DOM nodes that jsPsych creates in on_load?
   */
-
-/**
- * A practice or test trial. Its settings come from its corpus row (timeline variable `corpusRow`);
- * the stimulus and its side come from the timeline variables `stimulus` and `position`.
- */
 export function stimulus(
   onTrialFinishTimelineCallback: ((data: Record<string, unknown>) => void) | undefined = undefined,
 ) {
