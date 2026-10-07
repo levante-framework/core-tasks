@@ -69,6 +69,16 @@ const data = [
     setLocationType: false,
   },
   {
+    primaryText: 'locationText8',
+    buttonChoices: () => {
+      const t = taskStore().translations;
+
+      return [t.locationButtonBack];
+    },
+    buttonHtml: '<button class="primary">%choice%</button>',
+    retryScreen: true,
+  },
+  {
     primaryText: 'locationText6',
     topIcon: worldSearchIcon,
     buttonChoices: () => {
@@ -135,11 +145,16 @@ const allInstructions = data.map((instructionData) => {
       if (instructionData.endTask) {
         taskStore('taskComplete', true);
       }
+
+      if (instructionData.retryScreen) {
+        taskStore('userWentBack', true);
+      }
     },
   };
 });
 
 export const finishTaskMessage = allInstructions.pop();
+export const locationWriteError = allInstructions.pop();
 export const gpsInstructions = allInstructions.pop();
 export const modeSelectInstructions = allInstructions.pop();
 

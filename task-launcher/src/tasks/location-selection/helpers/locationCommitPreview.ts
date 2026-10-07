@@ -122,11 +122,23 @@ export async function buildLocationCommitPreviewWithPopulation(
 }
 
 export async function buildLocationSavePayload() {
-  const draft = taskStore().locationSelectionDraft;
-  const location = await buildLocationCommitPreviewWithPopulation(draft);
+  taskStore('locationDataSaved', false);
 
-  if (location) {
-    await persistLocation(location);
+  try {
+    const draft = taskStore().locationSelectionDraft;
+    const location = await buildLocationCommitPreviewWithPopulation(draft);
+
+    if (location) {
+      await persistLocation(location);
+    }
+  } catch (error) {
+    Logger.getInstance().capture('Failed to save location data', {
+      taskName: taskStore().task,
+      error: error instanceof Error ? error.message : String(error),
+    });
+
+    taskStore('locationWriteFailed', true);
+  } finally {
+    taskStore('locationDataSaved', true);
   }
-  taskStore('locationDataSaved', true);
 }

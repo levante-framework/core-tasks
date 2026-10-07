@@ -82,6 +82,7 @@ import type { InputCapability } from '../utils/detectInput';
  * @property {boolean} locationDataSaved - Whether location data has been saved, default is false.
  * @property {string} userLocationType - 'Home" or 'Other".
  * @property {boolean} userWentBack - Whether the user pressed the back button to change their preferred method of location selection.
+ * @property {boolean} locationWriteFailed - Whether location data has failed to be saved, default is false. Used to show an error message to the user.
  */
 
 export type TaskStoreDataType = {
@@ -189,6 +190,7 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     userWentBack: false,
     catBlockTimeLimitMs: 0,
     catBlockStartElapsedMs: null,
+    locationWriteFailed: false,
   });
 };
 

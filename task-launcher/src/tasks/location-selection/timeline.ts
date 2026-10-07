@@ -7,7 +7,13 @@ import { initLocationPersistence } from './helpers/persistLocation';
 import { initPopulationApi } from './helpers/populationApi';
 import { waitScreen } from './trials/awaitPopulationInfo';
 import { gpsCapture } from './trials/gpsCapture';
-import { finishTaskMessage, gpsInstructions, instructions, modeSelectInstructions } from './trials/instructions';
+import {
+  finishTaskMessage,
+  gpsInstructions,
+  instructions,
+  locationWriteError,
+  modeSelectInstructions,
+} from './trials/instructions';
 import { mapPicker } from './trials/mapPicker';
 import { searchCityPostal } from './trials/searchCityPostal';
 
@@ -24,14 +30,25 @@ export default function buildLocationSelectionTimeline(config: Record<string, an
     },
   };
 
+  const locationWriteErrorBlock = {
+    timeline: [locationWriteError],
+    conditional_function: () => {
+      const run = taskStore().locationWriteFailed;
+      if (run) {
+        taskStore('locationWriteFailed', false);
+      }
+      return run;
+    },
+  };
+
   const locationSelectionLoop = {
-    timeline: [modeSelectInstructions, gpsBlock, mapPicker, searchCityPostal],
+    timeline: [modeSelectInstructions, gpsBlock, mapPicker, searchCityPostal, waitScreen, locationWriteErrorBlock],
     loop_function: () => {
       return taskStore().userWentBack;
     },
   };
 
-  const timeline: any = [initialTimeline, ...instructions, locationSelectionLoop, waitScreen, finishTaskMessage];
+  const timeline: any = [initialTimeline, ...instructions, locationSelectionLoop, finishTaskMessage];
 
   timeline.push(exitFullscreen);
 
