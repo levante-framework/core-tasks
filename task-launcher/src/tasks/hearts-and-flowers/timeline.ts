@@ -1,5 +1,6 @@
 // setup
 import { taskStore } from '../../taskStore';
+import { Logger } from '../../utils/logger';
 import {
   camelize,
   createPreloadTrials,
@@ -71,7 +72,8 @@ export default function buildHeartsAndFlowersTimeline(config: Record<string, any
     (row: CorpusRow) => !(heavyInstructions && FASTER_MIXED_BLOCKS.includes(row.block_index)),
   );
 
-  taskStore('totalTestTrials', corpus.filter((row) => row.assessmentStage === 'test_response').length);
+  const testTrialCount = corpus.filter((row) => row.assessmentStage === 'test_response').length;
+  taskStore('totalTestTrials', testTrialCount);
 
   const timeline = [preloadTrials, initialTimeline];
   timeline.push(getInputInstructions());
@@ -79,6 +81,10 @@ export default function buildHeartsAndFlowersTimeline(config: Record<string, any
   timeline.push(getRightButtonDemo());
 
   const validationErrorMap: Record<string, string> = {};
+  if (!testTrialCount) {
+    validationErrorMap.corpus = 'no test rows; the corpus is missing or failed to load';
+  }
+  const missingTranslations: string[] = [];
   for (const rows of groupCorpusRows(corpus)) {
     // item_ids repeat across blocks, so include the block to tell rows apart
     const errorKey = `${rows[0].block_index}:${rows[0].itemId}`;
@@ -87,11 +93,14 @@ export default function buildHeartsAndFlowersTimeline(config: Record<string, any
       validationErrorMap[errorKey] = error;
       continue;
     }
-    // A missing translation is reported but the screen is still shown, so a language missing one string keeps the same flow
+    // A missing translation is logged but the screen is still shown, so a language missing one string keeps the same flow
     if (rows[0].assessmentStage === 'instructions' && !taskStore().translations[getAudioKey(rows[0])]) {
-      validationErrorMap[errorKey] = `no translation for audio_file "${rows[0].audioFile}"`;
+      missingTranslations.push(String(rows[0].audioFile));
     }
     timeline.push(buildRowsTimeline(rows, mediaAssets));
+  }
+  if (missingTranslations.length) {
+    Logger.getInstance().error(new Error(`Missing translations for audio_file: ${missingTranslations.join(', ')}`));
   }
   reportCorpusValidationErrors(validationErrorMap);
 
