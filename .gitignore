@@ -11,3 +11,5 @@ test-results/
 lib/
 .env
 .idea/
+.vscode
+*.csv

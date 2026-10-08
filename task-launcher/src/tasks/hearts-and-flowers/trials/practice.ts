@@ -13,7 +13,7 @@ import {
 } from '../../shared/helpers';
 import { isTouchScreen, jsPsych } from '../../taskSetup';
 import { setupHafMultiResponseTouchRouting } from '../helpers/touchResponseRouting';
-import { getCorrectInputSide, getStimulusLayout, InputKey, StimulusSideType, StimulusType } from '../helpers/utils';
+import { getCorrectInputSide, getStimulusLayout, InputKeyType, StimulusSideType, StimulusType } from '../helpers/utils';
 
 /**
  * Builds a practice trial for the Instruction sections.
@@ -37,7 +37,6 @@ export function buildInstructionPracticeTrial(
     // throw new Error(`Missing prompt text for instruction practice trial`);
     Logger.getInstance().error(new Error('buildInstructionPracticeTrial: Missing prompt text'));
   }
-  const hfV2 = taskStore().version === 2;
   const replayButtonHtmlId = 'replay-btn-revisited';
   const validAnswer = getCorrectInputSide(stimulusType, stimulusSideType);
   const trial = {
@@ -87,12 +86,10 @@ export function buildInstructionPracticeTrial(
         addKeyHelpers(button, i);
       });
 
-      if (hfV2) {
-        setupHafMultiResponseTouchRouting();
-      }
+      setupHafMultiResponseTouchRouting();
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
-    keyboard_choices: isTouchScreen ? InputKey.NoKeys : [InputKey.ArrowLeft, InputKey.ArrowRight],
+    keyboard_choices: isTouchScreen ? InputKeyType.NoKeys : [InputKeyType.ArrowLeft, InputKeyType.ArrowRight],
     button_html: [
       `
     <div class='response-container--small'>
@@ -105,11 +102,14 @@ export function buildInstructionPracticeTrial(
     on_finish: (data: Record<string, unknown>) => {
       PageAudioHandler.stopAndDisconnectNode();
 
-      let response: number | InputKey | undefined;
+      let response: number | InputKeyType | undefined;
       if (data.button_response === 0 || data.button_response === 1) {
         response = data.button_response;
-      } else if (data.keyboard_response === InputKey.ArrowLeft || data.keyboard_response === InputKey.ArrowRight) {
-        response = data.keyboard_response === InputKey.ArrowLeft ? 0 : 1;
+      } else if (
+        data.keyboard_response === InputKeyType.ArrowLeft ||
+        data.keyboard_response === InputKeyType.ArrowRight
+      ) {
+        response = data.keyboard_response === InputKeyType.ArrowLeft ? 0 : 1;
       } else {
         const errorMessage = `Invalid response: ${data.button_response} or ${data.keyboard_response} in ${data}`;
         Logger.getInstance().error(new Error(errorMessage));

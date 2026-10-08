@@ -5,40 +5,42 @@ import { taskStore } from '../../../taskStore';
 import { Logger } from '../../../utils/logger';
 import { addExperimenterButtons, addKeyHelpers, PageAudioHandler, setupFullscreenButton } from '../../shared/helpers';
 import { shouldTerminateCat } from '../../shared/helpers/shouldTerminateCat';
-import { finishTaskEarly } from '../../shared/trials';
 import { isTouchScreen, jsPsych } from '../../taskSetup';
 import { setupHafMultiResponseTouchRouting } from '../helpers/touchResponseRouting';
 import {
+  type CorpusRow,
   getCorrectInputSide,
   getStimulusLayout,
-  InputKey,
+  InputKeyType,
   ResponseSideType,
   StimulusSideType,
   StimulusType,
 } from '../helpers/utils';
+
+/** The corpus row this trial was built from (see buildBlockTimelineVariables in timeline.ts) */
+const getCorpusRow = (): CorpusRow => jsPsych.timelineVariable('corpusRow');
+const isPracticeRow = (row: CorpusRow) => row.assessmentStage === 'practice_response';
+// Practice trials are not timed, so they have no presentation time (null means no time limit)
+const getPresentationTime = (row: CorpusRow) => (isPracticeRow(row) ? null : Number(row.timeLimit));
+
 /**
  *TODO: we should perhaps allow {@link https://www.jspsych.org/7.2/overview/media-preloading/#automatic-preloading automatic preload}
   of the stimulus image and modify the DOM nodes that jsPsych creates in on_load?
   */
-
 export function stimulus(
-  isPractice: boolean,
-  stage: string,
-  trialType: string,
-  stimulusDuration: number,
   onTrialFinishTimelineCallback: ((data: Record<string, unknown>) => void) | undefined = undefined,
 ) {
-  const hfV2 = taskStore().version === 2;
   return {
     type: jsPsychHTMLMultiResponse,
     data: () => {
+      const row = getCorpusRow();
       return {
         // not camelCase because firekit
         save_trial: true,
-        assessment_stage: stage,
-        corpus_trial_type: trialType,
+        assessment_stage: row.assessmentStage,
+        corpus_trial_type: row.trialType,
         // not for firekit
-        isPracticeTrial: isPractice,
+        isPracticeTrial: isPracticeRow(row),
       };
     },
     stimulus: () => {
@@ -58,15 +60,13 @@ export function stimulus(
       responseButtons.forEach((button, i) => {
         addKeyHelpers(button as HTMLElement, i);
       });
-      if (hfV2) {
-        setupHafMultiResponseTouchRouting();
-      }
+      setupHafMultiResponseTouchRouting();
 
       addExperimenterButtons();
       setupFullscreenButton();
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
-    keyboard_choices: isTouchScreen ? InputKey.NoKeys : [InputKey.ArrowLeft, InputKey.ArrowRight],
+    keyboard_choices: isTouchScreen ? InputKeyType.NoKeys : [InputKeyType.ArrowLeft, InputKeyType.ArrowRight],
     button_html: [
       `
     <div class='response-container--small'>
@@ -76,22 +76,27 @@ export function stimulus(
       <button class='secondary--green'></button>
     </div>`,
     ],
-    ...(hfV2 && !isPractice ? { trial_duration: stimulusDuration } : {}),
+    trial_duration: () => getPresentationTime(getCorpusRow()),
     on_finish: (data: Record<string, unknown>) => {
+      const row = getCorpusRow();
+      const isPractice = isPracticeRow(row);
+      const trialType = row.trialType;
       const stimulusPosition = jsPsych.timelineVariable('position');
       const stimulusType = jsPsych.timelineVariable('stimulus');
 
-      // Only hfV2 (non-practice) trials have a trial_duration and can actually time out;
-      // for other trials this just flags an absent response.
+      // Non-practice trials have a trial_duration and can time out; for practice trials this just flags an absent response.
       data.timedOut = data.button_response === null && data.keyboard_response === null;
 
       // get response position
       let response: number | null;
       if (data.button_response === 0 || data.button_response === 1) {
         response = data.button_response;
-      } else if (data.keyboard_response === InputKey.ArrowLeft || data.keyboard_response === InputKey.ArrowRight) {
-        response = data.keyboard_response === InputKey.ArrowLeft ? 0 : 1;
-      } else if (hfV2 && data.timedOut) {
+      } else if (
+        data.keyboard_response === InputKeyType.ArrowLeft ||
+        data.keyboard_response === InputKeyType.ArrowRight
+      ) {
+        response = data.keyboard_response === InputKeyType.ArrowLeft ? 0 : 1;
+      } else if (data.timedOut) {
         response = null;
       } else {
         Logger.getInstance().error(new Error(`Invalid response: ${data.button_response} or ${data.keyboard_response}`));
@@ -105,30 +110,16 @@ export function stimulus(
       const validAnswer = getCorrectInputSide(stimulusType, stimuluSide);
       data.correct = validAnswer === response;
 
-      if (hfV2) {
-        const audioConfig = {
-          restrictRepetition: {
-            enabled: false,
-            maxRepetitions: 2,
-          },
-        };
+      const audioConfig = {
+        restrictRepetition: {
+          enabled: false,
+          maxRepetitions: 2,
+        },
+      };
 
-        PageAudioHandler.playAudio(data.correct ? 'coin' : 'fail', audioConfig);
+      PageAudioHandler.playAudio(data.correct ? 'coin' : 'fail', audioConfig);
 
-        shouldTerminateCat();
-      } else if (!isPractice) {
-        if (!data.correct) {
-          taskStore.transact('numIncorrect', (oldVal) => oldVal + 1);
-        } else {
-          taskStore('numIncorrect', 0);
-        }
-
-        const maxIncorrect = taskStore().maxIncorrect;
-
-        if (taskStore().numIncorrect === maxIncorrect) {
-          finishTaskEarly('errorOut');
-        }
-      }
+      shouldTerminateCat();
 
       //TODO: move these to timeline-level callback/variables
       taskStore('isCorrect', data.correct);
@@ -153,7 +144,7 @@ export function stimulus(
         response: responseData,
         responseLocation: response,
         itemUid: itemUid,
-        presentationTime: hfV2 ? stimulusDuration : null,
+        presentationTime: getPresentationTime(row),
       });
 
       if (!isPractice) taskStore.transact('testTrialCount', (oldVal) => oldVal + 1);
@@ -185,13 +176,22 @@ export function buildHeartsOrFlowersTimelineVariables(trialCount: number, stimul
     Logger.getInstance().error(new Error(errorMessage));
     throw new Error(errorMessage);
   }
-  const jsPsychTimelineVariablesArray: Array<{ stimulus: StimulusType; position: number }> = [];
+  const jsPsychTimelineVariablesArray: Array<{
+    stimulus: StimulusType;
+    position: number;
+  }> = [];
   const setsOfFourCount = Math.floor(trialCount / 4);
   for (let i = 0; i < setsOfFourCount; i++) {
     jsPsychTimelineVariablesArray.push({ stimulus: stimulusType, position: 0 });
     jsPsychTimelineVariablesArray.push({ stimulus: stimulusType, position: 1 });
-    jsPsychTimelineVariablesArray.push({ stimulus: stimulusType, position: randomPosition() });
-    jsPsychTimelineVariablesArray.push({ stimulus: stimulusType, position: randomPosition() });
+    jsPsychTimelineVariablesArray.push({
+      stimulus: stimulusType,
+      position: randomPosition(),
+    });
+    jsPsychTimelineVariablesArray.push({
+      stimulus: stimulusType,
+      position: randomPosition(),
+    });
   }
   const remainderCount = trialCount % 4;
   if (remainderCount >= 1) {
@@ -201,7 +201,10 @@ export function buildHeartsOrFlowersTimelineVariables(trialCount: number, stimul
     jsPsychTimelineVariablesArray.push({ stimulus: stimulusType, position: 1 });
   }
   if (remainderCount >= 3) {
-    jsPsychTimelineVariablesArray.push({ stimulus: stimulusType, position: randomPosition() });
+    jsPsychTimelineVariablesArray.push({
+      stimulus: stimulusType,
+      position: randomPosition(),
+    });
   }
   return jsPsychTimelineVariablesArray;
 }
@@ -213,7 +216,10 @@ export function buildMixedTimelineVariables(trialCount: number) {
   const flowerRight = { stimulus: StimulusType.Flower, position: 1 };
   const optionsToRandomize = [heartLeft, heartRight, flowerLeft, flowerRight];
 
-  const jsPsychTimelineVariablesArray: Array<{ stimulus: StimulusType; position: number }> = [];
+  const jsPsychTimelineVariablesArray: Array<{
+    stimulus: StimulusType;
+    position: number;
+  }> = [];
   let sequence: Array<{ stimulus: StimulusType; position: number }> = [];
   for (let i = 0; i < trialCount; i++) {
     if (sequence.length === 0) {

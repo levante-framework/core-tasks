@@ -172,7 +172,10 @@ const transformCSV = (csvInput: ParsedRowType[], sequentialStimulus: boolean, ta
 export const getCorpus = async (config: Record<string, any>, isDev: boolean) => {
   const { corpus, task, sequentialStimulus } = config;
 
-  const bucketName = getBucketName(task, isDev, 'corpus');
+  // TODO: remove before merging. In dev, H&F reads its draft corpus from the levante-assets-draft bucket root
+  // until it is uploaded to levante-assets-dev
+  const bucketName =
+    isDev && task === 'hearts-and-flowers' ? 'levante-assets-draft/corpus' : getBucketName(task, isDev, 'corpus');
 
   const corpusUrl = `https://storage.googleapis.com/${bucketName}/${corpus}.csv?alt=media`;
 

@@ -18,7 +18,7 @@ export const ResponseSideType = StimulusSideType;
 export type ResponseSideType = (typeof ResponseSideType)[keyof typeof ResponseSideType];
 
 // Enum for the jsPsych keyboard inputs
-export const InputKey = {
+export const InputKeyType = {
   ArrowLeft: 'arrowleft',
   ArrowRight: 'arrowright',
   NoKeys: 'NO_KEYS', // aka no key input accepted
@@ -26,27 +26,16 @@ export const InputKey = {
   SpaceBar: ' ',
   Enter: 'enter',
 } as const;
-export type InputKey = (typeof InputKey)[keyof typeof InputKey];
+export type InputKeyType = (typeof InputKeyType)[keyof typeof InputKeyType];
 
-export const AssessmentStageType = {
-  HeartsPractice: 'practice_response',
-  FlowersPractice: 'practice_response',
-  HeartsStimulus: 'test_response',
-  FlowersStimulus: 'test_response',
-  HeartsAndFlowersPractice: 'practice_response',
-  HeartsAndFlowersStimulus: 'test_response',
-} as const;
-export type AssessmentStageType = (typeof AssessmentStageType)[keyof typeof AssessmentStageType];
-
-export const CorpusTrialType = {
-  HeartsPractice: 'hearts',
-  FlowersPractice: 'flowers',
-  HeartsStimulus: 'hearts',
-  FlowersStimulus: 'flowers',
-  HeartsAndFlowersPractice: 'hearts and flowers',
-  HeartsAndFlowersStimulus: 'hearts and flowers',
-} as const;
-export type CorpusTrialType = (typeof CorpusTrialType)[keyof typeof CorpusTrialType];
+export type CorpusRow = {
+  itemId: string;
+  block_index: number;
+  assessmentStage: string;
+  trialType: string;
+  audioFile: string | string[];
+  timeLimit: string;
+};
 
 export function getCorrectInputSide(stimulusType: StimulusType, stimulusSideType: StimulusSideType): 0 | 1 {
   const stimulusPosition = stimulusSideType === StimulusSideType.Left ? 0 : 1;
