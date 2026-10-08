@@ -48,6 +48,8 @@ import type { InputCapability } from '../utils/detectInput';
  * @property {boolean} isPaused - Whether the task is paused, default is false.
  * @property {number} catBlockTimeLimitMs - Per-block time budget for multi-block CAT tasks (maxTime / effectiveBlockCount).
  * @property {number|null} catBlockStartElapsedMs - Task elapsed ms when the current CAT block timer started, or null.
+ * @property {number} currentTrialTimeoutId - Timeout ID for the current trial.
+ * @property {number} currentTrialTimeLimitMs - Time limit for the current trial.
  * ------- AFC and SDS only -------
  * @property {string} target - Target item.
  * @property {Array} choices - List of choices.
@@ -116,6 +118,8 @@ export type TaskStoreDataType = {
   taskTimerPausedMs?: number;
   taskTimerPauseBeganAt?: number | null;
   isPaused: boolean;
+  currentTrialTimeoutId?: number;
+  currentTrialTimeLimitMs?: number | null;
 };
 
 /**

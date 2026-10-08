@@ -94,7 +94,14 @@ export function setupFullscreenButton() {
 }
 
 function onPause() {
+  taskStore('isPaused', true);
+  jsPsych.pauseExperiment();
   beginTaskTimerPauseSegment();
+
+  if (taskStore().currentTrialTimeoutId) {
+    clearTimeout(taskStore().currentTrialTimeoutId);
+    taskStore('currentTrialTimeoutId', undefined);
+  }
 
   pageSetup?.onPause();
   const playButton = document.getElementById('play-button');
@@ -103,11 +110,20 @@ function onPause() {
   });
 
   PageAudioHandler.stopAndDisconnectNode();
-  taskStore('isPaused', true);
 }
 
 function onResume() {
   taskStore('isPaused', false);
+  jsPsych.resumeExperiment();
+
+  if (taskStore().currentTrialTimeLimitMs) {
+    const currentTrialTimeout = jsPsych.pluginAPI.setTimeout(() => {
+      if (taskStore().currentTrialTimeoutId !== currentTrialTimeout) return;
+      jsPsych.finishTrial();
+    }, taskStore().currentTrialTimeLimitMs);
+
+    taskStore('currentTrialTimeoutId', currentTrialTimeout);
+  }
 
   resumeTaskTimerAfterPauseSegment();
   // re-enable all buttons
