@@ -61,7 +61,7 @@ export class PageAudioHandler {
     }
 
     // replace audio with ding if it has already been played twice
-    if (PageAudioHandler.replays > maxRepetitions && enabled) {
+    if (enabled && maxRepetitions !== undefined && PageAudioHandler.replays > maxRepetitions) {
       resolvedAudioKey = 'inputAudioCue';
       audioUri = mediaAssets.audio.inputAudioCue;
     }
@@ -85,7 +85,6 @@ export class PageAudioHandler {
           const audioConfig: AudioConfigType = {
             restrictRepetition: {
               enabled: false,
-              maxRepetitions: 2,
             },
             onEnded: () => {
               if (onEnded) onEnded();

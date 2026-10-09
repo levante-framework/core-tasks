@@ -153,7 +153,6 @@ export const instructions = data.map((data: any) => {
         const audioConfig: AudioConfigType = {
           restrictRepetition: {
             enabled: false,
-            maxRepetitions: 2,
           },
           onEnded: () => {
             triggerNextEvent();
@@ -232,7 +231,6 @@ export const threeDimInstructions = {
     const audioConfig: AudioConfigType = {
       restrictRepetition: {
         enabled: false,
-        maxRepetitions: 2,
       },
       onEnded: () => {
         enableOkButton();

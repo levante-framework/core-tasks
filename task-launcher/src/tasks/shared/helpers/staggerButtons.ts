@@ -86,7 +86,6 @@ const showStaggeredBtnAndPlaySound = (
   const audioConfig: AudioConfigType = {
     restrictRepetition: {
       enabled: false,
-      maxRepetitions: 2,
     },
     onEnded: () => {
       const actualTrialId = taskStore().nextStimulus?.itemId;

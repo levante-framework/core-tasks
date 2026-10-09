@@ -234,7 +234,6 @@ export const downexInstructions1 = {
       const audioConfig: AudioConfigType = {
         restrictRepetition: {
           enabled: false,
-          maxRepetitions: 2,
         },
       };
 
@@ -266,7 +265,6 @@ export const downexInstructions1 = {
         const lastAudioConfig: AudioConfigType = {
           restrictRepetition: {
             enabled: false,
-            maxRepetitions: 2,
           },
           onEnded: () => {
             enableOkBtn();
@@ -328,7 +326,6 @@ const textOnlyDownexInstruction = textOnlyDownexInstructionData.map((data) => {
       const audioConfig: AudioConfigType = {
         restrictRepetition: {
           enabled: false,
-          maxRepetitions: 2,
         },
         onEnded: () => {
           enableOkBtn();
@@ -426,7 +423,6 @@ export const downexInstructions3 = {
       PageAudioHandler.playAudio('feedbackRightOne', {
         restrictRepetition: {
           enabled: false,
-          maxRepetitions: 2,
         },
         onEnded: onFeedbackEnded,
       });
@@ -445,7 +441,6 @@ export const downexInstructions3 = {
       PageAudioHandler.playAudio('matrixReasoningFeedbackIncorrectDownex', {
         restrictRepetition: {
           enabled: false,
-          maxRepetitions: 2,
         },
         onEnded: onFeedbackEnded,
       });
@@ -465,7 +460,6 @@ export const downexInstructions3 = {
       const audioConfig: AudioConfigType = {
         restrictRepetition: {
           enabled: false,
-          maxRepetitions: 2,
         },
       };
 
@@ -602,7 +596,6 @@ export const downexInstructions4 = {
       PageAudioHandler.playAudio('feedbackRightOne', {
         restrictRepetition: {
           enabled: false,
-          maxRepetitions: 2,
         },
         onEnded: onFeedbackEnded,
       });
@@ -621,7 +614,6 @@ export const downexInstructions4 = {
       PageAudioHandler.playAudio('matrixReasoningFeedbackSmBlueDownex', {
         restrictRepetition: {
           enabled: false,
-          maxRepetitions: 2,
         },
         onEnded: onFeedbackEnded,
       });
@@ -641,7 +633,6 @@ export const downexInstructions4 = {
       const audioConfig: AudioConfigType = {
         restrictRepetition: {
           enabled: false,
-          maxRepetitions: 2,
         },
       };
 

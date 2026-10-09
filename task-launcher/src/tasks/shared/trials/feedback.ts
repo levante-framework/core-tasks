@@ -51,7 +51,6 @@ export const feedback = (isPractice = false, promptOnIncorrect?: string) => {
           const audioConfig: AudioConfigType = {
             restrictRepetition: {
               enabled: false,
-              maxRepetitions: 2,
             },
             onEnded: () => {
               if (!trialFinished && promptOnIncorrect && !isCorrect) {

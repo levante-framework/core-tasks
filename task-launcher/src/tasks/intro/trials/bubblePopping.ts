@@ -46,7 +46,6 @@ const bubblePoppingPracticeTrial = {
     const popAudioConfig: AudioConfigType = {
       restrictRepetition: {
         enabled: false,
-        maxRepetitions: 2,
       },
     };
 

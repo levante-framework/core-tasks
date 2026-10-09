@@ -183,7 +183,6 @@ export const afcMatch = (trial?: StimulusType) => {
       const audioConfig: AudioConfigType = {
         restrictRepetition: {
           enabled: false,
-          maxRepetitions: 2,
         },
         ...(stim.assessmentStage === 'instructions' ? { onEnded: enableOkButton } : {}),
       };
@@ -252,7 +251,6 @@ export const afcMatch = (trial?: StimulusType) => {
               const audioConfig: AudioConfigType = {
                 restrictRepetition: {
                   enabled: false,
-                  maxRepetitions: 2,
                 },
                 onEnded: () => {
                   if (numberOfErrorsThisCall === numberOfErrors) {
