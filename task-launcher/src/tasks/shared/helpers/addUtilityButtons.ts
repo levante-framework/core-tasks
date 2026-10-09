@@ -9,6 +9,13 @@ import { PageAudioHandler } from './audioHandler';
 import { exitButtonSvg, menuButtonSvg, pauseButtonSvg } from './components';
 
 let pageSetup: InitPageSetup | null = null;
+
+// swallows keyboard events while paused
+function blockKeyboardWhilePaused(e: KeyboardEvent) {
+  e.stopImmediatePropagation();
+  e.preventDefault();
+}
+
 export function addExperimenterButtons() {
   // don't add if disabled or if they're already there
   if (document.querySelector('.experimenter-button-container') != null || !taskStore().experimenterButtons) {
@@ -96,6 +103,7 @@ export function setupFullscreenButton() {
 function onPause() {
   taskStore('isPaused', true);
   jsPsych.pauseExperiment();
+  window.addEventListener('keydown', blockKeyboardWhilePaused, true);
   beginTaskTimerPauseSegment();
 
   if (taskStore().currentTrialTimeoutId) {
@@ -115,10 +123,11 @@ function onPause() {
 function onResume() {
   taskStore('isPaused', false);
   jsPsych.resumeExperiment();
+  window.removeEventListener('keydown', blockKeyboardWhilePaused, true);
 
   if (taskStore().currentTrialTimeLimitMs) {
     const currentTrialTimeout = jsPsych.pluginAPI.setTimeout(() => {
-      if (taskStore().currentTrialTimeoutId !== currentTrialTimeout) return;
+      if (taskStore().isPaused || taskStore().currentTrialTimeoutId !== currentTrialTimeout) return;
       jsPsych.finishTrial();
     }, taskStore().currentTrialTimeLimitMs);
 
