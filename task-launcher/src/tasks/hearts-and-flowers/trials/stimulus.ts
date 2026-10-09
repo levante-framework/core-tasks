@@ -89,9 +89,10 @@ export function stimulus(
     </div>`,
     ],
     on_finish: (data: Record<string, unknown>) => {
-      jsPsych.pluginAPI.clearAllTimeouts();
+      clearTimeout(taskStore().currentTrialTimeoutId);
       jsPsych.pluginAPI.cancelAllKeyboardResponses();
 
+      taskStore('currentTrialTimeoutId', undefined);
       taskStore('currentTrialTimeLimitMs', null);
 
       const stimulusPosition = jsPsych.timelineVariable('position');
@@ -124,7 +125,6 @@ export function stimulus(
         const audioConfig = {
           restrictRepetition: {
             enabled: false,
-            maxRepetitions: 2,
           },
         };
 

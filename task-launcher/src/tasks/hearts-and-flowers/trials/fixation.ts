@@ -62,7 +62,8 @@ export function fixation(interStimulusInterval: number) {
     ],
     response_ends_trial: false,
     on_finish: () => {
-      jsPsych.pluginAPI.clearAllTimeouts();
+      clearTimeout(taskStore().currentTrialTimeoutId);
+      taskStore('currentTrialTimeoutId', undefined);
       taskStore('currentTrialTimeLimitMs', null);
     },
   };
