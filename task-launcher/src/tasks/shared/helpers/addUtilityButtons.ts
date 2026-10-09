@@ -164,6 +164,13 @@ function onExit() {
       }
       taskStore('taskAborted', true);
 
+      // clear any in-flight trial timer state so a stale time limit can't leak into a later task
+      if (taskStore().currentTrialTimeoutId) {
+        clearTimeout(taskStore().currentTrialTimeoutId);
+      }
+      taskStore('currentTrialTimeoutId', undefined);
+      taskStore('currentTrialTimeLimitMs', null);
+
       const logger = Logger.getInstance();
       logger.capture('Task finished: experimenter ended task', {
         taskName: taskStore().task,
