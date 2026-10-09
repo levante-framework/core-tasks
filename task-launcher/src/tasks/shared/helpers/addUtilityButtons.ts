@@ -9,6 +9,13 @@ import { PageAudioHandler } from './audioHandler';
 import { exitButtonSvg, menuButtonSvg, pauseButtonSvg } from './components';
 
 let pageSetup: InitPageSetup | null = null;
+
+// swallows keyboard events while paused
+function blockKeyboardWhilePaused(e: KeyboardEvent) {
+  e.stopImmediatePropagation();
+  e.preventDefault();
+}
+
 export function addExperimenterButtons() {
   // don't add if disabled or if they're already there
   if (document.querySelector('.experimenter-button-container') != null || !taskStore().experimenterButtons) {
@@ -94,7 +101,15 @@ export function setupFullscreenButton() {
 }
 
 function onPause() {
+  taskStore('isPaused', true);
+  jsPsych.pauseExperiment();
+  window.addEventListener('keydown', blockKeyboardWhilePaused, true);
   beginTaskTimerPauseSegment();
+
+  if (taskStore().currentTrialTimeoutId) {
+    clearTimeout(taskStore().currentTrialTimeoutId);
+    taskStore('currentTrialTimeoutId', undefined);
+  }
 
   pageSetup?.onPause();
   const playButton = document.getElementById('play-button');
@@ -103,11 +118,21 @@ function onPause() {
   });
 
   PageAudioHandler.stopAndDisconnectNode();
-  taskStore('isPaused', true);
 }
 
 function onResume() {
   taskStore('isPaused', false);
+  jsPsych.resumeExperiment();
+  window.removeEventListener('keydown', blockKeyboardWhilePaused, true);
+
+  if (taskStore().currentTrialTimeLimitMs) {
+    const currentTrialTimeout = jsPsych.pluginAPI.setTimeout(() => {
+      if (taskStore().isPaused || taskStore().currentTrialTimeoutId !== currentTrialTimeout) return;
+      jsPsych.finishTrial();
+    }, taskStore().currentTrialTimeLimitMs);
+
+    taskStore('currentTrialTimeoutId', currentTrialTimeout);
+  }
 
   resumeTaskTimerAfterPauseSegment();
   // re-enable all buttons
@@ -138,6 +163,13 @@ function onExit() {
         taskStore('effectiveStoppingRule', 'experimenterExit');
       }
       taskStore('taskAborted', true);
+
+      // clear any in-flight trial timer state so a stale time limit can't leak into a later task
+      if (taskStore().currentTrialTimeoutId) {
+        clearTimeout(taskStore().currentTrialTimeoutId);
+      }
+      taskStore('currentTrialTimeoutId', undefined);
+      taskStore('currentTrialTimeLimitMs', null);
 
       const logger = Logger.getInstance();
       logger.capture('Task finished: experimenter ended task', {

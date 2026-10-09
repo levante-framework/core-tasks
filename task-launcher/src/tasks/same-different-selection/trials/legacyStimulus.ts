@@ -88,7 +88,6 @@ export function handleButtonFeedback(
   const incorrectAudioConfig: AudioConfigType = {
     restrictRepetition: {
       enabled: false,
-      maxRepetitions: 2,
     },
     onEnded: () => {
       isFeedbackPlaying = false;
@@ -226,14 +225,12 @@ export const legacyStimulus = (trial?: StimulusType) => {
           ? {
               restrictRepetition: {
                 enabled: false,
-                maxRepetitions: 2,
               },
               onEnded: enableOkButton,
             }
           : {
               restrictRepetition: {
                 enabled: false,
-                maxRepetitions: 2,
               },
             };
 

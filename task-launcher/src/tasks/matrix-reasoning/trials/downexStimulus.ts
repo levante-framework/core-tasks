@@ -128,7 +128,6 @@ export const downexStimulus = (
         PageAudioHandler.playAudio('feedbackRightOne', {
           restrictRepetition: {
             enabled: false,
-            maxRepetitions: 2,
           },
           onEnded: onFeedbackEnded,
         });
@@ -151,8 +150,7 @@ export const downexStimulus = (
 
         const audioConfig: AudioConfigType = {
           restrictRepetition: {
-            enabled: true,
-            maxRepetitions: 2,
+            enabled: false,
           },
           onEnded: onFeedbackEnded,
         };
@@ -183,7 +181,6 @@ export const downexStimulus = (
         const audioConfig: AudioConfigType = {
           restrictRepetition: {
             enabled: false,
-            maxRepetitions: 2,
           },
         };
 

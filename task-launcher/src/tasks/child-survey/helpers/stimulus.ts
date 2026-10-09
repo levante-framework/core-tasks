@@ -121,7 +121,6 @@ export const surveyItem = ({
               PageAudioHandler.playAudio(responseAudioKeys[index], {
                 restrictRepetition: {
                   enabled: false,
-                  maxRepetitions: 2,
                 },
               });
 
@@ -158,7 +157,6 @@ export const surveyItem = ({
       const audioConfig: AudioConfigType = {
         restrictRepetition: {
           enabled: false,
-          maxRepetitions: 2,
         },
         onEnded: () => {
           responseButtonChildren.forEach((button) => {

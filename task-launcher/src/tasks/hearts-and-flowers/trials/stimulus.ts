@@ -48,6 +48,18 @@ export function stimulus(
       );
     },
     on_load: () => {
+      if (hfV2 && !isPractice) {
+        // set the time limit here so it can be restarted after pause
+        taskStore('currentTrialTimeLimitMs', stimulusDuration);
+
+        const currentTrialTimeout = jsPsych.pluginAPI.setTimeout(() => {
+          if (taskStore().isPaused || taskStore().currentTrialTimeoutId !== currentTrialTimeout) return;
+          jsPsych.finishTrial();
+        }, stimulusDuration);
+
+        taskStore('currentTrialTimeoutId', currentTrialTimeout);
+      }
+
       // document.getElementById('jspsych-html-multi-response-btngroup').classList.add('btn-layout-hf');
       document.getElementById('jspsych-html-multi-response-stimulus')?.classList.add('haf-parent-container');
       document.getElementById('jspsych-html-multi-response-btngroup')?.classList.add('haf-parent-container');
@@ -76,14 +88,18 @@ export function stimulus(
       <button class='secondary--green'></button>
     </div>`,
     ],
-    ...(hfV2 && !isPractice ? { trial_duration: stimulusDuration } : {}),
     on_finish: (data: Record<string, unknown>) => {
+      clearTimeout(taskStore().currentTrialTimeoutId);
+      jsPsych.pluginAPI.cancelAllKeyboardResponses();
+
+      taskStore('currentTrialTimeoutId', undefined);
+      taskStore('currentTrialTimeLimitMs', null);
+
       const stimulusPosition = jsPsych.timelineVariable('position');
       const stimulusType = jsPsych.timelineVariable('stimulus');
 
-      // Only hfV2 (non-practice) trials have a trial_duration and can actually time out;
-      // for other trials this just flags an absent response.
-      data.timedOut = data.button_response === null && data.keyboard_response === null;
+      // Only hfV2 (non-practice) trials can actually time out; for other trials this just flags an absent response.
+      data.timedOut = data.button_response == null && data.keyboard_response == null;
 
       // get response position
       let response: number | null;
@@ -109,7 +125,6 @@ export function stimulus(
         const audioConfig = {
           restrictRepetition: {
             enabled: false,
-            maxRepetitions: 2,
           },
         };
 

@@ -100,7 +100,6 @@ function handlePracticeButtonPress(
       PageAudioHandler.playAudio('feedbackGoodJob', {
         restrictRepetition: {
           enabled: false,
-          maxRepetitions: 2,
         },
       });
     }
@@ -124,7 +123,6 @@ function handlePracticeButtonPress(
       PageAudioHandler.playAudio(incorrectPromptKey, {
         restrictRepetition: {
           enabled: false,
-          maxRepetitions: 2,
         },
         onEnded: unlockPracticeButtons,
       });

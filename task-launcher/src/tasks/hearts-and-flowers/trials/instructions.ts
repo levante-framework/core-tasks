@@ -201,7 +201,6 @@ function buildInstructionTrial(
       const audioConfig = {
         restrictRepetition: {
           enabled: false,
-          maxRepetitions: 2,
         },
         onEnded: () => {
           if (!showResponseButton) {
