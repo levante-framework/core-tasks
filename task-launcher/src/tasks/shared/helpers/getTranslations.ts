@@ -1,6 +1,7 @@
 import { taskStore } from '../../../taskStore';
 import { Logger } from '../../../utils/logger';
 import { camelize } from './camelize';
+import { retryTransient } from './retryTransient';
 
 import 'regenerator-runtime/runtime';
 
@@ -19,10 +20,18 @@ export const getTranslations = async (isDev: boolean, taskName: string, configLa
   }
 
   async function downloadJson(url: string): Promise<Record<string, string>[]> {
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch translations (${response.status}): ${url}`);
-    }
+    return retryTransient(async () => {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw Object.assign(new Error(`Failed to fetch translations (${response.status}): ${url}`), {
+          status: response.status,
+        });
+      }
+      return readTranslationJson(response);
+    });
+  }
+
+  async function readTranslationJson(response: Response): Promise<Record<string, string>[]> {
     const data: unknown = await response.json();
     const rows = data as Record<string, string>[];
 
@@ -57,6 +66,7 @@ export const getTranslations = async (isDev: boolean, taskName: string, configLa
       taskStore('translations', translations);
     } catch (error) {
       Logger.getInstance().error(error, { source: 'getTranslations', taskName });
+      throw error;
     }
   }
 

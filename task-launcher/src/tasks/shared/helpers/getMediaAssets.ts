@@ -1,4 +1,5 @@
 import { camelize } from './camelize';
+import { retryTransient } from './retryTransient';
 
 type CategorizedObjectsType = {
   images: Record<string, string>;
@@ -37,16 +38,20 @@ export async function getMediaAssets(
   let data: ResponseDataType;
   let response: Response;
 
-  response = await fetch(url);
+  response = await retryTransient(() => fetch(url));
   data = await response.json();
 
   // add temporary fallback for en-US and de-DE until we have the correct folders in the bucket
   if (!data.items || data.items.length === 0) {
     if (folder === 'audio/en-US') {
-      response = await fetch(`https://storage.googleapis.com/storage/v1/b/${bucket}/o?prefix=audio/en/`);
+      response = await retryTransient(() =>
+        fetch(`https://storage.googleapis.com/storage/v1/b/${bucket}/o?prefix=audio/en/`),
+      );
       data = await response.json();
     } else if (folder === 'audio/de-DE') {
-      response = await fetch(`https://storage.googleapis.com/storage/v1/b/${bucket}/o?prefix=audio/de/`);
+      response = await retryTransient(() =>
+        fetch(`https://storage.googleapis.com/storage/v1/b/${bucket}/o?prefix=audio/de/`),
+      );
       data = await response.json();
     }
   }
