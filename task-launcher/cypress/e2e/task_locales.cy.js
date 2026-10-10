@@ -7,7 +7,7 @@ function visitTaskWithLocaleAndEnterFullscreen(task, lng, params = []) {
 }
 
 describe('tasks load per languageoptions.json (fullscreen only)', () => {
-  const remainingLocalesPerVariant = Cypress.env('remainingLocalesPerVariant');
+  const remainingLocalesPerVariant = Cypress.expose('remainingLocalesPerVariant');
 
   if (
     !remainingLocalesPerVariant ||

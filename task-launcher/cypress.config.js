@@ -97,8 +97,8 @@ export default defineConfig({
 
       return {
         ...config,
-        env: {
-          ...config.env,
+        expose: {
+          ...config.expose,
           firstLocalesPerVariant,
           remainingLocalesPerVariant,
         },
