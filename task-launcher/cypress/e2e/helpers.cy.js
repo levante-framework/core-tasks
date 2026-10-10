@@ -112,7 +112,7 @@ export function testAfc(correctFlag, buttonClass, waitForEnabled = false) {
 }
 
 function getThisTaskVariants(thisTask) {
-  const firstLocalesPerVariant = Cypress.env('firstLocalesPerVariant');
+  const firstLocalesPerVariant = Cypress.expose('firstLocalesPerVariant');
   if (!firstLocalesPerVariant || typeof firstLocalesPerVariant !== 'object') {
     return [];
   }
