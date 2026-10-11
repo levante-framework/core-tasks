@@ -28,7 +28,8 @@ export async function getMediaAssets(
   const parts = bucketName.split('/');
   const bucket = parts[0];
   const folder = parts.slice(1).join('/');
-  const baseUrl = `https://storage.googleapis.com/storage/v1/b/${bucket}/o?prefix=${folder}/`;
+  const listFields = 'fields=items(name,contentType),nextPageToken';
+  const baseUrl = `https://storage.googleapis.com/storage/v1/b/${bucket}/o?prefix=${folder}/&${listFields}`;
 
   let url = baseUrl;
   if (nextPageToken) {
@@ -45,12 +46,12 @@ export async function getMediaAssets(
   if (!data.items || data.items.length === 0) {
     if (folder === 'audio/en-US') {
       response = await retryTransient(() =>
-        fetch(`https://storage.googleapis.com/storage/v1/b/${bucket}/o?prefix=audio/en/`),
+        fetch(`https://storage.googleapis.com/storage/v1/b/${bucket}/o?prefix=audio/en/&${listFields}`),
       );
       data = await response.json();
     } else if (folder === 'audio/de-DE') {
       response = await retryTransient(() =>
-        fetch(`https://storage.googleapis.com/storage/v1/b/${bucket}/o?prefix=audio/de/`),
+        fetch(`https://storage.googleapis.com/storage/v1/b/${bucket}/o?prefix=audio/de/&${listFields}`),
       );
       data = await response.json();
     }
