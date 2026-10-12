@@ -188,6 +188,7 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
     if (index === 2) {
       if (taskStore().version === 2) {
         innerTimeline.push(fiveBlockIntro);
+        innerTimeline.push({ ...fixationOnly, stimulus: '' });
       }
       innerTimeline.push(runCatTrials(2, 'afc'));
       innerTimeline.push(runCatTrials(3, 'afc'));

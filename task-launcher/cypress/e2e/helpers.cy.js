@@ -84,7 +84,15 @@ function handleMathSlider() {
 
 function taskLoop(correctFlag, buttonClass, waitForEnabled = false) {
   // wait for fixation cross to go away
-  cy.get('.lev-stimulus-container', { timeout: 60000 }).should('exist');
+  cy.get('.lev-stimulus-container', { timeout: 60000 })
+    .should('exist')
+    .then((content) => {
+      if (content.find('footer').length === 1) {
+        cy.get('.jspsych-content').find('.primary').click({ timeout: 60000 });
+        taskCompleted = true;
+        return;
+      }
+    });
 
   handleMathSlider();
   selectAnswers(correctFlag, buttonClass, waitForEnabled);
