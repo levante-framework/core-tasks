@@ -418,6 +418,7 @@ function doOnLoad(
       if (window.Cypress && generatedSequence !== null) {
         const cypressData = {
           correctAnswer: generatedSequence,
+          reverse: reverse,
         };
 
         window.cypressData = cypressData;

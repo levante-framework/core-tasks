@@ -92,11 +92,15 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
     const timeline = [];
     for (let i = 0; i < trialNum; i++) {
       if (trialType === 'stimulus') {
-        timeline.push({ ...fixationOnly, stimulus: '' });
+        if (i !== 0) {
+          timeline.push({ ...fixationOnly, stimulus: '' });
+        }
         timeline.push(taskStore().version === 2 ? stimulus() : legacyStimulus());
         timeline.push(buttonNoise);
       } else {
-        timeline.push({ ...fixationOnly, stimulus: '' });
+        if (i !== 0) {
+          timeline.push({ ...fixationOnly, stimulus: '' });
+        }
         timeline.push(afcMatch());
         timeline.push(buttonNoise);
       }

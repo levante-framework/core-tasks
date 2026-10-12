@@ -74,7 +74,7 @@ async function buildTaskVariantGroups() {
     });
   });
 
-  if (Object.keys(remainingLocalesPerVariant).length === 0) {
+  if (Object.keys(firstLocalesPerVariant).length === 0 && Object.keys(remainingLocalesPerVariant).length === 0) {
     throw new Error('live task params produced an empty test matrix (no task variants).');
   }
 
