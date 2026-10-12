@@ -28,6 +28,8 @@ The last row is a side effect: an unknown age is `NaN`, which is neither ≤ 4 n
 
 ## Flow
 
+The number of test trials is set in code: `TOTAL_FORWARD_TRIALS` (currently 14: the 4 early trials, then the rest, then one last trial that resets the sequence length) and `TOTAL_BACKWARD_TRIALS` (currently 12).
+
 Every forward trial, early or not, is skipped once errors reach `maxIncorrect` (see below). The two `heavyInstructions?` diamonds are decided when the timeline is built. The fallback changes some settings while the task runs, but it does not change which backward practice is used.
 
 ```mermaid
@@ -88,6 +90,7 @@ flowchart TD
 
 - **Starting length:** 2 for forward. For backward: 3 if the child got past length 3 going forward, otherwise 2.
 - **Errors are a running total, not consecutive.** A correct answer resets the streak but not the error count. The error count resets once, before the backward phase.
+- **The streak is not reset before the backward phase.** If the forward phase ends partway through a streak, the first correct backward test trial raises the length.
 - **`maxIncorrect`** is a variant param (default 3).
 - **Fixed-length practice:** heavy practice uses fixed lengths instead of the staircase, and leaves the staircase untouched.
 
@@ -95,13 +98,13 @@ These rules live in the input trial's `on_finish` in `trials/stimulus.ts`.
 
 ## Fallback (switching to the heavy flow mid-task)
 
-After each of the early forward test trials, a check runs. It can pass at most once, and passes when **the last 2 forward answers were both wrong**. (`checkFallbackCriteria` reads the last 4 test-stage records, which are 2 display/input pairs, and counts wrong inputs.) If it passes:
+After each of the 4 early forward test trials, a check runs. It can pass at most once, and passes when **the last 2 forward answers were both wrong**. (`checkFallbackCriteria` reads the last 4 test-stage records, which are 2 display/input pairs, and counts wrong inputs.) So it can't pass after the first trial, only after the second, third or fourth. If it passes:
 
 1. `heavyInstructions` turns on, and the grid switches to 2×2 with larger blocks for the rest of the task.
 2. The repeat-instructions message plays, then the downward-extension forward practice.
 3. The forward test trials continue on the smaller grid.
 
-The fallback does **not** reset the error count or the sequence length. Backward practice stays the one chosen at the start, but display prompts for the rest of the task use the heavy versions, because they check `heavyInstructions` as each trial runs.
+The fallback does **not** reset the error count or the sequence length. The 2 errors that triggered it still count toward `maxIncorrect`, so with the default of 3, one more forward error ends the forward phase. Backward practice stays the one chosen at the start, but display prompts for the rest of the task use the heavy versions, because they check `heavyInstructions` as each trial runs.
 
 ## Not CAT
 
