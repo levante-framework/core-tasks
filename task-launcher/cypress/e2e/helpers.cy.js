@@ -98,15 +98,13 @@ function taskLoop(correctFlag, buttonClass, waitForEnabled = false) {
   selectAnswers(correctFlag, buttonClass, waitForEnabled);
   instructions();
 
-  cy.get('.lev-stimulus-container', { timeout: 60000 })
-    .should('not.exist')
-    .then(() => {
-      if (taskCompleted) {
-        return;
-      } else {
-        taskLoop(correctFlag, buttonClass, waitForEnabled);
-      }
-    });
+  cy.then(() => {
+    if (taskCompleted) return;
+
+    cy.get('.lev-stimulus-container', { timeout: 60000 })
+      .should('not.exist')
+      .then(() => taskLoop(correctFlag, buttonClass, waitForEnabled));
+  });
 }
 
 export function testAfc(correctFlag, buttonClass, waitForEnabled = false) {

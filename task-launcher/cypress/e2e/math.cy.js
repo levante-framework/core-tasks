@@ -1,7 +1,7 @@
 import { getParamLists, testAfc } from './helpers.cy.js';
 
 const task = 'egma-math';
-const base_url = `http://localhost:8080/?task=${task}`;
+const base_url = `http://localhost:8080/?task=${task}&maxTime=1`;
 const testUrls = getParamLists(task).map((params) => `${base_url}&${params}`);
 
 describe('test math', () => {
