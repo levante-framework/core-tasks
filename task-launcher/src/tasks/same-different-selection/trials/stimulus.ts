@@ -172,7 +172,6 @@ export function handleButtonFeedback(
   const correctAudioConfig: AudioConfigType = {
     restrictRepetition: {
       enabled: false,
-      maxRepetitions: 2,
     },
     onEnded: finishTrial,
   };
@@ -180,7 +179,6 @@ export function handleButtonFeedback(
   const incorrectAudioConfig: AudioConfigType = {
     restrictRepetition: {
       enabled: false,
-      maxRepetitions: 2,
     },
     onEnded: () => {
       isFeedbackPlaying = false;
@@ -259,7 +257,6 @@ export const stimulus = (trial?: StimulusType) => {
         const audioConfig: AudioConfigType = {
           restrictRepetition: {
             enabled: false,
-            maxRepetitions: 2,
           },
           onEnded: () => {
             if (currentTrialId !== stimulus.itemId) {
@@ -279,14 +276,12 @@ export const stimulus = (trial?: StimulusType) => {
             ? {
                 restrictRepetition: {
                   enabled: false,
-                  maxRepetitions: 2,
                 },
                 onEnded: enableOkButton,
               }
             : {
                 restrictRepetition: {
                   enabled: false,
-                  maxRepetitions: 2,
                 },
               };
 
@@ -394,7 +389,6 @@ export const stimulus = (trial?: StimulusType) => {
               const audioConfig: AudioConfigType = {
                 restrictRepetition: {
                   enabled: false,
-                  maxRepetitions: 2,
                 },
               };
 

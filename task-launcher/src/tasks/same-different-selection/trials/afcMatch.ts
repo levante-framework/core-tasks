@@ -7,7 +7,6 @@ import {
   disableOkButton,
   enableOkButton,
   getParticipantUtilityButtonsHtml,
-  isTaskFinished,
   PageAudioHandler,
   PageStateHandler,
   prepareChoices,
@@ -22,6 +21,7 @@ import { sdsProgressComponentEmpty, sdsProgressComponentFilled } from '../../sha
 import { displayDebugInfo } from '../../shared/helpers/displayDebugInfo';
 import { finishTaskEarly } from '../../shared/trials';
 import { jsPsych } from '../../taskSetup';
+import { isButtonDisabled } from '../helpers/pollDisabledButton';
 
 let selectedCards: string[] = [];
 let selectedCardIdxs: number[] = [];
@@ -183,7 +183,6 @@ export const afcMatch = (trial?: StimulusType) => {
       const audioConfig: AudioConfigType = {
         restrictRepetition: {
           enabled: false,
-          maxRepetitions: 2,
         },
         ...(stim.assessmentStage === 'instructions' ? { onEnded: enableOkButton } : {}),
       };
@@ -252,7 +251,6 @@ export const afcMatch = (trial?: StimulusType) => {
               const audioConfig: AudioConfigType = {
                 restrictRepetition: {
                   enabled: false,
-                  maxRepetitions: 2,
                 },
                 onEnded: () => {
                   if (numberOfErrorsThisCall === numberOfErrors) {
@@ -344,7 +342,7 @@ export const afcMatch = (trial?: StimulusType) => {
             }
 
             if (firstClick) {
-              await isTaskFinished(() => card.disabled, 10).then(() => enableBtns(responseBtns));
+              await isButtonDisabled(card).then(() => enableBtns(responseBtns));
               firstClick = false;
             }
           };

@@ -62,14 +62,16 @@ export const enterFullscreen = {
         // fullscreen first begins a transition that leaves resume()'s promise
         // pending until it completes, which causes the await below to hang and
         // prevent the trial from ever advancing.
-        const resumePromise = jsPsych.pluginAPI.audioContext()?.resume();
+        //
+        // If the context is already running (later tasks in a battery), skip
+        // resume() so it does not consume the tap that fullscreen needs
+        // (DASHBOARD-5). First-task / suspended audio keeps the #512 order.
+        const audioCtx = jsPsych.pluginAPI.audioContext();
+        const resumePromise = audioCtx && audioCtx.state !== 'running' ? audioCtx.resume() : undefined;
 
-        // Request fullscreen synchronously during the user gesture.
         activateFullscreen('enterFullscreen');
 
-        // Await resume() so the audio context is actually running before we
-        // advance; otherwise the next trial's audio fails to autoplay.
-        await resumePromise;
+        if (resumePromise) await resumePromise;
       } finally {
         // Manually advance the trial.
         jsPsych.finishTrial({ success: true, rt: Math.round(performance.now() - startTime) });

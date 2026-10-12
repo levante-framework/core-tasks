@@ -1,6 +1,6 @@
 import { taskStore } from '../../../taskStore';
 
-export function setupHafMultiResponseTouchRouting() {
+export function setupHafMultiResponseTouchRouting(): void {
   const toast = document.createElement('div');
   toast.id = 'lev-toast-default';
   toast.classList.add('lev-toast-default');
@@ -10,40 +10,44 @@ export function setupHafMultiResponseTouchRouting() {
   }
 
   document.querySelectorAll('.jspsych-html-multi-response-button').forEach((wrapper) => {
-    if (wrapper.dataset.hafTouchRouting === '1') return;
-    wrapper.dataset.hafTouchRouting = '1';
+    const htmlWrapper = wrapper as HTMLElement;
+    if (htmlWrapper.dataset.hafTouchRouting === '1') return;
+    htmlWrapper.dataset.hafTouchRouting = '1';
 
     let syntheticClick = false;
 
-    wrapper.addEventListener(
+    htmlWrapper.addEventListener(
       'touchend',
       (e) => {
-        if (e.touches.length > 0) return;
-        if (e.cancelable) e.preventDefault();
+        const touchEvent = e as TouchEvent;
+        if (touchEvent.touches.length > 0) return;
+        if (touchEvent.cancelable) touchEvent.preventDefault();
         syntheticClick = true;
-        wrapper.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+        htmlWrapper.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
         syntheticClick = false;
       },
       { passive: false },
     );
 
-    wrapper.addEventListener(
+    htmlWrapper.addEventListener(
       'click',
       (e) => {
+        const pointerEvent = e as PointerEvent;
         if (syntheticClick) return;
-        if (!e.isTrusted) return;
+        if (!pointerEvent.isTrusted) return;
 
         triggerToast();
-        e.preventDefault();
-        e.stopImmediatePropagation();
+        pointerEvent.preventDefault();
+        pointerEvent.stopImmediatePropagation();
       },
       true,
     );
   });
 }
 
-let timeoutID;
-function triggerToast() {
+let timeoutID: ReturnType<typeof setTimeout> | undefined;
+
+function triggerToast(): void {
   if (taskStore().inputCapability.touch) {
     return;
   }

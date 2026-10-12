@@ -1,7 +1,6 @@
 import { taskStore } from '../taskStore';
 import adultReasoningTimeline from './adult-reasoning/timeline';
 import childSurveyTimeline from './child-survey/timeline';
-// @ts-expect-error
 import heartsAndFlowersTimeline from './hearts-and-flowers/timeline';
 import introTimeline from './intro/timeline';
 import mathTimeline from './math/timeline';

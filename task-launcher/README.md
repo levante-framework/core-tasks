@@ -122,6 +122,9 @@ host provides one (e.g. dashboard `TaskLevante.vue` passes `logger`, which sends
 production builds). With no injected logger (standalone), CoreTask only `console.error`s /
 `console.log`s.
 
+Standalone `serve/serve.js` still initializes Sentry for uncaught errors against
+`levante-framework-eu` (`ingest.de.sentry.io`) without session replay.
+
 ### Unit tests
 
 ```bash

@@ -6,10 +6,11 @@ import {
   getParticipantUtilityButtonsHtml,
   setupFullscreenButton,
 } from '../../shared/helpers';
+import { jsPsych } from '../../taskSetup';
 import { setupHafMultiResponseTouchRouting } from '../helpers/touchResponseRouting';
 import { InputKey, StimulusSideType } from '../helpers/utils';
 
-export function fixation(interStimulusInterval) {
+export function fixation(interStimulusInterval: number) {
   const hfV2 = taskStore().version === 2;
   return {
     type: jsPsychHTMLMultiResponse,
@@ -21,15 +22,24 @@ export function fixation(interStimulusInterval) {
               `;
     },
     on_load: () => {
+      // set the time limit here so it can be restarted after pause
+      taskStore('currentTrialTimeLimitMs', interStimulusInterval);
+
+      const currentTrialTimeout = jsPsych.pluginAPI.setTimeout(() => {
+        if (taskStore().isPaused || taskStore().currentTrialTimeoutId !== currentTrialTimeout) return;
+        jsPsych.finishTrial();
+      }, interStimulusInterval);
+      taskStore('currentTrialTimeoutId', currentTrialTimeout);
+
       // document.getElementById('jspsych-html-multi-response-btngroup').classList.add('btn-layout-hf');
-      document.getElementById('jspsych-html-multi-response-stimulus').classList.add('haf-parent-container');
-      document.getElementById('jspsych-html-multi-response-btngroup').classList.add('haf-parent-container');
-      document.getElementById('jspsych-html-multi-response-btngroup').classList.add('lev-response-row');
-      document.getElementById('jspsych-html-multi-response-btngroup').classList.add('linear-4');
+      document.getElementById('jspsych-html-multi-response-stimulus')?.classList.add('haf-parent-container');
+      document.getElementById('jspsych-html-multi-response-btngroup')?.classList.add('haf-parent-container');
+      document.getElementById('jspsych-html-multi-response-btngroup')?.classList.add('lev-response-row');
+      document.getElementById('jspsych-html-multi-response-btngroup')?.classList.add('linear-4');
 
       const responseButtons = document.querySelectorAll('.jspsych-html-multi-response-button');
       responseButtons.forEach((button, i) => {
-        addKeyHelpers(button, i);
+        addKeyHelpers(button as HTMLElement, i);
       });
 
       if (hfV2) {
@@ -50,7 +60,11 @@ export function fixation(interStimulusInterval) {
       <button class='secondary--green'></button>
     </div>`,
     ],
-    trial_duration: interStimulusInterval,
     response_ends_trial: false,
+    on_finish: () => {
+      clearTimeout(taskStore().currentTrialTimeoutId);
+      taskStore('currentTrialTimeoutId', undefined);
+      taskStore('currentTrialTimeLimitMs', null);
+    },
   };
 }
