@@ -141,7 +141,7 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
     instructionPractice = instructionPractice.filter((trial) => trial.itemId !== 'sds-instruct5');
 
     fiveBlockIntro = {
-      timeline: [ipBlock(fiveBlockIntroTrial)],
+      timeline: [ipBlock(fiveBlockIntroTrial), { ...fixationOnly, stimulus: '' }],
       conditional_function: () => {
         const runFiveBlockIntro = taskStore().nextStimulus.trialType === '4-match' && !fiveBlockIntroAlreadyRun;
         if (runFiveBlockIntro) {
@@ -188,7 +188,6 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
     if (index === 2) {
       if (taskStore().version === 2) {
         innerTimeline.push(fiveBlockIntro);
-        innerTimeline.push({ ...fixationOnly, stimulus: '' });
       }
       innerTimeline.push(runCatTrials(2, 'afc'));
       innerTimeline.push(runCatTrials(3, 'afc'));
