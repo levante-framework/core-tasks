@@ -3,7 +3,7 @@ import { getParamLists } from './helpers.cy.js';
 const task = 'memory-game';
 const base_url = `http://localhost:8080/?task=${task}`;
 const testUrls = getParamLists(task).map((params) => `${base_url}&${params}`);
-let taskCompleted, backwardPhase, forwardPhase;
+let taskCompleted;
 
 describe('test memory game', () => {
   if (testUrls.length === 0) {
@@ -14,13 +14,10 @@ describe('test memory game', () => {
   }
 
   testUrls.forEach((url) => {
-    taskCompleted = false;
-    backwardPhase = false;
-    forwardPhase = false;
-
     const label = url.slice(base_url.length + 1) || 'default';
 
     it(`visits memory game and plays it (${label})`, () => {
+      taskCompleted = false;
       cy.visit(url);
 
       cy.get('.jspsych-content', { timeout: 300000 }).find('.primary').should('be.visible');
@@ -42,10 +39,6 @@ function handleInstructions() {
     }
 
     if (corsiBlocks.length === 0 && !taskCompleted) {
-      if (forwardPhase) {
-        backwardPhase = true;
-      }
-
       cy.get('.jspsych-content').find('.primary').click();
     }
   });
@@ -61,17 +54,14 @@ function answerTrial() {
     const blocks = content.find('.jspsych-corsi-block');
 
     if (blocks.length > 0) {
-      if (!forwardPhase) {
-        forwardPhase = true;
-      }
-
       // wait for window to contain sequence information
       cy.window().its('cypressData').should('have.property', 'correctAnswer');
 
       cy.window().then((window) => {
-        const sequence = window.cypressData.correctAnswer;
-        if (backwardPhase) {
-          sequence.reverse();
+        let sequence = window.cypressData.correctAnswer;
+        const reverse = window.cypressData.reverse;
+        if (reverse) {
+          sequence = sequence.toReversed();
         }
 
         sequence.forEach((number) => {
