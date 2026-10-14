@@ -208,10 +208,10 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
   };
 
   if (runCat) {
-    const catTrialIteration = (blockIndex: number, useDownex = false, isLastBlock = false, trial?: StimulusType) => ({
+    const catTrialIteration = (blockIndex: number, useDownex = false, isLastBlock = false) => ({
       timeline: [
         useDownex ? { ...setupDownex, stimulus: '' } : { ...setupStimulusFromBlock(blockIndex), stimulus: '' },
-        stimulusBlock(trial),
+        stimulusBlock(),
       ],
       conditional_function: () => !isCatBlockTimeExpired(isLastBlock),
     });
@@ -357,7 +357,8 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
       // push in random items at start of first block (after practice trials)
       if (i === 0) {
         allCorpusParts.start.forEach((trial) => {
-          timeline.push(catTrialIteration(i, false, false, trial));
+          timeline.push({ ...fixationOnly, stimulus: '' });
+          timeline.push(stimulusBlock(trial));
         });
       }
 
@@ -368,7 +369,8 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
 
       allCorpusParts.unnormed.forEach((trial) => {
         if (i === Number(trial.block_index)) {
-          timeline.push(catTrialIteration(i, false, i === numOfBlocks - 1, trial));
+          timeline.push({ ...fixationOnly, stimulus: '' });
+          timeline.push(stimulusBlock(trial));
         }
       });
     }
