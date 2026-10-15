@@ -231,6 +231,7 @@ export function getCorsiBlocks({
 
         if (resetSeq) {
           sequenceLength = backwardsStartingSequenceLength;
+          numCorrect = 0;
         }
 
         if (!data.correct && !isPractice) {
@@ -243,6 +244,7 @@ export function getCorsiBlocks({
             finishTaskEarly('errorOut');
           } else {
             sequenceLength = backwardsStartingSequenceLength;
+            numCorrect = 0;
             // update total trials to account for skipped forward block
             taskStore('testTrialCount', TOTAL_FORWARD_TRIALS);
           }
