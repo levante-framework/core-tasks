@@ -89,7 +89,7 @@ export class TaskLauncher {
 
     await getTranslations(isDev, taskName, language);
 
-    if (taskName !== 'memory-game' && taskName !== 'intro') {
+    if (taskName !== 'intro') {
       await getCorpus(config, isDev);
     }
 
