@@ -36,13 +36,14 @@ let sequenceLength = 2;
 let generatedSequence: number[] | null;
 let selectedCoordinates: [number, number][] = [];
 let numCorrect = 0;
+let timeoutIDs: Array<NodeJS.Timeout | number> = [];
 const HIGHLIGHT_COLOR = '#8CAEDF';
 const INCORRECT_COLOR = '#f00';
 const correctStreakToIncrementSequence = 2; // increment sequence length after this many correct in a row
 let backwardsStartingSequenceLength = 2; // reset to this sequence length when starting the backward phase
 
 // edit this list to change the audio cues/prompts for downex practice trials (in reverse order)
-const downexPracticeAudioCues = [
+const DOWNEX_PRACTICE_AUDIO_CUES = [
   'memoryGameInstruct9Downex',
   'memoryGameInstruct7Downex',
   'memoryGameInstruct9Downex',
@@ -54,6 +55,24 @@ const downexPracticeAudioCues = [
   'memoryGameInstruct3Downex',
   'memoryGameInstruct2Downex',
 ];
+
+// Mutable working copy consumed via .pop() during a run; reset between runs.
+let downexPracticeAudioCues = [...DOWNEX_PRACTICE_AUDIO_CUES];
+
+// Reset all module-level state so a new run in the same SPA session doesn't inherit
+// the previous run's sequence length, streak, or depleted audio cues.
+export function resetMemoryGameState() {
+  sequenceLength = 2;
+  numCorrect = 0;
+  backwardsStartingSequenceLength = 2;
+  generatedSequence = null;
+  selectedCoordinates = [];
+  downexPracticeAudioCues = [...DOWNEX_PRACTICE_AUDIO_CUES];
+  timeoutIDs.forEach((id) => {
+    clearTimeout(id);
+  });
+  timeoutIDs = [];
+}
 
 // play audio cue
 export function setUpAudio(
@@ -231,6 +250,7 @@ export function getCorsiBlocks({
 
         if (resetSeq) {
           sequenceLength = backwardsStartingSequenceLength;
+          numCorrect = 0;
         }
 
         if (!data.correct && !isPractice) {
@@ -267,8 +287,6 @@ export function getCorsiBlocks({
     },
   };
 }
-
-let timeoutIDs: Array<NodeJS.Timeout | number> = [];
 
 function doOnLoad(
   mode: 'display' | 'input',

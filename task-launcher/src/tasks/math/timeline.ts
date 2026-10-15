@@ -362,8 +362,10 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
       // push in random items at start of first block (after practice trials)
       if (i === 0) {
         allCorpusParts.start.forEach((trial) => {
-          timeline.push({ ...fixationOnly, stimulus: '' });
-          timeline.push(stimulusBlock(trial));
+          timeline.push({
+            timeline: [{ ...fixationOnly, stimulus: '' }, stimulusBlock(trial)],
+            conditional_function: () => !isCatBlockTimeExpired(i === numOfBlocks - 1),
+          });
         });
       }
 
@@ -374,8 +376,10 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
 
       allCorpusParts.unnormed.forEach((trial) => {
         if (i === Number(trial.block_index)) {
-          timeline.push({ ...fixationOnly, stimulus: '' });
-          timeline.push(stimulusBlock(trial));
+          timeline.push({
+            timeline: [{ ...fixationOnly, stimulus: '' }, stimulusBlock(trial)],
+            conditional_function: () => !isCatBlockTimeExpired(i === numOfBlocks - 1),
+          });
         }
       });
     }
