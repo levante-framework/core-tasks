@@ -13,7 +13,7 @@ import {
   reverseOrderInstructions,
   reverseOrderPrompt,
 } from './trials/instructions';
-import { getCorsiBlocks } from './trials/stimulus';
+import { getCorsiBlocks, resetMemoryGameState } from './trials/stimulus';
 
 export const TOTAL_FORWARD_TRIALS = 14;
 const TOTAL_BACKWARD_TRIALS = 12;
@@ -56,6 +56,8 @@ const getSecondRoundPracticeTrials = (reverse: boolean, tryAgainText: string) =>
 };
 
 export default function buildMemoryTimeline(config: Record<string, any>) {
+  resetMemoryGameState();
+
   const { heavyInstructions } = taskStore();
 
   const forwardTryAgainPrompt = resolveMemoryGamePrompt('memoryGameInstruct8Downex');

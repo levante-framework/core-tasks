@@ -42,7 +42,7 @@ const correctStreakToIncrementSequence = 2; // increment sequence length after t
 let backwardsStartingSequenceLength = 2; // reset to this sequence length when starting the backward phase
 
 // edit this list to change the audio cues/prompts for downex practice trials (in reverse order)
-const downexPracticeAudioCues = [
+const DOWNEX_PRACTICE_AUDIO_CUES = [
   'memoryGameInstruct9Downex',
   'memoryGameInstruct7Downex',
   'memoryGameInstruct9Downex',
@@ -54,6 +54,20 @@ const downexPracticeAudioCues = [
   'memoryGameInstruct3Downex',
   'memoryGameInstruct2Downex',
 ];
+
+// Mutable working copy consumed via .pop() during a run; reset between runs.
+let downexPracticeAudioCues = [...DOWNEX_PRACTICE_AUDIO_CUES];
+
+// Reset all module-level state so a new run in the same SPA session doesn't inherit
+// the previous run's sequence length, streak, or depleted audio cues.
+export function resetMemoryGameState() {
+  sequenceLength = 2;
+  numCorrect = 0;
+  backwardsStartingSequenceLength = 2;
+  generatedSequence = null;
+  selectedCoordinates = [];
+  downexPracticeAudioCues = [...DOWNEX_PRACTICE_AUDIO_CUES];
+}
 
 // play audio cue
 export function setUpAudio(
