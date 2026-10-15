@@ -50,6 +50,7 @@ const defaultCorpus: Record<string, string> = {
   egmaMath: 'math-item-bank',
   heartsAndFlowers: 'hearts-and-flowers-item-bank',
   matrixReasoning: 'matrix-reasoning-item-bank',
+  memoryGame: 'memory-game-item-bank',
   mentalRotation: 'mental-rotation-item-bank',
   sameDifferentSelection: 'same-different-selection-item-bank',
   trog: 'trog-item-bank',
