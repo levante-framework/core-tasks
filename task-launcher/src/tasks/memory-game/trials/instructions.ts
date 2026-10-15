@@ -15,88 +15,30 @@ import { resolveMemoryGamePrompt } from '../helpers/resolveMemoryGamePrompt';
 
 let setPromptDurations = false;
 
-const instructionData = [
-  // downex instructions
-  {
-    prompt: 'memoryGameInstruct1',
-    image: 'catAvatar',
-    buttonText: 'continueButtonText',
-  },
-  {
-    prompt: 'memoryGameInstruct6Downex',
-    image: 'catAvatar',
-    buttonText: 'continueButtonText',
-  },
-  {
-    prompt: 'memoryGameInstruct10Downex',
-    image: 'catAvatar',
-    buttonText: 'continueButtonText',
-  },
-  {
-    prompt: 'heartsAndFlowersEncourage2',
-    image: 'rocket@2x',
-    buttonText: 'continueButtonText',
-  },
-  {
-    prompt: 'heartsAndFlowersPlayTime',
-    image: 'catAvatar',
-    buttonText: 'continueButtonText',
-  },
-  // older kid instructions
-  {
-    prompt: 'memoryGameInstruct1',
-    image: 'catAvatar',
-    buttonText: 'continueButtonText',
-  },
-  {
-    prompt: 'memoryGameInstruct2',
-    image: 'highlightedBlock',
-    buttonText: 'continueButtonText',
-  },
-  {
-    prompt: 'memoryGameInstruct8Downex',
-    video: 'selectSequence',
-    buttonText: 'continueButtonText',
-  },
-  {
-    prompt: 'memoryGameInstruct4',
-    image: 'catAvatar',
-    buttonText: 'continueButtonText',
-  },
-  {
-    prompt: 'memoryGameInstruct5',
-    image: 'catAvatar',
-    buttonText: 'continueButtonText',
-  },
-  {
-    prompt: 'memoryGameInstruct6',
-    image: 'catAvatar',
-    buttonText: 'continueButtonText',
-  },
-  {
-    prompt: 'memoryGameInstruct11Downex',
-    video: 'selectSequenceReverse',
-    buttonText: 'continueButtonText',
-  },
-];
-
 const replayButtonHtmlId = 'replay-btn-revisited';
 
-const instructions = instructionData.map((data) => {
+/**
+ * Builds an instruction screen from a corpus row's prompt and media.
+ * @param promptKey camelized audio/translation key of the prompt
+ * @param mediaKey camelized key of an image or video (videos are checked first)
+ * @param displayPromptKeys prompts played before display trials; their durations are measured on the first screen
+ */
+export function buildInstructionScreen(promptKey: string, mediaKey: string, displayPromptKeys: string[]) {
   return {
     type: jsPsychHtmlMultiResponse,
     stimulus: () => {
       const t = taskStore().translations;
-      const promptKey = resolveMemoryGamePrompt(data.prompt);
-      const mediaSrc = data.video ? mediaAssets.video[data.video] : mediaAssets.images[data.image as string];
+      const resolvedPromptKey = resolveMemoryGamePrompt(promptKey);
+      const isVideo = mediaKey in mediaAssets.video;
+      const mediaSrc = isVideo ? mediaAssets.video[mediaKey] : mediaAssets.images[mediaKey];
       return `<div class="lev-stimulus-container">
                         ${getParticipantUtilityButtonsHtml(replayButtonHtmlId)}
                         <div class="lev-row-container instruction">
-                            <p>${t[promptKey]}</p>
+                            <p>${t[resolvedPromptKey]}</p>
                         </div>
                         <div class="lev-stim-content-x-3">
                             ${
-                              data.video
+                              isVideo
                                 ? `<video class='instruction-video-small' autoplay loop>
                                     <source src=${mediaSrc} type='video/mp4'>
                                 </video>`
@@ -105,42 +47,35 @@ const instructions = instructionData.map((data) => {
                                     alt="Image not loading ${mediaSrc}. Please continue the task."
                                 />`
                             }
-                        </div>                    
+                        </div>
                     </div>`;
     },
     prompt_above_buttons: true,
-    button_choices: data.buttonText ? ['Next'] : [],
+    button_choices: ['Next'],
     button_html: () => {
       const t = taskStore().translations;
-
-      if (data.buttonText) {
-        return [
-          `<button class="primary" disabled>
-                  ${t[data.buttonText]}
+      return [
+        `<button class="primary" disabled>
+                  ${t.continueButtonText}
           </button>`,
-        ];
-      }
+      ];
     },
     keyboard_choices: 'NO_KEYS',
     post_trial_gap: 500,
     on_load: async () => {
-      const promptKey = resolveMemoryGamePrompt(data.prompt);
+      const resolvedPromptKey = resolveMemoryGamePrompt(promptKey);
       const audioConfig: AudioConfigType = {
         restrictRepetition: {
           enabled: false,
           maxRepetitions: 2,
         },
         onEnded: () => {
-          if (!data.buttonText) {
-            jsPsych.finishTrial();
-          } else {
-            enableOkButton();
-          }
+          enableOkButton();
         },
       };
 
-      PageAudioHandler.playAudio(promptKey, audioConfig);
-      const pageStateHandler = new PageStateHandler(promptKey, true);
+      PageAudioHandler.playAudio(resolvedPromptKey, audioConfig);
+      const pageStateHandler = new PageStateHandler(resolvedPromptKey, true);
       setupReplayAudio(pageStateHandler);
       addExperimenterButtons();
       setupFullscreenButton();
@@ -155,18 +90,13 @@ const instructions = instructionData.map((data) => {
       if (!setPromptDurations) {
         setPromptDurations = true;
 
-        const displayPromptDurations = {
-          memoryGameInstruct7Downex: await PageAudioHandler.getAudioDuration(
-            mediaAssets.audio.memoryGameInstruct7Downex,
-          ),
-          memoryGameDisplay: await PageAudioHandler.getAudioDuration(mediaAssets.audio.memoryGameDisplay),
-          memoryGameInstruct2Downex: await PageAudioHandler.getAudioDuration(
-            mediaAssets.audio.memoryGameInstruct2Downex,
-          ),
-          memoryGameInstruct4Downex: await PageAudioHandler.getAudioDuration(
-            mediaAssets.audio.memoryGameInstruct4Downex,
-          ),
-        };
+        const displayPromptDurations: Record<string, number> = {};
+        for (const key of displayPromptKeys) {
+          const duration = mediaAssets.audio[key] && (await PageAudioHandler.getAudioDuration(mediaAssets.audio[key]));
+          if (duration) {
+            displayPromptDurations[key] = duration;
+          }
+        }
 
         taskStore('displayPromptDurations', displayPromptDurations);
       }
@@ -179,11 +109,4 @@ const instructions = instructionData.map((data) => {
       });
     },
   };
-});
-
-export const reverseOrderPrompt = instructions.pop();
-export const reverseOrderInstructions = instructions.pop();
-export const readyToPlay = instructions.pop();
-
-export const defaultInstructions = instructions.slice(5, 9);
-export const downexInstructions = instructions.slice(0, 5);
+}
