@@ -103,6 +103,11 @@ declare global {
     initJsPsych: JsPsych;
     cypressData: {
       correctAnswer: string | Array<number> | number;
+      // memory game only
+      isPractice?: boolean;
+      reverse?: boolean;
+      numOfBlocks?: number;
+      inputTrialNumber?: number;
     };
     __mediaAssets?: MediaAssetsType;
   }
