@@ -18,10 +18,14 @@ import { getCorsiBlocks } from './trials/stimulus';
 export const TOTAL_FORWARD_TRIALS = 14;
 const TOTAL_BACKWARD_TRIALS = 12;
 
+// Default practice trials always use sequence length 2 so backward practice doesn't inherit
+// the elevated sequenceLength set when transitioning out of the forward block.
+const PRACTICE_SEQ_LENGTH = 2;
+
 const generatePracticeTrialTimeline = (reverse: boolean, tryAgainText: string, repetitions: number) => {
   const basicBlock = [
-    getCorsiBlocks({ mode: 'display', isPractice: true, reverse }),
-    getCorsiBlocks({ mode: 'input', isPractice: true, reverse }),
+    getCorsiBlocks({ mode: 'display', isPractice: true, reverse, customSeqLength: PRACTICE_SEQ_LENGTH }),
+    getCorsiBlocks({ mode: 'input', isPractice: true, reverse, customSeqLength: PRACTICE_SEQ_LENGTH }),
     feedback(true, tryAgainText),
   ];
 
@@ -36,8 +40,8 @@ const getSecondRoundPracticeTrials = (reverse: boolean, tryAgainText: string) =>
   return {
     timeline: [
       ...generatePracticeTrialTimeline(reverse, tryAgainText, 2),
-      getCorsiBlocks({ mode: 'display', isPractice: true, reverse }),
-      getCorsiBlocks({ mode: 'input', isPractice: true, reverse }),
+      getCorsiBlocks({ mode: 'display', isPractice: true, reverse, customSeqLength: PRACTICE_SEQ_LENGTH }),
+      getCorsiBlocks({ mode: 'input', isPractice: true, reverse, customSeqLength: PRACTICE_SEQ_LENGTH }),
       {
         timeline: [feedback(true, tryAgainText)],
         conditional_function: () => {
