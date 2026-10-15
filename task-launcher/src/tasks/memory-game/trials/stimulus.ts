@@ -36,6 +36,7 @@ let sequenceLength = 2;
 let generatedSequence: number[] | null;
 let selectedCoordinates: [number, number][] = [];
 let numCorrect = 0;
+let timeoutIDs: Array<NodeJS.Timeout | number> = [];
 const HIGHLIGHT_COLOR = '#8CAEDF';
 const INCORRECT_COLOR = '#f00';
 const correctStreakToIncrementSequence = 2; // increment sequence length after this many correct in a row
@@ -67,6 +68,10 @@ export function resetMemoryGameState() {
   generatedSequence = null;
   selectedCoordinates = [];
   downexPracticeAudioCues = [...DOWNEX_PRACTICE_AUDIO_CUES];
+  timeoutIDs.forEach((id) => {
+    clearTimeout(id);
+  });
+  timeoutIDs = [];
 }
 
 // play audio cue
@@ -283,8 +288,6 @@ export function getCorsiBlocks({
     },
   };
 }
-
-let timeoutIDs: Array<NodeJS.Timeout | number> = [];
 
 function doOnLoad(
   mode: 'display' | 'input',
