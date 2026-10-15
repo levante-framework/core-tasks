@@ -11,7 +11,7 @@ import {
 // trials
 import { enterFullscreen, exitFullscreen } from '../shared/trials';
 import { jsPsych } from '../taskSetup';
-import { type CorpusRow, StimulusSideType, StimulusType } from './helpers/utils';
+import { type CorpusRow, StimulusSideType, HaFStimulusType } from './helpers/utils';
 import { fixation } from './trials/fixation';
 import {
   buildInstructionTrial,
@@ -33,9 +33,9 @@ const BlockType = {
   Mixed: 'hearts and flowers',
 } as const;
 type BlockType = (typeof BlockType)[keyof typeof BlockType];
-const BLOCK_STIMULUS_TYPE: Record<string, StimulusType> = {
-  [BlockType.Hearts]: StimulusType.Heart,
-  [BlockType.Flowers]: StimulusType.Flower,
+const BLOCK_STIMULUS_TYPE: Record<string, HaFStimulusType> = {
+  [BlockType.Hearts]: HaFStimulusType.Heart,
+  [BlockType.Flowers]: HaFStimulusType.Flower,
 };
 
 const INTER_STIMULUS_INTERVAL = 500;

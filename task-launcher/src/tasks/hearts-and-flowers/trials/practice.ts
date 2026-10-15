@@ -13,7 +13,7 @@ import {
 } from '../../shared/helpers';
 import { isTouchScreen, jsPsych } from '../../taskSetup';
 import { setupHafMultiResponseTouchRouting } from '../helpers/touchResponseRouting';
-import { getCorrectInputSide, getStimulusLayout, InputKeyType, StimulusSideType, StimulusType } from '../helpers/utils';
+import { getCorrectInputSide, getStimulusLayout, InputKeyType, StimulusSideType, HaFStimulusType } from '../helpers/utils';
 
 /**
  * Builds a practice trial for the Instruction sections.
@@ -23,7 +23,7 @@ import { getCorrectInputSide, getStimulusLayout, InputKeyType, StimulusSideType,
  * @param {*} stimulusSideType
  */
 export function buildInstructionPracticeTrial(
-  stimulusType: StimulusType,
+  stimulusType: HaFStimulusType,
   promptText: string,
   promptAudioAsset: string,
   stimulusSideType: StimulusSideType,
@@ -210,7 +210,7 @@ function buildPracticeFeedback(
   });
 
   function getAssetKey() {
-    const heartsKey = taskStore().stimulus === StimulusType.Heart ? 'Heart' : 'Flower';
+    const heartsKey = taskStore().stimulus === HaFStimulusType.Heart ? 'Heart' : 'Flower';
     const correctKey = taskStore().isCorrect === false ? 'Incorrect' : 'Correct';
     return feedbackAudio[`${correctKey}${heartsKey}`];
   }
@@ -224,7 +224,7 @@ function buildPracticeFeedback(
       // moving them to separate trials and using conditional trials
       if (!incorrect) {
         const correctPrompt =
-          stimulusType === StimulusType.Heart ? feedbackTexts.CorrectHeart : feedbackTexts.CorrectFlower;
+          stimulusType === HaFStimulusType.Heart ? feedbackTexts.CorrectHeart : feedbackTexts.CorrectFlower;
         return `
           <div class='haf-cr-container'>
             <img src='${mediaAssets.images.smilingFace}' />
@@ -236,7 +236,7 @@ function buildPracticeFeedback(
       //no else: user input was incorrect
       const imageSrc = mediaAssets.images[stimulusType];
       const promptText =
-        stimulusType === StimulusType.Heart ? feedbackTexts.IncorrectHeart : feedbackTexts.IncorrectFlower;
+        stimulusType === HaFStimulusType.Heart ? feedbackTexts.IncorrectHeart : feedbackTexts.IncorrectFlower;
       return getStimulusLayout(imageSrc, taskStore().stimulusSide === StimulusSideType.Left, promptText, undefined);
     },
     prompt_above_buttons: true,

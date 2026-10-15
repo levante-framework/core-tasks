@@ -14,7 +14,7 @@ import {
   InputKeyType,
   ResponseSideType,
   StimulusSideType,
-  StimulusType,
+  HaFStimulusType,
 } from '../helpers/utils';
 
 /** The corpus row this trial was built from (see buildBlockTimelineVariables in timeline.ts) */
@@ -168,16 +168,16 @@ const randomPosition = () => Math.round(Math.random());
  * repetitive sequences using only one side, we grouped trials into sets of 4.
  * Within each set, 2 trials are randomly assigned to each side.""
  * @param {number} trialCount
- * @param {StimulusType} stimulusType StimulusType.Heart or StimulusType.Flower
+ * @param {HaFStimulusType} stimulusType StimulusType.Heart or StimulusType.Flower
  */
-export function buildHeartsOrFlowersTimelineVariables(trialCount: number, stimulusType: StimulusType) {
-  if (stimulusType !== StimulusType.Heart && stimulusType !== StimulusType.Flower) {
+export function buildHeartsOrFlowersTimelineVariables(trialCount: number, stimulusType: HaFStimulusType) {
+  if (stimulusType !== HaFStimulusType.Heart && stimulusType !== HaFStimulusType.Flower) {
     const errorMessage = `Invalid stimulusType: ${stimulusType} for buildSubtimelineVariables()`;
     Logger.getInstance().error(new Error(errorMessage));
     throw new Error(errorMessage);
   }
   const jsPsychTimelineVariablesArray: Array<{
-    stimulus: StimulusType;
+    stimulus: HaFStimulusType;
     position: number;
   }> = [];
   const setsOfFourCount = Math.floor(trialCount / 4);
@@ -210,17 +210,17 @@ export function buildHeartsOrFlowersTimelineVariables(trialCount: number, stimul
 }
 
 export function buildMixedTimelineVariables(trialCount: number) {
-  const heartLeft = { stimulus: StimulusType.Heart, position: 0 };
-  const heartRight = { stimulus: StimulusType.Heart, position: 1 };
-  const flowerLeft = { stimulus: StimulusType.Flower, position: 0 };
-  const flowerRight = { stimulus: StimulusType.Flower, position: 1 };
+  const heartLeft = { stimulus: HaFStimulusType.Heart, position: 0 };
+  const heartRight = { stimulus: HaFStimulusType.Heart, position: 1 };
+  const flowerLeft = { stimulus: HaFStimulusType.Flower, position: 0 };
+  const flowerRight = { stimulus: HaFStimulusType.Flower, position: 1 };
   const optionsToRandomize = [heartLeft, heartRight, flowerLeft, flowerRight];
 
   const jsPsychTimelineVariablesArray: Array<{
-    stimulus: StimulusType;
+    stimulus: HaFStimulusType;
     position: number;
   }> = [];
-  let sequence: Array<{ stimulus: StimulusType; position: number }> = [];
+  let sequence: Array<{ stimulus: HaFStimulusType; position: number }> = [];
   for (let i = 0; i < trialCount; i++) {
     if (sequence.length === 0) {
       sequence = shuffle(optionsToRandomize);

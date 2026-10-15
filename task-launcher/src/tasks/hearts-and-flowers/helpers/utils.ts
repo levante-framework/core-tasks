@@ -1,11 +1,11 @@
 import { taskStore } from '../../../taskStore';
 import { getParticipantUtilityButtonsHtml } from '../../shared/helpers';
 
-export const StimulusType = {
+export const HaFStimulusType = {
   Heart: 'heart',
   Flower: 'flower',
 } as const;
-export type StimulusType = (typeof StimulusType)[keyof typeof StimulusType];
+export type HaFStimulusType = (typeof HaFStimulusType)[keyof typeof HaFStimulusType];
 
 // Enum for the side the stimulus is shown on and also for button_choices (ResponseSideType)
 export const StimulusSideType = {
@@ -28,19 +28,15 @@ export const InputKeyType = {
 } as const;
 export type InputKeyType = (typeof InputKeyType)[keyof typeof InputKeyType];
 
-export type CorpusRow = {
-  itemId: string;
-  block_index: number;
-  assessmentStage: string;
-  trialType: string;
-  audioFile: string | string[];
-  timeLimit: string;
-};
+export type CorpusRow =  Pick<  
+  StimulusType,  
+  'itemId' | 'block_index' | 'assessmentStage' | 'trialType' | 'audioFile' | 'timeLimit'  
+>;  
 
-export function getCorrectInputSide(stimulusType: StimulusType, stimulusSideType: StimulusSideType): 0 | 1 {
+export function getCorrectInputSide(stimulusType: HaFStimulusType, stimulusSideType: StimulusSideType): 0 | 1 {
   const stimulusPosition = stimulusSideType === StimulusSideType.Left ? 0 : 1;
   return (
-    stimulusType === StimulusType.Heart // same side for heart; opposite for flower
+    stimulusType === HaFStimulusType.Heart // same side for heart; opposite for flower
       ? stimulusPosition
       : 1 - stimulusPosition
   ) as 0 | 1;
