@@ -11,7 +11,7 @@ import {
 // trials
 import { enterFullscreen, exitFullscreen } from '../shared/trials';
 import { jsPsych } from '../taskSetup';
-import { type CorpusRow, StimulusSideType, HaFStimulusType } from './helpers/utils';
+import { type CorpusRow, HaFStimulusType, StimulusSideType } from './helpers/utils';
 import { fixation } from './trials/fixation';
 import {
   buildInstructionTrial,
@@ -46,11 +46,6 @@ const PRACTICE_WIN_STREAK: Record<BlockType, number> = {
 };
 // The faster mixed blocks
 const FASTER_MIXED_BLOCKS = [3, 4];
-const DEFAULT_SCREEN_IMAGE = 'animalBodySq';
-const SCREEN_IMAGES: Record<string, string> = {
-  'keep-up': 'keepupSq',
-  'keep-going': 'rocketSq',
-};
 
 // Instruction practice trials show the stimulus on a fixed side, because the prompt audio names it.
 // Keyed by the camelized audio_file of the row.
@@ -88,7 +83,7 @@ export default function buildHeartsAndFlowersTimeline(config: Record<string, any
   for (const rows of groupCorpusRows(corpus)) {
     // item_ids repeat across blocks, so include the block to tell rows apart
     const errorKey = `${rows[0].block_index}:${rows[0].itemId}`;
-    const error = getRowsError(rows);
+    const error = getRowsError(rows, mediaAssets);
     if (error) {
       validationErrorMap[errorKey] = error;
       continue;
@@ -136,6 +131,10 @@ function getAudioKey(row: CorpusRow) {
   return camelize(String(row.audioFile ?? ''));
 }
 
+function getImageKey(row: CorpusRow) {
+  return camelize(String(row.image ?? ''));
+}
+
 function isInstructionRow(row: CorpusRow) {
   return row.assessmentStage === 'instructions' && row.trialType === 'instructions';
 }
@@ -145,11 +144,13 @@ function isPracticeInstructionRow(row: CorpusRow) {
 }
 
 /** Returns a description of what is wrong with a group of rows, or null if it can be built. */
-function getRowsError(rows: CorpusRow[]): string | null {
+function getRowsError(rows: CorpusRow[], mediaAssets: MediaAssetsType): string | null {
   const [row] = rows;
 
   if (isInstructionRow(row)) {
-    return getAudioKey(row) ? null : 'missing audio_file';
+    if (!getAudioKey(row)) return 'missing audio_file';
+    if (!mediaAssets.images[getImageKey(row)]) return `no image named "${row.image}"`;
+    return null;
   }
   if (isPracticeInstructionRow(row)) {
     return getAudioKey(row) in INSTRUCTION_PRACTICE_SIDES
@@ -179,8 +180,7 @@ function buildRowsTimeline(rows: CorpusRow[], mediaAssets: MediaAssetsType) {
   const audioKey = getAudioKey(row);
 
   if (isInstructionRow(row)) {
-    const image = mediaAssets.images[SCREEN_IMAGES[row.itemId] ?? DEFAULT_SCREEN_IMAGE];
-    return buildInstructionTrial(image, () => audioKey);
+    return buildInstructionTrial(mediaAssets.images[getImageKey(row)], () => audioKey);
   }
 
   if (isPracticeInstructionRow(row)) {
