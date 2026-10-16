@@ -4,7 +4,12 @@ import { createPreloadTrials, initTimeline, initTrialSaving } from '../shared/he
 // trials
 import { enterFullscreen, exitFullscreen, taskFinished } from '../shared/trials';
 import { jsPsych } from '../taskSetup';
-import { bubbleOverButtonPractice, bubblePoppingPractice, buttonPressPractice } from './trials/bubblePopping';
+import {
+  bubbleOverButtonPractice,
+  bubblePoppingPractice,
+  buttonPressPractice,
+  pressBubblePractice,
+} from './trials/bubblePopping';
 import {
   bubblePoppingInstruction,
   bubblePracticeFeedbackInstruction,
@@ -30,6 +35,7 @@ export default function buildIntroTimeline(config: Record<string, any>, mediaAss
     bubblePracticeFeedbackInstruction,
     bubbleOverButtonPractice,
     pressIntroInstructions,
+    pressBubblePractice,
     buttonIntroInstruction,
     buttonPressPractice,
     bubblePracticeOutro,
