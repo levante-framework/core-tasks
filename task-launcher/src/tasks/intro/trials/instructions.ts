@@ -45,6 +45,14 @@ const instructionData = [
     includeReplayButton: false,
   },
   {
+    prompt: 'instructBubble5',
+    resolvePrompt: () => (taskStore().inputCapability?.touch ? 'instructBubble5Touch' : 'instructBubble5Mouse'),
+    image: 'avatarOwl',
+    buttonText: 'continueButtonText',
+    autoAdvanceWhenBubblePractice: true,
+    includeReplayButton: false,
+  },
+  {
     prompt: 'instructBubble3',
     image: 'avatarOwl',
     buttonText: 'continueButtonText',
@@ -160,6 +168,10 @@ export const bubblePoppingInstruction = {
   conditional_function: () => taskStore().bubblePractice === true,
 };
 export const bubblePracticeFeedbackInstruction = {
+  timeline: [instructions.shift()],
+  conditional_function: () => taskStore().bubblePractice === true,
+};
+export const pressIntroInstructions = {
   timeline: [instructions.shift()],
   conditional_function: () => taskStore().bubblePractice === true,
 };

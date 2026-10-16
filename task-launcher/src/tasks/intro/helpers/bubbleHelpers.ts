@@ -1,21 +1,24 @@
 import _shuffle from 'lodash/shuffle';
 
-function shufflePositions() {
-  const positions = [
-    [1, 1],
-    [1, 3],
-    [2, 2],
-    [2, 4],
-    [3, 1],
-    [3, 3],
-    [4, 2],
-    [4, 4],
-  ];
+function shufflePositions(rowCount: number) {
+  const positions: [number, number][] = [];
+  for (let i = 1; i <= rowCount; i++) {
+    let incrementedJ = false;
+    for (let j = 1; j <= rowCount; j += 2) {
+      if (i % 2 !== 0 && !incrementedJ) {
+        j += 1;
+        incrementedJ = true;
+      }
+
+      positions.push([i, j] as [number, number]);
+    }
+  }
+
   return _shuffle(positions);
 }
 
-export function spreadBubbles(bubbles: HTMLButtonElement[]) {
-  const positions = shufflePositions();
+export function spreadBubbles(bubbles: HTMLButtonElement[], rowCount: number) {
+  const positions = shufflePositions(rowCount);
 
   bubbles.forEach((bubble, i) => {
     const [row, col] = positions[i];
