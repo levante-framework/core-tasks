@@ -124,7 +124,10 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
 
     // random set of unvalidated items at end
     const unnormedBlock = {
-      timeline: unnormedTrials.map((trial) => afcStimulusTemplate(trialConfig, trial)),
+      timeline: unnormedTrials.flatMap((trial) => [
+        { ...fixationOnly, stimulus: '' },
+        afcStimulusTemplate(trialConfig, trial),
+      ]),
     };
     timeline.push(unnormedBlock);
   } else {

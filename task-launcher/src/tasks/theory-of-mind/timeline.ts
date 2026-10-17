@@ -16,6 +16,7 @@ import {
   afcStimulusTemplate,
   enterFullscreen,
   exitFullscreen,
+  fixationOnly,
   setupStimulus,
   setupStimulusFromStoryGroup,
   taskFinished,
@@ -91,7 +92,7 @@ export default function buildTOMTimeline(config: Record<string, any>, mediaAsset
 
   const stimulusBlockCat = (currentStoryGroup: number) => {
     return {
-      timeline: [afcStimulusTemplate(trialConfig)],
+      timeline: [{ ...fixationOnly, stimulus: '' }, afcStimulusTemplate(trialConfig)],
       conditional_function: () => {
         return currentStoryGroup === taskStore().currentStoryGroup;
       },
@@ -108,8 +109,10 @@ export default function buildTOMTimeline(config: Record<string, any>, mediaAsset
       preloadBlock();
 
       if (i === 0) {
+        timeline.push({ ...fixationOnly, stimulus: '' });
         timeline.push(stimulusBlock(fillerTrials?.taskIntro));
       } else {
+        timeline.push({ ...fixationOnly, stimulus: '' });
         timeline.push(stimulusBlock(fillerTrials?.blockTransition));
       }
 

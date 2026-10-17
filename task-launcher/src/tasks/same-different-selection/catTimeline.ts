@@ -84,7 +84,7 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
   };
 
   const feedbackBlock = {
-    timeline: [feedback(true)],
+    timeline: [{ ...fixationOnly, stimulus: '' }, feedback(true)],
     conditional_function: () => {
       return taskStore().version === 2;
     },
@@ -95,9 +95,15 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
     const timeline = [];
     for (let i = 0; i < trialNum; i++) {
       if (trialType === 'stimulus') {
+        if (i !== 0) {
+          timeline.push({ ...fixationOnly, stimulus: '' });
+        }
         timeline.push(taskStore().version === 2 ? stimulus() : legacyStimulus());
         timeline.push(buttonNoise);
       } else {
+        if (i !== 0) {
+          timeline.push({ ...fixationOnly, stimulus: '' });
+        }
         timeline.push(afcMatch());
         timeline.push(buttonNoise);
       }
@@ -135,7 +141,7 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
     instructionPractice = instructionPractice.filter((trial) => trial.itemId !== 'sds-instruct5');
 
     fiveBlockIntro = {
-      timeline: [ipBlock(fiveBlockIntroTrial)],
+      timeline: [ipBlock(fiveBlockIntroTrial), { ...fixationOnly, stimulus: '' }],
       conditional_function: () => {
         const runFiveBlockIntro = taskStore().nextStimulus.trialType === '4-match' && !fiveBlockIntroAlreadyRun;
         if (runFiveBlockIntro) {

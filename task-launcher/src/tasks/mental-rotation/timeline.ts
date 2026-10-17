@@ -119,7 +119,10 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
     timeline: [
       repeatInstructionsMessage,
       ...instructions,
-      ...firstBlockPractice.map((trial) => afcStimulusTemplate(trialConfig, trial)),
+      ...firstBlockPractice.flatMap((trial) => [
+        { ...fixationOnly, stimulus: '' },
+        afcStimulusTemplate(trialConfig, trial),
+      ]),
     ],
     conditional_function: () => {
       const run = checkFallbackCriteria() && !fellBack;
@@ -150,8 +153,10 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
   const threeDimInstructBlock = {
     timeline: [
       threeDimInstructions,
-      ...threeDimPractice.map((trial) => afcStimulusTemplate(trialConfig, trial)),
-      { ...fixationOnly, stimulus: '' },
+      ...threeDimPractice.flatMap((trial) => [
+        { ...fixationOnly, stimulus: '' },
+        afcStimulusTemplate(trialConfig, trial),
+      ]),
     ],
     conditional_function: () => {
       if (taskStore().nextStimulus.trialType === '3D' && !playedThreeDimInstructions) {

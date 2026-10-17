@@ -1,5 +1,7 @@
-const hearts_and_flowers_url = 'http://localhost:8080/?task=hearts-and-flowers';
-const hearts_and_flowers_v2_url = 'http://localhost:8080/?task=hearts-and-flowers&version=2';
+import { getParamLists } from './helpers.cy';
+
+const hearts_and_flowers_base_url = 'http://localhost:8080/?task=hearts-and-flowers';
+const testUrls = getParamLists('hearts-and-flowers').map((params) => `${hearts_and_flowers_base_url}&${params}`);
 
 // keep track of game phase (true means it has started)
 let heart_phase = false;
@@ -17,23 +19,25 @@ describe('test hearts and flowers', () => {
     mixed_test = false;
   });
 
-  it('visits hearts and flowers and plays game', () => {
-    cy.visit(hearts_and_flowers_url);
+  if (testUrls.length === 0) {
+    it('fails when no test URLs are available (see cypress.config.js)', () => {
+      expect(testUrls).to.have.length.greaterThan(0);
+    });
+    return;
+  }
 
-    // wait for OK button to appear
-    cy.contains('OK', { timeout: 300000 }).should('be.visible');
-    cy.contains('OK').realClick(); // start fullscreen
+  testUrls.forEach((url) => {
+    const isV2 = url.includes('version=2');
+    const label = url.slice(hearts_and_flowers_base_url.length + 1) || 'default';
 
-    hafLoop();
-  });
+    it(`plays game (${label})`, () => {
+      cy.visit(url);
 
-  it('visits hearts and flowers v2 and plays game', () => {
-    cy.visit(hearts_and_flowers_v2_url);
+      cy.get('.jspsych-content', { timeout: 300000 }).find('.primary').should('be.visible');
+      cy.get('.jspsych-content').find('.primary').realClick(); // start fullscreen
 
-    cy.contains('OK', { timeout: 300000 }).should('be.visible');
-    cy.contains('OK').realClick(); // start fullscreen
-
-    hafLoop(true);
+      hafLoop(isV2);
+    });
   });
 });
 
@@ -75,7 +79,7 @@ function handleInstructions(isV2 = false) {
     const okButton = content.find('.primary:visible');
 
     if (okButton.length) {
-      cy.contains('OK').realClick();
+      cy.get('.jspsych-content').find('.primary').realClick();
       final_instructions = mixed_practice;
       return;
     }
