@@ -69,11 +69,6 @@ function containsLettersOrSlash(str: string) {
 }
 
 const transformCSV = (csvInput: ParsedRowType[], sequentialStimulus: boolean, task: string) => {
-  stimulusData = [];
-  downexData = [];
-  totalTrials = 0;
-  totalDownexTrials = 0;
-
   let currTrialTypeBlock = '';
 
   const blockThresholds: number[] = [];
@@ -175,6 +170,11 @@ const transformCSV = (csvInput: ParsedRowType[], sequentialStimulus: boolean, ta
 };
 
 export const getCorpus = async (config: Record<string, any>, isDev: boolean) => {
+  stimulusData = [];
+  downexData = [];
+  totalTrials = 0;
+  totalDownexTrials = 0;
+
   const { corpus, task, sequentialStimulus } = config;
 
   const bucketName = getBucketName(task, isDev, 'corpus');
