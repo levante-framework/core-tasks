@@ -207,11 +207,11 @@ export const getCorpus = async (config: Record<string, any>, isDev: boolean) => 
     const urls = [corpusUrl];
     try {
       await parseCSVs(urls);
-      taskStore('totalTrials', totalTrials);
-      taskStore('totalDownexTrials', totalDownexTrials);
     } catch (error) {
       Logger.getInstance().error(error, { source: 'getCorpus' });
     }
+    taskStore('totalTrials', totalTrials);
+    taskStore('totalDownexTrials', totalDownexTrials);
   }
 
   await fetchData();
