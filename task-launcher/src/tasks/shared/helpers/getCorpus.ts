@@ -69,6 +69,11 @@ function containsLettersOrSlash(str: string) {
 }
 
 const transformCSV = (csvInput: ParsedRowType[], sequentialStimulus: boolean, task: string) => {
+  stimulusData = [];
+  downexData = [];
+  totalTrials = 0;
+  totalDownexTrials = 0;
+
   let currTrialTypeBlock = '';
 
   const blockThresholds: number[] = [];
