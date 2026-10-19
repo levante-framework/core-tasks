@@ -3,7 +3,7 @@ import { Logger } from '../../../utils/logger';
 import { getCorpus } from './getCorpus';
 
 type CorpusRow = {
-  item_id: string;
+  itemId: string;
   item: string;
 };
 
