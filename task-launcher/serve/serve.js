@@ -9,9 +9,27 @@ import 'regenerator-runtime/runtime';
 /**
  * Standalone serve only. Dashboard-hosted tasks use the injected host logger.
  * Frankfurt core-tasks project (4512100188880978); no session replay.
+ * Support scripts set localStorage levante-sentry-project=qa before boot so those
+ * sessions report to the QA project instead.
  */
+const CORE_TASKS_SENTRY_DSN =
+  'https://70bc1316323110803cd88e5ce8c7beb0@o4512100183048192.ingest.de.sentry.io/4512100188880978';
+const QA_SENTRY_DSN = 'https://980b2a6c43596d7d64999058210ce9c8@o4512100183048192.ingest.de.sentry.io/4512285094117456';
+
+function isQaSentrySession() {
+  try {
+    return window.localStorage.getItem('levante-sentry-project') === 'qa';
+  } catch {
+    return false;
+  }
+}
+
+const qaSentrySession = isQaSentrySession();
+const sentryEnvironment = qaSentrySession && window.location.hostname.includes('prod') ? 'production' : 'development';
+
 Sentry.init({
-  dsn: 'https://70bc1316323110803cd88e5ce8c7beb0@o4512100183048192.ingest.de.sentry.io/4512100188880978',
+  dsn: qaSentrySession ? QA_SENTRY_DSN : CORE_TASKS_SENTRY_DSN,
+  environment: sentryEnvironment,
   integrations: [Sentry.browserTracingIntegration()],
   tracesSampleRate: 1.0,
   sendDefaultPii: false,
