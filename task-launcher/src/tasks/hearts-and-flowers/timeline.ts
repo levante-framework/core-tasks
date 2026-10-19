@@ -1,17 +1,20 @@
 // setup
 import { taskStore } from '../../taskStore';
-import { Logger } from '../../utils/logger';
-import {
-  camelize,
-  createPreloadTrials,
-  initTimeline,
-  initTrialSaving,
-  reportCorpusValidationErrors,
-} from '../shared/helpers';
+import { createPreloadTrials, initTimeline, initTrialSaving, reportCorpusValidationErrors } from '../shared/helpers';
 // trials
 import { enterFullscreen, exitFullscreen } from '../shared/trials';
 import { jsPsych } from '../taskSetup';
-import { type CorpusRow, HaFStimulusType, StimulusSideType } from './helpers/utils';
+import {
+  BLOCK_STIMULUS_TYPE,
+  BlockType,
+  type CorpusRow,
+  getAudioKey,
+  getImageKey,
+  INSTRUCTION_PRACTICE_SIDES,
+  isInstructionRow,
+  isPracticeInstructionRow,
+} from './helpers/utils';
+import { getCorpusValidationErrors } from './helpers/validation';
 import { fixation } from './trials/fixation';
 import {
   buildInstructionTrial,
@@ -27,17 +30,6 @@ import {
 } from './trials/practice';
 import { buildHeartsOrFlowersTimelineVariables, buildMixedTimelineVariables, stimulus } from './trials/stimulus';
 
-const BlockType = {
-  Hearts: 'hearts',
-  Flowers: 'flowers',
-  Mixed: 'hearts and flowers',
-} as const;
-type BlockType = (typeof BlockType)[keyof typeof BlockType];
-const BLOCK_STIMULUS_TYPE: Record<string, HaFStimulusType> = {
-  [BlockType.Hearts]: HaFStimulusType.Heart,
-  [BlockType.Flowers]: HaFStimulusType.Flower,
-};
-
 const INTER_STIMULUS_INTERVAL = 500;
 const PRACTICE_WIN_STREAK: Record<BlockType, number> = {
   [BlockType.Hearts]: 2,
@@ -46,15 +38,6 @@ const PRACTICE_WIN_STREAK: Record<BlockType, number> = {
 };
 // The faster mixed blocks
 const FASTER_MIXED_BLOCKS = [3, 4];
-
-// Instruction practice trials show the stimulus on a fixed side, because the prompt audio names it.
-// Keyed by the camelized audio_file of the row.
-const INSTRUCTION_PRACTICE_SIDES: Record<string, StimulusSideType> = {
-  heartInstruct2: StimulusSideType.Left,
-  heartPracticeFeedback1: StimulusSideType.Right,
-  flowerInstruct2: StimulusSideType.Right,
-  flowerPracticeFeedback1: StimulusSideType.Left,
-};
 
 export default function buildHeartsAndFlowersTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const { heavyInstructions } = taskStore();
@@ -75,29 +58,11 @@ export default function buildHeartsAndFlowersTimeline(config: Record<string, any
   timeline.push(getLeftButtonDemo());
   timeline.push(getRightButtonDemo());
 
-  const validationErrorMap: Record<string, string> = {};
-  if (!testTrialCount) {
-    validationErrorMap.corpus = 'no test rows; the corpus is missing or failed to load';
-  }
-  const missingTranslations: string[] = [];
-  for (const rows of groupCorpusRows(corpus)) {
-    // item_ids repeat across blocks, so include the block to tell rows apart
-    const errorKey = `${rows[0].block_index}:${rows[0].itemId}`;
-    const error = getRowsError(rows, mediaAssets);
-    if (error) {
-      validationErrorMap[errorKey] = error;
-      continue;
-    }
-    // A missing translation is logged but the screen is still shown, so a language missing one string keeps the same flow
-    if (rows[0].assessmentStage === 'instructions' && !taskStore().translations[getAudioKey(rows[0])]) {
-      missingTranslations.push(String(rows[0].audioFile));
-    }
+  const rowGroups = groupCorpusRows(corpus);
+  reportCorpusValidationErrors(getCorpusValidationErrors(rowGroups, mediaAssets, taskStore().translations));
+  for (const rows of rowGroups) {
     timeline.push(buildRowsTimeline(rows, mediaAssets));
   }
-  if (missingTranslations.length) {
-    Logger.getInstance().error(new Error(`Missing translations for audio_file: ${missingTranslations.join(', ')}`));
-  }
-  reportCorpusValidationErrors(validationErrorMap);
 
   timeline.push(getEndGame());
   timeline.push(exitFullscreen);
@@ -125,54 +90,6 @@ function groupCorpusRows(corpus: CorpusRow[]) {
     }
   }
   return groups;
-}
-
-function getAudioKey(row: CorpusRow) {
-  return camelize(String(row.audioFile ?? ''));
-}
-
-function getImageKey(row: CorpusRow) {
-  return camelize(String(row.image ?? ''));
-}
-
-function isInstructionRow(row: CorpusRow) {
-  return row.assessmentStage === 'instructions' && row.trialType === 'instructions';
-}
-
-function isPracticeInstructionRow(row: CorpusRow) {
-  return row.assessmentStage === 'instructions' && row.trialType in BLOCK_STIMULUS_TYPE;
-}
-
-/** Returns a description of what is wrong with a group of rows, or null if it can be built. */
-function getRowsError(rows: CorpusRow[], mediaAssets: MediaAssetsType): string | null {
-  const [row] = rows;
-
-  if (isInstructionRow(row)) {
-    if (!getAudioKey(row)) return 'missing audio_file';
-    if (!mediaAssets.images[getImageKey(row)]) return `no image named "${row.image}"`;
-    return null;
-  }
-  if (isPracticeInstructionRow(row)) {
-    return getAudioKey(row) in INSTRUCTION_PRACTICE_SIDES
-      ? null
-      : `no stimulus side defined for instruction practice audio_file "${row.audioFile}"`;
-  }
-
-  if (row.assessmentStage !== 'practice_response' && row.assessmentStage !== 'test_response') {
-    return `unknown assessment_stage "${row.assessmentStage}" with trial_type "${row.trialType}"`;
-  }
-  if (!Object.values(BlockType).includes(row.trialType as BlockType)) {
-    return `unknown trial_type "${row.trialType}"`;
-  }
-  // The block type decides how stimuli and sides are balanced across the block, so it can't vary within one
-  if (rows.some((r) => r.trialType !== row.trialType)) {
-    return 'rows in one block have different trial_type values';
-  }
-  const invalidTimeLimitRow = rows.find((r) => r.assessmentStage === 'test_response' && !(Number(r.timeLimit) > 0));
-  if (invalidTimeLimitRow) {
-    return `invalid time_limit "${invalidTimeLimitRow.timeLimit}"`;
-  }
-  return null;
 }
 
 function buildRowsTimeline(rows: CorpusRow[], mediaAssets: MediaAssetsType) {

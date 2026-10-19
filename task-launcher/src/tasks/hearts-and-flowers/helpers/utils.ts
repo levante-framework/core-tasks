@@ -1,5 +1,5 @@
 import { taskStore } from '../../../taskStore';
-import { getParticipantUtilityButtonsHtml } from '../../shared/helpers';
+import { camelize, getParticipantUtilityButtonsHtml } from '../../shared/helpers';
 
 export const HaFStimulusType = {
   Heart: 'heart',
@@ -28,10 +28,47 @@ export const InputKeyType = {
 } as const;
 export type InputKeyType = (typeof InputKeyType)[keyof typeof InputKeyType];
 
-export type CorpusRow =  Pick<  
-  StimulusType,  
-  'itemId' | 'block_index' | 'assessmentStage' | 'trialType' | 'audioFile' | 'timeLimit'  
->;  
+export type CorpusRow = Pick<
+  StimulusType,
+  'itemId' | 'block_index' | 'assessmentStage' | 'trialType' | 'audioFile' | 'image' | 'timeLimit'
+>;
+
+// The trial_type of practice and test rows
+export const BlockType = {
+  Hearts: 'hearts',
+  Flowers: 'flowers',
+  Mixed: 'hearts and flowers',
+} as const;
+export type BlockType = (typeof BlockType)[keyof typeof BlockType];
+export const BLOCK_STIMULUS_TYPE: Record<string, HaFStimulusType> = {
+  [BlockType.Hearts]: HaFStimulusType.Heart,
+  [BlockType.Flowers]: HaFStimulusType.Flower,
+};
+
+// Instruction practice trials show the stimulus on a fixed side, because the prompt audio names it.
+// Keyed by the camelized audio_file of the row.
+export const INSTRUCTION_PRACTICE_SIDES: Record<string, StimulusSideType> = {
+  heartInstruct2: StimulusSideType.Left,
+  heartPracticeFeedback1: StimulusSideType.Right,
+  flowerInstruct2: StimulusSideType.Right,
+  flowerPracticeFeedback1: StimulusSideType.Left,
+};
+
+export function getAudioKey(row: CorpusRow) {
+  return camelize(String(row.audioFile ?? '').trim());
+}
+
+export function getImageKey(row: CorpusRow) {
+  return camelize(String(row.image ?? '').trim());
+}
+
+export function isInstructionRow(row: CorpusRow) {
+  return row.assessmentStage === 'instructions' && row.trialType === 'instructions';
+}
+
+export function isPracticeInstructionRow(row: CorpusRow) {
+  return row.assessmentStage === 'instructions' && row.trialType in BLOCK_STIMULUS_TYPE;
+}
 
 export function getCorrectInputSide(stimulusType: HaFStimulusType, stimulusSideType: StimulusSideType): 0 | 1 {
   const stimulusPosition = stimulusSideType === StimulusSideType.Left ? 0 : 1;
