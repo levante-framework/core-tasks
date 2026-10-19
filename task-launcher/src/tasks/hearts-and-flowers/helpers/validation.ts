@@ -10,7 +10,7 @@ import {
 } from './utils';
 
 // Assets used by trials that don't come from a corpus row
-const REQUIRED_IMAGES = [HaFStimulusType.Heart, HaFStimulusType.Flower, 'animalBodySq'];
+const REQUIRED_IMAGES = [HaFStimulusType.Heart, HaFStimulusType.Flower, 'animalBodySq', 'smilingFace'];
 // Prompts need both audio and a translation
 const REQUIRED_PROMPTS = [
   // input instructions (getInputInstructPrompt) and end screen (getEndGame)
