@@ -24,17 +24,19 @@ import { initializeCat, jsPsych } from '../taskSetup';
 import { getLayoutConfig } from './helpers/config';
 import { prepareStoryGroups, prepareTomCorpus } from './helpers/prepareTomCorpus';
 
-export default function buildTOMTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
+export default function buildTOMTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType, allowDownex: boolean) {
   initTrialSaving(config);
-  const downex = taskStore().heavyInstructions;
+  const downex = taskStore().heavyInstructions && allowDownex;
   const initialTimeline = initTimeline(config, enterFullscreen);
   const corpus: StimulusType[] = downex ? taskStore().corpora.downex : taskStore().corpora.stimulus;
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {};
+  // "fake cat" version of the task - only supported for older kids
+  const fCat = taskStore().version === 2 && !downex;
 
   const layoutConfigMap: Record<string, LayoutConfigType> = {};
   for (const c of corpus) {
-    const { itemConfig, errorMessages } = getLayoutConfig(c, translations, mediaAssets);
+    const { itemConfig, errorMessages } = getLayoutConfig(c, translations, mediaAssets, fCat);
     layoutConfigMap[c.itemId] = itemConfig;
     if (errorMessages.length) {
       validationErrorMap[c.itemId] = errorMessages.join('; ');
@@ -61,12 +63,12 @@ export default function buildTOMTimeline(config: Record<string, any>, mediaAsset
   const timeline = [initialPreload, initialTimeline];
 
   const blockList: StimulusType[][] = prepareMultiBlockCat(corpus, false);
-  const fillerTrials = prepareTomCorpus(blockList);
-  const storyGroups = prepareStoryGroups(corpus);
+  const fillerTrials = prepareTomCorpus(blockList, fCat);
+  const storyGroups = prepareStoryGroups(corpus, fCat);
 
   const batchedMediaAssets = batchMediaAssets(
     mediaAssets,
-    taskStore().version === 2 && storyGroups !== undefined ? storyGroups : blockList,
+    fCat && storyGroups !== undefined ? storyGroups : blockList,
     ['item', 'answer', 'distractors'],
     ['audioFile', 'distractors'], // we need to preload audio for the staggered buttons
   );
@@ -106,7 +108,7 @@ export default function buildTOMTimeline(config: Record<string, any>, mediaAsset
   };
 
   taskStore('totalTestTrials', getRealTrials(corpus));
-  if (taskStore().version === 2) {
+  if (fCat) {
     const numberOfStories = taskStore().numberOfStories;
     // We can't know in advance how many trials will be in each story, so we set an arbitrarily high number
     const upperTrialLimitPerStory = 50;

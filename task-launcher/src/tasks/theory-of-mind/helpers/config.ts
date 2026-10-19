@@ -18,6 +18,7 @@ export const getLayoutConfig = (
   stimulus: StimulusType,
   translations: Record<string, string>,
   mediaAssets: MediaAssetsType,
+  fCat: boolean
 ): GetConfigReturnType => {
   const { answer, distractors, trialType } = stimulus;
   const defaultConfig: LayoutConfigType = JSON.parse(JSON.stringify(DEFAULT_LAYOUT_CONFIG));
@@ -49,7 +50,7 @@ export const getLayoutConfig = (
     defaultConfig.disableOkButton = true;
   }
 
-  defaultConfig.blockedTrials = taskStore().version === 2 && !fillerTrialIds.includes(stimulus.itemId);
+  defaultConfig.blockedTrials = fCat && !fillerTrialIds.includes(stimulus.itemId);
 
   const messages = validateLayoutConfig(defaultConfig, mediaAssets, translations, stimulus);
 

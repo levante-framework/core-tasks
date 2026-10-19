@@ -60,16 +60,17 @@ function writeItem(row: ParsedRowType) {
   if (row.task === 'math' && row.trial_type.includes('Number Line')) {
     const splitArr = (row.item as string).split(',');
     return splitArr.map((el) => _toNumber(el));
-  } else if ((row.item as string).includes(',')) {
-    return (row.item as string).split(',');
+  } else if ((row.item as string).includes(',') && row.task === 'theory-of-mind') {
+
+    return (row.item as string).replace(' ', '').split(',');
   }
 
   return row.item;
 }
 
 function writeResponseBranches(row: ParsedRowType): Record<string, string> | undefined {
-  if (row.response_branches != null && row.response_branches !== '') {
-    const parts = row.response_branches.split(',');
+  if (row.response_branches != null && row.response_branches !== '' && row.task === 'theory-of-mind') {
+    const parts = (row.response_branches as string).replace(' ', '').split(',');
     const branches: Record<string, string> = {};
     parts.forEach((part) => {
       const [key, value] = part.split(':');
@@ -191,7 +192,7 @@ export const getCorpus = async (config: Record<string, any>, isDev: boolean) => 
 
   const bucketName = getBucketName(task, isDev, 'corpus');
 
-  const corpusUrl = `https://storage.googleapis.com/${bucketName}/${corpus}.csv?alt=media&v=3`;
+  const corpusUrl = `https://storage.googleapis.com/${bucketName}/${corpus}.csv?alt=media`;
 
   function downloadCSV(url: string) {
     return new Promise((resolve, reject) => {
