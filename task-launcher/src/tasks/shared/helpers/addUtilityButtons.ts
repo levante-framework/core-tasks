@@ -159,9 +159,7 @@ function onExit() {
   popupButtons[0].addEventListener(
     'click',
     () => {
-      if (taskStore().effectiveStoppingRule !== 'sufficientTrials') {
-        taskStore('effectiveStoppingRule', 'experimenterExit');
-      }
+      taskStore('effectiveStoppingRule', 'experimenterExit');
       taskStore('taskAborted', true);
 
       // clear any in-flight trial timer state so a stale time limit can't leak into a later task
