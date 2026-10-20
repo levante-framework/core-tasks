@@ -1,8 +1,15 @@
-const same_different_url = 'http://localhost:8080/?task=same-different-selection';
+import { getParamLists } from './helpers.cy.js';
 
-let matchedDimensions = []; // stores dimensions that have already been matched
-let numSelections = 0; // number of selections made in current set of trials
-let phaseCount = 3; // used to count phases of multiAfc (3-card, 4-card, 5-card)
+const task = 'same-different-selection';
+const base_url = `http://localhost:8080/?task=${task}`;
+const testUrls = getParamLists(task).map((params) => `${base_url}&${params}`);
+
+const nonWhiteBackgrounds = ['gray', 'black', 'striped'];
+const stimulusContainer = '.lev-stimulus-container, .lev-stimulus-container-wide';
+
+let previousSelections = []; // stores card pairs already matched in the current set
+let currentCardSet = null; // dimension arrays for each card in the current trial set
+let higherDimensionsPresent = false; // true when at least one card has a non-white background
 let taskCompleted = false;
 
 // used to find matching images
@@ -10,18 +17,36 @@ function checkOverlap(list1, list2) {
   return list1.filter((item) => list2.includes(item));
 }
 
+function isNewCardPair(card1, card2, selections) {
+  return !selections.some(([a, b]) => (card1 === a && card2 === b) || (card1 === b && card2 === a));
+}
+
+function getCardDimensionsFromButtons(responseButtons) {
+  return [...responseButtons].map((btn) => btn.alt.split('-')).sort((a, b) => a.join('-').localeCompare(b.join('-')));
+}
+
+function isSameCardSet(previousSet, nextSet) {
+  if (!previousSet || !nextSet || previousSet.length !== nextSet.length) {
+    return false;
+  }
+
+  return previousSet.every(
+    (dimensions, index) =>
+      dimensions.length === nextSet[index].length &&
+      dimensions.every((value, dimIndex) => value === nextSet[index][dimIndex]),
+  );
+}
+
 function cleanDimensions(dimensions) {
-  if (phaseCount > 3) {
-    // 3- or 4-match phase
+  if (higherDimensionsPresent) {
     dimensions.shift(); // ignore size dimension
   }
 
-  if (dimensions.every((element) => Number.isNaN(Number(element))) && phaseCount > 3) {
+  if (dimensions.every((element) => Number.isNaN(Number(element))) && higherDimensionsPresent) {
     dimensions.push('1');
   }
 
-  const nonWhiteBackgrounds = ['gray', 'black', 'striped'];
-  if (checkOverlap(dimensions, nonWhiteBackgrounds).length === 0 && phaseCount > 3) {
+  if (checkOverlap(dimensions, nonWhiteBackgrounds).length === 0 && higherDimensionsPresent) {
     dimensions.push('white');
   }
 
@@ -29,14 +54,41 @@ function cleanDimensions(dimensions) {
 }
 
 describe('test same different selection', () => {
-  it('visits SDS and plays game', () => {
-    cy.visit(same_different_url);
-    // wait for OK button to be visible
-    cy.contains('OK', { timeout: 600000 }).should('be.visible');
-    cy.contains('OK').realClick(); // real click mimics user gesture so that fullscreen can start
-    sdsLoop();
+  beforeEach(() => {
+    previousSelections = [];
+    currentCardSet = null;
+    higherDimensionsPresent = false;
+    taskCompleted = false;
+  });
+
+  if (testUrls.length === 0) {
+    it('fails when no test URLs are available (see cypress.config.js)', () => {
+      expect(testUrls).to.have.length.greaterThan(0);
+    });
+    return;
+  }
+
+  testUrls.forEach((url) => {
+    const label = url.slice(base_url.length + 1) || 'default';
+
+    it(`visits SDS and plays game (${label})`, () => {
+      cy.visit(url);
+      cy.get('.jspsych-content', { timeout: 600000 }).find('.primary').should('be.visible');
+      cy.get('.jspsych-content').find('.primary').realClick();
+      sdsLoop();
+    });
   });
 });
+
+function hasActiveResponseButtons(content) {
+  return (
+    content.find('#jspsych-audio-multi-response-btngroup button.image-medium img').length > 0 ||
+    content.find('#img-button-container button.image-medium:not(.no-pointer-events) img').length > 0 ||
+    content.find('#jspsych-html-multi-response-btngroup button.image-medium img').length > 0 ||
+    (content.find('.lev-stimulus-container-wide button.image-medium img').length > 1 &&
+      content.find('button.primary').length === 0)
+  );
+}
 
 function instructions() {
   cy.get('.jspsych-content').then((content) => {
@@ -44,18 +96,38 @@ function instructions() {
 
     if (okButton.length > 0) {
       // check for end of task
-      cy.get('.lev-stimulus-container').then((content) => {
+      cy.get(stimulusContainer).then((content) => {
         if (content.find('footer').length === 1) {
-          cy.contains('Exit').click({ timeout: 60000 });
+          cy.get('.primary').click({ timeout: 60000 });
           taskCompleted = true;
           return;
         } else {
-          cy.contains('OK').click({ timeout: 60000 });
+          cy.get('.jspsych-content').find('.primary').click({ timeout: 60000 });
           return;
         }
       });
     } else {
       return;
+    }
+  });
+}
+
+function clickOkIfPresent() {
+  cy.get('.jspsych-content').then((content) => {
+    if (content.find('button.primary').length > 0) {
+      cy.get('button.primary').should('not.be.disabled').click({ timeout: 60000 });
+    }
+  });
+}
+
+function handleTrial() {
+  cy.get('.jspsych-content').then((content) => {
+    if (hasActiveResponseButtons(content)) {
+      singleAfc();
+      multiAfc();
+      clickOkIfPresent();
+    } else {
+      instructions();
     }
   });
 }
@@ -80,33 +152,29 @@ function multiAfc() {
     if (responseButtons.length === 0 || correctAnswer.length > 0) {
       return;
     }
-    if (numSelections >= responseButtons.length - 1 || phaseCount < responseButtons.length) {
+    const cardSet = getCardDimensionsFromButtons(responseButtons);
+
+    if (!isSameCardSet(currentCardSet, cardSet)) {
       // reset on new set of cards
-      matchedDimensions = [];
-      numSelections = 0;
-      phaseCount = responseButtons.length;
+      previousSelections = [];
+      currentCardSet = cardSet;
+      higherDimensionsPresent = cardSet.some((dimensions) => checkOverlap(dimensions, nonWhiteBackgrounds).length > 0);
     }
 
     responseButtons.each((i) => {
       let selected = false;
-      // get a list of one button's properties
       const firstChoiceProperties = cleanDimensions(responseButtons[i].alt.split('-'));
 
-      // check each response button for overlap with the clicked button's properties
       responseButtons.each((j) => {
         const properties = cleanDimensions(responseButtons[j].alt.split('-'));
-        const matches = checkOverlap(properties, firstChoiceProperties); // get all matching dimensions
+        const matches = checkOverlap(properties, firstChoiceProperties);
+        const card1 = responseButtons[i].alt;
+        const card2 = responseButtons[j].alt;
 
-        // filter out previously selected dimensions
-        const validMatches = matches.filter((dimension) => {
-          return !matchedDimensions.includes(dimension);
-        });
-
-        if (validMatches.length > 0 && j !== i) {
-          matchedDimensions.push(validMatches[0]); // remember the matched dimension
+        if (matches.length > 0 && j !== i && isNewCardPair(card1, card2, previousSelections)) {
+          previousSelections.push([card1, card2]);
           responseButtons[i].click();
           responseButtons[j].click();
-          numSelections++;
           selected = true;
           return false; // stops the each loop
         }
@@ -121,14 +189,11 @@ function multiAfc() {
 }
 
 function sdsLoop() {
-  // wait for fixation cross to go away
-  cy.get('.lev-stimulus-container', { timeout: 60000 }).should('exist');
+  cy.get(stimulusContainer, { timeout: 60000 }).should('exist');
 
-  instructions();
-  singleAfc();
-  multiAfc();
+  handleTrial();
 
-  cy.get('.lev-stimulus-container')
+  cy.get(stimulusContainer)
     .should('not.exist')
     .then(() => {
       if (taskCompleted) {
