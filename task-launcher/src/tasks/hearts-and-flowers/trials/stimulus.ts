@@ -3,7 +3,7 @@ import shuffle from 'lodash/shuffle';
 import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
 import { Logger } from '../../../utils/logger';
-import { addExperimenterButtons, addKeyHelpers, PageAudioHandler, setupFullscreenButton } from '../../shared/helpers';
+import { addExperimenterButtons, addKeyHelpers, setupFullscreenButton } from '../../shared/helpers';
 import { shouldTerminateCat } from '../../shared/helpers/shouldTerminateCat';
 import { finishTaskEarly } from '../../shared/trials';
 import { isTouchScreen, jsPsych } from '../../taskSetup';
@@ -122,14 +122,6 @@ export function stimulus(
       data.correct = validAnswer === response;
 
       if (hfV2) {
-        const audioConfig = {
-          restrictRepetition: {
-            enabled: false,
-          },
-        };
-
-        PageAudioHandler.playAudio(data.correct ? 'coin' : 'fail', audioConfig);
-
         shouldTerminateCat();
       } else if (!isPractice) {
         if (!data.correct) {
