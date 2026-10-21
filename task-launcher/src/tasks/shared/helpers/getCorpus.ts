@@ -47,6 +47,7 @@ type ParsedRowType = {
   downex?: string;
   block_threshold?: number;
   story_group?: number;
+  feedback_item_ids?: string;
 };
 
 let totalTrials = 0;
@@ -116,6 +117,9 @@ const transformCSV = (csvInput: ParsedRowType[], sequentialStimulus: boolean, ta
       trialNumber: row.trial_num,
       downex: row.downex?.toUpperCase() === 'TRUE',
       storyGroup: _toNumber(row.story_group),
+      feedbackItemIds: row.feedback_item_ids?.trim()
+        ? row.feedback_item_ids.split(',').map((id) => id.trim())
+        : undefined,
     };
 
     if (row.task === 'same-different-selection') {

@@ -87,6 +87,7 @@ declare global {
     trialNumber?: number;
     downex?: boolean;
     storyGroup?: number;
+    feedbackItemIds?: string[];
   };
 
   type MediaAssetsType = {

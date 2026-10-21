@@ -2,11 +2,11 @@
 const memory_game_url = 'http://localhost:8080/?task=memory-game&age=8';
 
 // Heavy-instructions forward practice: the scripted (downex) sequence lengths in the corpus
-const HEAVY_FORWARD_PRACTICE_LENGTHS = [1, 1, 2, 2];
+const HEAVY_FORWARD_PRACTICE_LENGTHS = [1, 1, 1, 2, 2, 2];
 // the guided backward row has no fixed length, so it uses the adaptive length: 3 here, since every answer is correct
 const HEAVY_BACKWARD_PRACTICE_LENGTHS = [3, 2, 2];
 // default (non-downex) forward practice rows in the corpus
-const DEFAULT_FORWARD_PRACTICE_TRIALS = 2;
+const DEFAULT_FORWARD_PRACTICE_TRIALS = 3;
 const FORWARD_TEST_TRIALS = 14;
 const BACKWARD_TEST_TRIALS = 12;
 
@@ -22,6 +22,25 @@ describe('test memory game', () => {
       expect(trials.filter(isForwardTest)).to.have.length(FORWARD_TEST_TRIALS);
       expect(trials.filter(isBackwardTest)).to.have.length(BACKWARD_TEST_TRIALS);
       expect(trials.every((trial) => trial.numOfBlocks === 9)).to.equal(true);
+      // each practice trial gets the correct feedback row's screen; test trials get none
+      expect(trials.filter((trial) => trial.isPractice).every((trial) => trial.feedback === 'correct')).to.equal(true);
+      expect(trials.filter((trial) => !trial.isPractice).every((trial) => !trial.feedback)).to.equal(true);
+    });
+  });
+
+  it('shows incorrect feedback after a wrong default practice answer, and repeats the practice', () => {
+    const isLastForwardPractice = (trial, trials) =>
+      isForwardPractice(trial) && trials.filter(isForwardPractice).length === DEFAULT_FORWARD_PRACTICE_TRIALS;
+
+    playMemoryGame(memory_game_url, isLastForwardPractice).then((trials) => {
+      const forwardPractice = trials.filter(isForwardPractice);
+      // the wrong last answer plays the forward practice rows once more
+      expect(forwardPractice).to.have.length(DEFAULT_FORWARD_PRACTICE_TRIALS * 2);
+      expect(forwardPractice[DEFAULT_FORWARD_PRACTICE_TRIALS - 1].feedback).to.equal('incorrect');
+      expect(
+        forwardPractice.slice(DEFAULT_FORWARD_PRACTICE_TRIALS).every((trial) => trial.feedback === 'correct'),
+      ).to.equal(true);
+      expect(trials.filter(isForwardTest)).to.have.length(FORWARD_TEST_TRIALS);
     });
   });
 
@@ -35,6 +54,23 @@ describe('test memory game', () => {
       );
       expect(trials.filter(isForwardTest)).to.have.length(FORWARD_TEST_TRIALS);
       expect(trials.filter(isBackwardTest)).to.have.length(BACKWARD_TEST_TRIALS);
+      // guided rows link only correct feedback, so every practice trial gets the correct screen
+      expect(trials.filter((trial) => trial.isPractice).every((trial) => trial.feedback === 'correct')).to.equal(true);
+    });
+  });
+
+  it('retries a wrong heavy practice answer instead of showing incorrect feedback', () => {
+    // the second forward practice row is a non-guided length-1 sequence
+    const isSecondForwardPractice = (trial, trials) =>
+      isForwardPractice(trial) && trials.filter(isForwardPractice).length === 2;
+
+    playMemoryGame(`${memory_game_url}&heavyInstructions=true`, isSecondForwardPractice).then((trials) => {
+      const forwardPractice = trials.filter(isForwardPractice);
+      // the retry is one extra input trial of the same length, with no feedback screen around it
+      expect(forwardPractice.map((trial) => trial.length)).to.deep.equal([1, 1, 1, 1, 2, 2, 2]);
+      expect(forwardPractice[1].feedback).to.equal(undefined);
+      expect(forwardPractice[2].feedback).to.equal(undefined);
+      expect(trials.every((trial) => trial.feedback !== 'incorrect')).to.equal(true);
     });
   });
 
@@ -63,7 +99,8 @@ describe('test memory game', () => {
 
 /**
  * Plays the task to the end screen and yields every input trial played, in order:
- * { correctAnswer, isPractice, reverse, numOfBlocks, length }.
+ * { correctAnswer, isPractice, reverse, numOfBlocks, length, feedback }.
+ * feedback is 'correct' or 'incorrect' when a feedback screen follows the trial, by its face image.
  * shouldAnswerWrong(trial, trialsSoFar) decides which input trials get a wrong answer.
  */
 function playMemoryGame(url, shouldAnswerWrong = () => false) {
@@ -93,6 +130,10 @@ function playMemoryGame(url, shouldAnswerWrong = () => false) {
               return;
             }
             if (elements.first().is('button')) {
+              const feedbackImage = Cypress.$('.jspsych-content img').attr('src') ?? '';
+              const lastTrial = trials[trials.length - 1];
+              if (lastTrial && /smil/i.test(feedbackImage)) lastTrial.feedback = 'correct';
+              if (lastTrial && /sad/i.test(feedbackImage)) lastTrial.feedback = 'incorrect';
               cy.wrap(elements.first()).click();
             }
             step();

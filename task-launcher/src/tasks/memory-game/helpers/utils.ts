@@ -12,7 +12,10 @@ export type CorpusRow = {
   // Length of stimulus sequence; blank uses current adaptive length
   item: string | number[];
   downex: boolean;
+  feedbackItemIds?: string[];
 };
+
+export type FeedbackPrompts = { correct?: string; incorrect?: string };
 
 export const Direction = {
   Forward: 'forward',

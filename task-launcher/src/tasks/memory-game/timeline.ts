@@ -12,18 +12,12 @@ import {
 import { enterFullscreen, exitFullscreen, feedback, repeatInstructionsMessage, taskFinished } from '../shared/trials';
 // setup
 import { initializeCat, jsPsych } from '../taskSetup';
-import { getMemoryGamePrompt } from './helpers/getMemoryGamePrompt';
 import { resolveMemoryGamePrompt } from './helpers/resolveMemoryGamePrompt';
-import { type CorpusRow, Direction } from './helpers/utils';
+import { type CorpusRow, Direction, type FeedbackPrompts } from './helpers/utils';
 import { buildInstructionScreen } from './trials/instructions';
 import { getCorsiBlocks } from './trials/stimulus';
 
 const FALLBACK_CHECK_TRIALS = 4;
-// Prompt for the retry after a wrong heavy practice answer
-const HEAVY_PRACTICE_RETRY_PROMPT: Record<Direction, string> = {
-  [Direction.Forward]: 'memoryGameFeedbackIncorrectDownex',
-  [Direction.Backward]: 'memoryGameInstruct11Downex',
-};
 
 export default function buildMemoryTimeline(config: Record<string, any>) {
   const { heavyInstructions } = taskStore();
@@ -43,8 +37,44 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
     }
     return !error;
   };
-  const validMainRows = mainRows.filter(isValid);
-  const validDownexRows = downexRows.filter(isValid);
+  const isFeedback = (row: CorpusRow) => row.assessmentStage === 'feedback';
+  const validMainRows = mainRows.filter((row) => !isFeedback(row) && isValid(row));
+  const validDownexRows = downexRows.filter((row) => !isFeedback(row) && isValid(row));
+  // Feedback rows aren't played in order; a practice row's feedback_item_ids name the feedback rows
+  // in the same corpus to play after a correct and a wrong answer
+  const getFeedbackPromptsById = (rows: CorpusRow[], playableRows: CorpusRow[], corpusName: string) => {
+    const prompts: Record<string, string> = {};
+    rows
+      .filter(isFeedback)
+      .filter(isValid)
+      .forEach((row) => {
+        if (row.itemId in prompts) {
+          validationErrorMap[`${corpusName}feedback:${row.itemId}`] = 'more than one feedback row with this item_id';
+        }
+        prompts[row.itemId] = camelize(String(row.audioFile).trim());
+      });
+    const [correctIds, incorrectIds] = [new Set<string>(), new Set<string>()];
+    playableRows.forEach((row) => {
+      const [correctId, incorrectId] = row.feedbackItemIds ?? [];
+      if (correctId) correctIds.add(correctId);
+      if (incorrectId) incorrectIds.add(incorrectId);
+      const missingIds = [correctId, incorrectId].filter((id) => id && !(id in prompts));
+      if (missingIds.length) {
+        validationErrorMap[`${corpusName}${row.block_index}:${row.itemId}`] =
+          `no feedback row with item_id ${missingIds.map((id) => `"${id}"`).join(' or ')}`;
+      }
+    });
+    Object.keys(prompts).forEach((itemId) => {
+      if (!correctIds.has(itemId) && !incorrectIds.has(itemId)) {
+        validationErrorMap[`${corpusName}feedback:${itemId}`] = 'no practice row has this item_id in feedback_item_ids';
+      } else if (correctIds.has(itemId) && incorrectIds.has(itemId)) {
+        validationErrorMap[`${corpusName}feedback:${itemId}`] = 'used as both correct and incorrect feedback';
+      }
+    });
+    return prompts;
+  };
+  const mainFeedbackPrompts = getFeedbackPromptsById(mainRows, validMainRows, '');
+  const downexFeedbackPrompts = getFeedbackPromptsById(downexRows, validDownexRows, 'downex:');
 
   // For each block, the heavy flow uses its downex rows when it has any, and the main rows otherwise
   const blockIndexes = [...new Set([...validMainRows, ...validDownexRows].map((row) => row.block_index))].sort(
@@ -95,6 +125,14 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
 
   function buildRowsTimeline(rows: CorpusRow[], isHeavyFlow: boolean) {
     const blockTimeline: unknown[] = [];
+    const feedbackPrompts = isHeavyFlow ? downexFeedbackPrompts : mainFeedbackPrompts;
+    const getRowFeedback = (row: CorpusRow): FeedbackPrompts => {
+      const [correctId, incorrectId] = row.feedbackItemIds ?? [];
+      return {
+        correct: correctId ? feedbackPrompts[correctId] : undefined,
+        incorrect: incorrectId ? feedbackPrompts[incorrectId] : undefined,
+      };
+    };
 
     rows.forEach((row, i) => {
       if (row.assessmentStage === 'instructions') {
@@ -110,7 +148,7 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
       }
 
       if (isHeavyFlow) {
-        blockTimeline.push(buildHeavyPracticeTrial(row, isGuided(row)));
+        blockTimeline.push(buildHeavyPracticeTrial(row, isGuided(row), getRowFeedback(row)));
         return;
       }
 
@@ -127,7 +165,7 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
       ) {
         practiceRows.push(rows[j]);
       }
-      blockTimeline.push(...buildDefaultPractice(practiceRows));
+      blockTimeline.push(...buildDefaultPractice(practiceRows, getRowFeedback));
     });
 
     return blockTimeline;
@@ -147,6 +185,12 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
 }
 
 function getRowError(row: CorpusRow): string | null {
+  if (row.feedbackItemIds && row.assessmentStage !== 'practice_response') {
+    return 'only practice rows can have feedback_item_ids';
+  }
+  if (row.feedbackItemIds && row.feedbackItemIds.length !== 2) {
+    return `feedback_item_ids must be "correct,incorrect" item_ids (either can be blank), got "${row.feedbackItemIds}"`;
+  }
   if (row.assessmentStage === 'instructions') {
     if (!row.audioFile) return 'missing audio_file';
     if (Array.isArray(row.audioFile)) return `instruction screens take one audio_file, got "${row.audioFile}"`;
@@ -156,11 +200,20 @@ function getRowError(row: CorpusRow): string | null {
     }
     return null;
   }
-  if (row.assessmentStage !== 'practice_response' && row.assessmentStage !== 'test_response') {
+  if (
+    row.assessmentStage !== 'practice_response' &&
+    row.assessmentStage !== 'test_response' &&
+    row.assessmentStage !== 'feedback'
+  ) {
     return `unknown assessment_stage "${row.assessmentStage}"`;
   }
   if (row.trialType !== Direction.Forward && row.trialType !== Direction.Backward) {
     return `unknown trial_type "${row.trialType}"`;
+  }
+  if (row.assessmentStage === 'feedback') {
+    if (!row.audioFile) return 'missing audio_file';
+    if (Array.isArray(row.audioFile)) return `feedback rows take one audio_file, got "${row.audioFile}"`;
+    return null;
   }
   if (isGuided(row) && (row.assessmentStage !== 'practice_response' || !row.downex)) {
     return 'only downex practice rows can be guided (image "cursor")';
@@ -248,24 +301,26 @@ function buildTestTrial(
   return forwardIndex < FALLBACK_CHECK_TRIALS ? [forwardTrial, fallbackBlock] : [forwardTrial];
 }
 
-/**
- * Default practice: each row is a sequence followed by feedback. If the last answer was wrong,
- * the rows are played once more; the last repeated row only gets feedback if it is correct.
- */
-function buildDefaultPractice(rows: CorpusRow[]) {
+function buildDefaultPractice(rows: CorpusRow[], getRowFeedback: (row: CorpusRow) => FeedbackPrompts) {
   const buildPracticeTrial = (row: CorpusRow, feedbackOnlyIfCorrect: boolean) => {
     const reverse = row.trialType === Direction.Backward;
     const { display, input } = getRowPrompts(row);
     const customSeqLength = getFixedSequenceLength(row);
-    const tryAgainPrompt = input ? resolveMemoryGamePrompt(input) : getMemoryGamePrompt('input', reverse);
-    const practiceFeedback = feedback(true, tryAgainPrompt);
+    const { correct, incorrect } = getRowFeedback(row);
+    const correctFeedback = {
+      timeline: [feedback(true, undefined, correct)],
+      conditional_function: () => taskStore().isCorrect,
+    };
+    const incorrectFeedback = {
+      timeline: [feedback(true, incorrect && resolveMemoryGamePrompt(incorrect))],
+      conditional_function: () => !taskStore().isCorrect,
+    };
 
     return [
       getCorsiBlocks({ mode: 'display', isPractice: true, reverse, customSeqLength, prompt: display }),
       getCorsiBlocks({ mode: 'input', isPractice: true, reverse, prompt: input }),
-      feedbackOnlyIfCorrect
-        ? { timeline: [practiceFeedback], conditional_function: () => taskStore().isCorrect }
-        : practiceFeedback,
+      ...(correct ? [correctFeedback] : []),
+      ...(incorrect && !feedbackOnlyIfCorrect ? [incorrectFeedback] : []),
     ];
   };
 
@@ -278,38 +333,39 @@ function buildDefaultPractice(rows: CorpusRow[]) {
   ];
 }
 
-/** Heavy practice: a sequence, then feedback if correct, or a retry with the next block pulsing if wrong. */
-function buildHeavyPracticeTrial(row: CorpusRow, showCursorHint: boolean) {
+function buildHeavyPracticeTrial(row: CorpusRow, showCursorHint: boolean, feedbackPrompts: FeedbackPrompts) {
+  const { correct, incorrect } = feedbackPrompts;
   const reverse = row.trialType === Direction.Backward;
   const { display, input } = getRowPrompts(row);
   const customSeqLength = getFixedSequenceLength(row);
-
-  return {
+  const sequenceTrials = [
+    getCorsiBlocks({ reverse, mode: 'display', isPractice: true, customSeqLength, prompt: display }),
+    getCorsiBlocks({
+      reverse,
+      mode: 'input',
+      isPractice: true,
+      animation: showCursorHint ? 'cursor' : undefined,
+      prompt: input,
+    }),
+  ];
+  const correctFeedback = {
+    timeline: [feedback(true, undefined, correct)],
+    conditional_function: () => taskStore().isCorrect,
+  };
+  const retry = {
     timeline: [
-      getCorsiBlocks({ reverse, mode: 'display', isPractice: true, customSeqLength, prompt: display }),
       getCorsiBlocks({
         reverse,
         mode: 'input',
         isPractice: true,
-        animation: showCursorHint ? 'cursor' : undefined,
-        prompt: input,
+        animation: 'pulse',
+        prompt: incorrect,
       }),
-      {
-        timeline: [feedback(true)],
-        conditional_function: () => taskStore().isCorrect,
-      },
-      {
-        timeline: [
-          getCorsiBlocks({
-            reverse,
-            mode: 'input',
-            isPractice: true,
-            animation: 'pulse',
-            prompt: HEAVY_PRACTICE_RETRY_PROMPT[row.trialType as Direction],
-          }),
-        ],
-        conditional_function: () => !taskStore().isCorrect,
-      },
     ],
+    conditional_function: () => !taskStore().isCorrect,
+  };
+
+  return {
+    timeline: [...sequenceTrials, ...(correct ? [correctFeedback] : []), ...(incorrect ? [retry] : [])],
   };
 }
