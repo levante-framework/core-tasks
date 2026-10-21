@@ -29,17 +29,59 @@ const replayButtonHtmlId = 'replay-btn-revisited';
 let practiceResponses = [];
 let startTime: number;
 
-function getStimulus(layoutConfigMap: Record<string, LayoutConfigType>, trial?: StimulusType) {
-  const stim = trial || taskStore().nextStimulus;
-  const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
-  if (itemLayoutConfig) {
-    const audioPath = itemLayoutConfig?.playAudioOnLoad ? camelize(stim.audioFile) : 'nullAudio';
-    return mediaAssets.audio[audioPath];
+function getPromptTextFromAudioFile(audioFile: string | string[], translations: Record<string, string>) {
+  if (typeof audioFile !== 'string') {
+    return audioFile.map((file: string) => translations[camelize(file)]).join(' ');
+  }
+  return translations[camelize(audioFile)];
+}
+
+async function playTrialAudio(
+  trialAudio: string | string[],
+  playAudioOnLoad: boolean | undefined,
+  audioConfig: AudioConfigType,
+) {
+  if (!playAudioOnLoad) {
+    PageAudioHandler.playAudio(mediaAssets.audio.nullAudio, audioConfig);
+    return;
+  }
+
+  if (typeof trialAudio === 'string') {
+    const audioUri = mediaAssets.audio[camelize(trialAudio)];
+    PageAudioHandler.playAudio(audioUri, audioConfig);
+    return;
+  }
+
+  const sequentialAudioConfig: AudioConfigType = {
+    restrictRepetition: {
+      enabled: false,
+      maxRepetitions: 2,
+    },
+  };
+
+  for (const [index, audioFile] of trialAudio.entries()) {
+    const audioUri = mediaAssets.audio[camelize(audioFile)];
+    const isLastAudio = index === trialAudio.length - 1;
+
+    await new Promise<void>((resolve) => {
+      const configWithCallback: AudioConfigType = {
+        ...sequentialAudioConfig,
+        onEnded: () => {
+          setTimeout(() => {
+            if (isLastAudio) {
+              audioConfig.onEnded?.();
+            }
+            resolve();
+          }, 1000);
+        },
+      };
+      PageAudioHandler.playAudio(audioUri, configWithCallback);
+    });
   }
 }
 
 const getPromptTemplate = (
-  prompt: string,
+  prompt: string | null,
   mediaSrc: string | null,
   mediaAlt: string,
   stimText: string | null | undefined,
@@ -126,7 +168,7 @@ function getPrompt(layoutConfigMap: Record<string, LayoutConfigType>, trial?: St
         : null;
     } 
     
-    const prompt = promptEnabled ? t[camelize(stim.audioFile)] : null;
+    const prompt = promptEnabled ? getPromptTextFromAudioFile(stim.audioFile, t) : null;
     const mediaSrc = showStimImage ? mediaAsset : null;
     const mediaAlt = stimulusTextConfig?.value || `Image not loading: ${mediaSrc}. Please continue the task.`;
     const stimText = stimulusTextConfig ? stimulusTextConfig.displayValue : null;
@@ -201,7 +243,16 @@ function getButtonHtml(layoutConfigMap: Record<string, LayoutConfigType>, trial?
   }
 }
 
-function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: StimulusType) {
+async function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: StimulusType) {
+  startTime = performance.now();
+
+  const incorrectPracticeResponses: Array<string | null> = [];
+  taskStore('incorrectPracticeResponses', incorrectPracticeResponses);
+
+  const stim = trial || (taskStore().nextStimulus as StimulusType);
+  const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
+  const playAudioOnLoad = itemLayoutConfig?.playAudioOnLoad;
+
   const audioConfig: AudioConfigType = {
     restrictRepetition: {
       enabled: true,
@@ -212,25 +263,9 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
     },
   };
 
-  // play trial audio
-  PageAudioHandler.playAudio(getStimulus(layoutConfigMap, trial) || '', audioConfig);
+  const pageStateHandler = new PageStateHandler(stim.audioFile, playAudioOnLoad);
 
-  startTime = performance.now();
-
-  const incorrectPracticeResponses: Array<string | null> = [];
-  taskStore('incorrectPracticeResponses', incorrectPracticeResponses);
-
-  const stim = trial || (taskStore().nextStimulus as StimulusType);
-  const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
-  const playAudioOnLoad = itemLayoutConfig?.playAudioOnLoad;
-
-  let pageStateHandler: PageStateHandler;
-  if (typeof stim.audioFile === 'string') {
-    // no need to handle array case since it's not supported yet
-    pageStateHandler = new PageStateHandler(stim.audioFile, playAudioOnLoad);
-  } else {
-    throw new Error('Multiple audio files are not supported in this trial type');
-  }
+  void playTrialAudio(stim.audioFile, playAudioOnLoad, audioConfig);
   const isPracticeTrial = stim.assessmentStage === 'practice_response';
   const isInstructionTrial = stim.trialType === 'instructions';
 
