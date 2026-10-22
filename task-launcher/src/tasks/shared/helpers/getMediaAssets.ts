@@ -12,8 +12,8 @@ type ResponseItemType = {
 };
 
 type ResponseDataType = {
-  items: ResponseItemType[];
-  nextPageToken: string;
+  items?: ResponseItemType[];
+  nextPageToken?: string;
 };
 
 export async function getMediaAssets(
