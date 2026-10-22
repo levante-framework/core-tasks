@@ -51,7 +51,7 @@ export async function getMediaAssets(
     }
   }
 
-  data.items.forEach((item) => {
+  data.items?.forEach((item) => {
     if (isLanguageAndDeviceValid(item.name, language, taskName) && isWhitelisted(item.name, whitelist)) {
       const contentType = item.contentType;
       const id = item.name;
