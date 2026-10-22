@@ -14,6 +14,7 @@ import { setTaskStore, taskStore } from './taskStore';
 import { getBucketName } from './tasks/shared/helpers/getBucketName';
 import taskConfig from './tasks/taskConfig';
 import { InitPageSetup, Logger } from './utils';
+import { getAnimationTimestamps } from './tasks/shared/helpers/getAnimationTimestamps';
 
 export let mediaAssets: MediaAssetsType;
 let languageAudioAssets: MediaAssetsType;
@@ -82,6 +83,7 @@ export class TaskLauncher {
     setTaskStore(config);
 
     await getTranslations(isDev, taskName, language);
+    await getAnimationTimestamps(isDev, taskName, language);
 
     // TODO: make hearts and flowers corpus? make list of tasks that don't need corpora?
     if (taskName !== 'hearts-and-flowers' && taskName !== 'memory-game' && taskName !== 'intro') {

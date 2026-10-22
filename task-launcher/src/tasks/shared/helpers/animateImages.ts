@@ -1,7 +1,8 @@
 import { mediaAssets } from '../../..';
+import { downArrowSvg } from './components';
 
-export function popAnimation(itemsToAnimate: any, animation: string) {
-  const item = itemsToAnimate.pop();
+export function shiftAnimation(itemsToAnimate: any, animation: string) {
+  const item = itemsToAnimate.shift();
 
   if (!item) {
     return; // Exit early if no item to animate
@@ -125,4 +126,96 @@ export function displaceAnimation(
   };
 
   addCursorPulse();
+}
+
+// adds an svg icon on top of an image element
+function placeIcon(
+  elem: HTMLElement, 
+  iconSvg: string, 
+  pulse = false, 
+  offsetX: number = 0, // offset by percentage of image width
+  offsetY: number = 0 // offset by percentage of image height
+) {
+  const image =
+    elem instanceof HTMLImageElement ? elem : elem.querySelector('img');
+  if (!(image instanceof HTMLImageElement)) return;
+
+  const host = document.createElement('div');
+  host.style.position = 'relative';
+  host.style.display = 'inline-block';
+  host.style.lineHeight = '0';
+
+  image.replaceWith(host);
+  host.appendChild(image);
+
+  const { offsetWidth: width, offsetHeight: height } = image;
+
+  const overlay = document.createElement('div');
+  overlay.style.position = 'absolute';
+  overlay.style.left = `${width / 2 + (offsetX / 100) * width}px`;
+  overlay.style.top = `${height / 2 - (offsetY / 100) * height}px`;
+  overlay.style.transform = 'translate(-50%, -50%)';
+  overlay.style.pointerEvents = 'none';
+  overlay.style.zIndex = '2';
+
+  const icon = document.createElement('div');
+  icon.innerHTML = iconSvg;
+  if (pulse) {
+    icon.style.animation = 'pulse 2s 0s infinite';
+  }
+
+  overlay.appendChild(icon);
+  host.appendChild(overlay);
+}
+
+// returns an array of functions that animate DOM elements by itemId for items with custom animations
+export function getAnimationsById(
+  itemId: string,
+  stimImages: HTMLElement[]
+): {timeControl: 'timeStamp' | 'audioFile', animations: (() => void)[]} | null {
+  let animationConfig: {timeControl: 'timeStamp' | 'audioFile', animations: (() => void)[]} | null;
+
+  switch (itemId) {
+    case 'ToM-scene1-instruct2-downex':
+      animationConfig = {
+        timeControl: 'timeStamp', 
+        animations: [
+          () => {triggerAnimation(stimImages[0], 'pulse 2s 0s')},
+          () => {triggerAnimation(stimImages[1], 'pulse 2s 0s')}
+        ]
+      };
+      break;
+    case 'ToM-scene2-instruct1-downex':
+      animationConfig = {
+        timeControl: 'timeStamp', 
+        animations: [
+          () => {triggerAnimation(stimImages[0], 'pulse 2s 0s')},
+          () => {triggerAnimation(stimImages[1], 'pulse 2s 0s')}
+        ]
+      };
+      break;
+    case 'ToM-scene4-instruct1-downex':
+      animationConfig = {
+        timeControl: 'timeStamp', 
+        animations: [
+          () => {triggerAnimation(stimImages[0], 'pulse 2s 0s')},
+          () => {triggerAnimation(stimImages[1], 'pulse 2s 0s')}
+        ]
+      };
+      break;
+    case 'ToM-scene5-instruct1-downex':
+      animationConfig = {
+        timeControl: 'audioFile', 
+        animations: [
+          () => {}, // no animation on the first audio file
+          () => {placeIcon(stimImages[0], downArrowSvg, true, -20, -20)}
+        ]
+      };
+      break;
+    default:
+      animationConfig = null;
+      break;
+  }
+
+  return animationConfig;
 }

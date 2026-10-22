@@ -12,7 +12,7 @@ import {
   getParticipantUtilityButtonsHtml,
   PageAudioHandler,
   PageStateHandler,
-  popAnimation,
+  shiftAnimation,
   setupFullscreenButton,
   setupReplayAudio,
 } from '../../shared/helpers';
@@ -229,7 +229,7 @@ export const downexInstructions1 = {
       disableOkButton();
 
       // set up animations
-      let itemsToAnimate = [target, buttons, stimImage];
+      let itemsToAnimate = [stimImage, buttons, target];
 
       const audioConfig: AudioConfigType = {
         restrictRepetition: {
@@ -253,7 +253,7 @@ export const downexInstructions1 = {
               setTimeout(() => resolve(), 2000);
             },
           };
-          itemsToAnimate = popAnimation(itemsToAnimate, `pulse 2s ${delay}s 2`) as any;
+          itemsToAnimate = shiftAnimation(itemsToAnimate, `pulse 2s ${delay}s 2`) as any;
           PageAudioHandler.playAudio(audioUri, configWithCallback);
         });
       }

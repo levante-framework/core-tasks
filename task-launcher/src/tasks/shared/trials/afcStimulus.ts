@@ -23,11 +23,13 @@ import {
 } from '../helpers';
 import { displayDebugInfo } from '../helpers/displayDebugInfo';
 import { finishExperiment } from '.';
+import { getAnimationsById } from '../helpers/animateImages';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 // Previously chosen responses for current practice trial
 let practiceResponses = [];
 let startTime: number;
+let stimulusContainerClass: string;
 
 function getPromptTextFromAudioFile(audioFile: string | string[], translations: Record<string, string>) {
   if (typeof audioFile !== 'string') {
@@ -40,6 +42,7 @@ async function playTrialAudio(
   trialAudio: string | string[],
   playAudioOnLoad: boolean | undefined,
   audioConfig: AudioConfigType,
+  animationConfig: {timeControl: 'timeStamp' | 'audioFile', animations: (() => void)[]} | null,
 ) {
   if (!playAudioOnLoad) {
     PageAudioHandler.playAudio(mediaAssets.audio.nullAudio, audioConfig);
@@ -75,6 +78,11 @@ async function playTrialAudio(
           }, 1000);
         },
       };
+
+      if (animationConfig?.timeControl === 'audioFile') {
+        animationConfig.animations[index]();
+      }
+
       PageAudioHandler.playAudio(audioUri, configWithCallback);
     });
   }
@@ -130,12 +138,12 @@ const getPromptTemplate = (
       `;
     }
     // TODO: Remove after LayoutConfig implementation
-    let containerClass = equalSizeStim ? 'lev-stim-content' : 'lev-stim-content-x-3';
+    stimulusContainerClass = equalSizeStim ? 'lev-stim-content' : 'lev-stim-content-x-3';
     if (stimulusContainerClassList) {
-      containerClass = stimulusContainerClassList.join(' ');
+      stimulusContainerClass = stimulusContainerClassList.join(' ');
     }
     template += `
-      <div class=${containerClass}>
+      <div class=${stimulusContainerClass}>
         ${contentTemplate}
       </div>
     `;
@@ -253,6 +261,24 @@ async function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial
   const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
   const playAudioOnLoad = itemLayoutConfig?.playAudioOnLoad;
 
+  const stimContainer = document.querySelector(`.${stimulusContainerClass}`) as HTMLElement;
+  const stimImages = stimContainer?.querySelectorAll('img');
+
+  let animationConfig: {timeControl: 'timeStamp' | 'audioFile', animations: (() => void)[]} | null = null;
+  if (stimImages?.length) {
+    animationConfig = getAnimationsById(stim.itemId, Array.from(stimImages));
+  }
+
+  if (animationConfig?.timeControl === 'timeStamp' && typeof stim.audioFile === 'string') {
+    const timestamps = taskStore().animationTimestamps?.[stim.audioFile];
+  
+    if (timestamps?.length) {
+      timestamps.forEach((timestamp: number, index: number) => {
+        setTimeout(() => animationConfig.animations[index](), timestamp);
+      });
+    }
+  }
+
   const audioConfig: AudioConfigType = {
     restrictRepetition: {
       enabled: true,
@@ -265,7 +291,7 @@ async function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial
 
   const pageStateHandler = new PageStateHandler(stim.audioFile, playAudioOnLoad);
 
-  void playTrialAudio(stim.audioFile, playAudioOnLoad, audioConfig);
+  void playTrialAudio(stim.audioFile, playAudioOnLoad, audioConfig, animationConfig);
   const isPracticeTrial = stim.assessmentStage === 'practice_response';
   const isInstructionTrial = stim.trialType === 'instructions';
 
@@ -305,9 +331,10 @@ async function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial
     addPracticeButtonListeners(answer, isTouchScreen, choices);
   }
 
+  const buttonContainer = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
+  const responseButtons = buttonContainer.children as HTMLCollectionOf<HTMLButtonElement>;
+
   if (stim.trialType !== 'instructions') {
-    const buttonContainer = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
-    const responseButtons = buttonContainer.children as HTMLCollectionOf<HTMLButtonElement>;
     const totalResponseButtons = responseButtons.length;
     const { buttonLayout } = taskStore();
 
