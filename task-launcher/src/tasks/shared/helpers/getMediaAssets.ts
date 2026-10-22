@@ -38,6 +38,9 @@ export async function getMediaAssets(
   let response: Response;
 
   response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`GCS listing failed for ${bucketName} (${response.status} ${response.statusText})`);
+  }
   data = await response.json();
 
   // add temporary fallback for en-US and de-DE until we have the correct folders in the bucket
