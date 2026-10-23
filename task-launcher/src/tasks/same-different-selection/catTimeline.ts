@@ -45,7 +45,7 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
   const initialTimeline = initTimeline(config, enterFullscreen);
 
   const buttonNoise = {
-    timeline: [getAudioResponse(mediaAssets)],
+    timeline: [getAudioResponse(mediaAssets, 'nullAudio')],
 
     conditional_function: () => {
       const trialType = taskStore().nextStimulus.trialType;
