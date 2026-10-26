@@ -377,6 +377,14 @@
 }
 
 
+.image-grid-x2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  width: calc(2 * $bubble-grid-cell-size * 2);
+  height: calc(2 * $bubble-grid-cell-size * 2);
+}
+
 .image-grid-x4 {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
