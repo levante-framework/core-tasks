@@ -252,7 +252,10 @@ export const stimulus = (trial?: StimulusType) => {
 
       if (trialType === 'something-same-2') {
         // something-same-2 trials have multiple audio files
-        const audioFiles = audioFile as string[];
+        const audioKeys = [...(audioFile as string[])];
+        const pageStateHandler = new PageStateHandler(audioKeys, true);
+        const queue = [...audioKeys];
+        setupReplayAudio(pageStateHandler);
 
         const audioConfig: AudioConfigType = {
           restrictRepetition: {
@@ -263,14 +266,17 @@ export const stimulus = (trial?: StimulusType) => {
               return;
             }
 
-            if (audioFiles.length) {
-              PageAudioHandler.playAudio(audioFiles.shift() as string, audioConfig);
+            if (queue.length) {
+              PageAudioHandler.playAudio(queue.shift() as string, audioConfig);
             }
           },
         };
 
-        PageAudioHandler.playAudio(audioFiles.shift() as string, audioConfig);
+        PageAudioHandler.playAudio(queue.shift() as string, audioConfig);
       } else {
+        const pageStateHandler = new PageStateHandler(audioFile, true);
+        setupReplayAudio(pageStateHandler);
+
         const audioConfig: AudioConfigType =
           stimulus.assessmentStage === 'instructions'
             ? {
@@ -292,8 +298,6 @@ export const stimulus = (trial?: StimulusType) => {
         }
       }
 
-      const pageStateHandler = new PageStateHandler(audioFile, true);
-      setupReplayAudio(pageStateHandler);
       addExperimenterButtons();
       setupFullscreenButton();
       const jspsychButtonContainer = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
