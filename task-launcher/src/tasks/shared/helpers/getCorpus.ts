@@ -48,7 +48,17 @@ type ParsedRowType = {
   story_group?: number;
   response_branches?: string;
   story_branch?: string;
+  animation_types?: string;
+  animation_targets?: string;
+  animation_trigger?: string;
 };
+
+function parseCommmaSeparated(value?: string): string[] | undefined {
+  if (value == null || value === '') {
+    return undefined;
+  }
+  return value.split(',').map((item) => item.trim());
+}
 
 let totalTrials = 0;
 let totalDownexTrials = 0;
@@ -91,7 +101,7 @@ const transformCSV = (csvInput: ParsedRowType[], sequentialStimulus: boolean, ta
 
   csvInput.forEach((row) => {
     // Leaving this here for quick testing of a certain type of trial
-    //if (!row.trial_type.includes('-match')) return;
+    if (row.block_index !== '5') return;
 
     if (row.block_threshold && !blockThresholds.includes(row.block_threshold)) {
       blockThresholds.push(row.block_threshold);
@@ -134,6 +144,9 @@ const transformCSV = (csvInput: ParsedRowType[], sequentialStimulus: boolean, ta
       storyGroup: _toNumber(row.story_group),
       responseBranches: writeResponseBranches(row),
       storyBranch: row.story_branch,
+      animationTypes: parseCommmaSeparated(row.animation_types),
+      animationTargets: parseCommmaSeparated(row.animation_targets),
+      animationTrigger: row.animation_trigger as 'timestamp' | 'audio-file',
     };
 
     if (row.task === 'same-different-selection') {

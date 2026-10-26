@@ -23,7 +23,8 @@ import {
 } from '../helpers';
 import { displayDebugInfo } from '../helpers/displayDebugInfo';
 import { finishExperiment } from '.';
-import { getAnimationsById } from '../helpers/animateImages';
+import { getItemAnimations } from '../helpers/animateImages';
+import { Logger } from '../../../utils/logger';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 // Previously chosen responses for current practice trial
@@ -42,7 +43,7 @@ async function playTrialAudio(
   trialAudio: string | string[],
   playAudioOnLoad: boolean | undefined,
   audioConfig: AudioConfigType,
-  animationConfig: {timeControl: 'timeStamp' | 'audioFile', animations: (() => void)[]} | null,
+  animationConfig: {timeControl: 'timestamp' | 'audio-file', animations: (() => void)[]} | null,
 ) {
   if (!playAudioOnLoad) {
     PageAudioHandler.playAudio(mediaAssets.audio.nullAudio, audioConfig);
@@ -79,7 +80,7 @@ async function playTrialAudio(
         },
       };
 
-      if (animationConfig?.timeControl === 'audioFile') {
+      if (animationConfig?.timeControl === 'audio-file') {
         animationConfig.animations[index]();
       }
 
@@ -264,17 +265,22 @@ async function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial
   const stimContainer = document.querySelector(`.${stimulusContainerClass}`) as HTMLElement;
   const stimImages = stimContainer?.querySelectorAll('img');
 
-  let animationConfig: {timeControl: 'timeStamp' | 'audioFile', animations: (() => void)[]} | null = null;
+  let animationConfig: {timeControl: 'timestamp' | 'audio-file', animations: (() => void)[]} | null = null;
   if (stimImages?.length) {
-    animationConfig = getAnimationsById(stim.itemId, Array.from(stimImages), stimContainer);
+    animationConfig = getItemAnimations(stim, stimContainer);
   }
 
-  if (animationConfig?.timeControl === 'timeStamp' && typeof stim.audioFile === 'string') {
+  if (animationConfig?.timeControl === 'timestamp' && typeof stim.audioFile === 'string') {
     const timestamps = taskStore().animationTimestamps?.[stim.audioFile];
-  
+
     if (timestamps?.length) {
       timestamps.forEach((timestamp: number, index: number) => {
         setTimeout(() => animationConfig.animations[index](), timestamp);
+      });
+    } else {
+      const logger = Logger.getInstance();
+      logger.capture('Animation timestamps not found', {
+        stimulus: stim,
       });
     }
   }

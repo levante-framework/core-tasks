@@ -90,6 +90,9 @@ declare global {
     storyGroup?: number;
     responseBranches?: Record<string, string>;
     storyBranch?: string;
+    animationTypes?: string[];
+    animationTargets?: string[];
+    animationTrigger?: 'timestamp' | 'audio-file';
   };
 
   type MediaAssetsType = {

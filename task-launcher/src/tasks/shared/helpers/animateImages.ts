@@ -1,4 +1,5 @@
 import { mediaAssets } from '../../..';
+import { camelize } from './camelize';
 
 export function shiftAnimation(itemsToAnimate: any, animation: string) {
   const item = itemsToAnimate.shift();
@@ -12,7 +13,7 @@ export function shiftAnimation(itemsToAnimate: any, animation: string) {
   return itemsToAnimate;
 }
 
-export function triggerAnimation(item: any, animation: string) {
+export function triggerAnimation(item: HTMLElement | HTMLElement[], animation: string) {
   if (Array.isArray(item)) {
     item.forEach((item) => {
       item.style.animation = 'none';
@@ -135,55 +136,31 @@ function swapImage(container: HTMLElement, image: string) {
   />`;
 }
 
-// returns an array of functions that animate DOM elements by itemId for items with custom animations
-export function getAnimationsById(
-  itemId: string,
-  stimImages: HTMLElement[], 
-  stimContainer: HTMLElement,
-): {timeControl: 'timeStamp' | 'audioFile', animations: (() => void)[]} | null {
-  let animationConfig: {timeControl: 'timeStamp' | 'audioFile', animations: (() => void)[]} | null;
+function parseCorpusAnimation(animationType: string, animationTargetId: string, stimContainer: HTMLElement): () => void {
+  const targetImageSrc = mediaAssets.images[camelize(animationTargetId)];
+  const targetElement = document.querySelector(`img[src='${targetImageSrc}']`) as HTMLElement;
 
-  switch (itemId) {
-    case 'ToM-scene1-instruct2-downex':
-      animationConfig = {
-        timeControl: 'timeStamp', 
-        animations: [
-          () => {triggerAnimation(stimImages[0], 'pulse 2s 0s')},
-          () => {triggerAnimation(stimImages[1], 'pulse 2s 0s')}
-        ]
-      };
-      break;
-    case 'ToM-scene2-instruct1-downex':
-      animationConfig = {
-        timeControl: 'timeStamp', 
-        animations: [
-          () => {triggerAnimation(stimImages[0], 'pulse 2s 0s')},
-          () => {triggerAnimation(stimImages[1], 'pulse 2s 0s')}
-        ]
-      };
-      break;
-    case 'ToM-scene4-instruct1-downex':
-      animationConfig = {
-        timeControl: 'timeStamp', 
-        animations: [
-          () => {triggerAnimation(stimImages[0], 'pulse 2s 0s')},
-          () => {triggerAnimation(stimImages[1], 'pulse 2s 0s')}
-        ]
-      };
-      break;
-    case 'ToM-scene5-instruct1-downex':
-      animationConfig = {
-        timeControl: 'audioFile', 
-        animations: [
-          () => {}, // no animation on the first audio file
-          () => {swapImage(stimContainer, '5aOverlayDownex')}
-        ]
-      };
-      break;
+  switch (animationType) {
+    case 'pulse':
+      return () => {triggerAnimation(targetElement, 'pulse 2s 0s')};
+    case 'stimulus-image-swap':
+      return () => {swapImage(stimContainer, camelize(animationTargetId))};
     default:
-      animationConfig = null;
-      break;
+      return () => {};
+  }
+}
+
+// returns an array of functions that animate DOM elements by itemId for items with custom animations
+export function getItemAnimations(stim: StimulusType, stimContainer: HTMLElement): {timeControl: 'timestamp' | 'audio-file', animations: (() => void)[]} | null {
+  const animations = [];
+
+  if (!stim.animationTypes || !stim.animationTargets || !stim.animationTrigger) {
+    return null;
   }
 
-  return animationConfig;
+  for (let i = 0; i < stim.animationTypes.length; i++) {
+    animations.push(parseCorpusAnimation(stim.animationTypes[i], stim.animationTargets[i], stimContainer));
+  }
+
+  return {timeControl: stim.animationTrigger, animations: animations};
 }
