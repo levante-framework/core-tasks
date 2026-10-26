@@ -23,8 +23,11 @@ export class PageAudioHandler {
     },
   };
 
-  static stopAndDisconnectNode() {
+  static stopAndDisconnectNode(cancelOnEnded = false) {
     if (PageAudioHandler.audioSource) {
+      if (cancelOnEnded) {
+        PageAudioHandler.audioSource.onended = null;
+      }
       PageAudioHandler.audioSource.stop();
       PageAudioHandler.audioSource.disconnect();
       PageAudioHandler.audioSource = undefined;

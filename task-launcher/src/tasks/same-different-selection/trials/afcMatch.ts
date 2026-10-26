@@ -241,6 +241,10 @@ export const afcMatch = (trial?: StimulusType) => {
               jsPsych.finishTrial();
             } else {
               const prompt = document.getElementById('afc-match-prompt') as HTMLParagraphElement;
+              const feedbackAudio = ['feedbackNotQuiteRight', audioFile];
+
+              pageStateHandler.audioFile = feedbackAudio;
+
               prompt.textContent = `${taskStore().translations.feedbackNotQuiteRight} ${
                 taskStore().translations[camelize(audioFile)]
               }`;
@@ -253,15 +257,25 @@ export const afcMatch = (trial?: StimulusType) => {
                   enabled: false,
                 },
                 onEnded: () => {
+                  const secondAudioConfig: AudioConfigType = {
+                    restrictRepetition: {
+                      enabled: false,
+                    },
+                    onEnded: () => {
+                      pageStateHandler.enableReplayBtn();
+                    },
+                  };
+
                   if (numberOfErrorsThisCall === numberOfErrors) {
                     // don't overlap audio
-                    PageAudioHandler.playAudio(audioFile);
+                    PageAudioHandler.playAudio(feedbackAudio[1], secondAudioConfig);
                   }
                 },
               };
 
-              PageAudioHandler.stopAndDisconnectNode();
-              PageAudioHandler.playAudio('feedbackNotQuiteRight', audioConfig);
+              PageAudioHandler.stopAndDisconnectNode(true);
+              pageStateHandler.disableReplayBtn();
+              PageAudioHandler.playAudio(feedbackAudio[0], audioConfig);
 
               responseBtns.forEach((btn) => {
                 btn.classList.remove(SELECT_CLASS_NAME);
