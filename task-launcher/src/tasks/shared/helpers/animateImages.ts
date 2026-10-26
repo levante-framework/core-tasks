@@ -1,5 +1,4 @@
 import { mediaAssets } from '../../..';
-import { downArrowSvg } from './components';
 
 export function shiftAnimation(itemsToAnimate: any, animation: string) {
   const item = itemsToAnimate.shift();
@@ -128,50 +127,19 @@ export function displaceAnimation(
   addCursorPulse();
 }
 
-// adds an svg icon on top of an image element
-function placeIcon(
-  elem: HTMLElement, 
-  iconSvg: string, 
-  pulse = false, 
-  offsetX: number = 0, // offset by percentage of image width
-  offsetY: number = 0 // offset by percentage of image height
-) {
-  const image =
-    elem instanceof HTMLImageElement ? elem : elem.querySelector('img');
-  if (!(image instanceof HTMLImageElement)) return;
-
-  const host = document.createElement('div');
-  host.style.position = 'relative';
-  host.style.display = 'inline-block';
-  host.style.lineHeight = '0';
-
-  image.replaceWith(host);
-  host.appendChild(image);
-
-  const { offsetWidth: width, offsetHeight: height } = image;
-
-  const overlay = document.createElement('div');
-  overlay.style.position = 'absolute';
-  overlay.style.left = `${width / 2 + (offsetX / 100) * width}px`;
-  overlay.style.top = `${height / 2 - (offsetY / 100) * height}px`;
-  overlay.style.transform = 'translate(-50%, -50%)';
-  overlay.style.pointerEvents = 'none';
-  overlay.style.zIndex = '2';
-
-  const icon = document.createElement('div');
-  icon.innerHTML = iconSvg;
-  if (pulse) {
-    icon.style.animation = 'pulse 2s 0s infinite';
-  }
-
-  overlay.appendChild(icon);
-  host.appendChild(overlay);
+function swapImage(container: HTMLElement, image: string) {
+  container.innerHTML = `<img 
+    id="stim-image"
+    src=${mediaAssets.images[image]} 
+    alt="Image not loading: ${mediaAssets.images[image]}. Please continue the task." 
+  />`;
 }
 
 // returns an array of functions that animate DOM elements by itemId for items with custom animations
 export function getAnimationsById(
   itemId: string,
-  stimImages: HTMLElement[]
+  stimImages: HTMLElement[], 
+  stimContainer: HTMLElement,
 ): {timeControl: 'timeStamp' | 'audioFile', animations: (() => void)[]} | null {
   let animationConfig: {timeControl: 'timeStamp' | 'audioFile', animations: (() => void)[]} | null;
 
@@ -208,7 +176,7 @@ export function getAnimationsById(
         timeControl: 'audioFile', 
         animations: [
           () => {}, // no animation on the first audio file
-          () => {placeIcon(stimImages[0], downArrowSvg, true, -20, -20)}
+          () => {swapImage(stimContainer, '5aOverlayDownex')}
         ]
       };
       break;

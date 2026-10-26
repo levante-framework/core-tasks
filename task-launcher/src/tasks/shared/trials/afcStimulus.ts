@@ -266,7 +266,7 @@ async function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial
 
   let animationConfig: {timeControl: 'timeStamp' | 'audioFile', animations: (() => void)[]} | null = null;
   if (stimImages?.length) {
-    animationConfig = getAnimationsById(stim.itemId, Array.from(stimImages));
+    animationConfig = getAnimationsById(stim.itemId, Array.from(stimImages), stimContainer);
   }
 
   if (animationConfig?.timeControl === 'timeStamp' && typeof stim.audioFile === 'string') {
