@@ -26,6 +26,13 @@ Inter-stimulus interval is the same in every task today. If it never varies, it 
 - **Fallback check**: passes if the participant got too many of their recent test items wrong. Each task runs its fallback at most once.
 - **Skip if flagged**: an item can be marked to be skipped while the task runs, and is then passed over.
 
+## Ending early, in every task
+
+Two more ways a run can end apply to every task, so the charts don't draw them:
+
+- **Time limit:** the `maxTime` variant param (default 100 minutes) is counted from the end of the fullscreen step, not counting time paused. When it runs out, the task ends after the current trial (`timeOut`). Tasks that pick items through the shared `getStimulus` (math, matrix reasoning, vocab and other corpus tasks) also end before a trial if there isn't enough time left to play it. In math, mental rotation and same-different selection, CAT mode also splits `maxTime` into a time budget for each block.
+- **Experimenter exit:** the experimenter pause and exit buttons appear only if the `experimenterButtons` variant param is on **and** the run started in the heavy (downex) flow. A run that switches to heavy mid-task through a fallback doesn't get them. ROAR Inference never shows them.
+
 ## Tasks
 
 - [Hearts and Flowers (`heartsAndFlowers`)](hearts-and-flowers.md)

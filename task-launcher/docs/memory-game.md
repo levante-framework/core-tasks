@@ -10,21 +10,8 @@ Two settings are fixed before the first screen. Both depend on the child's age (
 
 | Setting | Rule | Effect |
 |---|---|---|
-| **Instruction flow** | Heavy if the `heavyInstructions` variant param is on, **or** age ≤ 4 | Heavy: the corpus's downex rows, where a block has them. Otherwise: the main rows. |
+| **Instruction flow** | Heavy/downex if age ≤ 4 **or** if the `heavyInstructions` variant param is on (this param should be deprecated eventually) | Heavy: the corpus's downex rows, where a block has them. Otherwise: the main rows. |
 | **Grid** | 3×3 (9 blocks) if age > 4, otherwise 2×2 (4 larger blocks) | Board size for the whole task, unless the fallback switches it |
-
-That gives these starting combinations:
-
-| | Grid | Instruction flow |
-|---|---|---|
-| age > 4 | 3×3 | default |
-| age > 4, `heavyInstructions` on | 3×3 | heavy |
-| age ≤ 4 | 2×2 | heavy (always) |
-| age unknown | 2×2 | default, unless `heavyInstructions` is on |
-
-The last row is a side effect: an unknown age is `NaN`, which is neither ≤ 4 nor > 4.
-
-"Downex" (downward extension) is the same thing as the heavy flow: an easier version of the instructions and practice for younger children.
 
 ## Corpus-driven structure
 
@@ -35,27 +22,18 @@ The timeline is built from the corpus, **one row per screen or trial, in corpus 
 | Instruction screen | `instructions` | `instructions` | One screen: `audio_file` (one key) plays, `image` (image or video) is shown |
 | Practice trial | `practice_response` | `forward` or `backward` | Display → input → feedback. How a wrong answer is handled depends on the flow (see below). |
 | Test trial | `test_response` | `forward` or `backward` | Display → input, no feedback. Moves the staircase. |
+| Feedback | `feedback` | `forward` or `backward` | Not played in order (no `block_index`). Holds one feedback prompt in `audio_file`, which practice rows point to by `item_id`. |
 
 Other columns:
 
 - **`item`:** a fixed sequence length for that trial. Blank uses the current staircase length.
 - **`image` = `cursor`** (downex practice rows only): a guided trial. A cursor sits on the next block to press and the other blocks are disabled.
 - **`audio_file`** on a trial row: `"display,input"`, the cues for the two screens. Blank uses the defaults: `memoryGameDisplay` (or `memoryGameInstruct7Downex` when `heavyInstructions` is on) for display, and `memoryGameInstruct8Downex` / `memoryGameInstruct11Downex` for forward / backward input. The on-screen text is the translation of that same key. The `prompt` column isn't read.
+- **`feedback_item_ids`** (practice rows only): `"correct,incorrect"`, the `item_id`s of the feedback rows to use after a correct and a wrong answer, looked up among the rows with the same `downex` value. Either part can be blank, which means nothing happens after that kind of answer.
 
-**Default practice:** consecutive practice rows with the same `trial_type` form one run, and each trial gets feedback. If the run's last answer is wrong, the whole run plays once more, and the last trial of the replay gets feedback only if it's correct. After a wrong answer, the feedback screen plays the row's input cue as the try-again prompt.
+**Default practice:** consecutive practice rows with the same `trial_type` form one run. After each trial, a correct answer gets the feedback screen with the correct prompt in place of "correct". A wrong answer gets the feedback screen's "not quite right", then the incorrect prompt as a try-again. If the run's last answer is wrong, the whole run plays once more, and the last trial of the replay gets feedback only if it's correct.
 
-**Heavy practice:** each row is one trial. A correct answer gets feedback. A wrong one gets a single input-only retry with the next block pulsing, whose prompt is hardcoded (`memoryGameFeedbackIncorrectDownex` forward, `memoryGameInstruct11Downex` backward).
-
-### Current corpus
-
-| Block | Main rows (default flow) | Downex rows (heavy flow) |
-|---|---|---|
-| 0: forward instructions and practice | 4 instruction screens, then **2 practice trials** at the staircase length (2) | 1 screen, 2 practice trials at length 1 (1st guided), 1 screen, 2 practice trials at length 2 (1st guided): **4 practice trials** |
-| 1: forward test | "Won't tell you if you're right" screen, then **14 test trials** | 3 screens (on your own / keep going / time to play), then **14 test trials** |
-| 2: backward instructions and practice | 2 instruction screens, then **2 practice trials** at the staircase length | 1 screen, then **3 practice trials**: 1 guided at the staircase length, then 2 at length 2 |
-| 3: backward test | "Won't tell you if you're right" screen, then **12 test trials** | Same screen, then **12 test trials** |
-
-Display cues in the current test rows: in the main rows, the first 2 forward and first 2 backward trials use `memory-game-display` and the rest use `memory-game-instruct7-downex` ("Let's watch!"). Every downex test row uses `memory-game-instruct7-downex`.
+**Heavy practice:** each row is one trial. A correct answer gets the feedback screen with the correct prompt. A wrong answer gets no feedback screen. Instead there's a single input-only retry with the next block pulsing, and the incorrect prompt as its cue.
 
 ### Corpus checks
 
@@ -68,52 +46,120 @@ The task fails to start with a `Corpus validation failed` error if:
 - a row other than a downex practice row is guided (`image` = `cursor`)
 - `item` isn't a positive whole number
 - a trial row's `audio_file` isn't blank or exactly two keys
+- a feedback row has no `audio_file`, or more than one
+- a non-practice row has `feedback_item_ids`, or it isn't exactly two parts
+- `feedback_item_ids` names a feedback row that doesn't exist (with the same `downex` value)
+- a feedback row is unused, used as both correct and incorrect, or two feedback rows share an `item_id`
 
-## Flow
+## Legend
 
-This chart shows counts from the current corpus (see the table above), the 4 early trials (`FALLBACK_CHECK_TRIALS`) and the default `maxIncorrect` of 3. Update it when the corpus changes. A "trial" is one display + input pair.
+The legend at the bottom of the chart explains the colors, line styles and shapes. Colors apply to nodes, arrows and arrow labels. Following only solid arrows takes you from START to END. Also:
 
-The two `heavyInstructions?` diamonds are decided when the timeline is built. The fallback changes some settings while the task runs, but not which rows are played. At any point, reaching `maxTime` (default 100 minutes) or an experimenter exit ends the task.
+- `(xN)`: the step repeats N times (once if absent).
+- `Age≤4` / `Age>4` on an arrow: the downex or default flow, chosen when the task starts (see "Set when the task starts"). "Age≤4" also covers runs with the `heavyInstructions` param on.
 
 ```mermaid
+%%{init: {"themeCSS": ".edgeLabel, .edgeLabel p, .labelBkg { background-color: transparent !important; } .edgeLabel rect { fill: transparent !important; opacity: 0 !important; }"}}%%
 flowchart TD
-    START([START]) --> HV{"heavyInstructions?<br/>(param on, or age ≤ 4;<br/>set at start)"}
+    START([START])
+    START -- Age≤4 --> FWD_PRAC_INST_DX
+    START -- Age>4 ----> FWD_PRAC_INST
 
-    HV -- no --> DEF_I["Instructions<br/>(4 screens)"]
-    DEF_I --> DEF_P["Forward practice: 2 trials<br/>(display → input → feedback)"]
-    DEF_P --> DEF_C{"2nd practice<br/>correct?"}
-    DEF_C -- no --> DEF_P2["Replay both trials<br/>(feedback on the last one only if correct)"] --> RTP1
-    DEF_C -- yes --> RTP1["'Won't tell you if you're right' screen"]
-
-    HV -- yes --> DX["Downward-extension instructions and practice:<br/>intro screen → 2 trials at length 1<br/>→ 'now two squares' screen → 2 trials at length 2<br/>(cursor hint on the first trial of each length;<br/>each wrong answer → 1 retry with the next block pulsing)"]
-    DX --> DXE["3 screens: play on your own →<br/>keep going if you make a mistake → time to play"]
-
-    RTP1 --> F4
-    DXE --> F4
-
-    subgraph EARLY["Forward test trials 1–4"]
-        F4["Forward trial<br/>(display → input)<br/>length starts at 2"] --> FBC{"Fallback check, at most once:<br/>last 2 trials both wrong?<br/>(can pass after trials 2, 3 or 4)"}
-        FBC -- yes --> FALL["Switch to heavy mode and the 2×2 grid<br/>→ repeat-instructions message<br/>→ replay the downward-extension<br/>forward practice (4 trials, with retries)"] --> FWD
-        FBC -- no --> F4N{"4 trials<br/>played?"}
-        F4N -- no --> F4
+    subgraph FORWARD_PRACTICE["FORWARD PRACTICE"]
+        FWD_PRAC_INST_DX("Practice instructions (heavier) + guided 1 block-long practice trial") --> FWD_PRAC_TRIALS_DX_LEN1("Forward practice with 1 block-long sequences (x2)<br/>(1 retry chance each)") --> FWD_PRAC_INSTR_DX_LEN2("Guided 2 blocks-long practice trial") --> FWD_PRAC_TRIALS_DX_LEN2("Forward practice with 2 blocks-long sequences (x2)<br/>(1 retry chance each)")
+        FWD_PRAC_INST("Practice instructions") --> FWD_PRAC_TRIALS("Forward practice trials with feedback (x3)") 
+        FWD_PRAC_TRIALS --> THIRD_TRIAL_CHECK{"3rd trial incorrect?"} -. Yes, 1st time .-> FWD_PRAC_TRIALS
     end
 
-    F4N -- yes --> FWD["Forward test trials 5–14<br/>(length +1 after every 2 correct in a row;<br/>max length 8)"]
-    EARLY -. "3rd error<br/>(earliest: trial 3)" .-> SKIPF["Remaining forward trials skipped"]
-    FWD -. "3rd error" .-> SKIPF
-    FWD -- "14 played" --> RESET
-    SKIPF --> RESET["Before backward:<br/>errors reset to 0;<br/>length → 3 if the child got past length 3, else 2"]
+    FWD_PRAC_TRIALS_DX_LEN2 --> FWD_TRIALS_INSTR
+    THIRD_TRIAL_CHECK{"3rd trial incorrect?"} -- No --> FWD_TRIALS_INSTR
+    THIRD_TRIAL_CHECK{"3rd trial incorrect?"} -. Yes, 2nd time .-> FWD_TRIALS_INSTR
 
-    RESET --> HV2{"heavyInstructions?<br/>(set at start)"}
-    HV2 -- no --> RP["2 instruction screens<br/>→ backward practice: 2 trials<br/>→ replay both if the 2nd is wrong"]
-    HV2 -- yes --> RDX["1 instruction screen<br/>→ downward-extension backward practice:<br/>1 guided trial, then 2 at length 2<br/>(each wrong answer → 1 retry)"]
-    RP --> RTP2["'Won't tell you if you're right' screen"]
-    RDX --> RTP2
-    RTP2 --> REV["Backward test trial<br/>(display → input, reversed answer;<br/>length +1 after every 2 correct in a row)"]
-    REV --> ERR{"3rd backward<br/>error?"}
-    ERR -- "yes (earliest: trial 3)" --> STOP(["Task ends early<br/>(errorOut)"])
-    ERR -- "no, fewer than 12 played" --> REV
-    ERR -- "no, 12 played" --> END([END])
+    FALLBACK_CHECK -. Yes: restart in Age ≤ 4 mode .-> FORWARD_PRACTICE
+
+    subgraph FWD_TEST["&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FORWARD TEST TRIALS"]
+        FWD_TRIALS_FIRST("Forward trials 1-4<br/>*length +1 after every 2 consecutive correct<br/>*max length 8")
+        FWD_TRIALS_INSTR -- Age≤4: block length starts at 2, 2x2 grid --> FWD_TRIALS_FIRST --Age≤4--> FWD_TRIALS_REST
+        FWD_TRIALS_INSTR("Test trials instructions") -- Age>4: block length starts at 2, 3x3 grid --> FWD_TRIALS_FIRST
+        FWD_TRIALS_FIRST -- Age>4 --> FALLBACK_CHECK{"Fallback check: Last 2 trials both wrong?"}
+        FALLBACK_CHECK -- No --> FWD_TRIALS_REST
+        FWD_TRIALS_REST("Forward test trials 5-14<br/>*length +1 after every 2 consecutive correct<br/>*max length 8") .->THIRD_ERROR{"Accumulated three errors"} -. Remaining trials skipped .-> RESET["Before backward:<br/>error count resets to 0"]
+        FWD_TRIALS_REST -- "All 14 trials played" --> RESET
+    end
+    
+    RESET -- Age>4 --> BWD_PRAC_INST
+    RESET -- Age≤4 --> BWD_PRAC_INST_DX
+
+    subgraph BWD_PRACTICE["BACKWARD PRACTICE"]
+        BWD_PRAC_INST("Practice instructions") --> BWD_PRAC_TRIALS("Practice trials with feedback (x3)") 
+        BWD_PRAC_TRIALS --> BWD_THIRD_TRIAL_CHECK{"3rd trial incorrect?"} -. Yes, 1st time .-> BWD_PRAC_TRIALS
+
+        BWD_PRAC_INST_DX("Practice instructions (heavier) + guided practice trial") --> BWD_PRAC_TRIALS_DX_LEN2("Practice with 2 block-long sequences (x2)<br/>(1 retry chance each)")
+    end
+
+    BWD_PRAC_TRIALS_DX_LEN2 --> BWD_TRIALS_INSTR
+    BWD_THIRD_TRIAL_CHECK -- No --> BWD_TRIALS_INSTR
+    BWD_THIRD_TRIAL_CHECK -. Yes, 2nd time .-> BWD_TRIALS_INSTR
+
+    subgraph BWD_TEST["BACKWARD TEST TRIALS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"]
+        BWD_TRIALS("Backward trials<br/>*length +1 after every 2 consecutive correct<br/>*max length 8<br/>(x12)")
+        BWD_TRIALS_INSTR("Test trials instructions") -- Age≤4: block sequence length starts at 2; 2x2 grid --> BWD_TRIALS
+        BWD_TRIALS_INSTR("Test trials instructions") -- Age>4 --> START_LEN{"Child progressed to 3 blocks-long sequences in forward section?"}
+        START_LEN -- Yes: block sequence length starts at 3; 3x3 grid --> BWD_TRIALS
+        START_LEN -- No: block sequence length starts at 2; 3x3 grid --> BWD_TRIALS
+        BWD_TRIALS .-> BWD_THIRD_ERROR{"Accumulated 3 errors"} .-> STOP(["Task ends early<br/>(error out)"])
+        BWD_TRIALS -- All 12 trials played --> END([END])
+    end
+
+    %% Legend: keep it after all other arrows so it doesn't shift the linkStyle numbers below
+    subgraph LEGEND["LEGEND"]
+        direction LR
+        LG_DX("Downex (age ≤ 4) only"):::downex
+        LG_NDX("Non-downex (age > 4) only"):::nondownex
+        LG_BOTH("Both flows")
+        LG_TERM(["Start / end"])
+        LG_STEP("Screen or trials")
+        LG_CHECK{"Check"}
+        LG_A1[" "] --> LG_A2["If all goes well"]
+        LG_A3[" "] .-> LG_A4["If something doesn't go well"]
+        %% invisible links lay each legend row out left to right
+        LG_DX ~~~ LG_NDX ~~~ LG_BOTH
+        LG_TERM ~~~ LG_STEP ~~~ LG_CHECK
+    end
+    STOP ~~~ LEGEND
+
+    classDef default fill:#FFFFFF,stroke:#1a1a1a,color:#1a1a1a
+    classDef downex fill:#FDEBD3,stroke:#C7711A,color:#1a1a1a
+    classDef nondownex fill:#DCEBFA,stroke:#2F6FB5,color:#1a1a1a
+    class FWD_PRAC_INST_DX,FWD_PRAC_TRIALS_DX_LEN1,FWD_PRAC_INSTR_DX_LEN2,FWD_PRAC_TRIALS_DX_LEN2,BWD_PRAC_INST_DX,BWD_PRAC_TRIALS_DX_LEN2 downex
+    class FWD_PRAC_INST,FWD_PRAC_TRIALS,THIRD_TRIAL_CHECK,BWD_PRAC_INST,BWD_PRAC_TRIALS,BWD_THIRD_TRIAL_CHECK,FALLBACK_CHECK,START_LEN nondownex
+    style RESET stroke:none,fill:none
+    %% diamonds: no background, keep the border color from their class
+    style THIRD_TRIAL_CHECK fill:none
+    style FALLBACK_CHECK fill:none
+    style BWD_THIRD_TRIAL_CHECK fill:none
+    style START_LEN fill:none
+    style THIRD_ERROR fill:none
+    style BWD_THIRD_ERROR fill:none
+    style LG_CHECK fill:none
+    %% legend arrow endpoints are invisible
+    style LG_A1 fill:none,stroke:none
+    style LG_A2 fill:none,stroke:none
+    style LG_A3 fill:none,stroke:none
+    style LG_A4 fill:none,stroke:none
+
+    %% section boxes: light grey instead of the default theme's yellow
+    style FORWARD_PRACTICE fill:#F4F4F4,stroke:#C8C8C8
+    style FWD_TEST fill:#F4F4F4,stroke:#C8C8C8
+    style BWD_PRACTICE fill:#F4F4F4,stroke:#C8C8C8
+    style BWD_TEST fill:#F4F4F4,stroke:#C8C8C8
+    style LEGEND fill:#FFFFFF,stroke:#C8C8C8
+
+    %% Arrow colors go by arrow order (0 = first arrow written, each segment of a chain counts).
+    %% Adding, removing or reordering an arrow above shifts these numbers.
+    linkStyle 17,18,19,33,34,35,36,37 stroke:#1a1a1a,stroke-width:2px,color:#1a1a1a
+    linkStyle 0,2,3,4,8,12,13,21,25,26,29 stroke:#C7711A,stroke-width:2px,color:#9A5410
+    linkStyle 1,5,6,7,9,10,11,14,15,16,20,22,23,24,27,28,30,31,32 stroke:#2F6FB5,stroke-width:2px,color:#1F4E85
 ```
 
 Test trials played: forward 3–14, backward 3–12, whole task 6–26. A run counts as complete at 21 test trials (80% of 26). See the next section.
@@ -126,10 +172,10 @@ Counts below are for the current corpus, with the error budget from the `maxInco
 
 | Block | Default flow | Heavy flow |
 |---|---|---|
-| Forward practice | 2 trials with feedback. If the 2nd is wrong, both are replayed (the last gets feedback only if correct): **2 or 4** | 4 trials at lengths 1, 1, 2, 2. Each wrong answer adds one input-only retry with the next block pulsing: **4 trials, plus 0–4 retries** |
-| Fallback replay (at most once, during the early forward trials) | the heavy forward practice: **4 trials, plus 0–4 retries** | same |
+| Forward practice | 3 trials with feedback. If the 3rd is wrong, all 3 are replayed (the last gets feedback only if correct): **3 or 6** | 6 trials at lengths 1, 1, 1, 2, 2, 2. Each wrong answer on one of the 4 unguided trials adds one input-only retry with the next block pulsing: **6 trials, plus 0–4 retries** |
+| Fallback replay (at most once, during the early forward trials) | the heavy forward practice: **6 trials, plus 0–4 retries** | same |
 | Forward test | **at most 14**, at least 3 | same |
-| Backward practice | 2 trials with feedback, both replayed if the 2nd is wrong: **2 or 4** | 3 trials (1 guided at the staircase length, then 2 at length 2), each with an optional retry: **3, plus 0–3 retries** |
+| Backward practice | 3 trials with feedback, all 3 replayed if the 3rd is wrong: **3 or 6** | 3 trials (1 guided at the staircase length, then 2 at length 2). The 2 unguided trials can each add a retry: **3, plus 0–2 retries** |
 | Backward test | **at most 12**, at least 3 | same |
 
 Practice trials never count as test trials, toward the error budget, or toward completion.
