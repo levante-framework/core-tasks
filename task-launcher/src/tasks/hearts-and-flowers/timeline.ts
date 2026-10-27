@@ -1,3 +1,4 @@
+import groupBy from 'lodash/groupBy';
 // setup
 import { taskStore } from '../../taskStore';
 import { createPreloadTrials, initTimeline, initTrialSaving, reportCorpusValidationErrors } from '../shared/helpers';
@@ -8,11 +9,15 @@ import {
   BLOCK_STIMULUS_TYPE,
   BlockType,
   type CorpusRow,
+  findFeedbackRow,
   getAudioKey,
   getImageKey,
-  INSTRUCTION_PRACTICE_SIDES,
+  getInstructionPracticeSide,
+  type HaFStimulusType,
+  isFeedbackRow,
   isInstructionRow,
   isPracticeInstructionRow,
+  type StimulusSideType,
 } from './helpers/utils';
 import { getCorpusValidationErrors } from './helpers/validation';
 import { fixation } from './trials/fixation';
@@ -23,11 +28,7 @@ import {
   getLeftButtonDemo,
   getRightButtonDemo,
 } from './trials/instructions';
-import {
-  buildInstructionPracticeTrial,
-  buildMixedPracticeFeedback,
-  buildStimulusInvariantPracticeFeedback,
-} from './trials/practice';
+import { buildInstructionPracticeTrial, buildPracticeFeedback } from './trials/practice';
 import { buildHeartsOrFlowersTimelineVariables, buildMixedTimelineVariables, stimulus } from './trials/stimulus';
 
 const INTER_STIMULUS_INTERVAL = 500;
@@ -38,6 +39,10 @@ const PRACTICE_WIN_STREAK: Record<BlockType, number> = {
 };
 // The faster mixed blocks
 const FASTER_MIXED_BLOCKS = [3, 4];
+
+type FeedbackOutcome = 'correct' | 'incorrect';
+/** The prompt to play after a practice answer with the given outcome and stimulus, or undefined for no feedback. */
+type GetFeedbackPromptKey = (row: CorpusRow, outcome: FeedbackOutcome, stimulus: HaFStimulusType) => string | undefined;
 
 export default function buildHeartsAndFlowersTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const { heavyInstructions } = taskStore();
@@ -58,10 +63,22 @@ export default function buildHeartsAndFlowersTimeline(config: Record<string, any
   timeline.push(getLeftButtonDemo());
   timeline.push(getRightButtonDemo());
 
-  const rowGroups = groupCorpusRows(corpus);
-  reportCorpusValidationErrors(getCorpusValidationErrors(rowGroups, mediaAssets, taskStore().translations));
+  // Feedback rows aren't played in order; a practice row's feedback_item_ids name the feedback rows to play
+  // after a correct and a wrong answer. Rows can share a feedback item_id, one for each stimulus.
+  const feedbackRows = corpus.filter(isFeedbackRow);
+  const feedbackRowsById = groupBy(feedbackRows, (row) => row.itemId);
+  const getFeedbackPromptKey: GetFeedbackPromptKey = (row, outcome, stimulus) => {
+    const feedbackItemId = row.feedbackItemIds?.[outcome === 'correct' ? 0 : 1];
+    const feedbackRow = feedbackItemId ? findFeedbackRow(feedbackRowsById[feedbackItemId] ?? [], stimulus) : undefined;
+    return feedbackRow && getAudioKey(feedbackRow);
+  };
+
+  const rowGroups = groupCorpusRows(corpus.filter((row) => !isFeedbackRow(row)));
+  reportCorpusValidationErrors(
+    getCorpusValidationErrors(rowGroups, feedbackRows, mediaAssets, taskStore().translations),
+  );
   for (const rows of rowGroups) {
-    timeline.push(buildRowsTimeline(rows, mediaAssets));
+    timeline.push(buildRowsTimeline(rows, mediaAssets, getFeedbackPromptKey));
   }
 
   timeline.push(getEndGame());
@@ -92,7 +109,11 @@ function groupCorpusRows(corpus: CorpusRow[]) {
   return groups;
 }
 
-function buildRowsTimeline(rows: CorpusRow[], mediaAssets: MediaAssetsType) {
+function buildRowsTimeline(
+  rows: CorpusRow[],
+  mediaAssets: MediaAssetsType,
+  getFeedbackPromptKey: GetFeedbackPromptKey,
+) {
   const [row] = rows;
   const audioKey = getAudioKey(row);
 
@@ -101,66 +122,68 @@ function buildRowsTimeline(rows: CorpusRow[], mediaAssets: MediaAssetsType) {
   }
 
   if (isPracticeInstructionRow(row)) {
-    return buildPracticeInstructionBlock(row, mediaAssets);
+    return buildPracticeInstructionBlock(row, mediaAssets, getFeedbackPromptKey);
   }
 
-  return row.assessmentStage === 'practice_response' ? buildPracticeBlock(rows) : buildTestBlock(rows);
+  return row.assessmentStage === 'practice_response'
+    ? buildPracticeBlock(rows, getFeedbackPromptKey)
+    : buildTestBlock(rows);
 }
 
-function buildPracticeInstructionBlock(row: CorpusRow, mediaAssets: MediaAssetsType) {
+function buildPracticeInstructionBlock(
+  row: CorpusRow,
+  mediaAssets: MediaAssetsType,
+  getFeedbackPromptKey: GetFeedbackPromptKey,
+) {
   const audioKey = getAudioKey(row);
-
-  const instructionPracticeFeedback = buildStimulusInvariantPracticeFeedback(
-    'heartsAndFlowersTryAgain',
-    'feedbackGoodJob',
-  );
+  const stimulusType = BLOCK_STIMULUS_TYPE[row.trialType];
 
   return {
     timeline: [
       buildInstructionPracticeTrial(
-        BLOCK_STIMULUS_TYPE[row.trialType],
+        stimulusType,
         taskStore().translations[audioKey],
         mediaAssets.audio[audioKey],
-        INSTRUCTION_PRACTICE_SIDES[audioKey],
+        // validation guarantees the row has a left or right answer
+        getInstructionPracticeSide(row) as StimulusSideType,
         audioKey,
       ),
-      instructionPracticeFeedback,
+      buildPracticeFeedback('correct', () => getFeedbackPromptKey(row, 'correct', stimulusType)),
+      buildPracticeFeedback('incorrect', () => getFeedbackPromptKey(row, 'incorrect', stimulusType)),
     ],
     loop_function: () => taskStore().isCorrect === false,
   };
 }
 
-function buildPracticeBlock(rows: CorpusRow[]) {
+/**
+ * Each row is a stimulus followed by its feedback. Once the child gets the win streak in a row,
+ * the trial's feedback still plays and the rest of the block is skipped.
+ */
+function buildPracticeBlock(rows: CorpusRow[], getFeedbackPromptKey: GetFeedbackPromptKey) {
   const [row] = rows;
   const blockType = row.trialType as BlockType;
 
   let practiceWinStreakCount = 0;
+  let currentRow = row;
   const onStimulusTrialFinishTimelineCallback = (data: Record<string, unknown>) => {
     practiceWinStreakCount = data.correct ? practiceWinStreakCount + 1 : 0;
+    currentRow = jsPsych.timelineVariable('corpusRow');
   };
-  const onFeedbackTrialFinishTimelineCallback = (_data: Record<string, unknown>) => {
-    if (practiceWinStreakCount >= PRACTICE_WIN_STREAK[blockType]) {
-      jsPsych.endCurrentTimeline();
-    }
-  };
-
-  const practiceFeedback =
-    blockType === BlockType.Mixed
-      ? buildMixedPracticeFeedback(
-          'heartPracticeFeedback2',
-          'feedbackGoodJob',
-          'flowerPracticeFeedback2',
-          'feedbackGoodJob',
-          onFeedbackTrialFinishTimelineCallback,
-        )
-      : buildStimulusInvariantPracticeFeedback(
-          blockType === BlockType.Hearts ? 'heartPracticeFeedback2' : 'flowerPracticeFeedback2',
-          'feedbackGoodJob',
-          onFeedbackTrialFinishTimelineCallback,
-        );
+  const getPromptKey = (outcome: FeedbackOutcome) => () =>
+    getFeedbackPromptKey(currentRow, outcome, taskStore().stimulus);
 
   return {
-    timeline: [fixation(INTER_STIMULUS_INTERVAL), stimulus(onStimulusTrialFinishTimelineCallback), practiceFeedback],
+    timeline: [
+      {
+        timeline: [
+          fixation(INTER_STIMULUS_INTERVAL),
+          stimulus(onStimulusTrialFinishTimelineCallback),
+          buildPracticeFeedback('correct', getPromptKey('correct')),
+          buildPracticeFeedback('incorrect', getPromptKey('incorrect')),
+        ],
+        conditional_function: () => practiceWinStreakCount < PRACTICE_WIN_STREAK[blockType],
+      },
+    ],
     timeline_variables: buildBlockTimelineVariables(rows),
     randomize_order: false,
   };

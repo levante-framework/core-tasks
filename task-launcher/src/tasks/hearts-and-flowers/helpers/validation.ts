@@ -1,12 +1,16 @@
+import groupBy from 'lodash/groupBy';
 import {
   BlockType,
   type CorpusRow,
+  findFeedbackRow,
   getAudioKey,
   getImageKey,
+  getInstructionPracticeSide,
+  getRowStimuli,
   HaFStimulusType,
-  INSTRUCTION_PRACTICE_SIDES,
   isInstructionRow,
   isPracticeInstructionRow,
+  STIMULUS_BLOCK_TYPE,
 } from './utils';
 
 // Assets used by trials that don't come from a corpus row
@@ -19,11 +23,6 @@ const REQUIRED_PROMPTS = [
   'heartsAndFlowersInstructTouchscreen',
   'heartsAndFlowersInstructKeyboard',
   'heartsAndFlowersEnd',
-  // practice feedback
-  'heartsAndFlowersTryAgain',
-  'feedbackGoodJob',
-  'heartPracticeFeedback2',
-  'flowerPracticeFeedback2',
 ];
 const REQUIRED_TEXT = ['continueButtonText', 'heartsAndFlowersPressAnyKey'];
 const REQUIRED_SOUNDS = ['coin', 'fail'];
@@ -34,10 +33,14 @@ const REQUIRED_SOUNDS = ['coin', 'fail'];
  */
 export function getCorpusValidationErrors(
   rowGroups: CorpusRow[][],
+  feedbackRows: CorpusRow[],
   mediaAssets: MediaAssetsType,
   translations: Record<string, string>,
 ) {
-  const errors = getFixedAssetErrors(mediaAssets, translations);
+  const errors = {
+    ...getFixedAssetErrors(mediaAssets, translations),
+    ...getFeedbackErrors(rowGroups.flat(), feedbackRows, mediaAssets, translations),
+  };
   if (!rowGroups.flat().some((row) => row.assessmentStage === 'test_response')) {
     errors.corpus = 'no test rows; the corpus is missing or failed to load';
   }
@@ -93,9 +96,9 @@ function getRowsError(
     return mediaAssets.images[getImageKey(row)] ? null : `no image named "${row.image}"`;
   }
   if (isPracticeInstructionRow(row)) {
-    return getAudioKey(row) in INSTRUCTION_PRACTICE_SIDES
+    return getInstructionPracticeSide(row)
       ? null
-      : `no stimulus side defined for instruction practice audio_file "${row.audioFile}"`;
+      : `instruction practice rows need answer "left" or "right" (the correct button), got "${row.answer ?? ''}"`;
   }
 
   if (row.assessmentStage !== 'practice_response' && row.assessmentStage !== 'test_response') {
@@ -113,4 +116,68 @@ function getRowsError(
     return `invalid time_limit "${invalidTimeLimitRow.timeLimit}"`;
   }
   return null;
+}
+
+/**
+ * Describes what is wrong with the feedback rows and with the practice rows' feedback_item_ids:
+ * every linked item_id needs a feedback row for each stimulus the practice row can show.
+ */
+function getFeedbackErrors(
+  rows: CorpusRow[],
+  feedbackRows: CorpusRow[],
+  mediaAssets: MediaAssetsType,
+  translations: Record<string, string>,
+) {
+  const errors: Record<string, string> = {};
+  const feedbackRowsById = groupBy(feedbackRows, (row) => row.itemId);
+  const feedbackTrialTypes = ['', ...Object.values(STIMULUS_BLOCK_TYPE)];
+
+  for (const row of feedbackRows) {
+    const errorKey = `feedback:${row.itemId}:${row.trialType || 'any'}`;
+    if (!feedbackTrialTypes.includes(row.trialType ?? '')) {
+      errors[errorKey] = `feedback rows take trial_type hearts, flowers or blank, got "${row.trialType}"`;
+    } else if (!getAudioKey(row) || Array.isArray(row.audioFile)) {
+      errors[errorKey] = `feedback rows take one audio_file, got "${row.audioFile ?? ''}"`;
+    } else if (feedbackRowsById[row.itemId].filter((r) => (r.trialType ?? '') === (row.trialType ?? '')).length > 1) {
+      errors[errorKey] = 'more than one feedback row with this item_id and trial_type';
+    } else {
+      const missing = getMissingPromptAssets(getAudioKey(row), mediaAssets, translations);
+      if (missing.length) errors[errorKey] = `no ${missing.join(' or ')} for audio_file "${row.audioFile}"`;
+    }
+  }
+
+  const [correctIds, incorrectIds] = [new Set<string>(), new Set<string>()];
+  for (const row of rows) {
+    if (!row.feedbackItemIds) continue;
+    const errorKey = `${row.block_index}:${row.itemId}:feedback`;
+    if (row.assessmentStage !== 'practice_response' && !isPracticeInstructionRow(row)) {
+      errors[errorKey] = 'only practice and instruction practice rows can have feedback_item_ids';
+      continue;
+    }
+    if (row.feedbackItemIds.length !== 2) {
+      errors[errorKey] =
+        `feedback_item_ids must be "correct,incorrect" item_ids (either can be blank), got "${row.feedbackItemIds}"`;
+      continue;
+    }
+    const [correctId, incorrectId] = row.feedbackItemIds;
+    if (correctId) correctIds.add(correctId);
+    if (incorrectId) incorrectIds.add(incorrectId);
+    for (const itemId of [correctId, incorrectId].filter(Boolean)) {
+      const missingStimuli = getRowStimuli(row).filter(
+        (stimulus) => !findFeedbackRow(feedbackRowsById[itemId] ?? [], stimulus),
+      );
+      if (missingStimuli.length) {
+        errors[errorKey] = `no feedback row with item_id "${itemId}" for ${missingStimuli.join(' or ')}`;
+      }
+    }
+  }
+
+  for (const itemId of Object.keys(feedbackRowsById)) {
+    if (!correctIds.has(itemId) && !incorrectIds.has(itemId)) {
+      errors[`feedback:${itemId}`] = 'no practice row has this item_id in feedback_item_ids';
+    } else if (correctIds.has(itemId) && incorrectIds.has(itemId)) {
+      errors[`feedback:${itemId}`] = 'used as both correct and incorrect feedback';
+    }
+  }
+  return errors;
 }

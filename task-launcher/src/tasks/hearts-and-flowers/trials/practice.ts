@@ -13,7 +13,13 @@ import {
 } from '../../shared/helpers';
 import { isTouchScreen, jsPsych } from '../../taskSetup';
 import { setupHafMultiResponseTouchRouting } from '../helpers/touchResponseRouting';
-import { getCorrectInputSide, getStimulusLayout, InputKeyType, StimulusSideType, HaFStimulusType } from '../helpers/utils';
+import {
+  getCorrectInputSide,
+  getStimulusLayout,
+  type HaFStimulusType,
+  InputKeyType,
+  StimulusSideType,
+} from '../helpers/utils';
 
 /**
  * Builds a practice trial for the Instruction sections.
@@ -131,112 +137,30 @@ export function buildInstructionPracticeTrial(
   return trial;
 }
 
-//TODO: It may seem silly to keep and export these two functions below, but in case we want to
-// refactor the feedback trials to NOT dynamically change their prompt and side it will help
-// minimize the impact on the calling code.
-
-/**stimulusType, promptText, promptAudioAsset, stimulusSideType
- * Builds a feedback trial for cases where the feedback prompt may change only depending on
- * whether the answer was correct or incorrect.
- */
-export function buildStimulusInvariantPracticeFeedback(
-  feedbackPromptIncorrectKey: string,
-  feedbackPromptCorrectKey: string,
-  onFinishTimelineCallback?: (data: Record<string, unknown>) => void,
-) {
-  return buildPracticeFeedback(
-    feedbackPromptIncorrectKey,
-    feedbackPromptCorrectKey,
-    feedbackPromptIncorrectKey,
-    feedbackPromptCorrectKey,
-    onFinishTimelineCallback,
-  );
-}
-
 /**
- * Builds a feedback trial for cases where the feedback prompt may change depending on
- * the stimulus type and whether the answer was correct or incorrect.
+ * Builds the feedback shown after a practice answer with the given outcome. It only runs when the answer
+ * had that outcome and getPromptKey returns a prompt (a blank feedback item means no feedback).
+ * Correct feedback shows a smiling face with the prompt; incorrect feedback shows the stimulus again
+ * with the correct button pulsing while the prompt plays.
  */
-export function buildMixedPracticeFeedback(
-  heartFeedbackPromptIncorrectKey: string,
-  heartfeedbackPromptCorrectKey: string,
-  flowerFeedbackPromptIncorrectKey: string,
-  flowerfeedbackPromptCorrectKey: string,
-  onFinishTimelineCallback?: (data: Record<string, unknown>) => void,
-) {
-  return buildPracticeFeedback(
-    heartFeedbackPromptIncorrectKey,
-    heartfeedbackPromptCorrectKey,
-    flowerFeedbackPromptIncorrectKey,
-    flowerfeedbackPromptCorrectKey,
-    onFinishTimelineCallback,
-  );
-}
-
-/**
- * Builds a feedback trial for instructions practice trials and practice trials.
- */
-function buildPracticeFeedback(
-  heartFeedbackPromptIncorrectKey: string,
-  heartfeedbackPromptCorrectKey: string,
-  flowerFeedbackPromptIncorrectKey: string,
-  flowerfeedbackPromptCorrectKey: string,
-  onFinishTimelineCallback?: (data: Record<string, unknown>) => void,
-) {
+export function buildPracticeFeedback(outcome: 'correct' | 'incorrect', getPromptKey: () => string | undefined) {
+  const isCorrectFeedback = outcome === 'correct';
   const validAnswerButtonHtmlIdentifier = 'valid-answer-btn';
-  const feedbackTexts = {
-    IncorrectHeart: taskStore().translations[heartFeedbackPromptIncorrectKey],
-    CorrectHeart: taskStore().translations[heartfeedbackPromptCorrectKey],
-    IncorrectFlower: taskStore().translations[flowerFeedbackPromptIncorrectKey],
-    CorrectFlower: taskStore().translations[flowerfeedbackPromptCorrectKey],
-  };
-  const feedbackAudio = {
-    IncorrectHeart: heartFeedbackPromptIncorrectKey,
-    CorrectHeart: heartfeedbackPromptCorrectKey,
-    IncorrectFlower: flowerFeedbackPromptIncorrectKey,
-    CorrectFlower: flowerfeedbackPromptCorrectKey,
-  };
-  Object.entries(feedbackTexts).forEach(([key, value]) => {
-    if (!value) {
-      // throw new Error(`Missing feedback text for ${key}`);
-      Logger.getInstance().error(new Error(`buildPracticeFeedback: Missing feedback text for ${key}`));
-    }
-  });
-  Object.entries(feedbackAudio).forEach(([key, value]) => {
-    if (!value) {
-      // throw new Error(`Missing feedback audio for ${key}`);
-      Logger.getInstance().error(new Error(`buildPracticeFeedback: Missing feedback audio for ${key}`));
-    }
-  });
-
-  function getAssetKey() {
-    const heartsKey = taskStore().stimulus === HaFStimulusType.Heart ? 'Heart' : 'Flower';
-    const correctKey = taskStore().isCorrect === false ? 'Incorrect' : 'Correct';
-    return feedbackAudio[`${correctKey}${heartsKey}`];
-  }
 
   const trial = {
     type: jsPsychHtmlMultiResponse,
     stimulus: () => {
-      const stimulusType = taskStore().stimulus;
-      const incorrect = taskStore().isCorrect === false;
-      //TODO: now that the 'correct' feedback layout differs significantly from the 'incorrect' feedback layout, we should consider
-      // moving them to separate trials and using conditional trials
-      if (!incorrect) {
-        const correctPrompt =
-          stimulusType === HaFStimulusType.Heart ? feedbackTexts.CorrectHeart : feedbackTexts.CorrectFlower;
+      const promptText = taskStore().translations[getPromptKey() ?? ''];
+      if (isCorrectFeedback) {
         return `
           <div class='haf-cr-container'>
             <img src='${mediaAssets.images.smilingFace}' />
-            <p class='lev-text h4 primary'>${correctPrompt}</p>
+            <p class='lev-text h4 primary'>${promptText}</p>
           </div>
           ${getParticipantUtilityButtonsHtml('replay-btn-revisited', false)}
         `;
       }
-      //no else: user input was incorrect
-      const imageSrc = mediaAssets.images[stimulusType];
-      const promptText =
-        stimulusType === HaFStimulusType.Heart ? feedbackTexts.IncorrectHeart : feedbackTexts.IncorrectFlower;
+      const imageSrc = mediaAssets.images[taskStore().stimulus];
       return getStimulusLayout(imageSrc, taskStore().stimulusSide === StimulusSideType.Left, promptText, undefined);
     },
     prompt_above_buttons: true,
@@ -257,7 +181,7 @@ function buildPracticeFeedback(
         addKeyHelpers(button, i);
       });
 
-      const audioAssetKey = getAssetKey();
+      const audioAssetKey = getPromptKey() ?? '';
       const audioConfig = {
         restrictRepetition: {
           enabled: true,
@@ -274,7 +198,7 @@ function buildPracticeFeedback(
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
     keyboard_choices: 'NO_KEYS',
     button_html: () => {
-      if (taskStore().isCorrect === false) {
+      if (!isCorrectFeedback) {
         const validAnswerPosition = getCorrectInputSide(taskStore().stimulus, taskStore().stimulusSide);
         return validAnswerPosition === 0 // is valid answer on the left?
           ? [
@@ -305,13 +229,13 @@ function buildPracticeFeedback(
         return `<button class='secondary--green' style='display: none;'></button>`;
       }
     },
-    on_finish: (data: Record<string, unknown>) => {
+    on_finish: () => {
       PageAudioHandler.stopAndDisconnectNode();
-
-      if (onFinishTimelineCallback) {
-        onFinishTimelineCallback(data);
-      }
     },
   };
-  return trial;
+
+  return {
+    timeline: [trial],
+    conditional_function: () => (taskStore().isCorrect !== false) === isCorrectFeedback && Boolean(getPromptKey()),
+  };
 }

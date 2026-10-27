@@ -30,7 +30,15 @@ export type InputKeyType = (typeof InputKeyType)[keyof typeof InputKeyType];
 
 export type CorpusRow = Pick<
   StimulusType,
-  'itemId' | 'block_index' | 'assessmentStage' | 'trialType' | 'audioFile' | 'image' | 'timeLimit'
+  | 'itemId'
+  | 'block_index'
+  | 'assessmentStage'
+  | 'trialType'
+  | 'audioFile'
+  | 'image'
+  | 'answer'
+  | 'timeLimit'
+  | 'feedbackItemIds'
 >;
 
 // The trial_type of practice and test rows
@@ -45,13 +53,10 @@ export const BLOCK_STIMULUS_TYPE: Record<string, HaFStimulusType> = {
   [BlockType.Flowers]: HaFStimulusType.Flower,
 };
 
-// Instruction practice trials show the stimulus on a fixed side, because the prompt audio names it.
-// Keyed by the camelized audio_file of the row.
-export const INSTRUCTION_PRACTICE_SIDES: Record<string, StimulusSideType> = {
-  heartInstruct2: StimulusSideType.Left,
-  heartPracticeFeedback1: StimulusSideType.Right,
-  flowerInstruct2: StimulusSideType.Right,
-  flowerPracticeFeedback1: StimulusSideType.Left,
+// The trial_type of a feedback row that only applies to one stimulus; feedback rows with a blank trial_type apply to both
+export const STIMULUS_BLOCK_TYPE: Record<HaFStimulusType, BlockType> = {
+  [HaFStimulusType.Heart]: BlockType.Hearts,
+  [HaFStimulusType.Flower]: BlockType.Flowers,
 };
 
 export function getAudioKey(row: CorpusRow) {
@@ -68,6 +73,39 @@ export function isInstructionRow(row: CorpusRow) {
 
 export function isPracticeInstructionRow(row: CorpusRow) {
   return row.assessmentStage === 'instructions' && row.trialType in BLOCK_STIMULUS_TYPE;
+}
+
+export function isFeedbackRow(row: CorpusRow) {
+  return row.assessmentStage === 'feedback';
+}
+
+/** The stimuli a practice or instruction practice row can show: both for mixed blocks. */
+export function getRowStimuli(row: CorpusRow): HaFStimulusType[] {
+  return row.trialType in BLOCK_STIMULUS_TYPE
+    ? [BLOCK_STIMULUS_TYPE[row.trialType]]
+    : [HaFStimulusType.Heart, HaFStimulusType.Flower];
+}
+
+/**
+ * Instruction practice trials show the stimulus on a fixed side, because the prompt audio names it.
+ * The row's answer is the correct button, so the stimulus is on that side for a heart and the other side for a flower.
+ */
+export function getInstructionPracticeSide(row: CorpusRow): StimulusSideType | undefined {
+  const answer = String(row.answer ?? '').trim();
+  if (answer !== StimulusSideType.Left && answer !== StimulusSideType.Right) return undefined;
+  if (BLOCK_STIMULUS_TYPE[row.trialType] === HaFStimulusType.Heart) return answer;
+  return answer === StimulusSideType.Left ? StimulusSideType.Right : StimulusSideType.Left;
+}
+
+/**
+ * The feedback row for a stimulus among the rows that share a feedback item_id: the row for that
+ * stimulus's trial_type, or else the row with a blank trial_type.
+ */
+export function findFeedbackRow(rowsWithId: CorpusRow[], stimulus: HaFStimulusType) {
+  return (
+    rowsWithId.find((row) => row.trialType === STIMULUS_BLOCK_TYPE[stimulus]) ??
+    rowsWithId.find((row) => !row.trialType)
+  );
 }
 
 export function getCorrectInputSide(stimulusType: HaFStimulusType, stimulusSideType: StimulusSideType): 0 | 1 {
