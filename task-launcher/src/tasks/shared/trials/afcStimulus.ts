@@ -67,6 +67,10 @@ async function playTrialAudio(
     const audioUri = mediaAssets.audio[camelize(audioFile)];
     const isLastAudio = index === trialAudio.length - 1;
 
+    if (taskStore().isPaused) {
+      break;
+    }
+
     await new Promise<void>((resolve) => {
       const configWithCallback: AudioConfigType = {
         ...sequentialAudioConfig,
@@ -285,6 +289,8 @@ async function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial
     }
   }
 
+  const pageStateHandler = new PageStateHandler(stim.audioFile, playAudioOnLoad);
+
   const audioConfig: AudioConfigType = {
     restrictRepetition: {
       enabled: true,
@@ -292,10 +298,9 @@ async function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial
     },
     onEnded: () => {
       enableOkButton();
+      pageStateHandler.enableReplayBtn();
     },
   };
-
-  const pageStateHandler = new PageStateHandler(stim.audioFile, playAudioOnLoad);
 
   void playTrialAudio(stim.audioFile, playAudioOnLoad, audioConfig, animationConfig);
   const isPracticeTrial = stim.assessmentStage === 'practice_response';
@@ -357,7 +362,7 @@ async function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial
     taskStore.transact('trialNumSubtask', (oldVal: number) => oldVal + 1);
   }
 
-  setupReplayAudio(pageStateHandler);
+  setupReplayAudio(pageStateHandler, false);
 
   // display debug info if enabled
   displayDebugInfo(stim);
