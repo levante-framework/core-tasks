@@ -127,7 +127,8 @@ export const setSharedConfig = async (
 
     cat: !!cat, // defaults to false
     heavyInstructions: !!heavyInstructions,
-    experimenterButtons: !!experimenterButtons,
+    // On unless a variant explicitly sets this false. The under-5 gate is applied in setTaskStore.
+    experimenterButtons: experimenterButtons !== false,
     showAudioKeys: !!showAudioKeys,
     inferenceNumStories: Number(inferenceNumStories) || undefined,
     numberOfStories: Number(numberOfStories) || 3,
