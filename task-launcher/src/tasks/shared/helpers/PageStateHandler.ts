@@ -14,6 +14,7 @@ export class PageStateHandler {
   audioBuffer?: AudioBuffer | AudioBuffer[];
   replayBtn: HTMLButtonElement;
   playStimulusOnLoad: boolean;
+  replayEnableTimeoutId?: ReturnType<typeof setTimeout>;
 
   constructor(audioFile: string | string[], playStimulusOnLoad: boolean) {
     this.audioFile = audioFile;
@@ -56,11 +57,27 @@ export class PageStateHandler {
     return this.replayBtn.hasAttribute('disabled');
   }
 
+  cancelScheduledReplayEnable() {
+    if (this.replayEnableTimeoutId !== undefined) {
+      clearTimeout(this.replayEnableTimeoutId);
+      this.replayEnableTimeoutId = undefined;
+    }
+  }
+
+  scheduleReplayEnableAfterMs(delayMs: number) {
+    this.cancelScheduledReplayEnable();
+    this.replayEnableTimeoutId = setTimeout(() => {
+      this.replayEnableTimeoutId = undefined;
+      this.enableReplayBtn();
+    }, delayMs);
+  }
+
   enableReplayBtn() {
     this.replayBtn.disabled = false;
   }
 
   disableReplayBtn() {
+    this.cancelScheduledReplayEnable();
     this.replayBtn.disabled = true;
   }
 }

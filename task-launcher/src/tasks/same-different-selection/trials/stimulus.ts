@@ -250,10 +250,12 @@ export const stimulus = (trial?: StimulusType) => {
 
       currentTrialId = stimulus.itemId;
 
+      let pageStateHandler: PageStateHandler | undefined;
+
       if (trialType === 'something-same-2') {
         // something-same-2 trials have multiple audio files
         const audioKeys = [...(audioFile as string[])];
-        const pageStateHandler = new PageStateHandler(audioKeys, true);
+        pageStateHandler = new PageStateHandler(audioKeys, true);
         const queue = [...audioKeys];
         setupReplayAudio(pageStateHandler);
 
@@ -377,7 +379,7 @@ export const stimulus = (trial?: StimulusType) => {
           });
         });
 
-        let numberOfErrors = 0;
+        const numberOfErrors = 0;
 
         if (stimulus.assessmentStage === 'practice_response') {
           const okButton = document.querySelector('.primary') as HTMLButtonElement;
@@ -388,22 +390,28 @@ export const stimulus = (trial?: StimulusType) => {
               rightPrompt.innerHTML = `<p>${taskStore().translations.feedbackNotQuiteRight}</p>`;
               leftPrompt.style.visibility = 'hidden';
 
-              numberOfErrors++;
+              const feedbackAudio = 'feedbackNotQuiteRight';
+              pageStateHandler!.audioFile = feedbackAudio;
 
               const audioConfig: AudioConfigType = {
                 restrictRepetition: {
                   enabled: false,
                 },
+                onEnded: () => {
+                  pageStateHandler!.enableReplayBtn();
+                },
               };
 
-              PageAudioHandler.stopAndDisconnectNode();
-              PageAudioHandler.playAudio('feedbackNotQuiteRight', audioConfig);
+              PageAudioHandler.stopAndDisconnectNode(true);
+              pageStateHandler!.disableReplayBtn();
+              PageAudioHandler.playAudio(feedbackAudio, audioConfig);
 
               responseBtns.forEach((btn) => {
                 btn.classList.remove(SELECT_CLASS_NAME);
               });
               selection = null;
               selectionIdx = null;
+              disableOkButton();
 
               if (numberOfErrors >= 2) {
                 responseBtns[taskStore().correctResponseIdx].style.animation = 'pulse 2s infinite';
