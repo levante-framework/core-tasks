@@ -379,7 +379,7 @@ export const stimulus = (trial?: StimulusType) => {
           });
         });
 
-        const numberOfErrors = 0;
+        let numberOfErrors = 0;
 
         if (stimulus.assessmentStage === 'practice_response') {
           const okButton = document.querySelector('.primary') as HTMLButtonElement;
@@ -387,24 +387,43 @@ export const stimulus = (trial?: StimulusType) => {
             if (selectionIdx !== taskStore().correctResponseIdx) {
               const rightPrompt = document.getElementById('right-prompt') as HTMLParagraphElement;
               const leftPrompt = document.getElementById('left-prompt') as HTMLParagraphElement;
-              rightPrompt.innerHTML = `<p>${taskStore().translations.feedbackNotQuiteRight}</p>`;
+              const secondPromptAudio = (audioFile as string[])[1];
+              const feedbackAudio = ['feedbackNotQuiteRight', secondPromptAudio];
+
+              pageStateHandler!.audioFile = feedbackAudio;
+
+              rightPrompt.innerHTML = `<p>${taskStore().translations.feedbackNotQuiteRight} ${
+                taskStore().translations[camelize(secondPromptAudio)]
+              }</p>`;
               leftPrompt.style.visibility = 'hidden';
 
-              const feedbackAudio = 'feedbackNotQuiteRight';
-              pageStateHandler!.audioFile = feedbackAudio;
+              numberOfErrors++;
+              const numberOfErrorsThisCall = numberOfErrors;
 
               const audioConfig: AudioConfigType = {
                 restrictRepetition: {
                   enabled: false,
                 },
                 onEnded: () => {
-                  pageStateHandler!.enableReplayBtn();
+                  const secondAudioConfig: AudioConfigType = {
+                    restrictRepetition: {
+                      enabled: false,
+                    },
+                    onEnded: () => {
+                      pageStateHandler!.enableReplayBtn();
+                    },
+                  };
+
+                  if (numberOfErrorsThisCall === numberOfErrors) {
+                    // don't overlap audio
+                    PageAudioHandler.playAudio(feedbackAudio[1], secondAudioConfig);
+                  }
                 },
               };
 
               PageAudioHandler.stopAndDisconnectNode(true);
               pageStateHandler!.disableReplayBtn();
-              PageAudioHandler.playAudio(feedbackAudio, audioConfig);
+              PageAudioHandler.playAudio(feedbackAudio[0], audioConfig);
 
               responseBtns.forEach((btn) => {
                 btn.classList.remove(SELECT_CLASS_NAME);
