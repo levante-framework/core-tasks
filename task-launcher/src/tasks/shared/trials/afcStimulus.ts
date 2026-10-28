@@ -47,13 +47,12 @@ async function playTrialAudio(
   animationConfig: { timeControl: 'timestamp' | 'audio-file'; animations: (() => void)[] } | null,
 ) {
   if (!playAudioOnLoad) {
-    PageAudioHandler.playAudio(mediaAssets.audio.nullAudio, audioConfig);
+    PageAudioHandler.playAudio('nullAudio', audioConfig);
     return;
   }
 
   if (typeof trialAudio === 'string') {
-    const audioUri = mediaAssets.audio[camelize(trialAudio)];
-    PageAudioHandler.playAudio(audioUri, audioConfig);
+    PageAudioHandler.playAudio(camelize(trialAudio), audioConfig);
     return;
   }
 
@@ -65,7 +64,6 @@ async function playTrialAudio(
   };
 
   for (const [index, audioFile] of trialAudio.entries()) {
-    const audioUri = mediaAssets.audio[camelize(audioFile)];
     const isLastAudio = index === trialAudio.length - 1;
 
     if (taskStore().isPaused) {
@@ -89,14 +87,14 @@ async function playTrialAudio(
         animationConfig.animations[index]();
       }
 
-      PageAudioHandler.playAudio(audioUri, configWithCallback);
+      PageAudioHandler.playAudio(camelize(audioFile), configWithCallback);
     });
   }
 }
 
 const getPromptTemplate = (
   prompt: string | null,
-  mediaSrc: string | null,
+  mediaSrc: string | string[] | null,
   mediaAlt: string,
   stimText: string | null | undefined,
   equalSizeStim: boolean,
@@ -301,7 +299,9 @@ async function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial
     },
     onEnded: () => {
       enableOkButton();
-      pageStateHandler.enableReplayBtn();
+      if (!itemLayoutConfig.isStaggered) {
+        pageStateHandler.enableReplayBtn();
+      }
     },
   };
 
