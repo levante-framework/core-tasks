@@ -436,6 +436,7 @@ export const stimulus = (trial?: StimulusType) => {
                 responseBtns[taskStore().correctResponseIdx].style.animation = 'pulse 2s infinite';
               }
             } else {
+              PageAudioHandler.stopAndDisconnectNode(true);
               e.stopPropagation(); // prevents jspsych from disabling the buttons in the next trial
               jsPsych.finishTrial();
             }

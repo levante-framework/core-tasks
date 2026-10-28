@@ -237,6 +237,7 @@ export const afcMatch = (trial?: StimulusType) => {
           okButton.disabled = true;
           okButton.addEventListener('click', () => {
             if (!isPractice || compareSelections(selectedCards, previousSelections, getIgnoreDims(stim))) {
+              PageAudioHandler.stopAndDisconnectNode(true);
               numberOfErrors = 0;
               jsPsych.finishTrial();
             } else {
