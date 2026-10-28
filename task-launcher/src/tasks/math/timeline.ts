@@ -7,8 +7,11 @@ import {
   getRealTrials,
   initTimeline,
   initTrialSaving,
+  isCatBlockTimeExpired,
   prepareCorpus,
   prepareMultiBlockCat,
+  reportCorpusValidationErrors,
+  setCatBlockTimeLimit,
 } from '../shared/helpers';
 import {
   afcStimulusTemplate,
@@ -21,6 +24,7 @@ import {
   setupDownex,
   setupStimulus,
   setupStimulusFromBlock,
+  startCatBlock,
   taskFinished,
 } from '../shared/trials';
 import { initializeCat, jsPsych } from '../taskSetup';
@@ -75,11 +79,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
     i += 1;
   }
 
-  if (Object.keys(validationErrorMap).length) {
-    console.error('The following errors were found');
-    console.table(validationErrorMap);
-    throw new Error('Something went wrong. Please look in the console for error details');
-  }
+  reportCorpusValidationErrors(validationErrorMap);
 
   const terminateCat = runCat;
 
@@ -94,7 +94,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
 
   const feedbackBlock = (trial?: StimulusType) => {
     return {
-      timeline: [feedback(true, 'feedbackCorrect', 'feedbackNotQuiteRight', false)],
+      timeline: [feedback(true)],
       conditional_function: () => {
         return (
           (trial || taskStore().nextStimulus).assessmentStage === 'practice_response' &&
@@ -166,7 +166,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
       trials.push(slider(layoutConfigMap, terminateCat, trial));
       if (index < sliderPractice.length - 1) {
         trials.push({
-          ...feedback(true, 'feedbackCorrect', 'feedbackNotQuiteRight'),
+          ...feedback(true),
           conditional_function: () => {
             return true;
           },
@@ -208,6 +208,14 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
   };
 
   if (runCat) {
+    const catTrialIteration = (blockIndex: number, useDownex = false, isLastBlock = false) => ({
+      timeline: [
+        useDownex ? { ...setupDownex, stimulus: '' } : { ...setupStimulusFromBlock(blockIndex), stimulus: '' },
+        stimulusBlock(),
+      ],
+      conditional_function: () => !isCatBlockTimeExpired(isLastBlock),
+    });
+
     // puts the CAT portion of the corpus into taskStore and removes instructions
     const allCorpusParts = prepareCorpus(corpus, 3, downexCorpus, false, -3);
     const olderKidInstructionPractice: StimulusType[] = allCorpusParts.ipLight;
@@ -220,10 +228,18 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
 
     const olderKidBlocks: StimulusType[][] = prepareMultiBlockCat(taskStore().corpora.stimulus);
     taskStore('corpora', { stimulus: olderKidBlocks, downex: taskStore().corpora.downex });
-    taskStore('totalTestTrials', 0); // add to this while building out each block
+    const mainBlockTrialCount = olderKidBlocks.reduce((acc, block) => acc + block.length, 0);
+    let downexBlockLength = 0;
 
     // don't repeat instructions
     const usedIds: string[] = [];
+
+    const totalBlockCount = heavyInstructions
+      ? olderKidBlocks.length + 1
+      : // extra block at beginning of task for younger kids
+        olderKidBlocks.length;
+
+    setCatBlockTimeLimit(taskStore().maxTime, totalBlockCount);
 
     // first add downex trials to the timeline
     if (heavyInstructions) {
@@ -244,6 +260,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
       downexBlock = downexBlock.filter((trial: StimulusType) => {
         return !nonDownexIds.includes(trial.itemId as string);
       });
+      downexBlockLength = downexBlock.length;
 
       // filter practice trials to only include appropriate trial types if downward extension
       const excludedDownexPracticeTypes = [
@@ -257,6 +274,8 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
       downexPractice = downexPractice.filter((trial) => !excludedDownexPracticeTypes.includes(trial.trialType));
 
       const allowedIds = ['math-instructions1-heavy', 'math-intro1-heavy'];
+
+      timeline.push(startCatBlock);
 
       downexInstructions.forEach((trial) => {
         if (allowedIds.includes(trial.itemId)) {
@@ -272,17 +291,15 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
 
       timeline.push(practiceTransition());
 
-      const numOfTrials = Math.floor(downexBlock.length / 2);
-      taskStore.transact('totalTestTrials', (oldVal: number) => (oldVal += numOfTrials));
+      const numOfTrials = downexBlock.length;
       for (let j = 0; j < numOfTrials; j++) {
-        timeline.push({ ...setupDownex, stimulus: '' }); // select only from the current block
-        timeline.push(stimulusBlock());
+        timeline.push(catTrialIteration(0, true));
       }
     }
 
     const numOfBlocks = olderKidBlocks.length;
-    const trialProportionsPerBlock = [4, 6, 6]; // divide by these numbers to get trials per block
     for (let i = 0; i < numOfBlocks; i++) {
+      timeline.push(startCatBlock);
       // push in block-specific instructions
       const blockInstructions = olderKidInstructions.filter((trial) => {
         let allowedIDs: string[]; // CAT only uses particular instructions from corpus
@@ -340,24 +357,29 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
       // push in random items at start of first block (after practice trials)
       if (i === 0) {
         allCorpusParts.start.forEach((trial) => {
-          timeline.push(stimulusBlock(trial));
+          timeline.push({
+            timeline: [{ ...fixationOnly, stimulus: '' }, stimulusBlock(trial)],
+            conditional_function: () => !isCatBlockTimeExpired(i === numOfBlocks - 1),
+          });
         });
       }
 
-      const numOfTrials = Math.floor(olderKidBlocks[i].length / trialProportionsPerBlock[i]);
-      taskStore.transact('totalTestTrials', (oldVal: number) => (oldVal += numOfTrials));
+      const numOfTrials = olderKidBlocks[i].length;
       for (let j = 0; j < numOfTrials; j++) {
-        timeline.push({ ...setupStimulusFromBlock(i), stimulus: '' }); // select only from the current block
-        timeline.push(stimulusBlock());
+        timeline.push(catTrialIteration(i, false, i === numOfBlocks - 1));
       }
 
       allCorpusParts.unnormed.forEach((trial) => {
         if (i === Number(trial.block_index)) {
-          timeline.push({ ...fixationOnly, stimulus: '' });
-          timeline.push(stimulusBlock(trial));
+          timeline.push({
+            timeline: [{ ...fixationOnly, stimulus: '' }, stimulusBlock(trial)],
+            conditional_function: () => !isCatBlockTimeExpired(i === numOfBlocks - 1),
+          });
         }
       });
     }
+
+    taskStore('totalTestTrials', downexBlockLength + mainBlockTrialCount);
   } else {
     taskStore('totalTestTrials', getRealTrials(corpus));
 

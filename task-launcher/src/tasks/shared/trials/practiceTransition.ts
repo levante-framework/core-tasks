@@ -66,7 +66,6 @@ export const practiceTransition = (getPrompt?: () => string, forceRun = false) =
           const audioConfig: AudioConfigType = {
             restrictRepetition: {
               enabled: false,
-              maxRepetitions: 2,
             },
             onEnded: () => {
               enableOkButton();
@@ -74,7 +73,7 @@ export const practiceTransition = (getPrompt?: () => string, forceRun = false) =
             },
           };
 
-          PageAudioHandler.playAudio(mediaAssets.audio[camelize(audioKey)], audioConfig);
+          PageAudioHandler.playAudio(audioKey, audioConfig);
 
           const pageStateHandler = new PageStateHandler(camelize(audioKey), true);
           setupReplayAudio(pageStateHandler);

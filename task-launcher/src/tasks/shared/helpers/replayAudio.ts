@@ -20,7 +20,6 @@ export async function setupReplayAudio(pageStateHandler: PageStateHandler, enabl
     const audioConfig: AudioConfigType = {
       restrictRepetition: {
         enabled: false,
-        maxRepetitions: 2,
       },
       onEnded: () => {
         pageStateHandler.enableReplayBtn();
@@ -30,13 +29,13 @@ export async function setupReplayAudio(pageStateHandler: PageStateHandler, enabl
     async function replayAudio() {
       PageAudioHandler.replayPresses++;
       pageStateHandler.disableReplayBtn();
-      if (typeof pageStateHandler.audioUri === 'string') {
-        PageAudioHandler.playAudio(pageStateHandler.audioUri, audioConfig);
+      if (typeof pageStateHandler.audioFile === 'string') {
+        PageAudioHandler.playAudio(pageStateHandler.audioFile, audioConfig);
       } else {
         // multiple audio files
-        for (let i = 0; i < pageStateHandler.audioUri.length; i++) {
-          const audioUri = pageStateHandler.audioUri[i];
-          const isLastAudio = i === pageStateHandler.audioUri.length - 1;
+        for (let i = 0; i < pageStateHandler.audioFile.length; i++) {
+          const audioKey = pageStateHandler.audioFile[i];
+          const isLastAudio = i === pageStateHandler.audioFile.length - 1;
 
           await new Promise<void>((resolve) => {
             const configWithCallback = {
@@ -49,7 +48,7 @@ export async function setupReplayAudio(pageStateHandler: PageStateHandler, enabl
                 resolve();
               },
             };
-            PageAudioHandler.playAudio(audioUri, configWithCallback);
+            PageAudioHandler.playAudio(audioKey, configWithCallback);
           });
         }
       }

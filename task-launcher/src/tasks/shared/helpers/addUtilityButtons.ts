@@ -1,11 +1,21 @@
+import fscreen from 'fscreen';
 import { taskStore } from '../../../taskStore';
+import { Logger } from '../../../utils';
 import { InitPageSetup } from '../../../utils/initPageSetup';
 import { jsPsych } from '../../taskSetup';
-import { finalizeCurrentPauseSegment, getActiveTaskElapsedMs } from './appTimer';
+import { activateFullscreen } from './activateFullscreen';
+import { beginTaskTimerPauseSegment, resumeTaskTimerAfterPauseSegment } from './appTimer';
 import { PageAudioHandler } from './audioHandler';
 import { exitButtonSvg, menuButtonSvg, pauseButtonSvg } from './components';
 
 let pageSetup: InitPageSetup | null = null;
+
+// swallows keyboard events while paused
+function blockKeyboardWhilePaused(e: KeyboardEvent) {
+  e.stopImmediatePropagation();
+  e.preventDefault();
+}
+
 export function addExperimenterButtons() {
   // don't add if disabled or if they're already there
   if (document.querySelector('.experimenter-button-container') != null || !taskStore().experimenterButtons) {
@@ -91,11 +101,15 @@ export function setupFullscreenButton() {
 }
 
 function onPause() {
-  if (taskStore().taskTimer != null) {
-    clearTimeout(taskStore().taskTimer);
-    taskStore('taskTimer', null);
+  taskStore('isPaused', true);
+  jsPsych.pauseExperiment();
+  window.addEventListener('keydown', blockKeyboardWhilePaused, true);
+  beginTaskTimerPauseSegment();
+
+  if (taskStore().currentTrialTimeoutId) {
+    clearTimeout(taskStore().currentTrialTimeoutId);
+    taskStore('currentTrialTimeoutId', undefined);
   }
-  taskStore('taskTimerPauseBeganAt', Date.now());
 
   pageSetup?.onPause();
   const playButton = document.getElementById('play-button');
@@ -104,20 +118,23 @@ function onPause() {
   });
 
   PageAudioHandler.stopAndDisconnectNode(true);
-  taskStore('isPaused', true);
 }
 
 function onResume() {
   taskStore('isPaused', false);
+  jsPsych.resumeExperiment();
+  window.removeEventListener('keydown', blockKeyboardWhilePaused, true);
 
-  finalizeCurrentPauseSegment();
-  const maxTimeInMilliseconds = Math.max(Number(taskStore().maxTime), 1) * 60000;
-  const remainingMs = Math.max(0, maxTimeInMilliseconds - getActiveTaskElapsedMs());
-  const timerId = setTimeout(() => {
-    taskStore('maxTimeReached', true);
-    clearTimeout(timerId);
-  }, remainingMs);
-  taskStore('taskTimer', timerId);
+  if (taskStore().currentTrialTimeLimitMs) {
+    const currentTrialTimeout = jsPsych.pluginAPI.setTimeout(() => {
+      if (taskStore().isPaused || taskStore().currentTrialTimeoutId !== currentTrialTimeout) return;
+      jsPsych.finishTrial();
+    }, taskStore().currentTrialTimeLimitMs);
+
+    taskStore('currentTrialTimeoutId', currentTrialTimeout);
+  }
+
+  resumeTaskTimerAfterPauseSegment();
   // re-enable all buttons
   const buttons = Array.from(document.querySelectorAll('button'));
   buttons.forEach((button: HTMLButtonElement) => {
@@ -139,11 +156,31 @@ function onExit() {
   const popupContainer = document.getElementById('exit-confirmation-popup-buttons');
   if (!popupContainer) return;
   const popupButtons = popupContainer.querySelectorAll('button');
-  popupButtons[0].addEventListener('click', () => {
-    document.body.innerHTML = '';
-    taskStore('taskComplete', true);
-    jsPsych.endExperiment();
-  });
+  popupButtons[0].addEventListener(
+    'click',
+    () => {
+      if (taskStore().effectiveStoppingRule !== 'sufficientTrials') {
+        taskStore('effectiveStoppingRule', 'experimenterExit');
+      }
+      taskStore('taskAborted', true);
+
+      // clear any in-flight trial timer state so a stale time limit can't leak into a later task
+      if (taskStore().currentTrialTimeoutId) {
+        clearTimeout(taskStore().currentTrialTimeoutId);
+      }
+      taskStore('currentTrialTimeoutId', undefined);
+      taskStore('currentTrialTimeLimitMs', null);
+
+      const logger = Logger.getInstance();
+      logger.capture('Task finished: experimenter ended task', {
+        taskName: taskStore().task,
+        taskFinished: true,
+      });
+
+      jsPsych.endExperiment();
+    },
+    { once: true },
+  );
   popupButtons[1].addEventListener('click', () => {
     closePopup();
 
@@ -161,13 +198,11 @@ function onExit() {
 }
 
 function onFullscreen() {
-  if (document.fullscreenElement) {
+  if (fscreen.fullscreenElement) {
     return;
   }
 
-  document.documentElement.requestFullscreen().catch((err) => {
-    console.error(`Error enabling fullscreen: ${err.message}`);
-  });
+  activateFullscreen('utilityButton');
 }
 
 function onMenuPress(menuButton: HTMLButtonElement) {

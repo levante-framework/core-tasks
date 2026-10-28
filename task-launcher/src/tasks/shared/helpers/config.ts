@@ -91,6 +91,7 @@ export const setSharedConfig = async (
     cat,
     heavyInstructions,
     experimenterButtons,
+    showAudioKeys,
     inferenceNumStories,
     numberOfStories,
     semThreshold,
@@ -99,6 +100,7 @@ export const setSharedConfig = async (
     debug,
     version,
     taskVersion, // deprecated; use `version` — kept for backward compatibility
+    bubblePractice,
     _isPaused,
   } = cleanParams;
 
@@ -127,12 +129,14 @@ export const setSharedConfig = async (
     cat: !!cat, // defaults to false
     heavyInstructions: !!heavyInstructions,
     experimenterButtons: !!experimenterButtons,
+    showAudioKeys: !!showAudioKeys,
     inferenceNumStories: Number(inferenceNumStories) || undefined,
     numberOfStories: Number(numberOfStories) || 3,
     semThreshold: Number(semThreshold),
     startingTheta: Number(startingTheta),
     demoMode: !!demoMode,
     debug: !!debug,
+    bubblePractice: !!bubblePractice,
     version: Number((version ?? taskVersion) || 1),
     displayPromptDurations: {},
     taskTimer: null,

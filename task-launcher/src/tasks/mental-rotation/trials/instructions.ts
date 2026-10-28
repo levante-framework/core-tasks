@@ -153,7 +153,6 @@ export const instructions = data.map((data: any) => {
         const audioConfig: AudioConfigType = {
           restrictRepetition: {
             enabled: false,
-            maxRepetitions: 2,
           },
           onEnded: () => {
             triggerNextEvent();
@@ -172,7 +171,7 @@ export const instructions = data.map((data: any) => {
 
           const event = trialEventOrder.shift();
           if (event === 'audio') {
-            PageAudioHandler.playAudio(mediaAssets.audio[camelize(trialAudio.shift())], audioConfig);
+            PageAudioHandler.playAudio(trialAudio.shift() as string, audioConfig);
           } else if (event === 'animation') {
             const animationObject = trialAnimations.shift();
             animate(animationObject.animation, animationObject.item);
@@ -232,14 +231,13 @@ export const threeDimInstructions = {
     const audioConfig: AudioConfigType = {
       restrictRepetition: {
         enabled: false,
-        maxRepetitions: 2,
       },
       onEnded: () => {
         enableOkButton();
       },
     };
 
-    PageAudioHandler.playAudio(mediaAssets.audio[prompt], audioConfig);
+    PageAudioHandler.playAudio(prompt, audioConfig);
     const pageStateHandler = new PageStateHandler(prompt, true);
     setupReplayAudio(pageStateHandler);
     addExperimenterButtons();

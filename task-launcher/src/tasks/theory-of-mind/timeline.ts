@@ -8,6 +8,7 @@ import {
   initTimeline,
   initTrialSaving,
   prepareMultiBlockCat,
+  reportCorpusValidationErrors,
 } from '../shared/helpers';
 import { preloadSharedAudio } from '../shared/helpers/preloadSharedAudio';
 // trials
@@ -24,7 +25,11 @@ import { initializeCat, jsPsych } from '../taskSetup';
 import { getLayoutConfig } from './helpers/config';
 import { prepareStoryGroups, prepareTomCorpus } from './helpers/prepareTomCorpus';
 
-export default function buildTOMTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType, allowDownex: boolean) {
+export default function buildTOMTimeline(
+  config: Record<string, any>,
+  mediaAssets: MediaAssetsType,
+  allowDownex: boolean,
+) {
   initTrialSaving(config);
   const downex = taskStore().heavyInstructions && allowDownex;
   const initialTimeline = initTimeline(config, enterFullscreen);
@@ -43,11 +48,7 @@ export default function buildTOMTimeline(config: Record<string, any>, mediaAsset
     }
   }
 
-  if (Object.keys(validationErrorMap).length) {
-    console.error('The following errors were found');
-    console.table(validationErrorMap);
-    throw new Error('Something went wrong. Please look in the console for error details');
-  }
+  reportCorpusValidationErrors(validationErrorMap);
 
   // does not matter if trial has properties that don't belong to that type
   const trialConfig = {
@@ -93,7 +94,7 @@ export default function buildTOMTimeline(config: Record<string, any>, mediaAsset
 
         // filter trials to only the current branch of the story
         const stim = trial || taskStore().nextStimulus;
-        return (!stim.storyBranch || stim.storyBranch === taskStore().currentStoryBranch);
+        return !stim.storyBranch || stim.storyBranch === taskStore().currentStoryBranch;
       },
     };
   };
@@ -133,7 +134,7 @@ export default function buildTOMTimeline(config: Record<string, any>, mediaAsset
       preloadBlock();
 
       for (let i = 0; i < block.length; i++) {
-        timeline.push({...(downex ? setupDownex : setupStimulus), stimulus: '' });
+        timeline.push({ ...(downex ? setupDownex : setupStimulus), stimulus: '' });
         timeline.push(stimulusBlock());
       }
     });

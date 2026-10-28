@@ -1,5 +1,5 @@
 export class Logger {
-  private static instance: Logger;
+  private static instance?: Logger;
   private levanteLogger?: LevanteLogger;
   private gameParams?: GameParamsType;
   private userParams?: UserParamsType;
@@ -23,10 +23,13 @@ export class Logger {
     return Logger.instance;
   }
 
+  /** Clear the singleton between runs. */
+  public static resetInstance() {
+    Logger.instance = undefined;
+  }
+
   public capture(name: string, context?: Record<string, any>) {
     const finalProperties = {
-      gameParams: this.gameParams,
-      userParams: this.userParams,
       context,
     };
     if (this.levanteLogger) {

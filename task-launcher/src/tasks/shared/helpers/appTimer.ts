@@ -1,5 +1,5 @@
 import { taskStore } from '../../../taskStore';
-import { finishExperiment } from '../trials';
+import { finishTaskEarly } from '../trials';
 import { PageStateHandler } from './PageStateHandler';
 
 // This feature allows the task configurator to set a time limit for the app,
@@ -27,6 +27,31 @@ export function finalizeCurrentPauseSegment(): void {
   taskStore('taskTimerPauseBeganAt', null);
 }
 
+export function beginTaskTimerPauseSegment(): void {
+  if (taskStore().taskTimer != null) {
+    clearTimeout(taskStore().taskTimer);
+    taskStore('taskTimer', null);
+  }
+  taskStore('taskTimerPauseBeganAt', Date.now());
+}
+
+export function resumeTaskTimerAfterPauseSegment(): void {
+  finalizeCurrentPauseSegment();
+
+  const startTime = taskStore().startTime;
+  if (typeof startTime !== 'number') {
+    return;
+  }
+
+  const maxTimeInMilliseconds = Math.max(Number(taskStore().maxTime), 1) * 60000;
+  const remainingMs = Math.max(0, maxTimeInMilliseconds - getActiveTaskElapsedMs());
+  const timerId = setTimeout(() => {
+    taskStore('maxTimeReached', true);
+    clearTimeout(timerId);
+  }, remainingMs);
+  taskStore('taskTimer', timerId);
+}
+
 export const startAppTimer = (maxTimeInMinutes: number) => {
   // Minimum time is 1 minute
   const maxTimeInMilliseconds = Math.max(maxTimeInMinutes, 1) * 60000;
@@ -44,7 +69,8 @@ export const startAppTimer = (maxTimeInMinutes: number) => {
 };
 
 // function for ending the task if the next trial
-export async function checkEndTaskEarly(timeRemaining: number, stimAudio: string) {
+// returns true if the experiment was ended early, false otherwise
+export async function checkEndTaskEarly(timeRemaining: number, stimAudio: string): Promise<boolean> {
   const pageStateHandler = new PageStateHandler(stimAudio, false);
   let minTrialDuration = (await pageStateHandler.getStimulusDurationMs()) + RESPONSE_BUFFER;
 
@@ -54,6 +80,9 @@ export async function checkEndTaskEarly(timeRemaining: number, stimAudio: string
 
   if (timeRemaining < minTrialDuration) {
     clearTimeout(taskStore().taskTimer);
-    finishExperiment();
+    finishTaskEarly('timeOut');
+    return true;
   }
+
+  return false;
 }

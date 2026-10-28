@@ -1,7 +1,14 @@
 // setup
 
 import { taskStore } from '../../taskStore';
-import { createPreloadTrials, getRealTrials, initTimeline, initTrialSaving, prepareCorpus } from '../shared/helpers';
+import {
+  createPreloadTrials,
+  getRealTrials,
+  initTimeline,
+  initTrialSaving,
+  prepareCorpus,
+  reportCorpusValidationErrors,
+} from '../shared/helpers';
 // trials
 import {
   afcStimulusTemplate,
@@ -37,11 +44,7 @@ export default function buildAdultReasoningTimeline(config: Record<string, any>,
     }
   }
 
-  if (Object.keys(validationErrorMap).length) {
-    console.error('The following errors were found');
-    console.table(validationErrorMap);
-    throw new Error('Something went wrong. Please look in the console for error details');
-  }
+  reportCorpusValidationErrors(validationErrorMap);
 
   const trialConfig = {
     trialType: 'audio',

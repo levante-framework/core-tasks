@@ -3,12 +3,14 @@ import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-respons
 import _toNumber from 'lodash/toNumber';
 import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
+import { Logger } from '../../../utils/logger';
 import { isTouchScreen, jsPsych } from '../../taskSetup';
 import {
   addExperimenterButtons,
   addPracticeButtonListeners,
   camelize,
   enableOkButton,
+  getAudioKeysContainerHtml,
   getParticipantUtilityButtonsHtml,
   handleStaggeredButtons,
   PageAudioHandler,
@@ -21,10 +23,9 @@ import {
   shouldTerminateCat,
   updateTheta,
 } from '../helpers';
-import { displayDebugInfo } from '../helpers/displayDebugInfo';
-import { finishExperiment } from '.';
 import { getItemAnimations } from '../helpers/animateImages';
-import { Logger } from '../../../utils/logger';
+import { displayDebugInfo } from '../helpers/displayDebugInfo';
+import { finishTaskEarly } from '.';
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 // Previously chosen responses for current practice trial
@@ -43,7 +44,7 @@ async function playTrialAudio(
   trialAudio: string | string[],
   playAudioOnLoad: boolean | undefined,
   audioConfig: AudioConfigType,
-  animationConfig: {timeControl: 'timestamp' | 'audio-file', animations: (() => void)[]} | null,
+  animationConfig: { timeControl: 'timestamp' | 'audio-file'; animations: (() => void)[] } | null,
 ) {
   if (!playAudioOnLoad) {
     PageAudioHandler.playAudio(mediaAssets.audio.nullAudio, audioConfig);
@@ -103,6 +104,8 @@ const getPromptTemplate = (
   promptClassList: string[],
 ) => {
   let template = '<div class="lev-stimulus-container">';
+
+  template += getAudioKeysContainerHtml();
 
   template += getParticipantUtilityButtonsHtml(replayButtonHtmlId);
 
@@ -172,15 +175,15 @@ function getPrompt(layoutConfigMap: Record<string, LayoutConfigType>, trial?: St
       stimText: stimulusTextConfig,
     } = itemLayoutConfig;
 
-    let mediaAsset;
+    let mediaAsset: string | string[] | null;
     if (itemLayoutConfig.multiStimImage) {
       mediaAsset = stim.item.map((image: string) => mediaAssets.images[camelize(image)]);
     } else {
       mediaAsset = stimulusTextConfig?.value
         ? mediaAssets.images[camelize(stimulusTextConfig.value)] || mediaAssets.images.blank
         : null;
-    } 
-    
+    }
+
     const prompt = promptEnabled ? getPromptTextFromAudioFile(stim.audioFile, t) : null;
     const mediaSrc = showStimImage ? mediaAsset : null;
     const mediaAlt = stimulusTextConfig?.value || `Image not loading: ${mediaSrc}. Please continue the task.`;
@@ -269,7 +272,7 @@ async function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial
   const stimContainer = document.querySelector(`.${stimulusContainerClass}`) as HTMLElement;
   const stimImages = stimContainer?.querySelectorAll('img');
 
-  let animationConfig: {timeControl: 'timestamp' | 'audio-file', animations: (() => void)[]} | null = null;
+  let animationConfig: { timeControl: 'timestamp' | 'audio-file'; animations: (() => void)[] } | null = null;
   if (stimImages?.length) {
     animationConfig = getItemAnimations(stim, stimContainer);
   }
@@ -485,7 +488,7 @@ function doOnFinish(
   if (itemLayoutConfig.inCorrectTrialConfig.onIncorrectTrial === 'skip' && !runCat) {
     setSkipCurrentBlock(stimulus.trialType);
   } else if (taskStore().numIncorrect >= taskStore().maxIncorrect && !runCat) {
-    finishExperiment();
+    finishTaskEarly('errorOut');
   }
 
   if (terminateCat) {

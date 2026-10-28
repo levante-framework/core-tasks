@@ -118,10 +118,9 @@ export const surveyItem = ({
 
             replayBtn.addEventListener('click', (event) => {
               PageAudioHandler.stopAndDisconnectNode();
-              PageAudioHandler.playAudio(mediaAssets.audio[camelize(responseAudioKeys[index])], {
+              PageAudioHandler.playAudio(responseAudioKeys[index], {
                 restrictRepetition: {
                   enabled: false,
-                  maxRepetitions: 2,
                 },
               });
 
@@ -158,7 +157,6 @@ export const surveyItem = ({
       const audioConfig: AudioConfigType = {
         restrictRepetition: {
           enabled: false,
-          maxRepetitions: 2,
         },
         onEnded: () => {
           responseButtonChildren.forEach((button) => {
@@ -175,7 +173,7 @@ export const surveyItem = ({
       };
 
       // play trial audio
-      PageAudioHandler.playAudio(mediaAssets.audio[camelize(stim.audioFile)], audioConfig);
+      PageAudioHandler.playAudio(stim.audioFile, audioConfig);
 
       responseButtonChildren.forEach((button) => {
         (button as HTMLButtonElement).addEventListener('click', (event: MouseEvent) => {

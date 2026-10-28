@@ -49,7 +49,7 @@ declare global {
   type AudioConfigType = {
     restrictRepetition: {
       enabled: boolean;
-      maxRepetitions: number;
+      maxRepetitions?: number;
     };
     onEnded?: Function;
   };

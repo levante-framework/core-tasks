@@ -1,5 +1,6 @@
 import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
+import { Logger } from '../../../utils/logger';
 import { PageAudioHandler } from './audioHandler';
 import { camelize } from './camelize';
 import type { PageStateHandler } from './PageStateHandler';
@@ -74,16 +75,17 @@ const showStaggeredBtnAndPlaySound = (
     btn.style.animation = 'pulse 2s 0s 1';
   }
 
-  let audioAsset = mediaAssets.audio[camelize(audioList[index])];
-  if (!audioAsset) {
-    console.error('Audio Asset not available for:', audioList[index]);
-    audioAsset = mediaAssets.audio.nullAudio;
+  const audioKey = camelize(audioList[index]);
+  if (!mediaAssets.audio[audioKey]) {
+    Logger.getInstance().error(new Error(`Audio Asset not available for: ${audioList[index]}`), {
+      source: 'handleStaggeredButtons',
+      audio: audioList[index],
+    });
   }
 
   const audioConfig: AudioConfigType = {
     restrictRepetition: {
       enabled: false,
-      maxRepetitions: 2,
     },
     onEnded: () => {
       const actualTrialId = taskStore().nextStimulus?.itemId;
@@ -113,7 +115,7 @@ const showStaggeredBtnAndPlaySound = (
     },
   };
 
-  PageAudioHandler.playAudio(audioAsset, audioConfig);
+  PageAudioHandler.playAudio(audioKey, audioConfig);
 };
 
 export const disableStagger = () => {

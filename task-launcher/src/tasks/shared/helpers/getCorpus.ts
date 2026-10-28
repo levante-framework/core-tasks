@@ -4,6 +4,7 @@ import '../../../i18n/i18n';
 import _toNumber from 'lodash/toNumber';
 import Papa from 'papaparse';
 import { taskStore } from '../../../taskStore';
+import { Logger } from '../../../utils/logger';
 import { shuffleStories } from '../../roar-inference/helpers/shuffleRoarInferenceStories';
 import { camelize } from './camelize';
 import { getChildSurveyResponses } from './childSurveyResponses';
@@ -60,18 +61,18 @@ function parseCommmaSeparated(value?: string): string[] | undefined {
   return value.split(',').map((item) => item.trim());
 }
 
-let totalTrials = 0;
-let totalDownexTrials = 0;
-
-let stimulusData: StimulusType[] = [];
-let downexData: StimulusType[] = [];
+type TransformedCorpus = {
+  stimulusData: StimulusType[];
+  downexData: StimulusType[];
+  totalTrials: number;
+  totalDownexTrials: number;
+};
 
 function writeItem(row: ParsedRowType) {
   if (row.task === 'math' && row.trial_type.includes('Number Line')) {
     const splitArr = (row.item as string).split(',');
     return splitArr.map((el) => _toNumber(el));
   } else if ((row.item as string).includes(',') && row.task === 'theory-of-mind') {
-
     return (row.item as string).replace(' ', '').split(',');
   }
 
@@ -94,10 +95,15 @@ function containsLettersOrSlash(str: string) {
   return /[a-zA-Z/]/.test(str);
 }
 
-const transformCSV = (csvInput: ParsedRowType[], sequentialStimulus: boolean, task: string) => {
+const transformCSV = (csvInput: ParsedRowType[], sequentialStimulus: boolean, task: string): TransformedCorpus => {
   let currTrialTypeBlock = '';
 
   const blockThresholds: number[] = [];
+
+  let stimulusData: StimulusType[] = [];
+  let downexData: StimulusType[] = [];
+  let totalTrials = 0;
+  let totalDownexTrials = 0;
 
   csvInput.forEach((row) => {
     // Leaving this here for quick testing of a certain type of trial
@@ -189,7 +195,7 @@ const transformCSV = (csvInput: ParsedRowType[], sequentialStimulus: boolean, ta
     const numItemsPerStory = taskStore().stimulusBlocks;
     const notStoryTypes = ['introduction', 'practice'];
     stimulusData = shuffleStories(stimulusData, inferenceNumStories, 'item', notStoryTypes, numItemsPerStory);
-    return;
+    return { stimulusData, downexData, totalTrials, totalDownexTrials };
   }
 
   if (!sequentialStimulus) {
@@ -198,6 +204,8 @@ const transformCSV = (csvInput: ParsedRowType[], sequentialStimulus: boolean, ta
       downexData = shuffleStimulusTrials(downexData);
     }
   }
+
+  return { stimulusData, downexData, totalTrials, totalDownexTrials };
 };
 
 export const getCorpus = async (config: Record<string, any>, isDev: boolean) => {
@@ -207,6 +215,13 @@ export const getCorpus = async (config: Record<string, any>, isDev: boolean) => 
 
   const corpusUrl = `https://storage.googleapis.com/${bucketName}/${corpus}.csv?alt=media`;
 
+  const csvTransformed: TransformedCorpus = {
+    stimulusData: [],
+    downexData: [],
+    totalTrials: 0,
+    totalDownexTrials: 0,
+  };
+
   function downloadCSV(url: string) {
     return new Promise((resolve, reject) => {
       Papa.parse<ParsedRowType>(url, {
@@ -214,7 +229,11 @@ export const getCorpus = async (config: Record<string, any>, isDev: boolean) => 
         header: true,
         skipEmptyLines: true,
         complete: (results) => {
-          transformCSV(results.data, sequentialStimulus, task);
+          const parsed = transformCSV(results.data, sequentialStimulus, task);
+          csvTransformed.stimulusData.push(...parsed.stimulusData);
+          csvTransformed.downexData.push(...parsed.downexData);
+          csvTransformed.totalTrials += parsed.totalTrials;
+          csvTransformed.totalDownexTrials += parsed.totalDownexTrials;
           resolve(results.data);
         },
         error: (error) => {
@@ -233,19 +252,17 @@ export const getCorpus = async (config: Record<string, any>, isDev: boolean) => 
     const urls = [corpusUrl];
     try {
       await parseCSVs(urls);
-      taskStore('totalTrials', totalTrials);
-      taskStore('totalDownexTrials', totalDownexTrials);
     } catch (error) {
-      console.error('Error:', error);
+      Logger.getInstance().error(error, { source: 'getCorpus' });
     }
+    taskStore('totalTrials', csvTransformed.totalTrials);
+    taskStore('totalDownexTrials', csvTransformed.totalDownexTrials);
   }
 
   await fetchData();
 
-  const csvTransformed = {
-    stimulus: stimulusData, // previously shuffled by shuffleStimulusTrials
-    downex: downexData,
-  };
-
-  taskStore('corpora', csvTransformed);
+  taskStore('corpora', {
+    stimulus: csvTransformed.stimulusData, // previously shuffled by shuffleStimulusTrials
+    downex: csvTransformed.downexData,
+  });
 };

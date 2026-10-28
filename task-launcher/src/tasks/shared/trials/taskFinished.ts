@@ -36,14 +36,18 @@ export const taskFinished = (endMessage = 'taskFinished') => {
       return `<button class="primary" style=margin-top:10%>${taskStore().translations.generalExit}</button>`;
     },
     on_load: () => {
-      window.addEventListener('click', endTask);
-      window.addEventListener('keydown', endTask);
+      taskStore('effectiveStoppingRule', 'earlyCompletion');
+
+      setTimeout(() => {
+        window.addEventListener('click', endTask);
+        window.addEventListener('keydown', endTask);
+      }, 50); // delay so that previous key presses are not captured
 
       if (mediaAssets.audio[endMessage]) {
-        PageAudioHandler.playAudio(mediaAssets.audio[endMessage]);
+        PageAudioHandler.playAudio(endMessage);
       }
       const logger = Logger.getInstance();
-      logger.capture('Task Finished', {
+      logger.capture('Task finished: user finished all trials', {
         taskName: taskStore().task,
         taskFinished: taskStore().taskComplete,
       });

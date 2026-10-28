@@ -82,7 +82,7 @@ export const somethingSameDemo1 = {
       onEnded: enableOkBtn,
     };
 
-    PageAudioHandler.playAudio(mediaAssets.audio[audioFile], audioConfig);
+    PageAudioHandler.playAudio(audioFile, audioConfig);
 
     const pageStateHandler = new PageStateHandler(audioFile, true);
     setupReplayAudio(pageStateHandler);
@@ -183,7 +183,7 @@ export const somethingSameDemo2 = {
       };
 
       setTimeout(() => {
-        PageAudioHandler.playAudio(mediaAssets.audio.sdsPrompt3DemoHeavyPart2, audioConfig);
+        PageAudioHandler.playAudio('sdsPrompt3DemoHeavyPart2', audioConfig);
       }, 2500);
     }
 
@@ -195,7 +195,7 @@ export const somethingSameDemo2 = {
       onEnded: animateBottomButtons,
     };
 
-    PageAudioHandler.playAudio(mediaAssets.audio.sdsPrompt3DemoHeavyPart1, audioConfig);
+    PageAudioHandler.playAudio('sdsPrompt3DemoHeavyPart1', audioConfig);
   },
   on_finish: () => {
     PageAudioHandler.stopAndDisconnectNode();
@@ -261,7 +261,7 @@ const videoInstructions = videoInstructionData.map((data) => {
         onEnded: enableOkBtn,
       };
 
-      PageAudioHandler.playAudio(mediaAssets.audio[camelize(data.prompt)], audioConfig);
+      PageAudioHandler.playAudio(data.prompt, audioConfig);
 
       const pageStateHandler = new PageStateHandler(data.prompt, true);
       setupReplayAudio(pageStateHandler);
@@ -418,7 +418,7 @@ export const heavyPractice = practiceData.map((data) => {
       startTime = performance.now();
       const audioFile = data.audioFile;
 
-      PageAudioHandler.playAudio(mediaAssets.audio[audioFile]);
+      PageAudioHandler.playAudio(audioFile);
 
       const pageStateHandler = new PageStateHandler(audioFile, true);
       setupReplayAudio(pageStateHandler);

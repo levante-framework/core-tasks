@@ -54,7 +54,7 @@ const videoInstructionsFit = {
     // const wrapper = document.getElementById('jspsych-audio-multi-response-prompt');
     // wrapper.style.display = 'flex';
     // wrapper.style.justifyContent = 'center';
-    PageAudioHandler.playAudio(mediaAssets.audio.mentalRotationTrainingInstruct3, audioConfig);
+    PageAudioHandler.playAudio('mentalRotationTrainingInstruct3', audioConfig);
 
     const pageStateHandler = new PageStateHandler('mental-rotation-training-instruct3', true);
     setupReplayAudio(pageStateHandler);
@@ -98,7 +98,7 @@ const videoInstructionsMisfit = {
   },
   keyboard_choices: 'NO_KEYS',
   on_load: () => {
-    PageAudioHandler.playAudio(mediaAssets.audio.mentalRotationTrainingInstruct2, audioConfig);
+    PageAudioHandler.playAudio('mentalRotationTrainingInstruct2', audioConfig);
 
     const pageStateHandler = new PageStateHandler('mental-rotation-training-instruct2', true);
     setupReplayAudio(pageStateHandler);
@@ -143,7 +143,7 @@ const imageInstructions = {
   },
   keyboard_choices: 'NO_KEYS',
   on_load: () => {
-    PageAudioHandler.playAudio(mediaAssets.audio.mentalRotationInstruct1, audioConfig);
+    PageAudioHandler.playAudio('mentalRotationInstruct1', audioConfig);
 
     const pageStateHandler = new PageStateHandler('mental-rotation-instruct1', true);
     setupReplayAudio(pageStateHandler);

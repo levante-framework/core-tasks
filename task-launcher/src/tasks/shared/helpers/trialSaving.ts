@@ -3,7 +3,7 @@ import _mapValues from 'lodash/mapValues';
 import { taskStore } from '../../../taskStore';
 import { Logger } from '../../../utils/logger';
 import { jsPsych } from '../../taskSetup';
-import { finishExperiment } from '../trials';
+import { finishTaskEarly } from '../trials';
 import { recordCompletion } from './recordCompletion';
 
 /**
@@ -116,7 +116,11 @@ export const initTrialSaving = (config: Record<string, any>) => {
 
   // @ts-expect-error
   jsPsych.opts.on_finish = extend(jsPsych.opts.on_finish, () => {
-    if (!taskStore().demoMode && config.firekit) {
+    if (taskStore().taskAborted) {
+      if (config.firekit) {
+        config.firekit.updateStopReason(taskStore().effectiveStoppingRule);
+      }
+    } else if (!taskStore().demoMode && config.firekit) {
       config.firekit.finishRun();
     }
   });
@@ -124,12 +128,24 @@ export const initTrialSaving = (config: Record<string, any>) => {
   // @ts-expect-error
   jsPsych.opts.on_trial_finish = extend(jsPsych.opts.on_trial_finish, () => {
     if (taskStore().maxTimeReached) {
-      finishExperiment();
+      finishTaskEarly('timeOut');
     }
 
     // record completion at 80%
-    if (taskStore().testTrialCount >= taskStore().totalTestTrials * 0.8) {
+    if (
+      taskStore().testTrialCount >= taskStore().totalTestTrials * 0.8 &&
+      taskStore().effectiveStoppingRule === 'taskAbort'
+    ) {
       recordCompletion(config);
+
+      const logger = Logger.getInstance();
+      logger.capture('80% completion threshold reached', {
+        taskName: taskStore().task,
+        taskFinished: taskStore().taskComplete,
+      });
+
+      taskStore('effectiveStoppingRule', 'sufficientTrials');
+      config.firekit?.updateStopReason(taskStore().effectiveStoppingRule);
     }
 
     taskStore('totalTrialCount', taskStore().totalTrialCount + 1);
@@ -171,7 +187,7 @@ export const initTrialSaving = (config: Record<string, any>) => {
       } else {
         config.firekit.writeTrial(dataCopy).catch((error: any) => {
           delete dataCopy.stimulus; // remove stimulus from data to avoid logging large html elements
-          Logger.getInstance().capture('Error writing trial to Firestore', { error: error, data: dataCopy });
+          Logger.getInstance().error(error, { source: 'writeTrial', data: dataCopy });
         });
       }
     }

@@ -1,20 +1,22 @@
 import jsPsychCorsiBlocks from '@jspsych-contrib/plugin-corsi-blocks';
 import _isEqual from 'lodash/isEqual';
-import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
 import {
   addExperimenterButtons,
+  camelToKebab,
   getParticipantUtilityButtonsHtml,
   PageAudioHandler,
   PageStateHandler,
   setupFullscreenButton,
   setupReplayAudio,
 } from '../../shared/helpers';
-import { finishExperiment } from '../../shared/trials';
+import { finishTaskEarly } from '../../shared/trials';
 import { jsPsych } from '../../taskSetup';
 import { getMemoryGamePrompt } from '../helpers/getMemoryGamePrompt';
 import { getMemoryGameType } from '../helpers/getMemoryGameType';
 import { createGrid, disableBlock, enableBlock, generateRandomSequence } from '../helpers/grid';
+import { resolveMemoryGamePrompt } from '../helpers/resolveMemoryGamePrompt';
+import { TOTAL_FORWARD_TRIALS } from '../timeline';
 
 type CorsiBlocksArgs = {
   mode: 'display' | 'input';
@@ -34,11 +36,14 @@ let sequenceLength = 2;
 let generatedSequence: number[] | null;
 let selectedCoordinates: [number, number][] = [];
 let numCorrect = 0;
+let timeoutIDs: Array<NodeJS.Timeout | number> = [];
 const HIGHLIGHT_COLOR = '#8CAEDF';
 const INCORRECT_COLOR = '#f00';
+const correctStreakToIncrementSequence = 2; // increment sequence length after this many correct in a row
+let backwardsStartingSequenceLength = 2; // reset to this sequence length when starting the backward phase
 
 // edit this list to change the audio cues/prompts for downex practice trials (in reverse order)
-const downexPracticeAudioCues = [
+const DOWNEX_PRACTICE_AUDIO_CUES = [
   'memoryGameInstruct9Downex',
   'memoryGameInstruct7Downex',
   'memoryGameInstruct9Downex',
@@ -50,6 +55,24 @@ const downexPracticeAudioCues = [
   'memoryGameInstruct3Downex',
   'memoryGameInstruct2Downex',
 ];
+
+// Mutable working copy consumed via .pop() during a run; reset between runs.
+let downexPracticeAudioCues = [...DOWNEX_PRACTICE_AUDIO_CUES];
+
+// Reset all module-level state so a new run in the same SPA session doesn't inherit
+// the previous run's sequence length, streak, or depleted audio cues.
+export function resetMemoryGameState() {
+  sequenceLength = 2;
+  numCorrect = 0;
+  backwardsStartingSequenceLength = 2;
+  generatedSequence = null;
+  selectedCoordinates = [];
+  downexPracticeAudioCues = [...DOWNEX_PRACTICE_AUDIO_CUES];
+  timeoutIDs.forEach((id) => {
+    clearTimeout(id);
+  });
+  timeoutIDs = [];
+}
 
 // play audio cue
 export function setUpAudio(
@@ -70,7 +93,6 @@ export function setUpAudio(
     setupFullscreenButton();
   }
 
-  const audioFile = mediaAssets.audio[cue];
   const audioConfig: AudioConfigType = {
     restrictRepetition: {
       enabled: true,
@@ -85,7 +107,7 @@ export function setUpAudio(
     },
   };
 
-  PageAudioHandler.playAudio(audioFile, audioConfig);
+  PageAudioHandler.playAudio(cue, audioConfig);
 }
 
 // This function produces both the display and input trials for the corsi blocks
@@ -98,6 +120,8 @@ export function getCorsiBlocks({
   animation,
   prompt,
 }: CorsiBlocksArgs) {
+  let playedCue = '';
+
   return {
     type: jsPsychCorsiBlocks,
     sequence: () => {
@@ -179,7 +203,7 @@ export function getCorsiBlocks({
       return durationMs;
     },
     on_load: () => {
-      doOnLoad(mode, isPractice, reverse, animation, prompt);
+      playedCue = doOnLoad(mode, isPractice, reverse, animation, prompt);
     },
     on_finish: (data: any) => {
       PageAudioHandler.stopAndDisconnectNode();
@@ -187,10 +211,6 @@ export function getCorsiBlocks({
       jsPsych.data.addDataToLastTrial({
         audioButtonPresses: PageAudioHandler.replayPresses,
       });
-
-      if (resetSeq) {
-        sequenceLength = 2;
-      }
 
       const gridSize = taskStore().gridSize;
 
@@ -210,17 +230,27 @@ export function getCorsiBlocks({
           corpusTrialType: getMemoryGameType(mode, reverse, gridSize),
           responseLocation: data.response,
           itemUid: itemUid,
-          audioFile: reverse ? 'memory-game-backward-prompt' : 'memory-game-input',
+          audioFile: camelToKebab(playedCue),
         });
         taskStore('isCorrect', data.correct);
 
         if (data.correct && !isPractice) {
           numCorrect++;
 
-          if (numCorrect === 3 && !customSeqLength) {
+          if (numCorrect === correctStreakToIncrementSequence && !customSeqLength) {
             sequenceLength++;
             numCorrect = 0;
           }
+        }
+
+        // start backwards at sequence length 3 only if child cleared seq length 3 in forward block
+        if (sequenceLength > 3 && backwardsStartingSequenceLength === 2) {
+          backwardsStartingSequenceLength = 3;
+        }
+
+        if (resetSeq) {
+          sequenceLength = backwardsStartingSequenceLength;
+          numCorrect = 0;
         }
 
         if (!data.correct && !isPractice) {
@@ -230,11 +260,11 @@ export function getCorsiBlocks({
 
         if (taskStore().numIncorrect === taskStore().maxIncorrect) {
           if (reverse) {
-            finishExperiment();
+            finishTaskEarly('errorOut');
           } else {
-            sequenceLength = 2;
+            sequenceLength = backwardsStartingSequenceLength;
             // update total trials to account for skipped forward block
-            taskStore('testTrialCount', 21);
+            taskStore('testTrialCount', TOTAL_FORWARD_TRIALS);
           }
         }
 
@@ -251,14 +281,12 @@ export function getCorsiBlocks({
       } else {
         jsPsych.data.addDataToLastTrial({
           correct: false, // default to false for display trials. Firekit requires this field to be non null.
-          audioFile: 'memory-game-display',
+          audioFile: camelToKebab(playedCue),
         });
       }
     },
   };
 }
-
-let timeoutIDs: Array<NodeJS.Timeout | number> = [];
 
 function doOnLoad(
   mode: 'display' | 'input',
@@ -397,6 +425,11 @@ function doOnLoad(
             timeoutIDs = [];
           }
 
+          const toast = document.getElementById('lev-toast-default') as HTMLDivElement;
+          if (toast) {
+            toast.classList.remove('show');
+          }
+
           // start a timer for toast notification
           const toastTimer = setTimeout(() => {
             const toast = document.getElementById('lev-toast-default') as HTMLDivElement;
@@ -435,7 +468,9 @@ function doOnLoad(
 
   // downex practice trials have custom audio cues
   if (taskStore().heavyInstructions && !reverse && isPractice) {
-    cue = prompt || downexPracticeAudioCues.pop() || defaultCue;
+    cue = resolveMemoryGamePrompt(prompt || downexPracticeAudioCues.pop() || defaultCue);
+  } else if (prompt) {
+    cue = resolveMemoryGamePrompt(prompt);
   } else {
     cue = defaultCue;
   }
@@ -452,4 +487,6 @@ function doOnLoad(
   contentWrapper.insertBefore(promptContainer, corsiBlocksHTML);
 
   setUpAudio(contentWrapper, promptContainer, cue, mode);
+
+  return cue;
 }

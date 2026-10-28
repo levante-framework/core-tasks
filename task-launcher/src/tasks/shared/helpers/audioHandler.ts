@@ -1,5 +1,8 @@
 import { mediaAssets } from '../../..';
+import { taskStore } from '../../../taskStore';
 import { jsPsych } from '../../taskSetup';
+import { appendAudioKey } from './audioKeysContainer';
+import { camelize } from './camelize';
 
 export class PageAudioHandler {
   constructor() {
@@ -7,6 +10,7 @@ export class PageAudioHandler {
   }
 
   static audioContext: BaseAudioContext;
+  static audioKey: string;
   static audioUri: string;
   static audioSource?: AudioBufferSourceNode;
   static replayPresses: number;
@@ -36,27 +40,37 @@ export class PageAudioHandler {
   }
 
   static async playAudio(
-    audioUri: string,
+    audioKey: string,
     config: AudioConfigType = PageAudioHandler.defaultAudioConfig,
     setClassAudioField: boolean = true,
+    audioKeysContainerClass?: string,
   ) {
     const { enabled, maxRepetitions } = config.restrictRepetition;
     const { onEnded } = config;
 
+    let resolvedAudioKey = audioKey;
+    let audioUri = mediaAssets.audio[camelize(audioKey)] || mediaAssets.audio.nullAudio;
+
     // check for repeat audio
-    if (PageAudioHandler.audioUri === audioUri && enabled) {
+    if (PageAudioHandler.audioKey === audioKey && enabled) {
       PageAudioHandler.replays++;
     } else if (enabled) {
       PageAudioHandler.replays = 0;
     }
 
     if (setClassAudioField) {
+      PageAudioHandler.audioKey = audioKey;
       PageAudioHandler.audioUri = audioUri;
     }
 
     // replace audio with ding if it has already been played twice
-    if (PageAudioHandler.replays > maxRepetitions && enabled) {
+    if (enabled && maxRepetitions !== undefined && PageAudioHandler.replays > maxRepetitions) {
+      resolvedAudioKey = 'inputAudioCue';
       audioUri = mediaAssets.audio.inputAudioCue;
+    }
+
+    if (taskStore().showAudioKeys) {
+      appendAudioKey(resolvedAudioKey, audioKeysContainerClass);
     }
 
     try {
@@ -74,14 +88,13 @@ export class PageAudioHandler {
           const audioConfig: AudioConfigType = {
             restrictRepetition: {
               enabled: false,
-              maxRepetitions: 2,
             },
             onEnded: () => {
               if (onEnded) onEnded();
             },
           };
 
-          PageAudioHandler.playAudio(mediaAssets.audio.inputAudioCue, audioConfig, false);
+          PageAudioHandler.playAudio('inputAudioCue', audioConfig, false);
         } else {
           if (onEnded) onEnded();
         }
@@ -91,21 +104,5 @@ export class PageAudioHandler {
       // Swallow errors to avoid test/runtime crashes when audio cannot be played
       return;
     }
-  }
-
-  // required on iOS to prevent autoplay blocking
-  static unlockAudioContext() {
-    const ctx = jsPsych.pluginAPI.audioContext();
-
-    // safari requires resuming audio context on user interaction, then it can be used freely later
-    if (ctx.state === 'suspended') {
-      ctx.resume();
-    }
-
-    const buffer = ctx.createBuffer(1, 1, ctx.sampleRate);
-    const source = ctx.createBufferSource();
-    source.buffer = buffer;
-    source.connect(ctx.destination);
-    source.start(0);
   }
 }

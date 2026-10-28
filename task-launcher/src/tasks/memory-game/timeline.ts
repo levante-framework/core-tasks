@@ -5,6 +5,7 @@ import { checkFallbackCriteria, createPreloadTrials, initTimeline, initTrialSavi
 import { enterFullscreen, exitFullscreen, feedback, repeatInstructionsMessage, taskFinished } from '../shared/trials';
 // setup
 import { initializeCat, jsPsych } from '../taskSetup';
+import { resolveMemoryGamePrompt } from './helpers/resolveMemoryGamePrompt';
 import {
   defaultInstructions,
   downexInstructions,
@@ -12,13 +13,20 @@ import {
   reverseOrderInstructions,
   reverseOrderPrompt,
 } from './trials/instructions';
-import { getCorsiBlocks } from './trials/stimulus';
+import { getCorsiBlocks, resetMemoryGameState } from './trials/stimulus';
+
+export const TOTAL_FORWARD_TRIALS = 14;
+const TOTAL_BACKWARD_TRIALS = 12;
+
+// Default practice trials always use sequence length 2 so backward practice doesn't inherit
+// the elevated sequenceLength set when transitioning out of the forward block.
+const PRACTICE_SEQ_LENGTH = 2;
 
 const generatePracticeTrialTimeline = (reverse: boolean, tryAgainText: string, repetitions: number) => {
   const basicBlock = [
-    getCorsiBlocks({ mode: 'display', isPractice: true, reverse }),
-    getCorsiBlocks({ mode: 'input', isPractice: true, reverse }),
-    feedback(true, 'feedbackCorrect', tryAgainText, true),
+    getCorsiBlocks({ mode: 'display', isPractice: true, reverse, customSeqLength: PRACTICE_SEQ_LENGTH }),
+    getCorsiBlocks({ mode: 'input', isPractice: true, reverse, customSeqLength: PRACTICE_SEQ_LENGTH }),
+    feedback(true, tryAgainText),
   ];
 
   const finalTimeline = [];
@@ -32,10 +40,10 @@ const getSecondRoundPracticeTrials = (reverse: boolean, tryAgainText: string) =>
   return {
     timeline: [
       ...generatePracticeTrialTimeline(reverse, tryAgainText, 2),
-      getCorsiBlocks({ mode: 'display', isPractice: true, reverse }),
-      getCorsiBlocks({ mode: 'input', isPractice: true, reverse }),
+      getCorsiBlocks({ mode: 'display', isPractice: true, reverse, customSeqLength: PRACTICE_SEQ_LENGTH }),
+      getCorsiBlocks({ mode: 'input', isPractice: true, reverse, customSeqLength: PRACTICE_SEQ_LENGTH }),
       {
-        timeline: [feedback(true, 'feedbackCorrect', tryAgainText, true)],
+        timeline: [feedback(true, tryAgainText)],
         conditional_function: () => {
           return taskStore().isCorrect;
         },
@@ -48,18 +56,23 @@ const getSecondRoundPracticeTrials = (reverse: boolean, tryAgainText: string) =>
 };
 
 export default function buildMemoryTimeline(config: Record<string, any>) {
+  resetMemoryGameState();
+
   const { heavyInstructions } = taskStore();
+
+  const forwardTryAgainPrompt = resolveMemoryGamePrompt('memoryGameInstruct8Downex');
+  const backwardTryAgainPrompt = resolveMemoryGamePrompt('memoryGameInstruct11Downex');
 
   initTrialSaving(config);
   const preloadTrials = createPreloadTrials(mediaAssets).default;
   const initialTimeline = initTimeline(config, enterFullscreen);
 
   const corsiBlocksPractice = {
-    timeline: [...generatePracticeTrialTimeline(false, 'memoryGameForwardTryAgain', 3)],
+    timeline: [...generatePracticeTrialTimeline(false, forwardTryAgainPrompt, 3)],
   };
 
   const corsiBlocksPracticeReverse = {
-    timeline: [...generatePracticeTrialTimeline(true, 'memoryGameBackwardTryAgain', 3)],
+    timeline: [...generatePracticeTrialTimeline(true, backwardTryAgainPrompt, 3)],
   };
 
   const forwardTrial = () => {
@@ -73,10 +86,10 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
 
   const corsiBlocksStimulus = {
     timeline: [forwardTrial()],
-    repetitions: 16,
+    repetitions: TOTAL_FORWARD_TRIALS - 5, // subtract to account for firstFourTestTrials and forwardTrialResetSeq
   };
 
-  // last forward trial by itself in order to reset sequence length back to 2 for backward phase
+  // last forward trial by itself in order to reset sequence length for backward phase
   const forwardTrialResetSeq = {
     timeline: [getCorsiBlocks({ mode: 'display' }), getCorsiBlocks({ mode: 'input', resetSeq: true })],
     conditional_function: () => {
@@ -90,14 +103,14 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
 
   const corsiBlocksReverse = {
     timeline: [getCorsiBlocks({ mode: 'display', reverse: true }), getCorsiBlocks({ mode: 'input', reverse: true })],
-    repetitions: 21,
+    repetitions: TOTAL_BACKWARD_TRIALS,
   };
 
-  const totalRealTrials = corsiBlocksStimulus.repetitions + corsiBlocksReverse.repetitions;
+  const totalRealTrials = TOTAL_FORWARD_TRIALS + TOTAL_BACKWARD_TRIALS;
   taskStore('totalTestTrials', totalRealTrials);
 
   const downexFeedbackCorrect = {
-    timeline: [feedback(true, 'feedbackCorrect', 'memoryGameForwardTryAgain', true)],
+    timeline: [feedback(true)],
     conditional_function: () => {
       return taskStore().isCorrect;
     },
@@ -168,7 +181,7 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
     timeline: [
       reverseOrderPrompt,
       corsiBlocksPracticeReverse,
-      getSecondRoundPracticeTrials(true, 'memoryGameBackwardTryAgain'),
+      getSecondRoundPracticeTrials(true, backwardTryAgainPrompt),
     ],
   };
 
@@ -176,7 +189,7 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
     timeline: [
       ...defaultInstructions,
       corsiBlocksPractice,
-      getSecondRoundPracticeTrials(false, 'memoryGameForwardTryAgain'),
+      getSecondRoundPracticeTrials(false, forwardTryAgainPrompt),
       readyToPlay,
     ],
   };
