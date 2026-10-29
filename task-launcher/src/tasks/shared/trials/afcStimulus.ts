@@ -275,19 +275,30 @@ async function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial
     animationConfig = getItemAnimations(stim, stimContainer);
   }
 
-  if (animationConfig?.timeControl === 'timestamp' && typeof stim.audioFile === 'string') {
-    const timestamps = taskStore().animationTimestamps?.[stim.audioFile];
+  function animate() {
+    if (animationConfig?.timeControl === 'timestamp' && typeof stim.audioFile === 'string') {
+      const timestamps = taskStore().animationTimestamps?.[stim.audioFile];
 
-    if (timestamps?.length) {
-      timestamps.forEach((timestamp: number, index: number) => {
-        setTimeout(() => animationConfig.animations[index](), timestamp);
-      });
-    } else {
-      const logger = Logger.getInstance();
-      logger.capture('Animation timestamps not found', {
-        stimulus: stim,
-      });
+      if (timestamps?.length) {
+        timestamps.forEach((timestamp: number, index: number) => {
+          setTimeout(() => animationConfig.animations[index](), timestamp);
+        });
+      } else {
+        const logger = Logger.getInstance();
+        logger.capture('Animation timestamps not found', {
+          stimulus: stim,
+        });
+      }
     }
+  }
+
+  animate();
+
+  const replayButton = document.getElementById(replayButtonHtmlId) as HTMLButtonElement;
+  if (replayButton) {
+    replayButton.addEventListener('click', () => {
+      animate();
+    });
   }
 
   const pageStateHandler = new PageStateHandler(stim.audioFile, playAudioOnLoad);
