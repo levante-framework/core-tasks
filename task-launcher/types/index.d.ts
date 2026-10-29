@@ -44,6 +44,7 @@ declare global {
     disableOkButton?: boolean; // disable the OK button until the instruction prompt ends
     blockedTrials?: boolean; // when true with CAT, advance queued sequential trials in the same block via selectNextSequentialTrial
     multiStimImage?: boolean; // two images side-by-side if true
+    animationTimeControl: 'timestamp' | 'audio-file' | null;
   };
 
   type AudioConfigType = {
@@ -92,7 +93,8 @@ declare global {
     storyBranch?: string;
     animationTypes?: string[];
     animationTargets?: string[];
-    animationTrigger?: 'timestamp' | 'audio-file';
+    animationTimestamps?: number[];
+    animationAudioTriggers?: string[];
   };
 
   type MediaAssetsType = {

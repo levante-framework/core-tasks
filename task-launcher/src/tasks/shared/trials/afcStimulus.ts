@@ -40,11 +40,29 @@ function getPromptTextFromAudioFile(audioFile: string | string[], translations: 
   return translations[camelize(audioFile)];
 }
 
+type TrialAnimationConfig = {
+  timeControl: 'timestamp' | 'audio-file';
+  animations: (() => void)[];
+  audioTriggers?: string[];
+};
+
+function runAudioFileAnimations(animationConfig: TrialAnimationConfig, audioFile: string) {
+  if (animationConfig.timeControl !== 'audio-file' || !animationConfig.audioTriggers?.length) {
+    return;
+  }
+
+  animationConfig.audioTriggers.forEach((triggerId, index) => {
+    if (camelize(triggerId) === camelize(audioFile)) {
+      animationConfig.animations[index]?.();
+    }
+  });
+}
+
 async function playTrialAudio(
   trialAudio: string | string[],
   playAudioOnLoad: boolean | undefined,
   audioConfig: AudioConfigType,
-  animationConfig: { timeControl: 'timestamp' | 'audio-file'; animations: (() => void)[] } | null,
+  animationConfig: TrialAnimationConfig | null,
 ) {
   if (!playAudioOnLoad) {
     PageAudioHandler.playAudio('nullAudio', audioConfig);
@@ -83,8 +101,8 @@ async function playTrialAudio(
         },
       };
 
-      if (animationConfig?.timeControl === 'audio-file') {
-        animationConfig.animations[index]();
+      if (animationConfig) {
+        runAudioFileAnimations(animationConfig, audioFile);
       }
 
       PageAudioHandler.playAudio(camelize(audioFile), configWithCallback);
@@ -270,23 +288,24 @@ async function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial
   const stimContainer = document.querySelector(`.${stimulusContainerClass}`) as HTMLElement;
   const stimImages = stimContainer?.querySelectorAll('img');
 
-  let animationConfig: { timeControl: 'timestamp' | 'audio-file'; animations: (() => void)[] } | null = null;
-  if (stimImages?.length) {
-    animationConfig = getItemAnimations(stim, stimContainer);
-  }
+  const animations = stimImages?.length ? getItemAnimations(stim, stimContainer) : null;
+  const animationTimeControl = itemLayoutConfig?.animationTimeControl ?? null;
+  const trialAnimationConfig: TrialAnimationConfig | null =
+    animations?.length && animationTimeControl
+      ? {
+          timeControl: animationTimeControl,
+          animations,
+          audioTriggers: stim.animationAudioTriggers,
+        }
+      : null;
 
   function animate() {
-    if (animationConfig?.timeControl === 'timestamp' && typeof stim.audioFile === 'string') {
-      const timestamps = taskStore().animationTimestamps?.[stim.audioFile];
+    if (trialAnimationConfig?.timeControl === 'timestamp' && typeof stim.audioFile === 'string') {
+      const timestamps = stim.animationTimestamps;
 
       if (timestamps?.length) {
         timestamps.forEach((timestamp: number, index: number) => {
-          setTimeout(() => animationConfig.animations[index](), timestamp);
-        });
-      } else {
-        const logger = Logger.getInstance();
-        logger.capture('Animation timestamps not found', {
-          stimulus: stim,
+          setTimeout(() => trialAnimationConfig.animations[index]?.(), timestamp);
         });
       }
     }
@@ -316,7 +335,7 @@ async function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial
     },
   };
 
-  void playTrialAudio(stim.audioFile, playAudioOnLoad, audioConfig, animationConfig);
+  void playTrialAudio(stim.audioFile, playAudioOnLoad, audioConfig, trialAnimationConfig);
   const isPracticeTrial = stim.assessmentStage === 'practice_response';
   const isInstructionTrial = stim.trialType === 'instructions';
 

@@ -51,7 +51,7 @@ type ParsedRowType = {
   story_branch?: string;
   animation_types?: string;
   animation_targets?: string;
-  animation_trigger?: string;
+  animation_triggers?: string;
 };
 
 function parseCommmaSeparated(value?: string): string[] | undefined {
@@ -59,6 +59,24 @@ function parseCommmaSeparated(value?: string): string[] | undefined {
     return undefined;
   }
   return value.split(',').map((item) => item.trim());
+}
+
+function parseAnimationTriggers(
+  value?: string,
+): Pick<StimulusType, 'animationTimestamps' | 'animationAudioTriggers'> | null {
+  const parts = parseCommmaSeparated(value);
+  if (!parts?.length) {
+    return null;
+  }
+
+  const numbers = parts.map((part) => Number(part));
+  const allIntegers = parts.every((part, index) => part !== '' && Number.isInteger(numbers[index]));
+
+  if (allIntegers) {
+    return { animationTimestamps: numbers };
+  }
+
+  return { animationAudioTriggers: parts };
 }
 
 type TransformedCorpus = {
@@ -141,7 +159,9 @@ const transformCSV = (csvInput: ParsedRowType[], sequentialStimulus: boolean, ta
             : stringToNumberArray(row.response_alternatives);
         }
       })(),
-      audioFile: row.audio_file?.includes(',') ? (row.audio_file as string).split(',') : (row.audio_file as string),
+      audioFile: row.audio_file?.includes(',')
+        ? (row.audio_file as string).split(',').map((file) => file.trim())
+        : (row.audio_file as string).trim(),
       // difficulty must be undefined to avoid running cat
       difficulty: taskStore().runCat ? parseFloat(row.d || row.difficulty) : NaN,
       randomize: row.randomize as 'yes' | 'no' | 'at_block_level',
@@ -152,7 +172,7 @@ const transformCSV = (csvInput: ParsedRowType[], sequentialStimulus: boolean, ta
       storyBranch: row.story_branch,
       animationTypes: parseCommmaSeparated(row.animation_types),
       animationTargets: parseCommmaSeparated(row.animation_targets),
-      animationTrigger: row.animation_trigger as 'timestamp' | 'audio-file',
+      ...parseAnimationTriggers(row.animation_triggers),
     };
 
     if (row.task === 'same-different-selection') {

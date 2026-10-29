@@ -136,31 +136,39 @@ function swapImage(container: HTMLElement, image: string) {
   />`;
 }
 
-function parseCorpusAnimation(animationType: string, animationTargetId: string, stimContainer: HTMLElement): () => void {
+function parseCorpusAnimation(
+  animationType: string,
+  animationTargetId: string,
+  stimContainer: HTMLElement,
+): () => void {
   const targetImageSrc = mediaAssets.images[camelize(animationTargetId)];
   const targetElement = document.querySelector(`img[src='${targetImageSrc}']`) as HTMLElement;
 
   switch (animationType) {
     case 'pulse':
-      return () => {triggerAnimation(targetElement, 'pulse 2s 0s')};
+      return () => {
+        triggerAnimation(targetElement, 'pulse 2s 0s');
+      };
     case 'stimulus-image-swap':
-      return () => {swapImage(stimContainer, camelize(animationTargetId))};
+      return () => {
+        swapImage(stimContainer, camelize(animationTargetId));
+      };
     default:
       return () => {};
   }
 }
 
 // returns an array of functions that animate DOM elements by itemId for items with custom animations
-export function getItemAnimations(stim: StimulusType, stimContainer: HTMLElement): {timeControl: 'timestamp' | 'audio-file', animations: (() => void)[]} | null {
-  const animations = [];
-
-  if (!stim.animationTypes || !stim.animationTargets || !stim.animationTrigger) {
+export function getItemAnimations(stim: StimulusType, stimContainer: HTMLElement): (() => void)[] | null {
+  if (!stim.animationTypes || !stim.animationTargets) {
     return null;
   }
+
+  const animations: (() => void)[] = [];
 
   for (let i = 0; i < stim.animationTypes.length; i++) {
     animations.push(parseCorpusAnimation(stim.animationTypes[i], stim.animationTargets[i], stimContainer));
   }
 
-  return {timeControl: stim.animationTrigger, animations: animations};
+  return animations;
 }

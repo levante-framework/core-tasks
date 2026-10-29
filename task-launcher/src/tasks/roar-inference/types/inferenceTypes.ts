@@ -39,4 +39,5 @@ export type LayoutConfigTypeInference = {
     onIncorrectTrial: 'skip' | 'end';
     // Other config can be placed here
   };
+  animationTimeControl: 'timestamp' | 'audio-file' | null;
 };

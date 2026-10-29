@@ -11,7 +11,6 @@ import {
 import './styles/index.scss';
 import type { RoarAppkit } from '@levante-framework/firekit';
 import { setTaskStore, taskStore } from './taskStore';
-import { getAnimationTimestamps } from './tasks/shared/helpers/getAnimationTimestamps';
 import { getBucketName } from './tasks/shared/helpers/getBucketName';
 import taskConfig from './tasks/taskConfig';
 import { jsPsych } from './tasks/taskSetup';
@@ -89,7 +88,6 @@ export class TaskLauncher {
     this.firekit?.updateStopReason(taskStore().effectiveStoppingRule);
 
     await getTranslations(isDev, taskName, language);
-    await getAnimationTimestamps(isDev, taskName, language);
 
     // TODO: make hearts and flowers corpus? make list of tasks that don't need corpora?
     if (taskName !== 'hearts-and-flowers' && taskName !== 'memory-game' && taskName !== 'intro') {
