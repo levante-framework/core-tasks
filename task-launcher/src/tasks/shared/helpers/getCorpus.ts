@@ -47,7 +47,37 @@ type ParsedRowType = {
   downex?: string;
   block_threshold?: number;
   story_group?: number;
+  response_branches?: string;
+  story_branch?: string;
+  animation_types?: string;
+  animation_targets?: string;
+  animation_triggers?: string;
 };
+
+function parseCommmaSeparated(value?: string): string[] | undefined {
+  if (value == null || value === '') {
+    return undefined;
+  }
+  return value.split(',').map((item) => item.trim());
+}
+
+function parseAnimationTriggers(
+  value?: string,
+): Pick<StimulusType, 'animationTimestamps' | 'animationAudioTriggers'> | null {
+  const parts = parseCommmaSeparated(value);
+  if (!parts?.length) {
+    return null;
+  }
+
+  const numbers = parts.map((part) => Number(part));
+  const allIntegers = parts.every((part, index) => part !== '' && Number.isInteger(numbers[index]));
+
+  if (allIntegers) {
+    return { animationTimestamps: numbers };
+  }
+
+  return { animationAudioTriggers: parts };
+}
 
 type TransformedCorpus = {
   stimulusData: StimulusType[];
@@ -60,9 +90,23 @@ function writeItem(row: ParsedRowType) {
   if (row.task === 'math' && row.trial_type.includes('Number Line')) {
     const splitArr = (row.item as string).split(',');
     return splitArr.map((el) => _toNumber(el));
+  } else if ((row.item as string).includes(',') && row.task === 'theory-of-mind') {
+    return (row.item as string).replace(' ', '').split(',');
   }
 
   return row.item;
+}
+
+function writeResponseBranches(row: ParsedRowType): Record<string, string> | undefined {
+  if (row.response_branches != null && row.response_branches !== '' && row.task === 'theory-of-mind') {
+    const parts = (row.response_branches as string).replace(' ', '').split(',');
+    const branches: Record<string, string> = {};
+    parts.forEach((part) => {
+      const [key, value] = part.split(':');
+      branches[key] = value;
+    });
+    return branches;
+  }
 }
 
 function containsLettersOrSlash(str: string) {
@@ -81,7 +125,7 @@ const transformCSV = (csvInput: ParsedRowType[], sequentialStimulus: boolean, ta
 
   csvInput.forEach((row) => {
     // Leaving this here for quick testing of a certain type of trial
-    //if (!row.trial_type.includes('-match')) return;
+    //if (row.block_index !== '5') return;
 
     if (row.block_threshold && !blockThresholds.includes(row.block_threshold)) {
       blockThresholds.push(row.block_threshold);
@@ -115,13 +159,20 @@ const transformCSV = (csvInput: ParsedRowType[], sequentialStimulus: boolean, ta
             : stringToNumberArray(row.response_alternatives);
         }
       })(),
-      audioFile: row.audio_file?.includes(',') ? (row.audio_file as string).split(',') : (row.audio_file as string),
+      audioFile: row.audio_file?.includes(',')
+        ? (row.audio_file as string).split(',').map((file) => file.trim())
+        : (row.audio_file as string).trim(),
       // difficulty must be undefined to avoid running cat
       difficulty: taskStore().runCat ? parseFloat(row.d || row.difficulty) : NaN,
       randomize: row.randomize as 'yes' | 'no' | 'at_block_level',
       trialNumber: row.trial_num,
       downex: row.downex?.toUpperCase() === 'TRUE',
       storyGroup: _toNumber(row.story_group),
+      responseBranches: writeResponseBranches(row),
+      storyBranch: row.story_branch,
+      animationTypes: parseCommmaSeparated(row.animation_types),
+      animationTargets: parseCommmaSeparated(row.animation_targets),
+      ...parseAnimationTriggers(row.animation_triggers),
     };
 
     if (row.task === 'same-different-selection') {

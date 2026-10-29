@@ -90,7 +90,8 @@ export default {
     setConfig: setSharedConfig,
     getCorpus: getCorpus,
     getTranslations: getTranslations,
-    buildTaskTimeline: tomTimeline,
+    buildTaskTimeline: (config: Record<string, any>, mediaAssets: MediaAssetsType) =>
+      tomTimeline(config, mediaAssets, true),
     variants: {},
   },
   intro: {
@@ -123,7 +124,8 @@ export default {
     setConfig: setSharedConfig,
     getCorpus: getCorpus,
     getTranslations: getTranslations,
-    buildTaskTimeline: tomTimeline,
+    buildTaskTimeline: (config: Record<string, any>, mediaAssets: MediaAssetsType) =>
+      tomTimeline(config, mediaAssets, false),
     variants: {},
   },
   childSurvey: {

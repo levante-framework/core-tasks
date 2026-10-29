@@ -117,7 +117,7 @@ function onPause() {
     onResume();
   });
 
-  PageAudioHandler.stopAndDisconnectNode();
+  PageAudioHandler.stopAndDisconnectNode(true);
 }
 
 function onResume() {

@@ -3,6 +3,7 @@ import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-respons
 import _toNumber from 'lodash/toNumber';
 import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
+import { Logger } from '../../../utils/logger';
 import { isTouchScreen, jsPsych } from '../../taskSetup';
 import {
   addExperimenterButtons,
@@ -22,6 +23,7 @@ import {
   shouldTerminateCat,
   updateTheta,
 } from '../helpers';
+import { getItemAnimations } from '../helpers/animateImages';
 import { displayDebugInfo } from '../helpers/displayDebugInfo';
 import { finishTaskEarly } from '.';
 
@@ -29,18 +31,88 @@ const replayButtonHtmlId = 'replay-btn-revisited';
 // Previously chosen responses for current practice trial
 let practiceResponses = [];
 let startTime: number;
+let stimulusContainerClass: string;
 
-function getStimulus(layoutConfigMap: Record<string, LayoutConfigType>, trial?: StimulusType) {
-  const stim = trial || taskStore().nextStimulus;
-  const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
-  if (itemLayoutConfig) {
-    return itemLayoutConfig?.playAudioOnLoad ? camelize(stim.audioFile) : 'nullAudio';
+function getPromptTextFromAudioFile(audioFile: string | string[], translations: Record<string, string>) {
+  if (typeof audioFile !== 'string') {
+    return audioFile.map((file: string) => translations[camelize(file)]).join(' ');
+  }
+  return translations[camelize(audioFile)];
+}
+
+type TrialAnimationConfig = {
+  timeControl: 'timestamp' | 'audio-file';
+  animations: (() => void)[];
+  audioTriggers?: string[];
+};
+
+function runAudioFileAnimations(animationConfig: TrialAnimationConfig, audioFile: string) {
+  if (animationConfig.timeControl !== 'audio-file' || !animationConfig.audioTriggers?.length) {
+    return;
+  }
+
+  animationConfig.audioTriggers.forEach((triggerId, index) => {
+    if (camelize(triggerId) === camelize(audioFile)) {
+      animationConfig.animations[index]?.();
+    }
+  });
+}
+
+async function playTrialAudio(
+  trialAudio: string | string[],
+  playAudioOnLoad: boolean | undefined,
+  audioConfig: AudioConfigType,
+  animationConfig: TrialAnimationConfig | null,
+) {
+  if (!playAudioOnLoad) {
+    PageAudioHandler.playAudio('nullAudio', audioConfig);
+    return;
+  }
+
+  if (typeof trialAudio === 'string') {
+    PageAudioHandler.playAudio(camelize(trialAudio), audioConfig);
+    return;
+  }
+
+  const sequentialAudioConfig: AudioConfigType = {
+    restrictRepetition: {
+      enabled: false,
+      maxRepetitions: 2,
+    },
+  };
+
+  for (const [index, audioFile] of trialAudio.entries()) {
+    const isLastAudio = index === trialAudio.length - 1;
+
+    if (taskStore().isPaused) {
+      break;
+    }
+
+    await new Promise<void>((resolve) => {
+      const configWithCallback: AudioConfigType = {
+        ...sequentialAudioConfig,
+        onEnded: () => {
+          setTimeout(() => {
+            if (isLastAudio) {
+              audioConfig.onEnded?.();
+            }
+            resolve();
+          }, 1000);
+        },
+      };
+
+      if (animationConfig) {
+        runAudioFileAnimations(animationConfig, audioFile);
+      }
+
+      PageAudioHandler.playAudio(camelize(audioFile), configWithCallback);
+    });
   }
 }
 
 const getPromptTemplate = (
-  prompt: string,
-  mediaSrc: string | null,
+  prompt: string | null,
+  mediaSrc: string | string[] | null,
   mediaAlt: string,
   stimText: string | null | undefined,
   equalSizeStim: boolean,
@@ -68,12 +140,20 @@ const getPromptTemplate = (
   if (mediaSrc || stimText) {
     let contentTemplate = '';
     if (mediaSrc) {
-      contentTemplate += `
+      if (Array.isArray(mediaSrc)) {
+        mediaSrc.forEach((src) => {
+          contentTemplate += `
+            <img src=${src} alt=${mediaAlt} />
+          `;
+        });
+      } else {
+        contentTemplate += `
         <img 
           src=${mediaSrc}
           alt=${mediaAlt}
         />
       `;
+      }
     }
 
     if (stimText) {
@@ -82,12 +162,12 @@ const getPromptTemplate = (
       `;
     }
     // TODO: Remove after LayoutConfig implementation
-    let containerClass = equalSizeStim ? 'lev-stim-content' : 'lev-stim-content-x-3';
+    stimulusContainerClass = equalSizeStim ? 'lev-stim-content' : 'lev-stim-content-x-3';
     if (stimulusContainerClassList) {
-      containerClass = stimulusContainerClassList.join(' ');
+      stimulusContainerClass = stimulusContainerClassList.join(' ');
     }
     template += `
-      <div class=${containerClass}>
+      <div class=${stimulusContainerClass}>
         ${contentTemplate}
       </div>
     `;
@@ -110,10 +190,17 @@ function getPrompt(layoutConfigMap: Record<string, LayoutConfigType>, trial?: St
       showStimImage,
       stimText: stimulusTextConfig,
     } = itemLayoutConfig;
-    const mediaAsset = stimulusTextConfig?.value
-      ? mediaAssets.images[camelize(stimulusTextConfig.value)] || mediaAssets.images.blank
-      : null;
-    const prompt = promptEnabled ? t[camelize(stim.audioFile)] : null;
+
+    let mediaAsset: string | string[] | null;
+    if (itemLayoutConfig.multiStimImage) {
+      mediaAsset = stim.item.map((image: string) => mediaAssets.images[camelize(image)]);
+    } else {
+      mediaAsset = stimulusTextConfig?.value
+        ? mediaAssets.images[camelize(stimulusTextConfig.value)] || mediaAssets.images.blank
+        : null;
+    }
+
+    const prompt = promptEnabled ? getPromptTextFromAudioFile(stim.audioFile, t) : null;
     const mediaSrc = showStimImage ? mediaAsset : null;
     const mediaAlt = stimulusTextConfig?.value || `Image not loading: ${mediaSrc}. Please continue the task.`;
     const stimText = stimulusTextConfig ? stimulusTextConfig.displayValue : null;
@@ -188,20 +275,7 @@ function getButtonHtml(layoutConfigMap: Record<string, LayoutConfigType>, trial?
   }
 }
 
-function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: StimulusType) {
-  const audioConfig: AudioConfigType = {
-    restrictRepetition: {
-      enabled: true,
-      maxRepetitions: 2,
-    },
-    onEnded: () => {
-      enableOkButton();
-    },
-  };
-
-  // play trial audio
-  PageAudioHandler.playAudio(getStimulus(layoutConfigMap, trial) || '', audioConfig);
-
+async function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: StimulusType) {
   startTime = performance.now();
 
   const incorrectPracticeResponses: Array<string | null> = [];
@@ -211,13 +285,57 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
   const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
   const playAudioOnLoad = itemLayoutConfig?.playAudioOnLoad;
 
-  let pageStateHandler: PageStateHandler;
-  if (typeof stim.audioFile === 'string') {
-    // no need to handle array case since it's not supported yet
-    pageStateHandler = new PageStateHandler(stim.audioFile, playAudioOnLoad);
-  } else {
-    throw new Error('Multiple audio files are not supported in this trial type');
+  const stimContainer = document.querySelector(`.${stimulusContainerClass}`) as HTMLElement;
+  const stimImages = stimContainer?.querySelectorAll('img');
+
+  const animations = stimImages?.length ? getItemAnimations(stim, stimContainer) : null;
+  const animationTimeControl = itemLayoutConfig?.animationTimeControl ?? null;
+  const trialAnimationConfig: TrialAnimationConfig | null =
+    animations?.length && animationTimeControl
+      ? {
+          timeControl: animationTimeControl,
+          animations,
+          audioTriggers: stim.animationAudioTriggers,
+        }
+      : null;
+
+  function animate() {
+    if (trialAnimationConfig?.timeControl === 'timestamp' && typeof stim.audioFile === 'string') {
+      const timestamps = stim.animationTimestamps;
+
+      if (timestamps?.length) {
+        timestamps.forEach((timestamp: number, index: number) => {
+          setTimeout(() => trialAnimationConfig.animations[index]?.(), timestamp);
+        });
+      }
+    }
   }
+
+  animate();
+
+  const replayButton = document.getElementById(replayButtonHtmlId) as HTMLButtonElement;
+  if (replayButton) {
+    replayButton.addEventListener('click', () => {
+      animate();
+    });
+  }
+
+  const pageStateHandler = new PageStateHandler(stim.audioFile, playAudioOnLoad);
+
+  const audioConfig: AudioConfigType = {
+    restrictRepetition: {
+      enabled: true,
+      maxRepetitions: 2,
+    },
+    onEnded: () => {
+      enableOkButton();
+      if (!itemLayoutConfig.isStaggered) {
+        pageStateHandler.enableReplayBtn();
+      }
+    },
+  };
+
+  void playTrialAudio(stim.audioFile, playAudioOnLoad, audioConfig, trialAnimationConfig);
   const isPracticeTrial = stim.assessmentStage === 'practice_response';
   const isInstructionTrial = stim.trialType === 'instructions';
 
@@ -257,9 +375,10 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
     addPracticeButtonListeners(answer, isTouchScreen, choices);
   }
 
+  const buttonContainer = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
+  const responseButtons = buttonContainer.children as HTMLCollectionOf<HTMLButtonElement>;
+
   if (stim.trialType !== 'instructions') {
-    const buttonContainer = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
-    const responseButtons = buttonContainer.children as HTMLCollectionOf<HTMLButtonElement>;
     const totalResponseButtons = responseButtons.length;
     const { buttonLayout } = taskStore();
 
@@ -276,7 +395,7 @@ function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial?: Sti
     taskStore.transact('trialNumSubtask', (oldVal: number) => oldVal + 1);
   }
 
-  setupReplayAudio(pageStateHandler);
+  setupReplayAudio(pageStateHandler, false);
 
   // display debug info if enabled
   displayDebugInfo(stim);
@@ -412,6 +531,14 @@ function doOnFinish(
     });
 
     selectNextSequentialTrial(nextTrials);
+  }
+
+  if (stimulus.responseBranches != null && responseValue != null) {
+    const branch = stimulus.responseBranches[String(responseValue)];
+
+    if (branch != null) {
+      taskStore('currentStoryBranch', branch);
+    }
   }
 }
 

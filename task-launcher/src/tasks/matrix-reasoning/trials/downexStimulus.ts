@@ -9,9 +9,9 @@ import {
   getParticipantUtilityButtonsHtml,
   PageAudioHandler,
   PageStateHandler,
-  popAnimation,
   setupFullscreenButton,
   setupReplayAudio,
+  shiftAnimation,
 } from '../../shared/helpers';
 import { isTouchScreen, jsPsych } from '../../taskSetup';
 
@@ -176,7 +176,7 @@ export const downexStimulus = (
         }
 
         // set up animation
-        let itemsToAnimate = [buttons, stimImage];
+        let itemsToAnimate = [stimImage, buttons];
 
         const audioConfig: AudioConfigType = {
           restrictRepetition: {
@@ -202,7 +202,7 @@ export const downexStimulus = (
               };
 
               if (animate && camelize(audioFile) !== 'sdsYourTurn') {
-                itemsToAnimate = popAnimation(itemsToAnimate, 'pulse 2s 0s') as any;
+                itemsToAnimate = shiftAnimation(itemsToAnimate, 'pulse 2s 0s') as any;
               }
               PageAudioHandler.playAudio(audioFile, configWithCallback);
             });

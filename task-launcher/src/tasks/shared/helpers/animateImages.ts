@@ -1,7 +1,8 @@
 import { mediaAssets } from '../../..';
+import { camelize } from './camelize';
 
-export function popAnimation(itemsToAnimate: any, animation: string) {
-  const item = itemsToAnimate.pop();
+export function shiftAnimation(itemsToAnimate: any, animation: string) {
+  const item = itemsToAnimate.shift();
 
   if (!item) {
     return; // Exit early if no item to animate
@@ -12,7 +13,7 @@ export function popAnimation(itemsToAnimate: any, animation: string) {
   return itemsToAnimate;
 }
 
-export function triggerAnimation(item: any, animation: string) {
+export function triggerAnimation(item: HTMLElement | HTMLElement[], animation: string) {
   if (Array.isArray(item)) {
     item.forEach((item) => {
       item.style.animation = 'none';
@@ -125,4 +126,49 @@ export function displaceAnimation(
   };
 
   addCursorPulse();
+}
+
+function swapImage(container: HTMLElement, image: string) {
+  container.innerHTML = `<img 
+    id="stim-image"
+    src=${mediaAssets.images[image]} 
+    alt="Image not loading: ${mediaAssets.images[image]}. Please continue the task." 
+  />`;
+}
+
+function parseCorpusAnimation(
+  animationType: string,
+  animationTargetId: string,
+  stimContainer: HTMLElement,
+): () => void {
+  const targetImageSrc = mediaAssets.images[camelize(animationTargetId)];
+  const targetElement = document.querySelector(`img[src='${targetImageSrc}']`) as HTMLElement;
+
+  switch (animationType) {
+    case 'pulse':
+      return () => {
+        triggerAnimation(targetElement, 'pulse 2s 0s');
+      };
+    case 'stimulus-image-swap':
+      return () => {
+        swapImage(stimContainer, camelize(animationTargetId));
+      };
+    default:
+      return () => {};
+  }
+}
+
+// returns an array of functions that animate DOM elements by itemId for items with custom animations
+export function getItemAnimations(stim: StimulusType, stimContainer: HTMLElement): (() => void)[] | null {
+  if (!stim.animationTypes || !stim.animationTargets) {
+    return null;
+  }
+
+  const animations: (() => void)[] = [];
+
+  for (let i = 0; i < stim.animationTypes.length; i++) {
+    animations.push(parseCorpusAnimation(stim.animationTypes[i], stim.animationTargets[i], stimContainer));
+  }
+
+  return animations;
 }
