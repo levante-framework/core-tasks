@@ -50,7 +50,7 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
   const timeline = [initialPreload, initialTimeline];
 
   const buttonNoise = {
-    timeline: [getAudioResponse(mediaAssets)],
+    timeline: [getAudioResponse(mediaAssets, 'nullAudio')],
 
     conditional_function: () => {
       const trialType = taskStore().nextStimulus.trialType;
