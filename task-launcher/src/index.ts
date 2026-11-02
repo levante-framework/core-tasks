@@ -124,7 +124,7 @@ export class TaskLauncher {
       language: this.gameParams.language,
     });
 
-    if (this.aborted) return;
+    if (this.aborted) return { effectiveStoppingRule: taskStore().effectiveStoppingRule, taskAborted: true };
 
     this.started = true;
     jsPsych.run(timeline);
@@ -140,7 +140,8 @@ export class TaskLauncher {
 
     await isTaskFinished(checkTaskFinished);
 
-    this.firekit?.updateStopReason(taskStore().effectiveStoppingRule);
+    await this.firekit?.updateStopReason(taskStore().effectiveStoppingRule);
+    return { effectiveStoppingRule: taskStore().effectiveStoppingRule, taskAborted: taskStore().taskAborted };
   }
 
   abort() {
