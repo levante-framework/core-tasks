@@ -1,4 +1,5 @@
 import { mediaAssets } from '../../..';
+import { Logger } from '../../../utils/logger';
 import { camelize } from './camelize';
 
 export function shiftAnimation(itemsToAnimate: any, animation: string) {
@@ -159,8 +160,25 @@ function parseCorpusAnimation(
 }
 
 // returns an array of functions that animate DOM elements by itemId for items with custom animations
-export function getItemAnimations(stim: StimulusType, stimContainer: HTMLElement): (() => void)[] | null {
+export function getItemAnimations(
+  stim: StimulusType,
+  stimContainer: HTMLElement,
+  animationTimeControl: 'timestamp' | 'audio-file' | null,
+): (() => void)[] | null {
   if (!stim.animationTypes || !stim.animationTargets) {
+    return null;
+  }
+
+  const animationTriggers =
+    animationTimeControl === 'timestamp' ? stim.animationTimestamps : stim.animationAudioTriggers;
+
+  if (
+    stim.animationTypes?.length !== animationTriggers?.length ||
+    stim.animationTypes?.length !== stim.animationTargets?.length
+  ) {
+    Logger.getInstance().capture('Animation types, targets, and triggers have mismatched lengths', {
+      stimulus: stim,
+    });
     return null;
   }
 

@@ -288,7 +288,9 @@ async function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial
   const stimContainer = document.querySelector(`.${stimulusContainerClass}`) as HTMLElement;
   const stimImages = stimContainer?.querySelectorAll('img');
 
-  const animations = stimImages?.length ? getItemAnimations(stim, stimContainer) : null;
+  const animations = stimImages?.length
+    ? getItemAnimations(stim, stimContainer, itemLayoutConfig?.animationTimeControl)
+    : null;
   const animationTimeControl = itemLayoutConfig?.animationTimeControl ?? null;
   const trialAnimationConfig: TrialAnimationConfig | null =
     animations?.length && animationTimeControl
