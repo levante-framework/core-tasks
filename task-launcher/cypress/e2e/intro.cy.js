@@ -1,14 +1,25 @@
-import { instructions } from './helpers.cy.js';
+import { getParamLists, instructions } from './helpers.cy.js';
 
-const intro_url = 'http://localhost:8080/?task=intro';
+const task = 'intro';
+const base_url = `http://localhost:8080/?task=${task}`;
+const testUrls = getParamLists(task).map((params) => `${base_url}&${params}`);
 
 describe('test intro', () => {
-  it('visits intro and clicks through instructions', () => {
-    cy.visit(intro_url);
-    // wait for OK button to be visible
-    cy.contains('OK', { timeout: 600000 }).should('be.visible');
+  if (testUrls.length === 0) {
+    it('fails when no test URLs are available (see cypress.config.js)', () => {
+      expect(testUrls).to.have.length.greaterThan(0);
+    });
+    return;
+  }
 
-    cy.contains('OK').realClick(); // real click mimics user gesture so that fullscreen can start
-    instructions();
+  testUrls.forEach((url) => {
+    const label = url.slice(base_url.length + 1) || 'default';
+
+    it(`visits intro and clicks through instructions (${label})`, () => {
+      cy.visit(url);
+      cy.get('.jspsych-content', { timeout: 600000 }).find('.primary').should('be.visible');
+      cy.get('.jspsych-content').find('.primary').realClick();
+      instructions();
+    });
   });
 });
