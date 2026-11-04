@@ -1,6 +1,6 @@
 import _shuffle from 'lodash/shuffle';
-import { fractionToMathML } from './fractionToMathML';
 import { taskStore } from '../../../taskStore';
+import { fractionToMathML } from './fractionToMathML';
 
 export const prepareChoices = (
   target: string,
@@ -28,7 +28,7 @@ export const prepareChoices = (
       break;
     case 'no':
       break;
-    case 'at_block_level':
+    case 'at_block_level': {
       const previousChoices = taskStore().previousChoices;
 
       // use previous choices if they match current choices, otherwise set new choice order
@@ -44,6 +44,7 @@ export const prepareChoices = (
       }
 
       break;
+    }
     default:
       // randomize by default
       choices = _shuffle(choices);

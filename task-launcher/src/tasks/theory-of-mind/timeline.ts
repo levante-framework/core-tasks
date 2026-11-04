@@ -1,27 +1,28 @@
 import 'regenerator-runtime/runtime';
+import { taskStore } from '../../taskStore';
 // setup
 import {
-  initTrialSaving,
-  initTimeline,
+  batchMediaAssets,
   createPreloadTrials,
   getRealTrials,
+  initTimeline,
+  initTrialSaving,
   prepareMultiBlockCat,
-  batchMediaAssets,
+  reportCorpusValidationErrors,
 } from '../shared/helpers';
-import { jsPsych, initializeCat } from '../taskSetup';
+import { getLeftoverAssets } from '../shared/helpers/batchPreloading';
 // trials
 import {
   afcStimulusTemplate,
+  enterFullscreen,
   exitFullscreen,
   setupStimulus,
   setupStimulusFromStoryGroup,
   taskFinished,
-  enterFullscreen,
 } from '../shared/trials';
+import { initializeCat, jsPsych } from '../taskSetup';
 import { getLayoutConfig } from './helpers/config';
-import { taskStore } from '../../taskStore';
-import { prepareTomCorpus, prepareStoryGroups } from './helpers/prepareTomCorpus';
-import { getLeftoverAssets } from '../shared/helpers/batchPreloading';
+import { prepareStoryGroups, prepareTomCorpus } from './helpers/prepareTomCorpus';
 
 export default function buildTOMTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   initTrialSaving(config);
@@ -39,11 +40,7 @@ export default function buildTOMTimeline(config: Record<string, any>, mediaAsset
     }
   }
 
-  if (Object.keys(validationErrorMap).length) {
-    console.error('The following errors were found');
-    console.table(validationErrorMap);
-    throw new Error('Something went wrong. Please look in the console for error details');
-  }
+  reportCorpusValidationErrors(validationErrorMap);
 
   // does not matter if trial has properties that don't belong to that type
   const trialConfig = {
@@ -54,7 +51,6 @@ export default function buildTOMTimeline(config: Record<string, any>, mediaAsset
     layoutConfigMap,
     terminateCat: false,
   };
-
 
   const blockList: StimulusType[][] = prepareMultiBlockCat(corpus, false);
   const fillerTrials = prepareTomCorpus(blockList);

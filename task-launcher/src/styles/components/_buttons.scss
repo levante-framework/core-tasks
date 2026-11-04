@@ -1,6 +1,13 @@
 @use '../abstracts' as *;
 
 button {
+  img {
+    -webkit-user-drag: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
   &.button-base {
     border-radius: $button-default-border-radius;
     border-width: $button-default-border-width;
@@ -31,10 +38,12 @@ button {
       border-radius: $button-default-border-radius-small;
     }
 
-    &:hover {
-      background: $bg-button-primary-hover;
-      border-color: $border-button-primary-hover;
-      box-shadow: $button-default-box-shadow rgba($border-button-primary-hover, 0.5) inset;
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        background: $bg-button-primary-hover;
+        border-color: $border-button-primary-hover;
+        box-shadow: $button-default-box-shadow rgba($border-button-primary-hover, 0.5) inset;
+      }
     }
 
     &:active {
@@ -92,10 +101,12 @@ button {
       height: 3 * $font-size-m;
     }
 
-    &:hover {
-      background: $bg-button-primary-hover;
-      border-color: $border-button-primary-hover;
-      box-shadow: $bg-button-secondary inset;
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        background: $bg-button-primary-hover;
+        border-color: $border-button-primary-hover;
+        box-shadow: $bg-button-secondary inset;
+      }
     }
 
     &:active {
@@ -137,12 +148,14 @@ button {
       min-height: 40px;
     }
 
-    &:hover {
-      background: $bg-green-base-hover;
-      border-color: $border-button-green-hover;
-      box-shadow:
-        $button-secondary-box-shadow $border-button-green-hover inset,
-        $button-secondary-inner-shadow $bg-green-gradient inset;
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        background: $bg-green-base-hover;
+        border-color: $border-button-green-hover;
+        box-shadow:
+          $button-secondary-box-shadow $border-button-green-hover inset,
+          $button-secondary-inner-shadow $bg-green-gradient inset;
+      }
     }
 
     &:active {
@@ -160,22 +173,22 @@ button {
     padding: $button-primary-padding;
     border-color: $bg-accent_secondary;
     box-shadow: $button-default-box-shadow rgba($bg-accent_secondary, 0.5) inset;
-    font-size: $font-size-xs;
+    font-size: $font-size-xs-em;
     font-weight: $font-weight-dark;
     color: $txt-white;
 
     @include respond-to('small') {
-      font-size: $font-size-xxs;
       font-weight: $font-weight-normal;
-      color: $txt-white;
       padding: $button-primary-padding-small;
       border-radius: $button-default-border-radius-small;
     }
 
-    &:hover {
-      background: $bg-button-primary-hover;
-      border-color: $border-button-primary-hover;
-      box-shadow: $bg-button-secondary inset;
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        background: $bg-button-primary-hover;
+        border-color: $border-button-primary-hover;
+        box-shadow: $bg-button-secondary inset;
+      }
     }
 
     &:active {
@@ -202,6 +215,12 @@ button {
       background: $bg-button-primary;
       border-color: $bg-accent_secondary;
       box-shadow: $button-default-box-shadow rgba($bg-accent_secondary, 0.5) inset;
+    }
+
+    &.selected {
+      background: $bg-button-dark;
+      border-color: $bg-accent_dark;
+      box-shadow: $button-secondary-inner-shadow $bg-button-secondary inset,
     }
   }
 
@@ -235,9 +254,11 @@ button {
       padding: 9px;
     }
 
-    &:hover {
-      background-color: rgba($bg-button-primary-hover, 0.4);
-      border: 2px solid $border-button-primary-hover;
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        background-color: rgba($bg-button-primary-hover, 0.4);
+        border: 2px solid $border-button-primary-hover;
+      }
     }
 
     &:active {
@@ -306,12 +327,31 @@ button {
       }
     }
 
-    &:hover {
-      border-color: $bg-accent_secondary;
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        border-color: $bg-accent_secondary;
+      }
     }
 
     &:active {
       border-color: $border-button-primary-clicked;
+    }
+  }
+
+  &.img-transparent {
+    padding: 0;
+    box-sizing: border-box;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    img {
+      border: none;
+      width: $bubble-grid-cell-size;
+      height: auto;
+      padding: 0;
+      margin: 0;
     }
   }
 
@@ -350,8 +390,10 @@ button {
       }
     }
 
-    &:hover {
-      border-color: $bg-accent_secondary;
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        border-color: $bg-accent_secondary;
+      }
     }
 
     &:active {
@@ -386,8 +428,10 @@ button {
       float: left;
     }
 
-    &:hover {
-      border-color: $bg-accent_secondary;
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        border-color: $bg-accent_secondary;
+      }
     }
 
     &:active {
@@ -400,15 +444,18 @@ button {
     padding: 0;
     box-sizing: border-box;
     border-color: $border-grey;
+    aspect-ratio: 1 / 1;
 
     img {
       border: none;
       width: $response-size-m;
-      height: $response-size-m;
+      height: auto;
       padding: 0;
       margin: 0;
       border-radius: $button-default-border-radius-small;
       float: left;
+      object-fit: contain;
+      aspect-ratio: 1 / 1;
     }
 
     @include respond-to('small') {

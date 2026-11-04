@@ -1,18 +1,16 @@
 // Required to use top level await
 import 'regenerator-runtime/runtime';
 import '../../../i18n/i18n';
-import _shuffle from 'lodash/shuffle';
-import Papa from 'papaparse';
-import _compact from 'lodash/compact';
 import _toNumber from 'lodash/toNumber';
-import { stringToNumberArray } from './stringToNumArray';
-import { dashToCamelCase } from './dashToCamelCase';
-import { camelize } from './camelize';
-import { shuffleStimulusTrials } from './randomizeStimulusBlocks';
-import { shuffleStories } from '../../roar-inference/helpers/shuffleRoarInferenceStories';
+import Papa from 'papaparse';
 import { taskStore } from '../../../taskStore';
-import { getBucketName } from './getBucketName';
+import { Logger } from '../../../utils/logger';
+import { shuffleStories } from '../../roar-inference/helpers/shuffleRoarInferenceStories';
+import { camelize } from './camelize';
 import { getChildSurveyResponses } from './childSurveyResponses';
+import { getBucketName } from './getBucketName';
+import { shuffleStimulusTrials } from './randomizeStimulusBlocks';
+import { stringToNumberArray } from './stringToNumArray';
 
 type ParsedRowType = {
   source: string;
@@ -51,11 +49,12 @@ type ParsedRowType = {
   story_group?: number;
 };
 
-let totalTrials = 0;
-let totalDownexTrials = 0;
-
-let stimulusData: StimulusType[] = [];
-let downexData: StimulusType[] = [];
+type TransformedCorpus = {
+  stimulusData: StimulusType[];
+  downexData: StimulusType[];
+  totalTrials: number;
+  totalDownexTrials: number;
+};
 
 function writeItem(row: ParsedRowType) {
   if (row.task === 'math' && row.trial_type.includes('Number Line')) {
@@ -67,18 +66,22 @@ function writeItem(row: ParsedRowType) {
 }
 
 function containsLettersOrSlash(str: string) {
-  return /[a-zA-Z\/]/.test(str);
+  return /[a-zA-Z/]/.test(str);
 }
 
-const transformCSV = (csvInput: ParsedRowType[], sequentialStimulus: boolean, task: string) => {
+const transformCSV = (csvInput: ParsedRowType[], sequentialStimulus: boolean, task: string): TransformedCorpus => {
   let currTrialTypeBlock = '';
-  let currPracticeAmount = 0;
 
   const blockThresholds: number[] = [];
 
+  let stimulusData: StimulusType[] = [];
+  let downexData: StimulusType[] = [];
+  let totalTrials = 0;
+  let totalDownexTrials = 0;
+
   csvInput.forEach((row) => {
     // Leaving this here for quick testing of a certain type of trial
-    // if (!row.trial_type.includes('Number Line')) return;
+    //if (!row.trial_type.includes('-match')) return;
 
     if (row.block_threshold && !blockThresholds.includes(row.block_threshold)) {
       blockThresholds.push(row.block_threshold);
@@ -86,7 +89,7 @@ const transformCSV = (csvInput: ParsedRowType[], sequentialStimulus: boolean, ta
 
     const newRow: StimulusType = {
       source: row.source,
-      block_index: parseInt(row.block_index),
+      block_index: parseInt(row.block_index, 10),
       task: row.task,
       // for testing, will be removed
       prompt: row.prompt,
@@ -132,13 +135,12 @@ const transformCSV = (csvInput: ParsedRowType[], sequentialStimulus: boolean, ta
     }
 
     if (row.task === 'same-different-selection') {
-      newRow.requiredSelections = parseInt(row.required_selections);
+      newRow.requiredSelections = parseInt(row.required_selections, 10);
     }
 
-    let currentTrialType = newRow.trialType;
+    const currentTrialType = newRow.trialType;
     if (currentTrialType !== currTrialTypeBlock) {
       currTrialTypeBlock = currentTrialType;
-      currPracticeAmount = 0;
     }
 
     if (newRow.downex) {
@@ -162,7 +164,7 @@ const transformCSV = (csvInput: ParsedRowType[], sequentialStimulus: boolean, ta
     const numItemsPerStory = taskStore().stimulusBlocks;
     const notStoryTypes = ['introduction', 'practice'];
     stimulusData = shuffleStories(stimulusData, inferenceNumStories, 'item', notStoryTypes, numItemsPerStory);
-    return;
+    return { stimulusData, downexData, totalTrials, totalDownexTrials };
   }
 
   if (!sequentialStimulus) {
@@ -171,6 +173,8 @@ const transformCSV = (csvInput: ParsedRowType[], sequentialStimulus: boolean, ta
       downexData = shuffleStimulusTrials(downexData);
     }
   }
+
+  return { stimulusData, downexData, totalTrials, totalDownexTrials };
 };
 
 export const getCorpus = async (config: Record<string, any>, isDev: boolean) => {
@@ -180,17 +184,28 @@ export const getCorpus = async (config: Record<string, any>, isDev: boolean) => 
 
   const corpusUrl = `https://storage.googleapis.com/${bucketName}/${corpus}.csv?alt=media`;
 
+  const csvTransformed: TransformedCorpus = {
+    stimulusData: [],
+    downexData: [],
+    totalTrials: 0,
+    totalDownexTrials: 0,
+  };
+
   function downloadCSV(url: string) {
     return new Promise((resolve, reject) => {
       Papa.parse<ParsedRowType>(url, {
         download: true,
         header: true,
         skipEmptyLines: true,
-        complete: function (results) {
-          transformCSV(results.data, sequentialStimulus, task);
+        complete: (results) => {
+          const parsed = transformCSV(results.data, sequentialStimulus, task);
+          csvTransformed.stimulusData.push(...parsed.stimulusData);
+          csvTransformed.downexData.push(...parsed.downexData);
+          csvTransformed.totalTrials += parsed.totalTrials;
+          csvTransformed.totalDownexTrials += parsed.totalDownexTrials;
           resolve(results.data);
         },
-        error: function (error) {
+        error: (error) => {
           reject(error);
         },
       });
@@ -198,7 +213,7 @@ export const getCorpus = async (config: Record<string, any>, isDev: boolean) => 
   }
 
   async function parseCSVs(urls: string[]) {
-    const promises = urls.map((url, i) => downloadCSV(url));
+    const promises = urls.map((url, _i) => downloadCSV(url));
     return Promise.all(promises);
   }
 
@@ -206,19 +221,17 @@ export const getCorpus = async (config: Record<string, any>, isDev: boolean) => 
     const urls = [corpusUrl];
     try {
       await parseCSVs(urls);
-      taskStore('totalTrials', totalTrials);
-      taskStore('totalDownexTrials', totalDownexTrials);
     } catch (error) {
-      console.error('Error:', error);
+      Logger.getInstance().error(error, { source: 'getCorpus' });
     }
+    taskStore('totalTrials', csvTransformed.totalTrials);
+    taskStore('totalDownexTrials', csvTransformed.totalDownexTrials);
   }
 
   await fetchData();
 
-  const csvTransformed = {
-    stimulus: stimulusData, // previously shuffled by shuffleStimulusTrials
-    downex: downexData,
-  };
-
-  taskStore('corpora', csvTransformed);
+  taskStore('corpora', {
+    stimulus: csvTransformed.stimulusData, // previously shuffled by shuffleStimulusTrials
+    downex: csvTransformed.downexData,
+  });
 };

@@ -1,8 +1,8 @@
 import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
-import { PageAudioHandler } from '../helpers';
 import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
 import { Logger } from '../../../utils';
+import { PageAudioHandler } from '../helpers';
 
 function endTask() {
   taskStore('taskComplete', true);
@@ -32,16 +32,22 @@ export const taskFinished = (endMessage = 'taskFinished') => {
     },
     button_choices: [`Continue`],
     keyboard_choices: 'ALL_KEYS',
-    button_html: '<button class="primary" style=margin-top:10%>Exit</button>',
+    button_html: () => {
+      return `<button class="primary" style=margin-top:10%>${taskStore().translations.generalExit}</button>`;
+    },
     on_load: () => {
-      window.addEventListener('click', endTask);
-      window.addEventListener('keydown', endTask);
+      taskStore('effectiveStoppingRule', 'earlyCompletion');
+
+      setTimeout(() => {
+        window.addEventListener('click', endTask);
+        window.addEventListener('keydown', endTask);
+      }, 50); // delay so that previous key presses are not captured
 
       if (mediaAssets.audio[endMessage]) {
-        PageAudioHandler.playAudio(mediaAssets.audio[endMessage]);
+        PageAudioHandler.playAudio(endMessage);
       }
       const logger = Logger.getInstance();
-      logger.capture('Task Finished', {
+      logger.capture('Task finished: user finished all trials', {
         taskName: taskStore().task,
         taskFinished: taskStore().taskComplete,
       });

@@ -1,11 +1,21 @@
-import { pauseButtonSvg, playButtonSvg, exitButtonSvg, fullscreenButtonSvg, menuButtonSvg } from './components';
+import fscreen from 'fscreen';
 import { taskStore } from '../../../taskStore';
-import { finalizeCurrentPauseSegment, getActiveTaskElapsedMs } from './appTimer';
+import { Logger } from '../../../utils';
 import { InitPageSetup } from '../../../utils/initPageSetup';
 import { jsPsych } from '../../taskSetup';
+import { activateFullscreen } from './activateFullscreen';
+import { beginTaskTimerPauseSegment, resumeTaskTimerAfterPauseSegment } from './appTimer';
 import { PageAudioHandler } from './audioHandler';
+import { exitButtonSvg, menuButtonSvg, pauseButtonSvg } from './components';
 
 let pageSetup: InitPageSetup | null = null;
+
+// swallows keyboard events while paused
+function blockKeyboardWhilePaused(e: KeyboardEvent) {
+  e.stopImmediatePropagation();
+  e.preventDefault();
+}
+
 export function addExperimenterButtons() {
   // don't add if disabled or if they're already there
   if (document.querySelector('.experimenter-button-container') != null || !taskStore().experimenterButtons) {
@@ -50,23 +60,23 @@ export function addExperimenterButtons() {
   const popup = document.createElement('div');
   popup.id = 'exit-confirmation-popup';
   popup.classList.add('exit-confirmation-popup');
-  popup.textContent = taskStore().translations.generalConfirmExit || 'Are you sure you want to exit the game?';
+  popup.textContent = taskStore().translations.generalConfirmExit;
   popup.style.display = 'none';
 
   const popupButtonContainer = document.createElement('div');
   popupButtonContainer.id = 'exit-confirmation-popup-buttons';
   popupButtonContainer.classList.add('exit-confirmation-popup-buttons');
   popupButtonContainer.innerHTML = `
-        <button class="primary small">${taskStore().translations.yes || 'Yes'}</button>
-        <button class="primary small">${taskStore().translations.no || 'No'}</button>
+        <button class="primary small">${taskStore().translations.generalYes || 'Yes'}</button>
+        <button class="primary small">${taskStore().translations.generalNo || 'No'}</button>
     `;
   popup.appendChild(popupButtonContainer);
 
   // equalize button widths
   const popupButtons = popupButtonContainer.querySelectorAll('button');
   const standardWidth = popupButtons[0].getBoundingClientRect().width;
-  popupButtons[0].style.width = standardWidth.toString() + 'px';
-  popupButtons[1].style.width = standardWidth.toString() + 'px';
+  popupButtons[0].style.width = `${standardWidth}px`;
+  popupButtons[1].style.width = `${standardWidth}px`;
 
   document.body.appendChild(popup);
 }
@@ -91,11 +101,15 @@ export function setupFullscreenButton() {
 }
 
 function onPause() {
-  if (taskStore().taskTimer != null) {
-    clearTimeout(taskStore().taskTimer);
-    taskStore('taskTimer', null);
+  taskStore('isPaused', true);
+  jsPsych.pauseExperiment();
+  window.addEventListener('keydown', blockKeyboardWhilePaused, true);
+  beginTaskTimerPauseSegment();
+
+  if (taskStore().currentTrialTimeoutId) {
+    clearTimeout(taskStore().currentTrialTimeoutId);
+    taskStore('currentTrialTimeoutId', undefined);
   }
-  taskStore('taskTimerPauseBeganAt', Date.now());
 
   pageSetup?.onPause();
   const playButton = document.getElementById('play-button');
@@ -104,20 +118,23 @@ function onPause() {
   });
 
   PageAudioHandler.stopAndDisconnectNode();
-  taskStore('isPaused', true);
 }
 
 function onResume() {
   taskStore('isPaused', false);
+  jsPsych.resumeExperiment();
+  window.removeEventListener('keydown', blockKeyboardWhilePaused, true);
 
-  finalizeCurrentPauseSegment();
-  const maxTimeInMilliseconds = Math.max(Number(taskStore().maxTime), 1) * 60000;
-  const remainingMs = Math.max(0, maxTimeInMilliseconds - getActiveTaskElapsedMs());
-  const timerId = setTimeout(() => {
-    taskStore('maxTimeReached', true);
-    clearTimeout(timerId);
-  }, remainingMs);
-  taskStore('taskTimer', timerId);
+  if (taskStore().currentTrialTimeLimitMs) {
+    const currentTrialTimeout = jsPsych.pluginAPI.setTimeout(() => {
+      if (taskStore().isPaused || taskStore().currentTrialTimeoutId !== currentTrialTimeout) return;
+      jsPsych.finishTrial();
+    }, taskStore().currentTrialTimeLimitMs);
+
+    taskStore('currentTrialTimeoutId', currentTrialTimeout);
+  }
+
+  resumeTaskTimerAfterPauseSegment();
   // re-enable all buttons
   const buttons = Array.from(document.querySelectorAll('button'));
   buttons.forEach((button: HTMLButtonElement) => {
@@ -136,12 +153,34 @@ function onResume() {
 function onExit() {
   openPopup();
 
-  const popupButtons = document.getElementById('exit-confirmation-popup-buttons')!.querySelectorAll('button');
-  popupButtons[0].addEventListener('click', () => {
-    document.body.innerHTML = '';
-    taskStore('taskComplete', true);
-    jsPsych.endExperiment();
-  });
+  const popupContainer = document.getElementById('exit-confirmation-popup-buttons');
+  if (!popupContainer) return;
+  const popupButtons = popupContainer.querySelectorAll('button');
+  popupButtons[0].addEventListener(
+    'click',
+    () => {
+      if (taskStore().effectiveStoppingRule !== 'sufficientTrials') {
+        taskStore('effectiveStoppingRule', 'experimenterExit');
+      }
+      taskStore('taskAborted', true);
+
+      // clear any in-flight trial timer state so a stale time limit can't leak into a later task
+      if (taskStore().currentTrialTimeoutId) {
+        clearTimeout(taskStore().currentTrialTimeoutId);
+      }
+      taskStore('currentTrialTimeoutId', undefined);
+      taskStore('currentTrialTimeLimitMs', null);
+
+      const logger = Logger.getInstance();
+      logger.capture('Task finished: experimenter ended task', {
+        taskName: taskStore().task,
+        taskFinished: true,
+      });
+
+      jsPsych.endExperiment();
+    },
+    { once: true },
+  );
   popupButtons[1].addEventListener('click', () => {
     closePopup();
 
@@ -149,22 +188,21 @@ function onExit() {
     const exitButton = document.getElementById('exit');
     const pauseButton = document.getElementById('pause');
 
-    exitButton!.style.display = 'none';
-    pauseButton!.style.display = 'none';
-
-    menuButton!.classList.remove('open');
-    menuButton!.setAttribute('state', 'closed');
+    if (exitButton) exitButton.style.display = 'none';
+    if (pauseButton) pauseButton.style.display = 'none';
+    if (menuButton) {
+      menuButton.classList.remove('open');
+      menuButton.setAttribute('state', 'closed');
+    }
   });
 }
 
 function onFullscreen() {
-  if (document.fullscreenElement) {
+  if (fscreen.fullscreenElement) {
     return;
   }
 
-  document.documentElement.requestFullscreen().catch((err) => {
-    console.error(`Error enabling fullscreen: ${err.message}`);
-  });
+  activateFullscreen('utilityButton');
 }
 
 function onMenuPress(menuButton: HTMLButtonElement) {
@@ -172,16 +210,14 @@ function onMenuPress(menuButton: HTMLButtonElement) {
   const pauseButton = document.getElementById('pause');
 
   if (menuButton.getAttribute('state') === 'closed') {
-    exitButton!.style.display = 'block';
-    pauseButton!.style.display = 'block';
-
-    menuButton!.classList.add('open');
+    if (exitButton) exitButton.style.display = 'block';
+    if (pauseButton) pauseButton.style.display = 'block';
+    menuButton.classList.add('open');
     menuButton.setAttribute('state', 'open');
   } else {
-    exitButton!.style.display = 'none';
-    pauseButton!.style.display = 'none';
-
-    menuButton!.classList.remove('open');
+    if (exitButton) exitButton.style.display = 'none';
+    if (pauseButton) pauseButton.style.display = 'none';
+    menuButton.classList.remove('open');
     menuButton.setAttribute('state', 'closed');
   }
 }

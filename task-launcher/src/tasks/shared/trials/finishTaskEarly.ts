@@ -1,0 +1,62 @@
+import { taskStore } from '../../../taskStore';
+import { Logger } from '../../../utils';
+import { jsPsych } from '../../taskSetup';
+import { loader, PageAudioHandler } from '../helpers';
+
+function addSpinner() {
+  const stimContainer = document.getElementById('stim-container');
+  if (!stimContainer) {
+    return;
+  }
+
+  stimContainer.innerHTML = loader;
+}
+
+export function finishTaskEarly(effectiveStoppingRule: 'timeOut' | 'errorOut') {
+  taskStore('effectiveStoppingRule', effectiveStoppingRule);
+
+  const t = taskStore().translations;
+  setTimeout(() => {
+    const handleExit = (event: Event) => {
+      if (event.type === 'click') {
+        const buttonId = (event.target as HTMLElement)?.id;
+        if (buttonId === 'exit-button') {
+          taskStore('taskComplete', true);
+          window.removeEventListener('click', handleExit);
+          window.removeEventListener('keydown', handleExit);
+
+          addSpinner();
+        }
+      } else if (event.type === 'keydown') {
+        taskStore('taskComplete', true);
+        window.removeEventListener('keydown', handleExit);
+        window.removeEventListener('click', handleExit);
+
+        addSpinner();
+      }
+    };
+    window.addEventListener('click', handleExit);
+    window.addEventListener('keydown', handleExit);
+    const logger = Logger.getInstance();
+    const message =
+      effectiveStoppingRule === 'timeOut'
+        ? 'Task finished: user reached max time'
+        : 'Task finished: user reached max incorrect answers';
+
+    logger.capture(message, {
+      taskName: taskStore().task,
+      taskFinished: taskStore().taskComplete,
+    });
+  }, 50); // delay so that previous key presses are not captured
+
+  jsPsych.endExperiment(
+    `<div id="stim-container" class='lev-stimulus-container'>
+            <div class='lev-row-container instruction'>
+                <h1>${t.taskFinished}</h1>
+            </div>
+            <footer>${t.generalFooter}</footer>
+            <button id="exit-button" class="primary" style="margin-top:5%">${t.generalExit}</button>
+        </div>`,
+    PageAudioHandler.playAudio('taskFinished'),
+  );
+}

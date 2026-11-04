@@ -98,3 +98,6 @@ External tasks:
 	- [ROAR Single Word Reading](https://roar.education/) [Language: Single-word Reading] - external?
 	- [ROAR Sentence Comprehension](https://roar.education/) [Language: Reading Comprehension] - external?
 	- Expressive Vocab (ROAR?)
+
+NOTE:
+“This project is tested with BrowserStack.”

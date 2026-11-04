@@ -2,10 +2,11 @@
  * Class that handles the page state in a singleton
  * stores the stimuli length and replay button state and modifier
  */
-import { jsPsych } from '../../taskSetup';
-//@ts-ignore
+
+//@ts-expect-error
 import { camelize } from '@bdelab/roar-utils';
 import { mediaAssets } from '../../..';
+import { jsPsych } from '../../taskSetup';
 
 export class PageStateHandler {
   audioFile: string | string[];
@@ -13,6 +14,7 @@ export class PageStateHandler {
   audioBuffer?: AudioBuffer | AudioBuffer[];
   replayBtn: HTMLButtonElement;
   playStimulusOnLoad: boolean;
+  replayEnableTimeoutId?: ReturnType<typeof setTimeout>;
 
   constructor(audioFile: string | string[], playStimulusOnLoad: boolean) {
     this.audioFile = audioFile;
@@ -55,11 +57,27 @@ export class PageStateHandler {
     return this.replayBtn.hasAttribute('disabled');
   }
 
+  cancelScheduledReplayEnable() {
+    if (this.replayEnableTimeoutId !== undefined) {
+      clearTimeout(this.replayEnableTimeoutId);
+      this.replayEnableTimeoutId = undefined;
+    }
+  }
+
+  scheduleReplayEnableAfterMs(delayMs: number) {
+    this.cancelScheduledReplayEnable();
+    this.replayEnableTimeoutId = setTimeout(() => {
+      this.replayEnableTimeoutId = undefined;
+      this.enableReplayBtn();
+    }, delayMs);
+  }
+
   enableReplayBtn() {
     this.replayBtn.disabled = false;
   }
 
   disableReplayBtn() {
+    this.cancelScheduledReplayEnable();
     this.replayBtn.disabled = true;
   }
 }

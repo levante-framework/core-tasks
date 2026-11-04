@@ -1,4 +1,5 @@
 import jsPsychPreload from '@jspsych/plugin-preload';
+import { beginTaskTimerPauseSegment, resumeTaskTimerAfterPauseSegment } from './appTimer';
 
 function createJsPsychPreloadObject() {
   return {
@@ -14,6 +15,12 @@ function createJsPsychPreloadObject() {
     images: [],
     audio: [],
     video: [],
+    on_load: () => {
+      beginTaskTimerPauseSegment();
+    },
+    on_finish: () => {
+      resumeTaskTimerAfterPauseSegment();
+    },
   };
 }
 
@@ -36,7 +43,7 @@ export function createPreloadTrials(categorizedObjects: MediaAssetsType, blocks:
 
   // Distribute URLs into the appropriate blocks
   Object.entries(categorizedObjects).forEach(([category, files]) => {
-    Object.entries(files).forEach(([fileName, url]) => {
+    Object.entries(files).forEach(([_fileName, url]) => {
       let fileAdded = false;
 
       for (const block of blocks) {

@@ -1,9 +1,10 @@
-import { camelize } from './camelize';
 import { taskStore } from '../../../taskStore';
+import { Logger } from '../../../utils/logger';
+import { camelize } from './camelize';
 
 import 'regenerator-runtime/runtime';
 
-let translations: Record<string, string> = {};
+const translations: Record<string, string> = {};
 
 function parseTranslations(translationData: Record<string, string>[]) {
   for (const [key, value] of Object.entries(translationData)) {
@@ -19,7 +20,7 @@ function camelizeTranslations() {
     delete translations[key];
   }
 }
- 
+
 export const getTranslations = async (isDev: boolean, taskName: string, configLanguage?: string) => {
   // adult reasoning strings are in the math item bank
   if (taskName === 'adult-reasoning') {
@@ -63,11 +64,11 @@ export const getTranslations = async (isDev: boolean, taskName: string, configLa
     try {
       await loadTranslationJsons(taskName === 'intro' ? [urls[1]] : urls);
 
-      taskStore("requiredAudioAssets", Object.keys(translations));
+      taskStore('requiredAudioAssets', Object.keys(translations));
       camelizeTranslations();
       taskStore('translations', translations);
     } catch (error) {
-      console.error('Error:', error);
+      Logger.getInstance().error(error, { source: 'getTranslations', taskName });
     }
   }
 

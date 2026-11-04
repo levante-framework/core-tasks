@@ -46,11 +46,13 @@ export function prepareStoryGroups(corpus: StimulusType[]) {
   }
 
   corpus.forEach((trial: StimulusType) => {
-    if (trial.storyGroup !== undefined) {
-      storyGroups[trial.storyGroup].push(trial);
-    } else {
-      storyGroups[0].push(trial);
+    if (!trial) {
+      return;
     }
+
+    // Fall back to the first group for trials with a missing/invalid storyGroup (e.g. NaN).
+    const group = storyGroups[trial.storyGroup ?? 0] ?? storyGroups[0];
+    group.push(trial);
   });
 
   return storyGroups;

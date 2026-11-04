@@ -1,5 +1,5 @@
 import { PageAudioHandler } from './audioHandler';
-import { PageStateHandler } from './PageStateHandler';
+import type { PageStateHandler } from './PageStateHandler';
 
 export async function setupReplayAudio(pageStateHandler: PageStateHandler) {
   PageAudioHandler.replayPresses = 0; // reset to zero at beginning of trial
@@ -10,15 +10,12 @@ export async function setupReplayAudio(pageStateHandler: PageStateHandler) {
       const enableDelayBuffer = 100; //in ms
       const totalStimulusDurationMs = await pageStateHandler.getStimulusDurationMs(); //in ms
       const totalDelay = totalStimulusDurationMs + enableDelayBuffer;
-      setTimeout(() => {
-        pageStateHandler.enableReplayBtn();
-      }, totalDelay);
+      pageStateHandler.scheduleReplayEnableAfterMs(totalDelay);
     }
 
     const audioConfig: AudioConfigType = {
       restrictRepetition: {
         enabled: false,
-        maxRepetitions: 2,
       },
       onEnded: () => {
         pageStateHandler.enableReplayBtn();
@@ -28,13 +25,13 @@ export async function setupReplayAudio(pageStateHandler: PageStateHandler) {
     async function replayAudio() {
       PageAudioHandler.replayPresses++;
       pageStateHandler.disableReplayBtn();
-      if (typeof pageStateHandler.audioUri === 'string') {
-        PageAudioHandler.playAudio(pageStateHandler.audioUri, audioConfig);
+      if (typeof pageStateHandler.audioFile === 'string') {
+        PageAudioHandler.playAudio(pageStateHandler.audioFile, audioConfig);
       } else {
         // multiple audio files
-        for (let i = 0; i < pageStateHandler.audioUri.length; i++) {
-          const audioUri = pageStateHandler.audioUri[i];
-          const isLastAudio = i === pageStateHandler.audioUri.length - 1;
+        for (let i = 0; i < pageStateHandler.audioFile.length; i++) {
+          const audioKey = pageStateHandler.audioFile[i];
+          const isLastAudio = i === pageStateHandler.audioFile.length - 1;
 
           await new Promise<void>((resolve) => {
             const configWithCallback = {
@@ -47,7 +44,7 @@ export async function setupReplayAudio(pageStateHandler: PageStateHandler) {
                 resolve();
               },
             };
-            PageAudioHandler.playAudio(audioUri, configWithCallback);
+            PageAudioHandler.playAudio(audioKey, configWithCallback);
           });
         }
       }

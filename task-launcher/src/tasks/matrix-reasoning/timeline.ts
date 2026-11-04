@@ -1,14 +1,34 @@
 import 'regenerator-runtime/runtime';
+import { taskStore } from '../../taskStore';
 // setup
 import {
-  initTrialSaving,
-  initTimeline,
+  batchMediaAssets,
+  batchTrials,
+  checkFallbackCriteria,
   createPreloadTrials,
   getRealTrials,
-  batchTrials,
-  batchMediaAssets,
-  checkFallbackCriteria,
+  initTimeline,
+  initTrialSaving,
+  reportCorpusValidationErrors,
 } from '../shared/helpers';
+import { getLeftoverAssets } from '../shared/helpers/batchPreloading';
+import { prepareCorpus, selectNItems } from '../shared/helpers/prepareCat';
+// trials
+import {
+  afcStimulusTemplate,
+  enterFullscreen,
+  exitFullscreen,
+  fixationOnly,
+  getAudioResponse,
+  practiceTransition,
+  setupDownex,
+  setupStimulus,
+  taskFinished,
+} from '../shared/trials';
+import { repeatInstructionsMessage } from '../shared/trials/repeatInstructions';
+import { cat, initializeCat, jsPsych } from '../taskSetup';
+import { getLayoutConfig } from './helpers/config';
+import { downexStimulus } from './trials/downexStimulus';
 import {
   downexInstructions1,
   downexInstructions2,
@@ -17,25 +37,6 @@ import {
   downexInstructions5,
   instructions,
 } from './trials/instructions';
-import { downexStimulus } from './trials/downexStimulus';
-import { jsPsych, initializeCat, cat } from '../taskSetup';
-// trials
-import {
-  afcStimulusTemplate,
-  exitFullscreen,
-  setupStimulus,
-  fixationOnly,
-  taskFinished,
-  getAudioResponse,
-  enterFullscreen,
-  practiceTransition,
-  setupDownex,
-} from '../shared/trials';
-import { getLayoutConfig } from './helpers/config';
-import { repeatInstructionsMessage } from '../shared/trials/repeatInstructions';
-import { prepareCorpus, selectNItems } from '../shared/helpers/prepareCat';
-import { taskStore } from '../../taskStore';
-import { getLeftoverAssets } from '../shared/helpers/batchPreloading';
 
 export default function buildMatrixTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   initTrialSaving(config);
@@ -65,7 +66,7 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
 
   const layoutConfigMap: Record<string, LayoutConfigType> = {};
   let i = 0;
-  for (const c of heavyInstructions ? fullCorpus : defaultCorpus) {
+  for (const c of fullCorpus) {
     const { itemConfig, errorMessages } = getLayoutConfig(c, translations, mediaAssets, i);
     layoutConfigMap[c.itemId] = itemConfig;
     if (errorMessages.length) {
@@ -74,11 +75,7 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
     i += 1;
   }
 
-  if (Object.keys(validationErrorMap).length) {
-    console.error('The following errors were found');
-    console.table(validationErrorMap);
-    throw new Error('Something went wrong. Please look in the console for error details');
-  }
+  reportCorpusValidationErrors(validationErrorMap);
 
   // organize media assets into batches for preloading
   const batchSize = 25;
@@ -143,23 +140,21 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
       downexInstructions1,
       ...downexCorpus
         .slice(0, secondPhaseIndex)
-        .map((trial) => [
+        .flatMap((trial) => [
           { ...fixationOnly, stimulus: '' },
           downexStimulus(layoutConfigMap, true, trial),
           ifRealTrialResponse,
-        ])
-        .flat(),
+        ]),
       downexInstructions2,
       downexInstructions3,
       practiceTransition(undefined, true),
       ...downexCorpus
         .slice(secondPhaseIndex)
-        .map((trial) => [
+        .flatMap((trial) => [
           { ...fixationOnly, stimulus: '' },
           downexStimulus(layoutConfigMap, false, trial),
           ifRealTrialResponse,
-        ])
-        .flat(),
+        ]),
       downexInstructions4,
       downexInstructions5,
     ],
@@ -249,7 +244,7 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
       if (i % batchSize === 0) {
         preloadBatch();
       }
-      if (i <= fallbackIndex) {
+      if (i <= fallbackIndex && !heavyInstructions) {
         timeline.push(fallbackBlock);
       }
       timeline.push(stimulusBlock);

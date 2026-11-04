@@ -1,28 +1,29 @@
 import 'regenerator-runtime/runtime';
+import { taskStore } from '../../taskStore';
 // setup
 import {
-  initTrialSaving,
-  initTimeline,
-  createPreloadTrials,
-  prepareCorpus,
-  selectNItems,
-  getRealTrials,
-  batchTrials,
   batchMediaAssets,
+  batchTrials,
+  createPreloadTrials,
+  getRealTrials,
+  initTimeline,
+  initTrialSaving,
+  prepareCorpus,
+  reportCorpusValidationErrors,
+  selectNItems,
 } from '../shared/helpers';
-import { jsPsych, initializeCat, cat } from '../taskSetup';
+import { getLeftoverAssets } from '../shared/helpers/batchPreloading';
 // trials
 import {
   afcStimulusTemplate,
-  exitFullscreen,
-  setupStimulus,
-  fixationOnly,
-  taskFinished,
   enterFullscreen,
+  exitFullscreen,
+  fixationOnly,
+  setupStimulus,
+  taskFinished,
 } from '../shared/trials';
+import { cat, initializeCat, jsPsych } from '../taskSetup';
 import { getLayoutConfig } from './helpers/config';
-import { taskStore } from '../../taskStore';
-import { getLeftoverAssets } from '../shared/helpers/batchPreloading';
 
 export default function buildVocabTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   initTrialSaving(config);
@@ -42,11 +43,7 @@ export default function buildVocabTimeline(config: Record<string, any>, mediaAss
     }
   }
 
-  if (Object.keys(validationErrorMap).length) {
-    console.error('The following errors were found');
-    console.table(validationErrorMap);
-    throw new Error('Something went wrong. Please look in the console for error details');
-  }
+  reportCorpusValidationErrors(validationErrorMap);
 
   // organize media assets into batches for preloading
   const batchSize = 25;
@@ -57,9 +54,9 @@ export default function buildVocabTimeline(config: Record<string, any>, mediaAss
   let currPreloadBatch = 0;
 
   const leftOverAssets = getLeftoverAssets(batchedMediaAssets, mediaAssets);
-  const initialPreload = runCat ? 
-    createPreloadTrials(mediaAssets).default : 
-    createPreloadTrials(leftOverAssets).default;
+  const initialPreload = runCat
+    ? createPreloadTrials(mediaAssets).default
+    : createPreloadTrials(leftOverAssets).default;
 
   // does not matter if trial has properties that don't belong to that type
   const trialConfig = {
