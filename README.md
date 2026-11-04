@@ -26,6 +26,15 @@ npm run dev
 You can now locally run tasks e.g. TROG `http://localhost:8080/?task=trog`. 
 Task parameters are documented here (TODO linkme).
 
+### Location Selection Save Debug (Emulator)
+
+For testing location saves against the Firebase emulators:
+
+1. Start the emulators from the functions repo (auth `9290`, functions `5005`, firestore `8185`, UI `4002`).
+2. Open the task with debug save enabled:
+   `http://localhost:8080/?task=locationselection&locationSaveDebug=true`
+3. Click **Save** and confirm a `locations` doc appears in the Emulator UI.
+
 Task details:
 
 1. [Matrix Reasoning](https://hs-levante-assessment-dev.web.app/?task=matrix-reasoning) [George]

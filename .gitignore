@@ -6,8 +6,13 @@ dist
 **/.ipynb_checkpoints
 .idea
 .DS_Store.firebase/*.cache
+.firebase/
+.firebase/*.cache
 **/.DS_Store
 test-results/
 lib/
 .env
 .idea/
+task-launcher/.venv/
+task-launcher/data/
+task-launcher/firestore-debug.log

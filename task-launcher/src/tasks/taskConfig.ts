@@ -3,6 +3,7 @@ import adultReasoningTimeline from './adult-reasoning/timeline';
 import childSurveyTimeline from './child-survey/timeline';
 import heartsAndFlowersTimeline from './hearts-and-flowers/timeline';
 import introTimeline from './intro/timeline';
+import locationSelectionTimeline from './location-selection/timeline';
 import mathTimeline from './math/timeline';
 import matrixTimeline from './matrix-reasoning/timeline';
 import memoryGameTimeline from './memory-game/timeline';
@@ -131,6 +132,13 @@ export default {
     getCorpus: getCorpus,
     getTranslations: getTranslations,
     buildTaskTimeline: childSurveyTimeline,
+    variants: {},
+  },
+  locationSelection: {
+    setConfig: setSharedConfig,
+    getCorpus: getCorpus,
+    getTranslations: getTranslations,
+    buildTaskTimeline: locationSelectionTimeline,
     variants: {},
   },
 };
