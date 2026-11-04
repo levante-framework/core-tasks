@@ -4,6 +4,8 @@ import {
   getMediaAssets,
   hideLevanteLogoLoading,
   isTaskFinished,
+  languageAudioFromStems,
+  listLanguageAudio,
   showLevanteLogoLoading,
 } from './tasks/shared/helpers';
 import './styles/index.scss';
@@ -69,16 +71,27 @@ export class TaskLauncher {
     const languageAudioBucket = getBucketName('shared', isDev, 'audio', language);
     const sharedAudioBucket = getBucketName('shared', isDev, 'audio', 'shared');
 
-    await getTranslations(isDev, taskName, language);
-
-    const taskAudioAssetNames = taskStore().requiredAudioAssets;
+    const translationsPromise = getTranslations(isDev, taskName, language);
 
     try {
-      // will avoid language folder if not provided
-      languageAudioAssets = await getMediaAssets(languageAudioBucket, {}, taskName, language, taskAudioAssetNames);
-      sharedAudioAssets = await getMediaAssets(sharedAudioBucket, {}, taskName, 'shared');
-      taskVisualAssets = await getMediaAssets(taskVisualBucket, {}, taskName, language);
-      sharedVisualAssets = await getMediaAssets(sharedVisualBucket, {}, 'shared', language);
+      const [sharedAudio, taskVisual, sharedVisual, languageListing] = await Promise.all([
+        getMediaAssets(sharedAudioBucket, {}, taskName, 'shared'),
+        getMediaAssets(taskVisualBucket, {}, taskName, language),
+        getMediaAssets(sharedVisualBucket, {}, 'shared', language),
+        listLanguageAudio(languageAudioBucket),
+      ]);
+
+      await translationsPromise;
+      sharedAudioAssets = sharedAudio;
+      taskVisualAssets = taskVisual;
+      sharedVisualAssets = sharedVisual;
+      languageAudioAssets = languageAudioFromStems(
+        languageListing.bucket,
+        languageListing.folder,
+        taskStore().requiredAudioAssets,
+        languageListing.stems,
+      );
+      console.log('languageAudioAssets', languageAudioAssets);
     } catch (error) {
       throw new Error(`Error fetching media assets: ${error}`);
     }
