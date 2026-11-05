@@ -29,7 +29,7 @@ import type { InputCapability } from '../utils/detectInput';
  * @property {boolean} demoMode - Whether the task is running in demo mode (no interaction with Firestore), default is false.
  * @property {boolean} debug - Shows theta estimate on the screen for cat debugging when enabled.
  * @property {boolean} showAudioKeys - When true, displays audio keys on screen for debugging.
- * @property {boolean} experimenterButtons - When true, experimenter utility controls (pause, exit) are available.
+ * @property {boolean} experimenterButtons - When true, experimenter utility controls (pause, exit) are available. Defaults on unless a variant sets experimenterButtons to false, and only for the younger-instructions path (age <= 4 or heavyInstructions).
  * @property {boolean} taskAborted - Whether the task was exited via the experimenter exit button or aborted by the dashboard, default is false.
  * @property {boolean} bubblePractice - When true, run the bubble popping practice trial in the intro task.
  * @property {number} currentCatBlock - The current block number to select trials from in a CAT.

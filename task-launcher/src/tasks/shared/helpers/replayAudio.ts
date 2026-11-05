@@ -10,10 +10,9 @@ export async function setupReplayAudio(pageStateHandler: PageStateHandler, enabl
       const enableDelayBuffer = 100; //in ms
       const totalStimulusDurationMs = await pageStateHandler.getStimulusDurationMs(); //in ms
       const totalDelay = totalStimulusDurationMs + enableDelayBuffer;
+
       if (enableOnEnded) {
-        setTimeout(() => {
-          pageStateHandler.enableReplayBtn();
-        }, totalDelay);
+        pageStateHandler.scheduleReplayEnableAfterMs(totalDelay);
       }
     }
 
