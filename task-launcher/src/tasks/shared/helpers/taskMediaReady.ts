@@ -11,6 +11,7 @@ export interface MediaReadySummary {
   audioCount: number;
   imageCount: number;
   videoCount: number;
+  unknownCount: number;
   downloadSpanMs: number;
   slowestMs: number;
 }
@@ -20,11 +21,21 @@ let reported = false;
 let launchedTaskName = '';
 let launchedLanguage = '';
 
+function isAssetUrl(name: string) {
+  try {
+    const url = new URL(name);
+    return url.hostname === 'storage.googleapis.com' && !url.pathname.includes('/storage/v1/');
+  } catch {
+    return false;
+  }
+}
+
 function mediaKind(name: string) {
   const path = name.split('?')[0].toLowerCase();
   if (/\.(mp3|wav|ogg|m4a)$/.test(path)) return 'audio';
   if (/\.(png|webp|jpe?g|gif|svg)$/.test(path)) return 'image';
   if (/\.(mp4|webm|ogv)$/.test(path)) return 'video';
+  if (isAssetUrl(name)) return 'unknown';
   return null;
 }
 
@@ -34,6 +45,7 @@ export function summarizeMediaResources(entries: MediaResourceEntry[], sinceMs: 
     audioCount: 0,
     imageCount: 0,
     videoCount: 0,
+    unknownCount: 0,
     downloadSpanMs: 0,
     slowestMs: 0,
   };
@@ -46,6 +58,7 @@ export function summarizeMediaResources(entries: MediaResourceEntry[], sinceMs: 
     if (kind === 'audio') summary.audioCount += 1;
     if (kind === 'image') summary.imageCount += 1;
     if (kind === 'video') summary.videoCount += 1;
+    if (kind === 'unknown') summary.unknownCount += 1;
     const end = entry.responseEnd > entry.startTime ? entry.responseEnd : entry.startTime + entry.duration;
     if (entry.startTime < earliest) earliest = entry.startTime;
     if (end > latest) latest = end;

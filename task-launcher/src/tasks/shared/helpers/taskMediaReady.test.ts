@@ -3,7 +3,7 @@ import { Logger } from '../../../utils/logger';
 import { markTaskLaunched, reportTaskMediaReady, summarizeMediaResources } from './taskMediaReady';
 
 describe('summarizeMediaResources', () => {
-  it('counts media that started after launch and ignores everything else', () => {
+  it('counts media after launch and labels unrecognized bucket files unknown', () => {
     const summary = summarizeMediaResources(
       [
         {
@@ -25,6 +25,18 @@ describe('summarizeMediaResources', () => {
           duration: 2800,
         },
         { name: 'https://storage.googleapis.com/bucket/clip.webm', startTime: 1300, responseEnd: 1800, duration: 500 },
+        {
+          name: 'https://storage.googleapis.com/bucket/visual/vocab/mystery.bin',
+          startTime: 1500,
+          responseEnd: 2100,
+          duration: 600,
+        },
+        {
+          name: 'https://storage.googleapis.com/bucket/visual/vocab/early.bin',
+          startTime: 800,
+          responseEnd: 900,
+          duration: 100,
+        },
         { name: 'https://example.com/app.js', startTime: 1400, responseEnd: 1600, duration: 200 },
       ],
       1000,
@@ -34,6 +46,7 @@ describe('summarizeMediaResources', () => {
       audioCount: 0,
       imageCount: 2,
       videoCount: 1,
+      unknownCount: 1,
       downloadSpanMs: 3000,
       slowestMs: 2800,
     });
@@ -44,6 +57,7 @@ describe('summarizeMediaResources', () => {
       audioCount: 0,
       imageCount: 0,
       videoCount: 0,
+      unknownCount: 0,
       downloadSpanMs: 0,
       slowestMs: 0,
     });
@@ -82,6 +96,7 @@ describe('reportTaskMediaReady', () => {
         audioCount: 1,
         imageCount: 0,
         videoCount: 0,
+        unknownCount: 0,
         downloadSpanMs: 600,
         slowestMs: 600,
       },
