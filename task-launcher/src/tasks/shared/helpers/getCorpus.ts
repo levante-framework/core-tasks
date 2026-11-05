@@ -161,7 +161,7 @@ const transformCSV = (csvInput: ParsedRowType[], sequentialStimulus: boolean, ta
       })(),
       audioFile: row.audio_file?.includes(',')
         ? (row.audio_file as string).split(',').map((file) => file.trim())
-        : (row.audio_file as string).trim(),
+        : (row.audio_file as string)?.trim(),
       // difficulty must be undefined to avoid running cat
       difficulty: taskStore().runCat ? parseFloat(row.d || row.difficulty) : NaN,
       randomize: row.randomize as 'yes' | 'no' | 'at_block_level',
