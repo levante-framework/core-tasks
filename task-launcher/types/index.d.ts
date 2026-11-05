@@ -109,5 +109,6 @@ declare global {
   interface LevanteLogger {
     capture(name: string, properties?: Record<string, any>): void;
     error(error: Error | unknown, context?: Record<string, any>): void;
+    userMistake?(code: string, context?: Record<string, any>): void;
   }
 }
