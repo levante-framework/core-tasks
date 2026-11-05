@@ -37,11 +37,18 @@ export function languageAudioFromStems(
   names: string[],
   stems: ReadonlySet<string>,
 ): CategorizedObjectsType {
+  const stemsByCamel = new Map<string, string>();
+  for (const stem of stems) {
+    const key = camelize(stem);
+    if (key) stemsByCamel.set(key, stem);
+  }
+
   const audio: Record<string, string> = {};
   for (const name of names) {
-    const stem = audioStem(name);
-    if (!stem || !stems.has(stem)) continue;
-    audio[camelize(stem)] = `https://storage.googleapis.com/${bucket}/${folder}/${stem}.mp3`;
+    const camelName = camelize(name);
+    const stem = stemsByCamel.get(camelName);
+    if (!stem) continue;
+    audio[camelName] = `https://storage.googleapis.com/${bucket}/${folder}/${stem}.mp3`;
   }
   return { images: {}, audio, video: {} };
 }
@@ -127,7 +134,7 @@ export async function getMediaAssets(
 
 function isLanguageAndTaskValid(filePath: string, taskName: string, languageCode: string) {
   const parts = filePath.split('/');
-  if (parts.length < 3) {
+  if (parts.length !== 3) {
     return false;
   }
 

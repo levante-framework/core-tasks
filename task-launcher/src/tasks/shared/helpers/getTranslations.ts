@@ -17,7 +17,9 @@ function camelizeTranslations() {
     const camelizedKey = camelize(key);
 
     translations[camelizedKey] = value as unknown as string;
-    delete translations[key];
+    if (camelizedKey !== key) {
+      delete translations[key];
+    }
   }
 }
 
