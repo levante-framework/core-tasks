@@ -151,7 +151,7 @@ export function updateTheta(item: StimulusType, correct: boolean) {
   if (runCat) {
     // update theta for CAT
     const zeta = {
-      a: 1, // item discrimination (default value of 1)
+      a: item.discrimination == null ? 1 : item.discrimination, // item discrimination (default value of 1)
       b: item.difficulty, // item difficulty (from corpus)
       c: item.chanceLevel, // probability of correct answer from guessing
       d: 1, // max probability of correct response (default 1)
