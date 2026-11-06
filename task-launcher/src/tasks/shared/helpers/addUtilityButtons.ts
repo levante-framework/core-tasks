@@ -128,6 +128,12 @@ function onPause() {
     clearTimeout(taskStore().replayEnableTimeout);
     taskStore('replayEnableTimeout', undefined);
   }
+
+  if (taskStore().animationTimeouts) {
+    taskStore().animationTimeouts.forEach((timeout: NodeJS.Timeout) => {
+      clearTimeout(timeout);
+    });
+  }
 }
 
 function onResume() {

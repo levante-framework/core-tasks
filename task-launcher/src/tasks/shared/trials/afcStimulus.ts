@@ -304,12 +304,23 @@ async function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial
   function animate() {
     if (trialAnimationConfig?.timeControl === 'timestamp' && typeof stim.audioFile === 'string') {
       const timestamps = stim.animationTimestamps;
+      const animationTimeouts: NodeJS.Timeout[] = [];
+
+      if (taskStore().animationTimeouts?.length) {
+        taskStore().animationTimeouts.forEach((timeout: NodeJS.Timeout) => {
+          clearTimeout(timeout);
+        });
+
+        taskStore('animationTimeouts', []);
+      }
 
       if (timestamps?.length) {
         timestamps.forEach((timestamp: number, index: number) => {
-          setTimeout(() => trialAnimationConfig.animations[index]?.(), timestamp);
+          animationTimeouts.push(setTimeout(() => trialAnimationConfig.animations[index]?.(), timestamp));
         });
       }
+
+      taskStore('animationTimeouts', animationTimeouts);
     }
   }
 

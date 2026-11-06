@@ -52,6 +52,7 @@ import type { InputCapability } from '../utils/detectInput';
  * @property {number} currentTrialTimeLimitMs - Time limit for the current trial.
  * @property {NodeJS.Timeout|null} staggerTimeout - Timeout ID for the staggered buttons animation.
  * @property {NodeJS.Timeout|null} replayEnableTimeout - Timeout ID for enabling the replay button after the staggered buttons animation is complete.
+ * @property {NodeJS.Timeout[]|null} animationTimeouts - Timeout IDs for any animations scheduled this trial.
  * ------- AFC and SDS only -------
  * @property {string} target - Target item.
  * @property {Array} choices - List of choices.
