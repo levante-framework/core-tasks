@@ -71,11 +71,25 @@ async function listObjectNames(bucket: string, folder: string) {
   return names;
 }
 
+function legacyAudioFolder(folder: string) {
+  if (folder === 'audio/en-US') return 'audio/en';
+  if (folder === 'audio/de-DE') return 'audio/de';
+  return null;
+}
+
 export async function listLanguageAudio(bucketName: string): Promise<LanguageAudioListing> {
   const parts = bucketName.split('/');
   const bucket = parts[0];
-  const folder = parts.slice(1).join('/');
-  const names = await listObjectNames(bucket, folder);
+  let folder = parts.slice(1).join('/');
+  let names = await listObjectNames(bucket, folder);
+  const fallback = legacyAudioFolder(folder);
+  if (names.length === 0 && fallback) {
+    const fallbackNames = await listObjectNames(bucket, fallback);
+    if (fallbackNames.length > 0) {
+      folder = fallback;
+      names = fallbackNames;
+    }
+  }
 
   const stems = new Set<string>();
   for (const name of names) {

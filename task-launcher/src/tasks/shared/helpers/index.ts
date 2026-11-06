@@ -25,6 +25,7 @@ export { enableAllButtons, enableOkButton } from './enableButtons';
 export { equalizeButtonSizes } from './equalizeButtonSizes';
 export { filterMedia } from './filterMedia';
 export * from './fractionToMathML';
+export { getRequiredAudioNames } from './getAssetsPerTask';
 export * from './getCorpus';
 export * from './getMediaAssets';
 export { getRealTrials } from './getRealTrials';

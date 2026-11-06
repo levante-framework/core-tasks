@@ -66,7 +66,6 @@ export const getTranslations = async (isDev: boolean, taskName: string, configLa
     try {
       await loadTranslationJsons(taskName === 'intro' ? [urls[1]] : urls);
 
-      taskStore('requiredAudioAssets', Object.keys(translations));
       camelizeTranslations();
       taskStore('translations', translations);
     } catch (error) {

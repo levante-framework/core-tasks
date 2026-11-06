@@ -2,6 +2,7 @@ import {
   combineMediaAssets,
   dashToCamelCase,
   getMediaAssets,
+  getRequiredAudioNames,
   hideLevanteLogoLoading,
   isTaskFinished,
   languageAudioFromStems,
@@ -71,27 +72,24 @@ export class TaskLauncher {
     const languageAudioBucket = getBucketName('shared', isDev, 'audio', language);
     const sharedAudioBucket = getBucketName('shared', isDev, 'audio', 'shared');
 
-    const translationsPromise = getTranslations(isDev, taskName, language);
-
     try {
-      const [sharedAudio, taskVisual, sharedVisual, languageListing] = await Promise.all([
+      const [sharedAudio, taskVisual, sharedVisual, languageListing, requiredAudioNames] = await Promise.all([
         getMediaAssets(sharedAudioBucket, {}, taskName, 'shared'),
         getMediaAssets(taskVisualBucket, {}, taskName, language),
         getMediaAssets(sharedVisualBucket, {}, 'shared', language),
         listLanguageAudio(languageAudioBucket),
+        getRequiredAudioNames(isDev, taskName),
       ]);
 
-      await translationsPromise;
       sharedAudioAssets = sharedAudio;
       taskVisualAssets = taskVisual;
       sharedVisualAssets = sharedVisual;
       languageAudioAssets = languageAudioFromStems(
         languageListing.bucket,
         languageListing.folder,
-        taskStore().requiredAudioAssets,
+        requiredAudioNames,
         languageListing.stems,
       );
-      console.log('languageAudioAssets', languageAudioAssets);
     } catch (error) {
       throw new Error(`Error fetching media assets: ${error}`);
     }

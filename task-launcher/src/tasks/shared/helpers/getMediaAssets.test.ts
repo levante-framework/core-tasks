@@ -26,15 +26,31 @@ describe('languageAudioFromStems', () => {
     expect(assets.video).toEqual({});
   });
 
-  it('intersects translation JSON keys (kebab-case) with bucket stems', () => {
-    const translationKeys = ['intro-welcome', 'feedback-not-quite', 'ui-label-no-audio-file'];
+  it('intersects allowlist names with bucket stems', () => {
+    const allowlist = ['intro-welcome', 'feedback-not-quite', 'ui-label-no-audio-file'];
     const bucketStems = new Set(['intro-welcome', 'feedback-not-quite']);
 
-    const assets = languageAudioFromStems('levante-assets-prod', 'audio/en-US', translationKeys, bucketStems);
+    const assets = languageAudioFromStems('levante-assets-prod', 'audio/en-US', allowlist, bucketStems);
 
     expect(assets.audio).toEqual({
       introWelcome: 'https://storage.googleapis.com/levante-assets-prod/audio/en-US/intro-welcome.mp3',
       feedbackNotQuite: 'https://storage.googleapis.com/levante-assets-prod/audio/en-US/feedback-not-quite.mp3',
+    });
+  });
+
+  it('keeps manifest filenames that are not translation keys', () => {
+    const assets = languageAudioFromStems(
+      'levante-assets-prod',
+      'audio/en-US',
+      ['ChildSurveyIntro', 'same-different-selection-touch-circle', 'ToM-scene4-instruct1'],
+      new Set(['ChildSurveyIntro', 'same-different-selection-touch-circle', 'ToM-scene4-instruct1']),
+    );
+
+    expect(assets.audio).toEqual({
+      childSurveyIntro: 'https://storage.googleapis.com/levante-assets-prod/audio/en-US/ChildSurveyIntro.mp3',
+      sameDifferentSelectionTouchCircle:
+        'https://storage.googleapis.com/levante-assets-prod/audio/en-US/same-different-selection-touch-circle.mp3',
+      toMScene4Instruct1: 'https://storage.googleapis.com/levante-assets-prod/audio/en-US/ToM-scene4-instruct1.mp3',
     });
   });
 });
@@ -71,6 +87,22 @@ describe('listLanguageAudio', () => {
     const listing = await listLanguageAudio('levante-assets-prod/audio/de-DE');
 
     expect([...listing.stems]).toEqual(['one', 'two']);
+  });
+
+  it('falls back from an empty en-US prefix to audio/en', async () => {
+    const prefixes: string[] = [];
+    vi.stubGlobal('fetch', async (url: string) => {
+      const prefix = new URL(url).searchParams.get('prefix') ?? '';
+      prefixes.push(prefix);
+      if (prefix === 'audio/en-US/') return jsonResponse({ items: [] });
+      return jsonResponse({ items: [{ name: 'audio/en/coin.mp3' }] });
+    });
+
+    const listing = await listLanguageAudio('levante-assets-prod/audio/en-US');
+
+    expect(prefixes).toEqual(['audio/en-US/', 'audio/en/']);
+    expect(listing.folder).toBe('audio/en');
+    expect([...listing.stems]).toEqual(['coin']);
   });
 });
 

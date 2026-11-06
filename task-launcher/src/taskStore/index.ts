@@ -24,7 +24,6 @@ import type { InputCapability } from '../utils/detectInput';
  * @property {number} maxTime - Time limit set for the task.
  * @property {number} startTime - Time at which the task started.
  * @property {boolean} taskComplete - Whether the task has ended - if true, the user should return to dashboard.
- * @property {Object} requiredAudioAssets - Used to only load the assets needed for the current task.
  * @property {'timeOut' | 'errorOut' | 'earlyCompletion' | 'taskAbort' | 'sufficientTrials' | 'experimenterExit'} effectiveStoppingRule - Why the task finished.
  * @property {boolean} demoMode - Whether the task is running in demo mode (no interaction with Firestore), default is false.
  * @property {boolean} debug - Shows theta estimate on the screen for cat debugging when enabled.
