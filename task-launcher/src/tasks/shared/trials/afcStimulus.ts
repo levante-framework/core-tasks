@@ -353,6 +353,10 @@ async function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial
     }
 
     handleStaggeredButtons(pageStateHandler, imgButtons, audioKeys);
+
+    replayButton?.addEventListener('click', () => {
+      handleStaggeredButtons(pageStateHandler, imgButtons, audioKeys);
+    });
   }
 
   // Setup Sentry Context

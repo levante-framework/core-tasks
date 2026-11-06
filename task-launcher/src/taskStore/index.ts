@@ -50,6 +50,8 @@ import type { InputCapability } from '../utils/detectInput';
  * @property {number|null} catBlockStartElapsedMs - Task elapsed ms when the current CAT block timer started, or null.
  * @property {number} currentTrialTimeoutId - Timeout ID for the current trial.
  * @property {number} currentTrialTimeLimitMs - Time limit for the current trial.
+ * @property {NodeJS.Timeout|null} staggerTimeout - Timeout ID for the staggered buttons animation.
+ * @property {NodeJS.Timeout|null} replayEnableTimeout - Timeout ID for enabling the replay button after the staggered buttons animation is complete.
  * ------- AFC and SDS only -------
  * @property {string} target - Target item.
  * @property {Array} choices - List of choices.

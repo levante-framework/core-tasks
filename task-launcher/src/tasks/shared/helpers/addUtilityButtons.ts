@@ -118,6 +118,16 @@ function onPause() {
   });
 
   PageAudioHandler.stopAndDisconnectNode(true);
+
+  if (taskStore().staggerTimeout) {
+    clearTimeout(taskStore().staggerTimeout);
+    taskStore('staggerTimeout', undefined);
+  }
+
+  if (taskStore().replayEnableTimeout) {
+    clearTimeout(taskStore().replayEnableTimeout);
+    taskStore('replayEnableTimeout', undefined);
+  }
 }
 
 function onResume() {
@@ -142,7 +152,7 @@ function onResume() {
   });
 
   // trigger replay button, which will repeat audio and animations
-  PageAudioHandler.stopAndDisconnectNode();
+  PageAudioHandler.stopAndDisconnectNode(true);
   const replayButton = document.getElementById('replay-btn-revisited') as HTMLButtonElement;
   if (replayButton && !replayButton.disabled) {
     replayButton.click();
