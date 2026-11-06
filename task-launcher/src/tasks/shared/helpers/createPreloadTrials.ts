@@ -1,5 +1,6 @@
 import jsPsychPreload from '@jspsych/plugin-preload';
 import { beginTaskTimerPauseSegment, resumeTaskTimerAfterPauseSegment } from './appTimer';
+import { reportTaskMediaReady } from './taskMediaReady';
 
 function createJsPsychPreloadObject() {
   return {
@@ -20,6 +21,7 @@ function createJsPsychPreloadObject() {
     },
     on_finish: () => {
       resumeTaskTimerAfterPauseSegment();
+      reportTaskMediaReady();
     },
   };
 }
