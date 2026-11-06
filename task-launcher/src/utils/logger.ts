@@ -51,4 +51,21 @@ export class Logger {
       console.error('Error: CoreTask', error, finalContext);
     }
   }
+
+  public userMistake(code: string, context?: Record<string, any>) {
+    const finalContext = {
+      gameParams: this.gameParams,
+      userParams: this.userParams,
+      context,
+    };
+    if (this.levanteLogger?.userMistake) {
+      this.levanteLogger.userMistake(code, finalContext);
+      return;
+    }
+    if (this.levanteLogger) {
+      this.levanteLogger.capture('User Mistake', { context: { code, ...context } });
+      return;
+    }
+    console.info('User Mistake: CoreTask', code, finalContext);
+  }
 }
