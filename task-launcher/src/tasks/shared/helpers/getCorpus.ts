@@ -99,10 +99,10 @@ function writeItem(row: ParsedRowType) {
 
 function writeResponseBranches(row: ParsedRowType): Record<string, string> | undefined {
   if (row.response_branches != null && row.response_branches !== '' && row.task === 'theory-of-mind') {
-    const parts = (row.response_branches as string).replace(' ', '').split(',');
+    const parts = (row.response_branches as string).trim().split(',');
     const branches: Record<string, string> = {};
     parts.forEach((part) => {
-      const [key, value] = part.split(':');
+      const [key, value] = part.split(':').map((item) => item.trim());
       branches[key] = value;
     });
     return branches;
