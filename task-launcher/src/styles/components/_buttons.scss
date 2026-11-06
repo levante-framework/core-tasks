@@ -353,6 +353,12 @@ button {
       padding: 0;
       margin: 0;
     }
+
+    &.large {
+      img {
+        width: calc($bubble-grid-cell-size * 2);
+      }
+    }
   }
 
   // add padding for matrix reasoning buttons so that the image is not cut off
