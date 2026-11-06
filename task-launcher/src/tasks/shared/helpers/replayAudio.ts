@@ -1,7 +1,7 @@
 import { PageAudioHandler } from './audioHandler';
 import type { PageStateHandler } from './PageStateHandler';
 
-export async function setupReplayAudio(pageStateHandler: PageStateHandler) {
+export async function setupReplayAudio(pageStateHandler: PageStateHandler, enableOnEnded = true) {
   PageAudioHandler.replayPresses = 0; // reset to zero at beginning of trial
 
   if (pageStateHandler.replayBtn) {
@@ -10,7 +10,10 @@ export async function setupReplayAudio(pageStateHandler: PageStateHandler) {
       const enableDelayBuffer = 100; //in ms
       const totalStimulusDurationMs = await pageStateHandler.getStimulusDurationMs(); //in ms
       const totalDelay = totalStimulusDurationMs + enableDelayBuffer;
-      pageStateHandler.scheduleReplayEnableAfterMs(totalDelay);
+
+      if (enableOnEnded) {
+        pageStateHandler.scheduleReplayEnableAfterMs(totalDelay);
+      }
     }
 
     const audioConfig: AudioConfigType = {

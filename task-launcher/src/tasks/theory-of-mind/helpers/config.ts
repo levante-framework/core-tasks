@@ -18,15 +18,23 @@ export const getLayoutConfig = (
   stimulus: StimulusType,
   translations: Record<string, string>,
   mediaAssets: MediaAssetsType,
+  fCat: boolean,
 ): GetConfigReturnType => {
   const { answer, distractors, trialType } = stimulus;
   const defaultConfig: LayoutConfigType = JSON.parse(JSON.stringify(DEFAULT_LAYOUT_CONFIG));
   defaultConfig.isPracticeTrial = stimulus.assessmentStage === 'practice_response';
   defaultConfig.isInstructionTrial = stimulus.trialType === 'instructions';
-  defaultConfig.stimText = {
-    value: convertItemToString(stimulus.item),
-    displayValue: undefined,
-  };
+  defaultConfig.stimText =
+    typeof stimulus.item === 'string'
+      ? {
+          value: convertItemToString(stimulus.item),
+          displayValue: undefined,
+        }
+      : {
+          value: stimulus.item.join(', '),
+          displayValue: undefined,
+        };
+  defaultConfig.multiStimImage = Array.isArray(stimulus.item);
   defaultConfig.classOverrides.promptClassList = ['lev-row-container', 'instruction-small'];
   if (!defaultConfig.isInstructionTrial) {
     const mappedDistractors = mapDistractorsToString(distractors);
@@ -44,7 +52,13 @@ export const getLayoutConfig = (
     defaultConfig.disableOkButton = true;
   }
 
-  defaultConfig.blockedTrials = taskStore().version === 2 && !fillerTrialIds.includes(stimulus.itemId);
+  defaultConfig.blockedTrials = fCat && !fillerTrialIds.includes(stimulus.itemId);
+
+  defaultConfig.animationTimeControl = stimulus.animationTimestamps?.length
+    ? 'timestamp'
+    : stimulus.animationAudioTriggers?.length
+      ? 'audio-file'
+      : null;
 
   const messages = validateLayoutConfig(defaultConfig, mediaAssets, translations, stimulus);
 

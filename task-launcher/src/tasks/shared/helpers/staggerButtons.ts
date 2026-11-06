@@ -6,6 +6,8 @@ import { camelize } from './camelize';
 import type { PageStateHandler } from './PageStateHandler';
 
 let staggerEnabled = true;
+let staggerTimeout: NodeJS.Timeout | null = null;
+let replayEnableTimeout: NodeJS.Timeout | null = null;
 
 export const handleStaggeredButtons = async (
   pageState: PageStateHandler,
@@ -20,8 +22,16 @@ export const handleStaggeredButtons = async (
 
   staggerEnabled = true;
 
+  if (replayEnableTimeout) {
+    clearTimeout(replayEnableTimeout);
+  }
+
+  if (staggerTimeout) {
+    clearTimeout(staggerTimeout);
+  }
+
   // Disable the replay button till this animation is finished
-  setTimeout(() => {
+  replayEnableTimeout = setTimeout(() => {
     pageState.disableReplayBtn();
   }, stimulusDuration + 110);
 
@@ -38,8 +48,8 @@ export const handleStaggeredButtons = async (
   }
 
   // Return a Promise that resolves when the staggered animation is complete
-  return new Promise<void>((resolve) => {
-    setTimeout(() => {
+  const staggerPromise = new Promise<void>((resolve) => {
+    staggerTimeout = setTimeout(() => {
       showStaggeredBtnAndPlaySound(
         0,
         buttons,
@@ -51,6 +61,11 @@ export const handleStaggeredButtons = async (
       );
     }, intialDelay);
   });
+
+  taskStore('staggerTimeout', staggerTimeout);
+  taskStore('replayEnableTimeout', replayEnableTimeout);
+
+  return staggerPromise;
 };
 
 const showStaggeredBtnAndPlaySound = (
