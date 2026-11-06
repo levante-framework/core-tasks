@@ -13,6 +13,7 @@ import './styles/index.scss';
 import type { RoarAppkit } from '@levante-framework/firekit';
 import { setTaskStore, taskStore } from './taskStore';
 import { getBucketName } from './tasks/shared/helpers/getBucketName';
+import { markTaskLaunched } from './tasks/shared/helpers/taskMediaReady';
 import taskConfig from './tasks/taskConfig';
 import { jsPsych } from './tasks/taskSetup';
 import { InitPageSetup, Logger } from './utils';
@@ -122,6 +123,7 @@ export class TaskLauncher {
     const { jsPsych, timeline } = await this.init();
     hideLevanteLogoLoading();
     const logger = Logger.getInstance();
+    markTaskLaunched(this.gameParams.taskName, this.gameParams.language);
     logger.capture('Task Launched', {
       taskName: this.gameParams.taskName,
       language: this.gameParams.language,
