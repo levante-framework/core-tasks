@@ -16,43 +16,114 @@ type ResponseDataType = {
   nextPageToken: string;
 };
 
+const LIST_FIELDS = 'items(name,contentType),nextPageToken';
+const NAME_FIELDS = 'items(name),nextPageToken';
+
+export type LanguageAudioListing = {
+  bucket: string;
+  folder: string;
+  stems: Set<string>;
+};
+
+function audioStem(fileName: string) {
+  const base = fileName.split('/').pop() ?? '';
+  if (base.endsWith('.mp3')) return base.slice(0, -4);
+  return base.split('.')[0] ?? '';
+}
+
+export function languageAudioFromStems(
+  bucket: string,
+  folder: string,
+  names: string[],
+  stems: ReadonlySet<string>,
+): CategorizedObjectsType {
+  const stemsByCamel = new Map<string, string>();
+  for (const stem of stems) {
+    const key = camelize(stem);
+    if (key) stemsByCamel.set(key, stem);
+  }
+
+  const audio: Record<string, string> = {};
+  for (const name of names) {
+    const camelName = camelize(name);
+    const stem = stemsByCamel.get(camelName);
+    if (!stem) continue;
+    audio[camelName] = `https://storage.googleapis.com/${bucket}/${folder}/${stem}.mp3`;
+  }
+  return { images: {}, audio, video: {} };
+}
+
+async function listObjectNames(bucket: string, folder: string) {
+  const names: string[] = [];
+  let pageToken = '';
+  do {
+    let url = `https://storage.googleapis.com/storage/v1/b/${bucket}/o?prefix=${folder}/&fields=${NAME_FIELDS}`;
+    if (pageToken) url += `&pageToken=${pageToken}`;
+
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Error listing ${folder}: ${response.status}`);
+
+    const data = (await response.json()) as { items?: { name: string }[]; nextPageToken?: string };
+    for (const item of data.items ?? []) names.push(item.name);
+    pageToken = data.nextPageToken ?? '';
+  } while (pageToken);
+
+  return names;
+}
+
+function legacyAudioFolder(folder: string) {
+  if (folder === 'audio/en-US') return 'audio/en';
+  if (folder === 'audio/de-DE') return 'audio/de';
+  return null;
+}
+
+export async function listLanguageAudio(bucketName: string): Promise<LanguageAudioListing> {
+  const parts = bucketName.split('/');
+  const bucket = parts[0];
+  let folder = parts.slice(1).join('/');
+  let names = await listObjectNames(bucket, folder);
+  const fallback = legacyAudioFolder(folder);
+  if (names.length === 0 && fallback) {
+    const fallbackNames = await listObjectNames(bucket, fallback);
+    if (fallbackNames.length > 0) {
+      folder = fallback;
+      names = fallbackNames;
+    }
+  }
+
+  const stems = new Set<string>();
+  for (const name of names) {
+    const base = name.split('/').pop() ?? '';
+    if (!base.endsWith('.mp3')) continue;
+    stems.add(audioStem(base));
+  }
+
+  return { bucket, folder, stems };
+}
+
 export async function getMediaAssets(
   bucketName: string,
   whitelist: Record<string, any> = {},
-  language: string,
   taskName: string,
+  language: string,
   nextPageToken = '',
   categorizedObjects: CategorizedObjectsType = { images: {}, audio: {}, video: {} },
 ) {
   const parts = bucketName.split('/');
   const bucket = parts[0];
   const folder = parts.slice(1).join('/');
-  const baseUrl = `https://storage.googleapis.com/storage/v1/b/${bucket}/o?prefix=${folder}/`;
+  const baseUrl = `https://storage.googleapis.com/storage/v1/b/${bucket}/o?prefix=${folder}/&fields=${LIST_FIELDS}`;
 
   let url = baseUrl;
   if (nextPageToken) {
     url += `&pageToken=${nextPageToken}`;
   }
 
-  let data: ResponseDataType;
-  let response: Response;
-
-  response = await fetch(url);
-  data = await response.json();
-
-  // add temporary fallback for en-US and de-DE until we have the correct folders in the bucket
-  if (!data.items || data.items.length === 0) {
-    if (folder === 'audio/en-US') {
-      response = await fetch(`https://storage.googleapis.com/storage/v1/b/${bucket}/o?prefix=audio/en/`);
-      data = await response.json();
-    } else if (folder === 'audio/de-DE') {
-      response = await fetch(`https://storage.googleapis.com/storage/v1/b/${bucket}/o?prefix=audio/de/`);
-      data = await response.json();
-    }
-  }
+  const response = await fetch(url);
+  const data: ResponseDataType = await response.json();
 
   data.items.forEach((item) => {
-    if (isLanguageAndDeviceValid(item.name, language, taskName) && isWhitelisted(item.name, whitelist)) {
+    if (isLanguageAndTaskValid(item.name, taskName, language) && isWhitelisted(item.name, whitelist)) {
       const contentType = item.contentType;
       const id = item.name;
       const path = `https://storage.googleapis.com/${bucket}/${id}`;
@@ -70,26 +141,27 @@ export async function getMediaAssets(
   });
 
   if (data.nextPageToken) {
-    return getMediaAssets(bucketName, whitelist, language, taskName, data.nextPageToken, categorizedObjects);
-  } else {
-    return categorizedObjects;
+    return getMediaAssets(bucketName, whitelist, taskName, language, data.nextPageToken, categorizedObjects);
   }
+  return categorizedObjects;
 }
 
-function isLanguageAndDeviceValid(filePath: string, languageCode: string, taskName: string) {
+function isLanguageAndTaskValid(filePath: string, taskName: string, languageCode: string) {
   const parts = filePath.split('/');
-
   if (parts.length !== 3) {
     return false;
-  } else if (parts[0] === 'visual') {
-    // visual assets have task prefix
-    return parts[1] === taskName && parts[2].length !== 0;
-  } else if (parts[0] === 'audio') {
-    // audio assets have language prefix
-    return (parts[1] === languageCode || parts[1] === languageCode.slice(0, 2)) && parts[2].length !== 0;
   }
 
-  return false; // Not a valid path
+  const assetType = parts[0];
+  if (assetType === 'audio') {
+    return parts[1] === languageCode && parts[2].length !== 0;
+  }
+
+  if (assetType === 'visual') {
+    return parts[1] === taskName && parts[2].length !== 0;
+  }
+
+  return false;
 }
 
 // TODO: allow nested whitelisting (whitelisting within an already whitelisted folder)
