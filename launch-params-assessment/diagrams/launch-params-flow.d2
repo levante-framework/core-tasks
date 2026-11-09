@@ -1,0 +1,231 @@
+vars: {
+  d2-config: {
+    layout-engine: tala
+    theme-id: 0
+    dark-theme-id: 200
+    pad: 20
+    data: {tala-seeds: [4]} # landscape layout; other seeds go tall
+  }
+  src: https://github.com/levante-framework/core-tasks/blob/aaead211dbcff5d5af88bab383d7604cec456846/task-launcher/src
+}
+
+direction: right
+
+classes: {
+  # node kinds
+  # sql_table: fill = header colour; rows keep the theme's colours
+  doc: {
+    shape: sql_table
+    style: {fill: "#c88a12"; font-color: "#ffffff"}
+  }
+  obj: {
+    shape: sql_table
+    style: {fill: "#159a8c"; font-color: "#ffffff"}
+  }
+  fn: {
+    style: {font: mono; stroke: "#3b6fd8"; border-radius: 8; stroke-width: 2}
+  }
+  asset: {
+    shape: cloud
+    style: {stroke: "#7a7f8a"; font-color: "#7a7f8a"}
+  }
+  note: {
+    shape: rectangle
+    style: {stroke: "#d1495b"; font-color: "#d1495b"; stroke-width: 2; border-radius: 4; font-size: 18}
+  }
+  boundary: {
+    label.near: top-left
+    style: {stroke-width: 2; border-radius: 12; font-size: 18}
+  }
+  annot: {style: {stroke: "#d1495b"; stroke-width: 1; stroke-dash: 2}}
+
+  # edge kinds
+  call: {style: {stroke: "#7a7f8a"; stroke-width: 2}}
+  data: {style: {stroke: "#159a8c"; font-color: "#159a8c"; stroke-width: 3}}
+  write: {style: {stroke: "#c88a12"; font-color: "#c88a12"; stroke-width: 2; stroke-dash: 5}}
+  read: {style: {stroke: "#c88a12"; font-color: "#c88a12"; stroke-width: 2; stroke-dash: 2}}
+
+  # legend helpers
+  key-end: {label: ""; width: 2; height: 2; style.opacity: 0}
+  key-text: {shape: text; style: {font-size: 16; bold: false}}
+}
+
+title: Flow of launch params {shape: text; near: top-center; style.font-size: 26}
+
+# ── Firestore ────────────────────────────────────────────────
+firestore: Firestore {
+  class: boundary
+  style.stroke: "#c88a12"
+
+  variant: "tasks/{taskId}/variants/{id}" {
+    class: doc
+    name: string
+    params: map
+    conditions: map
+  }
+  user: "users/{uid}" {
+    class: doc
+    birthMonth: number
+    birthYear: number
+    assessmentPid: string
+    grade: string
+    schoolLevel: string
+    studentData: object {constraint: unused}
+    userType: string {constraint: unused}
+  }
+  run: "runs/{runId}" {
+    class: doc
+    variantParams: "every variant key"
+    userData: object
+    taskVersion: string
+  }
+  trial: "runs/{runId}/trials/{auto}" {
+    class: doc
+    corpus: string
+    corpusId: "undefined" {constraint: storeItemId}
+    itemId: string {constraint: storeItemId}
+    inputType: string
+  }
+}
+
+# ── Dashboard ────────────────────────────────────────────────
+dashboard: "levante-dashboard · TaskLevante.vue" {
+  class: boundary
+  style.stroke-dash: 4
+
+  startTask: "CF startTask()" {
+    class: fn
+    tooltip: "Firekit cloud function. Returns taskInfo.variantParams = the assignment's copy of the variant params"
+  }
+  query: "useUserChildDataQuery" {class: fn}
+
+  gameParams: gameParams {
+    class: obj
+    taskName: string {constraint: required}
+    language: string {constraint: required}
+    corpus: string
+    "…": "~30 more keys"
+  }
+  userParams: userParams {
+    class: obj
+    birthMonth: number
+    birthYear: number
+  }
+
+  startTask -> gameParams: "{ ...variantParams }" {class: data}
+  query -> userParams: "{ birthMonth, birthYear }" {class: data}
+}
+
+# ── core-tasks ───────────────────────────────────────────────
+coretasks: "core-tasks · TaskLauncher" {
+  class: boundary
+  style.stroke: "#3b6fd8"
+
+  launch: "new TaskLauncher(…)" {
+    class: fn
+    link: "${src}/index.ts#L32-L43"
+  }
+
+  init: "init()" {
+    class: boundary
+    link: "${src}/index.ts#L45-L115"
+    direction: down
+
+    S1: "1. firekit.startRun()" {class: fn; link: "${src}/index.ts#L46-L48"}
+    S2: "2. read taskName, language" {class: fn; link: "${src}/index.ts#L50-L61"}
+    S3: "3. setConfig() → setSharedConfig()" {class: fn; link: "${src}/tasks/shared/helpers/config.ts#L63-L68"}
+    S4: "4. setTaskStore(config)" {class: fn; link: "${src}/taskStore/index.ts#L132"}
+    S5: "5. getCorpus(config)" {class: fn; link: "${src}/tasks/shared/helpers/getCorpus.ts#L180"}
+    S6: "6. buildTaskTimeline(config)" {class: fn; link: "${src}/index.ts#L114"}
+    S1 -> S2 -> S3 -> S4 -> S5 -> S6: {class: call}
+  }
+
+  merge: |ts
+    const cleanParams = _omitBy(
+      _omitBy({ ...gameParams, ...userParams }, _isNull),
+      _isUndefined,
+    );
+    // → destructure known keys, defaults + coercion
+  | {link: "${src}/tasks/shared/helpers/config.ts#L68"}
+
+  store: taskStore {
+    class: obj
+    link: "${src}/taskStore/index.ts"
+    task: string
+    runCat: boolean
+    maxTime: number
+    "…": "coerced config"
+  }
+
+  launch -> init: run() {class: call}
+  init.S3 -> merge: {class: call}
+  merge -> store: config {class: data}
+}
+
+# ── Buckets ──────────────────────────────────────────────────
+assets: "media + translations\n(GCS buckets)" {class: asset}
+corpus: "corpus CSV" {class: asset}
+
+# ── Cross-boundary edges ─────────────────────────────────────
+firestore.variant.params -> dashboard.startTask: "assignment copy" {class: read}
+firestore.user -> dashboard.query: REST {class: read}
+
+dashboard.gameParams -> coretasks.launch: {class: data}
+dashboard.userParams -> coretasks.launch: {class: data}
+
+coretasks.init.S1 -> firestore.run: create {class: write}
+firestore.user -> firestore.run.userData: "firekit copies" {class: read}
+coretasks.init.S2 -> assets: "bucket paths" {class: read}
+coretasks.init.S5 -> corpus: {class: read}
+coretasks.init.S6 -> firestore.trial: writeTrial() {class: write}
+
+# ── Audit findings (dotted red line points at what each is about) ──
+n_userdata: |md
+  ⚠ **userData skips userParams**\
+  firekit reads the user doc itself
+| {class: note}
+n_variant: |md
+  ⚠ **Every variant key lands in the run doc**\
+  but only destructured keys are used
+| {class: note}
+n_lang: |md
+  ⚠ **taskName / language read raw**\
+  2-letter codes mapped only here
+| {class: note}
+n_userdata -- firestore.run.userData: {class: annot}
+n_variant -- firestore.run.variantParams: {class: annot}
+n_lang -- coretasks.init.S2: {class: annot}
+
+# ── Legend ───────────────────────────────────────────────────
+key: Legend {
+  near: bottom-left
+  style: {fill: transparent; stroke-dash: 2; font-size: 18}
+
+  k_doc: "users/{uid}" {style: {fill: "#c88a12"; stroke: "#c88a12"; font-color: "#ffffff"}; top: 0; left: 0; width: 120; height: 36}
+  k_doc_t: Firestore document (fields as rows) {class: key-text; top: 6; left: 140}
+  k_obj: "gameParams" {style: {fill: "#159a8c"; stroke: "#159a8c"; font-color: "#ffffff"}; top: 56; left: 0; width: 120; height: 36}
+  k_obj_t: In-memory params object {class: key-text; top: 62; left: 140}
+  k_fn: "fn()" {class: fn; top: 112; left: 0; width: 120; height: 36}
+  k_fn_t: Code, click to open on GitHub {class: key-text; top: 118; left: 140}
+  k_asset: "GCS" {class: asset; top: 164; left: 15; width: 90; height: 50}
+  k_asset_t: Fetched from a bucket {class: key-text; top: 176; left: 140}
+  k_note: "⚠" {class: note; top: 232; left: 0; width: 120; height: 36}
+  k_note_t: Audit finding {class: key-text; top: 238; left: 140}
+
+  c1a: {class: key-end; top: 18; left: 440}
+  c1b: {class: key-end; top: 18; left: 520}
+  c1a -> c1b: {class: call}
+  c1t: Calls / runs {class: key-text; top: 6; left: 540}
+  c2a: {class: key-end; top: 74; left: 440}
+  c2b: {class: key-end; top: 74; left: 520}
+  c2a -> c2b: {class: data}
+  c2t: Value passed along {class: key-text; top: 62; left: 540}
+  c3a: {class: key-end; top: 130; left: 440}
+  c3b: {class: key-end; top: 130; left: 520}
+  c3a -> c3b: {class: read}
+  c3t: Read {class: key-text; top: 118; left: 540}
+  c4a: {class: key-end; top: 188; left: 440}
+  c4b: {class: key-end; top: 188; left: 520}
+  c4a -> c4b: {class: write}
+  c4t: Write {class: key-text; top: 176; left: 540}
+}
