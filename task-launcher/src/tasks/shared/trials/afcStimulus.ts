@@ -453,9 +453,6 @@ function doOnFinish(
       data.correct = responseValue === target;
     }
 
-    console.log(data.correct);
-    console.log(stimulus.assessmentStage);
-
     if (runCat) {
       updateTheta(stimulus, data.correct);
     }

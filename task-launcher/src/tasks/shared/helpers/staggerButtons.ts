@@ -87,6 +87,8 @@ const showStaggeredBtnAndPlaySound = (
   btn.classList.remove('lev-staggered-grayscale', 'lev-staggered-opacity');
 
   if (pulseButtons) {
+    btn.style.animation = 'none';
+    btn.offsetHeight; // force reflow
     btn.style.animation = 'pulse 2s 0s 1';
   }
 
