@@ -60,6 +60,8 @@ export const getLayoutConfig = (
       ? 'audio-file'
       : null;
 
+  defaultConfig.givePracticeFeedback = false;
+
   const messages = validateLayoutConfig(defaultConfig, mediaAssets, translations, stimulus);
 
   return {

@@ -385,7 +385,7 @@ async function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial
     }
   }
 
-  if (isPracticeTrial) {
+  if (isPracticeTrial && itemLayoutConfig?.givePracticeFeedback) {
     const answer = stim.answer.toString();
     const choices = layoutConfigMap?.[stim.itemId].response.values;
 
@@ -452,6 +452,9 @@ function doOnFinish(
       target = response.target;
       data.correct = responseValue === target;
     }
+
+    console.log(data.correct);
+    console.log(stimulus.assessmentStage);
 
     if (runCat) {
       updateTheta(stimulus, data.correct);
@@ -598,8 +601,9 @@ export const afcStimulusTemplate = (
     on_finish: (data: any) => doOnFinish(data, task, layoutConfigMap, terminateCat, trial),
     response_ends_trial: () => {
       const stim = trial || taskStore().nextStimulus;
+      const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
 
-      return stim.assessmentStage !== 'practice_response';
+      return stim.assessmentStage !== 'practice_response' || !itemLayoutConfig?.givePracticeFeedback;
     },
   };
 };

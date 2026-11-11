@@ -40,4 +40,5 @@ export type LayoutConfigTypeInference = {
     // Other config can be placed here
   };
   animationTimeControl: 'timestamp' | 'audio-file' | null;
+  givePracticeFeedback: boolean;
 };

@@ -45,6 +45,7 @@ declare global {
     blockedTrials?: boolean; // when true with CAT, advance queued sequential trials in the same block via selectNextSequentialTrial
     multiStimImage?: boolean; // two images side-by-side if true
     animationTimeControl: 'timestamp' | 'audio-file' | null;
+    givePracticeFeedback: boolean;
   };
 
   type AudioConfigType = {

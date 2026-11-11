@@ -46,6 +46,7 @@ export const DEFAULT_LAYOUT_CONFIG: LayoutConfigType = {
   multiStimImage: false,
   disableOkButton: true,
   animationTimeControl: null,
+  givePracticeFeedback: true,
 };
 
 const defaultCorpus: Record<string, string> = {
