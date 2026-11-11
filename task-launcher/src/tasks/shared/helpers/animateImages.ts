@@ -16,12 +16,14 @@ export function shiftAnimation(itemsToAnimate: any, animation: string) {
 
 export function triggerAnimation(item: HTMLElement | HTMLElement[], animation: string) {
   if (Array.isArray(item)) {
-    item.forEach((item) => {
-      item.style.animation = 'none';
-      item.offsetHeight; // Force reflow
-      item.style.animation = animation;
+    item.forEach((el) => {
+      if (el?.isConnected) {
+        el.style.animation = 'none';
+        el.offsetHeight; // Force reflow
+        el.style.animation = animation;
+      }
     });
-  } else {
+  } else if (item?.isConnected) {
     item.style.animation = 'none';
     item.offsetHeight; // Force reflow
     item.style.animation = animation;

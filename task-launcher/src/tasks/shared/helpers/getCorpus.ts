@@ -54,7 +54,7 @@ type ParsedRowType = {
   animation_triggers?: string;
 };
 
-function parseCommmaSeparated(value?: string): string[] | undefined {
+function parseCommaSeparated(value?: string): string[] | undefined {
   if (value == null || value === '') {
     return undefined;
   }
@@ -64,7 +64,7 @@ function parseCommmaSeparated(value?: string): string[] | undefined {
 function parseAnimationTriggers(
   value?: string,
 ): Pick<StimulusType, 'animationTimestamps' | 'animationAudioTriggers'> | null {
-  const parts = parseCommmaSeparated(value);
+  const parts = parseCommaSeparated(value);
   if (!parts?.length) {
     return null;
   }
@@ -91,7 +91,7 @@ function writeItem(row: ParsedRowType) {
     const splitArr = (row.item as string).split(',');
     return splitArr.map((el) => _toNumber(el));
   } else if ((row.item as string).includes(',') && row.task === 'theory-of-mind') {
-    return (row.item as string).replace(' ', '').split(',');
+    return (row.item as string).split(',').map((el) => el.trim());
   }
 
   return row.item;
@@ -170,8 +170,8 @@ const transformCSV = (csvInput: ParsedRowType[], sequentialStimulus: boolean, ta
       storyGroup: _toNumber(row.story_group),
       responseBranches: writeResponseBranches(row),
       storyBranch: row.story_branch,
-      animationTypes: parseCommmaSeparated(row.animation_types),
-      animationTargets: parseCommmaSeparated(row.animation_targets),
+      animationTypes: parseCommaSeparated(row.animation_types),
+      animationTargets: parseCommaSeparated(row.animation_targets),
       ...parseAnimationTriggers(row.animation_triggers),
     };
 
