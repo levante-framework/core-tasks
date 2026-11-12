@@ -133,4 +133,16 @@ describe('getMediaAssets', () => {
     expect(urls[0]).toContain('fields=items(name,contentType),nextPageToken');
     expect(assets.images.album).toBe('https://storage.googleapis.com/levante-assets-prod/visual/vocab/album.webp');
   });
+
+  it('drops only the final extension when the asset name contains dots', async () => {
+    vi.stubGlobal('fetch', async () =>
+      jsonResponse({
+        items: [{ name: 'visual/vocab/arm.v2.webp', contentType: 'image/webp' }],
+      }),
+    );
+
+    const assets = await getMediaAssets('levante-assets-prod/visual/vocab', {}, 'vocab', 'es-CO');
+
+    expect(assets.images['arm.v2']).toBe('https://storage.googleapis.com/levante-assets-prod/visual/vocab/arm.v2.webp');
+  });
 });

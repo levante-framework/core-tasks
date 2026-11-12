@@ -165,7 +165,11 @@ export async function getMediaAssets(
       const contentType = item.contentType;
       const id = item.name;
       const path = `https://storage.googleapis.com/${bucket}/${id}`;
-      const fileName = id.split('/').pop()?.split('.')[0] || '';
+      const fileName =
+        id
+          .split('/')
+          .pop()
+          ?.replace(/\.[^.]+$/, '') || '';
       const camelCaseFileName = camelize(fileName);
 
       if (contentType.startsWith('image/')) {
