@@ -20,16 +20,20 @@ const driverObj = driver({
   steps: [{ element: '#button0' }, { element: '#button1' }, { element: '#button2' }],
 });
 
-const BUBBLE_COUNT = 7;
+const BUBBLE_COUNT1 = 7;
+const BUBBLE_COUNT2 = 2;
+
+const GRID_SIZE1 = 4;
+const GRID_SIZE2 = 2;
 
 const bubblePoppingPracticeTrial = {
   type: jsPsychHtmlMultiResponse,
   stimulus: () => {
     return `
           <div class="lev-stimulus-container">
-              <div id="bubble-container" class="image-grid-x4">
+              <div id="bubble-container" class="image-grid-x${GRID_SIZE1}">
                 ${Array.from(
-                  { length: BUBBLE_COUNT },
+                  { length: BUBBLE_COUNT1 },
                   () => `<button class="img-transparent float"> 
                           <img src=${mediaAssets.images.bubble}>
                         </button>`,
@@ -50,7 +54,7 @@ const bubblePoppingPracticeTrial = {
     };
 
     const bubbles = Array.from(document.getElementById('bubble-container')?.children as unknown as HTMLButtonElement[]);
-    let remainingBubbles = BUBBLE_COUNT;
+    let remainingBubbles = BUBBLE_COUNT1;
 
     bubbles.forEach((bubble) => {
       wrapListeners(bubble, () => {
@@ -69,7 +73,7 @@ const bubblePoppingPracticeTrial = {
       });
     });
 
-    spreadBubbles(bubbles);
+    spreadBubbles(bubbles, GRID_SIZE1);
   },
   on_finish: () => {
     PageAudioHandler.stopAndDisconnectNode();
@@ -162,6 +166,71 @@ const bubbleOverButtonPracticeTrial = {
 
 export const bubbleOverButtonPractice = {
   timeline: [bubbleOverButtonPracticeTrial],
+  conditional_function: () => taskStore().bubblePractice === true,
+};
+
+const pressBubblePracticeTrial = {
+  type: jsPsychHtmlMultiResponse,
+  stimulus: () => {
+    return `
+          <div class="lev-stimulus-container">
+              <div id="bubble-container" class="image-grid-x${GRID_SIZE2}">
+                <button class="img-transparent large float"> 
+                  <img src=${mediaAssets.images.bubble}>
+                </button>
+                <button class="img-transparent float"> 
+                  <img src=${mediaAssets.images.bubble}>
+                </button>
+              </div>
+          </div>
+        `;
+  },
+  keyboard_choices: 'NO_KEYS',
+  on_load: () => {
+    addExperimenterButtons();
+    setupFullscreenButton();
+
+    const popAudioConfig: AudioConfigType = {
+      restrictRepetition: {
+        enabled: false,
+        maxRepetitions: 2,
+      },
+    };
+
+    const bubbles = Array.from(document.getElementById('bubble-container')?.children as unknown as HTMLButtonElement[]);
+    let remainingBubbles = BUBBLE_COUNT2;
+
+    bubbles.forEach((bubble) => {
+      wrapListeners(bubble, () => {
+        PageAudioHandler.playAudio('pop', popAudioConfig);
+        bubble.style.visibility = 'hidden';
+
+        remainingBubbles--;
+
+        if (remainingBubbles === 0) {
+          jsPsych.finishTrial();
+        }
+      });
+
+      bubble.addEventListener('dragstart', (event) => {
+        event.preventDefault();
+      });
+    });
+
+    spreadBubbles(bubbles, GRID_SIZE2);
+  },
+  on_finish: () => {
+    PageAudioHandler.stopAndDisconnectNode();
+
+    jsPsych.data.addDataToLastTrial({
+      audioButtonPresses: PageAudioHandler.replayPresses,
+      assessment_stage: 'instructions',
+    });
+  },
+};
+
+export const pressBubblePractice = {
+  timeline: [pressBubblePracticeTrial],
   conditional_function: () => taskStore().bubblePractice === true,
 };
 
