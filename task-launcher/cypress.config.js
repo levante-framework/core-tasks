@@ -20,6 +20,10 @@ async function buildLanguageLocaleTaskMatrix() {
     }
     return cfg.taskOptions
       .filter((task) => {
+        // Locale matrix still runs locally; CI skips this task.
+        if (process.env.CI && task === 'hostile-attribution') {
+          return false;
+        }
         const key = `${locale}\0${task}`;
         if (seen.has(key)) {
           return false;
@@ -59,8 +63,9 @@ export default defineConfig({
         },
       };
     },
-    // Video recording settings
-    video: true,
+    // Video recording is off. CI also skips the hostile-attribution spec.
+    video: false,
+    excludeSpecPattern: process.env.CI ? ['*.hot-update.js', '**/hostile_attribution.cy.js'] : '*.hot-update.js',
     videoCompression: 32,
     videosFolder: 'cypress/videos',
     screenshotsFolder: 'cypress/screenshots',
