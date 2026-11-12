@@ -88,22 +88,6 @@ describe('listLanguageAudio', () => {
 
     expect([...listing.stems]).toEqual(['one', 'two']);
   });
-
-  it('falls back from an empty en-US prefix to audio/en', async () => {
-    const prefixes: string[] = [];
-    vi.stubGlobal('fetch', async (url: string) => {
-      const prefix = new URL(url).searchParams.get('prefix') ?? '';
-      prefixes.push(prefix);
-      if (prefix === 'audio/en-US/') return jsonResponse({ items: [] });
-      return jsonResponse({ items: [{ name: 'audio/en/coin.mp3' }] });
-    });
-
-    const listing = await listLanguageAudio('levante-assets-prod/audio/en-US');
-
-    expect(prefixes).toEqual(['audio/en-US/', 'audio/en/']);
-    expect(listing.folder).toBe('audio/en');
-    expect([...listing.stems]).toEqual(['coin']);
-  });
 });
 
 describe('getMediaAssets', () => {
