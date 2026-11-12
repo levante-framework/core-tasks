@@ -498,9 +498,8 @@ function doOnFinish(
       });
     }
 
-    // Adding this seperately or otherwise it will overide
-    // the response value added from practice trials
-    if (stimulus.assessmentStage !== 'practice_response') {
+    // Adding this separately so we do not override the response set by practice feedback flow
+    if (stimulus.assessmentStage !== 'practice_response' || !itemLayoutConfig?.givePracticeFeedback) {
       jsPsych.data.addDataToLastTrial({
         response: responseValue,
       });
