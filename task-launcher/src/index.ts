@@ -2,11 +2,11 @@ import {
   combineMediaAssets,
   dashToCamelCase,
   getMediaAssets,
-  getRequiredAudioNames,
   hideLevanteLogoLoading,
   isTaskFinished,
   languageAudioFromStems,
   listLanguageAudio,
+  referencedAudioNames,
   showLevanteLogoLoading,
 } from './tasks/shared/helpers';
 import './styles/index.scss';
@@ -73,24 +73,19 @@ export class TaskLauncher {
     const languageAudioBucket = getBucketName('shared', isDev, 'audio', language);
     const sharedAudioBucket = getBucketName('shared', isDev, 'audio', 'shared');
 
+    let languageListing: Awaited<ReturnType<typeof listLanguageAudio>>;
     try {
-      const [sharedAudio, taskVisual, sharedVisual, languageListing, requiredAudioNames] = await Promise.all([
+      const [sharedAudio, taskVisual, sharedVisual, listing] = await Promise.all([
         getMediaAssets(sharedAudioBucket, {}, taskName, 'shared'),
         getMediaAssets(taskVisualBucket, {}, taskName, language),
         getMediaAssets(sharedVisualBucket, {}, 'shared', language),
         listLanguageAudio(languageAudioBucket),
-        getRequiredAudioNames(isDev, taskName),
       ]);
 
       sharedAudioAssets = sharedAudio;
       taskVisualAssets = taskVisual;
       sharedVisualAssets = sharedVisual;
-      languageAudioAssets = languageAudioFromStems(
-        languageListing.bucket,
-        languageListing.folder,
-        requiredAudioNames,
-        languageListing.stems,
-      );
+      languageListing = listing;
     } catch (error) {
       throw new Error(`Error fetching media assets: ${error}`);
     }
@@ -107,6 +102,13 @@ export class TaskLauncher {
     if (taskName !== 'hearts-and-flowers' && taskName !== 'memory-game' && taskName !== 'intro') {
       await getCorpus(config, isDev);
     }
+
+    languageAudioAssets = languageAudioFromStems(
+      languageListing.bucket,
+      languageListing.folder,
+      referencedAudioNames(taskName, taskStore().translations, taskStore().corpora, languageListing.stems),
+      languageListing.stems,
+    );
 
     mediaAssets = combineMediaAssets([languageAudioAssets, sharedAudioAssets, taskVisualAssets, sharedVisualAssets]);
 

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { getMediaAssets, languageAudioFromStems, listLanguageAudio } from './getMediaAssets';
+import { getMediaAssets, languageAudioFromStems, listLanguageAudio, referencedAudioNames } from './getMediaAssets';
 
 function jsonResponse(body: unknown, ok = true) {
   return { ok, status: ok ? 200 : 500, json: async () => body };
@@ -7,6 +7,34 @@ function jsonResponse(body: unknown, ok = true) {
 
 afterEach(() => {
   vi.unstubAllGlobals();
+});
+
+describe('referencedAudioNames', () => {
+  it('keeps translation keys, corpus clips, and files named for the task', () => {
+    const names = referencedAudioNames(
+      'mental-rotation',
+      { continueButtonText: 'Continue', generalRotateDevice: 'Rotate' },
+      {
+        stimulus: [{ audioFile: 'item-clip', prompt: 'Which one?', distractors: [1, 'not-audio'] }],
+        downex: [{ audioFile: ['downex-a', 'downex-b'], animationAudioTriggers: ['anim-clip'] }],
+      },
+      new Set(['mental-rotation-instruct1', 'vocab-item', 'item-clip']),
+    );
+
+    expect(names).toEqual(
+      expect.arrayContaining([
+        'continueButtonText',
+        'generalRotateDevice',
+        'item-clip',
+        'downex-a',
+        'downex-b',
+        'anim-clip',
+        'Which one?',
+        'mental-rotation-instruct1',
+      ]),
+    );
+    expect(names).not.toContain('vocab-item');
+  });
 });
 
 describe('languageAudioFromStems', () => {

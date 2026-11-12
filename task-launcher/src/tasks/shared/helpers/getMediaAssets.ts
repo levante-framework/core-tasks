@@ -31,6 +31,58 @@ function audioStem(fileName: string) {
   return base.split('.')[0] ?? '';
 }
 
+type ReferencedAudioCorpus = {
+  stimulus?: Array<{
+    audioFile?: string | string[];
+    distractors?: Array<string | number>;
+    animationAudioTriggers?: string[];
+    prompt?: string;
+  }>;
+  downex?: Array<{
+    audioFile?: string | string[];
+    distractors?: Array<string | number>;
+    animationAudioTriggers?: string[];
+    prompt?: string;
+  }>;
+};
+
+function pushAudioName(names: string[], value: unknown) {
+  if (typeof value === 'string' && value.trim()) {
+    names.push(value.trim());
+    return;
+  }
+  if (!Array.isArray(value)) return;
+  for (const item of value) {
+    if (typeof item === 'string' && item.trim()) names.push(item.trim());
+  }
+}
+
+export function referencedAudioNames(
+  taskName: string,
+  translations: Record<string, string> | undefined,
+  corpora: ReferencedAudioCorpus | undefined,
+  stems: ReadonlySet<string>,
+): string[] {
+  const names: string[] = [];
+  if (translations) names.push(...Object.keys(translations));
+
+  for (const row of [...(corpora?.stimulus ?? []), ...(corpora?.downex ?? [])]) {
+    pushAudioName(names, row.audioFile);
+    pushAudioName(names, row.distractors);
+    pushAudioName(names, row.animationAudioTriggers);
+    pushAudioName(names, row.prompt);
+  }
+
+  const taskKey = camelize(taskName).toLowerCase();
+  if (taskKey) {
+    for (const stem of stems) {
+      if (camelize(stem).toLowerCase().startsWith(taskKey)) names.push(stem);
+    }
+  }
+
+  return names;
+}
+
 export function languageAudioFromStems(
   bucket: string,
   folder: string,
