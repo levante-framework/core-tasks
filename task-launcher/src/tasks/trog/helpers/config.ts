@@ -48,6 +48,12 @@ export const getLayoutConfig = (
     }
   }
 
+  defaultConfig.animationTimeControl = stimulus.animationTimestamps?.length
+    ? 'timestamp'
+    : stimulus.animationAudioTriggers?.length
+      ? 'audio-file'
+      : null;
+
   const messages = validateLayoutConfig(defaultConfig, mediaAssets, translations, stimulus);
 
   return {

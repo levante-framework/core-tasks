@@ -2,7 +2,7 @@
 
 export { addKeyHelpers } from './addKeyHelpers';
 export { addExperimenterButtons, setupFullscreenButton } from './addUtilityButtons';
-export { displaceAnimation, popAnimation, triggerAnimation } from './animateImages';
+export { displaceAnimation, shiftAnimation, triggerAnimation } from './animateImages';
 export * from './appTimer';
 export { PageAudioHandler } from './audioHandler';
 export { appendAudioKey, ensureAudioKeysContainer, getAudioKeysContainerHtml } from './audioKeysContainer';

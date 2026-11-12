@@ -1,7 +1,7 @@
 import { taskStore } from '../../../taskStore';
 
-export function prepareTomCorpus(blockList: StimulusType[][]) {
-  if (!(taskStore().version === 2)) {
+export function prepareTomCorpus(blockList: StimulusType[][], fCat: boolean) {
+  if (!fCat) {
     return null;
   }
 
@@ -34,8 +34,8 @@ export function prepareTomCorpus(blockList: StimulusType[][]) {
   };
 }
 
-export function prepareStoryGroups(corpus: StimulusType[]) {
-  if (!(taskStore().version === 2)) {
+export function prepareStoryGroups(corpus: StimulusType[], fCat: boolean) {
+  if (!fCat) {
     return;
   }
 

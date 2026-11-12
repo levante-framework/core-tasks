@@ -50,6 +50,9 @@ import type { InputCapability } from '../utils/detectInput';
  * @property {number|null} catBlockStartElapsedMs - Task elapsed ms when the current CAT block timer started, or null.
  * @property {number} currentTrialTimeoutId - Timeout ID for the current trial.
  * @property {number} currentTrialTimeLimitMs - Time limit for the current trial.
+ * @property {NodeJS.Timeout|null} staggerTimeout - Timeout ID for the staggered buttons animation.
+ * @property {NodeJS.Timeout|null} replayEnableTimeout - Timeout ID for enabling the replay button after the staggered buttons animation is complete.
+ * @property {NodeJS.Timeout[]|null} animationTimeouts - Timeout IDs for any animations scheduled this trial.
  * ------- AFC and SDS only -------
  * @property {string} target - Target item.
  * @property {Array} choices - List of choices.
@@ -76,6 +79,7 @@ import type { InputCapability } from '../utils/detectInput';
  * --------- ToM only ---------
  * @property {Array} previousChoices - Array containing previously randomized order of choices for the current block.
  * @property {number} currentStoryGroup - The current story group to select trials from in the ToM CAT.
+ * @property {Object} currentStoryBranch - The current story branch to select trials from in the ToM CAT.
  * ------- SDS only -------
  * @property {StimulusType[]} sequentialTrials - Should be run sequentially in blocks by trial number in an SDS CAT.
  * @property {number} version - A version number for the task, default is 1. Can be used as a feature flag.
@@ -179,6 +183,7 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     bubblePractice: config.bubblePractice,
     version: config.version || 1,
     currentStoryGroup: 0,
+    currentStoryBranch: null,
     taskTimer: null,
     taskTimerPausedMs: 0,
     taskTimerPauseBeganAt: null,
