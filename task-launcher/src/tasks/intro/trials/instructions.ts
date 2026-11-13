@@ -89,6 +89,7 @@ const instructions = instructionData.map((data) => {
   const shouldAutoAdvanceOnAudioEnd = () => data.autoAdvanceWhenBubblePractice && taskStore().bubblePractice === true;
   const shouldPointAtReplay = () => data.pointAtReplayWhenBubblePractice && taskStore().bubblePractice === true;
   let advanceTimeout: ReturnType<typeof setTimeout> | undefined;
+  let arrowTimeout: ReturnType<typeof setTimeout> | undefined;
   let trialOpen = false;
 
   return {
@@ -165,17 +166,36 @@ const instructions = instructionData.map((data) => {
       if (data.includeReplayButton) {
         const pageStateHandler = new PageStateHandler(prompt, true);
         setupReplayAudio(pageStateHandler);
+        if (shouldPointAtReplay()) {
+          pageStateHandler.replayBtn.addEventListener('click', () => {
+            clearTimeout(arrowTimeout);
+            removeReplayArrow();
+          });
+          pageStateHandler
+            .getStimulusDurationMs()
+            .then((durationMs) => {
+              if (!trialOpen || !Number.isFinite(durationMs)) return;
+              // The buffer resolves about when playback starts, and the length is the file
+              // for the active language, so the lead stays 300ms before the end.
+              const delay = Math.max(0, durationMs - 300);
+              arrowTimeout = setTimeout(() => {
+                if (!trialOpen) return;
+                showReplayArrow();
+              }, delay);
+            })
+            .catch(() => {
+              if (trialOpen) showReplayArrow();
+            });
+        }
       }
 
       addExperimenterButtons();
       setupFullscreenButton();
-      if (shouldPointAtReplay()) {
-        showReplayArrow();
-      }
     },
     on_finish: () => {
       trialOpen = false;
       clearTimeout(advanceTimeout);
+      clearTimeout(arrowTimeout);
       removeReplayArrow();
 
       PageAudioHandler.stopAndDisconnectNode();
