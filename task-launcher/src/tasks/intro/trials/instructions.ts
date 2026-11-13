@@ -30,23 +30,7 @@ const instructionData = [
     includeReplayButton: false,
   },
   {
-    prompt: 'instructBubble1Mouse',
-    resolvePrompt: () => (taskStore().inputCapability?.touch ? 'instructBubble1Touch' : 'instructBubble1Mouse'),
-    image: 'avatarOwl',
-    buttonText: 'continueButtonText',
-    autoAdvanceWhenBubblePractice: true,
-    includeReplayButton: false,
-  },
-  {
     prompt: 'feedbackGoodJob',
-    image: 'avatarOwl',
-    buttonText: 'continueButtonText',
-    autoAdvanceWhenBubblePractice: true,
-    includeReplayButton: false,
-  },
-  {
-    prompt: 'instructBubble5',
-    resolvePrompt: () => (taskStore().inputCapability?.touch ? 'instructBubble5Touch' : 'instructBubble5Mouse'),
     image: 'avatarOwl',
     buttonText: 'continueButtonText',
     autoAdvanceWhenBubblePractice: true,
@@ -76,9 +60,11 @@ const instructionData = [
 ];
 
 const instructions = instructionData.map((data) => {
-  const getPrompt = () => data.resolvePrompt?.() ?? data.prompt;
+  const getPrompt = () => data.prompt;
   const shouldAutoAdvanceOnAudioEnd = () => data.autoAdvanceWhenBubblePractice && taskStore().bubblePractice === true;
   const shouldDriveButtonIntro = () => data.driveButtonIntroWhenBubblePractice && taskStore().bubblePractice === true;
+  let advanceTimeout: ReturnType<typeof setTimeout> | undefined;
+  let trialOpen = false;
 
   return {
     type: jsPsychHtmlMultiResponse,
@@ -117,6 +103,7 @@ const instructions = instructionData.map((data) => {
     },
     keyboard_choices: 'NO_KEYS',
     on_load: () => {
+      trialOpen = true;
       const prompt = getPrompt();
       const audioConfig: AudioConfigType = {
         restrictRepetition: {
@@ -124,8 +111,10 @@ const instructions = instructionData.map((data) => {
           maxRepetitions: 2,
         },
         onEnded: () => {
+          if (!trialOpen) return;
           if (shouldAutoAdvanceOnAudioEnd()) {
-            setTimeout(() => {
+            advanceTimeout = setTimeout(() => {
+              if (!trialOpen) return;
               jsPsych.finishTrial();
             }, 2000);
           } else {
@@ -147,6 +136,8 @@ const instructions = instructionData.map((data) => {
       setupFullscreenButton();
     },
     on_finish: () => {
+      trialOpen = false;
+      clearTimeout(advanceTimeout);
       if (shouldDriveButtonIntro()) {
         buttonIntroDriverObj.destroy();
       }
@@ -163,15 +154,7 @@ const instructions = instructionData.map((data) => {
 });
 
 export const firstInstruction = instructions.shift();
-export const bubblePoppingInstruction = {
-  timeline: [instructions.shift()],
-  conditional_function: () => taskStore().bubblePractice === true,
-};
 export const bubblePracticeFeedbackInstruction = {
-  timeline: [instructions.shift()],
-  conditional_function: () => taskStore().bubblePractice === true,
-};
-export const pressIntroInstructions = {
   timeline: [instructions.shift()],
   conditional_function: () => taskStore().bubblePractice === true,
 };
