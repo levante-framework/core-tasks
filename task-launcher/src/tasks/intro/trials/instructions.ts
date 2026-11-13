@@ -1,5 +1,4 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
-import { driver } from 'driver.js';
 import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
 import {
@@ -13,13 +12,39 @@ import {
 } from '../../shared/helpers';
 import { jsPsych } from '../../taskSetup';
 
-const buttonIntroDriverObj = driver({
-  disableActiveInteraction: false,
-  advanceOnClick: true,
-  popoverClass: 'driver-popover--hidden',
-  allowClose: false,
-  steps: [{ element: '#replay-btn-revisited' }, { element: '.primary' }],
-});
+const REPLAY_ARROW_ID = 'replay-point-arrow';
+// Tip of visual/intro/arrow-icon.webp, which points up and to the right.
+const ARROW_TIP_X = 737 / 1024;
+const ARROW_TIP_Y = 269 / 1024;
+
+function showReplayArrow() {
+  const replay = document.getElementById('replay-btn-revisited');
+  const src = mediaAssets.images.arrowIcon;
+  if (!replay || !src) return;
+
+  document.getElementById(REPLAY_ARROW_ID)?.remove();
+  const arrow = document.createElement('img');
+  arrow.id = REPLAY_ARROW_ID;
+  arrow.className = 'replay-point-arrow';
+  arrow.src = src;
+  arrow.alt = '';
+  document.body.appendChild(arrow);
+
+  const rect = replay.getBoundingClientRect();
+  const size = rect.width * 1.85;
+  const nudge = Math.round(rect.width * 0.28);
+  const tipX = rect.left - nudge * 0.6;
+  const tipY = rect.bottom + nudge * 0.6;
+  arrow.style.width = `${size}px`;
+  arrow.style.height = `${size}px`;
+  arrow.style.left = `${tipX - size * ARROW_TIP_X}px`;
+  arrow.style.top = `${tipY - size * ARROW_TIP_Y}px`;
+  arrow.style.setProperty('--replay-arrow-nudge', `${nudge}px`);
+}
+
+function removeReplayArrow() {
+  document.getElementById(REPLAY_ARROW_ID)?.remove();
+}
 
 const instructionData = [
   {
@@ -30,23 +55,7 @@ const instructionData = [
     includeReplayButton: false,
   },
   {
-    prompt: 'instructBubble1Mouse',
-    resolvePrompt: () => (taskStore().inputCapability?.touch ? 'instructBubble1Touch' : 'instructBubble1Mouse'),
-    image: 'avatarOwl',
-    buttonText: 'continueButtonText',
-    autoAdvanceWhenBubblePractice: true,
-    includeReplayButton: false,
-  },
-  {
     prompt: 'feedbackGoodJob',
-    image: 'avatarOwl',
-    buttonText: 'continueButtonText',
-    autoAdvanceWhenBubblePractice: true,
-    includeReplayButton: false,
-  },
-  {
-    prompt: 'instructBubble5',
-    resolvePrompt: () => (taskStore().inputCapability?.touch ? 'instructBubble5Touch' : 'instructBubble5Mouse'),
     image: 'avatarOwl',
     buttonText: 'continueButtonText',
     autoAdvanceWhenBubblePractice: true,
@@ -63,22 +72,25 @@ const instructionData = [
     prompt: 'instructBubble4',
     image: 'avatarOwl',
     buttonText: 'continueButtonText',
-    autoAdvanceWhenBubblePractice: true,
+    enableButtonAfterAudioMs: 1000,
     includeReplayButton: false,
   },
   {
     prompt: 'generalIntro4',
     image: 'avatarOwl',
     buttonText: 'continueButtonText',
-    driveButtonIntroWhenBubblePractice: true,
+    pointAtReplayWhenBubblePractice: true,
     includeReplayButton: true,
   },
 ];
 
 const instructions = instructionData.map((data) => {
-  const getPrompt = () => data.resolvePrompt?.() ?? data.prompt;
+  const getPrompt = () => data.prompt;
   const shouldAutoAdvanceOnAudioEnd = () => data.autoAdvanceWhenBubblePractice && taskStore().bubblePractice === true;
-  const shouldDriveButtonIntro = () => data.driveButtonIntroWhenBubblePractice && taskStore().bubblePractice === true;
+  const shouldPointAtReplay = () => data.pointAtReplayWhenBubblePractice && taskStore().bubblePractice === true;
+  let advanceTimeout: ReturnType<typeof setTimeout> | undefined;
+  let arrowTimeout: ReturnType<typeof setTimeout> | undefined;
+  let trialOpen = false;
 
   return {
     type: jsPsychHtmlMultiResponse,
@@ -117,6 +129,7 @@ const instructions = instructionData.map((data) => {
     },
     keyboard_choices: 'NO_KEYS',
     on_load: () => {
+      trialOpen = true;
       const prompt = getPrompt();
       const audioConfig: AudioConfigType = {
         restrictRepetition: {
@@ -124,15 +137,27 @@ const instructions = instructionData.map((data) => {
           maxRepetitions: 2,
         },
         onEnded: () => {
+          if (!trialOpen) return;
           if (shouldAutoAdvanceOnAudioEnd()) {
-            setTimeout(() => {
+            advanceTimeout = setTimeout(() => {
+              if (!trialOpen) return;
               jsPsych.finishTrial();
             }, 2000);
-          } else {
+            return;
+          }
+
+          const enableButton = () => {
+            if (!trialOpen) return;
             enableOkButton();
-            if (shouldDriveButtonIntro()) {
-              buttonIntroDriverObj.drive();
-            }
+          };
+          const enableDelay =
+            'enableButtonAfterAudioMs' in data && typeof data.enableButtonAfterAudioMs === 'number'
+              ? data.enableButtonAfterAudioMs
+              : 0;
+          if (enableDelay > 0) {
+            advanceTimeout = setTimeout(enableButton, enableDelay);
+          } else {
+            enableButton();
           }
         },
       };
@@ -141,15 +166,37 @@ const instructions = instructionData.map((data) => {
       if (data.includeReplayButton) {
         const pageStateHandler = new PageStateHandler(prompt, true);
         setupReplayAudio(pageStateHandler);
+        if (shouldPointAtReplay()) {
+          pageStateHandler.replayBtn.addEventListener('click', () => {
+            clearTimeout(arrowTimeout);
+            removeReplayArrow();
+          });
+          pageStateHandler
+            .getStimulusDurationMs()
+            .then((durationMs) => {
+              if (!trialOpen || !Number.isFinite(durationMs)) return;
+              // The buffer resolves about when playback starts, and the length is the file
+              // for the active language, so the lead stays 300ms before the end.
+              const delay = Math.max(0, durationMs - 300);
+              arrowTimeout = setTimeout(() => {
+                if (!trialOpen) return;
+                showReplayArrow();
+              }, delay);
+            })
+            .catch(() => {
+              if (trialOpen) showReplayArrow();
+            });
+        }
       }
 
       addExperimenterButtons();
       setupFullscreenButton();
     },
     on_finish: () => {
-      if (shouldDriveButtonIntro()) {
-        buttonIntroDriverObj.destroy();
-      }
+      trialOpen = false;
+      clearTimeout(advanceTimeout);
+      clearTimeout(arrowTimeout);
+      removeReplayArrow();
 
       PageAudioHandler.stopAndDisconnectNode();
 
@@ -157,21 +204,12 @@ const instructions = instructionData.map((data) => {
         audioButtonPresses: PageAudioHandler.replayPresses,
         assessment_stage: 'instructions',
       });
-      PageAudioHandler.stopAndDisconnectNode();
     },
   };
 });
 
 export const firstInstruction = instructions.shift();
-export const bubblePoppingInstruction = {
-  timeline: [instructions.shift()],
-  conditional_function: () => taskStore().bubblePractice === true,
-};
 export const bubblePracticeFeedbackInstruction = {
-  timeline: [instructions.shift()],
-  conditional_function: () => taskStore().bubblePractice === true,
-};
-export const pressIntroInstructions = {
   timeline: [instructions.shift()],
   conditional_function: () => taskStore().bubblePractice === true,
 };
