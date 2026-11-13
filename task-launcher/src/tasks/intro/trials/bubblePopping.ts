@@ -23,8 +23,12 @@ const driverObj = driver({
 
 const BUBBLE_COUNT1 = 7;
 
+// Old bubble.webp was 677×369 and was drawn inside a square of min(22vw, 22vh),
+// so the art filled 369/677 of that square. The new file is square.
+const BUBBLE_SCREEN_FRACTION = 0.22 * (369 / 677);
+
 function screenUnit() {
-  return Math.min(window.innerWidth, window.innerHeight) * 0.22;
+  return Math.min(window.innerWidth, window.innerHeight) * BUBBLE_SCREEN_FRACTION;
 }
 
 function equalBubbles(field: Rect, obstacles: Rect[]) {
@@ -90,7 +94,7 @@ const bubbleOverButtonPracticeTrial = {
       `<div id="bubble-button-stack" class="stack-overlay">
         <button class="primary" id="ok-button" disabled>${t.continueButtonText}</button>
           <button class="img-transparent float" style="pointer-events: none"> 
-            <img src=${mediaAssets.images.bubble}>
+            <img src=${mediaAssets.images.bubble} style="width: min(${BUBBLE_SCREEN_FRACTION * 100}vw, ${BUBBLE_SCREEN_FRACTION * 100}vh)">
           </button>
       </div>`,
     ];
