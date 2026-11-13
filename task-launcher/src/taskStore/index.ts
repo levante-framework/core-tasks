@@ -31,7 +31,7 @@ import type { InputCapability } from '../utils/detectInput';
  * @property {boolean} showAudioKeys - When true, displays audio keys on screen for debugging.
  * @property {boolean} experimenterButtons - When true, experimenter utility controls (pause, exit) are available. Defaults on unless a variant sets experimenterButtons to false, and only for the younger-instructions path (age <= 4 or heavyInstructions).
  * @property {boolean} taskAborted - Whether the task was exited via the experimenter exit button or aborted by the dashboard, default is false.
- * @property {boolean} bubblePractice - When true, run the bubble popping practice trial in the intro task.
+ * @property {boolean} bubblePractice - When true, run the bubble popping practice in the intro task. setSharedConfig turns this off when bubblePracticeAgeLimit is set and age is not below it.
  * @property {number} currentCatBlock - The current block number to select trials from in a CAT.
  * @property {number[]} blockThresholds - Array of theta thresholds.
  * @property {number} totalTrialCount - Total number of trials, including practice and instructions.
