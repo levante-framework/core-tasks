@@ -39,10 +39,10 @@ function equalBubbles(field: Rect, obstacles: Rect[]) {
   return placed?.slots.map((slot) => ({ ...slot, size: placed.size })) ?? null;
 }
 
-// Big is twice the small one. The three medium bubbles sit halfway between them.
+// Small is 0.8 of the base size, big is 2.4 of it. The three medium bubbles sit between them.
 const BIG_SMALL_BUBBLES = [
-  { ratio: 2, required: true },
-  { ratio: 1, required: true },
+  { ratio: 2.4, required: true },
+  { ratio: 0.8, required: true },
   { ratio: 1.5, required: false },
   { ratio: 1.5, required: false },
   { ratio: 1.5, required: false },
