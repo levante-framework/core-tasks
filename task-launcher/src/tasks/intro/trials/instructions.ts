@@ -47,7 +47,7 @@ const instructionData = [
     prompt: 'instructBubble4',
     image: 'avatarOwl',
     buttonText: 'continueButtonText',
-    autoAdvanceWhenBubblePractice: true,
+    enableButtonAfterAudioMs: 1000,
     includeReplayButton: false,
   },
   {
@@ -117,11 +117,24 @@ const instructions = instructionData.map((data) => {
               if (!trialOpen) return;
               jsPsych.finishTrial();
             }, 2000);
-          } else {
+            return;
+          }
+
+          const enableButton = () => {
+            if (!trialOpen) return;
             enableOkButton();
             if (shouldDriveButtonIntro()) {
               buttonIntroDriverObj.drive();
             }
+          };
+          const enableDelay =
+            'enableButtonAfterAudioMs' in data && typeof data.enableButtonAfterAudioMs === 'number'
+              ? data.enableButtonAfterAudioMs
+              : 0;
+          if (enableDelay > 0) {
+            advanceTimeout = setTimeout(enableButton, enableDelay);
+          } else {
+            enableButton();
           }
         },
       };
