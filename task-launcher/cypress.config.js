@@ -3,7 +3,17 @@ import { defineConfig } from 'cypress';
 const LANGUAGE_OPTIONS_URL =
   'https://storage.googleapis.com/levante-assets-dev/translations/dashboard-consolidated-flat/languageoptions.json';
 
-async function buildLanguageLocaleTaskMatrix() {
+function isEnabled(value) {
+  return value === true || value === 'true' || value === '1';
+}
+
+// Retired task. Opt in with --env includeHostileAttribution=true.
+function includeHostileAttribution(config) {
+  const env = (config && config.env) || {};
+  return isEnabled(env.includeHostileAttribution) || isEnabled(env.INCLUDE_HOSTILE_ATTRIBUTION);
+}
+
+async function buildLanguageLocaleTaskMatrix(includeHostile) {
   const res = await fetch(LANGUAGE_OPTIONS_URL);
   if (!res.ok) {
     throw new Error(`Failed to fetch language options: ${res.status} ${res.statusText}`);
@@ -20,6 +30,9 @@ async function buildLanguageLocaleTaskMatrix() {
     }
     return cfg.taskOptions
       .filter((task) => {
+        if (!includeHostile && task === 'hostile-attribution') {
+          return false;
+        }
         const key = `${locale}\0${task}`;
         if (seen.has(key)) {
           return false;
@@ -49,18 +62,20 @@ export default defineConfig({
         },
       });
 
-      const matrix = await buildLanguageLocaleTaskMatrix();
+      const includeHostile = includeHostileAttribution(config);
+      const matrix = await buildLanguageLocaleTaskMatrix(includeHostile);
 
       return {
         ...config,
+        excludeSpecPattern: includeHostile ? '*.hot-update.js' : ['*.hot-update.js', '**/hostile_attribution.cy.js'],
         env: {
           ...config.env,
           languageLocaleTaskMatrix: matrix,
         },
       };
     },
-    // Video recording settings
-    video: true,
+    video: false,
+    excludeSpecPattern: ['*.hot-update.js', '**/hostile_attribution.cy.js'],
     videoCompression: 32,
     videosFolder: 'cypress/videos',
     screenshotsFolder: 'cypress/screenshots',

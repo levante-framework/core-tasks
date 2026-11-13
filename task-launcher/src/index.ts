@@ -106,7 +106,7 @@ export class TaskLauncher {
     languageAudioAssets = languageAudioFromStems(
       languageListing.bucket,
       languageListing.folder,
-      referencedAudioNames(taskName, taskStore().translations, taskStore().corpora, languageListing.stems),
+      referencedAudioNames(taskName, taskStore().corpora),
       languageListing.stems,
     );
 

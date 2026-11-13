@@ -10,30 +10,36 @@ afterEach(() => {
 });
 
 describe('referencedAudioNames', () => {
-  it('keeps translation keys, corpus clips, and files named for the task', () => {
-    const names = referencedAudioNames(
-      'mental-rotation',
-      { continueButtonText: 'Continue', generalRotateDevice: 'Rotate' },
-      {
-        stimulus: [{ audioFile: 'item-clip', prompt: 'Which one?', distractors: [1, 'not-audio'] }],
-        downex: [{ audioFile: ['downex-a', 'downex-b'], animationAudioTriggers: ['anim-clip'] }],
-      },
-      new Set(['mental-rotation-instruct1', 'vocab-item', 'item-clip']),
-    );
+  it('keeps corpus clips, instruction cues, and shared shell cues', () => {
+    const names = referencedAudioNames('mental-rotation', {
+      stimulus: [{ audioFile: 'item-clip', distractors: [1, 'not-audio'] }],
+      downex: [{ audioFile: ['downex-a', 'downex-b'], animationAudioTriggers: ['anim-clip'] }],
+    });
 
     expect(names).toEqual(
       expect.arrayContaining([
-        'continueButtonText',
-        'generalRotateDevice',
         'item-clip',
         'downex-a',
         'downex-b',
         'anim-clip',
-        'Which one?',
-        'mental-rotation-instruct1',
+        'mentalRotationInstruct1',
+        'inputAudioCue',
+        'nullAudio',
+        'taskFinished',
+        'generalRepeatInstructions',
       ]),
     );
-    expect(names).not.toContain('vocab-item');
+    expect(names).not.toContain('not-audio');
+    expect(names).not.toContain('generalIntro5');
+  });
+
+  it('keeps staggered response names for stories', () => {
+    const names = referencedAudioNames('theory-of-mind', {
+      stimulus: [{ audioFile: 'scene-clip', answer: 'choice-a', distractors: ['choice-b', 2] }],
+    });
+
+    expect(names).toEqual(expect.arrayContaining(['scene-clip', 'choice-a', 'choice-b']));
+    expect(names).not.toContain('2');
   });
 });
 

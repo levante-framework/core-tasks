@@ -31,19 +31,16 @@ function audioStem(fileName: string) {
   return base.split('.')[0] ?? '';
 }
 
+type ReferencedAudioRow = {
+  audioFile?: string | string[];
+  distractors?: Array<string | number>;
+  animationAudioTriggers?: string[];
+  answer?: string | number;
+};
+
 type ReferencedAudioCorpus = {
-  stimulus?: Array<{
-    audioFile?: string | string[];
-    distractors?: Array<string | number>;
-    animationAudioTriggers?: string[];
-    prompt?: string;
-  }>;
-  downex?: Array<{
-    audioFile?: string | string[];
-    distractors?: Array<string | number>;
-    animationAudioTriggers?: string[];
-    prompt?: string;
-  }>;
+  stimulus?: ReferencedAudioRow[];
+  downex?: ReferencedAudioRow[];
 };
 
 function pushAudioName(names: string[], value: unknown) {
@@ -57,27 +54,128 @@ function pushAudioName(names: string[], value: unknown) {
   }
 }
 
-export function referencedAudioNames(
-  taskName: string,
-  translations: Record<string, string> | undefined,
-  corpora: ReferencedAudioCorpus | undefined,
-  stems: ReadonlySet<string>,
-): string[] {
-  const names: string[] = [];
-  if (translations) names.push(...Object.keys(translations));
+// Clips the shared shell plays on every task. Translation keys are text and are not included.
+const SHARED_AUDIO_KEYS = [
+  'inputAudioCue',
+  'nullAudio',
+  'taskFinished',
+  'generalRepeatInstructions',
+  'feedbackGoodJob',
+  'feedbackCorrect',
+  'feedbackNotQuiteRight',
+  'feedbackTryAgain',
+];
+
+// Instruction and feedback clips named in task code, outside the corpus audio_file column.
+const TASK_INSTRUCTION_AUDIO: Record<string, string[]> = {
+  intro: [
+    'generalIntro1',
+    'generalIntro4',
+    'instructBubble1Mouse',
+    'instructBubble1Touch',
+    'instructBubble2',
+    'instructBubble3',
+    'instructBubble4',
+    'instructBubble5',
+    'instructBubble5Mouse',
+    'instructBubble5Touch',
+    'pop',
+    'select',
+  ],
+  'hearts-and-flowers': [
+    'coin',
+    'flowerInstruct1',
+    'heartInstruct1',
+    'heartsAndFlowersInstruct1',
+    'heartsAndFlowersInstruct2',
+    'heartsAndFlowersInstruct3',
+    'heartsAndFlowersInstruct4',
+  ],
+  'memory-game': [
+    'heartsAndFlowersEncourage2',
+    'heartsAndFlowersPlayTime',
+    'memoryGameInstruct1',
+    'memoryGameInstruct2',
+    'memoryGameInstruct2Downex',
+    'memoryGameInstruct3Downex',
+    'memoryGameInstruct4',
+    'memoryGameInstruct4Downex',
+    'memoryGameInstruct5',
+    'memoryGameInstruct5Downex',
+    'memoryGameInstruct6',
+    'memoryGameInstruct6Downex',
+    'memoryGameInstruct7Downex',
+    'memoryGameInstruct8Downex',
+    'memoryGameInstruct9Downex',
+    'memoryGameInstruct10Downex',
+    'memoryGameInstruct11Downex',
+  ],
+  'mental-rotation': [
+    'mentalRotationInstruct1',
+    'mentalRotationInstruct3D',
+    'mentalRotationTrainingInstruct2',
+    'mentalRotationTrainingInstruct3',
+    'mentalRotationFeedbackIncorrectDownex',
+    'mental-rotation-instruct1',
+    'mental-rotation-instruct1-part1-downex',
+    'mental-rotation-instruct1-part2-downex',
+    'mental-rotation-instruct2-downex',
+    'mental-rotation-instruct3-downex',
+    'mental-rotation-instruct4-downex',
+    'mental-rotation-training-instruct2',
+    'mental-rotation-training-instruct3',
+  ],
+  'matrix-reasoning': [
+    'feedbackRightOne',
+    'matrixReasoningInstruct1',
+    'matrixReasoningFeedbackIncorrectDownex',
+    'matrixReasoningFeedbackSmBlueDownex',
+    'matrix-reasoning-instruct1-part1-downex',
+    'matrix-reasoning-instruct1-part3-downex',
+    'matrix-reasoning-instruct1-part4-downex',
+    'matrix-reasoning-instruct2-part1-downex',
+    'matrix-reasoning-instruct2-part2-downex',
+    'matrix-reasoning-instruct2-part3-downex',
+    'matrix-reasoning-instruct2-part4-downex',
+    'matrix-reasoning-instruct2-part5-downex',
+    'matrix-reasoning-instruct3-downex',
+    'matrix-reasoning-instruct4-downex',
+    'matrix-reasoning-instruct5-part1-downex',
+    'matrix-reasoning-instruct5-part2-downex',
+    'matrix-reasoning-prompt1-part1-downex',
+    'matrix-reasoning-prompt1-part2-downex',
+  ],
+  'same-different-selection': [
+    'sds-match-demo1-heavy',
+    'sds-match-demo2-heavy',
+    'sds-pick-square-demo-heavy',
+    'sdsPrompt3DemoHeavy',
+    'sdsPrompt3DemoHeavyPart1',
+    'sdsPrompt3DemoHeavyPart2',
+    'sdsPrompt3Heavy',
+    'sdsFeedbackBothBlue',
+    'sdsFeedbackBothLarge',
+    'sameDifferentSelectionBothRedHeavy',
+    'sameDifferentSelectionBothTrianglesHeavy',
+    'sameDifferentSelectionBothYellowHeavy',
+    'same-different-selection-highlight-1',
+    'same-different-selection-highlight-2',
+  ],
+  'roar-inference': ['inferenceInstructions', 'inferenceInstructions2'],
+};
+
+const STAGGERED_AUDIO_TASKS = new Set(['theory-of-mind', 'child-survey']);
+
+export function referencedAudioNames(taskName: string, corpora: ReferencedAudioCorpus | undefined): string[] {
+  const names = [...SHARED_AUDIO_KEYS, ...(TASK_INSTRUCTION_AUDIO[taskName] ?? [])];
+  const includeResponseAudio = STAGGERED_AUDIO_TASKS.has(taskName);
 
   for (const row of [...(corpora?.stimulus ?? []), ...(corpora?.downex ?? [])]) {
     pushAudioName(names, row.audioFile);
-    pushAudioName(names, row.distractors);
     pushAudioName(names, row.animationAudioTriggers);
-    pushAudioName(names, row.prompt);
-  }
-
-  const taskKey = camelize(taskName).toLowerCase();
-  if (taskKey) {
-    for (const stem of stems) {
-      if (camelize(stem).toLowerCase().startsWith(taskKey)) names.push(stem);
-    }
+    if (!includeResponseAudio) continue;
+    pushAudioName(names, row.distractors);
+    pushAudioName(names, row.answer);
   }
 
   return names;
