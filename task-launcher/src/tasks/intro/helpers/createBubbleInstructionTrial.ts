@@ -13,6 +13,9 @@ import {
 import { jsPsych } from '../../taskSetup';
 import type { PlacedBubble, Rect } from '../helpers/placeBubblesAround';
 
+/** Extra space inside the screen, on top of the float clearance. */
+const EDGE_BUFFER = 40;
+
 function toRect(element: Element | null): Rect | null {
   if (!element) return null;
   const rect = element.getBoundingClientRect();
@@ -78,13 +81,22 @@ export function createBubbleInstructionTrial(options: {
           const field = toRect(document.querySelector('.jspsych-content'));
           if (!field) return;
 
+          const textObstacle = toRect(document.getElementById('bubble-instruction-text'));
           const obstacles = [
-            toRect(document.getElementById('bubble-instruction-text')),
+            textObstacle,
             toRect(document.querySelector('.participant-button-container')),
             toRect(document.querySelector('.experimenter-button-container')),
           ].filter((rect): rect is Rect => rect !== null);
 
-          const placed = options.placeBubbles(field, obstacles);
+          const bounded: Rect = {
+            left: field.left + EDGE_BUFFER,
+            right: field.right - EDGE_BUFFER,
+            bottom: field.bottom - EDGE_BUFFER,
+            top: Math.max(field.top + EDGE_BUFFER, textObstacle?.bottom ?? field.top),
+          };
+          if (bounded.top >= bounded.bottom || bounded.left >= bounded.right) return;
+
+          const placed = options.placeBubbles(bounded, obstacles);
           if (!placed) return;
 
           const layer = document.createElement('div');
@@ -97,7 +109,7 @@ export function createBubbleInstructionTrial(options: {
               enabled: false,
             },
           };
-          let remainingBubbles = placed.length;
+          let remainingRequired = placed.filter((slot) => slot.required !== false).length;
 
           for (const slot of placed) {
             const bubble = document.createElement('button');
@@ -112,8 +124,9 @@ export function createBubbleInstructionTrial(options: {
             wrapListeners(bubble, () => {
               PageAudioHandler.playAudio('pop', popAudioConfig);
               bubble.style.visibility = 'hidden';
-              remainingBubbles--;
-              if (remainingBubbles === 0) {
+              if (slot.required === false) return;
+              remainingRequired--;
+              if (remainingRequired === 0) {
                 jsPsych.finishTrial();
               }
             });

@@ -2,7 +2,7 @@ export type Rect = { left: number; top: number; right: number; bottom: number };
 
 export type BubbleSlot = { x: number; y: number };
 
-export type PlacedBubble = BubbleSlot & { size: number };
+export type PlacedBubble = BubbleSlot & { size: number; required?: boolean };
 
 /** Matches the largest translate in the `.float` keyframes. */
 export const BUBBLE_FLOAT_PAD = 22;

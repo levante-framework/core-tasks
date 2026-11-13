@@ -89,6 +89,20 @@ describe('placeBubblesAround', () => {
     expect(overlaps(rect(placed[1].x, placed[1].y, placed[1].size), blocked)).toBe(false);
   });
 
+  it('places a big bubble, a small bubble, and three medium bubbles', () => {
+    const placed = placeScaledBubbles(field, [text], [2, 1, 1.5, 1.5, 1.5], 120);
+    expect(placed).not.toBeNull();
+    if (!placed) return;
+
+    const [big, small, ...medium] = placed;
+    expect(medium).toHaveLength(3);
+    expect(big.size).toBe(small.size * 2);
+    for (const bubble of medium) {
+      expect(bubble.size).toBeGreaterThan(small.size);
+      expect(bubble.size).toBeLessThan(big.size);
+    }
+  });
+
   it('returns null when the bubbles cannot fit', () => {
     expect(placeBubblesAround({ left: 0, top: 0, right: 80, bottom: 80 }, [], 7, 40, 40)).toBeNull();
   });

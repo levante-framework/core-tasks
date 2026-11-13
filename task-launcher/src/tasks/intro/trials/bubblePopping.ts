@@ -39,12 +39,22 @@ function equalBubbles(field: Rect, obstacles: Rect[]) {
   return placed?.slots.map((slot) => ({ ...slot, size: placed.size })) ?? null;
 }
 
+// Big is twice the small one. The three medium bubbles sit halfway between them.
+const BIG_SMALL_BUBBLES = [
+  { ratio: 2, required: true },
+  { ratio: 1, required: true },
+  { ratio: 1.5, required: false },
+  { ratio: 1.5, required: false },
+  { ratio: 1.5, required: false },
+];
+
 function bigAndSmallBubbles(field: Rect, obstacles: Rect[]) {
   const maxSmall = screenUnit();
-  return (
-    placeScaledBubbles(field, obstacles, [2, 1], maxSmall) ??
-    placeScaledBubbles(field, obstacles, [2, 1], maxSmall, 48, 0)
-  );
+  const ratios = BIG_SMALL_BUBBLES.map((bubble) => bubble.ratio);
+  const placed =
+    placeScaledBubbles(field, obstacles, ratios, maxSmall) ??
+    placeScaledBubbles(field, obstacles, ratios, maxSmall, 48, 0);
+  return placed?.map((bubble, index) => ({ ...bubble, required: BIG_SMALL_BUBBLES[index].required })) ?? null;
 }
 
 const bubblePoppingPracticeTrial = createBubbleInstructionTrial({
