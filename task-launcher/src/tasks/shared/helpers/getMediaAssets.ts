@@ -109,6 +109,10 @@ const TASK_INSTRUCTION_AUDIO: Record<string, string[]> = {
     'memoryGameInstruct9Downex',
     'memoryGameInstruct10Downex',
     'memoryGameInstruct11Downex',
+    'memoryGameDisplay',
+    'memoryGameInput',
+    'memoryGameBackwardPrompt',
+    'memoryGameFeedbackIncorrectDownex',
   ],
   'mental-rotation': [
     'mentalRotationInstruct1',
