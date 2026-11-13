@@ -3,6 +3,16 @@ import { defineConfig } from 'cypress';
 const LANGUAGE_OPTIONS_URL =
   'https://storage.googleapis.com/levante-assets-dev/translations/dashboard-consolidated-flat/languageoptions.json';
 
+const LIVE_TASK_PARAMS_URL = 'https://storage.googleapis.com/levante-assets-dev/live-task-params.json';
+
+function taskVariantKey(task, params) {
+  return JSON.stringify({ task, params });
+}
+
+function taskMatchPresent(task, matrix) {
+  return Object.values(matrix).some((entry) => entry.task === task);
+}
+
 function isEnabled(value) {
   return value === true || value === 'true' || value === '1';
 }
@@ -13,7 +23,32 @@ function includeHostileAttribution(config) {
   return isEnabled(env.includeHostileAttribution) || isEnabled(env.INCLUDE_HOSTILE_ATTRIBUTION);
 }
 
-async function buildLanguageLocaleTaskMatrix(includeHostile) {
+// Play every live-params locale end to end. Default runs one locale per variant.
+function playAllLocalesEnabled(config) {
+  const env = (config && config.env) || {};
+  return isEnabled(env.playAllLocales) || isEnabled(env.PLAY_ALL_LOCALES);
+}
+
+function specExcludes({ includeHostile, playAllLocales }) {
+  const patterns = ['*.hot-update.js'];
+  if (!includeHostile) patterns.push('**/hostile_attribution.cy.js');
+  if (playAllLocales) patterns.push('**/task_locales.cy.js');
+  return patterns;
+}
+
+function includeRemainingLocales(firstLocalesPerVariant, remainingLocalesPerVariant) {
+  for (const [key, group] of Object.entries(remainingLocalesPerVariant)) {
+    for (const locale of group.locales || []) {
+      firstLocalesPerVariant[`${key}\0${locale}`] = {
+        task: group.task,
+        params: group.params,
+        locale,
+      };
+    }
+  }
+}
+
+async function buildTaskVariantGroups(includeHostile) {
   const res = await fetch(LANGUAGE_OPTIONS_URL);
   if (!res.ok) {
     throw new Error(`Failed to fetch language options: ${res.status} ${res.statusText}`);
@@ -22,17 +57,11 @@ async function buildLanguageLocaleTaskMatrix(includeHostile) {
   const seen = new Set();
 
   const matrix = Object.entries(languageOptions).flatMap(([locale, cfg]) => {
-    if (locale === 'en-US') {
-      return [];
-    }
     if (!cfg || !Array.isArray(cfg.taskOptions)) {
       return [];
     }
     return cfg.taskOptions
       .filter((task) => {
-        if (!includeHostile && task === 'hostile-attribution') {
-          return false;
-        }
         const key = `${locale}\0${task}`;
         if (seen.has(key)) {
           return false;
@@ -47,7 +76,47 @@ async function buildLanguageLocaleTaskMatrix(includeHostile) {
     throw new Error('languageoptions.json produced an empty test matrix (no locales with taskOptions).');
   }
 
-  return matrix;
+  const paramsRes = await fetch(LIVE_TASK_PARAMS_URL);
+  if (!paramsRes.ok) {
+    throw new Error(`Failed to fetch live task params for testing: ${paramsRes.status} ${paramsRes.statusText}`);
+  }
+  const liveParams = await paramsRes.json();
+
+  const firstLocalesPerVariant = {};
+  const remainingLocalesPerVariant = {};
+  matrix.forEach(({ locale, task }) => {
+    if (!includeHostile && task === 'hostile-attribution') {
+      return;
+    }
+    const variants = liveParams[task]?.variants ?? [];
+    variants.forEach((variant) => {
+      const params = variant[locale];
+      if (params === undefined) {
+        return;
+      }
+      const key = taskVariantKey(task, params);
+      // the first locale in each variant is separated out so that it can be tested end-to-end
+      if (
+        !firstLocalesPerVariant[key] &&
+        // trog and vocab variants only differ by corpus, so no need to run through all of them
+        !((task === 'trog' || task === 'vocab') && taskMatchPresent(task, firstLocalesPerVariant))
+      ) {
+        firstLocalesPerVariant[key] = { task, params, locale: locale };
+      } else {
+        if (!remainingLocalesPerVariant[key]) {
+          remainingLocalesPerVariant[key] = { task, params, locales: [] };
+        }
+
+        remainingLocalesPerVariant[key].locales.push(locale);
+      }
+    });
+  });
+
+  if (Object.keys(firstLocalesPerVariant).length === 0 && Object.keys(remainingLocalesPerVariant).length === 0) {
+    throw new Error('live task params produced an empty test matrix (no task variants).');
+  }
+
+  return { firstLocalesPerVariant, remainingLocalesPerVariant };
 }
 
 export default defineConfig({
@@ -63,14 +132,17 @@ export default defineConfig({
       });
 
       const includeHostile = includeHostileAttribution(config);
-      const matrix = await buildLanguageLocaleTaskMatrix(includeHostile);
+      const playAllLocales = playAllLocalesEnabled(config);
+      const { firstLocalesPerVariant, remainingLocalesPerVariant } = await buildTaskVariantGroups(includeHostile);
+      if (playAllLocales) includeRemainingLocales(firstLocalesPerVariant, remainingLocalesPerVariant);
 
       return {
         ...config,
-        excludeSpecPattern: includeHostile ? '*.hot-update.js' : ['*.hot-update.js', '**/hostile_attribution.cy.js'],
-        env: {
-          ...config.env,
-          languageLocaleTaskMatrix: matrix,
+        excludeSpecPattern: specExcludes({ includeHostile, playAllLocales }),
+        expose: {
+          ...config.expose,
+          firstLocalesPerVariant,
+          remainingLocalesPerVariant,
         },
       };
     },
