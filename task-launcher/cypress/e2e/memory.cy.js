@@ -1,18 +1,32 @@
-const memory_game_url = 'http://localhost:8080/?task=memory-game';
+import { getParamLists } from './helpers.cy.js';
+
+const task = 'memory-game';
+const base_url = `http://localhost:8080/?task=${task}`;
+const testUrls = getParamLists(task).map((params) => `${base_url}&${params}`);
+let taskCompleted;
 
 describe('test memory game', () => {
-  it('visits memory game and plays it', () => {
-    cy.visit(memory_game_url);
-
-    // wait for OK button to appear
-    cy.contains('OK', { timeout: 300000 }).should('be.visible');
-    cy.contains('OK').realClick(); // start fullscreen
-
-    cy.get('p').then(() => {
-      memoryLoop();
+  if (testUrls.length === 0) {
+    it('fails when no test URLs are available (see cypress.config.js)', () => {
+      expect(testUrls).to.have.length.greaterThan(0);
     });
+    return;
+  }
 
-    cy.contains('Exit').click();
+  testUrls.forEach((url) => {
+    const label = url.slice(base_url.length + 1) || 'default';
+
+    it(`visits memory game and plays it (${label})`, () => {
+      taskCompleted = false;
+      cy.visit(url);
+
+      cy.get('.jspsych-content', { timeout: 300000 }).find('.primary').should('be.visible');
+      cy.get('.jspsych-content').find('.primary').realClick();
+
+      cy.get('p').then(() => {
+        memoryLoop();
+      });
+    });
   });
 });
 
@@ -20,8 +34,12 @@ function handleInstructions() {
   cy.get('.jspsych-content').then((content) => {
     const corsiBlocks = content.find('.jspsych-corsi-block');
 
-    if (corsiBlocks.length === 0) {
-      cy.contains('OK').click();
+    if (content.find('footer').length > 0) {
+      taskCompleted = true;
+    }
+
+    if (corsiBlocks.length === 0 && !taskCompleted) {
+      cy.get('.jspsych-content').find('.primary').click();
     }
   });
   return;
@@ -40,7 +58,12 @@ function answerTrial() {
       cy.window().its('cypressData').should('have.property', 'correctAnswer');
 
       cy.window().then((window) => {
-        const sequence = window.cypressData.correctAnswer;
+        let sequence = window.cypressData.correctAnswer;
+        const reverse = window.cypressData.reverse;
+        if (reverse) {
+          sequence = sequence.toReversed();
+        }
+
         sequence.forEach((number) => {
           blocks[number].click();
         });
@@ -63,11 +86,11 @@ function memoryLoop() {
   });
 
   // end recursion if the task has reached the end screen
-  cy.get('p,h1').then((p) => {
-    if (p[0].textContent.includes('Thank you!')) {
-      return;
-    } else {
+  if (!taskCompleted) {
+    cy.get('p,h1').then((p) => {
       memoryLoop();
-    }
-  });
+    });
+  }
+
+  return;
 }
