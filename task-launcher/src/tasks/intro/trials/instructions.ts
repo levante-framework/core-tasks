@@ -204,7 +204,6 @@ const instructions = instructionData.map((data) => {
         audioButtonPresses: PageAudioHandler.replayPresses,
         assessment_stage: 'instructions',
       });
-      PageAudioHandler.stopAndDisconnectNode();
     },
   };
 });
