@@ -12,7 +12,12 @@ import {
 } from '../../shared/helpers';
 import { jsPsych } from '../../taskSetup';
 import { createBubbleInstructionTrial } from '../helpers/createBubbleInstructionTrial';
-import { placeBubblesAround, placeScaledBubbles, type Rect } from '../helpers/placeBubblesAround';
+import {
+  MIN_BUBBLE_PX,
+  placeFittingEqualBubbles,
+  placeFittingScaledBubbles,
+  type Rect,
+} from '../helpers/placeBubblesAround';
 
 const driverObj = driver({
   disableActiveInteraction: false,
@@ -32,10 +37,7 @@ function screenUnit() {
 }
 
 function equalBubbles(field: Rect, obstacles: Rect[]) {
-  const maxSize = screenUnit();
-  const placed =
-    placeBubblesAround(field, obstacles, BUBBLE_COUNT1, maxSize) ??
-    placeBubblesAround(field, obstacles, BUBBLE_COUNT1, maxSize, 48, 0);
+  const placed = placeFittingEqualBubbles(field, obstacles, BUBBLE_COUNT1, screenUnit());
   return placed?.slots.map((slot) => ({ ...slot, size: placed.size })) ?? null;
 }
 
@@ -49,11 +51,8 @@ const BIG_SMALL_BUBBLES = [
 ];
 
 function bigAndSmallBubbles(field: Rect, obstacles: Rect[]) {
-  const maxSmall = screenUnit();
   const ratios = BIG_SMALL_BUBBLES.map((bubble) => bubble.ratio);
-  const placed =
-    placeScaledBubbles(field, obstacles, ratios, maxSmall) ??
-    placeScaledBubbles(field, obstacles, ratios, maxSmall, 48, 0);
+  const placed = placeFittingScaledBubbles(field, obstacles, ratios, screenUnit(), MIN_BUBBLE_PX, 2);
   return placed?.map((bubble, index) => ({ ...bubble, required: BIG_SMALL_BUBBLES[index].required })) ?? null;
 }
 

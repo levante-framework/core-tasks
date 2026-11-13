@@ -7,6 +7,9 @@ export type PlacedBubble = BubbleSlot & { size: number; required?: boolean };
 /** Matches the largest translate in the `.float` keyframes. */
 export const BUBBLE_FLOAT_PAD = 22;
 
+/** Smallest bubble we will draw. Below this, drop a bubble instead of shrinking further. */
+export const MIN_BUBBLE_PX = 64;
+
 const CANDIDATE_STEP = 8;
 
 function inflate(rect: Rect, pad: number): Rect {
@@ -163,4 +166,53 @@ export function placeBubblesAround(
   );
   if (!placed) return null;
   return { size: placed[0].size, slots: placed.map(({ x, y }) => ({ x, y })) };
+}
+
+/**
+ * Shrinks toward `minSize`, then drops bubbles one at a time until some count fits.
+ * Never goes below `minSize` unless `maxSize` itself is already smaller.
+ */
+export function placeFittingEqualBubbles(
+  field: Rect,
+  obstacles: Rect[],
+  count: number,
+  maxSize: number,
+  minSize = MIN_BUBBLE_PX,
+): { size: number; slots: BubbleSlot[] } | null {
+  const upper = Math.floor(maxSize);
+  if (count < 1 || upper < 1) return null;
+  const floor = Math.min(Math.ceil(minSize), upper);
+
+  for (let n = count; n >= 1; n--) {
+    const placed = placeBubblesAround(field, obstacles, n, upper, floor);
+    if (placed) return placed;
+  }
+  return null;
+}
+
+/**
+ * Shrinks a ratio set toward `minPx` on the smallest bubble, then drops ratios from
+ * the end until a prefix of at least `minCount` fits.
+ */
+export function placeFittingScaledBubbles(
+  field: Rect,
+  obstacles: Rect[],
+  ratios: number[],
+  maxBase: number,
+  minPx = MIN_BUBBLE_PX,
+  minCount = 1,
+): PlacedBubble[] | null {
+  const upper = Math.floor(maxBase);
+  if (ratios.length === 0 || ratios.some((ratio) => ratio <= 0) || upper < 1) return null;
+  const keep = Math.max(1, Math.min(minCount, ratios.length));
+
+  for (let n = ratios.length; n >= keep; n--) {
+    const subset = ratios.slice(0, n);
+    const smallestRatio = Math.min(...subset);
+    const neededBase = Math.ceil(minPx / smallestRatio);
+    const lower = Math.min(upper, Math.max(1, neededBase));
+    const placed = placeScaledBubbles(field, obstacles, subset, upper, lower);
+    if (placed) return placed;
+  }
+  return null;
 }

@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { BUBBLE_FLOAT_PAD, placeBubblesAround, placeScaledBubbles, type Rect } from './placeBubblesAround';
+import {
+  BUBBLE_FLOAT_PAD,
+  MIN_BUBBLE_PX,
+  placeBubblesAround,
+  placeFittingEqualBubbles,
+  placeFittingScaledBubbles,
+  placeScaledBubbles,
+  type Rect,
+} from './placeBubblesAround';
 
 function rect(x: number, y: number, size: number): Rect {
   return { left: x, top: y, right: x + size, bottom: y + size };
@@ -89,18 +97,42 @@ describe('placeBubblesAround', () => {
     expect(overlaps(rect(placed[1].x, placed[1].y, placed[1].size), blocked)).toBe(false);
   });
 
-  it('places a big bubble, a small bubble, and three medium bubbles', () => {
-    const placed = placeScaledBubbles(field, [text], [2, 1, 1.5, 1.5, 1.5], 120);
+  it('places the big, small, and medium ratios used on the choice screen', () => {
+    const placed = placeScaledBubbles(field, [text], [2.4, 0.8, 1.5, 1.5, 1.5], 120);
     expect(placed).not.toBeNull();
     if (!placed) return;
 
     const [big, small, ...medium] = placed;
     expect(medium).toHaveLength(3);
-    expect(big.size).toBe(small.size * 2);
+    expect(new Set(medium.map((bubble) => bubble.size)).size).toBe(1);
     for (const bubble of medium) {
       expect(bubble.size).toBeGreaterThan(small.size);
       expect(bubble.size).toBeLessThan(big.size);
     }
+    expect(big.size / small.size).toBeGreaterThan(2.5);
+  });
+
+  it('shrinks equal bubbles to the floor, then drops some instead of going smaller', () => {
+    const tight: Rect = { left: 0, top: 0, right: 360, bottom: 220 };
+    const placed = placeFittingEqualBubbles(tight, [], 7, 120, MIN_BUBBLE_PX);
+    expect(placed).not.toBeNull();
+    if (!placed) return;
+
+    expect(placed.slots.length).toBeLessThan(7);
+    expect(placed.slots.length).toBeGreaterThan(0);
+    expect(placed.size).toBeGreaterThanOrEqual(MIN_BUBBLE_PX);
+  });
+
+  it('drops medium bubbles before the big and small pair', () => {
+    const tight: Rect = { left: 0, top: 0, right: 520, bottom: 280 };
+    const placed = placeFittingScaledBubbles(tight, [], [2.4, 0.8, 1.5, 1.5, 1.5], 120, MIN_BUBBLE_PX, 2);
+    expect(placed).not.toBeNull();
+    if (!placed) return;
+
+    expect(placed.length).toBeGreaterThanOrEqual(2);
+    expect(placed.length).toBeLessThan(5);
+    expect(placed[0].size).toBeGreaterThan(placed[1].size);
+    expect(placed[1].size).toBeGreaterThanOrEqual(MIN_BUBBLE_PX);
   });
 
   it('returns null when the bubbles cannot fit', () => {
