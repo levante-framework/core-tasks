@@ -4,17 +4,17 @@ export function instructions() {
   cy.get('.jspsych-content').then((content) => {
     const okButton = content.find('.primary');
 
-    if (okButton.length > 0) {
+    // Age <= 4 also renders experimenter Yes/No buttons with class primary, outside the trial.
+    if (okButton.length === 1) {
       // check for end of task
-      cy.get('.lev-stimulus-container').then((content) => {
-        if (content.find('footer').length === 1) {
-          cy.get('.jspsych-content').find('.primary').click({ timeout: 60000 });
+      cy.get('.lev-stimulus-container').then((container) => {
+        if (container.find('footer').length === 1) {
+          cy.get('.jspsych-content .primary').click({ timeout: 60000 });
           taskCompleted = true;
           return;
-        } else {
-          cy.get('.primary').click({ timeout: 60000 });
-          instructions();
         }
+        cy.get('.jspsych-content .primary').click({ timeout: 60000 });
+        instructions();
       });
     }
   });
@@ -73,8 +73,8 @@ function handleMathSlider() {
     if (slider.length && !responseButtons.length) {
       cy.get('.jspsych-slider').realClick();
 
-      cy.get('.primary').then((continueButton) => {
-        continueButton.click();
+      cy.get('.jspsych-content .primary').then((continueButton) => {
+        if (continueButton.length === 1) continueButton.click();
       });
     }
   });
