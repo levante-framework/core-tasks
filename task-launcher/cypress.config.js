@@ -13,7 +13,17 @@ function taskMatchPresent(task, matrix) {
   return Object.values(matrix).some((entry) => entry.task === task);
 }
 
-async function buildTaskVariantGroups() {
+function isEnabled(value) {
+  return value === true || value === 'true' || value === '1';
+}
+
+// Retired task. Opt in with --env includeHostileAttribution=true.
+function includeHostileAttribution(config) {
+  const env = (config && config.env) || {};
+  return isEnabled(env.includeHostileAttribution) || isEnabled(env.INCLUDE_HOSTILE_ATTRIBUTION);
+}
+
+async function buildTaskVariantGroups(includeHostile) {
   const res = await fetch(LANGUAGE_OPTIONS_URL);
   if (!res.ok) {
     throw new Error(`Failed to fetch language options: ${res.status} ${res.statusText}`);
@@ -50,6 +60,9 @@ async function buildTaskVariantGroups() {
   const firstLocalesPerVariant = {};
   const remainingLocalesPerVariant = {};
   matrix.forEach(({ locale, task }) => {
+    if (!includeHostile && task === 'hostile-attribution') {
+      return;
+    }
     const variants = liveParams[task]?.variants ?? [];
     variants.forEach((variant) => {
       const params = variant[locale];
@@ -93,10 +106,12 @@ export default defineConfig({
         },
       });
 
-      const { firstLocalesPerVariant, remainingLocalesPerVariant } = await buildTaskVariantGroups();
+      const includeHostile = includeHostileAttribution(config);
+      const { firstLocalesPerVariant, remainingLocalesPerVariant } = await buildTaskVariantGroups(includeHostile);
 
       return {
         ...config,
+        excludeSpecPattern: includeHostile ? '*.hot-update.js' : ['*.hot-update.js', '**/hostile_attribution.cy.js'],
         expose: {
           ...config.expose,
           firstLocalesPerVariant,
@@ -104,8 +119,8 @@ export default defineConfig({
         },
       };
     },
-    // Video recording settings
-    video: true,
+    video: false,
+    excludeSpecPattern: ['*.hot-update.js', '**/hostile_attribution.cy.js'],
     videoCompression: 32,
     videosFolder: 'cypress/videos',
     screenshotsFolder: 'cypress/screenshots',
