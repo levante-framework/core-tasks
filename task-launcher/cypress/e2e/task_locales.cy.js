@@ -1,7 +1,17 @@
 /* global cy, describe, expect, it, Cypress */
 
+// Corpus from the registered prod pack for this task and locale.
+function corpusForRegisteredPack(task, lng) {
+  if (task === 'vocab') return `vocab-item-bank-${lng}`;
+  if (task === 'theory-of-mind') return 'theory-of-mind-item-bank-cat-test';
+  return '';
+}
+
 function visitTaskWithLocaleAndEnterFullscreen(task, lng) {
-  cy.visit(`http://localhost:8080/?task=${task}&lng=${lng}`);
+  const params = new URLSearchParams({ task, lng });
+  const corpus = corpusForRegisteredPack(task, lng);
+  if (corpus) params.set('corpus', corpus);
+  cy.visit(`http://localhost:8080/?${params.toString()}`);
   cy.get('button.primary', { timeout: 120000 }).should('be.visible').first().realClick();
 }
 
