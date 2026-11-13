@@ -1,5 +1,4 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
-import { driver } from 'driver.js';
 import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
 import {
@@ -13,13 +12,39 @@ import {
 } from '../../shared/helpers';
 import { jsPsych } from '../../taskSetup';
 
-const buttonIntroDriverObj = driver({
-  disableActiveInteraction: false,
-  advanceOnClick: true,
-  popoverClass: 'driver-popover--hidden',
-  allowClose: false,
-  steps: [{ element: '#replay-btn-revisited' }, { element: '.primary' }],
-});
+const REPLAY_ARROW_ID = 'replay-point-arrow';
+// Tip of visual/intro/arrow-icon.webp, which points up and to the right.
+const ARROW_TIP_X = 737 / 1024;
+const ARROW_TIP_Y = 269 / 1024;
+
+function showReplayArrow() {
+  const replay = document.getElementById('replay-btn-revisited');
+  const src = mediaAssets.images.arrowIcon;
+  if (!replay || !src) return;
+
+  document.getElementById(REPLAY_ARROW_ID)?.remove();
+  const arrow = document.createElement('img');
+  arrow.id = REPLAY_ARROW_ID;
+  arrow.className = 'replay-point-arrow';
+  arrow.src = src;
+  arrow.alt = '';
+  document.body.appendChild(arrow);
+
+  const rect = replay.getBoundingClientRect();
+  const size = rect.width * 1.85;
+  const nudge = Math.round(rect.width * 0.28);
+  const tipX = rect.left - nudge * 0.6;
+  const tipY = rect.bottom + nudge * 0.6;
+  arrow.style.width = `${size}px`;
+  arrow.style.height = `${size}px`;
+  arrow.style.left = `${tipX - size * ARROW_TIP_X}px`;
+  arrow.style.top = `${tipY - size * ARROW_TIP_Y}px`;
+  arrow.style.setProperty('--replay-arrow-nudge', `${nudge}px`);
+}
+
+function removeReplayArrow() {
+  document.getElementById(REPLAY_ARROW_ID)?.remove();
+}
 
 const instructionData = [
   {
@@ -54,7 +79,7 @@ const instructionData = [
     prompt: 'generalIntro4',
     image: 'avatarOwl',
     buttonText: 'continueButtonText',
-    driveButtonIntroWhenBubblePractice: true,
+    pointAtReplayWhenBubblePractice: true,
     includeReplayButton: true,
   },
 ];
@@ -62,7 +87,7 @@ const instructionData = [
 const instructions = instructionData.map((data) => {
   const getPrompt = () => data.prompt;
   const shouldAutoAdvanceOnAudioEnd = () => data.autoAdvanceWhenBubblePractice && taskStore().bubblePractice === true;
-  const shouldDriveButtonIntro = () => data.driveButtonIntroWhenBubblePractice && taskStore().bubblePractice === true;
+  const shouldPointAtReplay = () => data.pointAtReplayWhenBubblePractice && taskStore().bubblePractice === true;
   let advanceTimeout: ReturnType<typeof setTimeout> | undefined;
   let trialOpen = false;
 
@@ -123,9 +148,6 @@ const instructions = instructionData.map((data) => {
           const enableButton = () => {
             if (!trialOpen) return;
             enableOkButton();
-            if (shouldDriveButtonIntro()) {
-              buttonIntroDriverObj.drive();
-            }
           };
           const enableDelay =
             'enableButtonAfterAudioMs' in data && typeof data.enableButtonAfterAudioMs === 'number'
@@ -147,13 +169,14 @@ const instructions = instructionData.map((data) => {
 
       addExperimenterButtons();
       setupFullscreenButton();
+      if (shouldPointAtReplay()) {
+        showReplayArrow();
+      }
     },
     on_finish: () => {
       trialOpen = false;
       clearTimeout(advanceTimeout);
-      if (shouldDriveButtonIntro()) {
-        buttonIntroDriverObj.destroy();
-      }
+      removeReplayArrow();
 
       PageAudioHandler.stopAndDisconnectNode();
 
