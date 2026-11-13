@@ -2,6 +2,7 @@ let taskCompleted = false;
 // recursively completes an instruction block
 export function instructions() {
   cy.get('.jspsych-content').then((content) => {
+    if (taskCompleted) return;
     const okButton = content.find('.primary');
 
     // Age <= 4 also renders experimenter Yes/No buttons with class primary, outside the trial.
@@ -61,12 +62,16 @@ function selectAnswers(correctFlag, buttonClass, waitForEnabled = false) {
 
     pollForEnabledButtons();
   } else {
-    cy.get('.jspsych-content').then(trySelectAnswer);
+    cy.get('.jspsych-content').then((content) => {
+      if (taskCompleted) return;
+      trySelectAnswer(content);
+    });
   }
 }
 
 function handleMathSlider() {
   cy.get('.jspsych-content').then((content) => {
+    if (taskCompleted) return;
     const slider = content.find('.jspsych-slider');
     const responseButtons = content.find('.secondary'); // should be length zero if in the movable slider phase
 
@@ -82,15 +87,25 @@ function handleMathSlider() {
   return;
 }
 
+function taskIsFinished() {
+  return Cypress.$('#exit-button').length > 0 || Cypress.$('.lev-stimulus-container footer').length > 0;
+}
+
+function finishTask() {
+  taskCompleted = true;
+  const exitButton = Cypress.$('#exit-button');
+  if (exitButton.length) {
+    cy.wrap(exitButton).click({ force: true });
+  }
+}
+
 function taskLoop(correctFlag, buttonClass, waitForEnabled = false) {
   // wait for fixation cross to go away
   cy.get('.lev-stimulus-container', { timeout: 60000 })
     .should('exist')
     .then((content) => {
-      if (content.find('footer').length === 1) {
-        cy.get('.jspsych-content').find('.primary').click({ timeout: 60000 });
-        taskCompleted = true;
-        return;
+      if (content.find('footer').length > 0 || Cypress.$('#exit-button').length > 0) {
+        finishTask();
       }
     });
 
@@ -99,11 +114,25 @@ function taskLoop(correctFlag, buttonClass, waitForEnabled = false) {
   instructions();
 
   cy.then(() => {
-    if (taskCompleted) return;
+    if (taskCompleted || taskIsFinished()) {
+      if (!taskCompleted) finishTask();
+      return;
+    }
 
-    cy.get('.lev-stimulus-container', { timeout: 60000 })
-      .should('not.exist')
-      .then(() => taskLoop(correctFlag, buttonClass, waitForEnabled));
+    // The early-finish screen replaces the current trial in place, so the
+    // stimulus container never disappears. Treat that screen as completion.
+    cy.get('body', { timeout: 60000 })
+      .should(() => {
+        if (taskIsFinished()) return;
+        expect(Cypress.$('.lev-stimulus-container').length).to.equal(0);
+      })
+      .then(() => {
+        if (taskCompleted || taskIsFinished()) {
+          if (!taskCompleted) finishTask();
+          return;
+        }
+        taskLoop(correctFlag, buttonClass, waitForEnabled);
+      });
   });
 }
 
