@@ -23,6 +23,31 @@ function includeHostileAttribution(config) {
   return isEnabled(env.includeHostileAttribution) || isEnabled(env.INCLUDE_HOSTILE_ATTRIBUTION);
 }
 
+// Play every live-params locale end to end. Default runs one locale per variant.
+function playAllLocalesEnabled(config) {
+  const env = (config && config.env) || {};
+  return isEnabled(env.playAllLocales) || isEnabled(env.PLAY_ALL_LOCALES);
+}
+
+function specExcludes({ includeHostile, playAllLocales }) {
+  const patterns = ['*.hot-update.js'];
+  if (!includeHostile) patterns.push('**/hostile_attribution.cy.js');
+  if (playAllLocales) patterns.push('**/task_locales.cy.js');
+  return patterns;
+}
+
+function includeRemainingLocales(firstLocalesPerVariant, remainingLocalesPerVariant) {
+  for (const [key, group] of Object.entries(remainingLocalesPerVariant)) {
+    for (const locale of group.locales || []) {
+      firstLocalesPerVariant[`${key}\0${locale}`] = {
+        task: group.task,
+        params: group.params,
+        locale,
+      };
+    }
+  }
+}
+
 async function buildTaskVariantGroups(includeHostile) {
   const res = await fetch(LANGUAGE_OPTIONS_URL);
   if (!res.ok) {
@@ -107,11 +132,13 @@ export default defineConfig({
       });
 
       const includeHostile = includeHostileAttribution(config);
+      const playAllLocales = playAllLocalesEnabled(config);
       const { firstLocalesPerVariant, remainingLocalesPerVariant } = await buildTaskVariantGroups(includeHostile);
+      if (playAllLocales) includeRemainingLocales(firstLocalesPerVariant, remainingLocalesPerVariant);
 
       return {
         ...config,
-        excludeSpecPattern: includeHostile ? '*.hot-update.js' : ['*.hot-update.js', '**/hostile_attribution.cy.js'],
+        excludeSpecPattern: specExcludes({ includeHostile, playAllLocales }),
         expose: {
           ...config.expose,
           firstLocalesPerVariant,

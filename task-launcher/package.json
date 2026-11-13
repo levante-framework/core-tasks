@@ -26,7 +26,8 @@
     "postinstall": "npm run patchPackages",
     "prepare": "cd .. && husky task-launcher/.husky",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "cypress:all-locales": "cypress run --env playAllLocales=true"
   },
   "lint-staged": {
     "*": "biome check --write --no-errors-on-unmatched --files-ignore-unknown=true"
