@@ -1,11 +1,13 @@
 import {
   combineMediaAssets,
   dashToCamelCase,
-  filterMedia,
-  getAssetsPerTask,
+  getAudioAllowlist,
   getMediaAssets,
   hideLevanteLogoLoading,
   isTaskFinished,
+  languageAudioFromStems,
+  listLanguageAudio,
+  referencedAudioNames,
   showLevanteLogoLoading,
 } from './tasks/shared/helpers';
 import './styles/index.scss';
@@ -72,12 +74,22 @@ export class TaskLauncher {
     const languageAudioBucket = getBucketName('shared', isDev, 'audio', language);
     const sharedAudioBucket = getBucketName('shared', isDev, 'audio', 'shared');
 
+    let languageListing: Awaited<ReturnType<typeof listLanguageAudio>>;
+    let audioAllowlist: Awaited<ReturnType<typeof getAudioAllowlist>>;
     try {
-      // will avoid language folder if not provided
-      languageAudioAssets = await getMediaAssets(languageAudioBucket, {}, language, taskName);
-      sharedAudioAssets = await getMediaAssets(sharedAudioBucket, {}, 'shared', taskName);
-      taskVisualAssets = await getMediaAssets(taskVisualBucket, {}, language, taskName);
-      sharedVisualAssets = await getMediaAssets(sharedVisualBucket, {}, language, 'shared');
+      const [sharedAudio, taskVisual, sharedVisual, listing, allowlist] = await Promise.all([
+        getMediaAssets(sharedAudioBucket, {}, taskName, 'shared'),
+        getMediaAssets(taskVisualBucket, {}, taskName, language),
+        getMediaAssets(sharedVisualBucket, {}, 'shared', language),
+        listLanguageAudio(languageAudioBucket),
+        getAudioAllowlist(isDev),
+      ]);
+
+      sharedAudioAssets = sharedAudio;
+      taskVisualAssets = taskVisual;
+      sharedVisualAssets = sharedVisual;
+      languageListing = listing;
+      audioAllowlist = allowlist;
     } catch (error) {
       throw new Error(`Error fetching media assets: ${error}`);
     }
@@ -95,15 +107,12 @@ export class TaskLauncher {
       await getCorpus(config, isDev);
     }
 
-    await getAssetsPerTask(isDev);
-
-    const taskAudioAssetNames = [
-      ...taskStore().assetsPerTask[taskName].audio,
-      ...taskStore().assetsPerTask.shared.audio,
-    ];
-
-    // filter out language audio not relevant to current task
-    languageAudioAssets = filterMedia(languageAudioAssets, [], taskAudioAssetNames, []);
+    languageAudioAssets = languageAudioFromStems(
+      languageListing.bucket,
+      languageListing.folder,
+      referencedAudioNames(taskName, taskStore().corpora, audioAllowlist),
+      languageListing.stems,
+    );
 
     mediaAssets = combineMediaAssets([languageAudioAssets, sharedAudioAssets, taskVisualAssets, sharedVisualAssets]);
 

@@ -10,7 +10,7 @@ import {
   prepareMultiBlockCat,
   reportCorpusValidationErrors,
 } from '../shared/helpers';
-import { preloadSharedAudio } from '../shared/helpers/preloadSharedAudio';
+import { getLeftoverAssets } from '../shared/helpers/batchPreloading';
 // trials
 import {
   afcStimulusTemplate,
@@ -61,9 +61,6 @@ export default function buildTOMTimeline(
     terminateCat: false,
   };
 
-  const initialPreload = preloadSharedAudio();
-  const timeline = [initialPreload, initialTimeline];
-
   const blockList: StimulusType[][] = prepareMultiBlockCat(corpus, false);
   const fillerTrials = prepareTomCorpus(blockList, fCat);
   const storyGroups = prepareStoryGroups(corpus, fCat);
@@ -74,6 +71,9 @@ export default function buildTOMTimeline(
     ['item', 'answer', 'distractors'],
     ['audioFile', 'distractors'], // we need to preload audio for the staggered buttons
   );
+
+  const initialPreload = createPreloadTrials(getLeftoverAssets(batchedMediaAssets, mediaAssets)).default;
+  const timeline = [initialPreload, initialTimeline];
 
   let currPreloadBatch = 0;
 

@@ -25,7 +25,6 @@ import type { InputCapability } from '../utils/detectInput';
  * @property {number} startTime - Time at which the task started.
  * @property {boolean} taskComplete - Whether the task has ended - if true, the user should return to dashboard.
  * @property {'timeOut' | 'errorOut' | 'earlyCompletion' | 'taskAbort' | 'sufficientTrials' | 'experimenterExit'} effectiveStoppingRule - Why the task finished.
- * @property {Object} assetsPerTask - Object containing list of assets belonging to each task.
  * @property {boolean} demoMode - Whether the task is running in demo mode (no interaction with Firestore), default is false.
  * @property {boolean} debug - Shows theta estimate on the screen for cat debugging when enabled.
  * @property {boolean} showAudioKeys - When true, displays audio keys on screen for debugging.

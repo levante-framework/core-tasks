@@ -8,7 +8,18 @@ const translations: Record<string, string> = {};
 
 function parseTranslations(translationData: Record<string, string>[]) {
   for (const [key, value] of Object.entries(translationData)) {
-    translations[camelize(key.trim())] = value as unknown as string;
+    translations[key.trim()] = value as unknown as string;
+  }
+}
+
+function camelizeTranslations() {
+  for (const [key, value] of Object.entries(translations)) {
+    const camelizedKey = camelize(key);
+
+    translations[camelizedKey] = value as unknown as string;
+    if (camelizedKey !== key) {
+      delete translations[key];
+    }
   }
 }
 
@@ -54,6 +65,8 @@ export const getTranslations = async (isDev: boolean, taskName: string, configLa
     }
     try {
       await loadTranslationJsons(taskName === 'intro' ? [urls[1]] : urls);
+
+      camelizeTranslations();
       taskStore('translations', translations);
     } catch (error) {
       Logger.getInstance().error(error, { source: 'getTranslations', taskName });
