@@ -1,5 +1,11 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { getMediaAssets, languageAudioFromStems, listLanguageAudio, referencedAudioNames } from './getMediaAssets';
+import {
+  getAudioAllowlist,
+  getMediaAssets,
+  languageAudioFromStems,
+  listLanguageAudio,
+  referencedAudioNames,
+} from './getMediaAssets';
 
 function jsonResponse(body: unknown, ok = true) {
   return { ok, status: ok ? 200 : 500, json: async () => body };
@@ -9,12 +15,51 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
+const allowlist = {
+  shared: ['inputAudioCue', 'nullAudio', 'taskFinished', 'generalRepeatInstructions'],
+  'mental-rotation': ['mentalRotationInstruct1'],
+};
+
+describe('getAudioAllowlist', () => {
+  it('reads the dev bucket file', async () => {
+    const urls: string[] = [];
+    vi.stubGlobal('fetch', async (url: string) => {
+      urls.push(url);
+      return jsonResponse({ shared: ['nullAudio'], intro: ['pop'] });
+    });
+
+    await expect(getAudioAllowlist(true)).resolves.toEqual({ shared: ['nullAudio'], intro: ['pop'] });
+    expect(urls[0]).toBe('https://storage.googleapis.com/levante-assets-dev/audio/allowed-audio.json');
+  });
+
+  it('reads the prod bucket file', async () => {
+    const urls: string[] = [];
+    vi.stubGlobal('fetch', async (url: string) => {
+      urls.push(url);
+      return jsonResponse({ shared: ['nullAudio'] });
+    });
+
+    await expect(getAudioAllowlist(false)).resolves.toEqual({ shared: ['nullAudio'] });
+    expect(urls[0]).toBe('https://storage.googleapis.com/levante-assets-prod/audio/allowed-audio.json');
+  });
+
+  it('rejects a missing file', async () => {
+    vi.stubGlobal('fetch', async () => jsonResponse({}, false));
+
+    await expect(getAudioAllowlist(true)).rejects.toThrow('Error fetching audio allowlist: 500');
+  });
+});
+
 describe('referencedAudioNames', () => {
   it('keeps corpus clips, instruction cues, and shared shell cues', () => {
-    const names = referencedAudioNames('mental-rotation', {
-      stimulus: [{ audioFile: 'item-clip', distractors: [1, 'not-audio'] }],
-      downex: [{ audioFile: ['downex-a', 'downex-b'], animationAudioTriggers: ['anim-clip'] }],
-    });
+    const names = referencedAudioNames(
+      'mental-rotation',
+      {
+        stimulus: [{ audioFile: 'item-clip', distractors: [1, 'not-audio'] }],
+        downex: [{ audioFile: ['downex-a', 'downex-b'], animationAudioTriggers: ['anim-clip'] }],
+      },
+      allowlist,
+    );
 
     expect(names).toEqual(
       expect.arrayContaining([
@@ -34,9 +79,13 @@ describe('referencedAudioNames', () => {
   });
 
   it('keeps staggered response names for stories', () => {
-    const names = referencedAudioNames('theory-of-mind', {
-      stimulus: [{ audioFile: 'scene-clip', answer: 'choice-a', distractors: ['choice-b', 2] }],
-    });
+    const names = referencedAudioNames(
+      'theory-of-mind',
+      {
+        stimulus: [{ audioFile: 'scene-clip', answer: 'choice-a', distractors: ['choice-b', 2] }],
+      },
+      allowlist,
+    );
 
     expect(names).toEqual(expect.arrayContaining(['scene-clip', 'choice-a', 'choice-b']));
     expect(names).not.toContain('2');

@@ -1,4 +1,5 @@
 import { camelize } from './camelize';
+import { getBucketName } from './getBucketName';
 
 type CategorizedObjectsType = {
   images: Record<string, string>;
@@ -54,124 +55,36 @@ function pushAudioName(names: string[], value: unknown) {
   }
 }
 
-// Clips the shared shell plays on every task. Translation keys are text and are not included.
-const SHARED_AUDIO_KEYS = [
-  'inputAudioCue',
-  'nullAudio',
-  'taskFinished',
-  'generalRepeatInstructions',
-  'feedbackGoodJob',
-  'feedbackCorrect',
-  'feedbackNotQuiteRight',
-  'feedbackTryAgain',
-];
-
-// Instruction and feedback clips named in task code, outside the corpus audio_file column.
-const TASK_INSTRUCTION_AUDIO: Record<string, string[]> = {
-  intro: [
-    'generalIntro1',
-    'generalIntro4',
-    'instructBubble1Mouse',
-    'instructBubble1Touch',
-    'instructBubble2',
-    'instructBubble3',
-    'instructBubble4',
-    'instructBubble5',
-    'instructBubble5Mouse',
-    'instructBubble5Touch',
-    'pop',
-    'select',
-  ],
-  'hearts-and-flowers': [
-    'coin',
-    'flowerInstruct1',
-    'heartInstruct1',
-    'heartsAndFlowersInstruct1',
-    'heartsAndFlowersInstruct2',
-    'heartsAndFlowersInstruct3',
-    'heartsAndFlowersInstruct4',
-  ],
-  'memory-game': [
-    'heartsAndFlowersEncourage2',
-    'heartsAndFlowersPlayTime',
-    'memoryGameInstruct1',
-    'memoryGameInstruct2',
-    'memoryGameInstruct2Downex',
-    'memoryGameInstruct3Downex',
-    'memoryGameInstruct4',
-    'memoryGameInstruct4Downex',
-    'memoryGameInstruct5',
-    'memoryGameInstruct5Downex',
-    'memoryGameInstruct6',
-    'memoryGameInstruct6Downex',
-    'memoryGameInstruct7Downex',
-    'memoryGameInstruct8Downex',
-    'memoryGameInstruct9Downex',
-    'memoryGameInstruct10Downex',
-    'memoryGameInstruct11Downex',
-    'memoryGameDisplay',
-    'memoryGameInput',
-    'memoryGameBackwardPrompt',
-    'memoryGameFeedbackIncorrectDownex',
-  ],
-  'mental-rotation': [
-    'mentalRotationInstruct1',
-    'mentalRotationInstruct3D',
-    'mentalRotationTrainingInstruct2',
-    'mentalRotationTrainingInstruct3',
-    'mentalRotationFeedbackIncorrectDownex',
-    'mental-rotation-instruct1',
-    'mental-rotation-instruct1-part1-downex',
-    'mental-rotation-instruct1-part2-downex',
-    'mental-rotation-instruct2-downex',
-    'mental-rotation-instruct3-downex',
-    'mental-rotation-instruct4-downex',
-    'mental-rotation-training-instruct2',
-    'mental-rotation-training-instruct3',
-  ],
-  'matrix-reasoning': [
-    'feedbackRightOne',
-    'matrixReasoningInstruct1',
-    'matrixReasoningFeedbackIncorrectDownex',
-    'matrixReasoningFeedbackSmBlueDownex',
-    'matrix-reasoning-instruct1-part1-downex',
-    'matrix-reasoning-instruct1-part3-downex',
-    'matrix-reasoning-instruct1-part4-downex',
-    'matrix-reasoning-instruct2-part1-downex',
-    'matrix-reasoning-instruct2-part2-downex',
-    'matrix-reasoning-instruct2-part3-downex',
-    'matrix-reasoning-instruct2-part4-downex',
-    'matrix-reasoning-instruct2-part5-downex',
-    'matrix-reasoning-instruct3-downex',
-    'matrix-reasoning-instruct4-downex',
-    'matrix-reasoning-instruct5-part1-downex',
-    'matrix-reasoning-instruct5-part2-downex',
-    'matrix-reasoning-prompt1-part1-downex',
-    'matrix-reasoning-prompt1-part2-downex',
-  ],
-  'same-different-selection': [
-    'sds-match-demo1-heavy',
-    'sds-match-demo2-heavy',
-    'sds-pick-square-demo-heavy',
-    'sdsPrompt3DemoHeavy',
-    'sdsPrompt3DemoHeavyPart1',
-    'sdsPrompt3DemoHeavyPart2',
-    'sdsPrompt3Heavy',
-    'sdsFeedbackBothBlue',
-    'sdsFeedbackBothLarge',
-    'sameDifferentSelectionBothRedHeavy',
-    'sameDifferentSelectionBothTrianglesHeavy',
-    'sameDifferentSelectionBothYellowHeavy',
-    'same-different-selection-highlight-1',
-    'same-different-selection-highlight-2',
-  ],
-  'roar-inference': ['inferenceInstructions', 'inferenceInstructions2'],
-};
+export type AudioAllowlist = Record<string, string[]>;
 
 const STAGGERED_AUDIO_TASKS = new Set(['theory-of-mind', 'child-survey']);
 
-export function referencedAudioNames(taskName: string, corpora: ReferencedAudioCorpus | undefined): string[] {
-  const names = [...SHARED_AUDIO_KEYS, ...(TASK_INSTRUCTION_AUDIO[taskName] ?? [])];
+export async function getAudioAllowlist(isDev: boolean): Promise<AudioAllowlist> {
+  const root = getBucketName('shared', isDev, 'audio');
+  const response = await fetch(`https://storage.googleapis.com/${root}/allowed-audio.json`);
+  if (!response.ok) throw new Error(`Error fetching audio allowlist: ${response.status}`);
+
+  const data: unknown = await response.json();
+  if (!data || typeof data !== 'object' || Array.isArray(data)) {
+    throw new Error('Audio allowlist is not an object');
+  }
+
+  const allowlist: AudioAllowlist = {};
+  for (const [key, value] of Object.entries(data)) {
+    if (!Array.isArray(value) || value.some((item) => typeof item !== 'string')) {
+      throw new Error(`Audio allowlist entry "${key}" is not a list of strings`);
+    }
+    allowlist[key] = value;
+  }
+  return allowlist;
+}
+
+export function referencedAudioNames(
+  taskName: string,
+  corpora: ReferencedAudioCorpus | undefined,
+  allowlist: AudioAllowlist,
+): string[] {
+  const names = [...(allowlist.shared ?? []), ...(allowlist[taskName] ?? [])];
   const includeResponseAudio = STAGGERED_AUDIO_TASKS.has(taskName);
 
   for (const row of [...(corpora?.stimulus ?? []), ...(corpora?.downex ?? [])]) {
