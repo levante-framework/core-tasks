@@ -9,7 +9,6 @@ import { PageAudioHandler } from './audioHandler';
 import { exitButtonSvg, menuButtonSvg, pauseButtonSvg } from './components';
 
 let pageSetup: InitPageSetup | null = null;
-let exitConfirmed = false;
 
 // swallows keyboard events while paused
 function blockKeyboardWhilePaused(e: KeyboardEvent) {
@@ -193,6 +192,8 @@ function onResume() {
 }
 
 function onExit() {
+  // A previous Yes may have closed the dialog without ending the run.
+  taskStore('experimenterExitConfirmed', false);
   openPopup();
 }
 
@@ -215,8 +216,8 @@ function collapseExperimenterMenu() {
 }
 
 function confirmExit() {
-  if (exitConfirmed) return;
-  exitConfirmed = true;
+  if (taskStore().experimenterExitConfirmed) return;
+  taskStore('experimenterExitConfirmed', true);
 
   try {
     if (taskStore().effectiveStoppingRule !== 'sufficientTrials') {
@@ -240,7 +241,7 @@ function confirmExit() {
     dismissExitPopup();
     endExperimentFromExperimenter();
   } catch (error) {
-    exitConfirmed = false;
+    taskStore('experimenterExitConfirmed', false);
     throw error;
   }
 }
