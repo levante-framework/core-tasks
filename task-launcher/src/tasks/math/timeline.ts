@@ -159,13 +159,12 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
     return trial.trialType === 'Number Line Slider' && trial.assessmentStage === 'practice_response';
   });
 
-  // this block repeats all slider practice trials
-  const repeatSliderPracticeBlock = () => {
+  const buildRepeatSliderPracticeTimeline = (practiceTrials: StimulusType[]) => {
     const trials: any[] = [];
-    sliderPractice.forEach((trial, index) => {
+    practiceTrials.forEach((trial, index) => {
       trials.push({ ...fixationOnly, stimulus: '' });
       trials.push(slider(layoutConfigMap, terminateCat, trial));
-      if (index < sliderPractice.length - 1) {
+      if (index < practiceTrials.length - 1) {
         trials.push(
           { ...fixationOnly, stimulus: '' },
           {
@@ -178,8 +177,13 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
       }
     });
 
+    return trials;
+  };
+
+  // this block repeats all slider practice trials
+  const repeatSliderPracticeBlock = () => {
     return {
-      timeline: [...trials],
+      timeline: buildRepeatSliderPracticeTimeline(sliderPractice),
       conditional_function: () => {
         return (
           !taskStore().isCorrect &&
@@ -225,6 +229,13 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
         trials.push({ ...fixationOnly, stimulus: '' });
         trials.push(slider(layoutConfigMap, terminateCat, trial));
         trials.push({ ...fixationOnly, stimulus: '' }, { ...feedback(true) });
+      });
+
+      trials.push({
+        timeline: buildRepeatSliderPracticeTimeline(downexSliderPractice),
+        conditional_function: () => {
+          return !taskStore().isCorrect;
+        },
       });
 
       return {
