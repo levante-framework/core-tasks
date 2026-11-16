@@ -4,7 +4,7 @@ export type BubbleSlot = { x: number; y: number };
 
 export type PlacedBubble = BubbleSlot & { size: number; required?: boolean };
 
-/** Matches the largest translate in the `.float` keyframes. */
+/** Clears the largest translate in the `.float` keyframes (20px), with a little extra. */
 export const BUBBLE_FLOAT_PAD = 22;
 
 /** Smallest bubble we will draw. Below this, drop a bubble instead of shrinking further. */
