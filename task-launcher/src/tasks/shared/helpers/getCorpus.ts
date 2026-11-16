@@ -166,7 +166,7 @@ const transformCSV = (csvInput: ParsedRowType[], sequentialStimulus: boolean, ta
       difficulty: taskStore().runCat ? parseFloat(row.d || row.difficulty) : NaN,
       randomize: row.randomize as 'yes' | 'no' | 'at_block_level',
       trialNumber: row.trial_num,
-      downex: row.downex?.toUpperCase() === 'TRUE',
+      downex: row.downex?.toUpperCase() === 'TRUE' || row.downex?.toUpperCase() === 'CHECKED',
       storyGroup: _toNumber(row.story_group),
       responseBranches: writeResponseBranches(row),
       storyBranch: row.story_branch,
