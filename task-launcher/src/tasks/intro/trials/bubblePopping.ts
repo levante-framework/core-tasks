@@ -11,7 +11,13 @@ import {
   wrapListeners,
 } from '../../shared/helpers';
 import { jsPsych } from '../../taskSetup';
-import { spreadBubbles } from '../helpers/bubbleHelpers';
+import { createBubbleInstructionTrial } from '../helpers/createBubbleInstructionTrial';
+import {
+  MIN_BUBBLE_PX,
+  placeFittingEqualBubbles,
+  placeFittingScaledBubbles,
+  type Rect,
+} from '../helpers/placeBubblesAround';
 
 const driverObj = driver({
   disableActiveInteraction: false,
@@ -21,69 +27,39 @@ const driverObj = driver({
 });
 
 const BUBBLE_COUNT1 = 7;
-const BUBBLE_COUNT2 = 2;
 
-const GRID_SIZE1 = 4;
-const GRID_SIZE2 = 2;
+// Old bubble.webp was 677×369 and was drawn inside a square of min(22vw, 22vh),
+// so the art filled 369/677 of that square. The new file is square.
+const BUBBLE_SCREEN_FRACTION = 0.22 * (369 / 677);
 
-const bubblePoppingPracticeTrial = {
-  type: jsPsychHtmlMultiResponse,
-  stimulus: () => {
-    return `
-          <div class="lev-stimulus-container">
-              <div id="bubble-container" class="image-grid-x${GRID_SIZE1}">
-                ${Array.from(
-                  { length: BUBBLE_COUNT1 },
-                  () => `<button class="img-transparent float"> 
-                          <img src=${mediaAssets.images.bubble}>
-                        </button>`,
-                ).join('')}
-              </div>
-          </div>
-        `;
-  },
-  keyboard_choices: 'NO_KEYS',
-  on_load: () => {
-    addExperimenterButtons();
-    setupFullscreenButton();
+function screenUnit() {
+  return Math.min(window.innerWidth, window.innerHeight) * BUBBLE_SCREEN_FRACTION;
+}
 
-    const popAudioConfig: AudioConfigType = {
-      restrictRepetition: {
-        enabled: false,
-      },
-    };
+function equalBubbles(field: Rect, obstacles: Rect[]) {
+  const placed = placeFittingEqualBubbles(field, obstacles, BUBBLE_COUNT1, screenUnit());
+  return placed?.slots.map((slot) => ({ ...slot, size: placed.size })) ?? null;
+}
 
-    const bubbles = Array.from(document.getElementById('bubble-container')?.children as unknown as HTMLButtonElement[]);
-    let remainingBubbles = BUBBLE_COUNT1;
+// Small is 0.8 of the base size, big is 2.4 of it. The three medium bubbles sit between them.
+const BIG_SMALL_BUBBLES = [
+  { ratio: 2.4, required: true },
+  { ratio: 0.8, required: true },
+  { ratio: 1.5, required: false },
+  { ratio: 1.5, required: false },
+  { ratio: 1.5, required: false },
+];
 
-    bubbles.forEach((bubble) => {
-      wrapListeners(bubble, () => {
-        PageAudioHandler.playAudio('pop', popAudioConfig);
-        bubble.style.visibility = 'hidden';
+function bigAndSmallBubbles(field: Rect, obstacles: Rect[]) {
+  const ratios = BIG_SMALL_BUBBLES.map((bubble) => bubble.ratio);
+  const placed = placeFittingScaledBubbles(field, obstacles, ratios, screenUnit(), MIN_BUBBLE_PX, 2);
+  return placed?.map((bubble, index) => ({ ...bubble, required: BIG_SMALL_BUBBLES[index].required })) ?? null;
+}
 
-        remainingBubbles--;
-
-        if (remainingBubbles === 0) {
-          jsPsych.finishTrial();
-        }
-      });
-
-      bubble.addEventListener('dragstart', (event) => {
-        event.preventDefault();
-      });
-    });
-
-    spreadBubbles(bubbles, GRID_SIZE1);
-  },
-  on_finish: () => {
-    PageAudioHandler.stopAndDisconnectNode();
-
-    jsPsych.data.addDataToLastTrial({
-      audioButtonPresses: PageAudioHandler.replayPresses,
-      assessment_stage: 'instructions',
-    });
-  },
-};
+const bubblePoppingPracticeTrial = createBubbleInstructionTrial({
+  prompt: () => (taskStore().inputCapability?.touch ? 'instructBubble1Touch' : 'instructBubble1Mouse'),
+  placeBubbles: equalBubbles,
+});
 
 export const bubblePoppingPractice = {
   timeline: [bubblePoppingPracticeTrial],
@@ -127,7 +103,7 @@ const bubbleOverButtonPracticeTrial = {
       `<div id="bubble-button-stack" class="stack-overlay">
         <button class="primary" id="ok-button" disabled>${t.continueButtonText}</button>
           <button class="img-transparent float" style="pointer-events: none"> 
-            <img src=${mediaAssets.images.bubble}>
+            <img src=${mediaAssets.images.bubble} style="width: min(${BUBBLE_SCREEN_FRACTION * 100}vw, ${BUBBLE_SCREEN_FRACTION * 100}vh)">
           </button>
       </div>`,
     ];
@@ -169,65 +145,10 @@ export const bubbleOverButtonPractice = {
   conditional_function: () => taskStore().bubblePractice === true,
 };
 
-const pressBubblePracticeTrial = {
-  type: jsPsychHtmlMultiResponse,
-  stimulus: () => {
-    return `
-          <div class="lev-stimulus-container">
-              <div id="bubble-container" class="image-grid-x${GRID_SIZE2}">
-                <button class="img-transparent large float"> 
-                  <img src=${mediaAssets.images.bubble}>
-                </button>
-                <button class="img-transparent float"> 
-                  <img src=${mediaAssets.images.bubble}>
-                </button>
-              </div>
-          </div>
-        `;
-  },
-  keyboard_choices: 'NO_KEYS',
-  on_load: () => {
-    addExperimenterButtons();
-    setupFullscreenButton();
-
-    const popAudioConfig: AudioConfigType = {
-      restrictRepetition: {
-        enabled: false,
-        maxRepetitions: 2,
-      },
-    };
-
-    const bubbles = Array.from(document.getElementById('bubble-container')?.children as unknown as HTMLButtonElement[]);
-    let remainingBubbles = BUBBLE_COUNT2;
-
-    bubbles.forEach((bubble) => {
-      wrapListeners(bubble, () => {
-        PageAudioHandler.playAudio('pop', popAudioConfig);
-        bubble.style.visibility = 'hidden';
-
-        remainingBubbles--;
-
-        if (remainingBubbles === 0) {
-          jsPsych.finishTrial();
-        }
-      });
-
-      bubble.addEventListener('dragstart', (event) => {
-        event.preventDefault();
-      });
-    });
-
-    spreadBubbles(bubbles, GRID_SIZE2);
-  },
-  on_finish: () => {
-    PageAudioHandler.stopAndDisconnectNode();
-
-    jsPsych.data.addDataToLastTrial({
-      audioButtonPresses: PageAudioHandler.replayPresses,
-      assessment_stage: 'instructions',
-    });
-  },
-};
+const pressBubblePracticeTrial = createBubbleInstructionTrial({
+  prompt: () => (taskStore().inputCapability?.touch ? 'instructBubble5Touch' : 'instructBubble5Mouse'),
+  placeBubbles: bigAndSmallBubbles,
+});
 
 export const pressBubblePractice = {
   timeline: [pressBubblePracticeTrial],
