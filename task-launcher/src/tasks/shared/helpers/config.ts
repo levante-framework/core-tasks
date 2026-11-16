@@ -103,11 +103,17 @@ export const setSharedConfig = async (
     version,
     taskVersion, // deprecated; use `version` — kept for backward compatibility
     bubblePractice,
+    bubblePracticeAgeLimit,
     _isPaused,
   } = cleanParams;
 
+  const ageYears = Number(age) || getAge(Number(birthMonth), Number(birthYear));
+  // Absent, blank, or non-numeric means the limit is unset.
+  const ageLimit = Number(bubblePracticeAgeLimit);
+  const ageLimitIsSet = bubblePracticeAgeLimit !== '' && Number.isFinite(ageLimit);
+
   const config = {
-    userMetadata: { ...userMetadata, age: Number(age) || getAge(Number(birthMonth), Number(birthYear)) },
+    userMetadata: { ...userMetadata, age: ageYears },
     audioFeedback: audioFeedback || 'neutral',
     skipInstructions: !!skipInstructions, // Not used in any task
     startTime: new Date(),
@@ -140,7 +146,7 @@ export const setSharedConfig = async (
     startingTheta: Number(startingTheta),
     demoMode: !!demoMode,
     debug: !!debug,
-    bubblePractice: !!bubblePractice,
+    bubblePractice: !!bubblePractice && (!ageLimitIsSet || ageYears < ageLimit),
     version: Number((version ?? taskVersion) || 1),
     displayPromptDurations: {},
     taskTimer: null,
