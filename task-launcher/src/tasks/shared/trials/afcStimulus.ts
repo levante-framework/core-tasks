@@ -378,7 +378,9 @@ async function doOnLoad(layoutConfigMap: Record<string, LayoutConfigType>, trial
   if (stim.task === 'math') {
     // flag correct answers with alt text for math if running a Cypress test
     if (window.Cypress && !isInstructionTrial) {
-      const choices: NodeListOf<HTMLButtonElement> = document.querySelectorAll('.secondary, .image-medium, .primary');
+      const choices: NodeListOf<HTMLButtonElement> = document.querySelectorAll(
+        '.secondary, .image-medium, .primary:not(.exit-confirmation-choice)',
+      );
       choices[itemLayoutConfig.response.targetIndex].setAttribute('aria-label', 'correct');
     }
   }

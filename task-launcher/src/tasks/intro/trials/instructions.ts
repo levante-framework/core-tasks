@@ -18,7 +18,7 @@ const buttonIntroDriverObj = driver({
   advanceOnClick: true,
   popoverClass: 'driver-popover--hidden',
   allowClose: false,
-  steps: [{ element: '#replay-btn-revisited' }, { element: '.primary' }],
+  steps: [{ element: '#replay-btn-revisited' }, { element: '.primary:not(.exit-confirmation-choice)' }],
 });
 
 const instructionData = [
