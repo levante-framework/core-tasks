@@ -96,7 +96,7 @@ export const slider = (
               ? `<div class="lev-row-container instruction">
                 <p>
                   ${t[camelize(stim.audioFile)]}
-                  ${isSlider ? `<br /> ${stim.answer}` : ''}
+                  ${isSlider && !stim.downex ? `<br /> ${stim.answer}` : ''}
                 </p> 
               </div>`
               : ''
