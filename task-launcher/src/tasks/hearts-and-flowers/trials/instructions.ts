@@ -149,7 +149,7 @@ function buildInstructionTrial(
       if (showResponseButton) {
         if (continueTrialConfig.type === 'button') {
           disableOkButton();
-          const okButton = document.querySelector<HTMLElement>('.primary');
+          const okButton = document.querySelector<HTMLElement>('.primary:not(.exit-confirmation-choice)');
           if (okButton) okButton.style.display = 'none';
         }
 

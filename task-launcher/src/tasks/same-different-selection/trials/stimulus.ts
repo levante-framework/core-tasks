@@ -382,7 +382,7 @@ export const stimulus = (trial?: StimulusType) => {
         let numberOfErrors = 0;
 
         if (stimulus.assessmentStage === 'practice_response') {
-          const okButton = document.querySelector('.primary') as HTMLButtonElement;
+          const okButton = document.querySelector('.primary:not(.exit-confirmation-choice)') as HTMLButtonElement;
           okButton.addEventListener('click', (e) => {
             if (selectionIdx !== taskStore().correctResponseIdx) {
               const rightPrompt = document.getElementById('right-prompt') as HTMLParagraphElement;

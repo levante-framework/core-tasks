@@ -54,7 +54,7 @@ async function staggerButtonsAndRevealOkButton(
     responseButtonChildren.forEach((button) => {
       (button as HTMLButtonElement).disabled = true;
     });
-    const okButton: HTMLButtonElement | null = document.querySelector('.primary');
+    const okButton: HTMLButtonElement | null = document.querySelector('.primary:not(.exit-confirmation-choice)');
     if (okButton) {
       enableOkButton();
       okButton.style.visibility = 'visible';
@@ -210,7 +210,7 @@ export const surveyItem = ({
 
       responseButtonChildren.forEach((button) => {
         (button as HTMLButtonElement).addEventListener('click', (event: MouseEvent) => {
-          const okButton: HTMLButtonElement | null = document.querySelector('.primary');
+          const okButton: HTMLButtonElement | null = document.querySelector('.primary:not(.exit-confirmation-choice)');
           if (okButton) {
             enableOkButton();
             okButton.style.visibility = 'visible';

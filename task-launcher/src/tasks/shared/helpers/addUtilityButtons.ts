@@ -9,12 +9,38 @@ import { PageAudioHandler } from './audioHandler';
 import { exitButtonSvg, menuButtonSvg, pauseButtonSvg } from './components';
 
 let pageSetup: InitPageSetup | null = null;
+let exitConfirmed = false;
 
 // swallows keyboard events while paused
 function blockKeyboardWhilePaused(e: KeyboardEvent) {
   e.stopImmediatePropagation();
   e.preventDefault();
 }
+
+// One finger tap can produce touchend, a synthesized click, or only one of the
+// two. Listen for both and ignore the second event from the same tap.
+function bindPress(button: HTMLButtonElement, action: () => void) {
+  let handled = false;
+  const run = (event: Event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (handled) return;
+    handled = true;
+    window.setTimeout(() => {
+      handled = false;
+    }, 400);
+    action();
+  };
+  button.addEventListener('touchend', run, { passive: false });
+  button.addEventListener('click', run);
+}
+
+type JsPsychExitState = {
+  current_trial_finished?: boolean;
+  paused?: boolean;
+  finishExperiment: () => void;
+  nextTrial: () => void;
+};
 
 export function addExperimenterButtons() {
   // don't add if disabled or if they're already there
@@ -66,19 +92,19 @@ export function addExperimenterButtons() {
   const popupButtonContainer = document.createElement('div');
   popupButtonContainer.id = 'exit-confirmation-popup-buttons';
   popupButtonContainer.classList.add('exit-confirmation-popup-buttons');
+  const yesLabel = taskStore().translations.generalYes || 'Yes';
+  const noLabel = taskStore().translations.generalNo || 'No';
   popupButtonContainer.innerHTML = `
-        <button class="primary small">${taskStore().translations.generalYes || 'Yes'}</button>
-        <button class="primary small">${taskStore().translations.generalNo || 'No'}</button>
+        <button type="button" class="primary small exit-confirmation-choice" id="exit-confirm-yes">${yesLabel}</button>
+        <button type="button" class="primary small exit-confirmation-choice" id="exit-confirm-no">${noLabel}</button>
     `;
   popup.appendChild(popupButtonContainer);
-
-  // equalize button widths
-  const popupButtons = popupButtonContainer.querySelectorAll('button');
-  const standardWidth = popupButtons[0].getBoundingClientRect().width;
-  popupButtons[0].style.width = `${standardWidth}px`;
-  popupButtons[1].style.width = `${standardWidth}px`;
-
   document.body.appendChild(popup);
+
+  const yesButton = document.getElementById('exit-confirm-yes') as HTMLButtonElement;
+  const noButton = document.getElementById('exit-confirm-no') as HTMLButtonElement;
+  bindPress(yesButton, confirmExit);
+  bindPress(noButton, dismissExitPopup);
 }
 
 export function setupFullscreenButton() {
@@ -168,49 +194,84 @@ function onResume() {
 
 function onExit() {
   openPopup();
+}
 
-  const popupContainer = document.getElementById('exit-confirmation-popup-buttons');
-  if (!popupContainer) return;
-  const popupButtons = popupContainer.querySelectorAll('button');
-  popupButtons[0].addEventListener(
-    'click',
-    () => {
-      if (taskStore().effectiveStoppingRule !== 'sufficientTrials') {
-        taskStore('effectiveStoppingRule', 'experimenterExit');
-      }
-      taskStore('taskAborted', true);
+function dismissExitPopup() {
+  closePopup();
+  collapseExperimenterMenu();
+}
 
-      // clear any in-flight trial timer state so a stale time limit can't leak into a later task
-      if (taskStore().currentTrialTimeoutId) {
-        clearTimeout(taskStore().currentTrialTimeoutId);
-      }
-      taskStore('currentTrialTimeoutId', undefined);
-      taskStore('currentTrialTimeLimitMs', null);
+function collapseExperimenterMenu() {
+  const menuButton = document.getElementById('menu');
+  const exitButton = document.getElementById('exit');
+  const pauseButton = document.getElementById('pause');
 
-      const logger = Logger.getInstance();
-      logger.capture('Task finished: experimenter ended task', {
-        taskName: taskStore().task,
-        taskFinished: true,
-      });
+  if (exitButton) exitButton.style.display = 'none';
+  if (pauseButton) pauseButton.style.display = 'none';
+  if (menuButton) {
+    menuButton.classList.remove('open');
+    menuButton.setAttribute('state', 'closed');
+  }
+}
 
-      jsPsych.endExperiment();
-    },
-    { once: true },
-  );
-  popupButtons[1].addEventListener('click', () => {
-    closePopup();
+function confirmExit() {
+  if (exitConfirmed) return;
+  exitConfirmed = true;
 
-    const menuButton = document.getElementById('menu');
-    const exitButton = document.getElementById('exit');
-    const pauseButton = document.getElementById('pause');
-
-    if (exitButton) exitButton.style.display = 'none';
-    if (pauseButton) pauseButton.style.display = 'none';
-    if (menuButton) {
-      menuButton.classList.remove('open');
-      menuButton.setAttribute('state', 'closed');
+  try {
+    if (taskStore().effectiveStoppingRule !== 'sufficientTrials') {
+      taskStore('effectiveStoppingRule', 'experimenterExit');
     }
-  });
+    taskStore('taskAborted', true);
+
+    // clear any in-flight trial timer state so a stale time limit can't leak into a later task
+    if (taskStore().currentTrialTimeoutId) {
+      clearTimeout(taskStore().currentTrialTimeoutId);
+    }
+    taskStore('currentTrialTimeoutId', undefined);
+    taskStore('currentTrialTimeLimitMs', null);
+
+    const logger = Logger.getInstance();
+    logger.capture('Task finished: experimenter ended task', {
+      taskName: taskStore().task,
+      taskFinished: true,
+    });
+
+    dismissExitPopup();
+    endExperimentFromExperimenter();
+  } catch (error) {
+    exitConfirmed = false;
+    throw error;
+  }
+}
+
+// endExperiment() is a no-op once the current trial has already finished, and
+// nextTrial() does nothing while the run is paused. Either state leaves the
+// dialog up after Yes. Clear pause first, then finish a trial that is already
+// over without waiting out its gap.
+function endExperimentFromExperimenter() {
+  const psych = jsPsych as unknown as JsPsychExitState;
+  const trialAlreadyFinished = Boolean(psych.current_trial_finished);
+
+  if (psych.paused || taskStore().isPaused) {
+    window.removeEventListener('keydown', blockKeyboardWhilePaused, true);
+    taskStore('isPaused', false);
+    pageSetup?.onResume();
+    psych.paused = false;
+  }
+
+  jsPsych.endExperiment();
+
+  if (!trialAlreadyFinished) return;
+
+  const finish = psych.finishExperiment.bind(psych);
+  let finished = false;
+  psych.finishExperiment = () => {
+    if (finished) return;
+    finished = true;
+    finish();
+  };
+  psych.nextTrial();
 }
 
 function onFullscreen() {
