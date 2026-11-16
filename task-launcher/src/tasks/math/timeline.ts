@@ -238,6 +238,9 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
         },
       });
 
+      trials.push({ ...fixationOnly, stimulus: '' });
+      trials.push(practiceTransition());
+
       return {
         timeline: [...trials],
         conditional_function: () => {
