@@ -55,16 +55,27 @@ function pinInstructionText(text: HTMLElement) {
   text.style.width = `${textRect.right - textRect.left}px`;
 }
 
-/** Re-measures in-flow layout, then re-applies the fixed pin for the current viewport. */
-function repinInstructionText() {
+/**
+ * Re-measures the prompt in flow, then pins it again.
+ * The owl has to be back in the layout for that measure. Without it, flex centering
+ * drops the prompt into the middle of the screen and the pin locks it there.
+ */
+function repinInstructionText(owl: HTMLElement | null) {
   const text = document.getElementById('bubble-instruction-text');
   if (!text?.classList.contains('bubble-instruction-pinned')) return;
+
+  const parent = text.parentElement;
+  if (owl && parent) {
+    owl.style.visibility = 'hidden';
+    parent.appendChild(owl);
+  }
 
   text.classList.remove('bubble-instruction-pinned');
   text.style.left = '';
   text.style.top = '';
   text.style.width = '';
   pinInstructionText(text);
+  owl?.remove();
 }
 
 /** Updates bubble geometry only; leaves visibility (popped state) unchanged. */
@@ -95,6 +106,7 @@ export function createBubbleInstructionTrial(options: {
   let active = false;
   let revealTimeout: ReturnType<typeof setTimeout> | undefined;
   let detachViewportListeners: (() => void) | undefined;
+  let instructionOwl: HTMLElement | null = null;
 
   return {
     type: jsPsychHtmlMultiResponse,
@@ -129,7 +141,7 @@ export function createBubbleInstructionTrial(options: {
         const layer = document.getElementById('bubble-layer');
         if (!layer) return;
 
-        repinInstructionText();
+        repinInstructionText(instructionOwl);
 
         const layout = measureBubbleLayout();
         if (!layout) return;
@@ -169,7 +181,8 @@ export function createBubbleInstructionTrial(options: {
 
         const text = document.getElementById('bubble-instruction-text');
         if (text) pinInstructionText(text);
-        document.getElementById('bubble-instruction-owl')?.remove();
+        instructionOwl = document.getElementById('bubble-instruction-owl');
+        instructionOwl?.remove();
 
         requestAnimationFrame(() => {
           if (!active) return;
@@ -243,6 +256,7 @@ export function createBubbleInstructionTrial(options: {
       clearTimeout(revealTimeout);
       detachViewportListeners?.();
       detachViewportListeners = undefined;
+      instructionOwl = null;
       document.getElementById('bubble-layer')?.remove();
       PageAudioHandler.stopAndDisconnectNode();
 
