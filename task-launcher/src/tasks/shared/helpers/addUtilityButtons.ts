@@ -34,6 +34,16 @@ function bindPress(button: HTMLButtonElement, action: () => void) {
   button.addEventListener('click', run);
 }
 
+// WARNING: current_trial_finished, paused, finishExperiment, and nextTrial are
+// jsPsych 7 INTERNALS (currently jspsych@^7.2.1), not part of its public API.
+// We depend on them because the public endExperiment()/finishTrial() cannot
+// force-finish a trial that has already ended. These fields can disappear or
+// change behavior on any jsPsych bump. When upgrading jsPsych, manually re-test
+// experimenter Exit -> Yes in each of these states and confirm the dialog closes
+// and the task actually ends:
+//   - mid-trial (trial still running)
+//   - after a trial finished, during its post_trial_gap
+//   - while the run is paused
 type JsPsychExitState = {
   current_trial_finished?: boolean;
   paused?: boolean;
@@ -250,6 +260,7 @@ function confirmExit() {
 // nextTrial() does nothing while the run is paused. Either state leaves the
 // dialog up after Yes. Clear pause first, then finish a trial that is already
 // over without waiting out its gap.
+// NB: relies on jsPsych internals (see the JsPsychExitState warning above).
 function endExperimentFromExperimenter() {
   const psych = jsPsych as unknown as JsPsychExitState;
   const trialAlreadyFinished = Boolean(psych.current_trial_finished);
