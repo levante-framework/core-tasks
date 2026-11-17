@@ -298,6 +298,10 @@ button {
     border-color: $border-grey;
     min-width: unset !important;
     min-height: unset !important;
+    // Clip the image to the button border. A separate image radius used the
+    // outer radius and left the button background showing inside the border.
+    overflow: hidden;
+    background-color: transparent;
 
     img {
       border: none;
@@ -305,16 +309,15 @@ button {
       height: $response-size-default;
       padding: 0;
       margin: 0;
-      border-radius: $button-default-border-radius;
+      border-radius: 0;
+      display: block;
       float: left;
     }
 
     @include respond-to('small-medium') {
-      border-radius: $button-default-border-radius;
       img {
         width: $response-size-sm;
         height: $response-size-sm;
-        border-radius: $button-default-border-radius-small;
       }
     }
 
@@ -323,7 +326,6 @@ button {
       img {
         width: $response-size-s;
         height: $response-size-s;
-        border-radius: $lev-spacing-xs;
       }
     }
 
@@ -417,6 +419,9 @@ button {
     padding: 0;
     box-sizing: border-box;
     border-color: $border-grey;
+    // Clip the image to the button border (see &.image).
+    overflow: hidden;
+    background-color: transparent;
 
     img {
       border: none;
@@ -424,7 +429,8 @@ button {
       height: $lev-resized-buttons-2;
       padding: 0;
       margin: 0;
-      border-radius: $button-default-border-radius-small;
+      border-radius: 0;
+      display: block;
       float: left;
     }
 
@@ -445,6 +451,9 @@ button {
     box-sizing: border-box;
     border-color: $border-grey;
     aspect-ratio: 1 / 1;
+    // Clip the image to the button border (see &.image).
+    overflow: hidden;
+    background-color: transparent;
 
     img {
       border: none;
@@ -452,7 +461,8 @@ button {
       height: auto;
       padding: 0;
       margin: 0;
-      border-radius: $button-default-border-radius-small;
+      border-radius: 0;
+      display: block;
       float: left;
       object-fit: contain;
       aspect-ratio: 1 / 1;
@@ -463,7 +473,6 @@ button {
       img {
         width: $response-size-s;
         height: $response-size-s;
-        border-radius: $button-default-border-radius-small;
       }
     }
 
