@@ -259,10 +259,11 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
   };
 
   if (runCat) {
+    const downexSliderInstructionsNode = downexSliderInstructions();
     const catTrialIteration = (blockIndex: number, useDownex = false, isLastBlock = false) => ({
       timeline: [
         useDownex ? { ...setupDownex, stimulus: '' } : { ...setupStimulusFromBlock(blockIndex), stimulus: '' },
-        useDownex ? downexSliderInstructions() : { timeline: [], conditional_function: () => true },
+        useDownex ? downexSliderInstructionsNode : { timeline: [], conditional_function: () => true },
         stimulusBlock(),
       ],
       conditional_function: () => !isCatBlockTimeExpired(isLastBlock),
