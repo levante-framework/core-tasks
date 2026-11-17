@@ -16,7 +16,7 @@ import { jsPsych } from '../../taskSetup';
 import { generateImageChoices, handleButtonFeedback } from '../trials/stimulus';
 
 function enableOkBtn() {
-  const okButton: HTMLButtonElement | null = document.querySelector('.primary');
+  const okButton: HTMLButtonElement | null = document.querySelector('.primary:not(.exit-confirmation-choice)');
   if (okButton != null) {
     okButton.disabled = false;
   }
