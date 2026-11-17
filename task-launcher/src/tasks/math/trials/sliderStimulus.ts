@@ -287,7 +287,7 @@ export const slider = (
       const endTime = performance.now();
       const runCat = taskStore().runCat;
 
-      const sliderScoringThreshold = 0.05; // proportion of maximum slider value that response must fall within to be scored correct
+      const sliderScoringThreshold = 0.15; // proportion of maximum slider value that response must fall within to be scored correct
       if (stimulus.trialType === 'Number Line 4afc' || stimulus.trialType === 'Number Line Buttons') {
         if (isPractice) {
           data.correct = taskStore().incorrectPracticeResponses.length === 0;
