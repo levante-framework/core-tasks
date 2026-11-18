@@ -2,7 +2,7 @@
 
 This repository contains jsPsych code for running the LEVANTE core-tasks, a series of cognitive measures designed for children. You can [read more about the tasks and their development in our researcher documentation](https://researcher.levante-network.org/measures).
 
-LEVANTE core tasks (including code, corpus files, and assets) are [licensed CC-BY-NC-4.0](LICENSE.md) for non-commercial use with attribution.
+The code is licensed under the [MIT License](LICENSE.md). Corpus files and assets are [licensed CC-BY-NC-4.0](LICENSE_ASSETS.md) for non-commercial use with attribution.
 
 The code base does not include item banks required to run a task. Each registered variant that runs through our dashboard points at a corpus CSV and loads parameters from a variant document. Valid parameters, and their behaviour, are specified in the code. The corpus files currently registered on prod, with links, are in [docs/live-corpora.md](docs/live-corpora.md). See [docs/corpus-columns.md](docs/corpus-columns.md) for information on columns contained in corpus files.
 
