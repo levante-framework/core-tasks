@@ -71,7 +71,7 @@ export function prepareCorpus(
 
   const downexCatCorpus: StimulusType[] = downexTestTrials.filter((trial) => !downexUnnormedTrials.includes(trial));
 
-  const corpora = {
+  const trialSets = {
     ipHeavy: corpusParts.ipHeavy, // downex instruction/practice trials
     ipLight: corpusParts.ipLight, // older kid instruction/practice
     start: startItems, // 5 (or 3 if running math task) random items to be used in starting block, all under max difficulty
@@ -83,21 +83,21 @@ export function prepareCorpus(
 
   if (cat) {
     // if cat is running, put only normed trials into taskStore
-    const newCorpora = {
+    const newTrialSets = {
       downex: downexTestTrials,
       stimulus: catCorpus,
     };
-    taskStore('corpora', newCorpora);
+    taskStore('trialSets', newTrialSets);
   } else {
     // if cat is not running, put entire test portion of corpus into taskStore but leave out instruction/practice
-    const newCorpora = {
+    const newTrialSets = {
       practice: downexTestTrials,
       stimulus: corpusParts.test,
     };
-    taskStore('corpora', newCorpora);
+    taskStore('trialSets', newTrialSets);
   }
 
-  return corpora;
+  return trialSets;
 }
 
 export function selectNItems(corpus: StimulusType[], n: number) {

@@ -21,15 +21,15 @@ import { stimulus } from './trials/stimulus';
 export default function buildSameDifferentTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const heavy: boolean = taskStore().heavyInstructions;
 
-  let corpus: StimulusType[] = taskStore().corpora.stimulus;
+  let corpus: StimulusType[] = taskStore().trialSets.stimulus;
 
   if (!heavy && taskStore().version === 2) {
     corpus = corpus.filter((trial) => {
       return !(trial.trialType.includes('something-same') && !(trial.assessmentStage === 'practice_response'));
     });
 
-    taskStore('corpora', {
-      practice: taskStore().corpora.practice,
+    taskStore('trialSets', {
+      practice: taskStore().trialSets.practice,
       stimulus: corpus,
     });
   }

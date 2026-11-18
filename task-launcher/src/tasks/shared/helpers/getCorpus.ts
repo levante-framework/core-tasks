@@ -281,7 +281,7 @@ export const getCorpus = async (config: Record<string, any>, isDev: boolean) => 
 
   await fetchData();
 
-  taskStore('corpora', {
+  taskStore('trialSets', {
     stimulus: csvTransformed.stimulusData, // previously shuffled by shuffleStimulusTrials
     downex: csvTransformed.downexData,
   });

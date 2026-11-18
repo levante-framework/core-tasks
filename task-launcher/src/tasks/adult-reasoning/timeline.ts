@@ -27,7 +27,7 @@ export default function buildAdultReasoningTimeline(config: Record<string, any>,
   initTrialSaving(config);
   const initialTimeline = initTimeline(config, enterFullscreen);
   const timeline = [preloadTrials, initialTimeline];
-  const corpus: StimulusType[] = taskStore().corpora.stimulus;
+  const corpus: StimulusType[] = taskStore().trialSets.stimulus;
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {};
 

@@ -41,7 +41,7 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
     timeline: [getAudioResponse(mediaAssets)],
   };
 
-  const corpus: StimulusType[] = taskStore().corpora.stimulus;
+  const corpus: StimulusType[] = taskStore().trialSets.stimulus;
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {};
 
@@ -56,14 +56,14 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
 
   reportCorpusValidationErrors(validationErrorMap);
 
-  const corpora = prepareCorpus(corpus);
+  const trialSets = prepareCorpus(corpus);
 
   // organize media assets into batches for preloading
-  const batchedCorpus = prepareMultiBlockCat(corpora.cat);
+  const batchedCorpus = prepareMultiBlockCat(trialSets.cat);
   const batchedMediaAssets = batchMediaAssets(mediaAssets, batchedCorpus, ['item', 'answer', 'distractors']);
 
-  taskStore('corpora', {
-    practice: taskStore().corpora.practice,
+  taskStore('trialSets', {
+    practice: taskStore().trialSets.practice,
     stimulus: batchedCorpus,
   });
 
@@ -121,7 +121,7 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
     currPreloadBatch++;
   }
 
-  const instructionPractice = corpora.ipLight;
+  const instructionPractice = trialSets.ipLight;
 
   const presentedInstructions: number[] = [];
 
@@ -208,7 +208,7 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
     if (index === 0) {
       // push in starting block
       const fallBackIndex = 4;
-      corpora.start.forEach((trial: StimulusType, i: number) => {
+      trialSets.start.forEach((trial: StimulusType, i: number) => {
         timeline.push({ ...fixationOnly, stimulus: '' });
         timeline.push({
           timeline: [afcStimulusTemplate(trialConfig, trial)],

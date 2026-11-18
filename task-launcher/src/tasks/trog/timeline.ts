@@ -28,7 +28,7 @@ import { getLayoutConfig } from './helpers/config';
 export default function buildTROGTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   initTrialSaving(config);
   const initialTimeline = initTimeline(config, enterFullscreen);
-  const corpus: StimulusType[] = taskStore().corpora.stimulus;
+  const corpus: StimulusType[] = taskStore().trialSets.stimulus;
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {};
   const { runCat } = taskStore();
@@ -92,27 +92,27 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
 
   if (runCat) {
     // seperate out corpus to get cat/non-cat blocks
-    const corpora = prepareCorpus(corpus);
+    const trialSets = prepareCorpus(corpus);
 
     // instruction block (non-cat)
-    corpora.ipLight.forEach((trial: StimulusType) => {
+    trialSets.ipLight.forEach((trial: StimulusType) => {
       timeline.push({ ...fixationOnly, stimulus: '' });
       timeline.push(afcStimulusTemplate(trialConfig, trial));
     });
 
     // push in practice transition
-    if (corpora.ipLight.filter((trial) => trial.assessmentStage === 'practice_response').length > 0) {
+    if (trialSets.ipLight.filter((trial) => trial.assessmentStage === 'practice_response').length > 0) {
       timeline.push(practiceTransition());
     }
 
     // push in starting block
-    corpora.start.forEach((trial: StimulusType) => {
+    trialSets.start.forEach((trial: StimulusType) => {
       timeline.push({ ...fixationOnly, stimulus: '' });
       timeline.push(afcStimulusTemplate(trialConfig, trial));
     });
 
     // cat block
-    const numOfCatTrials = corpora.cat.length;
+    const numOfCatTrials = trialSets.cat.length;
     taskStore('totalTestTrials', numOfCatTrials);
     for (let i = 0; i < numOfCatTrials; i++) {
       timeline.push({ ...setupStimulus, stimulus: '' });
@@ -120,7 +120,7 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
     }
 
     // select up to 5 random items from unnormed portion of corpus
-    const unnormedTrials: StimulusType[] = selectNItems(corpora.unnormed, 5);
+    const unnormedTrials: StimulusType[] = selectNItems(trialSets.unnormed, 5);
 
     // random set of unvalidated items at end
     const unnormedBlock = {
