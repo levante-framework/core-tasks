@@ -19,7 +19,7 @@ This code applies to everyone participating in the LEVANTE core-tasks project, i
 
 ## Reporting
 
-Report a concern privately to the maintainers of [levante-framework/core-tasks](https://github.com/levante-framework/core-tasks). Do not put the report in a public issue or pull request.
+Report a concern privately to [levante-support@stanford.edu](mailto:levante-support@stanford.edu). Do not put the report in a public issue or pull request.
 
 Maintainers will look into the report, keep it confidential to the extent they can, and respond with what they decide to do. That can include a warning, removing comments, or blocking further participation.
 
