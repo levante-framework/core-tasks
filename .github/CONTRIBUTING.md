@@ -1,9 +1,9 @@
 # About LEVANTE core-tasks
 
-Welcome to the LEVANTE Core Tasks repository! The LEVANTE project is a scientific tool to collect behavioral and cognitive data from children, their caregivers, and their teachers. The tool is designed to be flexible to be used in a variety of recruitment contexts, and applicable to many different scientific aims. The `core-tasks` repo contains front-end jsPsych code for child-facing tasks.
+Welcome to the LEVANTE Core Tasks repository! The LEVANTE project is a scientific tool to collect behavioral and cognitive data from children, their caregivers, and their teachers. The tool is designed to be flexibly used in a variety of recruitment contexts, and applicable to many different scientific aims. The `core-tasks` repo contains front-end jsPsych code for LEVANTE measures.
 
 # Contributing
-LEVANTE is an open-source project, both in terms of our code-base and releases of scientific data. Contributing to open-source projects is a fantastic way to advance one's coding skills. However, the tool is constantly evolving and there isn't always an easy way to jump in and contribute. When we have issues that might be good to pickup as an outside contributor, these will have the label `good first issue`. If we don't have any unassigned issues in the `Ready to Start` column with this label, there might not be any tasks suitable for one-off contributors at the moment. You are still welcome to open a PR, but it may take awhile for us to get to it.
+LEVANTE is an open-source project, both in terms of our code-base and releases of scientific data. Contributing to open-source projects is a fantastic way to advance one's coding skills. However, the tool is constantly evolving and there isn't always an easy way to jump in and contribute. When we have issues that might be good to pick up as an outside contributor, these will have the label `good first issue`. If we don't have any unassigned issues in the `Ready to Start` column with this label, there might not be any tasks suitable for one-off contributors at the moment. You are still welcome to open a PR, but it may take awhile for us to get to it.
 
 ## Guidelines
 
