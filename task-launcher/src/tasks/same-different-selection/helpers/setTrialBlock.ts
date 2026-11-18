@@ -26,11 +26,11 @@ export function setTrialBlock(cat: boolean) {
   let currentBlockCount = 0;
 
   if (cat) {
-    taskStore().corpora.stimulus.forEach((block: StimulusType[]) => {
+    taskStore().trialSets.stimulus.forEach((block: StimulusType[]) => {
       blockCountList.push(block.length);
     });
   } else {
-    taskStore().corpora.stimulus.forEach((trial: StimulusType) => {
+    taskStore().trialSets.stimulus.forEach((trial: StimulusType) => {
       if (!compareTrialTypes(trial.trialType, currentTrialType) && trial.trialType !== 'instructions') {
         blockCountList.push(currentBlockCount);
         blockOperations.push(getBlockOperations(currentTrialType));

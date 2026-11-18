@@ -39,7 +39,7 @@ import type { InputCapability } from '../utils/detectInput';
  * ------- Added after config is parsed -------
  * @property {number} totalTrials - Total number trials, including practice and instructions.
  * @property {number} totalTestTrials - Total number of test trials in the experiment timeline.
- * @property {Object} corpora - Object containing the corpus data (stimulus).
+ * @property {Object} trialSets - Named sets of trial rows parsed from the corpus CSV (stimulus, downex, plus task-specific sets like practice or CAT blocks).
  * @property {Object} translations - Object containing the translations.
  * @property {Object} nextStimulus - Object containing the next stimulus.
  * @property {boolean} testPhase - True if not running practice/instruction trial
@@ -201,7 +201,7 @@ export const setTaskStore = (config: TaskStoreDataType) => {
 // audioFeedback: audioFeedback || 'neutral',
 // skipInstructions: skipInstructions ?? true,
 // comes from getCorpus after parsing the corpus
-// corpora
+// trialSets
 // For ROAR. The name of the corpus file.
 // corpusId: corpusId,
 // buttonLayout: buttonLayout || 'default',

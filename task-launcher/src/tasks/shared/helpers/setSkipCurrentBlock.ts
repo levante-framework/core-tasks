@@ -7,7 +7,7 @@ function skipBlock() {
   taskStore('trialsSkipped', 0);
   while (taskStore().nextStimulus.trialType === skipBlockTrialType) {
     // do not call getStimulus if there are no remaining stimuli
-    if (taskStore().corpora.stimulus.length === 0) {
+    if (taskStore().trialSets.stimulus.length === 0) {
       break;
     }
 

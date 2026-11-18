@@ -10,7 +10,7 @@ import { camelize } from './camelize';
 
 export const getStimulus = (corpusType: string, blockNumber?: number, storyGroup?: number, randomize = false) => {
   let itemSuggestion: any;
-  const corpus = taskStore().corpora;
+  const corpus = taskStore().trialSets;
 
   if (blockNumber != null) {
     // if block number is specified, get next item from only the indicated block of the corpus
@@ -89,5 +89,5 @@ export const getStimulus = (corpusType: string, blockNumber?: number, storyGroup
   } else {
     corpus[corpusType] = itemSuggestion.remainingStimuli;
   }
-  taskStore('corpora', corpus);
+  taskStore('trialSets', corpus);
 };

@@ -57,8 +57,8 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
     },
   };
 
-  const defaultCorpus: StimulusType[] = taskStore().corpora.stimulus;
-  const downexCorpus: StimulusType[] = taskStore().corpora.downex;
+  const defaultCorpus: StimulusType[] = taskStore().trialSets.stimulus;
+  const downexCorpus: StimulusType[] = taskStore().trialSets.downex;
   const fullCorpus: StimulusType[] = [...downexCorpus, ...defaultCorpus];
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {};
@@ -176,28 +176,28 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
 
   if (runCat) {
     // seperate out corpus to get cat/non-cat blocks
-    const corpora = prepareCorpus(defaultCorpus);
+    const trialSets = prepareCorpus(defaultCorpus);
 
     // push in instruction block
-    corpora.ipLight.forEach((trial: StimulusType) => {
+    trialSets.ipLight.forEach((trial: StimulusType) => {
       timeline.push({ ...fixationOnly, stimulus: '' });
       timeline.push(afcStimulusTemplate(trialConfig, trial));
     });
 
     // push in practice transition
-    if (corpora.ipLight.filter((trial) => trial.assessmentStage === 'practice_response').length > 0) {
+    if (trialSets.ipLight.filter((trial) => trial.assessmentStage === 'practice_response').length > 0) {
       timeline.push({ ...fixationOnly, stimulus: '' });
       timeline.push(practiceTransition());
     }
 
     // push in starting block
-    corpora.start.forEach((trial: StimulusType) => {
+    trialSets.start.forEach((trial: StimulusType) => {
       timeline.push({ ...fixationOnly, stimulus: '' });
       timeline.push(afcStimulusTemplate(trialConfig, trial));
       timeline.push(ifRealTrialResponse);
     });
 
-    const numOfCatTrials = corpora.cat.length;
+    const numOfCatTrials = trialSets.cat.length;
     taskStore('totalTestTrials', numOfCatTrials);
     for (let i = 0; i < numOfCatTrials; i++) {
       timeline.push({ ...setupStimulus, stimulus: '' });
@@ -205,7 +205,7 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
       timeline.push(ifRealTrialResponse);
     }
 
-    const unnormedTrials: StimulusType[] = selectNItems(corpora.unnormed, 5);
+    const unnormedTrials: StimulusType[] = selectNItems(trialSets.unnormed, 5);
 
     const unnormedBlock = {
       timeline: unnormedTrials.flatMap((trial) => [
