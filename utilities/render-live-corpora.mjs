@@ -146,8 +146,8 @@ function loadDefaultCorpus() {
     throw new Error(`Could not find defaultCorpus in ${CONFIG_TS}`);
   }
   const defaults = {};
-  for (const pair of match[1].matchAll(/(\w+)\s*:\s*'([^']+)'/g)) {
-    defaults[pair[1]] = pair[2];
+  for (const pair of match[1].matchAll(/(\w+)\s*:\s*(['"])([^'"]+)\2/g)) {
+    defaults[pair[1]] = pair[3];
   }
   return defaults;
 }
