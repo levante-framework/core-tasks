@@ -159,12 +159,12 @@ function credentialsPath(environment) {
 }
 
 function projectIdFor(environment) {
-  return (
-    process.env.GOOGLE_CLOUD_PROJECT ||
-    process.env.GCLOUD_PROJECT ||
-    process.env.FIREBASE_PROJECT ||
-    PROJECT_IDS[environment]
-  );
+  // The CLI argument selects the Firebase project. GOOGLE_CLOUD_PROJECT,
+  // GCLOUD_PROJECT, and FIREBASE_PROJECT are ignored: a .env often sets them
+  // for another project, and the markdown and GCS bucket still follow the argument.
+  const projectId = PROJECT_IDS[environment];
+  if (!projectId) throw new Error(`Unknown environment: ${environment}`);
+  return projectId;
 }
 
 function unwrapFirestoreValue(value) {

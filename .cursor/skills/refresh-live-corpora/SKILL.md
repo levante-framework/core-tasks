@@ -21,7 +21,7 @@ From the core-tasks repo root:
 node utilities/render-live-corpora.js prod --check
 ```
 
-Auth is Application Default Credentials when the user is already logged in with Google (`gcloud auth application-default login`). A service-account JSON path in `GOOGLE_APPLICATION_CREDENTIALS` or `GOOGLE_APPLICATION_CREDENTIALS_PROD` also works, from the shell or a `.env` in `utilities/`, the repo root, or the current directory. Do not invent links or commit `.env`.
+Auth is Application Default Credentials when the user is already logged in with Google (`gcloud auth application-default login`). A service-account JSON path in `GOOGLE_APPLICATION_CREDENTIALS` or `GOOGLE_APPLICATION_CREDENTIALS_PROD` also works, from the shell or a `.env` in `utilities/`, the repo root, or the current directory. The `prod` or `dev` argument selects the Firebase project and the assets bucket. `GOOGLE_CLOUD_PROJECT`, `GCLOUD_PROJECT`, and `FIREBASE_PROJECT` are not used. Do not invent links or commit `.env`.
 
 - Exit 0: say the live corpus list matches registered prod variants.
 - Exit 1: the list is stale. Refresh it, then summarize what changed. Do not commit unless the user asks.
