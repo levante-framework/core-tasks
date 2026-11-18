@@ -6,8 +6,8 @@
  * or `gcloud auth print-access-token`). A .env in this folder, the repo root,
  * or the current directory is loaded and does not override the shell.
  *
- *   node render-live-corpora.js prod
- *   node render-live-corpora.js prod --check
+ *   node render-live-corpora.mjs prod
+ *   node render-live-corpora.mjs prod --check
  */
 
 import { execFileSync } from 'node:child_process';
@@ -160,8 +160,9 @@ function credentialsPath(environment) {
 
 function projectIdFor(environment) {
   // The CLI argument selects the Firebase project. GOOGLE_CLOUD_PROJECT,
-  // GCLOUD_PROJECT, and FIREBASE_PROJECT are ignored: a .env often sets them
-  // for another project, and the markdown and GCS bucket still follow the argument.
+  // GCLOUD_PROJECT, FIREBASE_PROJECT, and a service-account key's project_id
+  // are ignored: a .env often sets them for another project, and the markdown
+  // and GCS bucket still follow the argument.
   const projectId = PROJECT_IDS[environment];
   if (!projectId) throw new Error(`Unknown environment: ${environment}`);
   return projectId;
@@ -208,7 +209,7 @@ async function accessTokenFromServiceAccount(key) {
   if (!response.ok) {
     throw new Error(body.error_description || body.error || 'Could not exchange the service-account key for an access token.');
   }
-  return { token: body.access_token, projectId: key.project_id };
+  return body.access_token;
 }
 
 function accessTokenFromGcloud() {
@@ -237,7 +238,8 @@ async function googleAuth(environment) {
       if (error.code === 'ENOENT') throw new Error(`Service account key not found: ${keyPath}`);
       throw error;
     }
-    return accessTokenFromServiceAccount(key);
+    const token = await accessTokenFromServiceAccount(key);
+    return { token, projectId: projectIdFor(environment) };
   }
   const token = accessTokenFromGcloud();
   if (!token) {
@@ -382,7 +384,9 @@ function renderMarkdown({ environment, byTask, noCorpus, registeredCounts, prese
     'URL pattern:',
     `\`https://storage.googleapis.com/${bucket}/corpus/{taskId}/{corpus}.csv?alt=media\``,
     '',
-    `${REFRESHED_PREFIX}${refreshedAt} from **${environment}** variants (\`tasks/{taskId}/variants\` where \`registered == true\`). Generated, do not edit by hand._`,
+    'Update this file with the refresh-live-corpora skill, or `node utilities/render-live-corpora.mjs prod`. Do not edit it by hand.',
+    '',
+    `${REFRESHED_PREFIX}${refreshedAt} from **${environment}** variants (\`tasks/{taskId}/variants\` where \`registered == true\`)._`,
     '',
   ];
 

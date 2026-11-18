@@ -134,7 +134,7 @@ Which kind of trial the row is, such as a number line or a same-different card s
 
 ### `animation_types`, `animation_targets`, and `animation_triggers`
 
-Tasks: Vocab, Theory of Mind
+Tasks: Vocab
 
 Parallel lists for image animations on a trial. Types and targets say what moves, and triggers are either timestamps or audio ids for when it moves. Only the `vocab-item-bank-en-US` file has them. The shared stimulus renderer would honor the same columns on another task if a bank included them.
 
