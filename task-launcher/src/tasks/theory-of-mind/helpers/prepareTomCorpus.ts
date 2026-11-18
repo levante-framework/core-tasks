@@ -1,7 +1,7 @@
 import { taskStore } from '../../../taskStore';
 
-export function prepareTomCorpus(blockList: StimulusType[][]) {
-  if (!(taskStore().version === 2)) {
+export function prepareTomCorpus(blockList: StimulusType[][], fCat: boolean) {
+  if (!fCat) {
     return null;
   }
 
@@ -34,8 +34,8 @@ export function prepareTomCorpus(blockList: StimulusType[][]) {
   };
 }
 
-export function prepareStoryGroups(corpus: StimulusType[]) {
-  if (!(taskStore().version === 2)) {
+export function prepareStoryGroups(corpus: StimulusType[], fCat: boolean) {
+  if (!fCat) {
     return;
   }
 
@@ -46,11 +46,13 @@ export function prepareStoryGroups(corpus: StimulusType[]) {
   }
 
   corpus.forEach((trial: StimulusType) => {
-    if (trial.storyGroup !== undefined) {
-      storyGroups[trial.storyGroup].push(trial);
-    } else {
-      storyGroups[0].push(trial);
+    if (!trial) {
+      return;
     }
+
+    // Fall back to the first group for trials with a missing/invalid storyGroup (e.g. NaN).
+    const group = storyGroups[trial.storyGroup ?? 0] ?? storyGroups[0];
+    group.push(trial);
   });
 
   return storyGroups;

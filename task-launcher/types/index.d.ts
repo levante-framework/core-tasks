@@ -43,12 +43,15 @@ declare global {
     };
     disableOkButton?: boolean; // disable the OK button until the instruction prompt ends
     blockedTrials?: boolean; // when true with CAT, advance queued sequential trials in the same block via selectNextSequentialTrial
+    multiStimImage?: boolean; // two images side-by-side if true
+    animationTimeControl: 'timestamp' | 'audio-file' | null;
+    givePracticeFeedback: boolean;
   };
 
   type AudioConfigType = {
     restrictRepetition: {
       enabled: boolean;
-      maxRepetitions: number;
+      maxRepetitions?: number;
     };
     onEnded?: Function;
   };
@@ -57,7 +60,7 @@ declare global {
     source: string;
     block_index: number;
     task: string; // TODO: define all task types here
-    item: string | number[];
+    item: string | number[] | string[];
     trial_type?: string;
     trialType: string;
     image: string | string[];
@@ -87,6 +90,12 @@ declare global {
     trialNumber?: number;
     downex?: boolean;
     storyGroup?: number;
+    responseBranches?: Record<string, string>;
+    storyBranch?: string;
+    animationTypes?: string[];
+    animationTargets?: string[];
+    animationTimestamps?: number[];
+    animationAudioTriggers?: string[];
     feedbackItemIds?: string[];
   };
 
@@ -110,5 +119,6 @@ declare global {
   interface LevanteLogger {
     capture(name: string, properties?: Record<string, any>): void;
     error(error: Error | unknown, context?: Record<string, any>): void;
+    userMistake?(code: string, context?: Record<string, any>): void;
   }
 }

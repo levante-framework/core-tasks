@@ -85,23 +85,20 @@ function handlePracticeButtonPress(
       });
     }
 
-    setTimeout(
-      finishTrial,
-      onCorrect ? 3000 : 1000, // if callback is provided, give more time for callback to finish before ending trial
-    );
-
     // if there is audio playing, stop it first before playing feedback audio to prevent overlap between trials
     clearAudioOnEndedBeforeStop();
     if (onCorrect) {
       onCorrect(() => {
         // Trial finish is still driven by the existing timeout so correct timing is preserved.
       });
+
+      setTimeout(finishTrial, 3000);
     } else {
       PageAudioHandler.playAudio('feedbackGoodJob', {
         restrictRepetition: {
           enabled: false,
-          maxRepetitions: 2,
         },
+        onEnded: finishTrial,
       });
     }
   } else {
@@ -124,7 +121,6 @@ function handlePracticeButtonPress(
       PageAudioHandler.playAudio(incorrectPromptKey, {
         restrictRepetition: {
           enabled: false,
-          maxRepetitions: 2,
         },
         onEnded: unlockPracticeButtons,
       });

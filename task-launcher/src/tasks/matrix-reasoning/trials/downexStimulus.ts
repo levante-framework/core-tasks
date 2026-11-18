@@ -9,9 +9,9 @@ import {
   getParticipantUtilityButtonsHtml,
   PageAudioHandler,
   PageStateHandler,
-  popAnimation,
   setupFullscreenButton,
   setupReplayAudio,
+  shiftAnimation,
 } from '../../shared/helpers';
 import { isTouchScreen, jsPsych } from '../../taskSetup';
 
@@ -68,9 +68,17 @@ export const downexStimulus = (
       const stim = trial || taskStore().nextStimulus;
       const itemLayoutConfig = layoutConfigMap?.[stim.itemId];
       const choices = itemLayoutConfig.response.displayValues;
+      const target = itemLayoutConfig.response.target;
 
       return choices.map((choice) => {
         const imageUrl = mediaAssets.images[camelize(choice)];
+
+        if (window.Cypress) {
+          const isCorrect = choice === target;
+          return isCorrect
+            ? `<img src=${imageUrl} alt=${choice} class='correct' />`
+            : `<img src=${imageUrl} alt=${choice} />`;
+        }
 
         return `<img src=${imageUrl} alt=${choice} />`;
       });
@@ -128,7 +136,6 @@ export const downexStimulus = (
         PageAudioHandler.playAudio('feedbackRightOne', {
           restrictRepetition: {
             enabled: false,
-            maxRepetitions: 2,
           },
           onEnded: onFeedbackEnded,
         });
@@ -151,8 +158,7 @@ export const downexStimulus = (
 
         const audioConfig: AudioConfigType = {
           restrictRepetition: {
-            enabled: true,
-            maxRepetitions: 2,
+            enabled: false,
           },
           onEnded: onFeedbackEnded,
         };
@@ -178,12 +184,11 @@ export const downexStimulus = (
         }
 
         // set up animation
-        let itemsToAnimate = [buttons, stimImage];
+        let itemsToAnimate = [stimImage, buttons];
 
         const audioConfig: AudioConfigType = {
           restrictRepetition: {
             enabled: false,
-            maxRepetitions: 2,
           },
         };
 
@@ -205,7 +210,7 @@ export const downexStimulus = (
               };
 
               if (animate && camelize(audioFile) !== 'sdsYourTurn') {
-                itemsToAnimate = popAnimation(itemsToAnimate, 'pulse 2s 0s') as any;
+                itemsToAnimate = shiftAnimation(itemsToAnimate, 'pulse 2s 0s') as any;
               }
               PageAudioHandler.playAudio(audioFile, configWithCallback);
             });

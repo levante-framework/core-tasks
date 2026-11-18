@@ -2,19 +2,20 @@ let taskCompleted = false;
 // recursively completes an instruction block
 export function instructions() {
   cy.get('.jspsych-content').then((content) => {
+    if (taskCompleted) return;
     const okButton = content.find('.primary');
 
-    if (okButton.length > 0) {
+    // Age <= 4 also renders experimenter Yes/No buttons with class primary, outside the trial.
+    if (okButton.length === 1) {
       // check for end of task
-      cy.get('.lev-stimulus-container').then((content) => {
-        if (content.find('footer').length === 1) {
-          cy.contains('Exit').click({ timeout: 60000 });
+      cy.get('.lev-stimulus-container').then((container) => {
+        if (container.find('footer').length === 1) {
+          cy.get('.jspsych-content .primary').click({ timeout: 60000 });
           taskCompleted = true;
           return;
-        } else {
-          cy.get('.primary').click({ timeout: 60000 });
-          instructions();
         }
+        cy.get('.jspsych-content .primary').click({ timeout: 60000 });
+        instructions();
       });
     }
   });
@@ -43,7 +44,7 @@ function selectAnswers(correctFlag, buttonClass, waitForEnabled = false) {
   };
 
   if (waitForEnabled) {
-    const timeout = 30000;
+    const timeout = 90000;
     const interval = 100;
     const startTime = Date.now();
 
@@ -61,20 +62,24 @@ function selectAnswers(correctFlag, buttonClass, waitForEnabled = false) {
 
     pollForEnabledButtons();
   } else {
-    cy.get('.jspsych-content').then(trySelectAnswer);
+    cy.get('.jspsych-content').then((content) => {
+      if (taskCompleted) return;
+      trySelectAnswer(content);
+    });
   }
 }
 
 function handleMathSlider() {
   cy.get('.jspsych-content').then((content) => {
+    if (taskCompleted) return;
     const slider = content.find('.jspsych-slider');
     const responseButtons = content.find('.secondary'); // should be length zero if in the movable slider phase
 
     if (slider.length && !responseButtons.length) {
       cy.get('.jspsych-slider').realClick();
 
-      cy.get('.primary').then((continueButton) => {
-        continueButton.click();
+      cy.get('.jspsych-content .primary').then((continueButton) => {
+        if (continueButton.length === 1) continueButton.click();
       });
     }
   });
@@ -82,28 +87,84 @@ function handleMathSlider() {
   return;
 }
 
+function taskIsFinished() {
+  return Cypress.$('#exit-button').length > 0 || Cypress.$('.lev-stimulus-container footer').length > 0;
+}
+
+function finishTask() {
+  taskCompleted = true;
+  const exitButton = Cypress.$('#exit-button');
+  if (exitButton.length) {
+    cy.wrap(exitButton).click({ force: true });
+  }
+}
+
 function taskLoop(correctFlag, buttonClass, waitForEnabled = false) {
   // wait for fixation cross to go away
-  cy.get('.lev-stimulus-container', { timeout: 60000 }).should('exist');
+  cy.get('.lev-stimulus-container', { timeout: 60000 })
+    .should('exist')
+    .then((content) => {
+      if (content.find('footer').length > 0 || Cypress.$('#exit-button').length > 0) {
+        finishTask();
+      }
+    });
 
   handleMathSlider();
   selectAnswers(correctFlag, buttonClass, waitForEnabled);
   instructions();
 
-  cy.get('.lev-stimulus-container', { timeout: 60000 })
-    .should('not.exist')
-    .then(() => {
-      if (taskCompleted) {
-        return;
-      } else {
+  cy.then(() => {
+    if (taskCompleted || taskIsFinished()) {
+      if (!taskCompleted) finishTask();
+      return;
+    }
+
+    // The early-finish screen replaces the current trial in place, so the
+    // stimulus container never disappears. Treat that screen as completion.
+    cy.get('body', { timeout: 60000 })
+      .should(() => {
+        if (taskIsFinished()) return;
+        expect(Cypress.$('.lev-stimulus-container').length).to.equal(0);
+      })
+      .then(() => {
+        if (taskCompleted || taskIsFinished()) {
+          if (!taskCompleted) finishTask();
+          return;
+        }
         taskLoop(correctFlag, buttonClass, waitForEnabled);
-      }
-    });
+      });
+  });
 }
 
 export function testAfc(correctFlag, buttonClass, waitForEnabled = false) {
+  taskCompleted = false;
+
   // wait for OK button to be visible
-  cy.contains('OK', { timeout: 600000 }).should('be.visible');
-  cy.contains('OK').realClick(); // real click mimics user gesture so that fullscreen can start
+  cy.get('.jspsych-content .primary', { timeout: 600000 }).should('be.visible');
+
+  cy.get('.jspsych-content').find('.primary').realClick(); // real click mimics user gesture so that fullscreen can start
   taskLoop(correctFlag, buttonClass, waitForEnabled);
+}
+
+function getThisTaskVariants(thisTask) {
+  const firstLocalesPerVariant = Cypress.expose('firstLocalesPerVariant');
+  if (!firstLocalesPerVariant || typeof firstLocalesPerVariant !== 'object') {
+    return [];
+  }
+
+  return Object.values(firstLocalesPerVariant)
+    .filter(({ task }) => task === thisTask)
+    .map(({ params, locale }) => ({ params, locale }));
+}
+
+export function getParamLists(thisTask) {
+  const variants = getThisTaskVariants(thisTask);
+
+  const paramLists = [];
+  variants.forEach((variant) => {
+    const paramList = [...variant.params, `lng=${variant.locale}`].join('&');
+    paramLists.push(paramList);
+  });
+
+  return paramLists;
 }

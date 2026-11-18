@@ -44,7 +44,8 @@
 }
 
 .exit-confirmation-popup {
-  position: absolute;
+  position: fixed;
+  z-index: 1001;
   top: 10%;
   left: 50vw;
   transform: translateX(-50%);
@@ -54,6 +55,7 @@
   padding: 20px;
   text-align: center;
   font-weight: $font-weight-dark;
+  touch-action: manipulation;
 }
 
 .exit-confirmation-popup-buttons {
@@ -63,4 +65,9 @@
   margin-top: 20px;
   justify-content: center;
   align-items: center;
+
+  button {
+    flex: 1 1 auto;
+    min-width: 5.5rem;
+  }
 }

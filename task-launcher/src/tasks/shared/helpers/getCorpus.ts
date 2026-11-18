@@ -48,35 +48,85 @@ type ParsedRowType = {
   block_threshold?: number;
   story_group?: number;
   feedback_item_ids?: string;
+  response_branches?: string;
+  story_branch?: string;
+  animation_types?: string;
+  animation_targets?: string;
+  animation_triggers?: string;
 };
 
-let totalTrials = 0;
-let totalDownexTrials = 0;
+function parseCommaSeparated(value?: string): string[] | undefined {
+  if (value == null || value === '') {
+    return undefined;
+  }
+  return value.split(',').map((item) => item.trim());
+}
 
-let stimulusData: StimulusType[] = [];
-let downexData: StimulusType[] = [];
+function parseAnimationTriggers(
+  value?: string,
+): Pick<StimulusType, 'animationTimestamps' | 'animationAudioTriggers'> | null {
+  const parts = parseCommaSeparated(value);
+  if (!parts?.length) {
+    return null;
+  }
+
+  const numbers = parts.map((part) => Number(part));
+  const allIntegers = parts.every((part, index) => part !== '' && Number.isInteger(numbers[index]));
+
+  if (allIntegers) {
+    return { animationTimestamps: numbers };
+  }
+
+  return { animationAudioTriggers: parts };
+}
+
+type TransformedCorpus = {
+  stimulusData: StimulusType[];
+  downexData: StimulusType[];
+  totalTrials: number;
+  totalDownexTrials: number;
+};
 
 function writeItem(row: ParsedRowType) {
   if (row.task === 'math' && row.trial_type.includes('Number Line')) {
     const splitArr = (row.item as string).split(',');
     return splitArr.map((el) => _toNumber(el));
+  } else if ((row.item as string).includes(',') && row.task === 'theory-of-mind') {
+    return (row.item as string).split(',').map((el) => el.trim());
   }
 
   return row.item;
+}
+
+function writeResponseBranches(row: ParsedRowType): Record<string, string> | undefined {
+  if (row.response_branches != null && row.response_branches !== '' && row.task === 'theory-of-mind') {
+    const parts = (row.response_branches as string).trim().split(',');
+    const branches: Record<string, string> = {};
+    parts.forEach((part) => {
+      const [key, value] = part.split(':').map((item) => item.trim());
+      branches[key] = value;
+    });
+    return branches;
+  }
 }
 
 function containsLettersOrSlash(str: string) {
   return /[a-zA-Z/]/.test(str);
 }
 
-const transformCSV = (csvInput: ParsedRowType[], sequentialStimulus: boolean, task: string) => {
+const transformCSV = (csvInput: ParsedRowType[], sequentialStimulus: boolean, task: string): TransformedCorpus => {
   let currTrialTypeBlock = '';
 
   const blockThresholds: number[] = [];
 
+  let stimulusData: StimulusType[] = [];
+  let downexData: StimulusType[] = [];
+  let totalTrials = 0;
+  let totalDownexTrials = 0;
+
   csvInput.forEach((row) => {
     // Leaving this here for quick testing of a certain type of trial
-    //if (!row.trial_type.includes('-match')) return;
+    //if (row.block_index !== '5') return;
 
     if (row.block_threshold && !blockThresholds.includes(row.block_threshold)) {
       blockThresholds.push(row.block_threshold);
@@ -110,13 +160,20 @@ const transformCSV = (csvInput: ParsedRowType[], sequentialStimulus: boolean, ta
             : stringToNumberArray(row.response_alternatives);
         }
       })(),
-      audioFile: row.audio_file?.includes(',') ? (row.audio_file as string).split(',') : (row.audio_file as string),
+      audioFile: row.audio_file?.includes(',')
+        ? (row.audio_file as string).split(',').map((file) => file.trim())
+        : (row.audio_file as string)?.trim(),
       // difficulty must be undefined to avoid running cat
       difficulty: taskStore().runCat ? parseFloat(row.d || row.difficulty) : NaN,
       randomize: row.randomize as 'yes' | 'no' | 'at_block_level',
       trialNumber: row.trial_num,
-      downex: row.downex?.toUpperCase() === 'TRUE',
+      downex: row.downex?.toUpperCase() === 'TRUE' || row.downex?.toUpperCase() === 'CHECKED',
       storyGroup: _toNumber(row.story_group),
+      responseBranches: writeResponseBranches(row),
+      storyBranch: row.story_branch,
+      animationTypes: parseCommaSeparated(row.animation_types),
+      animationTargets: parseCommaSeparated(row.animation_targets),
+      ...parseAnimationTriggers(row.animation_triggers),
       feedbackItemIds: row.feedback_item_ids?.trim()
         ? row.feedback_item_ids.split(',').map((id) => id.trim())
         : undefined,
@@ -162,7 +219,7 @@ const transformCSV = (csvInput: ParsedRowType[], sequentialStimulus: boolean, ta
     const numItemsPerStory = taskStore().stimulusBlocks;
     const notStoryTypes = ['introduction', 'practice'];
     stimulusData = shuffleStories(stimulusData, inferenceNumStories, 'item', notStoryTypes, numItemsPerStory);
-    return;
+    return { stimulusData, downexData, totalTrials, totalDownexTrials };
   }
 
   if (!sequentialStimulus) {
@@ -171,6 +228,8 @@ const transformCSV = (csvInput: ParsedRowType[], sequentialStimulus: boolean, ta
       downexData = shuffleStimulusTrials(downexData);
     }
   }
+
+  return { stimulusData, downexData, totalTrials, totalDownexTrials };
 };
 
 export const getCorpus = async (config: Record<string, any>, isDev: boolean) => {
@@ -183,6 +242,13 @@ export const getCorpus = async (config: Record<string, any>, isDev: boolean) => 
 
   const corpusUrl = `https://storage.googleapis.com/${bucketName}/${corpus}.csv?alt=media`;
 
+  const csvTransformed: TransformedCorpus = {
+    stimulusData: [],
+    downexData: [],
+    totalTrials: 0,
+    totalDownexTrials: 0,
+  };
+
   function downloadCSV(url: string) {
     return new Promise((resolve, reject) => {
       Papa.parse<ParsedRowType>(url, {
@@ -190,7 +256,11 @@ export const getCorpus = async (config: Record<string, any>, isDev: boolean) => 
         header: true,
         skipEmptyLines: true,
         complete: (results) => {
-          transformCSV(results.data, sequentialStimulus, task);
+          const parsed = transformCSV(results.data, sequentialStimulus, task);
+          csvTransformed.stimulusData.push(...parsed.stimulusData);
+          csvTransformed.downexData.push(...parsed.downexData);
+          csvTransformed.totalTrials += parsed.totalTrials;
+          csvTransformed.totalDownexTrials += parsed.totalDownexTrials;
           resolve(results.data);
         },
         error: (error) => {
@@ -209,19 +279,17 @@ export const getCorpus = async (config: Record<string, any>, isDev: boolean) => 
     const urls = [corpusUrl];
     try {
       await parseCSVs(urls);
-      taskStore('totalTrials', totalTrials);
-      taskStore('totalDownexTrials', totalDownexTrials);
     } catch (error) {
       Logger.getInstance().error(error, { source: 'getCorpus' });
     }
+    taskStore('totalTrials', csvTransformed.totalTrials);
+    taskStore('totalDownexTrials', csvTransformed.totalDownexTrials);
   }
 
   await fetchData();
 
-  const csvTransformed = {
-    stimulus: stimulusData, // previously shuffled by shuffleStimulusTrials
-    downex: downexData,
-  };
-
-  taskStore('corpora', csvTransformed);
+  taskStore('corpora', {
+    stimulus: csvTransformed.stimulusData, // previously shuffled by shuffleStimulusTrials
+    downex: csvTransformed.downexData,
+  });
 };

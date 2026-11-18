@@ -172,7 +172,6 @@ export function handleButtonFeedback(
   const correctAudioConfig: AudioConfigType = {
     restrictRepetition: {
       enabled: false,
-      maxRepetitions: 2,
     },
     onEnded: finishTrial,
   };
@@ -180,7 +179,6 @@ export function handleButtonFeedback(
   const incorrectAudioConfig: AudioConfigType = {
     restrictRepetition: {
       enabled: false,
-      maxRepetitions: 2,
     },
     onEnded: () => {
       isFeedbackPlaying = false;
@@ -252,41 +250,46 @@ export const stimulus = (trial?: StimulusType) => {
 
       currentTrialId = stimulus.itemId;
 
+      let pageStateHandler: PageStateHandler | undefined;
+
       if (trialType === 'something-same-2') {
         // something-same-2 trials have multiple audio files
-        const audioFiles = audioFile as string[];
+        const audioKeys = [...(audioFile as string[])];
+        pageStateHandler = new PageStateHandler(audioKeys, true);
+        const queue = [...audioKeys];
+        setupReplayAudio(pageStateHandler);
 
         const audioConfig: AudioConfigType = {
           restrictRepetition: {
             enabled: false,
-            maxRepetitions: 2,
           },
           onEnded: () => {
             if (currentTrialId !== stimulus.itemId) {
               return;
             }
 
-            if (audioFiles.length) {
-              PageAudioHandler.playAudio(audioFiles.shift() as string, audioConfig);
+            if (queue.length) {
+              PageAudioHandler.playAudio(queue.shift() as string, audioConfig);
             }
           },
         };
 
-        PageAudioHandler.playAudio(audioFiles.shift() as string, audioConfig);
+        PageAudioHandler.playAudio(queue.shift() as string, audioConfig);
       } else {
+        const pageStateHandler = new PageStateHandler(audioFile, true);
+        setupReplayAudio(pageStateHandler);
+
         const audioConfig: AudioConfigType =
           stimulus.assessmentStage === 'instructions'
             ? {
                 restrictRepetition: {
                   enabled: false,
-                  maxRepetitions: 2,
                 },
                 onEnded: enableOkButton,
               }
             : {
                 restrictRepetition: {
                   enabled: false,
-                  maxRepetitions: 2,
                 },
               };
 
@@ -297,8 +300,6 @@ export const stimulus = (trial?: StimulusType) => {
         }
       }
 
-      const pageStateHandler = new PageStateHandler(audioFile, true);
-      setupReplayAudio(pageStateHandler);
       addExperimenterButtons();
       setupFullscreenButton();
       const jspsychButtonContainer = document.getElementById('jspsych-html-multi-response-btngroup') as HTMLDivElement;
@@ -381,36 +382,61 @@ export const stimulus = (trial?: StimulusType) => {
         let numberOfErrors = 0;
 
         if (stimulus.assessmentStage === 'practice_response') {
-          const okButton = document.querySelector('.primary') as HTMLButtonElement;
+          const okButton = document.querySelector('.primary:not(.exit-confirmation-choice)') as HTMLButtonElement;
           okButton.addEventListener('click', (e) => {
             if (selectionIdx !== taskStore().correctResponseIdx) {
               const rightPrompt = document.getElementById('right-prompt') as HTMLParagraphElement;
               const leftPrompt = document.getElementById('left-prompt') as HTMLParagraphElement;
-              rightPrompt.innerHTML = `<p>${taskStore().translations.feedbackNotQuiteRight}</p>`;
+              const secondPromptAudio = (audioFile as string[])[1];
+              const feedbackAudio = ['feedbackNotQuiteRight', secondPromptAudio];
+
+              pageStateHandler!.audioFile = feedbackAudio;
+
+              rightPrompt.innerHTML = `<p>${taskStore().translations.feedbackNotQuiteRight} ${
+                taskStore().translations[camelize(secondPromptAudio)]
+              }</p>`;
               leftPrompt.style.visibility = 'hidden';
 
               numberOfErrors++;
+              const numberOfErrorsThisCall = numberOfErrors;
 
               const audioConfig: AudioConfigType = {
                 restrictRepetition: {
                   enabled: false,
-                  maxRepetitions: 2,
+                },
+                onEnded: () => {
+                  const secondAudioConfig: AudioConfigType = {
+                    restrictRepetition: {
+                      enabled: false,
+                    },
+                    onEnded: () => {
+                      pageStateHandler!.enableReplayBtn();
+                    },
+                  };
+
+                  if (numberOfErrorsThisCall === numberOfErrors) {
+                    // don't overlap audio
+                    PageAudioHandler.playAudio(feedbackAudio[1], secondAudioConfig);
+                  }
                 },
               };
 
-              PageAudioHandler.stopAndDisconnectNode();
-              PageAudioHandler.playAudio('feedbackNotQuiteRight', audioConfig);
+              PageAudioHandler.stopAndDisconnectNode(true);
+              pageStateHandler!.disableReplayBtn();
+              PageAudioHandler.playAudio(feedbackAudio[0], audioConfig);
 
               responseBtns.forEach((btn) => {
                 btn.classList.remove(SELECT_CLASS_NAME);
               });
               selection = null;
               selectionIdx = null;
+              disableOkButton();
 
               if (numberOfErrors >= 2) {
                 responseBtns[taskStore().correctResponseIdx].style.animation = 'pulse 2s infinite';
               }
             } else {
+              PageAudioHandler.stopAndDisconnectNode(true);
               e.stopPropagation(); // prevents jspsych from disabling the buttons in the next trial
               jsPsych.finishTrial();
             }

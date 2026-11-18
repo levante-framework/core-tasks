@@ -1,5 +1,5 @@
 export function enableOkButton() {
-  const okButton: HTMLButtonElement | null = document.querySelector('.primary');
+  const okButton: HTMLButtonElement | null = document.querySelector('.primary:not(.exit-confirmation-choice)');
   if (okButton != null) {
     okButton.disabled = false;
   }

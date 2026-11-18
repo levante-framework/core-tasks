@@ -198,6 +198,11 @@
 
 .lev-stim-content-x-3 {
   @extend .lev-stim-content;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 
   img {
     width: calc(3 * $response-size-default);
@@ -377,12 +382,28 @@
 }
 
 
-.image-grid-x4 {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-template-rows: repeat(4, 1fr);
-  width: calc(4 * $bubble-grid-cell-size);
-  height: calc(4 * $bubble-grid-cell-size);
+.bubble-instruction-pinned {
+  position: fixed;
+  z-index: 4;
+  margin: 0;
+}
+
+.bubble-around-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+
+  button.img-transparent {
+    position: absolute;
+    pointer-events: auto;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+  }
 }
 
 .multi-button-stack {

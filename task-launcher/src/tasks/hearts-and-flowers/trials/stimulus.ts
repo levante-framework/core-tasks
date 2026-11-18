@@ -3,7 +3,7 @@ import shuffle from 'lodash/shuffle';
 import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
 import { Logger } from '../../../utils/logger';
-import { addExperimenterButtons, addKeyHelpers, PageAudioHandler, setupFullscreenButton } from '../../shared/helpers';
+import { addExperimenterButtons, addKeyHelpers, setupFullscreenButton } from '../../shared/helpers';
 import { shouldTerminateCat } from '../../shared/helpers/shouldTerminateCat';
 import { isTouchScreen, jsPsych } from '../../taskSetup';
 import { setupHafMultiResponseTouchRouting } from '../helpers/touchResponseRouting';
@@ -11,10 +11,10 @@ import {
   type CorpusRow,
   getCorrectInputSide,
   getStimulusLayout,
+  HaFStimulusType,
   InputKeyType,
   ResponseSideType,
   StimulusSideType,
-  HaFStimulusType,
 } from '../helpers/utils';
 
 /** The corpus row this trial was built from (see buildBlockTimelineVariables in timeline.ts) */
@@ -50,6 +50,18 @@ export function stimulus(
       );
     },
     on_load: () => {
+      if (hfV2 && !isPractice) {
+        // set the time limit here so it can be restarted after pause
+        taskStore('currentTrialTimeLimitMs', stimulusDuration);
+
+        const currentTrialTimeout = jsPsych.pluginAPI.setTimeout(() => {
+          if (taskStore().isPaused || taskStore().currentTrialTimeoutId !== currentTrialTimeout) return;
+          jsPsych.finishTrial();
+        }, stimulusDuration);
+
+        taskStore('currentTrialTimeoutId', currentTrialTimeout);
+      }
+
       // document.getElementById('jspsych-html-multi-response-btngroup').classList.add('btn-layout-hf');
       document.getElementById('jspsych-html-multi-response-stimulus')?.classList.add('haf-parent-container');
       document.getElementById('jspsych-html-multi-response-btngroup')?.classList.add('haf-parent-container');

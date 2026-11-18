@@ -43,7 +43,10 @@ export const DEFAULT_LAYOUT_CONFIG: LayoutConfigType = {
   inCorrectTrialConfig: {
     onIncorrectTrial: 'end',
   },
+  multiStimImage: false,
   disableOkButton: true,
+  animationTimeControl: null,
+  givePracticeFeedback: true,
 };
 
 const defaultCorpus: Record<string, string> = {
@@ -101,11 +104,17 @@ export const setSharedConfig = async (
     version,
     taskVersion, // deprecated; use `version` — kept for backward compatibility
     bubblePractice,
+    bubblePracticeAgeLimit,
     _isPaused,
   } = cleanParams;
 
+  const ageYears = Number(age) || getAge(Number(birthMonth), Number(birthYear));
+  // Absent, blank, or non-numeric means the limit is unset.
+  const ageLimit = Number(bubblePracticeAgeLimit);
+  const ageLimitIsSet = bubblePracticeAgeLimit !== '' && Number.isFinite(ageLimit);
+
   const config = {
-    userMetadata: { ...userMetadata, age: Number(age) || getAge(Number(birthMonth), Number(birthYear)) },
+    userMetadata: { ...userMetadata, age: ageYears },
     audioFeedback: audioFeedback || 'neutral',
     skipInstructions: !!skipInstructions, // Not used in any task
     startTime: new Date(),
@@ -128,7 +137,9 @@ export const setSharedConfig = async (
 
     cat: !!cat, // defaults to false
     heavyInstructions: !!heavyInstructions,
-    experimenterButtons: !!experimenterButtons,
+    // On unless a variant explicitly sets this false. Params are typed as strings but may be booleans at runtime.
+    // The under-5 gate is applied in setTaskStore.
+    experimenterButtons: String(experimenterButtons).trim().toLowerCase() !== 'false',
     showAudioKeys: !!showAudioKeys,
     inferenceNumStories: Number(inferenceNumStories) || undefined,
     numberOfStories: Number(numberOfStories) || 3,
@@ -136,7 +147,7 @@ export const setSharedConfig = async (
     startingTheta: Number(startingTheta),
     demoMode: !!demoMode,
     debug: !!debug,
-    bubblePractice: !!bubblePractice,
+    bubblePractice: !!bubblePractice && (!ageLimitIsSet || ageYears < ageLimit),
     version: Number((version ?? taskVersion) || 1),
     displayPromptDurations: {},
     taskTimer: null,

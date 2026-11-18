@@ -23,8 +23,11 @@ export class PageAudioHandler {
     },
   };
 
-  static stopAndDisconnectNode() {
+  static stopAndDisconnectNode(cancelOnEnded = false) {
     if (PageAudioHandler.audioSource) {
+      if (cancelOnEnded) {
+        PageAudioHandler.audioSource.onended = null;
+      }
       PageAudioHandler.audioSource.stop();
       PageAudioHandler.audioSource.disconnect();
       PageAudioHandler.audioSource = undefined;
@@ -61,7 +64,7 @@ export class PageAudioHandler {
     }
 
     // replace audio with ding if it has already been played twice
-    if (PageAudioHandler.replays > maxRepetitions && enabled) {
+    if (enabled && maxRepetitions !== undefined && PageAudioHandler.replays > maxRepetitions) {
       resolvedAudioKey = 'inputAudioCue';
       audioUri = mediaAssets.audio.inputAudioCue;
     }
@@ -85,7 +88,6 @@ export class PageAudioHandler {
           const audioConfig: AudioConfigType = {
             restrictRepetition: {
               enabled: false,
-              maxRepetitions: 2,
             },
             onEnded: () => {
               if (onEnded) onEnded();

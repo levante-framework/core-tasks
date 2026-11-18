@@ -1,7 +1,7 @@
 import jsPsychAudioKeyboardResponse from '@jspsych/plugin-audio-keyboard-response';
 import { taskStore } from '../../../taskStore';
 
-export function getAudioResponse(mediaAssets: MediaAssetsType) {
+export function getAudioResponse(mediaAssets: MediaAssetsType, neutralAudio: string = 'select') {
   return {
     type: jsPsychAudioKeyboardResponse,
     stimulus: () => {
@@ -14,7 +14,7 @@ export function getAudioResponse(mediaAssets: MediaAssetsType) {
       }
 
       // neutral case
-      return mediaAssets.audio.select;
+      return mediaAssets.audio[neutralAudio];
     },
     choices: 'NO_KEYS',
     trial_ends_after_audio: true,

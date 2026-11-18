@@ -12,9 +12,9 @@ import {
   getParticipantUtilityButtonsHtml,
   PageAudioHandler,
   PageStateHandler,
-  popAnimation,
   setupFullscreenButton,
   setupReplayAudio,
+  shiftAnimation,
 } from '../../shared/helpers';
 import { pulseOkButton } from '../../shared/helpers/pulseOkButton';
 import { isTouchScreen, jsPsych } from '../../taskSetup';
@@ -131,7 +131,7 @@ const textOnlyDownexInstructionData = [
 ];
 
 function enableOkBtn() {
-  const okButton: HTMLButtonElement | null = document.querySelector('.primary');
+  const okButton: HTMLButtonElement | null = document.querySelector('.primary:not(.exit-confirmation-choice)');
   if (okButton != null) {
     okButton.disabled = false;
   }
@@ -229,12 +229,11 @@ export const downexInstructions1 = {
       disableOkButton();
 
       // set up animations
-      let itemsToAnimate = [target, buttons, stimImage];
+      let itemsToAnimate = [stimImage, buttons, target];
 
       const audioConfig: AudioConfigType = {
         restrictRepetition: {
           enabled: false,
-          maxRepetitions: 2,
         },
       };
 
@@ -252,7 +251,7 @@ export const downexInstructions1 = {
               setTimeout(() => resolve(), 2000);
             },
           };
-          itemsToAnimate = popAnimation(itemsToAnimate, `pulse 2s ${delay}s 2`) as any;
+          itemsToAnimate = shiftAnimation(itemsToAnimate, `pulse 2s ${delay}s 2`) as any;
           PageAudioHandler.playAudio(audioFile, configWithCallback);
         });
       }
@@ -266,7 +265,6 @@ export const downexInstructions1 = {
         const lastAudioConfig: AudioConfigType = {
           restrictRepetition: {
             enabled: false,
-            maxRepetitions: 2,
           },
           onEnded: () => {
             enableOkBtn();
@@ -328,7 +326,6 @@ const textOnlyDownexInstruction = textOnlyDownexInstructionData.map((data) => {
       const audioConfig: AudioConfigType = {
         restrictRepetition: {
           enabled: false,
-          maxRepetitions: 2,
         },
         onEnded: () => {
           enableOkBtn();
@@ -382,9 +379,14 @@ export const downexInstructions3 = {
   prompt_above_buttons: true,
   button_choices: () => {
     const choices = downexData3.choices;
+    const correctChoice = downexData3.choices[1];
 
     return choices.map((choice) => {
       const imageUrl = mediaAssets.images[camelize(choice)];
+
+      if (window.Cypress && choice === correctChoice) {
+        return `<img src=${imageUrl} alt=${choice} class='correct' />`;
+      }
 
       return `<img src=${imageUrl} alt=${choice} />`;
     });
@@ -426,7 +428,6 @@ export const downexInstructions3 = {
       PageAudioHandler.playAudio('feedbackRightOne', {
         restrictRepetition: {
           enabled: false,
-          maxRepetitions: 2,
         },
         onEnded: onFeedbackEnded,
       });
@@ -445,7 +446,6 @@ export const downexInstructions3 = {
       PageAudioHandler.playAudio('matrixReasoningFeedbackIncorrectDownex', {
         restrictRepetition: {
           enabled: false,
-          maxRepetitions: 2,
         },
         onEnded: onFeedbackEnded,
       });
@@ -465,7 +465,6 @@ export const downexInstructions3 = {
       const audioConfig: AudioConfigType = {
         restrictRepetition: {
           enabled: false,
-          maxRepetitions: 2,
         },
       };
 
@@ -558,9 +557,14 @@ export const downexInstructions4 = {
   prompt_above_buttons: true,
   button_choices: () => {
     const choices = downexData4.choices;
+    const correctChoice = downexData4.choices[2];
 
     return choices.map((choice) => {
       const imageUrl = mediaAssets.images[camelize(choice)];
+
+      if (window.Cypress && choice === correctChoice) {
+        return `<img src=${imageUrl} alt=${choice} class='correct' />`;
+      }
 
       return `<img src=${imageUrl} alt=${choice} />`;
     });
@@ -602,7 +606,6 @@ export const downexInstructions4 = {
       PageAudioHandler.playAudio('feedbackRightOne', {
         restrictRepetition: {
           enabled: false,
-          maxRepetitions: 2,
         },
         onEnded: onFeedbackEnded,
       });
@@ -621,7 +624,6 @@ export const downexInstructions4 = {
       PageAudioHandler.playAudio('matrixReasoningFeedbackSmBlueDownex', {
         restrictRepetition: {
           enabled: false,
-          maxRepetitions: 2,
         },
         onEnded: onFeedbackEnded,
       });
@@ -641,7 +643,6 @@ export const downexInstructions4 = {
       const audioConfig: AudioConfigType = {
         restrictRepetition: {
           enabled: false,
-          maxRepetitions: 2,
         },
       };
 

@@ -29,6 +29,39 @@ const responseAudioKeys = [
 let startTime: number;
 let selectedButtonIndex: number;
 
+async function staggerButtonsAndRevealOkButton(
+  pageStateHandler: PageStateHandler,
+  responseButtonChildren: NodeListOf<Element>,
+  responseAudioKeys: string[],
+  stim: StimulusType,
+  itemLayoutConfig: LayoutConfigType,
+) {
+  // Handle the staggered buttons
+  await handleStaggeredButtons(
+    pageStateHandler,
+    Array.from(responseButtonChildren as NodeListOf<HTMLButtonElement>),
+    responseAudioKeys,
+    stim.itemId,
+    itemLayoutConfig.isInstructionTrial,
+    true,
+  );
+  const replayButtons = document.querySelectorAll('.replay-btn');
+  replayButtons.forEach((btn) => {
+    (btn as HTMLButtonElement).disabled = false;
+  });
+  // disable demo buttons
+  if (itemLayoutConfig.isInstructionTrial) {
+    responseButtonChildren.forEach((button) => {
+      (button as HTMLButtonElement).disabled = true;
+    });
+    const okButton: HTMLButtonElement | null = document.querySelector('.primary:not(.exit-confirmation-choice)');
+    if (okButton) {
+      enableOkButton();
+      okButton.style.visibility = 'visible';
+    }
+  }
+}
+
 export const surveyItem = ({
   responseAllowed: _responseAllowed,
   promptAboveButtons,
@@ -121,7 +154,6 @@ export const surveyItem = ({
               PageAudioHandler.playAudio(responseAudioKeys[index], {
                 restrictRepetition: {
                   enabled: false,
-                  maxRepetitions: 2,
                 },
               });
 
@@ -158,7 +190,6 @@ export const surveyItem = ({
       const audioConfig: AudioConfigType = {
         restrictRepetition: {
           enabled: false,
-          maxRepetitions: 2,
         },
         onEnded: () => {
           responseButtonChildren.forEach((button) => {
@@ -166,7 +197,7 @@ export const surveyItem = ({
           });
 
           const replayButtons = document.querySelectorAll('.replay-btn');
-          if (!layoutConfigMap.isStaggered) {
+          if (!itemLayoutConfig.isStaggered) {
             replayButtons.forEach((btn) => {
               (btn as HTMLButtonElement).disabled = false;
             });
@@ -179,7 +210,7 @@ export const surveyItem = ({
 
       responseButtonChildren.forEach((button) => {
         (button as HTMLButtonElement).addEventListener('click', (event: MouseEvent) => {
-          const okButton: HTMLButtonElement | null = document.querySelector('.primary');
+          const okButton: HTMLButtonElement | null = document.querySelector('.primary:not(.exit-confirmation-choice)');
           if (okButton) {
             enableOkButton();
             okButton.style.visibility = 'visible';
@@ -206,33 +237,24 @@ export const surveyItem = ({
       }
 
       if (itemLayoutConfig.isStaggered) {
-        // Handle the staggered buttons
-        await handleStaggeredButtons(
+        staggerButtonsAndRevealOkButton(
           pageStateHandler,
-          Array.from(responseButtonChildren as NodeListOf<HTMLButtonElement>),
+          responseButtonChildren,
           responseAudioKeys,
-          stim.itemId,
-          itemLayoutConfig.isInstructionTrial,
-          true,
+          stim,
+          itemLayoutConfig,
         );
 
-        const replayButtons = document.querySelectorAll('.replay-btn');
-        replayButtons.forEach((btn) => {
-          (btn as HTMLButtonElement).disabled = false;
+        const promptReplayButton = document.getElementById('replay-btn-revisited');
+        promptReplayButton?.addEventListener('click', () => {
+          staggerButtonsAndRevealOkButton(
+            pageStateHandler,
+            responseButtonChildren,
+            responseAudioKeys,
+            stim,
+            itemLayoutConfig,
+          );
         });
-
-        // disable demo buttons
-        if (itemLayoutConfig.isInstructionTrial) {
-          responseButtonChildren.forEach((button) => {
-            (button as HTMLButtonElement).disabled = true;
-          });
-
-          const okButton: HTMLButtonElement | null = document.querySelector('.primary');
-          if (okButton) {
-            enableOkButton();
-            okButton.style.visibility = 'visible';
-          }
-        }
       }
 
       // update the trial number

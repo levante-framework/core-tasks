@@ -149,7 +149,7 @@ function handleInstructions() {
     const okButton = content.find('.primary:visible');
 
     if (okButton.length) {
-      cy.contains('OK').realClick();
+      cy.get('.jspsych-content').find('.primary').realClick();
       final_instructions = mixed_practice;
       return;
     }
