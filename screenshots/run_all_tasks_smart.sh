@@ -23,7 +23,6 @@ declare -A TASKS=(
     ["vocab"]="afc_multi_choice"
     ["theory-of-mind"]="afc_multi_choice"
     ["intro"]="instruction_only"
-    ["roar-inference"]="afc_multi_choice"
     ["adult-reasoning"]="afc_multi_choice"
 )
 

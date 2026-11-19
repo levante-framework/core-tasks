@@ -23,7 +23,6 @@ TASKS["trog"]="afc_multi_choice"
 TASKS["vocab"]="afc_multi_choice"
 TASKS["theory-of-mind"]="afc_multi_choice"
 TASKS["intro"]="instruction_only"
-TASKS["roar-inference"]="afc_multi_choice"
 TASKS["adult-reasoning"]="afc_multi_choice"
 
 # Colors for output

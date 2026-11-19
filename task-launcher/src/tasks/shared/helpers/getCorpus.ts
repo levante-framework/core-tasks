@@ -5,7 +5,6 @@ import _toNumber from 'lodash/toNumber';
 import Papa from 'papaparse';
 import { taskStore } from '../../../taskStore';
 import { Logger } from '../../../utils/logger';
-import { shuffleStories } from '../../roar-inference/helpers/shuffleRoarInferenceStories';
 import { camelize } from './camelize';
 import { getChildSurveyResponses } from './childSurveyResponses';
 import { getBucketName } from './getBucketName';
@@ -113,7 +112,7 @@ function containsLettersOrSlash(str: string) {
   return /[a-zA-Z/]/.test(str);
 }
 
-const transformCSV = (csvInput: ParsedRowType[], sequentialStimulus: boolean, task: string): TransformedCorpus => {
+const transformCSV = (csvInput: ParsedRowType[], sequentialStimulus: boolean): TransformedCorpus => {
   let currTrialTypeBlock = '';
 
   const blockThresholds: number[] = [];
@@ -148,16 +147,13 @@ const transformCSV = (csvInput: ParsedRowType[], sequentialStimulus: boolean, ta
       itemId: row.item_id,
       itemUid: row.item_uid,
       distractors: (() => {
-        if (row.task === 'roar-inference') {
-          return row.response_alternatives.split(',').map((alt) => alt.replace(/"/g, ''));
-        } else if (row.task === 'child-survey') {
+        if (row.task === 'child-survey') {
           return getChildSurveyResponses();
-        } else {
-          return containsLettersOrSlash(row.response_alternatives) ||
-            (row.task === 'adult-reasoning' && row.response_alternatives.includes(';'))
-            ? row.response_alternatives.split(',')
-            : stringToNumberArray(row.response_alternatives);
         }
+        return containsLettersOrSlash(row.response_alternatives) ||
+          (row.task === 'adult-reasoning' && row.response_alternatives.includes(';'))
+          ? row.response_alternatives.split(',')
+          : stringToNumberArray(row.response_alternatives);
       })(),
       audioFile: row.audio_file?.includes(',')
         ? (row.audio_file as string).split(',').map((file) => file.trim())
@@ -210,14 +206,6 @@ const transformCSV = (csvInput: ParsedRowType[], sequentialStimulus: boolean, ta
     blockThresholds.sort((a, b) => a - b),
   );
 
-  if (task === 'roar-inference') {
-    const inferenceNumStories = taskStore().inferenceNumStories;
-    const numItemsPerStory = taskStore().stimulusBlocks;
-    const notStoryTypes = ['introduction', 'practice'];
-    stimulusData = shuffleStories(stimulusData, inferenceNumStories, 'item', notStoryTypes, numItemsPerStory);
-    return { stimulusData, downexData, totalTrials, totalDownexTrials };
-  }
-
   if (!sequentialStimulus) {
     stimulusData = shuffleStimulusTrials(stimulusData);
     if (downexData.length > 0) {
@@ -249,7 +237,7 @@ export const getCorpus = async (config: Record<string, any>, isDev: boolean) => 
         header: true,
         skipEmptyLines: true,
         complete: (results) => {
-          const parsed = transformCSV(results.data, sequentialStimulus, task);
+          const parsed = transformCSV(results.data, sequentialStimulus);
           csvTransformed.stimulusData.push(...parsed.stimulusData);
           csvTransformed.downexData.push(...parsed.downexData);
           csvTransformed.totalTrials += parsed.totalTrials;

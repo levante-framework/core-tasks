@@ -4,7 +4,7 @@
 set -e
 
 # All 12 tasks
-TASKS=("memory-game" "egma-math" "matrix-reasoning" "mental-rotation" "hearts-and-flowers" "same-different-selection" "trog" "vocab" "theory-of-mind" "intro" "roar-inference" "adult-reasoning")
+TASKS=("memory-game" "egma-math" "matrix-reasoning" "mental-rotation" "hearts-and-flowers" "same-different-selection" "trog" "vocab" "theory-of-mind" "intro" "adult-reasoning")
 SERVER_PORT=8080
 BACKUP_DIR="all_tasks_final_$(date +%Y%m%d_%H%M%S)"
 

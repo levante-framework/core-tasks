@@ -18,7 +18,6 @@ if [ $# -eq 0 ]; then
     echo "  same-different-selection"
     echo "  trog"
     echo "  vocab"
-    echo "  roar-inference"
     echo "  adult-reasoning"
     echo "  intro"
     echo ""
