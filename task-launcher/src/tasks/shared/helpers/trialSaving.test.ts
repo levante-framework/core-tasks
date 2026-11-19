@@ -67,8 +67,7 @@ describe('initTrialSaving run isolation', () => {
     initTrialSaving({ firekit: firekitA, isRoarApp: false });
     initTrialSaving({ firekit: firekitB, isRoarApp: false });
 
-    // A trial fires during task B.
-    jsPsych.opts.on_data_update({ save_trial: true, trial_index: 0, response_source: 'mouse' });
+    (jsPsych as any).opts.on_data_update({ save_trial: true, trial_index: 0, response_source: 'mouse' });
     await Promise.resolve();
 
     expect(firekitB.writeTrial).toHaveBeenCalledTimes(1);
@@ -82,7 +81,7 @@ describe('initTrialSaving run isolation', () => {
     initTrialSaving({ firekit: firekitA, isRoarApp: false });
     initTrialSaving({ firekit: firekitB, isRoarApp: false });
 
-    jsPsych.opts.on_finish();
+    (jsPsych as any).opts.on_finish();
 
     expect(firekitB.finishRun).toHaveBeenCalledTimes(1);
     expect(firekitA.finishRun).not.toHaveBeenCalled();
