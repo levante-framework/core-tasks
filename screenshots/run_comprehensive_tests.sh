@@ -7,7 +7,7 @@ set -e  # Exit on any error
 
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 BACKUP_DIR="all_task_screenshots_${TIMESTAMP}"
-TASKS=("egma-math" "matrix-reasoning" "mental-rotation" "hearts-and-flowers" "memory-game" "same-different-selection" "trog" "vocab" "theory-of-mind" "intro" "roar-inference" "adult-reasoning")
+TASKS=("egma-math" "matrix-reasoning" "mental-rotation" "hearts-and-flowers" "memory-game" "same-different-selection" "trog" "vocab" "theory-of-mind" "intro" "adult-reasoning")
 
 echo "🎯 COMPREHENSIVE TASK SCREENSHOT CAPTURE - Enhanced v2.0"
 echo "=========================================================="

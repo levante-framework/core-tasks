@@ -6,7 +6,7 @@
 set -e
 
 # Configuration
-TASKS=("memory-game" "egma-math" "matrix-reasoning" "mental-rotation" "hearts-and-flowers" "same-different-selection" "trog" "vocab" "theory-of-mind" "intro" "roar-inference" "adult-reasoning")
+TASKS=("memory-game" "egma-math" "matrix-reasoning" "mental-rotation" "hearts-and-flowers" "same-different-selection" "trog" "vocab" "theory-of-mind" "intro" "adult-reasoning")
 SERVER_PORT=8080
 BACKUP_DIR="complete_tasks_screenshots_$(date +%Y%m%d_%H%M%S)"
 MAX_TASK_DURATION=600  # 10 minutes max per task

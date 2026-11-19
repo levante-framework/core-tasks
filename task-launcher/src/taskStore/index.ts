@@ -101,7 +101,6 @@ export type TaskStoreDataType = {
   userMetadata: {
     age: number;
   } & Record<string, any>;
-  inferenceNumStories?: number; // FIXME: Remove
   numberOfStories: number;
   cat: boolean;
   heavyInstructions: boolean;
@@ -172,7 +171,6 @@ export const setTaskStore = (config: TaskStoreDataType) => {
     stimulusSide: 'left',
     stimulusPosition: 0,
     isCorrect: false,
-    inferenceNumStories: config.inferenceNumStories,
     numberOfStories: config.numberOfStories,
     testPhase: false,
     maxTime: config.maxTime,

@@ -8,7 +8,6 @@ import matrixTimeline from './matrix-reasoning/timeline';
 import memoryGameTimeline from './memory-game/timeline';
 import buildMentalRotationCatTimeline from './mental-rotation/catTimeline';
 import mentalRotationTimeline from './mental-rotation/timeline';
-import inferenceTimeline from './roar-inference/timeline';
 import sameDifferentSelectionTimelineCat from './same-different-selection/catTimeline';
 import sameDifferentSelectionTimeline from './same-different-selection/timeline';
 import { getCorpus, getTranslations, setSharedConfig } from './shared/helpers';
@@ -100,18 +99,6 @@ export default {
     getTranslations: getTranslations,
     buildTaskTimeline: introTimeline,
     variants: {},
-  },
-  roarInference: {
-    setConfig: setSharedConfig,
-    getCorpus: getCorpus,
-    getTranslations: getTranslations,
-    buildTaskTimeline: inferenceTimeline,
-    variants: {
-      // example
-      inferenceKids: {
-        // does not need to have all properties, only what is different from base task
-      },
-    },
   },
   adultReasoning: {
     setConfig: setSharedConfig,

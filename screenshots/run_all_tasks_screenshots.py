@@ -24,7 +24,6 @@ TASKS = {
     'vocab': 'vocab',
     'theory-of-mind': 'theoryOfMind',
     'intro': 'intro',
-    'roar-inference': 'roarInference',
     'adult-reasoning': 'adultReasoning'
 }
 

@@ -6,7 +6,7 @@
 set -e
 
 # Configuration
-TASKS=("egma-math" "matrix-reasoning" "mental-rotation" "hearts-and-flowers" "memory-game" "same-different-selection" "trog" "vocab" "theory-of-mind" "intro" "roar-inference" "adult-reasoning")
+TASKS=("egma-math" "matrix-reasoning" "mental-rotation" "hearts-and-flowers" "memory-game" "same-different-selection" "trog" "vocab" "theory-of-mind" "intro" "adult-reasoning")
 CAPTURE_DURATION=120  # 2 minutes per task
 SCREENSHOT_INTERVAL=10  # 10 seconds between screenshots
 TOTAL_SCREENSHOTS=12  # 12 screenshots per task

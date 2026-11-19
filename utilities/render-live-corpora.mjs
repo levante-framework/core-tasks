@@ -55,7 +55,6 @@ const TASK_ORDER = [
   'intro',
   'child-survey',
   'adult-reasoning',
-  'roar-inference',
 ];
 
 const LANGUAGE_ALIASES = {

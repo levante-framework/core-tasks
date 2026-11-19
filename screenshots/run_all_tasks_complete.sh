@@ -11,7 +11,7 @@ TASK_DURATION=300     # 5 minutes per task
 MAX_TIMEOUT=360       # 6 minute maximum timeout per task
 
 # All 12 tasks
-TASKS="hearts-and-flowers egma-math matrix-reasoning mental-rotation memory-game same-different-selection trog vocab theory-of-mind intro roar-inference adult-reasoning"
+TASKS="hearts-and-flowers egma-math matrix-reasoning mental-rotation memory-game same-different-selection trog vocab theory-of-mind intro adult-reasoning"
 
 # Colors for output
 RED='\033[0;31m'
