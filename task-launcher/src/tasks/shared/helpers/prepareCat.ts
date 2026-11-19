@@ -85,14 +85,14 @@ export function prepareCorpus(
     // if cat is running, put only normed trials into taskStore
     const newTrialSets = {
       downex: downexTestTrials,
-      stimulus: catCorpus,
+      standard: catCorpus,
     };
     taskStore('trialSets', newTrialSets);
   } else {
     // if cat is not running, put entire test portion of corpus into taskStore but leave out instruction/practice
     const newTrialSets = {
       practice: downexTestTrials,
-      stimulus: corpusParts.test,
+      standard: corpusParts.test,
     };
     taskStore('trialSets', newTrialSets);
   }

@@ -21,7 +21,7 @@ import { stimulus } from './trials/stimulus';
 export default function buildSameDifferentTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   const heavy: boolean = taskStore().heavyInstructions;
 
-  let corpus: StimulusType[] = taskStore().trialSets.stimulus;
+  let corpus: StimulusType[] = taskStore().trialSets.standard;
 
   if (!heavy && taskStore().version === 2) {
     corpus = corpus.filter((trial) => {
@@ -30,7 +30,7 @@ export default function buildSameDifferentTimeline(config: Record<string, any>, 
 
     taskStore('trialSets', {
       practice: taskStore().trialSets.practice,
-      stimulus: corpus,
+      standard: corpus,
     });
   }
 

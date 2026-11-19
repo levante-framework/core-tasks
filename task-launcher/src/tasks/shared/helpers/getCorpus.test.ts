@@ -83,7 +83,7 @@ describe('getCorpus', () => {
     completeWith([corpusRow('vocab-1')]);
     await getCorpus({ corpus: 'vocab/bank', task: 'vocab', sequentialStimulus: true }, false);
 
-    const stimulus = (storeState.trialSets as { stimulus: CorpusRow[] }).stimulus;
+    const stimulus = (storeState.trialSets as { standard: CorpusRow[] }).standard;
     expect(stimulus.map((row) => row.itemId)).toEqual(['vocab-1']);
     expect(storeState.totalTrials).toBe(1);
   });
@@ -97,7 +97,7 @@ describe('getCorpus', () => {
     });
     await getCorpus({ corpus: 'mental-rotation/bank', task: 'mental-rotation', sequentialStimulus: true }, false);
 
-    const stimulus = (storeState.trialSets as { stimulus: CorpusRow[] }).stimulus;
+    const stimulus = (storeState.trialSets as { standard: CorpusRow[] }).standard;
     expect(stimulus).toEqual([]);
     expect(storeState.totalTrials).toBe(0);
   });

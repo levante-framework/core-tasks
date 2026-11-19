@@ -29,15 +29,15 @@ export default function buildSameDifferentTimelineCat(config: Record<string, any
   const preloadTrials = createPreloadTrials(mediaAssets).default;
   const heavy: boolean = taskStore().heavyInstructions;
 
-  const corpus: StimulusType[] = taskStore().trialSets.stimulus;
+  const corpus: StimulusType[] = taskStore().trialSets.standard;
   const preparedCorpus = prepareCorpus(corpus, 0, undefined, true);
 
-  const catCorpus = setupSds(taskStore().trialSets.stimulus);
+  const catCorpus = setupSds(taskStore().trialSets.standard);
   const allBlocks = prepareMultiBlockCat(catCorpus);
 
   const newTrialSets = {
     downex: taskStore().trialSets.downex,
-    stimulus: allBlocks,
+    standard: allBlocks,
   };
   taskStore('trialSets', newTrialSets); // puts all blocks into taskStore
 

@@ -34,7 +34,7 @@ export default function buildTOMTimeline(
   initTrialSaving(config);
   const downex = taskStore().heavyInstructions && allowDownex;
   const initialTimeline = initTimeline(config, enterFullscreen);
-  const corpus: StimulusType[] = downex ? taskStore().trialSets.downex : taskStore().trialSets.stimulus;
+  const corpus: StimulusType[] = downex ? taskStore().trialSets.downex : taskStore().trialSets.standard;
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {};
   // "fake cat" version of the task - only supported for older kids

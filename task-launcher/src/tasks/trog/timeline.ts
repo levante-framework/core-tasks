@@ -28,7 +28,7 @@ import { getLayoutConfig } from './helpers/config';
 export default function buildTROGTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   initTrialSaving(config);
   const initialTimeline = initTimeline(config, enterFullscreen);
-  const corpus: StimulusType[] = taskStore().trialSets.stimulus;
+  const corpus: StimulusType[] = taskStore().trialSets.standard;
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {};
   const { runCat } = taskStore();

@@ -18,7 +18,7 @@ export default function buildRoarInferenceTimeline(config: Record<string, any>, 
   const initialTimeline = initTimeline(config, enterFullscreen);
 
   const timeline = [preloadTrials, initialTimeline, ...instructions];
-  const corpus: StimulusType[] = taskStore().trialSets.stimulus;
+  const corpus: StimulusType[] = taskStore().trialSets.standard;
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {};
   const layoutConfigMap: Record<string, LayoutConfigTypeInference> = {};

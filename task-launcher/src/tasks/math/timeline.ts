@@ -59,7 +59,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
 
   const timeline = [preloadTrials, initialTimeline];
 
-  const corpus: StimulusType[] = taskStore().trialSets.stimulus;
+  const corpus: StimulusType[] = taskStore().trialSets.standard;
   const downexCorpus: StimulusType[] = taskStore().trialSets.downex;
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {};
@@ -279,8 +279,8 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
       (trial: StimulusType) => trial.assessmentStage === 'practice_response',
     );
 
-    const olderKidBlocks: StimulusType[][] = prepareMultiBlockCat(taskStore().trialSets.stimulus);
-    taskStore('trialSets', { stimulus: olderKidBlocks, downex: taskStore().trialSets.downex });
+    const olderKidBlocks: StimulusType[][] = prepareMultiBlockCat(taskStore().trialSets.standard);
+    taskStore('trialSets', { standard: olderKidBlocks, downex: taskStore().trialSets.downex });
     const mainBlockTrialCount = olderKidBlocks.reduce((acc, block) => acc + block.length, 0);
     let downexBlockLength = 0;
 
@@ -446,7 +446,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
 
     const newTrialSets = {
       downex: taskStore().trialSets.downex,
-      stimulus: heavyInstructions ? downexCorpus : corpus,
+      standard: heavyInstructions ? downexCorpus : corpus,
     };
     taskStore('trialSets', newTrialSets);
 

@@ -52,7 +52,7 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
     },
   };
 
-  let corpus: StimulusType[] = taskStore().trialSets.stimulus;
+  let corpus: StimulusType[] = taskStore().trialSets.standard;
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {};
 
@@ -147,7 +147,7 @@ export default function buildMentalRotationTimeline(config: Record<string, any>,
 
   taskStore('trialSets', {
     downex: taskStore().trialSets.downex,
-    stimulus: corpus,
+    standard: corpus,
   });
 
   const threeDimInstructBlock = {

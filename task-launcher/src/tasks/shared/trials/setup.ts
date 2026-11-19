@@ -44,20 +44,20 @@ function assignNextBlock() {
 
 function selectFromCurrentCatBlock() {
   const currentCatBlock = taskStore().currentCatBlock;
-  getStimulus('stimulus', currentCatBlock);
+  getStimulus('standard', currentCatBlock);
 }
 
 function selectFromStoryGroup() {
   const currentStoryGroup = taskStore().currentStoryGroup;
 
-  getStimulus('stimulus', undefined, currentStoryGroup, true);
+  getStimulus('standard', undefined, currentStoryGroup, true);
 }
 
 export const setupPractice = fixationTrial('practice');
-export const setupStimulus = fixationTrial('stimulus');
+export const setupStimulus = fixationTrial('standard');
 export const setupStimulusFromStoryGroup = { ...fixationTrial(), on_finish: selectFromStoryGroup, stimulus: '' };
 export const setupDownex = fixationTrial('downex');
-export const setupStimulusFromBlock = (blockNum: number) => fixationTrial('stimulus', blockNum);
+export const setupStimulusFromBlock = (blockNum: number) => fixationTrial('standard', blockNum);
 export const setupStimulusFromCurrentCatBlock = {
   ...fixationTrial(),
   on_finish: selectFromCurrentCatBlock,

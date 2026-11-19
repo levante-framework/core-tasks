@@ -26,7 +26,7 @@ export function prepareTomCorpus(blockList: StimulusType[][], fCat: boolean) {
   });
 
   taskStore('sequentialTrials', sequentialTrials);
-  taskStore('trialSets', { stimulus: newCorpus });
+  taskStore('trialSets', { standard: newCorpus });
 
   return {
     taskIntro: taskIntro,

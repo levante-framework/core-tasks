@@ -7,11 +7,11 @@ function skipBlock() {
   taskStore('trialsSkipped', 0);
   while (taskStore().nextStimulus.trialType === skipBlockTrialType) {
     // do not call getStimulus if there are no remaining stimuli
-    if (taskStore().trialSets.stimulus.length === 0) {
+    if (taskStore().trialSets.standard.length === 0) {
       break;
     }
 
-    getStimulus('stimulus');
+    getStimulus('standard');
 
     const trialsSkipped = taskStore().trialsSkipped;
     taskStore('trialsSkipped', trialsSkipped + 1);

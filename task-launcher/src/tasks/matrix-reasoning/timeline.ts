@@ -57,7 +57,7 @@ export default function buildMatrixTimeline(config: Record<string, any>, mediaAs
     },
   };
 
-  const defaultCorpus: StimulusType[] = taskStore().trialSets.stimulus;
+  const defaultCorpus: StimulusType[] = taskStore().trialSets.standard;
   const downexCorpus: StimulusType[] = taskStore().trialSets.downex;
   const fullCorpus: StimulusType[] = [...downexCorpus, ...defaultCorpus];
   const translations: Record<string, string> = taskStore().translations;

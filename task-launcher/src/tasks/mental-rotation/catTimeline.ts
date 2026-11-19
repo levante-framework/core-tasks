@@ -41,7 +41,7 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
     timeline: [getAudioResponse(mediaAssets)],
   };
 
-  const corpus: StimulusType[] = taskStore().trialSets.stimulus;
+  const corpus: StimulusType[] = taskStore().trialSets.standard;
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {};
 
@@ -64,7 +64,7 @@ export default function buildMentalRotationCatTimeline(config: Record<string, an
 
   taskStore('trialSets', {
     practice: taskStore().trialSets.practice,
-    stimulus: batchedCorpus,
+    standard: batchedCorpus,
   });
 
   // counter for next batch to preload (skipping the initial preload)
