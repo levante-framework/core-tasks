@@ -100,11 +100,38 @@ export const normedScoreCallback = (computedScores: any) => {
   return Object.fromEntries(Object.entries(computedScores).map(([key, val]) => [key, val]));
 };
 
+// `jsPsych` is a module-level singleton that is reused across task launches (the bundle is
+// imported once and cached). Each `initTrialSaving` call wraps the existing lifecycle hooks, so
+// without resetting them first every previous launch's handler stays attached and keeps writing
+// to its own `config.firekit`. When a child starts a new task before the previous run is closed,
+// this fans each trial out to every still-open run and marks them all completed together.
+// We capture jsPsych's original (clean) handlers on the first call and reset to them on every
+// subsequent call, so each launch chains onto a baseline that only targets the current run.
+let baseHandlersCaptured = false;
+let baseOnFinish: any;
+let baseOnTrialFinish: any;
+let baseOnDataUpdate: any;
+
 export const initTrialSaving = (config: Record<string, any>) => {
+  // Workaround: `opts` is declared private on JsPsych, so we cast to `any` to read and
+  // reset the lifecycle hooks it holds, which the public API doesn't expose.
+  const opts = (jsPsych as any).opts;
+
   if (config.displayElement) {
-    // @ts-expect-error
-    jsPsych.opts.display_element = config.display_element;
+    opts.display_element = config.display_element;
   }
+
+  if (!baseHandlersCaptured) {
+    baseOnFinish = opts.on_finish;
+    baseOnTrialFinish = opts.on_trial_finish;
+    baseOnDataUpdate = opts.on_data_update;
+    baseHandlersCaptured = true;
+  }
+
+  // Discard any handlers left over from a previous launch before re-wiring this run.
+  opts.on_finish = baseOnFinish;
+  opts.on_trial_finish = baseOnTrialFinish;
+  opts.on_data_update = baseOnDataUpdate;
 
   // Extend jsPsych's on_finish and on_data_update lifecycle functions to mark the
   // run as completed and write data to Firestore, respectively.
@@ -114,8 +141,7 @@ export const initTrialSaving = (config: Record<string, any>) => {
       code.apply(fn, arguments);
     };
 
-  // @ts-expect-error
-  jsPsych.opts.on_finish = extend(jsPsych.opts.on_finish, () => {
+  opts.on_finish = extend(opts.on_finish, () => {
     if (taskStore().taskAborted) {
       if (config.firekit) {
         config.firekit.updateStopReason(taskStore().effectiveStoppingRule);
@@ -125,8 +151,7 @@ export const initTrialSaving = (config: Record<string, any>) => {
     }
   });
 
-  // @ts-expect-error
-  jsPsych.opts.on_trial_finish = extend(jsPsych.opts.on_trial_finish, () => {
+  opts.on_trial_finish = extend(opts.on_trial_finish, () => {
     if (taskStore().maxTimeReached) {
       finishTaskEarly('timeOut');
     }
@@ -164,8 +189,7 @@ export const initTrialSaving = (config: Record<string, any>) => {
     }
   });
 
-  // @ts-expect-error
-  jsPsych.opts.on_data_update = extend(jsPsych.opts.on_data_update, (data) => {
+  opts.on_data_update = extend(opts.on_data_update, (data: any) => {
     if (data.save_trial && !taskStore().demoMode && config.firekit) {
       // save_trial is a flag that indicates whether the trial should
       // be saved to Firestore. No point in writing it to the db.
