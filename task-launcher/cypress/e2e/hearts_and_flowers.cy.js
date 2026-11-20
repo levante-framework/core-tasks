@@ -1,4 +1,6 @@
-const hearts_and_flowers_url = 'http://localhost:8080/?task=hearts-and-flowers';
+// v2 is the live version
+// TODO: A missing version param means v1, which isn't deprecated yet, so tested here too for now
+const getHeartsAndFlowersUrl = (version) => `http://localhost:8080/?task=hearts-and-flowers&version=${version}`;
 
 // Feedback prompts in the corpus (English)
 const CORRECT_FEEDBACK = 'Good job!';
@@ -36,20 +38,19 @@ describe('test hearts and flowers', () => {
     wrong_answers = [];
   });
 
-  it('visits hearts and flowers and plays game', () => {
-    playHeartsAndFlowers();
+  it('plays hearts and flowers v2', () => {
+    playHeartsAndFlowers(2);
+    expectOnlyCorrectFeedback();
+  });
 
-    // every practice answer is right: correct feedback after each instruction practice and practice trial
-    getFeedbackScreens().then((screens) => {
-      const expectedCount = INSTRUCTION_PRACTICE_TRIALS + PRACTICE_WIN_STREAKS.reduce((a, b) => a + b, 0);
-      expect(screens).to.have.length(expectedCount);
-      expect(screens.every((screen) => screen.kind === 'correct' && screen.text === CORRECT_FEEDBACK)).to.equal(true);
-    });
+  it('plays hearts and flowers v1', () => {
+    playHeartsAndFlowers(1);
+    expectOnlyCorrectFeedback();
   });
 
   it('shows the incorrect feedback for the stimulus after a wrong practice answer', () => {
     wrong_answers = WRONG_ANSWERS;
-    playHeartsAndFlowers();
+    playHeartsAndFlowers(2);
 
     getFeedbackScreens().then((screens) => {
       const incorrect = screens.filter((screen) => screen.kind === 'incorrect');
@@ -67,8 +68,17 @@ describe('test hearts and flowers', () => {
   });
 });
 
-function playHeartsAndFlowers() {
-  cy.visit(hearts_and_flowers_url, { onBeforeLoad: recordFeedbackScreens });
+// every practice answer is right: correct feedback after each instruction practice and practice trial
+function expectOnlyCorrectFeedback() {
+  getFeedbackScreens().then((screens) => {
+    const expectedCount = INSTRUCTION_PRACTICE_TRIALS + PRACTICE_WIN_STREAKS.reduce((a, b) => a + b, 0);
+    expect(screens).to.have.length(expectedCount);
+    expect(screens.every((screen) => screen.kind === 'correct' && screen.text === CORRECT_FEEDBACK)).to.equal(true);
+  });
+}
+
+function playHeartsAndFlowers(version) {
+  cy.visit(getHeartsAndFlowersUrl(version), { onBeforeLoad: recordFeedbackScreens });
 
   cy.contains('OK', { timeout: 300000 }).should('be.visible');
   cy.contains('OK').realClick(); // start fullscreen
