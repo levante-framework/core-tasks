@@ -2,8 +2,9 @@ import partition from 'lodash/partition';
 // setup
 import { taskStore } from '../../taskStore';
 import { createPreloadTrials, initTimeline, initTrialSaving, reportCorpusValidationErrors } from '../shared/helpers';
+import { withInputDeviceCondition } from '../shared/helpers/deviceVariants';
 // trials
-import { enterFullscreen, exitFullscreen } from '../shared/trials';
+import { enterFullscreen, exitFullscreen, taskFinished } from '../shared/trials';
 import { jsPsych } from '../taskSetup';
 import {
   BLOCK_STIMULUS_TYPE,
@@ -11,6 +12,7 @@ import {
   type CorpusRow,
   type FeedbackOutcome,
   getAudioKey,
+  getButtonDemoSide,
   getFeedbackPromptKey,
   getImageKey,
   getInstructionPracticeSide,
@@ -21,13 +23,7 @@ import {
 } from './helpers/utils';
 import { getCorpusValidationErrors } from './helpers/validation';
 import { fixation } from './trials/fixation';
-import {
-  buildInstructionTrial,
-  getEndGame,
-  getInputInstructions,
-  getLeftButtonDemo,
-  getRightButtonDemo,
-} from './trials/instructions';
+import { buildInstructionTrial } from './trials/instructions';
 import { buildInstructionPracticeTrial, buildPracticeFeedback } from './trials/practice';
 import { buildHeartsOrFlowersTimelineVariables, buildMixedTimelineVariables, stimulus } from './trials/stimulus';
 
@@ -53,11 +49,8 @@ export default function buildHeartsAndFlowersTimeline(config: Record<string, any
   const timeline = [
     createPreloadTrials(mediaAssets).default,
     initTimeline(config, enterFullscreen),
-    getInputInstructions(),
-    getLeftButtonDemo(),
-    getRightButtonDemo(),
     ...groupedTrialRows.map((rows) => buildRowGroupSubTimeline(rows, mediaAssets, feedbackRows)),
-    getEndGame(),
+    taskFinished(),
     exitFullscreen,
   ];
 
@@ -95,7 +88,15 @@ function buildRowGroupSubTimeline(rows: CorpusRow[], mediaAssets: MediaAssetsTyp
     return {
       timeline: rows.map((instructionRow) => {
         const audioKey = getAudioKey(instructionRow);
-        return buildInstructionTrial(mediaAssets.images[getImageKey(instructionRow)], () => audioKey);
+        // A row with answer left/right is a button demo: it shows only that button and waits for a press
+        const buttonSide = getButtonDemoSide(instructionRow) ?? null;
+        const trial = buildInstructionTrial(
+          mediaAssets.images[getImageKey(instructionRow)],
+          () => audioKey,
+          buttonSide !== null,
+          buttonSide,
+        );
+        return withInputDeviceCondition(instructionRow.itemId, trial);
       }),
     };
   }

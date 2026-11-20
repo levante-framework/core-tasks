@@ -1,4 +1,3 @@
-import { taskStore } from '../../../taskStore';
 import { camelize, getParticipantUtilityButtonsHtml } from '../../shared/helpers';
 
 type ValueOf<T> = T[keyof T];
@@ -92,6 +91,16 @@ export function getInstructionPracticeSide(row: CorpusRow): StimulusSideType | u
   else return answer === StimulusSideType.Left ? StimulusSideType.Right : StimulusSideType.Left;
 }
 
+/**
+ * The side of the one button a button demo instruction screen shows, from the row's answer:
+ * null for a plain instruction screen (blank answer), or undefined if the answer isn't valid.
+ */
+export function getButtonDemoSide(row: CorpusRow): StimulusSideType | null | undefined {
+  const answer = String(row.answer ?? '').trim();
+  if (!answer) return null;
+  return answer === StimulusSideType.Left || answer === StimulusSideType.Right ? answer : undefined;
+}
+
 export type FeedbackOutcome = 'correct' | 'incorrect';
 
 export function findFeedbackRow(rowsWithId: CorpusRow[], stimulus: HaFStimulusType) {
@@ -165,14 +174,4 @@ export const getStimulusLayout = (
   `;
 
   return template;
-};
-
-export const getInputInstructPrompt = (showButton: boolean = false): string => {
-  const inputCapability = taskStore().inputCapability;
-
-  if (showButton) {
-    return inputCapability?.touch ? 'heartsAndFlowersInstructButtonTouch' : 'heartsAndFlowersInstructKeyPress';
-  } else {
-    return inputCapability?.touch ? 'heartsAndFlowersInstructTouchscreen' : 'heartsAndFlowersInstructKeyboard';
-  }
 };

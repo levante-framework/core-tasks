@@ -1,10 +1,12 @@
 import groupBy from 'lodash/groupBy';
+import { getInputDeviceVariant, getInputDeviceVariantErrors } from '../../shared/helpers/deviceVariants';
 import {
   BLOCK_STIMULUS_TYPE,
   BlockType,
   type CorpusRow,
   findFeedbackRow,
   getAudioKey,
+  getButtonDemoSide,
   getImageKey,
   getInstructionPracticeSide,
   getRowStimuli,
@@ -14,16 +16,7 @@ import {
 } from './utils';
 
 // Assets used by trials that don't come from a corpus row
-const REQUIRED_IMAGES = [HaFStimulusType.Heart, HaFStimulusType.Flower, 'animalBodySq', 'smilingFace'];
-// Prompts need both audio and a translation
-const REQUIRED_PROMPTS = [
-  // input instructions (getInputInstructPrompt) and end screen (getEndGame)
-  'heartsAndFlowersInstructButtonTouch',
-  'heartsAndFlowersInstructKeyPress',
-  'heartsAndFlowersInstructTouchscreen',
-  'heartsAndFlowersInstructKeyboard',
-  'heartsAndFlowersEnd',
-];
+const REQUIRED_IMAGES = [HaFStimulusType.Heart, HaFStimulusType.Flower, 'smilingFace'];
 const REQUIRED_TEXT = ['continueButtonText', 'heartsAndFlowersPressAnyKey'];
 // played when a button demo's button is pressed
 const REQUIRED_SOUNDS = ['coin'];
@@ -42,6 +35,8 @@ export function getCorpusValidationErrors(
     ...getFixedAssetErrors(mediaAssets, translations),
     ...getFeedbackErrors(rowGroups.flat(), feedbackRows, mediaAssets, translations),
     ...getBlockIndexErrors(rowGroups.flat()),
+    // every device-specific screen needs a version for the other devices too
+    ...getInputDeviceVariantErrors(rowGroups.flat()),
   };
   if (!rowGroups.flat().some((row) => row.assessmentStage === 'test_response')) {
     errors.corpus = 'no test rows; the corpus is missing or failed to load';
@@ -96,10 +91,6 @@ function getFixedAssetErrors(mediaAssets: MediaAssetsType, translations: Record<
   for (const key of REQUIRED_IMAGES) {
     if (!mediaAssets.images[key]) errors[`image:${key}`] = 'missing image';
   }
-  for (const key of REQUIRED_PROMPTS) {
-    const missing = getMissingPromptAssets(key, mediaAssets, translations);
-    if (missing.length) errors[`prompt:${key}`] = `missing ${missing.join(' and ')}`;
-  }
   for (const key of REQUIRED_TEXT) {
     if (!translations[key]) errors[`text:${key}`] = 'missing translation';
   }
@@ -123,7 +114,13 @@ function getRowsError(
     if (missing.length) return `no ${missing.join(' or ')} for audio_file "${row.audioFile}"`;
   }
   if (isInstructionRow(row)) {
-    return mediaAssets.images[getImageKey(row)] ? null : `no image named "${row.image}"`;
+    if (!mediaAssets.images[getImageKey(row)]) return `no image named "${row.image}"`;
+    return getButtonDemoSide(row) === undefined
+      ? `instruction rows take answer "left" or "right" (a button demo) or blank, got "${row.answer}"`
+      : null;
+  }
+  if (rows.some((r) => getInputDeviceVariant(r.itemId))) {
+    return 'only instruction screens can have device versions (item_id ending in -touch, -keyboard or -mouse)';
   }
   if (isInstructionPracticeRow(row)) {
     return getInstructionPracticeSide(row)
