@@ -59,6 +59,10 @@ export default function buildHeartsAndFlowersTimeline(config: Record<string, any
   return { jsPsych, timeline };
 }
 
+/**
+ * Groups consecutive rows of the same block and kind: a run of instruction screens, of practice rows
+ * in one direction, or of test rows in one direction.
+ */
 function groupCorpusRows(corpus: CorpusRow[]): CorpusRow[][] {
   return groupConsecutiveRows(
     corpus,
@@ -153,12 +157,6 @@ function buildTestBlock(rows: CorpusRow[]) {
   };
 }
 
-/**
- * One timeline variable per corpus row of a practice or test block, in corpus order: row N is trial N.
- * Each trial reads its settings from `corpusRow`. The stimulus (for mixed blocks) and its side are
- * balanced within this practice or test block, not across its whole block_index (practice and test
- * are balanced separately), so they are generated here and added to each row.
- */
 function buildBlockTimelineVariables(rows: CorpusRow[]) {
   const blockType = rows[0].trialType as BlockType;
   const stimuliAndSides =
