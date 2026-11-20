@@ -1,8 +1,7 @@
-// NB: These tests cover only how `initTrialSaving` wires up the jsPsych hooks and
-// isolates writes/completion to the current run (e.g. when a new task launches before
-// a previous run is closed). They do NOT exercise the trial-saving logic itself —
-// what gets written, how data is shaped, stopping rules, demo/abort handling, etc.
-// Future work: expand coverage to the trial-saving behavior beyond run isolation.
+// NB: These tests cover how `initTrialSaving` wires up the jsPsych hooks, isolates
+// writes/completion to the current run (e.g. when a new task launches before a previous
+// run is closed), and the resolved task params added to each saved trial. They do NOT
+// exercise the rest of the trial-saving logic — stopping rules, demo/abort handling, etc.
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { jsPsych } from '../../taskSetup';
 import { initTrialSaving } from './trialSaving';
@@ -85,5 +84,32 @@ describe('initTrialSaving run isolation', () => {
 
     expect(firekitB.finishRun).toHaveBeenCalledTimes(1);
     expect(firekitA.finishRun).not.toHaveBeenCalled();
+  });
+});
+
+describe('initTrialSaving resolved task params', () => {
+  beforeEach(() => {
+    for (const key of Object.keys(storeState)) delete storeState[key];
+    storeState.demoMode = false;
+  });
+
+  it('saves the resolved version and corpus with each trial', () => {
+    const firekit = makeFirekit();
+    initTrialSaving({ firekit, isRoarApp: false, version: 2, corpus: 'hearts-and-flowers-item-bank' });
+
+    (jsPsych as any).opts.on_data_update({ save_trial: true, trial_index: 0 });
+
+    expect(firekit.writeTrial).toHaveBeenCalledWith(
+      expect.objectContaining({ variantVersion: 2, corpusName: 'hearts-and-flowers-item-bank' }),
+    );
+  });
+
+  it('saves null for a task without a corpus, since Firestore rejects undefined', () => {
+    const firekit = makeFirekit();
+    initTrialSaving({ firekit, isRoarApp: false, version: 1 });
+
+    (jsPsych as any).opts.on_data_update({ save_trial: true, trial_index: 0 });
+
+    expect(firekit.writeTrial).toHaveBeenCalledWith(expect.objectContaining({ variantVersion: 1, corpusName: null }));
   });
 });

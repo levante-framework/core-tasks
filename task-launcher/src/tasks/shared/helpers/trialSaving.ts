@@ -205,6 +205,11 @@ export const initTrialSaving = (config: Record<string, any>) => {
       delete dataCopy.trial_type;
       dataCopy.trialIndex = dataCopy.trial_index;
       delete dataCopy.trial_index;
+      // The task version and corpus this run resolved, after defaults (a missing version param is 1, and
+      // a missing corpus param uses the task's default). The raw variant params don't show these, and the
+      // run's own taskVersion field is the npm package version. Null rather than undefined, which Firestore rejects.
+      dataCopy.variantVersion = config.version ?? null;
+      dataCopy.corpusName = config.corpus ?? null;
 
       if (config.isRoarApp) {
         config.firekit.writeTrial(dataCopy, computedScoreCallback);
