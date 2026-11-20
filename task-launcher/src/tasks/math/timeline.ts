@@ -188,8 +188,8 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
         return (
           !taskStore().isCorrect &&
           !taskStore().testPhase &&
-          (taskStore().nextStimulus.trialType === 'Number Line Slider' || runCat) &&
-          taskStore().nextStimulus.assessmentStage === 'test_response'
+          (taskStore().nextStimulus?.trialType === 'Number Line Slider' || runCat) &&
+          taskStore().nextStimulus?.assessmentStage === 'test_response'
         );
       },
     };
@@ -245,7 +245,7 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
         timeline: [...trials],
         conditional_function: () => {
           const run =
-            taskStore().nextStimulus.trialType === 'Number Line Slider' && !alreadyAddedDownexSliderInstructions;
+            taskStore().nextStimulus?.trialType === 'Number Line Slider' && !alreadyAddedDownexSliderInstructions;
           if (run) {
             alreadyAddedDownexSliderInstructions = true;
           }
@@ -395,10 +395,6 @@ export default function buildMathTimeline(config: Record<string, any>, mediaAsse
       blockPractice.forEach((trial) => {
         timeline.push({ ...fixationOnly, stimulus: '' });
         timeline.push(stimulusBlock(trial));
-
-        if (trial.trialType === 'Number Line Slider') {
-          timeline.push(feedbackBlock());
-        }
       });
 
       // final slider block

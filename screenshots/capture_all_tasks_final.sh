@@ -21,7 +21,6 @@ TASKS=(
     "vocab"
     "theory-of-mind"
     "intro"
-    "roar-inference"
     "adult-reasoning"
 )
 

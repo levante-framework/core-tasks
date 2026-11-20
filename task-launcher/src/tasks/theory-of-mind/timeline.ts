@@ -32,13 +32,15 @@ export default function buildTOMTimeline(
   allowDownex: boolean,
 ) {
   initTrialSaving(config);
-  const downex = taskStore().heavyInstructions && allowDownex;
+  // guard against downex items not being present in corpus before downex is enabled
+  const hasDownexItems = taskStore().corpora.downex.length > 0;
+  const downex = taskStore().heavyInstructions && allowDownex && hasDownexItems;
   const initialTimeline = initTimeline(config, enterFullscreen);
-  const corpus: StimulusType[] = downex ? taskStore().corpora.downex : taskStore().corpora.stimulus;
   const translations: Record<string, string> = taskStore().translations;
   const validationErrorMap: Record<string, string> = {};
-  // "fake cat" version of the task - only supported for older kids
   const fCat = taskStore().version === 2 && !downex;
+
+  const corpus: StimulusType[] = downex ? taskStore().corpora.downex : taskStore().corpora.stimulus;
 
   const layoutConfigMap: Record<string, LayoutConfigType> = {};
   for (const c of corpus) {

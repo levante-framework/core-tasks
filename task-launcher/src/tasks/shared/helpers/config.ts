@@ -58,7 +58,6 @@ const defaultCorpus: Record<string, string> = {
   trog: 'trog-item-bank',
   theoryOfMind: 'theory-of-mind-item-bank',
   vocab: 'vocab-item-bank',
-  roarInference: 'type_inference-demo-2024-11-11v3',
   adultReasoning: 'adult-reasoning-item-bank',
   hostileAttribution: 'hostile-attribution-item-bank',
   childSurvey: 'child-survey-item-bank',
@@ -95,7 +94,6 @@ export const setSharedConfig = async (
     heavyInstructions,
     experimenterButtons,
     showAudioKeys,
-    inferenceNumStories,
     numberOfStories,
     semThreshold,
     startingTheta,
@@ -141,7 +139,6 @@ export const setSharedConfig = async (
     // The under-5 gate is applied in setTaskStore.
     experimenterButtons: String(experimenterButtons).trim().toLowerCase() !== 'false',
     showAudioKeys: !!showAudioKeys,
-    inferenceNumStories: Number(inferenceNumStories) || undefined,
     numberOfStories: Number(numberOfStories) || 3,
     semThreshold: Number(semThreshold),
     startingTheta: Number(startingTheta),
