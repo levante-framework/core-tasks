@@ -16,7 +16,7 @@ import {
 } from './utils';
 
 // Assets used by trials that don't come from a corpus row
-const REQUIRED_IMAGES = [HaFStimulusType.Heart, HaFStimulusType.Flower, 'smilingFace'];
+const REQUIRED_IMAGES = [HaFStimulusType.Heart, HaFStimulusType.Flower];
 const REQUIRED_TEXT = ['continueButtonText', 'heartsAndFlowersPressAnyKey'];
 // played when a button demo's button is pressed
 const REQUIRED_SOUNDS = ['coin'];
@@ -207,6 +207,15 @@ function getFeedbackErrors(
       errors[`feedback:${itemId}`] = 'no practice row has this item_id in feedback_item_ids';
     } else if (correctIds.has(itemId) && incorrectIds.has(itemId)) {
       errors[`feedback:${itemId}`] = 'used as both correct and incorrect feedback';
+    } else if (correctIds.has(itemId)) {
+      // correct feedback shows its row's image; incorrect feedback shows the stimulus instead
+      for (const row of feedbackRowsById[itemId]) {
+        if (!mediaAssets.images[getImageKey(row)]) {
+          errors[`feedback:${itemId}:${row.trialType || 'any'}`] = row.image
+            ? `no image named "${row.image}"`
+            : 'correct feedback rows need an image';
+        }
+      }
     }
   }
   return errors;
