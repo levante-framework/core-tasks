@@ -12,9 +12,9 @@ import {
 } from '../../shared/helpers';
 import { finishTaskEarly } from '../../shared/trials';
 import { jsPsych } from '../../taskSetup';
-import { getMemoryGameType } from '../helpers/getMemoryGameType';
 import { createGrid, disableBlock, enableBlock, generateRandomSequence } from '../helpers/grid';
 import { resolveMemoryGamePrompt } from '../helpers/resolveMemoryGamePrompt';
+import { getMemoryGameType } from '../helpers/utils';
 
 type CorsiBlocksArgs = {
   mode: 'display' | 'input';

@@ -64,6 +64,12 @@ export function getFixedSequenceLength(row: CorpusRow) {
   return row.item ? Number(row.item) : undefined;
 }
 
+/** The trial type saved in the trial data, e.g. "forward-3" for an input trial or "backward-training-3" for a display trial. */
+export function getMemoryGameType(mode: 'input' | 'display', reverse: boolean, gridSize: number) {
+  const direction = reverse ? Direction.Backward : Direction.Forward;
+  return `${direction}${mode === 'display' ? '-training' : ''}-${gridSize}`;
+}
+
 /** A feedback row's prompts, in play order and resolved like at play time, and its image (blank uses the default face). */
 export function getFeedbackContent(feedbackRow: CorpusRow): FeedbackContent {
   const audioFiles = Array.isArray(feedbackRow.audioFile) ? feedbackRow.audioFile : [feedbackRow.audioFile ?? ''];
@@ -73,10 +79,6 @@ export function getFeedbackContent(feedbackRow: CorpusRow): FeedbackContent {
   };
 }
 
-/**
- * A practice row's feedback_item_ids ("correct,incorrect") name feedback rows in the same corpus;
- * either can be blank, for no feedback after that outcome.
- */
 export function getRowFeedback(feedbackRows: CorpusRow[], row: CorpusRow): RowFeedback {
   const [correctId, incorrectId] = row.feedbackItemIds ?? [];
   const getContent = (itemId?: string) => {
