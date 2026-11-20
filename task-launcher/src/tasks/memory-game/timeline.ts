@@ -31,13 +31,11 @@ import {
   isTestRow,
 } from './helpers/utils';
 import { getCorpusValidationErrors } from './helpers/validation';
-import { buildInstructionScreen, resetDisplayPromptDurations } from './trials/instructions';
+import { buildInstructionScreen as buildInstructionTrial, resetDisplayPromptDurations } from './trials/instructions';
 import { getCorsiBlocks, resetMemoryGameState } from './trials/stimulus';
 
-// The fallback to heavy instructions can only trigger during the first forward test trials
 const FALLBACK_CHECK_TRIALS = 4;
 
-/** What building a row group needs besides its rows. */
 type BuildContext = {
   // heavy-instructions flow: guided practice rows and a retry instead of incorrect feedback
   isHeavyFlow: boolean;
@@ -47,11 +45,10 @@ type BuildContext = {
   displayPromptKeys: string[];
 };
 
-export default function buildMemoryTimeline(config: Record<string, any>) {
+export default function buildMemoryGameTimeline(config: Record<string, any>) {
   resetMemoryGameState();
   resetDisplayPromptDurations();
   initTrialSaving(config);
-
   const { heavyInstructions, corpora } = taskStore();
   const standardRows: CorpusRow[] = corpora.stimulus;
   const downexRows: CorpusRow[] = corpora.downex;
@@ -59,10 +56,8 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
     getCorpusValidationErrors({ standard: standardRows, downex: downexRows }, mediaAssets, taskStore().translations),
   );
 
-  // Heavy instructions play the downex rows (downex = TRUE); everyone else the standard rows
   const [feedbackRows, trialRows] = partition(heavyInstructions ? downexRows : standardRows, isFeedbackRow);
   const [downexFeedbackRows, downexTrialRows] = partition(downexRows, isFeedbackRow);
-
   const forwardTestRows = trialRows.filter((row) => isTestRow(row) && !isBackward(row));
   taskStore('forwardTestTrialCount', forwardTestRows.length);
   taskStore('totalTestTrials', trialRows.filter(isTestRow).length);
@@ -72,7 +67,7 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
   // Switches to the heavy-instructions flow and replays its forward practice, at most once,
   // if the child struggles on the first forward test trials
   let fellBack = false;
-  const fallbackContext = {
+  const fallbackContext: BuildContext = {
     isHeavyFlow: true,
     feedbackRows: downexFeedbackRows,
     forwardTestRows,
@@ -82,7 +77,7 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
   const fallbackBlock = {
     timeline: [
       repeatInstructionsMessage,
-      ...groupRows(getHeavyForwardPracticeRows(downexTrialRows)).flatMap((rows) =>
+      ...groupCorpusRows(getHeavyForwardPracticeRows(downexTrialRows)).flatMap((rows) =>
         buildRowGroupSubTimeline(rows, fallbackContext),
       ),
     ],
@@ -110,7 +105,7 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
   const timeline = [
     createPreloadTrials(mediaAssets).default,
     initTimeline(config, enterFullscreen),
-    ...groupRows(trialRows).flatMap((rows) => buildRowGroupSubTimeline(rows, context)),
+    ...groupCorpusRows(trialRows).flatMap((rows) => buildRowGroupSubTimeline(rows, context)),
     taskFinished(),
     exitFullscreen,
   ];
@@ -124,7 +119,7 @@ export default function buildMemoryTimeline(config: Record<string, any>) {
  * Groups consecutive rows of the same block and kind: a run of instruction screens, of practice rows
  * in one direction, or of test rows in one direction.
  */
-function groupRows(rows: CorpusRow[]) {
+function groupCorpusRows(rows: CorpusRow[]) {
   return groupConsecutiveRows(
     rows,
     (runStart, row) =>
@@ -138,18 +133,19 @@ function buildRowGroupSubTimeline(rows: CorpusRow[], context: BuildContext): unk
   const [row] = rows;
   if (isInstructionRow(row)) {
     return rows.map((instructionRow) =>
-      buildInstructionScreen(getAudioKey(instructionRow), getMediaKey(instructionRow), context.displayPromptKeys),
+      buildInstructionTrial(getAudioKey(instructionRow), getMediaKey(instructionRow), context.displayPromptKeys),
     );
-  }
-  if (isTestRow(row)) {
+  } else if (isTestRow(row)) {
     return rows.flatMap((testRow) => buildTestTrial(testRow, context));
   }
   // practice
-  return context.isHeavyFlow
-    ? rows.map((practiceRow) =>
-        buildHeavyPracticeTrial(practiceRow, getFeedbackPrompts(context.feedbackRows, practiceRow)),
-      )
-    : buildDefaultPractice(rows, (practiceRow) => getFeedbackPrompts(context.feedbackRows, practiceRow));
+  else {
+    return context.isHeavyFlow
+      ? rows.map((practiceRow) =>
+          buildHeavyPracticeTrial(practiceRow, getFeedbackPrompts(context.feedbackRows, practiceRow)),
+        )
+      : buildStandardPracticeTrial(rows, (practiceRow) => getFeedbackPrompts(context.feedbackRows, practiceRow));
+  }
 }
 
 /** Prompts that can play before a display trial, so their durations can be measured ahead of time. */
@@ -205,7 +201,7 @@ function buildTestTrial(row: CorpusRow, { forwardTestRows, fallbackBlock }: Buil
 }
 
 /** Default practice plays the run of rows, then plays it once more if the last answer was wrong. */
-function buildDefaultPractice(rows: CorpusRow[], getRowFeedback: (row: CorpusRow) => FeedbackPrompts) {
+function buildStandardPracticeTrial(rows: CorpusRow[], getRowFeedback: (row: CorpusRow) => FeedbackPrompts) {
   const buildPracticeTrial = (row: CorpusRow, feedbackOnlyIfCorrect: boolean) => {
     const reverse = isBackward(row);
     const { display, input } = getRowPrompts(row);

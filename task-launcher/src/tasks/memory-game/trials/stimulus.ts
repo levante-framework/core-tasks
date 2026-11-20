@@ -46,8 +46,9 @@ function getCue(mode: 'display' | 'input', reverse: boolean, prompt?: string) {
   return prompt ? resolveMemoryGamePrompt(prompt) : getMemoryGamePrompt(mode, reverse);
 }
 
-// Reset all module-level state so a new run in the same SPA session doesn't inherit
-// the previous run's sequence length or streak.
+/**
+ * Reset all module-level state so a new run in the same SPA session doesn't inherit the previous run's sequence length or streak.
+ */
 export function resetMemoryGameState() {
   sequenceLength = 2;
   numCorrect = 0;
