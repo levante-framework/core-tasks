@@ -16,7 +16,6 @@ import { getMemoryGamePrompt } from '../helpers/getMemoryGamePrompt';
 import { getMemoryGameType } from '../helpers/getMemoryGameType';
 import { createGrid, disableBlock, enableBlock, generateRandomSequence } from '../helpers/grid';
 import { resolveMemoryGamePrompt } from '../helpers/resolveMemoryGamePrompt';
-import { TOTAL_FORWARD_TRIALS } from '../timeline';
 
 type CorsiBlocksArgs = {
   mode: 'display' | 'input';
@@ -25,7 +24,7 @@ type CorsiBlocksArgs = {
   resetSeq?: boolean;
   customSeqLength?: number;
   animation?: 'pulse' | 'cursor';
-  prompt?: string; // a custom audio cue/text prompt for the trial
+  prompt?: string; // a custom audio cue/text prompt for the trial; defaults to getMemoryGamePrompt
 };
 
 const x = 20;
@@ -42,32 +41,19 @@ const INCORRECT_COLOR = '#f00';
 const correctStreakToIncrementSequence = 2; // increment sequence length after this many correct in a row
 let backwardsStartingSequenceLength = 2; // reset to this sequence length when starting the backward phase
 
-// edit this list to change the audio cues/prompts for downex practice trials (in reverse order)
-const DOWNEX_PRACTICE_AUDIO_CUES = [
-  'memoryGameInstruct9Downex',
-  'memoryGameInstruct7Downex',
-  'memoryGameInstruct9Downex',
-  'memoryGameInstruct7Downex',
-  'memoryGameInstruct8Downex',
-  'memoryGameInstruct7Downex',
-  'memoryGameInstruct5Downex',
-  'memoryGameInstruct4Downex',
-  'memoryGameInstruct3Downex',
-  'memoryGameInstruct2Downex',
-];
-
-// Mutable working copy consumed via .pop() during a run; reset between runs.
-let downexPracticeAudioCues = [...DOWNEX_PRACTICE_AUDIO_CUES];
+// the audio cue/text prompt played on a display or input trial
+function getCue(mode: 'display' | 'input', reverse: boolean, prompt?: string) {
+  return prompt ? resolveMemoryGamePrompt(prompt) : getMemoryGamePrompt(mode, reverse);
+}
 
 // Reset all module-level state so a new run in the same SPA session doesn't inherit
-// the previous run's sequence length, streak, or depleted audio cues.
+// the previous run's sequence length or streak.
 export function resetMemoryGameState() {
   sequenceLength = 2;
   numCorrect = 0;
   backwardsStartingSequenceLength = 2;
   generatedSequence = null;
   selectedCoordinates = [];
-  downexPracticeAudioCues = [...DOWNEX_PRACTICE_AUDIO_CUES];
   timeoutIDs.forEach((id) => {
     clearTimeout(id);
   });
@@ -185,19 +171,11 @@ export function getCorsiBlocks({
         return 500;
       }
 
-      let cue: string;
-      const defaultCue = getMemoryGamePrompt(mode, reverse);
-
-      // downex practice trials have custom audio cues
-      if (taskStore().heavyInstructions && !reverse && isPractice) {
-        cue = downexPracticeAudioCues[downexPracticeAudioCues.length - 1] || defaultCue;
-      } else {
-        cue = defaultCue;
-      }
+      const cue = getCue(mode, reverse, prompt);
 
       // get the pre-assigned prompt duration values from task store
-      const displayPromptDurations = taskStore().displayPromptDurations;
-      const durationSec = displayPromptDurations[cue as keyof typeof displayPromptDurations];
+      const displayPromptDurations: Record<string, number> = taskStore().displayPromptDurations;
+      const durationSec = displayPromptDurations[cue];
       const durationMs = durationSec != null && Number.isFinite(durationSec) ? durationSec * 1000 : 3000;
 
       return durationMs;
@@ -264,7 +242,7 @@ export function getCorsiBlocks({
           } else {
             sequenceLength = backwardsStartingSequenceLength;
             // update total trials to account for skipped forward block
-            taskStore('testTrialCount', TOTAL_FORWARD_TRIALS);
+            taskStore('testTrialCount', taskStore().forwardTestTrialCount);
           }
         }
 
@@ -287,6 +265,9 @@ export function getCorsiBlocks({
     },
   };
 }
+
+// counts input trials so e2e tests can tell a new trial from the previous one
+let cypressInputTrialNumber = 0;
 
 function doOnLoad(
   mode: 'display' | 'input',
@@ -447,12 +428,14 @@ function doOnLoad(
       });
 
       if (window.Cypress && generatedSequence !== null) {
-        const cypressData = {
-          correctAnswer: generatedSequence,
-          reverse: reverse,
+        // the sequence the input trial expects (reversed for backward trials), plus details for e2e assertions
+        window.cypressData = {
+          correctAnswer: reverse ? [...generatedSequence].reverse() : generatedSequence,
+          isPractice,
+          reverse,
+          numOfBlocks: blocks.length,
+          inputTrialNumber: ++cypressInputTrialNumber,
         };
-
-        window.cypressData = cypressData;
       }
     }
   });
@@ -463,18 +446,7 @@ function doOnLoad(
   promptContainer.classList.add('lev-row-container', 'instruction');
   const promptElement = document.createElement('p');
 
-  const defaultCue = getMemoryGamePrompt(mode, reverse);
-
-  let cue: string;
-
-  // downex practice trials have custom audio cues
-  if (taskStore().heavyInstructions && !reverse && isPractice) {
-    cue = resolveMemoryGamePrompt(prompt || downexPracticeAudioCues.pop() || defaultCue);
-  } else if (prompt) {
-    cue = resolveMemoryGamePrompt(prompt);
-  } else {
-    cue = defaultCue;
-  }
+  const cue = getCue(mode, reverse, prompt);
 
   promptElement.textContent = t[cue];
 
