@@ -37,8 +37,8 @@ const PRACTICE_WIN_STREAK: Record<BlockType, number> = {
 
 export default function buildHeartsAndFlowersTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
   initTrialSaving(config);
-
-  const corpus = getTimelineCorpus();
+  const { heavyInstructions, corpora } = taskStore();
+  const corpus: CorpusRow[] = heavyInstructions && isHfV2() ? corpora.downex : corpora.stimulus;
   taskStore('totalTestTrials', corpus.filter((row) => row.assessmentStage === 'test_response').length);
 
   const [feedbackRows, trialRows] = partition(corpus, isFeedbackRow);
@@ -56,12 +56,6 @@ export default function buildHeartsAndFlowersTimeline(config: Record<string, any
   ];
 
   return { jsPsych, timeline };
-}
-
-function getTimelineCorpus(): CorpusRow[] {
-  const { heavyInstructions, corpora } = taskStore();
-  // v1 has no heavy instructions version, so it always uses the standard rows
-  return heavyInstructions && isHfV2() ? corpora.downex : corpora.stimulus;
 }
 
 function groupCorpusRows(corpus: CorpusRow[]): CorpusRow[][] {
