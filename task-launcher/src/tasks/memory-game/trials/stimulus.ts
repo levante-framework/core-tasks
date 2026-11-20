@@ -12,7 +12,6 @@ import {
 } from '../../shared/helpers';
 import { finishTaskEarly } from '../../shared/trials';
 import { jsPsych } from '../../taskSetup';
-import { getMemoryGamePrompt } from '../helpers/getMemoryGamePrompt';
 import { getMemoryGameType } from '../helpers/getMemoryGameType';
 import { createGrid, disableBlock, enableBlock, generateRandomSequence } from '../helpers/grid';
 import { resolveMemoryGamePrompt } from '../helpers/resolveMemoryGamePrompt';
@@ -24,7 +23,7 @@ type CorsiBlocksArgs = {
   resetSeq?: boolean;
   customSeqLength?: number;
   animation?: 'pulse' | 'cursor';
-  prompt?: string; // a custom audio cue/text prompt for the trial; defaults to getMemoryGamePrompt
+  prompt?: string; // the trial's audio cue/text prompt, from its corpus row
 };
 
 const x = 20;
@@ -42,8 +41,8 @@ const correctStreakToIncrementSequence = 2; // increment sequence length after t
 let backwardsStartingSequenceLength = 2; // reset to this sequence length when starting the backward phase
 
 // the audio cue/text prompt played on a display or input trial
-function getCue(mode: 'display' | 'input', reverse: boolean, prompt?: string) {
-  return prompt ? resolveMemoryGamePrompt(prompt) : getMemoryGamePrompt(mode, reverse);
+function getCue(prompt?: string) {
+  return prompt ? resolveMemoryGamePrompt(prompt) : '';
 }
 
 /**
@@ -172,7 +171,7 @@ export function getCorsiBlocks({
         return 500;
       }
 
-      const cue = getCue(mode, reverse, prompt);
+      const cue = getCue(prompt);
 
       // get the pre-assigned prompt duration values from task store
       const displayPromptDurations: Record<string, number> = taskStore().displayPromptDurations;
@@ -447,7 +446,7 @@ function doOnLoad(
   promptContainer.classList.add('lev-row-container', 'instruction');
   const promptElement = document.createElement('p');
 
-  const cue = getCue(mode, reverse, prompt);
+  const cue = getCue(prompt);
 
   promptElement.textContent = t[cue];
 

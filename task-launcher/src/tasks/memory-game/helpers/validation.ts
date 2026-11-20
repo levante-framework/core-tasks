@@ -9,6 +9,7 @@ import {
   type CorpusRow,
   Direction,
   getAudioKey,
+  getFeedbackContent,
   getMediaKey,
   getRowPrompts,
   isFeedbackRow,
@@ -18,27 +19,12 @@ import {
   isTestRow,
 } from './utils';
 
-// Assets used by trials that don't come from a corpus row
-const REQUIRED_IMAGES = ['smilingFace@2x', 'sadFace@2x', 'cursor'];
-// Prompts need both audio and a translation. Default sequence prompts (see getMemoryGamePrompt) are
-// resolved like at play time, and the fallback's message comes from shared/trials/repeatInstructions.
-const REQUIRED_PROMPTS = [
-  'memoryGameDisplay',
-  'memoryGameInstruct7Downex',
-  'memoryGameInstruct8Downex',
-  'memoryGameInstruct11Downex',
-  'feedbackNotQuiteRight',
-  'generalRepeatInstructions',
-];
+// guided practice shows the cursor
+const REQUIRED_IMAGES = ['cursor'];
+// Prompts need both audio and a translation. The fallback's message comes from shared/trials/repeatInstructions.
+const REQUIRED_PROMPTS = ['generalRepeatInstructions'];
 const REQUIRED_TEXT = ['continueButtonText'];
 
-/**
- * Describes everything that would stop the task from running as intended: invalid corpus rows and
- * missing images, video, audio or translations. Pass the result to reportCorpusValidationErrors.
- *
- * Both corpora are checked on every run: the default flow can fall back to the heavy-instructions
- * practice mid-run, so it plays downex rows too.
- */
 export function getCorpusValidationErrors(
   corpora: { standard: CorpusRow[]; downex: CorpusRow[] },
   mediaAssets: MediaAssetsType,
@@ -90,14 +76,17 @@ function getCorpusErrors(
     }),
   };
 
+  // Correct feedback is always a feedback screen. Incorrect feedback is a screen in the standard flow, but in
+  // the heavy flow (downex rows) it's the cue for one retry of the input trial, so it takes one prompt and no image.
+  const isHeavyFlow = keyPrefix === 'downex:';
+  const incorrectIds = new Set(trialRows.map((row) => row.feedbackItemIds?.[1]).filter(Boolean));
   for (const row of feedbackRows) {
-    const error = getPromptError(row, mediaAssets, translations, 'feedback rows');
     const errorKey = `${keyPrefix}feedback:${row.itemId}`;
-    if (feedbackRows.filter((other) => other.itemId === row.itemId).length > 1) {
-      errors[errorKey] = 'more than one feedback row with this item_id';
-    } else if (error) {
-      errors[errorKey] = error;
-    }
+    const error =
+      feedbackRows.filter((other) => other.itemId === row.itemId).length > 1
+        ? 'more than one feedback row with this item_id'
+        : getFeedbackRowError(row, isHeavyFlow && incorrectIds.has(row.itemId), mediaAssets, translations);
+    if (error) errors[errorKey] = error;
   }
   for (const row of trialRows) {
     const error = getRowError(row, mediaAssets, translations);
@@ -107,7 +96,27 @@ function getCorpusErrors(
   return errors;
 }
 
-/** An instruction or feedback row's single prompt: its audio and translation must exist. */
+function getFeedbackRowError(
+  row: CorpusRow,
+  isRetryCue: boolean,
+  mediaAssets: MediaAssetsType,
+  translations: Record<string, string>,
+): string | null {
+  const { prompts, image } = getFeedbackContent(row);
+  if (!prompts.length) return 'missing audio_file';
+  if (isRetryCue && prompts.length > 1) {
+    return `heavy-instructions incorrect feedback is a retry cue, so it takes one audio_file, got "${row.audioFile}"`;
+  }
+  for (const prompt of prompts) {
+    const missing = getMissingPromptAssets(prompt, mediaAssets, translations);
+    if (missing.length) return `no ${missing.join(' or ')} for prompt "${prompt}"`;
+  }
+  if (isRetryCue) return null;
+  if (!image) return 'feedback screens need an image';
+  return image in mediaAssets.images ? null : `no image named "${row.image}"`;
+}
+
+/** An instruction row's single prompt: its audio and translation must exist. */
 function getPromptError(
   row: CorpusRow,
   mediaAssets: MediaAssetsType,
@@ -151,8 +160,8 @@ function getRowError(
   if (row.item && !(Number.isInteger(Number(row.item)) && Number(row.item) > 0)) {
     return `invalid sequence length in item "${row.item}"`;
   }
-  if (row.audioFile && (!Array.isArray(row.audioFile) || row.audioFile.length !== 2)) {
-    return `audio_file must be blank or "display,input" prompts, got "${row.audioFile}"`;
+  if (!Array.isArray(row.audioFile) || row.audioFile.length !== 2) {
+    return `audio_file must be "display,input" prompts, got "${row.audioFile ?? ''}"`;
   }
   const { display, input } = getRowPrompts(row);
   for (const prompt of [display, input].filter((key): key is string => Boolean(key))) {

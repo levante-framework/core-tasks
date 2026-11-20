@@ -1,11 +1,13 @@
 import { camelize } from '../../shared/helpers';
+import type { FeedbackContent } from '../../shared/trials/feedback';
+import { resolveMemoryGamePrompt } from './resolveMemoryGamePrompt';
 
 type ValueOf<T> = T[keyof T];
 
 /**
  * The corpus fields memory game reads (see shared/helpers/getCorpus.ts). Each row is one instruction
  * screen, one feedback prompt, or one sequence (a display trial then an input trial), in play order.
- * - audioFile: an instruction or feedback prompt, or a sequence's "display,input" prompts (blank uses the defaults)
+ * - audioFile: an instruction or feedback prompt, or a sequence's "display,input" prompts
  * - image: an instruction screen's image or video; "cursor" on a heavy-instructions practice row makes it guided
  * - item: a sequence's fixed length (blank on test rows uses the adaptive length)
  */
@@ -22,7 +24,8 @@ export type CorpusRow = Pick<
   | 'feedbackItemIds'
 >;
 
-export type FeedbackPrompts = { correct?: string; incorrect?: string };
+/** What plays after a practice row's correct and wrong answers, from its linked feedback rows. */
+export type RowFeedback = { correct?: FeedbackContent; incorrect?: FeedbackContent };
 
 export const Direction = {
   Forward: 'forward',
@@ -61,15 +64,24 @@ export function getFixedSequenceLength(row: CorpusRow) {
   return row.item ? Number(row.item) : undefined;
 }
 
-/**
- * The prompts to play after a practice row's correct and wrong answers. A practice row's
- * feedback_item_ids ("correct,incorrect") name feedback rows in the same corpus; either can be blank.
- */
-export function getFeedbackPrompts(feedbackRows: CorpusRow[], row: CorpusRow): FeedbackPrompts {
-  const [correctId, incorrectId] = row.feedbackItemIds ?? [];
-  const getPrompt = (itemId?: string) => {
-    const feedbackRow = itemId ? feedbackRows.find((candidate) => candidate.itemId === itemId) : undefined;
-    return feedbackRow && getAudioKey(feedbackRow);
+/** A feedback row's prompts, in play order and resolved like at play time, and its image (blank uses the default face). */
+export function getFeedbackContent(feedbackRow: CorpusRow): FeedbackContent {
+  const audioFiles = Array.isArray(feedbackRow.audioFile) ? feedbackRow.audioFile : [feedbackRow.audioFile ?? ''];
+  return {
+    prompts: audioFiles.map((file) => resolveMemoryGamePrompt(camelize(file.trim()))).filter(Boolean),
+    image: getMediaKey(feedbackRow) || undefined,
   };
-  return { correct: getPrompt(correctId), incorrect: getPrompt(incorrectId) };
+}
+
+/**
+ * A practice row's feedback_item_ids ("correct,incorrect") name feedback rows in the same corpus;
+ * either can be blank, for no feedback after that outcome.
+ */
+export function getRowFeedback(feedbackRows: CorpusRow[], row: CorpusRow): RowFeedback {
+  const [correctId, incorrectId] = row.feedbackItemIds ?? [];
+  const getContent = (itemId?: string) => {
+    const feedbackRow = itemId ? feedbackRows.find((candidate) => candidate.itemId === itemId) : undefined;
+    return feedbackRow && getFeedbackContent(feedbackRow);
+  };
+  return { correct: getContent(correctId), incorrect: getContent(incorrectId) };
 }

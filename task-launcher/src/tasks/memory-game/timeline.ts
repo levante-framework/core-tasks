@@ -17,11 +17,10 @@ import { resolveMemoryGamePrompt } from './helpers/resolveMemoryGamePrompt';
 import {
   type CorpusRow,
   Direction,
-  type FeedbackPrompts,
   getAudioKey,
-  getFeedbackPrompts,
   getFixedSequenceLength,
   getMediaKey,
+  getRowFeedback,
   getRowPrompts,
   isBackward,
   isFeedbackRow,
@@ -29,6 +28,7 @@ import {
   isInstructionRow,
   isPracticeRow,
   isTestRow,
+  type RowFeedback,
 } from './helpers/utils';
 import { getCorpusValidationErrors } from './helpers/validation';
 import { buildInstructionScreen as buildInstructionTrial, resetDisplayPromptDurations } from './trials/instructions';
@@ -142,17 +142,16 @@ function buildRowGroupSubTimeline(rows: CorpusRow[], context: BuildContext): unk
   else {
     return context.isHeavyFlow
       ? rows.map((practiceRow) =>
-          buildHeavyPracticeTrial(practiceRow, getFeedbackPrompts(context.feedbackRows, practiceRow)),
+          buildHeavyPracticeTrial(practiceRow, getRowFeedback(context.feedbackRows, practiceRow)),
         )
-      : buildStandardPracticeTrial(rows, (practiceRow) => getFeedbackPrompts(context.feedbackRows, practiceRow));
+      : buildStandardPracticeTrial(rows, (practiceRow) => getRowFeedback(context.feedbackRows, practiceRow));
   }
 }
 
-/** Prompts that can play before a display trial, so their durations can be measured ahead of time. */
+/** Prompts that play before a display trial, so their durations can be measured ahead of time. */
 function getDisplayPromptKeys(rows: CorpusRow[]) {
-  const defaults = ['memoryGameInstruct7Downex', 'memoryGameDisplay'];
-  const fromRows = rows.map((row) => getRowPrompts(row).display).filter((key): key is string => Boolean(key));
-  return [...new Set([...defaults, ...fromRows].map(resolveMemoryGamePrompt))];
+  const displayPrompts = rows.map((row) => getRowPrompts(row).display).filter((key): key is string => Boolean(key));
+  return [...new Set(displayPrompts.map(resolveMemoryGamePrompt))];
 }
 
 /** The heavy forward practice section, from its first practice trial to the end of its block, to replay on fallback. */
@@ -201,18 +200,18 @@ function buildTestTrial(row: CorpusRow, { forwardTestRows, fallbackBlock }: Buil
 }
 
 /** Default practice plays the run of rows, then plays it once more if the last answer was wrong. */
-function buildStandardPracticeTrial(rows: CorpusRow[], getRowFeedback: (row: CorpusRow) => FeedbackPrompts) {
+function buildStandardPracticeTrial(rows: CorpusRow[], getFeedback: (row: CorpusRow) => RowFeedback) {
   const buildPracticeTrial = (row: CorpusRow, feedbackOnlyIfCorrect: boolean) => {
     const reverse = isBackward(row);
     const { display, input } = getRowPrompts(row);
     const customSeqLength = getFixedSequenceLength(row);
-    const { correct, incorrect } = getRowFeedback(row);
+    const { correct, incorrect } = getFeedback(row);
     const correctFeedback = {
-      timeline: [feedback(true, undefined, correct)],
+      timeline: [feedback(true, undefined, undefined, { correct })],
       conditional_function: () => taskStore().isCorrect,
     };
     const incorrectFeedback = {
-      timeline: [feedback(true, incorrect && resolveMemoryGamePrompt(incorrect))],
+      timeline: [feedback(true, undefined, undefined, { incorrect })],
       conditional_function: () => !taskStore().isCorrect,
     };
 
@@ -234,7 +233,7 @@ function buildStandardPracticeTrial(rows: CorpusRow[], getRowFeedback: (row: Cor
 }
 
 /** A heavy-instructions practice row: guided rows show the cursor hint, and a wrong answer gets one pulsing retry. */
-function buildHeavyPracticeTrial(row: CorpusRow, { correct, incorrect }: FeedbackPrompts) {
+function buildHeavyPracticeTrial(row: CorpusRow, { correct, incorrect }: RowFeedback) {
   const reverse = isBackward(row);
   const { display, input } = getRowPrompts(row);
   const customSeqLength = getFixedSequenceLength(row);
@@ -249,11 +248,14 @@ function buildHeavyPracticeTrial(row: CorpusRow, { correct, incorrect }: Feedbac
     }),
   ];
   const correctFeedback = {
-    timeline: [feedback(true, undefined, correct)],
+    timeline: [feedback(true, undefined, undefined, { correct })],
     conditional_function: () => taskStore().isCorrect,
   };
+  // a wrong answer gets no feedback screen: the input trial replays once, cued by the incorrect row's prompt
   const retry = {
-    timeline: [getCorsiBlocks({ reverse, mode: 'input', isPractice: true, animation: 'pulse', prompt: incorrect })],
+    timeline: [
+      getCorsiBlocks({ reverse, mode: 'input', isPractice: true, animation: 'pulse', prompt: incorrect?.prompts[0] }),
+    ],
     conditional_function: () => !taskStore().isCorrect,
   };
 
