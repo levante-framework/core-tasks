@@ -112,6 +112,48 @@ function containsLettersOrSlash(str: string) {
   return /[a-zA-Z/]/.test(str);
 }
 
+/** Guessing parameter used when a corpus has no chance level. jsCAT 5.x otherwise assumes 0. */
+export const DEFAULT_CHANCE_LEVEL = 0.5;
+
+/**
+ * Chance level for CAT scoring and item selection.
+ * Uses the corpus cell when it is a finite number, including 0.
+ * A missing `chance_level` / `chanceLevel` column, a blank cell, or a task with no corpus falls back to 0.5.
+ */
+export function resolveChanceLevel(value: unknown): number {
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value : DEFAULT_CHANCE_LEVEL;
+  }
+  if (value == null) {
+    return DEFAULT_CHANCE_LEVEL;
+  }
+  const text = String(value).trim();
+  if (text === '') {
+    return DEFAULT_CHANCE_LEVEL;
+  }
+  const parsed = Number(text);
+  return Number.isFinite(parsed) ? parsed : DEFAULT_CHANCE_LEVEL;
+}
+
+function rawChanceLevel(row: ParsedRowType): unknown {
+  const record = row as unknown as Record<string, unknown>;
+  if ('chance_level' in record) {
+    return record.chance_level;
+  }
+  if ('chanceLevel' in record) {
+    return record.chanceLevel;
+  }
+  return undefined;
+}
+
+/** Attach the guessing parameter jsCAT 5.x reads. It does not look at `chanceLevel`. */
+export function withCatGuessing<T extends { chanceLevel?: number }>(stimuli: T[]): (T & { guessing: number })[] {
+  return stimuli.map((stimulus) => ({
+    ...stimulus,
+    guessing: resolveChanceLevel(stimulus.chanceLevel),
+  }));
+}
+
 const transformCSV = (csvInput: ParsedRowType[], sequentialStimulus: boolean): TransformedCorpus => {
   let currTrialTypeBlock = '';
 
@@ -143,7 +185,7 @@ const transformCSV = (csvInput: ParsedRowType[], sequentialStimulus: boolean): T
       timeLimit: row.time_limit,
       answer: _toNumber(row.answer) || row.answer,
       assessmentStage: row.assessment_stage,
-      chanceLevel: _toNumber(row.chance_level),
+      chanceLevel: resolveChanceLevel(rawChanceLevel(row)),
       itemId: row.item_id,
       itemUid: row.item_uid,
       distractors: (() => {

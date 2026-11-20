@@ -1,6 +1,7 @@
 import _shuffle from 'lodash/shuffle';
 import { taskStore } from '../../../taskStore';
 import { cat, jsPsych } from '../../taskSetup';
+import { resolveChanceLevel } from './getCorpus';
 
 // separates trials from corpus into blocks depending on for heavy/light instructions and CAT
 export function prepareCorpus(
@@ -153,7 +154,7 @@ export function updateTheta(item: StimulusType, correct: boolean) {
     const zeta = {
       a: 1, // item discrimination (default value of 1)
       b: item.difficulty, // item difficulty (from corpus)
-      c: item.chanceLevel, // probability of correct answer from guessing
+      c: resolveChanceLevel(item.chanceLevel), // guessing parameter; 0.5 when the corpus has no chance level
       d: 1, // max probability of correct response (default 1)
     };
 
