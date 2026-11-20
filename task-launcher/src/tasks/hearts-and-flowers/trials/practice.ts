@@ -18,6 +18,7 @@ import {
   getStimulusLayout,
   type HaFStimulusType,
   InputKeyType,
+  isHfV2,
   StimulusSideType,
 } from '../helpers/utils';
 
@@ -79,7 +80,8 @@ export function buildInstructionPracticeTrial(
         addKeyHelpers(button, i);
       });
 
-      setupHafMultiResponseTouchRouting();
+      // TODO: deprecate when v1 is obsolete
+      if (isHfV2()) setupHafMultiResponseTouchRouting();
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
     keyboard_choices: isTouchScreen ? InputKeyType.NoKeys : [InputKeyType.ArrowLeft, InputKeyType.ArrowRight],

@@ -138,9 +138,12 @@ function getRowsError(
   if (rows.some((r) => r.trialType !== row.trialType)) {
     return 'rows in one block have different trial_type values';
   }
-  const invalidTimeLimitRow = rows.find((r) => r.assessmentStage === 'test_response' && !(Number(r.timeLimit) > 0));
+  // TODO: A blank time_limit means the trial is untimed (v1); anything else must be a positive number of ms; deprecate when v1 is obsolete
+  const invalidTimeLimitRow = rows.find(
+    (r) => r.assessmentStage === 'test_response' && String(r.timeLimit ?? '').trim() && !(Number(r.timeLimit) > 0),
+  );
   if (invalidTimeLimitRow) {
-    return `invalid time_limit "${invalidTimeLimitRow.timeLimit}"`;
+    return `invalid time_limit "${invalidTimeLimitRow.timeLimit}"; use a positive number of ms, or blank for untimed`;
   }
   return null;
 }

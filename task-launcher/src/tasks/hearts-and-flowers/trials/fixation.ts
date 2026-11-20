@@ -8,7 +8,7 @@ import {
 } from '../../shared/helpers';
 import { jsPsych } from '../../taskSetup';
 import { setupHafMultiResponseTouchRouting } from '../helpers/touchResponseRouting';
-import { InputKeyType, StimulusSideType } from '../helpers/utils';
+import { InputKeyType, isHfV2, StimulusSideType } from '../helpers/utils';
 
 export function fixation(interStimulusInterval: number) {
   return {
@@ -41,7 +41,8 @@ export function fixation(interStimulusInterval: number) {
         addKeyHelpers(button as HTMLElement, i);
       });
 
-      setupHafMultiResponseTouchRouting();
+      // TODO: deprecate when v1 is obsolete
+      if (isHfV2()) setupHafMultiResponseTouchRouting();
 
       addExperimenterButtons();
       setupFullscreenButton();

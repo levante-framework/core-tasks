@@ -5,6 +5,7 @@ import { taskStore } from '../../../taskStore';
 import { Logger } from '../../../utils/logger';
 import { addExperimenterButtons, addKeyHelpers, setupFullscreenButton } from '../../shared/helpers';
 import { shouldTerminateCat } from '../../shared/helpers/shouldTerminateCat';
+import { finishTaskEarly } from '../../shared/trials';
 import { isTouchScreen, jsPsych } from '../../taskSetup';
 import { setupHafMultiResponseTouchRouting } from '../helpers/touchResponseRouting';
 import {
@@ -14,6 +15,7 @@ import {
   getStimulusSideFromPosition,
   HaFStimulusType,
   InputKeyType,
+  isHfV2,
   ResponseSideType,
   StimulusSideType,
 } from '../helpers/utils';
@@ -22,7 +24,9 @@ import {
 const getCorpusRow = (): CorpusRow => jsPsych.timelineVariable('corpusRow');
 const isPracticeRow = (row: CorpusRow) => row.assessmentStage === 'practice_response';
 // Practice trials are not timed, so they have no presentation time (null means no time limit)
-const getPresentationTime = (row: CorpusRow) => (isPracticeRow(row) ? null : Number(row.timeLimit));
+// TODO: Test rows with a blank time_limit (v1) aren't timed either; deprecate when v1 is obsolete. For now, treat blank time_limit as null (no time limit) for both practice and test rows.
+const getPresentationTime = (row: CorpusRow) =>
+  isPracticeRow(row) || !String(row.timeLimit ?? '').trim() ? null : Number(row.timeLimit);
 
 /**
  *TODO: we should perhaps allow {@link https://www.jspsych.org/7.2/overview/media-preloading/#automatic-preloading automatic preload}
@@ -74,7 +78,7 @@ export function stimulus(
       responseButtons.forEach((button, i) => {
         addKeyHelpers(button as HTMLElement, i);
       });
-      setupHafMultiResponseTouchRouting();
+      if (isHfV2()) setupHafMultiResponseTouchRouting();
 
       addExperimenterButtons();
       setupFullscreenButton();
@@ -128,7 +132,19 @@ export function stimulus(
       const validAnswer = getCorrectInputSide(stimulusType, stimulusSide);
       data.correct = validAnswer === response;
 
-      shouldTerminateCat();
+      if (isHfV2()) {
+        shouldTerminateCat();
+      } else if (!isPractice) {
+        // v1 ends the task after maxIncorrect wrong test answers in a row
+        if (data.correct) {
+          taskStore('numIncorrect', 0);
+        } else {
+          taskStore.transact('numIncorrect', (oldVal: number) => oldVal + 1);
+        }
+        if (taskStore().numIncorrect === taskStore().maxIncorrect) {
+          finishTaskEarly('errorOut');
+        }
+      }
 
       //TODO: move these to timeline-level callback/variables
       taskStore('isCorrect', data.correct);

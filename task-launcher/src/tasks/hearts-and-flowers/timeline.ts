@@ -17,6 +17,7 @@ import {
   getImageKey,
   getInstructionPracticeSide,
   isFeedbackRow,
+  isHfV2,
   isInstructionPracticeRow,
   isInstructionRow,
   type StimulusSideType,
@@ -59,7 +60,8 @@ export default function buildHeartsAndFlowersTimeline(config: Record<string, any
 
 function getTimelineCorpus(): CorpusRow[] {
   const { heavyInstructions, corpora } = taskStore();
-  return heavyInstructions ? corpora.downex : corpora.stimulus;
+  // v1 has no heavy instructions version, so it always uses the standard rows
+  return heavyInstructions && isHfV2() ? corpora.downex : corpora.stimulus;
 }
 
 function groupCorpusRows(corpus: CorpusRow[]): CorpusRow[][] {

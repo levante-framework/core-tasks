@@ -1,4 +1,10 @@
+import { taskStore } from '../../../taskStore';
 import { camelize, getParticipantUtilityButtonsHtml } from '../../shared/helpers';
+
+/**
+ * TODO: someday, we will get to deprecate v1 forever <3
+ */
+export const isHfV2 = () => taskStore().version === 2;
 
 type ValueOf<T> = T[keyof T];
 

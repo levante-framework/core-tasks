@@ -13,6 +13,7 @@ import {
 import { disableOkButton } from '../../shared/helpers/disableOkButton';
 import { enableOkButton } from '../../shared/helpers/enableButtons';
 import { jsPsych } from '../../taskSetup';
+import { isHfV2 } from '../helpers/utils';
 
 type ContinueTrialConfig = { type: 'button' | 'bottomText'; text: string };
 let continueTrialConfig: ContinueTrialConfig;
@@ -44,9 +45,11 @@ export function buildInstructionTrial(
     type: jsPsychHtmlMultiResponse,
     stimulus: () => {
       // set the continue trial config based on the input capability
+      // TODO: v1 always shows a continue button; v2 asks keyboard users to press any key instead; deprecate when v1 is obsolete
+      const useContinueButton = taskStore().inputCapability?.touch || !isHfV2();
       continueTrialConfig = {
-        type: taskStore().inputCapability?.touch ? 'button' : 'bottomText',
-        text: taskStore().inputCapability?.touch ? 'continueButtonText' : 'heartsAndFlowersPressAnyKey',
+        type: useContinueButton ? 'button' : 'bottomText',
+        text: useContinueButton ? 'continueButtonText' : 'heartsAndFlowersPressAnyKey',
       };
 
       return `

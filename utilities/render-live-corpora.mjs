@@ -274,7 +274,8 @@ async function fetchRegistered(auth, taskIds) {
     });
     const body = await response.json();
     if (!response.ok) {
-      const message = body.error?.message || response.statusText;
+      // runQuery returns its error inside an array
+      const message = (Array.isArray(body) ? body[0]?.error?.message : body.error?.message) || response.statusText;
       throw new Error(`Firestore query failed for ${taskId}: ${message}`);
     }
     tasks[taskId] = body.flatMap((entry) => {
@@ -292,6 +293,17 @@ function corpusValue(data) {
   return String(raw).trim();
 }
 
+// TODO: Mirrors getDefaultCorpus in task-launcher/src/tasks/shared/helpers/config.ts: Hearts and Flowers runs v1,
+// with its own corpus, for any version but 2 (a variant with no version param is v1).
+// deprecate when v1 is obsolete
+const HEARTS_AND_FLOWERS_V1_CORPUS = 'hearts-and-flowers-v1-item-bank';
+
+function defaultCorpusFor(taskId, params, defaultCorpus) {
+  const version = Number((params.version ?? params.taskVersion) || 1);
+  if (taskId === 'hearts-and-flowers' && version !== 2) return HEARTS_AND_FLOWERS_V1_CORPUS;
+  return defaultCorpus[camelize(taskId)] ?? '';
+}
+
 function collectLiveCorpora(registered, defaultCorpus) {
   const byTask = {};
   const noCorpus = {};
@@ -299,11 +311,10 @@ function collectLiveCorpora(registered, defaultCorpus) {
 
   for (const [taskId, variants] of Object.entries(registered)) {
     registeredCounts[taskId] = variants.length;
-    const fallback = defaultCorpus[camelize(taskId)] ?? '';
     for (const variant of variants) {
       const params = variant.params && typeof variant.params === 'object' ? variant.params : {};
       const explicit = corpusValue(variant);
-      const corpus = explicit || fallback;
+      const corpus = explicit || defaultCorpusFor(taskId, params, defaultCorpus);
       if (!corpus) {
         noCorpus[taskId] = (noCorpus[taskId] ?? 0) + 1;
         continue;
