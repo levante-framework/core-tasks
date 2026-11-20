@@ -1,13 +1,16 @@
-// v2 is the live version
-// TODO: A missing version param means v1, which isn't deprecated yet, so tested here too for now
-const getHeartsAndFlowersUrl = (version) => `http://localhost:8080/?task=hearts-and-flowers&version=${version}`;
+import { getParamLists } from './helpers.cy';
 
-// Feedback prompts in the corpus (English)
-const CORRECT_FEEDBACK = 'Good job!';
+const hearts_and_flowers_base_url = 'http://localhost:8080/?task=hearts-and-flowers';
+// the live variants (v2), each in its first live locale (see cypress.config.js)
+const liveUrls = getParamLists('hearts-and-flowers').map((params) => `${hearts_and_flowers_base_url}&${params}`);
+// TODO: A missing version param means v1, which isn't deprecated yet, so tested here too for now
+const v1Url = `${hearts_and_flowers_base_url}&version=1`;
+
+const CORRECT_FEEDBACK = 'feedbackGoodJob';
 const INCORRECT_FEEDBACK = {
-  instructionPractice: "That's not quite right. Please try again.",
-  heart: 'Remember! When you see a HEART, press the button on the SAME side.',
-  flower: 'When you see a FLOWER, press the button on the OTHER side.',
+  instructionPractice: 'heartsAndFlowersTryAgain',
+  heart: 'heartPracticeFeedback2',
+  flower: 'flowerPracticeFeedback2',
 };
 // Instruction practice presses per phase, all answered right
 const INSTRUCTION_PRACTICE_TRIALS = 6;
@@ -38,50 +41,56 @@ describe('test hearts and flowers', () => {
     wrong_answers = [];
   });
 
-  it('plays hearts and flowers v2', () => {
-    playHeartsAndFlowers(2);
-    expectOnlyCorrectFeedback();
-  });
+  if (liveUrls.length === 0) {
+    it('fails when no test URLs are available (see cypress.config.js)', () => {
+      expect(liveUrls).to.have.length.greaterThan(0);
+    });
+    return;
+  }
 
-  it('plays hearts and flowers v1', () => {
-    playHeartsAndFlowers(1);
-    expectOnlyCorrectFeedback();
+  [...liveUrls, v1Url].forEach((url) => {
+    it(`plays game (${url.slice(hearts_and_flowers_base_url.length + 1)})`, () => {
+      playHeartsAndFlowers(url);
+      expectOnlyCorrectFeedback();
+    });
   });
 
   it('shows the incorrect feedback for the stimulus after a wrong practice answer', () => {
     wrong_answers = WRONG_ANSWERS;
-    playHeartsAndFlowers(2);
+    playHeartsAndFlowers(liveUrls[0]);
 
-    getFeedbackScreens().then((screens) => {
+    getFeedbackScreens().then(({ screens, getText }) => {
       const incorrect = screens.filter((screen) => screen.kind === 'incorrect');
       expect(incorrect.map((screen) => screen.text)).to.deep.equal([
-        INCORRECT_FEEDBACK.instructionPractice,
-        INCORRECT_FEEDBACK.heart,
+        getText(INCORRECT_FEEDBACK.instructionPractice),
+        getText(INCORRECT_FEEDBACK.heart),
         // the mixed practice prompt depends on the stimulus shown
-        INCORRECT_FEEDBACK[incorrect[2]?.stimulus],
+        getText(INCORRECT_FEEDBACK[incorrect[2]?.stimulus]),
       ]);
       expect(incorrect[1].stimulus).to.equal('heart');
-      expect(screens.filter((screen) => screen.kind === 'correct').every((s) => s.text === CORRECT_FEEDBACK)).to.equal(
-        true,
-      );
+      expect(
+        screens.filter((screen) => screen.kind === 'correct').every((s) => s.text === getText(CORRECT_FEEDBACK)),
+      ).to.equal(true);
     });
   });
 });
 
 // every practice answer is right: correct feedback after each instruction practice and practice trial
 function expectOnlyCorrectFeedback() {
-  getFeedbackScreens().then((screens) => {
+  getFeedbackScreens().then(({ screens, getText }) => {
     const expectedCount = INSTRUCTION_PRACTICE_TRIALS + PRACTICE_WIN_STREAKS.reduce((a, b) => a + b, 0);
     expect(screens).to.have.length(expectedCount);
-    expect(screens.every((screen) => screen.kind === 'correct' && screen.text === CORRECT_FEEDBACK)).to.equal(true);
+    expect(screens.every((screen) => screen.kind === 'correct' && screen.text === getText(CORRECT_FEEDBACK))).to.equal(
+      true,
+    );
   });
 }
 
-function playHeartsAndFlowers(version) {
-  cy.visit(getHeartsAndFlowersUrl(version), { onBeforeLoad: recordFeedbackScreens });
+function playHeartsAndFlowers(url) {
+  cy.visit(url, { onBeforeLoad: recordFeedbackScreens });
 
-  cy.contains('OK', { timeout: 300000 }).should('be.visible');
-  cy.contains('OK').realClick(); // start fullscreen
+  cy.get('.jspsych-content', { timeout: 300000 }).find('.primary').should('be.visible');
+  cy.get('.jspsych-content').find('.primary').realClick(); // start fullscreen
 
   hafLoop();
 }
@@ -112,8 +121,13 @@ function recordFeedbackScreens(win) {
   }).observe(win.document, { childList: true, subtree: true, attributes: true, attributeFilter: ['disabled'] });
 }
 
+/** The recorded feedback screens, and getText(key) for a translation's text as the task shows it. */
 function getFeedbackScreens() {
-  return cy.window().then((win) => win.feedbackScreens);
+  return cy.window().then((win) => ({
+    screens: win.feedbackScreens,
+    // translations can hold HTML, so compare against the rendered text
+    getText: (key) => Cypress.$('<div>').html(win.__translations[key]).text().trim(),
+  }));
 }
 
 // incorrect feedback shows the stimulus with both response buttons disabled
