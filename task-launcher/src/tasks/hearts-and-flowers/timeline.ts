@@ -14,9 +14,9 @@ import {
   type FeedbackOutcome,
   getAudioKey,
   getButtonDemoSide,
-  getFeedbackPromptKey,
   getImageKey,
   getInstructionPracticeSide,
+  getLinkedFeedbackRow,
   isFeedbackRow,
   isHfV2,
   isInstructionPracticeRow,
@@ -112,8 +112,8 @@ function buildInstructionPracticeSubTimeline(row: CorpusRow, mediaAssets: MediaA
         getInstructionPracticeSide(row) as StimulusSideType,
         audioKey,
       ),
-      buildPracticeFeedback('correct', () => getFeedbackPromptKey(feedbackRows, row, 'correct', stimulusType)),
-      buildPracticeFeedback('incorrect', () => getFeedbackPromptKey(feedbackRows, row, 'incorrect', stimulusType)),
+      buildPracticeFeedback('correct', () => getLinkedFeedbackRow(feedbackRows, row, 'correct', stimulusType)),
+      buildPracticeFeedback('incorrect', () => getLinkedFeedbackRow(feedbackRows, row, 'incorrect', stimulusType)),
     ],
     loop_function: () => taskStore().isCorrect === false,
   };
@@ -129,8 +129,8 @@ function buildPracticeBlock(rows: CorpusRow[], feedbackRows: CorpusRow[]) {
     practiceWinStreakCount = data.correct ? practiceWinStreakCount + 1 : 0;
     currentRow = jsPsych.timelineVariable('corpusRow');
   };
-  const getPromptKey = (outcome: FeedbackOutcome) => () =>
-    getFeedbackPromptKey(feedbackRows, currentRow, outcome, taskStore().stimulus);
+  const getFeedbackRow = (outcome: FeedbackOutcome) => () =>
+    getLinkedFeedbackRow(feedbackRows, currentRow, outcome, taskStore().stimulus);
 
   return {
     timeline: [
@@ -138,8 +138,8 @@ function buildPracticeBlock(rows: CorpusRow[], feedbackRows: CorpusRow[]) {
         timeline: [
           fixation(INTER_STIMULUS_INTERVAL),
           stimulus(onStimulusTrialFinishTimelineCallback),
-          buildPracticeFeedback('correct', getPromptKey('correct')),
-          buildPracticeFeedback('incorrect', getPromptKey('incorrect')),
+          buildPracticeFeedback('correct', getFeedbackRow('correct')),
+          buildPracticeFeedback('incorrect', getFeedbackRow('incorrect')),
         ],
         conditional_function: () => practiceWinStreakCount < PRACTICE_WIN_STREAK[blockType],
       },

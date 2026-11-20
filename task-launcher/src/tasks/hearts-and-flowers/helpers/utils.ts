@@ -119,21 +119,21 @@ export function findFeedbackRow(rowsWithId: CorpusRow[], stimulus: HaFStimulusTy
 
 /**
  * A practice row's feedback_item_ids name the feedback rows to play after a correct and a wrong answer.
- * This function finds the feedback row for the stimulus and outcome of a given trial via its row in the corpus, then returns its audio key.
+ * This function finds the feedback row for the stimulus and outcome of a given trial via its row in the corpus.
  */
-export function getFeedbackPromptKey(
+export function getLinkedFeedbackRow(
   feedbackRows: CorpusRow[],
   row: CorpusRow,
   outcome: FeedbackOutcome,
   stimulus: HaFStimulusType,
-): string | undefined {
+): CorpusRow | undefined {
   const feedbackItemId = row.feedbackItemIds?.[outcome === 'correct' ? 0 : 1];
   if (!feedbackItemId) return undefined;
   const feedbackRow = findFeedbackRow(
     feedbackRows.filter((candidate) => candidate.itemId === feedbackItemId),
     stimulus,
   );
-  return feedbackRow && getAudioKey(feedbackRow);
+  return feedbackRow;
 }
 
 /** The side for a timeline variable's 0/1 position (see buildHeartsOrFlowersTimelineVariables). */

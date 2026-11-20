@@ -14,7 +14,10 @@ import {
 import { isTouchScreen, jsPsych } from '../../taskSetup';
 import { setupHafMultiResponseTouchRouting } from '../helpers/touchResponseRouting';
 import {
+  type CorpusRow,
+  getAudioKey,
   getCorrectInputSide,
+  getImageKey,
   getStimulusLayout,
   type HaFStimulusType,
   InputKeyType,
@@ -126,18 +129,29 @@ export function buildInstructionPracticeTrial(
   return trial;
 }
 
-export function buildPracticeFeedback(outcome: 'correct' | 'incorrect', getPromptKey: () => string | undefined) {
+/**
+ * The feedback screen after a practice answer, from the feedback row linked for that outcome: correct feedback
+ * shows the row's image, and incorrect feedback shows the stimulus again with the correct button pulsing.
+ */
+export function buildPracticeFeedback(outcome: 'correct' | 'incorrect', getFeedbackRow: () => CorpusRow | undefined) {
   const isCorrectFeedback = outcome === 'correct';
+  const getPromptKey = () => {
+    const feedbackRow = getFeedbackRow();
+    return feedbackRow && getAudioKey(feedbackRow);
+  };
   const validAnswerButtonHtmlIdentifier = 'valid-answer-btn';
 
   const trial = {
     type: jsPsychHtmlMultiResponse,
     stimulus: () => {
+      // conditional_function only runs this trial when the outcome has a feedback row
+      const feedbackRow = getFeedbackRow();
       const promptText = taskStore().translations[getPromptKey() ?? ''];
       if (isCorrectFeedback) {
+        const imageSrc = feedbackRow ? mediaAssets.images[getImageKey(feedbackRow)] : '';
         return `
           <div class='haf-cr-container'>
-            <img src='${mediaAssets.images.smilingFace}' />
+            <img src='${imageSrc}' />
             <p class='lev-text h4 primary'>${promptText}</p>
           </div>
           ${getParticipantUtilityButtonsHtml('replay-btn-revisited', false)}
