@@ -31,7 +31,7 @@ import {
   isTestRow,
 } from './helpers/utils';
 import { getCorpusValidationErrors } from './helpers/validation';
-import { buildInstructionScreen } from './trials/instructions';
+import { buildInstructionScreen, resetDisplayPromptDurations } from './trials/instructions';
 import { getCorsiBlocks, resetMemoryGameState } from './trials/stimulus';
 
 // The fallback to heavy instructions can only trigger during the first forward test trials
@@ -49,6 +49,7 @@ type BuildContext = {
 
 export default function buildMemoryTimeline(config: Record<string, any>) {
   resetMemoryGameState();
+  resetDisplayPromptDurations();
   initTrialSaving(config);
 
   const { heavyInstructions, corpora } = taskStore();

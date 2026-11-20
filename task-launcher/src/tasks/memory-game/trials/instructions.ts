@@ -13,7 +13,14 @@ import {
 import { jsPsych } from '../../taskSetup';
 import { resolveMemoryGamePrompt } from '../helpers/resolveMemoryGamePrompt';
 
+// Whether this run's display prompt durations have been measured. taskStore's durations are reset at the start
+// of every run, so this has to be too, or a second run in the same page session never measures them.
 let setPromptDurations = false;
+
+/** Lets this run measure its display prompt durations on its first instruction screen. */
+export function resetDisplayPromptDurations() {
+  setPromptDurations = false;
+}
 
 const replayButtonHtmlId = 'replay-btn-revisited';
 
