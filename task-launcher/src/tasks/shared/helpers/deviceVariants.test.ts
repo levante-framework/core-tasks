@@ -1,10 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import {
-  getInputDeviceVariant,
-  getInputDeviceVariantBaseId,
-  getInputDeviceVariantErrors,
-  withInputDeviceCondition,
-} from './deviceVariants';
+import { getInputDeviceErrors, isInputDevice, withInputDeviceCondition } from './deviceVariants';
 
 const storeState: Record<string, unknown> = {};
 
@@ -12,30 +7,37 @@ vi.mock('../../../taskStore', () => ({
   taskStore: () => storeState,
 }));
 
-describe('getInputDeviceVariant', () => {
-  it('reads the device from the item_id suffix', () => {
-    expect(getInputDeviceVariant('demo-left-touch')).toBe('touch');
-    expect(getInputDeviceVariant('demo-left-keyboard')).toBe('nonTouch');
-    expect(getInputDeviceVariant('instruct-bubble-mouse')).toBe('nonTouch');
-    expect(getInputDeviceVariant('heart-instruct1')).toBeUndefined();
-  });
-
-  it('pairs versions by the item_id without its suffix', () => {
-    expect(getInputDeviceVariantBaseId('demo-left-touch')).toBe('demo-left');
-    expect(getInputDeviceVariantBaseId('demo-left-keyboard')).toBe('demo-left');
-    expect(getInputDeviceVariantBaseId('heart-instruct1')).toBe('heart-instruct1');
+describe('isInputDevice', () => {
+  it('accepts touch, keyboard and mouse', () => {
+    expect(['touch', 'keyboard', 'mouse'].every(isInputDevice)).toBe(true);
+    expect(isInputDevice('tablet')).toBe(false);
   });
 });
 
-describe('getInputDeviceVariantErrors', () => {
-  it('accepts screens with both versions and rows without a suffix', () => {
-    const rows = [{ itemId: 'a-touch' }, { itemId: 'a-keyboard' }, { itemId: 'b-touch' }, { itemId: 'b-mouse' }];
-    expect(getInputDeviceVariantErrors([...rows, { itemId: 'heart-instruct1' }])).toEqual({});
+describe('getInputDeviceErrors', () => {
+  it('accepts blocks with a touch and a non-touch version of each screen, and rows without a device', () => {
+    const rows = [
+      { itemId: 'a-touch', device: 'touch', block_index: 0 },
+      { itemId: 'a-keyboard', device: 'keyboard', block_index: 0 },
+      { itemId: 'b-touch', device: 'touch', block_index: 1 },
+      { itemId: 'b-mouse', device: 'mouse', block_index: 1 },
+      { itemId: 'heart-instruct1', block_index: 0 },
+    ];
+    expect(getInputDeviceErrors(rows)).toEqual({});
   });
 
-  it('reports a screen with only one version', () => {
-    const errors = getInputDeviceVariantErrors([{ itemId: 'a-touch' }, { itemId: 'b-keyboard' }]);
-    expect(Object.keys(errors).sort()).toEqual(['device:a', 'device:b']);
+  it('reports a block where one device would see fewer screens', () => {
+    const rows = [
+      { itemId: 'a-touch', device: 'touch', block_index: 0 },
+      { itemId: 'b-touch', device: 'touch', block_index: 0 },
+      { itemId: 'a-keyboard', device: 'keyboard', block_index: 0 },
+    ];
+    expect(Object.keys(getInputDeviceErrors(rows))).toEqual(['device:block 0']);
+  });
+
+  it('reports unknown device values', () => {
+    const errors = getInputDeviceErrors([{ itemId: 'a', device: 'tablet', block_index: 0 }]);
+    expect(Object.keys(errors)).toEqual(['device:0:a']);
   });
 });
 
@@ -46,20 +48,33 @@ describe('withInputDeviceCondition', () => {
     delete storeState.inputCapability;
   });
 
-  it('returns rows without a suffix unchanged', () => {
-    expect(withInputDeviceCondition('heart-instruct1', trial)).toBe(trial);
+  it('returns rows without a device unchanged', () => {
+    expect(withInputDeviceCondition(undefined, trial)).toBe(trial);
   });
 
   it('runs each version only on its devices, checked when reached', () => {
-    const touchNode = withInputDeviceCondition('demo-touch', trial) as { conditional_function: () => boolean };
-    const keyboardNode = withInputDeviceCondition('demo-keyboard', trial) as { conditional_function: () => boolean };
+    const touchNode = withInputDeviceCondition('touch', trial) as { conditional_function: () => boolean };
+    const keyboardNode = withInputDeviceCondition('keyboard', trial) as { conditional_function: () => boolean };
+    const mouseNode = withInputDeviceCondition('mouse', trial) as { conditional_function: () => boolean };
 
     storeState.inputCapability = { touch: true };
-    expect(touchNode.conditional_function()).toBe(true);
-    expect(keyboardNode.conditional_function()).toBe(false);
+    expect([touchNode, keyboardNode, mouseNode].map((node) => node.conditional_function())).toEqual([
+      true,
+      false,
+      false,
+    ]);
 
     storeState.inputCapability = { touch: false };
-    expect(touchNode.conditional_function()).toBe(false);
-    expect(keyboardNode.conditional_function()).toBe(true);
+    expect([touchNode, keyboardNode, mouseNode].map((node) => node.conditional_function())).toEqual([
+      false,
+      true,
+      true,
+    ]);
+  });
+
+  it('never runs a row with an unknown device', () => {
+    const node = withInputDeviceCondition('tablet', trial) as { conditional_function: () => boolean };
+    storeState.inputCapability = { touch: true };
+    expect(node.conditional_function()).toBe(false);
   });
 });

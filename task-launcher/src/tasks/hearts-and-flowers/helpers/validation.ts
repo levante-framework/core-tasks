@@ -1,5 +1,5 @@
 import groupBy from 'lodash/groupBy';
-import { getInputDeviceVariant, getInputDeviceVariantErrors } from '../../shared/helpers/deviceVariants';
+import { getInputDeviceErrors } from '../../shared/helpers/deviceVariants';
 import {
   BLOCK_STIMULUS_TYPE,
   BlockType,
@@ -36,7 +36,7 @@ export function getCorpusValidationErrors(
     ...getFeedbackErrors(rowGroups.flat(), feedbackRows, mediaAssets, translations),
     ...getBlockIndexErrors(rowGroups.flat()),
     // every device-specific screen needs a version for the other devices too
-    ...getInputDeviceVariantErrors(rowGroups.flat()),
+    ...getInputDeviceErrors(rowGroups.flat()),
   };
   if (!rowGroups.flat().some((row) => row.assessmentStage === 'test_response')) {
     errors.corpus = 'no test rows; the corpus is missing or failed to load';
@@ -119,8 +119,8 @@ function getRowsError(
       ? `instruction rows take answer "left" or "right" (a button demo) or blank, got "${row.answer}"`
       : null;
   }
-  if (rows.some((r) => getInputDeviceVariant(r.itemId))) {
-    return 'only instruction screens can have device versions (item_id ending in -touch, -keyboard or -mouse)';
+  if (rows.some((r) => r.device)) {
+    return 'only instruction screens can have a device';
   }
   if (isInstructionPracticeRow(row)) {
     return getInstructionPracticeSide(row)

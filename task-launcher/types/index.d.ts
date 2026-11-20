@@ -97,6 +97,7 @@ declare global {
     animationTimestamps?: number[];
     animationAudioTriggers?: string[];
     feedbackItemIds?: string[];
+    device?: string;
   };
 
   type MediaAssetsType = {

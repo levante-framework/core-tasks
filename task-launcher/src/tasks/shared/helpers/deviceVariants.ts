@@ -1,59 +1,61 @@
 import { taskStore } from '../../../taskStore';
 
 /**
- * Corpus rows can have one version per input device, marked by an item_id suffix:
- * `-touch` rows play on touch devices; `-keyboard` or `-mouse` rows play on all other devices.
- * Rows without a suffix play on every device.
+ * Corpus rows can have one version per input device, set by the `device` column:
+ * `touch` rows play on touch devices; `keyboard` or `mouse` rows play on all other devices.
+ * Rows with a blank `device` play on every device.
  */
-export type InputDeviceVariant = 'touch' | 'nonTouch';
+export const INPUT_DEVICES = ['touch', 'keyboard', 'mouse'] as const;
+export type InputDevice = (typeof INPUT_DEVICES)[number];
 
-const NON_TOUCH_SUFFIXES = ['-keyboard', '-mouse'];
+type DeviceRow = { itemId: string; device?: string; block_index?: number };
 
-/** Which devices a row's item_id is for, or undefined if it plays on every device. */
-export function getInputDeviceVariant(itemId: string): InputDeviceVariant | undefined {
-  if (itemId.endsWith('-touch')) return 'touch';
-  if (NON_TOUCH_SUFFIXES.some((suffix) => itemId.endsWith(suffix))) return 'nonTouch';
-  return undefined;
+export function isInputDevice(value: string): value is InputDevice {
+  return (INPUT_DEVICES as readonly string[]).includes(value);
 }
 
-/** The item_id without its device suffix, so a row's touch and non-touch versions can be paired. */
-export function getInputDeviceVariantBaseId(itemId: string): string {
-  return itemId.replace(/-(touch|keyboard|mouse)$/, '');
+function playsOnCurrentDevice(device: InputDevice) {
+  return (device === 'touch') === Boolean(taskStore().inputCapability?.touch);
 }
 
 /**
- * Wraps a timeline node so it only runs on the devices its item_id is for.
+ * Wraps a timeline node so it only runs on the devices its row's `device` value is for.
  * The device is checked when the node is reached, since input capability is detected
  * during the fullscreen trial, after the timeline is built.
  */
-export function withInputDeviceCondition<T extends object>(itemId: string, node: T) {
-  const variant = getInputDeviceVariant(itemId);
-  if (!variant) return node;
+export function withInputDeviceCondition<T extends object>(device: string | undefined, node: T) {
+  if (!device) return node;
   return {
     timeline: [node],
-    conditional_function: () => (variant === 'touch') === Boolean(taskStore().inputCapability?.touch),
+    conditional_function: () => isInputDevice(device) && playsOnCurrentDevice(device),
   };
 }
 
 /**
- * Describes each device-specific row whose other version is missing, so no device is left
- * without the screen. Pass every row of the corpus, not only those for the current device.
+ * Describes each unknown `device` value, and each block where touch and non-touch devices would see
+ * a different number of device-specific screens (each screen needs a version for both).
+ * Pass every row of the corpus, not only those for the current device.
  */
-export function getInputDeviceVariantErrors(rows: { itemId: string }[]): Record<string, string> {
-  const variantsByBaseId = new Map<string, Set<InputDeviceVariant>>();
-  for (const { itemId } of rows) {
-    const variant = getInputDeviceVariant(itemId);
-    if (!variant) continue;
-    const baseId = getInputDeviceVariantBaseId(itemId);
-    if (!variantsByBaseId.has(baseId)) variantsByBaseId.set(baseId, new Set());
-    variantsByBaseId.get(baseId)?.add(variant);
+export function getInputDeviceErrors(rows: DeviceRow[]): Record<string, string> {
+  const errors: Record<string, string> = {};
+  const countsByBlock = new Map<number | undefined, { touch: number; nonTouch: number }>();
+
+  for (const row of rows) {
+    if (!row.device) continue;
+    if (!isInputDevice(row.device)) {
+      errors[`device:${row.block_index}:${row.itemId}`] =
+        `unknown device "${row.device}"; use touch, keyboard, mouse or blank`;
+      continue;
+    }
+    if (!countsByBlock.has(row.block_index)) countsByBlock.set(row.block_index, { touch: 0, nonTouch: 0 });
+    const counts = countsByBlock.get(row.block_index);
+    if (counts) counts[row.device === 'touch' ? 'touch' : 'nonTouch'] += 1;
   }
 
-  const errors: Record<string, string> = {};
-  for (const [baseId, variants] of variantsByBaseId) {
-    if (variants.size < 2) {
-      const missing = variants.has('touch') ? 'a -keyboard or -mouse' : 'a -touch';
-      errors[`device:${baseId}`] = `has only one device version; add ${missing} row`;
+  for (const [blockIndex, { touch, nonTouch }] of countsByBlock) {
+    if (touch !== nonTouch) {
+      errors[`device:block ${blockIndex}`] =
+        `${touch} touch rows but ${nonTouch} keyboard/mouse rows; each device-specific screen needs a version for both`;
     }
   }
   return errors;

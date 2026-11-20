@@ -39,6 +39,7 @@ export type CorpusRow = Pick<
   | 'answer'
   | 'timeLimit'
   | 'feedbackItemIds'
+  | 'device'
 >;
 
 // The trial_type of practice and test rows

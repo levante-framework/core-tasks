@@ -96,7 +96,7 @@ function buildRowGroupSubTimeline(rows: CorpusRow[], mediaAssets: MediaAssetsTyp
           buttonSide !== null,
           buttonSide,
         );
-        return withInputDeviceCondition(instructionRow.itemId, trial);
+        return withInputDeviceCondition(instructionRow.device, trial);
       }),
     };
   }
