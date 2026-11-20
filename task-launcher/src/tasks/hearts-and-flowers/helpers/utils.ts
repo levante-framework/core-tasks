@@ -1,32 +1,33 @@
 import { taskStore } from '../../../taskStore';
 import { camelize, getParticipantUtilityButtonsHtml } from '../../shared/helpers';
 
+type ValueOf<T> = T[keyof T];
+
+// Prefixed to prevent clashing with global StimulusType (see types/index.d.ts)
 export const HaFStimulusType = {
   Heart: 'heart',
   Flower: 'flower',
 } as const;
-export type HaFStimulusType = (typeof HaFStimulusType)[keyof typeof HaFStimulusType];
+export type HaFStimulusType = ValueOf<typeof HaFStimulusType>;
 
-// Enum for the side the stimulus is shown on and also for button_choices (ResponseSideType)
 export const StimulusSideType = {
   Left: 'left',
   Right: 'right',
 } as const;
-export type StimulusSideType = (typeof StimulusSideType)[keyof typeof StimulusSideType];
+export type StimulusSideType = ValueOf<typeof StimulusSideType>;
 
 export const ResponseSideType = StimulusSideType;
-export type ResponseSideType = (typeof ResponseSideType)[keyof typeof ResponseSideType];
+export type ResponseSideType = ValueOf<typeof ResponseSideType>;
 
-// Enum for the jsPsych keyboard inputs
 export const InputKeyType = {
   ArrowLeft: 'arrowleft',
   ArrowRight: 'arrowright',
-  NoKeys: 'NO_KEYS', // aka no key input accepted
-  AllKeys: 'ALL_KEYS', // aka any key is accepted
+  NoKeys: 'NO_KEYS',
+  AllKeys: 'ALL_KEYS',
   SpaceBar: ' ',
   Enter: 'enter',
 } as const;
-export type InputKeyType = (typeof InputKeyType)[keyof typeof InputKeyType];
+export type InputKeyType = ValueOf<typeof InputKeyType>;
 
 export type CorpusRow = Pick<
   StimulusType,
@@ -47,16 +48,11 @@ export const BlockType = {
   Flowers: 'flowers',
   Mixed: 'hearts and flowers',
 } as const;
-export type BlockType = (typeof BlockType)[keyof typeof BlockType];
+export type BlockType = ValueOf<typeof BlockType>;
+
 export const BLOCK_STIMULUS_TYPE: Record<string, HaFStimulusType> = {
   [BlockType.Hearts]: HaFStimulusType.Heart,
   [BlockType.Flowers]: HaFStimulusType.Flower,
-};
-
-// The trial_type of a feedback row that only applies to one stimulus; feedback rows with a blank trial_type apply to both
-export const STIMULUS_BLOCK_TYPE: Record<HaFStimulusType, BlockType> = {
-  [HaFStimulusType.Heart]: BlockType.Hearts,
-  [HaFStimulusType.Flower]: BlockType.Flowers,
 };
 
 export function getAudioKey(row: CorpusRow) {
@@ -71,7 +67,7 @@ export function isInstructionRow(row: CorpusRow) {
   return row.assessmentStage === 'instructions' && row.trialType === 'instructions';
 }
 
-export function isPracticeInstructionRow(row: CorpusRow) {
+export function isInstructionPracticeRow(row: CorpusRow) {
   return row.assessmentStage === 'instructions' && row.trialType in BLOCK_STIMULUS_TYPE;
 }
 
@@ -79,7 +75,6 @@ export function isFeedbackRow(row: CorpusRow) {
   return row.assessmentStage === 'feedback';
 }
 
-/** The stimuli a practice or instruction practice row can show: both for mixed blocks. */
 export function getRowStimuli(row: CorpusRow): HaFStimulusType[] {
   return row.trialType in BLOCK_STIMULUS_TYPE
     ? [BLOCK_STIMULUS_TYPE[row.trialType]]
@@ -94,18 +89,40 @@ export function getInstructionPracticeSide(row: CorpusRow): StimulusSideType | u
   const answer = String(row.answer ?? '').trim();
   if (answer !== StimulusSideType.Left && answer !== StimulusSideType.Right) return undefined;
   if (BLOCK_STIMULUS_TYPE[row.trialType] === HaFStimulusType.Heart) return answer;
-  return answer === StimulusSideType.Left ? StimulusSideType.Right : StimulusSideType.Left;
+  else return answer === StimulusSideType.Left ? StimulusSideType.Right : StimulusSideType.Left;
+}
+
+export type FeedbackOutcome = 'correct' | 'incorrect';
+
+export function findFeedbackRow(rowsWithId: CorpusRow[], stimulus: HaFStimulusType) {
+  return (
+    rowsWithId.find((row) => BLOCK_STIMULUS_TYPE[row.trialType] === stimulus) ??
+    rowsWithId.find((row) => !row.trialType)
+  );
 }
 
 /**
- * The feedback row for a stimulus among the rows that share a feedback item_id: the row for that
- * stimulus's trial_type, or else the row with a blank trial_type.
+ * A practice row's feedback_item_ids name the feedback rows to play after a correct and a wrong answer.
+ * This function finds the feedback row for the stimulus and outcome of a given trial via its row in the corpus, then returns its audio key.
  */
-export function findFeedbackRow(rowsWithId: CorpusRow[], stimulus: HaFStimulusType) {
-  return (
-    rowsWithId.find((row) => row.trialType === STIMULUS_BLOCK_TYPE[stimulus]) ??
-    rowsWithId.find((row) => !row.trialType)
+export function getFeedbackPromptKey(
+  feedbackRows: CorpusRow[],
+  row: CorpusRow,
+  outcome: FeedbackOutcome,
+  stimulus: HaFStimulusType,
+): string | undefined {
+  const feedbackItemId = row.feedbackItemIds?.[outcome === 'correct' ? 0 : 1];
+  if (!feedbackItemId) return undefined;
+  const feedbackRow = findFeedbackRow(
+    feedbackRows.filter((candidate) => candidate.itemId === feedbackItemId),
+    stimulus,
   );
+  return feedbackRow && getAudioKey(feedbackRow);
+}
+
+/** The side for a timeline variable's 0/1 position (see buildHeartsOrFlowersTimelineVariables). */
+export function getStimulusSideFromPosition(position: number): StimulusSideType {
+  return position === 0 ? StimulusSideType.Left : StimulusSideType.Right;
 }
 
 export function getCorrectInputSide(stimulusType: HaFStimulusType, stimulusSideType: StimulusSideType): 0 | 1 {
@@ -119,11 +136,11 @@ export function getCorrectInputSide(stimulusType: HaFStimulusType, stimulusSideT
 
 export const getStimulusLayout = (
   imageSrc: string,
-  isLeft: boolean,
+  stimulusSide: StimulusSideType,
   promptText?: string,
   replayButtonHtmlId?: string,
 ): string => {
-  const stimulusClass = isLeft ? 'stimulus-left' : 'stimulus-right';
+  const stimulusClass = stimulusSide === StimulusSideType.Left ? 'stimulus-left' : 'stimulus-right';
   const includeReplayButton = replayButtonHtmlId !== undefined;
 
   let template = '<div class="haf-stimulus-holder">';

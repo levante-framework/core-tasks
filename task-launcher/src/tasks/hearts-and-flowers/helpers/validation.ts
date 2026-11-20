@@ -1,5 +1,6 @@
 import groupBy from 'lodash/groupBy';
 import {
+  BLOCK_STIMULUS_TYPE,
   BlockType,
   type CorpusRow,
   findFeedbackRow,
@@ -8,9 +9,8 @@ import {
   getInstructionPracticeSide,
   getRowStimuli,
   HaFStimulusType,
+  isInstructionPracticeRow,
   isInstructionRow,
-  isPracticeInstructionRow,
-  STIMULUS_BLOCK_TYPE,
 } from './utils';
 
 // Assets used by trials that don't come from a corpus row
@@ -25,7 +25,8 @@ const REQUIRED_PROMPTS = [
   'heartsAndFlowersEnd',
 ];
 const REQUIRED_TEXT = ['continueButtonText', 'heartsAndFlowersPressAnyKey'];
-const REQUIRED_SOUNDS = ['coin', 'fail'];
+// played when a button demo's button is pressed
+const REQUIRED_SOUNDS = ['coin'];
 
 /**
  * Describes everything that would stop the task from running as intended: invalid corpus rows and
@@ -40,15 +41,44 @@ export function getCorpusValidationErrors(
   const errors = {
     ...getFixedAssetErrors(mediaAssets, translations),
     ...getFeedbackErrors(rowGroups.flat(), feedbackRows, mediaAssets, translations),
+    ...getBlockIndexErrors(rowGroups.flat()),
   };
   if (!rowGroups.flat().some((row) => row.assessmentStage === 'test_response')) {
     errors.corpus = 'no test rows; the corpus is missing or failed to load';
   }
-  for (const rows of rowGroups) {
-    const error = getRowsError(rows, mediaAssets, translations);
-    // item_ids repeat across blocks, so include the block to tell rows apart
-    if (error) errors[`${rows[0].block_index}:${rows[0].itemId}`] = error;
+  for (const group of rowGroups) {
+    // Each instruction row is its own screen with its own assets, so check them one at a time
+    const checkedGroups = isInstructionRow(group[0]) ? group.map((row) => [row]) : [group];
+    for (const rows of checkedGroups) {
+      const error = getRowsError(rows, mediaAssets, translations);
+      // item_ids repeat across blocks, so include the block to tell rows apart
+      if (error) errors[`${rows[0].block_index}:${rows[0].itemId}`] = error;
+    }
   }
+  return errors;
+}
+
+/**
+ * Describes each trial row whose block_index is missing or lower than the row before it.
+ * Rows play in corpus order and blocks are split wherever block_index changes, so an out-of-order
+ * row would silently split its block in two.
+ */
+function getBlockIndexErrors(trialRows: CorpusRow[]) {
+  const errors: Record<string, string> = {};
+  let previousBlockIndex = -Infinity;
+  trialRows.forEach((row, position) => {
+    // item_ids repeat across blocks, so key by position among this session's trial rows
+    const errorKey = `block_index:${position + 1}:${row.itemId}`;
+    if (!Number.isInteger(row.block_index)) {
+      errors[errorKey] = 'missing block_index';
+      return;
+    }
+    if (row.block_index < previousBlockIndex) {
+      errors[errorKey] =
+        `block_index ${row.block_index} comes after block ${previousBlockIndex}; keep each block's rows together and in order`;
+    }
+    previousBlockIndex = Math.max(previousBlockIndex, row.block_index);
+  });
   return errors;
 }
 
@@ -95,7 +125,7 @@ function getRowsError(
   if (isInstructionRow(row)) {
     return mediaAssets.images[getImageKey(row)] ? null : `no image named "${row.image}"`;
   }
-  if (isPracticeInstructionRow(row)) {
+  if (isInstructionPracticeRow(row)) {
     return getInstructionPracticeSide(row)
       ? null
       : `instruction practice rows need answer "left" or "right" (the correct button), got "${row.answer ?? ''}"`;
@@ -130,7 +160,7 @@ function getFeedbackErrors(
 ) {
   const errors: Record<string, string> = {};
   const feedbackRowsById = groupBy(feedbackRows, (row) => row.itemId);
-  const feedbackTrialTypes = ['', ...Object.values(STIMULUS_BLOCK_TYPE)];
+  const feedbackTrialTypes = ['', ...Object.keys(BLOCK_STIMULUS_TYPE)];
 
   for (const row of feedbackRows) {
     const errorKey = `feedback:${row.itemId}:${row.trialType || 'any'}`;
@@ -150,7 +180,7 @@ function getFeedbackErrors(
   for (const row of rows) {
     if (!row.feedbackItemIds) continue;
     const errorKey = `${row.block_index}:${row.itemId}:feedback`;
-    if (row.assessmentStage !== 'practice_response' && !isPracticeInstructionRow(row)) {
+    if (row.assessmentStage !== 'practice_response' && !isInstructionPracticeRow(row)) {
       errors[errorKey] = 'only practice and instruction practice rows can have feedback_item_ids';
       continue;
     }

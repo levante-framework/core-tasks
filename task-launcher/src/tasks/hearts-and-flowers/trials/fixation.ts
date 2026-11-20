@@ -1,4 +1,5 @@
 import jsPsychHTMLMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
+import { taskStore } from '../../../taskStore';
 import {
   addExperimenterButtons,
   addKeyHelpers,

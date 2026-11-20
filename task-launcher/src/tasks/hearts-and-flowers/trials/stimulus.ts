@@ -11,6 +11,7 @@ import {
   type CorpusRow,
   getCorrectInputSide,
   getStimulusLayout,
+  getStimulusSideFromPosition,
   HaFStimulusType,
   InputKeyType,
   ResponseSideType,
@@ -46,18 +47,19 @@ export function stimulus(
     stimulus: () => {
       return getStimulusLayout(
         mediaAssets.images[jsPsych.timelineVariable('stimulus')],
-        jsPsych.timelineVariable('position') <= 0.5,
+        getStimulusSideFromPosition(jsPsych.timelineVariable('position')),
       );
     },
     on_load: () => {
-      if (hfV2 && !isPractice) {
-        // set the time limit here so it can be restarted after pause
-        taskStore('currentTrialTimeLimitMs', stimulusDuration);
+      // Timed (non-practice) trials end on a timeout instead of trial_duration, so it can be restarted after pause
+      const presentationTime = getPresentationTime(getCorpusRow());
+      if (presentationTime !== null) {
+        taskStore('currentTrialTimeLimitMs', presentationTime);
 
         const currentTrialTimeout = jsPsych.pluginAPI.setTimeout(() => {
           if (taskStore().isPaused || taskStore().currentTrialTimeoutId !== currentTrialTimeout) return;
           jsPsych.finishTrial();
-        }, stimulusDuration);
+        }, presentationTime);
 
         taskStore('currentTrialTimeoutId', currentTrialTimeout);
       }
@@ -88,15 +90,20 @@ export function stimulus(
       <button class='secondary--green'></button>
     </div>`,
     ],
-    trial_duration: () => getPresentationTime(getCorpusRow()),
     on_finish: (data: Record<string, unknown>) => {
+      clearTimeout(taskStore().currentTrialTimeoutId);
+      jsPsych.pluginAPI.cancelAllKeyboardResponses();
+
+      taskStore('currentTrialTimeoutId', undefined);
+      taskStore('currentTrialTimeLimitMs', null);
+
       const row = getCorpusRow();
       const isPractice = isPracticeRow(row);
       const trialType = row.trialType;
       const stimulusPosition = jsPsych.timelineVariable('position');
       const stimulusType = jsPsych.timelineVariable('stimulus');
 
-      // Non-practice trials have a trial_duration and can time out; for practice trials this just flags an absent response.
+      // Non-practice trials have a time limit and can time out; for practice trials this just flags an absent response.
       data.timedOut = data.button_response === null && data.keyboard_response === null;
 
       // get response position
@@ -115,28 +122,18 @@ export function stimulus(
         response = null;
       }
 
-      // get stimulus side; position is always 0 or 1 (see buildHeartsOrFlowersTimelineVariables / buildMixedTimelineVariables)
-      const stimuluSide: StimulusSideType = stimulusPosition === 0 ? StimulusSideType.Left : StimulusSideType.Right;
+      const stimulusSide = getStimulusSideFromPosition(stimulusPosition);
 
       // record whether answer was correct or not
-      const validAnswer = getCorrectInputSide(stimulusType, stimuluSide);
+      const validAnswer = getCorrectInputSide(stimulusType, stimulusSide);
       data.correct = validAnswer === response;
-
-      const audioConfig = {
-        restrictRepetition: {
-          enabled: false,
-          maxRepetitions: 2,
-        },
-      };
-
-      PageAudioHandler.playAudio(data.correct ? 'coin' : 'fail', audioConfig);
 
       shouldTerminateCat();
 
       //TODO: move these to timeline-level callback/variables
       taskStore('isCorrect', data.correct);
       taskStore('stimulus', stimulusType);
-      taskStore('stimulusSide', stimuluSide);
+      taskStore('stimulusSide', stimulusSide);
 
       // save item uid for data analysis
       const itemUid = `hf_${trialType === 'hearts and flowers' ? 'heartsflowers' : trialType}_${stimulusType}`;

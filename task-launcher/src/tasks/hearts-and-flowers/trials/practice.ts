@@ -21,13 +21,6 @@ import {
   StimulusSideType,
 } from '../helpers/utils';
 
-/**
- * Builds a practice trial for the Instruction sections.
- * @param {*} stimulusType
- * @param {*} promptText
- * @param {*} promptAudioAsset
- * @param {*} stimulusSideType
- */
 export function buildInstructionPracticeTrial(
   stimulusType: HaFStimulusType,
   promptText: string,
@@ -36,24 +29,18 @@ export function buildInstructionPracticeTrial(
   audioAssetKey: string,
 ) {
   if (!promptAudioAsset) {
-    // throw new Error(`Missing prompt audio for instruction practice trial`);
     Logger.getInstance().error(new Error('buildInstructionPracticeTrial: Missing prompt audio'));
   }
   if (!promptText) {
-    // throw new Error(`Missing prompt text for instruction practice trial`);
     Logger.getInstance().error(new Error('buildInstructionPracticeTrial: Missing prompt text'));
   }
+
   const replayButtonHtmlId = 'replay-btn-revisited';
   const validAnswer = getCorrectInputSide(stimulusType, stimulusSideType);
   const trial = {
     type: jsPsychHtmlMultiResponse,
     stimulus: () => {
-      return getStimulusLayout(
-        mediaAssets.images[stimulusType],
-        stimulusSideType === StimulusSideType.Left,
-        promptText,
-        replayButtonHtmlId,
-      );
+      return getStimulusLayout(mediaAssets.images[stimulusType], stimulusSideType, promptText, replayButtonHtmlId);
     },
     prompt_above_buttons: true,
     on_start: () => {
@@ -137,12 +124,6 @@ export function buildInstructionPracticeTrial(
   return trial;
 }
 
-/**
- * Builds the feedback shown after a practice answer with the given outcome. It only runs when the answer
- * had that outcome and getPromptKey returns a prompt (a blank feedback item means no feedback).
- * Correct feedback shows a smiling face with the prompt; incorrect feedback shows the stimulus again
- * with the correct button pulsing while the prompt plays.
- */
 export function buildPracticeFeedback(outcome: 'correct' | 'incorrect', getPromptKey: () => string | undefined) {
   const isCorrectFeedback = outcome === 'correct';
   const validAnswerButtonHtmlIdentifier = 'valid-answer-btn';
@@ -161,7 +142,7 @@ export function buildPracticeFeedback(outcome: 'correct' | 'incorrect', getPromp
         `;
       }
       const imageSrc = mediaAssets.images[taskStore().stimulus];
-      return getStimulusLayout(imageSrc, taskStore().stimulusSide === StimulusSideType.Left, promptText, undefined);
+      return getStimulusLayout(imageSrc, taskStore().stimulusSide, promptText, undefined);
     },
     prompt_above_buttons: true,
     on_load: () => {
