@@ -17,7 +17,7 @@ import {
 
 // Assets used by trials that don't come from a corpus row
 const REQUIRED_IMAGES = [HaFStimulusType.Heart, HaFStimulusType.Flower];
-const REQUIRED_TEXT = ['continueButtonText', 'heartsAndFlowersPressAnyKey'];
+const REQUIRED_TEXT = ['continueButtonText', 'heartsAndFlowersPressAnyKey', 'heartsAndFlowersClickReminder'];
 // played when a button demo's button is pressed
 const REQUIRED_SOUNDS = ['coin'];
 
