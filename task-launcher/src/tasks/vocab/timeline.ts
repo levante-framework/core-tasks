@@ -12,7 +12,7 @@ import {
   reportCorpusValidationErrors,
   selectNItems,
 } from '../shared/helpers';
-import { preloadSharedAudio } from '../shared/helpers/preloadSharedAudio';
+import { getLeftoverAssets } from '../shared/helpers/batchPreloading';
 // trials
 import {
   afcStimulusTemplate,
@@ -53,7 +53,10 @@ export default function buildVocabTimeline(config: Record<string, any>, mediaAss
   // counter for next batch to preload
   let currPreloadBatch = 0;
 
-  const initialPreload = runCat ? createPreloadTrials(mediaAssets).default : preloadSharedAudio();
+  const leftOverAssets = getLeftoverAssets(batchedMediaAssets, mediaAssets);
+  const initialPreload = runCat
+    ? createPreloadTrials(mediaAssets).default
+    : createPreloadTrials(leftOverAssets).default;
 
   // does not matter if trial has properties that don't belong to that type
   const trialConfig = {

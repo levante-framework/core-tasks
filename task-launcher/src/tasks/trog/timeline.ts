@@ -10,7 +10,7 @@ import {
   initTrialSaving,
   reportCorpusValidationErrors,
 } from '../shared/helpers';
-import { preloadSharedAudio } from '../shared/helpers/preloadSharedAudio';
+import { getLeftoverAssets } from '../shared/helpers/batchPreloading';
 import { prepareCorpus, selectNItems } from '../shared/helpers/prepareCat';
 // trials
 import {
@@ -52,8 +52,10 @@ export default function buildTROGTimeline(config: Record<string, any>, mediaAsse
 
   // counter for next batch to preload (skipping the initial preload)
   let currPreloadBatch = 0;
-
-  const initialPreload = runCat ? createPreloadTrials(mediaAssets).default : preloadSharedAudio();
+  const leftOverAssets = getLeftoverAssets(batchedMediaAssets, mediaAssets);
+  const initialPreload = runCat
+    ? createPreloadTrials(mediaAssets).default
+    : createPreloadTrials(leftOverAssets).default;
 
   const timeline = [initialPreload, initialTimeline];
 
