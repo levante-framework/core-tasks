@@ -3,6 +3,7 @@ import partition from 'lodash/partition';
 import { taskStore } from '../../taskStore';
 import { createPreloadTrials, initTimeline, initTrialSaving, reportCorpusValidationErrors } from '../shared/helpers';
 import { withInputDeviceCondition } from '../shared/helpers/deviceVariants';
+import { groupConsecutiveRows } from '../shared/helpers/groupConsecutiveRows';
 // trials
 import { enterFullscreen, exitFullscreen, taskFinished } from '../shared/trials';
 import { jsPsych } from '../taskSetup';
@@ -63,23 +64,15 @@ export default function buildHeartsAndFlowersTimeline(config: Record<string, any
  * in one direction, or of test rows in one direction.
  */
 function groupCorpusRows(corpus: CorpusRow[]): CorpusRow[][] {
-  const groups: CorpusRow[][] = [];
-  for (const row of corpus) {
-    const currentGroup = groups[groups.length - 1];
-    const previousRow = currentGroup?.[0];
-    if (
-      !isInstructionPracticeRow(row) && // Each practice instruction row gets its own group because it loops indefinitely until the child gets it right
-      previousRow &&
-      !isInstructionPracticeRow(previousRow) &&
-      previousRow.assessmentStage === row.assessmentStage &&
-      previousRow.block_index === row.block_index
-    ) {
-      currentGroup.push(row);
-    } else {
-      groups.push([row]);
-    }
-  }
-  return groups;
+  return groupConsecutiveRows(
+    corpus,
+    (runStart, row) =>
+      // Each practice instruction row gets its own group because it loops indefinitely until the child gets it right
+      !isInstructionPracticeRow(row) &&
+      !isInstructionPracticeRow(runStart) &&
+      runStart.assessmentStage === row.assessmentStage &&
+      runStart.block_index === row.block_index,
+  );
 }
 
 function buildRowGroupSubTimeline(rows: CorpusRow[], mediaAssets: MediaAssetsType, feedbackRows: CorpusRow[]) {

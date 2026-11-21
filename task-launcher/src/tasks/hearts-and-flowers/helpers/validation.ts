@@ -1,4 +1,9 @@
 import groupBy from 'lodash/groupBy';
+import {
+  getBlockIndexErrors,
+  getFeedbackLinkErrors,
+  getMissingPromptAssets,
+} from '../../shared/helpers/corpusValidation';
 import { getInputDeviceErrors } from '../../shared/helpers/deviceVariants';
 import {
   BLOCK_STIMULUS_TYPE,
@@ -51,38 +56,6 @@ export function getCorpusValidationErrors(
     }
   }
   return errors;
-}
-
-/**
- * Describes each trial row whose block_index is missing or lower than the row before it.
- * Rows play in corpus order and blocks are split wherever block_index changes, so an out-of-order
- * row would silently split its block in two.
- */
-function getBlockIndexErrors(trialRows: CorpusRow[]) {
-  const errors: Record<string, string> = {};
-  let previousBlockIndex = -Infinity;
-  trialRows.forEach((row, position) => {
-    // item_ids repeat across blocks, so key by position among this session's trial rows
-    const errorKey = `block_index:${position + 1}:${row.itemId}`;
-    if (!Number.isInteger(row.block_index)) {
-      errors[errorKey] = 'missing block_index';
-      return;
-    }
-    if (row.block_index < previousBlockIndex) {
-      errors[errorKey] =
-        `block_index ${row.block_index} comes after block ${previousBlockIndex}; keep each block's rows together and in order`;
-    }
-    previousBlockIndex = Math.max(previousBlockIndex, row.block_index);
-  });
-  return errors;
-}
-
-/** Which of a prompt's audio and translation are missing. */
-function getMissingPromptAssets(key: string, mediaAssets: MediaAssetsType, translations: Record<string, string>) {
-  const missing: string[] = [];
-  if (!mediaAssets.audio[key]) missing.push('audio');
-  if (!translations[key]) missing.push('translation');
-  return missing;
 }
 
 /** Describes each missing asset that trials use outside of corpus rows. */
@@ -176,47 +149,29 @@ function getFeedbackErrors(
     }
   }
 
-  const [correctIds, incorrectIds] = [new Set<string>(), new Set<string>()];
-  for (const row of rows) {
-    if (!row.feedbackItemIds) continue;
-    const errorKey = `${row.block_index}:${row.itemId}:feedback`;
-    if (row.assessmentStage !== 'practice_response' && !isInstructionPracticeRow(row)) {
-      errors[errorKey] = 'only practice and instruction practice rows can have feedback_item_ids';
-      continue;
-    }
-    if (row.feedbackItemIds.length !== 2) {
-      errors[errorKey] =
-        `feedback_item_ids must be "correct,incorrect" item_ids (either can be blank), got "${row.feedbackItemIds}"`;
-      continue;
-    }
-    const [correctId, incorrectId] = row.feedbackItemIds;
-    if (correctId) correctIds.add(correctId);
-    if (incorrectId) incorrectIds.add(incorrectId);
-    for (const itemId of [correctId, incorrectId].filter(Boolean)) {
-      const missingStimuli = getRowStimuli(row).filter(
-        (stimulus) => !findFeedbackRow(feedbackRowsById[itemId] ?? [], stimulus),
-      );
-      if (missingStimuli.length) {
-        errors[errorKey] = `no feedback row with item_id "${itemId}" for ${missingStimuli.join(' or ')}`;
-      }
+  // correct feedback shows its row's image; incorrect feedback shows the stimulus instead
+  const correctIds = new Set(rows.map((row) => row.feedbackItemIds?.[0]).filter(Boolean));
+  for (const row of feedbackRows) {
+    if (correctIds.has(row.itemId) && !mediaAssets.images[getImageKey(row)]) {
+      errors[`feedback:${row.itemId}:${row.trialType || 'any'}`] = row.image
+        ? `no image named "${row.image}"`
+        : 'correct feedback rows need an image';
     }
   }
 
-  for (const itemId of Object.keys(feedbackRowsById)) {
-    if (!correctIds.has(itemId) && !incorrectIds.has(itemId)) {
-      errors[`feedback:${itemId}`] = 'no practice row has this item_id in feedback_item_ids';
-    } else if (correctIds.has(itemId) && incorrectIds.has(itemId)) {
-      errors[`feedback:${itemId}`] = 'used as both correct and incorrect feedback';
-    } else if (correctIds.has(itemId)) {
-      // correct feedback shows its row's image; incorrect feedback shows the stimulus instead
-      for (const row of feedbackRowsById[itemId]) {
-        if (!mediaAssets.images[getImageKey(row)]) {
-          errors[`feedback:${itemId}:${row.trialType || 'any'}`] = row.image
-            ? `no image named "${row.image}"`
-            : 'correct feedback rows need an image';
-        }
-      }
-    }
-  }
-  return errors;
+  return {
+    ...errors,
+    ...getFeedbackLinkErrors(rows, Object.keys(feedbackRowsById), {
+      canHaveFeedback: (row) => row.assessmentStage === 'practice_response' || isInstructionPracticeRow(row),
+      // feedback rows can differ by stimulus, so each stimulus the row can show needs one
+      getMissingFeedback: (itemId, row) => {
+        const missingStimuli = getRowStimuli(row).filter(
+          (stimulus) => !findFeedbackRow(feedbackRowsById[itemId] ?? [], stimulus),
+        );
+        return missingStimuli.length
+          ? `no feedback row with item_id "${itemId}" for ${missingStimuli.join(' or ')}`
+          : null;
+      },
+    }),
+  };
 }
