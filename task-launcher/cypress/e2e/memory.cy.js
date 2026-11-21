@@ -1,6 +1,6 @@
 import { getParamLists } from './helpers.cy.js';
 
-const base_url = 'http://localhost:8081/?task=memory-game';
+const base_url = 'http://localhost:8080/?task=memory-game';
 // age > 4 gives the 3x3 grid, so the fallback's switch to the 2x2 grid can be detected
 const memory_game_url = `${base_url}&age=8`;
 // one play-through per live variant (see cypress.config.js)
