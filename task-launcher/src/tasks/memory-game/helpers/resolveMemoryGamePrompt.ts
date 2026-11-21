@@ -4,6 +4,7 @@ import { getMissingPromptAssets } from '../../shared/helpers/corpusValidation';
 
 const PROMPT_FALLBACKS: Record<string, string> = {
   memoryGameInstruct8Downex: 'memoryGameInput',
+  memoryGameInstruct10Downex: 'memoryGameInstruct5',
   memoryGameInstruct11Downex: 'memoryGameBackwardPrompt',
 };
 
