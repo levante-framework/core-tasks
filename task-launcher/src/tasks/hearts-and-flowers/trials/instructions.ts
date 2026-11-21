@@ -1,5 +1,4 @@
 import jsPsychHtmlMultiResponse from '@jspsych-contrib/plugin-html-multi-response';
-import { mediaAssets } from '../../..';
 import { taskStore } from '../../../taskStore';
 import { Logger } from '../../../utils';
 import {
@@ -14,7 +13,7 @@ import {
 import { disableOkButton } from '../../shared/helpers/disableOkButton';
 import { enableOkButton } from '../../shared/helpers/enableButtons';
 import { jsPsych } from '../../taskSetup';
-import { getInputInstructPrompt } from '../helpers/utils';
+import { isHfV2 } from '../helpers/utils';
 
 type ContinueTrialConfig = { type: 'button' | 'bottomText'; text: string };
 let continueTrialConfig: ContinueTrialConfig;
@@ -27,65 +26,13 @@ function detachInstructionInputListeners() {
   cleanupInstructionInputListeners = [];
 }
 
-function isHfV2() {
-  return taskStore().version === 2;
-}
-
-// These are the instruction "trials" they are full screen with no stimulus
-export function getHeartInstructions() {
-  return buildInstructionTrial(mediaAssets.images.animalBodySq, () => 'heartInstruct1');
-}
-
-export function getFlowerInstructions() {
-  return buildInstructionTrial(mediaAssets.images.animalBodySq, () => 'flowerInstruct1');
-}
-
-export function getTimeToPractice() {
-  return buildInstructionTrial(mediaAssets.images.animalBodySq, () => 'heartsAndFlowersPracticeTime');
-}
-
-export function getKeepUp() {
-  return buildInstructionTrial(mediaAssets.images.keepupSq, () => 'heartsAndFlowersInstruct1');
-}
-
-export function getKeepGoing() {
-  return buildInstructionTrial(mediaAssets.images.rocketSq, () => 'heartsAndFlowersInstruct2');
-}
-
-export function getTimeToPlay() {
-  return buildInstructionTrial(mediaAssets.images.animalBodySq, () => 'heartsAndFlowersPlayTime');
-}
-
-export function getMixedInstructions() {
-  return buildInstructionTrial(mediaAssets.images.animalBodySq, () => 'heartsAndFlowersInstruct3');
-}
-
-export function getGoingFasterInstructions() {
-  return buildInstructionTrial(mediaAssets.images.animalBodySq, () => 'heartsAndFlowersInstruct4');
-}
-
-export function getEndGame() {
-  return buildInstructionTrial(mediaAssets.images.animalBodySq, () => 'heartsAndFlowersEnd', false, null, true);
-}
-
-export function getInputInstructions() {
-  return buildInstructionTrial(mediaAssets.images.animalBodySq, getInputInstructPrompt);
-}
-
-export function getLeftButtonDemo() {
-  return buildInstructionTrial(mediaAssets.images.animalBodySq, getInputInstructPrompt, true, 'left');
-}
-
-export function getRightButtonDemo() {
-  return buildInstructionTrial(mediaAssets.images.animalBodySq, getInputInstructPrompt, true, 'right');
-}
-
-function buildInstructionTrial(
+// Instruction screens come from the corpus (see buildRowGroupSubTimeline in timeline.ts).
+// The task ends with the shared taskFinished screen, like every other task.
+export function buildInstructionTrial(
   mascotImage: string,
   getPromptKey: (showButton?: boolean) => string,
   showResponseButton: boolean = false,
   buttonSide: 'left' | 'right' | null = null,
-  endOfTask = false,
 ) {
   if (!mascotImage) {
     Logger.getInstance().error(new Error('buildInstructionTrial: Missing mascot image'));
@@ -98,9 +45,11 @@ function buildInstructionTrial(
     type: jsPsychHtmlMultiResponse,
     stimulus: () => {
       // set the continue trial config based on the input capability
+      // TODO: v1 always shows a continue button; v2 asks keyboard users to press any key instead; deprecate when v1 is obsolete
+      const useContinueButton = taskStore().inputCapability?.touch || !isHfV2();
       continueTrialConfig = {
-        type: taskStore().inputCapability?.touch || !isHfV2() ? 'button' : 'bottomText',
-        text: taskStore().inputCapability?.touch || !isHfV2() ? 'continueButtonText' : 'heartsAndFlowersPressAnyKey',
+        type: useContinueButton ? 'button' : 'bottomText',
+        text: useContinueButton ? 'continueButtonText' : 'heartsAndFlowersPressAnyKey',
       };
 
       return `
@@ -135,16 +84,6 @@ function buildInstructionTrial(
       let responseButtons: NodeListOf<HTMLElement> | undefined;
       let onButtonPress: ((button: HTMLElement, index: number, event: KeyboardEvent | TouchEvent) => void) | undefined;
       let hasResponded = false;
-
-      if (endOfTask) {
-        taskStore('effectiveStoppingRule', 'earlyCompletion');
-
-        const logger = Logger.getInstance();
-        logger.capture('Task finished: user finished all trials', {
-          taskName: taskStore().task,
-          taskFinished: taskStore().taskComplete,
-        });
-      }
 
       if (showResponseButton) {
         if (continueTrialConfig.type === 'button') {
@@ -271,10 +210,6 @@ function buildInstructionTrial(
       detachInstructionInputListeners();
 
       PageAudioHandler.stopAndDisconnectNode();
-
-      if (endOfTask) {
-        taskStore('taskComplete', true);
-      }
 
       jsPsych.data.addDataToLastTrial({
         audioButtonPresses: PageAudioHandler.replayPresses,

@@ -37,7 +37,7 @@ Compare with `git diff -- docs/live-corpora.md` and report added, removed, and m
 ## Rules
 
 - Do not hand-edit `docs/live-corpora.md`. `utilities/render-live-corpora.mjs` is the source of the list.
-- A variant with no `params.corpus` still loads `defaultCorpus` in `task-launcher/src/tasks/shared/helpers/config.ts`. The script already applies that fallback.
+- A variant with no `params.corpus` still loads the default from `getDefaultCorpus` in `task-launcher/src/tasks/shared/helpers/config.ts`: `defaultCorpus`, except Hearts and Flowers v1 (any version but 2), which loads `hearts-and-flowers-v1-item-bank`. The script already applies that fallback.
 - Tasks with no registered prod variants are omitted.
-- Hearts-and-flowers, memory-game, and intro have no corpus file. That is expected.
+- Memory-game and intro have no corpus file. That is expected.
 - If credentials fail, report the error. Do not invent links.

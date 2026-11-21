@@ -1,429 +1,174 @@
+import partition from 'lodash/partition';
 // setup
-
-import { mediaAssets } from '../..';
 import { taskStore } from '../../taskStore';
-import { Logger } from '../../utils/logger';
-import { createPreloadTrials, initTimeline, initTrialSaving } from '../shared/helpers';
+import { createPreloadTrials, initTimeline, initTrialSaving, reportCorpusValidationErrors } from '../shared/helpers';
+import { withInputDeviceCondition } from '../shared/helpers/deviceVariants';
 // trials
-import { enterFullscreen, exitFullscreen } from '../shared/trials';
+import { enterFullscreen, exitFullscreen, taskFinished } from '../shared/trials';
 import { jsPsych } from '../taskSetup';
-import { AssessmentStageType, CorpusTrialType, StimulusSideType, StimulusType } from './helpers/utils';
+import {
+  BLOCK_STIMULUS_TYPE,
+  BlockType,
+  type CorpusRow,
+  type FeedbackOutcome,
+  getAudioKey,
+  getButtonDemoSide,
+  getImageKey,
+  getInstructionPracticeSide,
+  getLinkedFeedbackRow,
+  isFeedbackRow,
+  isHfV2,
+  isInstructionPracticeRow,
+  isInstructionRow,
+  type StimulusSideType,
+} from './helpers/utils';
+import { getCorpusValidationErrors } from './helpers/validation';
 import { fixation } from './trials/fixation';
-import {
-  getEndGame,
-  getFlowerInstructions,
-  getGoingFasterInstructions,
-  getHeartInstructions,
-  getInputInstructions,
-  getKeepGoing,
-  getKeepUp,
-  getLeftButtonDemo,
-  getMixedInstructions,
-  getRightButtonDemo,
-  getTimeToPlay,
-  getTimeToPractice,
-} from './trials/instructions';
-import {
-  buildInstructionPracticeTrial,
-  buildMixedPracticeFeedback,
-  buildStimulusInvariantPracticeFeedback,
-} from './trials/practice';
+import { buildInstructionTrial } from './trials/instructions';
+import { buildInstructionPracticeTrial, buildPracticeFeedback } from './trials/practice';
 import { buildHeartsOrFlowersTimelineVariables, buildMixedTimelineVariables, stimulus } from './trials/stimulus';
 
-type TestSectionConfig = {
-  testTrialCount: number;
-  stimulusPresentationTime: number;
-  interStimulusInterval: number;
-};
-
-type PracticeSectionConfig = TestSectionConfig & {
-  practiceTrialCount: number;
-  correctPracticeTrial: number;
+const INTER_STIMULUS_INTERVAL = 500;
+const PRACTICE_WIN_STREAK: Record<BlockType, number> = {
+  [BlockType.Hearts]: 2,
+  [BlockType.Flowers]: 2,
+  [BlockType.Mixed]: 3,
 };
 
 export default function buildHeartsAndFlowersTimeline(config: Record<string, any>, mediaAssets: MediaAssetsType) {
-  const hfV2 = taskStore().version === 2;
-  const { heavyInstructions } = taskStore();
-  const preloadTrials = createPreloadTrials(mediaAssets).default;
-
   initTrialSaving(config);
-  const initialTimeline = initTimeline(config, enterFullscreen);
+  const { heavyInstructions, corpora } = taskStore();
+  const corpus: CorpusRow[] = heavyInstructions && isHfV2() ? corpora.downex : corpora.stimulus;
+  taskStore('totalTestTrials', corpus.filter((row) => row.assessmentStage === 'test_response').length);
 
-  // TODO: parse from user input
-  const timelineAdminConfig = {
-    heart: {
-      practiceTrialCount: 6,
-      correctPracticeTrial: 2,
-      testTrialCount: 12,
-      stimulusPresentationTime: 3000,
-      interStimulusInterval: 500,
-    },
-    flower: {
-      practiceTrialCount: 6,
-      correctPracticeTrial: 2,
-      testTrialCount: 16,
-      stimulusPresentationTime: 3000,
-      interStimulusInterval: 500,
-    },
-    mixed1: {
-      practiceTrialCount: 6,
-      correctPracticeTrial: 3,
-      testTrialCount: 16,
-      stimulusPresentationTime: 3000,
-      interStimulusInterval: 500,
-    },
-    mixed2: {
-      practiceTrialCount: 6,
-      correctPracticeTrial: 3,
-      testTrialCount: 16,
-      stimulusPresentationTime: 2000,
-      interStimulusInterval: 500,
-    },
-    mixed3: {
-      testTrialCount: 16,
-      stimulusPresentationTime: 1500,
-      interStimulusInterval: 500,
-    },
-  };
+  const [feedbackRows, trialRows] = partition(corpus, isFeedbackRow);
+  const groupedTrialRows = groupCorpusRows(trialRows);
+  reportCorpusValidationErrors(
+    getCorpusValidationErrors(groupedTrialRows, feedbackRows, mediaAssets, taskStore().translations),
+  );
 
-  let totalRealTrials =
-    timelineAdminConfig.heart.testTrialCount +
-    timelineAdminConfig.flower.testTrialCount +
-    timelineAdminConfig.mixed1.testTrialCount;
-
-  if (!hfV2) {
-    totalRealTrials += timelineAdminConfig.mixed2.testTrialCount;
-  } else if (!heavyInstructions) {
-    totalRealTrials += timelineAdminConfig.mixed2.testTrialCount + timelineAdminConfig.mixed3.testTrialCount;
-  }
-
-  taskStore('totalTestTrials', totalRealTrials);
-
-  const timeline = [preloadTrials, initialTimeline];
-  if (hfV2) {
-    timeline.push(getInputInstructions());
-    timeline.push(getLeftButtonDemo());
-    timeline.push(getRightButtonDemo());
-  }
-
-  if (timelineAdminConfig.heart) {
-    timeline.push(...getHeartOrFlowerSubtimelines(timelineAdminConfig.heart, StimulusType.Heart));
-  }
-  if (timelineAdminConfig.flower) {
-    timeline.push(...getHeartOrFlowerSubtimelines(timelineAdminConfig.flower, StimulusType.Flower));
-  }
-  if (timelineAdminConfig.mixed1) {
-    const adminConfig = timelineAdminConfig.mixed1;
-    timeline.push(...getMixedInstructionsSection(adminConfig));
-    timeline.push(...getMixedPracticeSection(adminConfig));
-    timeline.push(...getMixedTestSection(adminConfig));
-  }
-  if (hfV2) {
-    if (timelineAdminConfig.mixed2 && !heavyInstructions) {
-      timeline.push(getGoingFasterInstructions());
-      timeline.push(...getMixedTestSection(timelineAdminConfig.mixed2));
-    }
-    if (timelineAdminConfig.mixed3 && !heavyInstructions) {
-      timeline.push(getGoingFasterInstructions());
-      timeline.push(...getMixedTestSection(timelineAdminConfig.mixed3));
-    }
-  } else if (timelineAdminConfig.mixed2) {
-    timeline.push(...getMixedTestSection(timelineAdminConfig.mixed2));
-  }
-  timeline.push(getEndGame());
-  timeline.push(exitFullscreen);
+  const timeline = [
+    createPreloadTrials(mediaAssets).default,
+    initTimeline(config, enterFullscreen),
+    ...groupedTrialRows.map((rows) => buildRowGroupSubTimeline(rows, mediaAssets, feedbackRows)),
+    taskFinished(),
+    exitFullscreen,
+  ];
 
   return { jsPsych, timeline };
 }
 
-function getHeartOrFlowerSubtimelines(adminConfig: PracticeSectionConfig, stimulusType: StimulusType) {
-  if (stimulusType !== StimulusType.Heart && stimulusType !== StimulusType.Flower) {
-    const errorMessage = `Invalid type: ${stimulusType} for getHeartOrFlowerSubtimeline`;
-    Logger.getInstance().error(new Error(errorMessage));
-    throw new Error(errorMessage);
+/**
+ * Groups consecutive rows of the same block and kind: a run of instruction screens, of practice rows
+ * in one direction, or of test rows in one direction.
+ */
+function groupCorpusRows(corpus: CorpusRow[]): CorpusRow[][] {
+  const groups: CorpusRow[][] = [];
+  for (const row of corpus) {
+    const currentGroup = groups[groups.length - 1];
+    const previousRow = currentGroup?.[0];
+    if (
+      !isInstructionPracticeRow(row) && // Each practice instruction row gets its own group because it loops indefinitely until the child gets it right
+      previousRow &&
+      !isInstructionPracticeRow(previousRow) &&
+      previousRow.assessmentStage === row.assessmentStage &&
+      previousRow.block_index === row.block_index
+    ) {
+      currentGroup.push(row);
+    } else {
+      groups.push([row]);
+    }
   }
-
-  const subtimelines = [];
-
-  // Instruction and Instruction Practice trials
-  subtimelines.push(...getHeartOrFlowerInstructionsSection(adminConfig, stimulusType));
-
-  // Practice trials
-  subtimelines.push(...getHeartOrFlowerPracticeSection(adminConfig, stimulusType));
-
-  // Test trials
-  subtimelines.push(...getHeartOrFlowerTestSection(adminConfig, stimulusType));
-
-  return subtimelines;
+  return groups;
 }
 
-//TODO: check if we need to repeat the whole pair when user gets it wrong or if getting right on the feedback trial is enough
-function getHeartOrFlowerInstructionsSection(_adminConfig: PracticeSectionConfig, stimulusType: StimulusType) {
-  // To build our trials for the Instruction section, let's first gather all the static data
-  let instructionPracticeStimulusSide1: StimulusSideType,
-    instructionPracticePromptText1: string,
-    instructionPracticePromptAudio1: string;
-  let instructionPracticeStimulusSide2: StimulusSideType,
-    instructionPracticePromptText2: string,
-    instructionPracticePromptAudio2: string;
-  if (stimulusType === StimulusType.Heart) {
-    //First instruction practice
-    instructionPracticeStimulusSide1 = StimulusSideType.Left;
-    instructionPracticePromptText1 = taskStore().translations.heartInstruct2; // heart-instruct2, "When you see a <b>heart</b>, press the button on the <b>same</b> side."
-    instructionPracticePromptAudio1 = mediaAssets.audio.heartInstruct2;
-    //Second instruction practice
-    instructionPracticeStimulusSide2 = StimulusSideType.Right;
-    instructionPracticePromptText2 = taskStore().translations.heartPracticeFeedback1; // heart-practice-feedback1, "The heart is on the right side. Press the right button.")
-    instructionPracticePromptAudio2 = mediaAssets.audio.heartPracticeFeedback1;
-  } else if (stimulusType === StimulusType.Flower) {
-    //First instruction practice
-    instructionPracticeStimulusSide1 = StimulusSideType.Right;
-    instructionPracticePromptText1 = taskStore().translations.flowerInstruct2; // flower-instruct2, "When you see a flower, press the button on the opposite side."
-    instructionPracticePromptAudio1 = mediaAssets.audio.flowerInstruct2;
-    //Second instruction practice
-    instructionPracticeStimulusSide2 = StimulusSideType.Left;
-    instructionPracticePromptText2 = taskStore().translations.flowerPracticeFeedback1; // flower-practice-feedback1, "The flower is on the left side. Press the right button."
-    instructionPracticePromptAudio2 = mediaAssets.audio.flowerPracticeFeedback1;
-  } else {
-    const errorMessage = `Invalid type: ${stimulusType} for getHeartOrFlowerInstructionsSection`;
-    Logger.getInstance().error(new Error(errorMessage));
-    throw new Error(errorMessage);
+function buildRowGroupSubTimeline(rows: CorpusRow[], mediaAssets: MediaAssetsType, feedbackRows: CorpusRow[]) {
+  const [row] = rows;
+  if (isInstructionRow(row)) {
+    return {
+      timeline: rows.map((instructionRow) => {
+        const audioKey = getAudioKey(instructionRow);
+        // A row with answer left/right is a button demo: it shows only that button and waits for a press
+        const buttonSide = getButtonDemoSide(instructionRow) ?? null;
+        const trial = buildInstructionTrial(
+          mediaAssets.images[getImageKey(instructionRow)],
+          () => audioKey,
+          buttonSide !== null,
+          buttonSide,
+        );
+        return withInputDeviceCondition(instructionRow.device, trial);
+      }),
+    };
   }
+  if (isInstructionPracticeRow(row)) return buildInstructionPracticeSubTimeline(row, mediaAssets, feedbackRows);
 
-  // Now let's build our trials
-  const introTrial = stimulusType === StimulusType.Heart ? getHeartInstructions() : getFlowerInstructions();
-
-  // feedback-good-job, "Good job!" //TODO: double-check ok to use feedback-good-job instead of "Great! That's right!" which is absent from item bank anyway
-  const instructionPracticeFeedback = buildStimulusInvariantPracticeFeedback(
-    'heartsAndFlowersTryAgain',
-    'feedbackGoodJob',
-  ); // hearts-and-flowers-try-again, "That's not right. Try again."
-  const instructionPractice1 = buildInstructionPracticeTrial(
-    stimulusType,
-    instructionPracticePromptText1,
-    instructionPracticePromptAudio1,
-    instructionPracticeStimulusSide1,
-    stimulusType === StimulusType.Heart ? 'heartInstruct2' : 'flowerInstruct2',
-  );
-  const instructionPractice2 = buildInstructionPracticeTrial(
-    stimulusType,
-    instructionPracticePromptText2,
-    instructionPracticePromptAudio2,
-    instructionPracticeStimulusSide2,
-    stimulusType === StimulusType.Heart ? 'heartPracticeFeedback1' : 'flowerPracticeFeedback1',
-  );
-
-  // Now let's build our timeline. Notice how we are pairing each practice trials with a feedback trial
-  const subtimeline = [];
-  subtimeline.push(introTrial);
-  // Instruction practice trials do not advance until user gets it right
-  subtimeline.push({
-    timeline: [instructionPractice1, instructionPracticeFeedback],
-    loop_function: () => taskStore().isCorrect === false,
-  });
-  subtimeline.push({
-    timeline: [instructionPractice2, instructionPracticeFeedback],
-    loop_function: () => taskStore().isCorrect === false,
-  });
-
-  return subtimeline;
+  return row.assessmentStage === 'practice_response' ? buildPracticeBlock(rows, feedbackRows) : buildTestBlock(rows);
 }
 
-function getHeartOrFlowerPracticeSection(adminConfig: PracticeSectionConfig, stimulusType: StimulusType) {
-  let jsPsychAssessmentStage: AssessmentStageType,
-    jsPsychCorpusTrialType: CorpusTrialType,
-    feedbackKeyIncorrect: string;
-  if (stimulusType === StimulusType.Heart) {
-    jsPsychAssessmentStage = AssessmentStageType.HeartsPractice;
-    jsPsychCorpusTrialType = CorpusTrialType.HeartsPractice;
-    feedbackKeyIncorrect = 'heartPracticeFeedback2'; // heart-practice-feedback2, "Remember! When you see a HEART... on the SAME side."
-  } else if (stimulusType === StimulusType.Flower) {
-    jsPsychAssessmentStage = AssessmentStageType.FlowersPractice;
-    jsPsychCorpusTrialType = CorpusTrialType.FlowersPractice;
-    feedbackKeyIncorrect = 'flowerPracticeFeedback2'; // flower-practice-feedback2, "When you see a FLOWER, press the button on the OPPOSITE side."
-  } else {
-    const errorMessage = `Invalid type: ${stimulusType} for getHeartOrFlowerPracticeSection`;
-    Logger.getInstance().error(new Error(errorMessage));
-    throw new Error(errorMessage);
-  }
+function buildInstructionPracticeSubTimeline(row: CorpusRow, mediaAssets: MediaAssetsType, feedbackRows: CorpusRow[]) {
+  const audioKey = getAudioKey(row);
+  const stimulusType = BLOCK_STIMULUS_TYPE[row.trialType];
 
-  //TODO: do we really need to nest these into a sub-timeline?
-  const postPracticeBlock = {
-    timeline: [getKeepUp(), getKeepGoing(), getTimeToPlay()],
+  return {
+    timeline: [
+      buildInstructionPracticeTrial(
+        stimulusType,
+        taskStore().translations[audioKey],
+        mediaAssets.audio[audioKey],
+        // validation guarantees the row has a left or right answer
+        getInstructionPracticeSide(row) as StimulusSideType,
+        audioKey,
+      ),
+      buildPracticeFeedback('correct', () => getLinkedFeedbackRow(feedbackRows, row, 'correct', stimulusType)),
+      buildPracticeFeedback('incorrect', () => getLinkedFeedbackRow(feedbackRows, row, 'incorrect', stimulusType)),
+    ],
+    loop_function: () => taskStore().isCorrect === false,
   };
+}
 
-  // Let's prepare 2 callbacks to pass to our stimuli and feedback trials in order to manage the practice block shortcut
+function buildPracticeBlock(rows: CorpusRow[], feedbackRows: CorpusRow[]) {
+  const [row] = rows;
+  const blockType = row.trialType as BlockType;
+
   let practiceWinStreakCount = 0;
+  let currentRow = row;
   const onStimulusTrialFinishTimelineCallback = (data: Record<string, unknown>) => {
     practiceWinStreakCount = data.correct ? practiceWinStreakCount + 1 : 0;
+    currentRow = jsPsych.timelineVariable('corpusRow');
   };
-  const onFeedbackTrialFinishTimelineCallback = (_data: Record<string, unknown>) => {
-    if (practiceWinStreakCount >= adminConfig.correctPracticeTrial) {
-      // console.log(`practice block shortcut ready: win streak=${practiceWinStreakCount}`);
-      jsPsych.endCurrentTimeline();
-    }
-  };
+  const getFeedbackRow = (outcome: FeedbackOutcome) => () =>
+    getLinkedFeedbackRow(feedbackRows, currentRow, outcome, taskStore().stimulus);
 
-  // feedback-good-job, "Good job!" //TODO: double-check ok to use feedback-good-job instead of "Great! That's right!" which is absent from item bank anyway
-  const practiceFeedback = buildStimulusInvariantPracticeFeedback(
-    feedbackKeyIncorrect,
-    'feedbackGoodJob',
-    onFeedbackTrialFinishTimelineCallback,
-  );
-
-  const subtimeline = [];
-  subtimeline.push(getTimeToPractice());
-  subtimeline.push({
+  return {
     timeline: [
-      fixation(adminConfig.interStimulusInterval),
-      stimulus(
-        true,
-        jsPsychAssessmentStage,
-        jsPsychCorpusTrialType,
-        adminConfig.stimulusPresentationTime,
-        onStimulusTrialFinishTimelineCallback,
-      ),
-      practiceFeedback,
+      {
+        timeline: [
+          fixation(INTER_STIMULUS_INTERVAL),
+          stimulus(onStimulusTrialFinishTimelineCallback),
+          buildPracticeFeedback('correct', getFeedbackRow('correct')),
+          buildPracticeFeedback('incorrect', getFeedbackRow('incorrect')),
+        ],
+        conditional_function: () => practiceWinStreakCount < PRACTICE_WIN_STREAK[blockType],
+      },
     ],
-    timeline_variables: buildHeartsOrFlowersTimelineVariables(adminConfig.practiceTrialCount, stimulusType),
-    randomize_order: false,
-    //TODO: Let's standardize the way on_finish callbacks can be defined here vs in the trial object:
-    // here, only the "fixation" trial does not define an on_finish callback so it's the only one for which the
-    // below commented code would get executed.
-    // on_finish: (data) => {
-    //   console.error(data);
-    // },
-  });
-  subtimeline.push(postPracticeBlock);
-
-  return subtimeline;
-}
-
-function getHeartOrFlowerTestSection(adminConfig: TestSectionConfig, stimulusType: StimulusType) {
-  let jsPsychAssessmentStage: AssessmentStageType, jsPsychCorpusTrialType: CorpusTrialType;
-  if (stimulusType === StimulusType.Heart) {
-    jsPsychAssessmentStage = AssessmentStageType.HeartsStimulus;
-    jsPsychCorpusTrialType = CorpusTrialType.HeartsStimulus;
-  } else if (stimulusType === StimulusType.Flower) {
-    jsPsychAssessmentStage = AssessmentStageType.FlowersStimulus;
-    jsPsychCorpusTrialType = CorpusTrialType.FlowersStimulus;
-  } else {
-    const errorMessage = `Invalid type: ${stimulusType} for getHeartOrFlowerTestSection`;
-    Logger.getInstance().error(new Error(errorMessage));
-    throw new Error(errorMessage);
-  }
-
-  const subtimeline = [];
-  subtimeline.push({
-    timeline: [
-      fixation(adminConfig.interStimulusInterval),
-      stimulus(false, jsPsychAssessmentStage, jsPsychCorpusTrialType, adminConfig.stimulusPresentationTime),
-    ],
-    timeline_variables: buildHeartsOrFlowersTimelineVariables(adminConfig.testTrialCount, stimulusType),
-    randomize_order: false,
-  });
-  return subtimeline;
-}
-
-function getMixedInstructionsSection(_adminConfig: PracticeSectionConfig) {
-  // feedback-good-job, "Good job!" //TODO: double-check ok to use feedback-good-job instead of "Great! That's right!" which is absent from item bank anyway
-  const instructionPracticeFeedback = buildStimulusInvariantPracticeFeedback(
-    'heartsAndFlowersTryAgain',
-    'feedbackGoodJob',
-  ); // hearts-and-flowers-try-again, "That's not right. Try again."
-
-  const instructionPractice1 = buildInstructionPracticeTrial(
-    StimulusType.Heart,
-    taskStore().translations.heartInstruct2, // heart-instruct2, "When you see a <b>heart</b>, press the button on the <b>same</b> side."
-    mediaAssets.audio.heartInstruct2,
-    StimulusSideType.Left,
-    'heartInstruct2',
-  );
-
-  const instructionPractice2 = buildInstructionPracticeTrial(
-    StimulusType.Flower,
-    //TODO: check that we want this one and not "REMEMBER! When you see a [...]"
-    taskStore().translations.flowerInstruct2, // flower-instruct2, "When you see a flower, press the button on the opposite side."
-    mediaAssets.audio.flowerInstruct2,
-    StimulusSideType.Right,
-    'flowerInstruct2',
-  );
-
-  const subtimeline = [];
-  subtimeline.push(getMixedInstructions());
-  // Instruction practice trials do not advance until user gets it right
-  subtimeline.push({
-    timeline: [instructionPractice1, instructionPracticeFeedback],
-    loop_function: (_data: unknown) => taskStore().isCorrect === false,
-  });
-  subtimeline.push({
-    timeline: [instructionPractice2, instructionPracticeFeedback],
-    loop_function: (_data: unknown) => taskStore().isCorrect === false,
-  });
-
-  return subtimeline;
-}
-
-function getMixedPracticeSection(adminConfig: PracticeSectionConfig) {
-  // Let's prepare 2 callbacks to pass to our stimuli and feedback trials in order to manage the practice block shortcut
-  let practiceWinStreakCount = 0;
-  const onStimulusTrialFinishTimelineCallback = (data: Record<string, unknown>) => {
-    practiceWinStreakCount = data.correct ? practiceWinStreakCount + 1 : 0;
-  };
-  const onFeedbackTrialFinishTimelineCallback = (_data: Record<string, unknown>) => {
-    if (practiceWinStreakCount >= adminConfig.correctPracticeTrial) {
-      // console.info(`Ending practice block early: win streak=${practiceWinStreakCount}`);
-      jsPsych.endCurrentTimeline();
-    }
-  };
-
-  // feedback-good-job, "Good job!" //TODO: double-check ok to use feedback-good-job instead of "Great! That's right!" which is absent from item bank anyway
-  // heart-practice-feedback2, "Remember! When you see a HEART... on the SAME side."
-  // flower-practice-feedback2, "When you see a FLOWER, press the button on the OPPOSITE side."
-  const practiceFeedback = buildMixedPracticeFeedback(
-    'heartPracticeFeedback2',
-    'feedbackGoodJob',
-    'flowerPracticeFeedback2',
-    'feedbackGoodJob',
-    onFeedbackTrialFinishTimelineCallback,
-  );
-  const heartsAndFlowersPracticeTimeline = {
-    timeline: [
-      fixation(adminConfig.interStimulusInterval),
-      stimulus(
-        true,
-        AssessmentStageType.HeartsAndFlowersPractice,
-        CorpusTrialType.HeartsAndFlowersPractice,
-        adminConfig.stimulusPresentationTime,
-        onStimulusTrialFinishTimelineCallback,
-      ),
-      practiceFeedback,
-    ],
-    timeline_variables: buildMixedTimelineVariables(adminConfig.practiceTrialCount),
+    timeline_variables: buildBlockTimelineVariables(rows),
     randomize_order: false,
   };
-
-  //TODO: do we really need to nest these into a sub-timeline?
-  const heartsAndFlowersPostPracticeBlock = {
-    timeline: [getKeepUp(), getKeepGoing(), getTimeToPlay()],
-  };
-
-  return [getTimeToPractice(), heartsAndFlowersPracticeTimeline, heartsAndFlowersPostPracticeBlock];
 }
 
-function getMixedTestSection(adminConfig: TestSectionConfig) {
-  const heartsAndFlowersTimeline = {
-    timeline: [
-      fixation(adminConfig.interStimulusInterval),
-      stimulus(
-        false,
-        AssessmentStageType.HeartsAndFlowersStimulus,
-        CorpusTrialType.HeartsAndFlowersStimulus,
-        adminConfig.stimulusPresentationTime,
-      ),
-    ],
-    timeline_variables: buildMixedTimelineVariables(adminConfig.testTrialCount),
+function buildTestBlock(rows: CorpusRow[]) {
+  return {
+    timeline: [fixation(INTER_STIMULUS_INTERVAL), stimulus()],
+    timeline_variables: buildBlockTimelineVariables(rows),
     randomize_order: false,
   };
-  return [heartsAndFlowersTimeline];
+}
+
+function buildBlockTimelineVariables(rows: CorpusRow[]) {
+  const blockType = rows[0].trialType as BlockType;
+  const stimuliAndSides =
+    blockType === BlockType.Mixed
+      ? buildMixedTimelineVariables(rows.length)
+      : buildHeartsOrFlowersTimelineVariables(rows.length, BLOCK_STIMULUS_TYPE[blockType]);
+  return rows.map((row, i) => ({ ...stimuliAndSides[i], corpusRow: row }));
 }

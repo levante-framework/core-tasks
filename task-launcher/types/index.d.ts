@@ -96,6 +96,8 @@ declare global {
     animationTargets?: string[];
     animationTimestamps?: number[];
     animationAudioTriggers?: string[];
+    feedbackItemIds?: string[];
+    device?: string;
   };
 
   type MediaAssetsType = {
@@ -114,6 +116,7 @@ declare global {
       correctAnswer: string | Array<number> | number;
     };
     __mediaAssets?: MediaAssetsType;
+    __translations?: Record<string, string>;
   }
   interface LevanteLogger {
     capture(name: string, properties?: Record<string, any>): void;

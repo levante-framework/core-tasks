@@ -46,6 +46,8 @@ type ParsedRowType = {
   downex?: string;
   block_threshold?: number;
   story_group?: number;
+  feedback_item_ids?: string;
+  device?: string;
   response_branches?: string;
   story_branch?: string;
   animation_types?: string;
@@ -169,6 +171,10 @@ const transformCSV = (csvInput: ParsedRowType[], sequentialStimulus: boolean): T
       animationTypes: parseCommaSeparated(row.animation_types),
       animationTargets: parseCommaSeparated(row.animation_targets),
       ...parseAnimationTriggers(row.animation_triggers),
+      feedbackItemIds: row.feedback_item_ids?.trim()
+        ? row.feedback_item_ids.split(',').map((id) => id.trim())
+        : undefined,
+      device: row.device?.trim().toLowerCase() || undefined,
     };
 
     if (row.task === 'same-different-selection') {

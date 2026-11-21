@@ -4,7 +4,7 @@ import { taskStore } from '../../../taskStore';
 import { camelize, PageAudioHandler } from '../helpers';
 
 // isPractice parameter is for tasks that don't have a corpus (e.g. memory game)
-export const feedback = (isPractice = false, promptOnIncorrect?: string) => {
+export const feedback = (isPractice = false, promptOnIncorrect?: string, promptOnCorrect = 'feedbackCorrect') => {
   // Guards against the chained prompt audio bleeding into the next trial when
   // the user clicks Continue before the first feedback audio finishes playing.
   // stopAndDisconnectNode() in on_finish calls stop(), which fires onended.
@@ -21,7 +21,7 @@ export const feedback = (isPractice = false, promptOnIncorrect?: string) => {
 
           return `<div class="lev-stimulus-container">
                             <div class="lev-row-container instruction">
-                                <p>${isCorrect ? t.feedbackCorrect : t.feedbackNotQuiteRight}</p>
+                                <p>${isCorrect ? t[promptOnCorrect] : t.feedbackNotQuiteRight}</p>
                             </div>
                             <div class="lev-stim-content">
                                 <img src=${imageUrl} alt="Image not loading: ${imageUrl}. Please continue the task."'/>
@@ -46,7 +46,7 @@ export const feedback = (isPractice = false, promptOnIncorrect?: string) => {
         on_load: () => {
           trialFinished = false;
           const isCorrect = taskStore().isCorrect;
-          const audioKey = isCorrect ? 'feedbackCorrect' : 'feedbackNotQuiteRight';
+          const audioKey = isCorrect ? promptOnCorrect : 'feedbackNotQuiteRight';
 
           const audioConfig: AudioConfigType = {
             restrictRepetition: {

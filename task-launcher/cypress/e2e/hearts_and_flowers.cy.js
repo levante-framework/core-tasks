@@ -1,7 +1,24 @@
 import { getParamLists } from './helpers.cy';
 
 const hearts_and_flowers_base_url = 'http://localhost:8080/?task=hearts-and-flowers';
-const testUrls = getParamLists('hearts-and-flowers').map((params) => `${hearts_and_flowers_base_url}&${params}`);
+// the live variants (v2), each in its first live locale (see cypress.config.js)
+const liveUrls = getParamLists('hearts-and-flowers').map((params) => `${hearts_and_flowers_base_url}&${params}`);
+// TODO: A missing version param means v1, which isn't deprecated yet, so tested here too for now
+const v1Url = `${hearts_and_flowers_base_url}&version=1`;
+
+const CORRECT_FEEDBACK = 'feedbackGoodJob';
+const INCORRECT_FEEDBACK = {
+  instructionPractice: 'heartsAndFlowersTryAgain',
+  heart: 'heartPracticeFeedback2',
+  flower: 'flowerPracticeFeedback2',
+};
+// Instruction practice presses per phase, all answered right
+const INSTRUCTION_PRACTICE_TRIALS = 6;
+// Practice ends after this many right answers in a row: hearts, flowers, mixed
+const PRACTICE_WIN_STREAKS = [2, 2, 3];
+// Answered stimuli to answer wrong in the wrong-answer test (1-based): the first hearts instruction practice,
+// the first hearts practice trial, and the first mixed practice trial (counted with every other answer right)
+const WRONG_ANSWERS = [1, 4, 41];
 
 // keep track of game phase (true means it has started)
 let heart_phase = false;
@@ -9,6 +26,9 @@ let flower_phase = false;
 let mixed_practice = false;
 let final_instructions = false; // instructions before final mixed test phase
 let mixed_test = false;
+// number of stimuli answered so far, and which of them to answer wrong
+let answer_count = 0;
+let wrong_answers = [];
 
 describe('test hearts and flowers', () => {
   beforeEach(() => {
@@ -17,44 +37,122 @@ describe('test hearts and flowers', () => {
     mixed_practice = false;
     final_instructions = false;
     mixed_test = false;
+    answer_count = 0;
+    wrong_answers = [];
   });
 
-  if (testUrls.length === 0) {
+  if (liveUrls.length === 0) {
     it('fails when no test URLs are available (see cypress.config.js)', () => {
-      expect(testUrls).to.have.length.greaterThan(0);
+      expect(liveUrls).to.have.length.greaterThan(0);
     });
     return;
   }
 
-  testUrls.forEach((url) => {
-    const isV2 = url.includes('version=2');
-    const label = url.slice(hearts_and_flowers_base_url.length + 1) || 'default';
+  [...liveUrls, v1Url].forEach((url) => {
+    it(`plays game (${url.slice(hearts_and_flowers_base_url.length + 1)})`, () => {
+      playHeartsAndFlowers(url);
+      expectOnlyCorrectFeedback();
+    });
+  });
 
-    it(`plays game (${label})`, () => {
-      cy.visit(url);
+  it('shows the incorrect feedback for the stimulus after a wrong practice answer', () => {
+    wrong_answers = WRONG_ANSWERS;
+    playHeartsAndFlowers(liveUrls[0]);
 
-      cy.get('.jspsych-content', { timeout: 300000 }).find('.primary').should('be.visible');
-      cy.get('.jspsych-content').find('.primary').realClick(); // start fullscreen
-
-      hafLoop(isV2);
+    getFeedbackScreens().then(({ screens, getText }) => {
+      const incorrect = screens.filter((screen) => screen.kind === 'incorrect');
+      expect(incorrect.map((screen) => screen.text)).to.deep.equal([
+        getText(INCORRECT_FEEDBACK.instructionPractice),
+        getText(INCORRECT_FEEDBACK.heart),
+        // the mixed practice prompt depends on the stimulus shown
+        getText(INCORRECT_FEEDBACK[incorrect[2]?.stimulus]),
+      ]);
+      expect(incorrect[1].stimulus).to.equal('heart');
+      expect(
+        screens.filter((screen) => screen.kind === 'correct').every((s) => s.text === getText(CORRECT_FEEDBACK)),
+      ).to.equal(true);
     });
   });
 });
 
-function hafLoop(isV2 = false) {
+// every practice answer is right: correct feedback after each instruction practice and practice trial
+function expectOnlyCorrectFeedback() {
+  getFeedbackScreens().then(({ screens, getText }) => {
+    const expectedCount = INSTRUCTION_PRACTICE_TRIALS + PRACTICE_WIN_STREAKS.reduce((a, b) => a + b, 0);
+    expect(screens).to.have.length(expectedCount);
+    expect(screens.every((screen) => screen.kind === 'correct' && screen.text === getText(CORRECT_FEEDBACK))).to.equal(
+      true,
+    );
+  });
+}
+
+function playHeartsAndFlowers(url) {
+  cy.visit(url, { onBeforeLoad: recordFeedbackScreens });
+
+  cy.get('.jspsych-content', { timeout: 300000 }).find('.primary').should('be.visible');
+  cy.get('.jspsych-content').find('.primary').realClick(); // start fullscreen
+
+  hafLoop();
+}
+
+/**
+ * Records each feedback screen the task shows as { kind, text, stimulus }: correct feedback is the smiling face,
+ * incorrect feedback shows the stimulus again with both buttons disabled.
+ */
+function recordFeedbackScreens(win) {
+  win.feedbackScreens = [];
+  const recorded = new WeakSet();
+  new win.MutationObserver(() => {
+    const content = win.document.querySelector('.jspsych-content');
+    const correct = content?.querySelector('.haf-cr-container');
+    if (correct && !recorded.has(correct)) {
+      recorded.add(correct);
+      win.feedbackScreens.push({ kind: 'correct', text: correct.querySelector('p')?.textContent.trim() });
+    }
+    const holder = content?.querySelector('.haf-stimulus-holder');
+    if (holder && !recorded.has(holder) && isIncorrectFeedbackScreen(Cypress.$(content))) {
+      recorded.add(holder);
+      win.feedbackScreens.push({
+        kind: 'incorrect',
+        text: holder.querySelector('.lev-row-container p')?.textContent.trim(),
+        stimulus: getStimulusShape(holder.querySelector('[alt="heart or flower"]')?.getAttribute('src') ?? ''),
+      });
+    }
+  }).observe(win.document, { childList: true, subtree: true, attributes: true, attributeFilter: ['disabled'] });
+}
+
+/** The recorded feedback screens, and getText(key) for a translation's text as the task shows it. */
+function getFeedbackScreens() {
+  return cy.window().then((win) => ({
+    screens: win.feedbackScreens,
+    // translations can hold HTML, so compare against the rendered text
+    getText: (key) => Cypress.$('<div>').html(win.__translations[key]).text().trim(),
+  }));
+}
+
+// incorrect feedback shows the stimulus with both response buttons disabled
+function isIncorrectFeedbackScreen(content) {
+  const buttons = content.find('.haf-stimulus-holder').length ? content.find('.secondary--green') : [];
+  return buttons.length === 2 && [...buttons].every((button) => button.disabled);
+}
+
+function hafLoop() {
   // end if the there are no elements inside jspsych content
   cy.get('.jspsych-content').then((content) => {
     if (content.children().length) {
-      // wait for feedback screen to go away
+      // wait for feedback screens to go away
       cy.get('.haf-cr-container').should('not.exist');
+      cy.get('.jspsych-content').should((current) => {
+        expect(isIncorrectFeedbackScreen(current)).to.equal(false);
+      });
 
       // Make the decision here to handle instructions or pick an answer
-      if (isInstructionScreen(content, isV2)) {
-        handleInstructions(isV2);
+      if (isInstructionScreen(content)) {
+        handleInstructions();
       } else {
-        pickAnswer(isV2);
+        pickAnswer();
       }
-      hafLoop(isV2);
+      hafLoop();
     } else {
       // make sure that the game has progressed through major phases before passing
       assert.isTrue(heart_phase && flower_phase && mixed_test);
@@ -62,19 +160,15 @@ function hafLoop(isV2 = false) {
   });
 }
 
-function isInstructionScreen(content, isV2) {
+function isInstructionScreen(content) {
   if (content.find('.primary:visible').length) {
     return true;
-  }
-
-  if (!isV2) {
-    return false;
   }
 
   return content.find('#instruction-text').length > 0 && !content.find('.haf-stimulus-holder').length;
 }
 
-function handleInstructions(isV2 = false) {
+function handleInstructions() {
   cy.get('.jspsych-content').then((content) => {
     const okButton = content.find('.primary:visible');
 
@@ -84,23 +178,19 @@ function handleInstructions(isV2 = false) {
       return;
     }
 
-    if (!isV2) {
-      return;
-    }
-
     if (content.find('#instruction-text').length && content.find('.lev-response-row').length) {
-      handleV2ResponseButtonDemo();
+      handleResponseButtonDemo();
       return;
     }
 
-    continueV2Instruction();
+    continueInstruction();
     final_instructions = mixed_practice;
   });
 
   return;
 }
 
-function handleV2ResponseButtonDemo() {
+function handleResponseButtonDemo() {
   cy.get('.lev-response-row .secondary--green', { timeout: 120000 })
     .filter(':not([style*="visibility: hidden"])')
     .first()
@@ -127,9 +217,9 @@ function handleV2ResponseButtonDemo() {
   cy.wait(2500);
 }
 
-function continueV2Instruction(retryCount = 0) {
+function continueInstruction(retryCount = 0) {
   if (retryCount > 30) {
-    throw new Error('Failed to advance v2 instruction trial');
+    throw new Error('Failed to advance instruction trial');
   }
 
   cy.get('.jspsych-content').then(($content) => {
@@ -150,13 +240,13 @@ function continueV2Instruction(retryCount = 0) {
         !$nextContent.find('.haf-stimulus-holder').length;
 
       if (stillOnSameTrial) {
-        continueV2Instruction(retryCount + 1);
+        continueInstruction(retryCount + 1);
       }
     });
   });
 }
 
-function pickAnswer(isV2 = false) {
+function pickAnswer() {
   // wait for feedback screen to end
   cy.get('.haf-stimulus-holder').should('exist');
 
@@ -173,14 +263,11 @@ function pickAnswer(isV2 = false) {
       // get stimulus image itself and then click button based on src and pos
       const stim = cy.get('[alt="heart or flower"]');
       stim.invoke('attr', 'src').then((src) => {
-        if (isV2) {
-          // press the correct arrow key
-          const index = getCorrectButtonIdx(src, pos);
-          cy.realPress(index === 0 ? 'ArrowLeft' : 'ArrowRight');
-        } else {
-          // click the correct button
-          cy.get('.secondary--green').eq(getCorrectButtonIdx(src, pos)).realClick();
-        }
+        // press the correct arrow key, or the other one for a wrong answer
+        answer_count += 1;
+        const correctIndex = getCorrectButtonIdx(src, pos);
+        const index = wrong_answers.includes(answer_count) ? 1 - correctIndex : correctIndex;
+        cy.realPress(index === 0 ? 'ArrowLeft' : 'ArrowRight');
       });
     }
   });
@@ -188,9 +275,13 @@ function pickAnswer(isV2 = false) {
   return;
 }
 
+function getStimulusShape(src) {
+  return src.split('/').pop().split('.')[0];
+}
+
 // uses image src and image position to get the right button index
 function getCorrectButtonIdx(src, pos) {
-  const shape = src.split('/').pop().split('.')[0];
+  const shape = getStimulusShape(src);
 
   if (shape === 'heart') {
     heart_phase = true;
