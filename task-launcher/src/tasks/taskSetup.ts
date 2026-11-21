@@ -4,6 +4,7 @@ import { getDevice } from '@bdelab/roar-utils';
 import { initJsPsych } from 'jspsych';
 import '../i18n/i18n';
 import { taskStore } from '../taskStore';
+import { installPreloadRetry } from './shared/helpers/installPreloadRetry';
 
 export const isTouchScreen = getDevice() === 'mobile';
 
@@ -22,5 +23,7 @@ export const initializeCat = () => {
 export const jsPsych = initJsPsych({
   on_data_update: () => {},
 });
+
+installPreloadRetry(jsPsych.pluginAPI);
 
 window.initJsPsych = jsPsych;
