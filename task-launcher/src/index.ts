@@ -102,8 +102,7 @@ export class TaskLauncher {
 
     await getTranslations(isDev, taskName, language);
 
-    // TODO: make hearts and flowers corpus? make list of tasks that don't need corpora?
-    if (taskName !== 'hearts-and-flowers' && taskName !== 'memory-game' && taskName !== 'intro') {
+    if (taskName !== 'intro') {
       await getCorpus(config, isDev);
     }
 

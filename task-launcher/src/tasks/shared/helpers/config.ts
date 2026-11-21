@@ -51,7 +51,9 @@ export const DEFAULT_LAYOUT_CONFIG: LayoutConfigType = {
 
 const defaultCorpus: Record<string, string> = {
   egmaMath: 'math-item-bank',
+  heartsAndFlowers: 'hearts-and-flowers-item-bank',
   matrixReasoning: 'matrix-reasoning-item-bank',
+  memoryGame: 'memory-game-item-bank',
   mentalRotation: 'mental-rotation-item-bank',
   sameDifferentSelection: 'same-different-selection-item-bank',
   trog: 'trog-item-bank',
@@ -147,8 +149,10 @@ export const setSharedConfig = async (
     isPaused: false,
   };
 
-  // default corpus if nothing is passed in
-  if (!config.corpus) {
+  // Default corpus when the variant omits params.corpus. Hearts and Flowers v1 is any version but 2.
+  if (!config.corpus && taskName === 'hearts-and-flowers' && config.version !== 2) {
+    config.corpus = 'hearts-and-flowers-v1-item-bank';
+  } else if (!config.corpus) {
     config.corpus = defaultCorpus[camelize(taskName)];
   }
 
