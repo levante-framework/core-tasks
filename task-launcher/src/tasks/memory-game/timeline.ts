@@ -217,7 +217,7 @@ function buildStandardPracticeTrial(rows: CorpusRow[], getFeedback: (row: Corpus
 
     return [
       getCorsiBlocks({ mode: 'display', isPractice: true, reverse, customSeqLength, prompt: display }),
-      getCorsiBlocks({ mode: 'input', isPractice: true, reverse, prompt: input }),
+      getCorsiBlocks({ mode: 'input', isPractice: true, reverse, customSeqLength, prompt: input }),
       ...(correct ? [correctFeedback] : []),
       ...(incorrect && !feedbackOnlyIfCorrect ? [incorrectFeedback] : []),
     ];
@@ -243,6 +243,7 @@ function buildHeavyPracticeTrial(row: CorpusRow, { correct, incorrect }: RowFeed
       reverse,
       mode: 'input',
       isPractice: true,
+      customSeqLength,
       animation: isGuided(row) ? 'cursor' : undefined,
       prompt: input,
     }),
@@ -254,7 +255,14 @@ function buildHeavyPracticeTrial(row: CorpusRow, { correct, incorrect }: RowFeed
   // a wrong answer gets no feedback screen: the input trial replays once, cued by the incorrect row's prompt
   const retry = {
     timeline: [
-      getCorsiBlocks({ reverse, mode: 'input', isPractice: true, animation: 'pulse', prompt: incorrect?.prompts[0] }),
+      getCorsiBlocks({
+        reverse,
+        mode: 'input',
+        isPractice: true,
+        customSeqLength,
+        animation: 'pulse',
+        prompt: incorrect?.prompts[0],
+      }),
     ],
     conditional_function: () => !taskStore().isCorrect,
   };
