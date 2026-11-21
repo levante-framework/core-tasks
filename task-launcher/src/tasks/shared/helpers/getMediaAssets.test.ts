@@ -74,8 +74,27 @@ describe('referencedAudioNames', () => {
         'generalRepeatInstructions',
       ]),
     );
+    expect(names).toEqual(expect.arrayContaining(['generalYourTurn', 'mentalRotationInstruct5Downex']));
     expect(names).not.toContain('not-audio');
     expect(names).not.toContain('generalIntro5');
+    expect(names).not.toContain('introFinished');
+  });
+
+  it('keeps clips the bucket list treats as text', () => {
+    const survey = referencedAudioNames('child-survey', { stimulus: [] }, allowlist);
+    expect(survey).toEqual(
+      expect.arrayContaining([
+        'generalYourTurn',
+        'child-survey-response1',
+        'child-survey-response2',
+        'child-survey-response3',
+        'child-survey-response4',
+      ]),
+    );
+
+    const intro = referencedAudioNames('intro', undefined, allowlist);
+    expect(intro).toEqual(expect.arrayContaining(['introFinished', 'generalYourTurn']));
+    expect(intro).not.toContain('mentalRotationInstruct5Downex');
   });
 
   it('keeps staggered response names for stories', () => {

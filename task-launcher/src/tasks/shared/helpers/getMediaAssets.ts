@@ -59,6 +59,18 @@ export type AudioAllowlist = Record<string, string[]>;
 
 const STAGGERED_AUDIO_TASKS = new Set(['theory-of-mind', 'child-survey']);
 
+const PLAYED_OUTSIDE_CORPUS: Record<string, string[]> = {
+  shared: ['generalYourTurn'],
+  intro: ['introFinished'],
+  'mental-rotation': ['mentalRotationInstruct5Downex'],
+  'child-survey': [
+    'child-survey-response1',
+    'child-survey-response2',
+    'child-survey-response3',
+    'child-survey-response4',
+  ],
+};
+
 export async function getAudioAllowlist(isDev: boolean): Promise<AudioAllowlist> {
   const root = getBucketName('shared', isDev, 'audio');
   const response = await fetch(`https://storage.googleapis.com/${root}/allowed-audio.json`);
@@ -84,7 +96,12 @@ export function referencedAudioNames(
   corpora: ReferencedAudioCorpus | undefined,
   allowlist: AudioAllowlist,
 ): string[] {
-  const names = [...(allowlist.shared ?? []), ...(allowlist[taskName] ?? [])];
+  const names = [
+    ...(allowlist.shared ?? []),
+    ...PLAYED_OUTSIDE_CORPUS.shared,
+    ...(allowlist[taskName] ?? []),
+    ...(PLAYED_OUTSIDE_CORPUS[taskName] ?? []),
+  ];
   const includeResponseAudio = STAGGERED_AUDIO_TASKS.has(taskName);
 
   for (const row of [...(corpora?.stimulus ?? []), ...(corpora?.downex ?? [])]) {
