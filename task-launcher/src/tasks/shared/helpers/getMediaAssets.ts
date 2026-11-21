@@ -12,8 +12,8 @@ type ResponseItemType = {
 };
 
 type ResponseDataType = {
-  items: ResponseItemType[];
-  nextPageToken: string;
+  items?: ResponseItemType[];
+  nextPageToken?: string;
 };
 
 export async function getMediaAssets(
@@ -38,6 +38,9 @@ export async function getMediaAssets(
   let response: Response;
 
   response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`GCS listing failed for ${bucketName} (${response.status} ${response.statusText})`);
+  }
   data = await response.json();
 
   // add temporary fallback for en-US and de-DE until we have the correct folders in the bucket
@@ -51,7 +54,7 @@ export async function getMediaAssets(
     }
   }
 
-  data.items.forEach((item) => {
+  data.items?.forEach((item) => {
     if (isLanguageAndDeviceValid(item.name, language, taskName) && isWhitelisted(item.name, whitelist)) {
       const contentType = item.contentType;
       const id = item.name;
