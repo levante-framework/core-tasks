@@ -9,7 +9,7 @@ URL pattern:
 
 Update this file with the refresh-live-corpora skill, or `node utilities/render-live-corpora.mjs prod`. Do not edit it by hand.
 
-_Last refreshed 2026-11-18T19:09:49+00:00 from **prod** variants (`tasks/{taskId}/variants` where `registered == true`)._
+_Last refreshed 2026-11-20T13:52:35+00:00 from **prod** variants (`tasks/{taskId}/variants` where `registered == true`)._
 
 ## Math (`egma-math`)
 
@@ -17,7 +17,8 @@ _Last refreshed 2026-11-18T19:09:49+00:00 from **prod** variants (`tasks/{taskId
 
 | Corpus | Languages | Variants | How chosen | File |
 | --- | --- | --- | --- | --- |
-| `math-item-bank` | `de-DE`, `en-GB`, `en-US`, `es-AR`, `es-CO`, `es-PE`, `nl-NL`, `pt-BR` | 8 | `params.corpus` | [math-item-bank.csv](https://storage.googleapis.com/levante-assets-prod/corpus/egma-math/math-item-bank.csv?alt=media) |
+| `math-item-bank` | `de-DE`, `en-GB`, `es-AR`, `es-CO`, `es-PE`, `nl-NL`, `pt-BR` | 7 | `params.corpus` | [math-item-bank.csv](https://storage.googleapis.com/levante-assets-prod/corpus/egma-math/math-item-bank.csv?alt=media) |
+| `math-item-bank-downex-pilot` | `en-US` | 1 | `params.corpus` | [math-item-bank-downex-pilot.csv](https://storage.googleapis.com/levante-assets-prod/corpus/egma-math/math-item-bank-downex-pilot.csv?alt=media) |
 
 ## Matrix Reasoning (`matrix-reasoning`)
 
@@ -71,12 +72,13 @@ _Last refreshed 2026-11-18T19:09:49+00:00 from **prod** variants (`tasks/{taskId
 
 ## Theory Of Mind (`theory-of-mind`)
 
-8 registered variants.
+9 registered variants.
 
 | Corpus | Languages | Variants | How chosen | File |
 | --- | --- | --- | --- | --- |
 | `CO-theory-of-mind-retest-B` | `es-CO` | 1 | `params.corpus` | [CO-theory-of-mind-retest-B.csv](https://storage.googleapis.com/levante-assets-prod/corpus/theory-of-mind/CO-theory-of-mind-retest-B.csv?alt=media) |
 | `theory-of-mind-item-bank-cat-test` | `de-DE`, `en-GB`, `en-US`, `es-AR`, `es-CO`, `es-PE`, `nl-NL` | 7 | `params.corpus` | [theory-of-mind-item-bank-cat-test.csv](https://storage.googleapis.com/levante-assets-prod/corpus/theory-of-mind/theory-of-mind-item-bank-cat-test.csv?alt=media) |
+| `theory-of-mind-item-bank-downex-pilot-tu` | `en-US` | 1 | `params.corpus` | [theory-of-mind-item-bank-downex-pilot-tu.csv](https://storage.googleapis.com/levante-assets-prod/corpus/theory-of-mind/theory-of-mind-item-bank-downex-pilot-tu.csv?alt=media) |
 
 ## Hearts And Flowers (`hearts-and-flowers`)
 
@@ -92,7 +94,7 @@ No corpus file. Trials are defined in the task code.
 
 ## Intro (`intro`)
 
-7 registered variants.
+8 registered variants.
 
 No corpus file. Trials are defined in the task code.
 

@@ -106,9 +106,10 @@ export class TaskLauncher {
 
     mediaAssets = combineMediaAssets([languageAudioAssets, sharedAudioAssets, taskVisualAssets, sharedVisualAssets]);
 
-    // Expose resolved media assets for e2e validation (dev/test only)
+    // Expose resolved media assets and translations for e2e validation (dev/test only)
     if (typeof window !== 'undefined') {
       (window as any).__mediaAssets = mediaAssets;
+      (window as any).__translations = taskStore().translations;
     }
 
     return buildTaskTimeline(config, mediaAssets);

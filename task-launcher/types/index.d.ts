@@ -121,6 +121,7 @@ declare global {
       inputTrialNumber?: number;
     };
     __mediaAssets?: MediaAssetsType;
+    __translations?: Record<string, string>;
   }
   interface LevanteLogger {
     capture(name: string, properties?: Record<string, any>): void;
