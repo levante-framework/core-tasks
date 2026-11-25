@@ -101,4 +101,13 @@ describe('getCorpus', () => {
     expect(stimulus).toEqual([]);
     expect(storeState.totalTrials).toBe(0);
   });
+
+  it('writes nothing to the store when the launch is aborted during the download', async () => {
+    completeWith([corpusRow('vocab-1')]);
+    await getCorpus({ corpus: 'vocab/bank', task: 'vocab', sequentialStimulus: true }, false, () => true);
+
+    expect(storeState.corpora).toBeUndefined();
+    expect(storeState.totalTrials).toBeUndefined();
+    expect(storeState.blockThresholds).toBeUndefined();
+  });
 });

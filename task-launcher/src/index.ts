@@ -97,15 +97,18 @@ export class TaskLauncher {
 
     this.firekit?.updateStopReason(taskStore().effectiveStoppingRule);
 
-    await getTranslations(isDev, taskName, language);
+    // the helpers write shared taskStore state after their awaits, so they need to check this too
+    const isAborted = () => this.aborted;
+
+    await getTranslations(isDev, taskName, language, isAborted);
     if (this.aborted) return;
 
     if (taskName !== 'intro') {
-      await getCorpus(config, isDev);
+      await getCorpus(config, isDev, isAborted);
       if (this.aborted) return;
     }
 
-    await getAssetsPerTask(isDev);
+    await getAssetsPerTask(isDev, isAborted);
     if (this.aborted) return;
 
     const taskAudioAssetNames = [

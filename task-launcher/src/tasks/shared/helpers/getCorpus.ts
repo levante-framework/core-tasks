@@ -222,7 +222,11 @@ const transformCSV = (csvInput: ParsedRowType[], sequentialStimulus: boolean): T
   return { stimulusData, downexData, totalTrials, totalDownexTrials };
 };
 
-export const getCorpus = async (config: Record<string, any>, isDev: boolean) => {
+export const getCorpus = async (
+  config: Record<string, any>,
+  isDev: boolean,
+  isAborted: () => boolean = () => false,
+) => {
   const { corpus, task, sequentialStimulus } = config;
 
   const bucketName = getBucketName(task, isDev, 'corpus');
@@ -243,6 +247,8 @@ export const getCorpus = async (config: Record<string, any>, isDev: boolean) => 
         header: true,
         skipEmptyLines: true,
         complete: (results) => {
+          // transformCSV writes taskStore (blockThresholds), so skip it for an aborted launch
+          if (isAborted()) return resolve(results.data);
           const parsed = transformCSV(results.data, sequentialStimulus);
           csvTransformed.stimulusData.push(...parsed.stimulusData);
           csvTransformed.downexData.push(...parsed.downexData);
@@ -269,11 +275,13 @@ export const getCorpus = async (config: Record<string, any>, isDev: boolean) => 
     } catch (error) {
       Logger.getInstance().error(error, { source: 'getCorpus' });
     }
+    if (isAborted()) return;
     taskStore('totalTrials', csvTransformed.totalTrials);
     taskStore('totalDownexTrials', csvTransformed.totalDownexTrials);
   }
 
   await fetchData();
+  if (isAborted()) return;
 
   taskStore('corpora', {
     stimulus: csvTransformed.stimulusData, // previously shuffled by shuffleStimulusTrials
