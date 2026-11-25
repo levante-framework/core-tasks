@@ -51,7 +51,9 @@ export const DEFAULT_LAYOUT_CONFIG: LayoutConfigType = {
 
 const defaultCorpus: Record<string, string> = {
   egmaMath: 'math-item-bank',
+  heartsAndFlowers: 'hearts-and-flowers-item-bank',
   matrixReasoning: 'matrix-reasoning-item-bank',
+  memoryGame: 'memory-game-item-bank',
   mentalRotation: 'mental-rotation-item-bank',
   sameDifferentSelection: 'same-different-selection-item-bank',
   trog: 'trog-item-bank',
@@ -61,6 +63,16 @@ const defaultCorpus: Record<string, string> = {
   hostileAttribution: 'hostile-attribution-item-bank',
   childSurvey: 'child-survey-item-bank',
 };
+
+// TODO: Hearts and Flowers v1 (any version but 2) predates its corpus and runs a shorter, untimed structure.
+// utilities/render-live-corpora.mjs applies the same rule; keep the two in sync
+// deprecate when v1 is obsolete and the corpus is no longer needed
+const HEARTS_AND_FLOWERS_V1_CORPUS = 'hearts-and-flowers-v1-item-bank';
+
+function getDefaultCorpus(taskName: string, version: number) {
+  if (taskName === 'hearts-and-flowers' && version !== 2) return HEARTS_AND_FLOWERS_V1_CORPUS;
+  return defaultCorpus[camelize(taskName)];
+}
 
 export const setSharedConfig = async (
   firekit: RoarAppkit | null,
@@ -150,9 +162,10 @@ export const setSharedConfig = async (
     isPaused: false,
   };
 
-  // default corpus if nothing is passed in
+  // Default corpus for administrations whose variant has no corpus param.
+  // This fallback will be deprecated eventually, once every variant names its corpus.
   if (!config.corpus) {
-    config.corpus = defaultCorpus[camelize(taskName)];
+    config.corpus = getDefaultCorpus(taskName, config.version);
   }
 
   return config;

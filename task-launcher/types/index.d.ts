@@ -96,6 +96,8 @@ declare global {
     animationTargets?: string[];
     animationTimestamps?: number[];
     animationAudioTriggers?: string[];
+    feedbackItemIds?: string[];
+    device?: string;
   };
 
   type MediaAssetsType = {
@@ -112,8 +114,14 @@ declare global {
     initJsPsych: JsPsych;
     cypressData: {
       correctAnswer: string | Array<number> | number;
+      // memory game only
+      isPractice?: boolean;
+      reverse?: boolean;
+      numOfBlocks?: number;
+      inputTrialNumber?: number;
     };
     __mediaAssets?: MediaAssetsType;
+    __translations?: Record<string, string>;
   }
   interface LevanteLogger {
     capture(name: string, properties?: Record<string, any>): void;

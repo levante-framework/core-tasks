@@ -9,53 +9,61 @@ import { finishTaskEarly } from '../../shared/trials';
 import { isTouchScreen, jsPsych } from '../../taskSetup';
 import { setupHafMultiResponseTouchRouting } from '../helpers/touchResponseRouting';
 import {
+  type CorpusRow,
   getCorrectInputSide,
   getStimulusLayout,
-  InputKey,
+  getStimulusSideFromPosition,
+  HaFStimulusType,
+  InputKeyType,
+  isHfV2,
   ResponseSideType,
   StimulusSideType,
-  StimulusType,
 } from '../helpers/utils';
+
+/** The corpus row this trial was built from (see buildBlockTimelineVariables in timeline.ts) */
+const getCorpusRow = (): CorpusRow => jsPsych.timelineVariable('corpusRow');
+const isPracticeRow = (row: CorpusRow) => row.assessmentStage === 'practice_response';
+// Practice trials are not timed, so they have no presentation time (null means no time limit)
+// TODO: Test rows with a blank time_limit (v1) aren't timed either; deprecate when v1 is obsolete. For now, treat blank time_limit as null (no time limit) for both practice and test rows.
+const getPresentationTime = (row: CorpusRow) =>
+  isPracticeRow(row) || !String(row.timeLimit ?? '').trim() ? null : Number(row.timeLimit);
+
 /**
  *TODO: we should perhaps allow {@link https://www.jspsych.org/7.2/overview/media-preloading/#automatic-preloading automatic preload}
   of the stimulus image and modify the DOM nodes that jsPsych creates in on_load?
   */
-
 export function stimulus(
-  isPractice: boolean,
-  stage: string,
-  trialType: string,
-  stimulusDuration: number,
   onTrialFinishTimelineCallback: ((data: Record<string, unknown>) => void) | undefined = undefined,
 ) {
-  const hfV2 = taskStore().version === 2;
   return {
     type: jsPsychHTMLMultiResponse,
     data: () => {
+      const row = getCorpusRow();
       return {
         // not camelCase because firekit
         save_trial: true,
-        assessment_stage: stage,
-        corpus_trial_type: trialType,
+        assessment_stage: row.assessmentStage,
+        corpus_trial_type: row.trialType,
         // not for firekit
-        isPracticeTrial: isPractice,
+        isPracticeTrial: isPracticeRow(row),
       };
     },
     stimulus: () => {
       return getStimulusLayout(
         mediaAssets.images[jsPsych.timelineVariable('stimulus')],
-        jsPsych.timelineVariable('position') <= 0.5,
+        getStimulusSideFromPosition(jsPsych.timelineVariable('position')),
       );
     },
     on_load: () => {
-      if (hfV2 && !isPractice) {
-        // set the time limit here so it can be restarted after pause
-        taskStore('currentTrialTimeLimitMs', stimulusDuration);
+      // Timed (non-practice) trials end on a timeout instead of trial_duration, so it can be restarted after pause
+      const presentationTime = getPresentationTime(getCorpusRow());
+      if (presentationTime !== null) {
+        taskStore('currentTrialTimeLimitMs', presentationTime);
 
         const currentTrialTimeout = jsPsych.pluginAPI.setTimeout(() => {
           if (taskStore().isPaused || taskStore().currentTrialTimeoutId !== currentTrialTimeout) return;
           jsPsych.finishTrial();
-        }, stimulusDuration);
+        }, presentationTime);
 
         taskStore('currentTrialTimeoutId', currentTrialTimeout);
       }
@@ -70,15 +78,13 @@ export function stimulus(
       responseButtons.forEach((button, i) => {
         addKeyHelpers(button as HTMLElement, i);
       });
-      if (hfV2) {
-        setupHafMultiResponseTouchRouting();
-      }
+      if (isHfV2()) setupHafMultiResponseTouchRouting();
 
       addExperimenterButtons();
       setupFullscreenButton();
     },
     button_choices: [StimulusSideType.Left, StimulusSideType.Right],
-    keyboard_choices: isTouchScreen ? InputKey.NoKeys : [InputKey.ArrowLeft, InputKey.ArrowRight],
+    keyboard_choices: isTouchScreen ? InputKeyType.NoKeys : [InputKeyType.ArrowLeft, InputKeyType.ArrowRight],
     button_html: [
       `
     <div class='response-container--small'>
@@ -95,44 +101,47 @@ export function stimulus(
       taskStore('currentTrialTimeoutId', undefined);
       taskStore('currentTrialTimeLimitMs', null);
 
+      const row = getCorpusRow();
+      const isPractice = isPracticeRow(row);
+      const trialType = row.trialType;
       const stimulusPosition = jsPsych.timelineVariable('position');
       const stimulusType = jsPsych.timelineVariable('stimulus');
 
-      // Only hfV2 (non-practice) trials can actually time out; for other trials this just flags an absent response.
-      data.timedOut = data.button_response == null && data.keyboard_response == null;
+      // Non-practice trials have a time limit and can time out; for practice trials this just flags an absent response.
+      data.timedOut = data.button_response === null && data.keyboard_response === null;
 
       // get response position
       let response: number | null;
       if (data.button_response === 0 || data.button_response === 1) {
         response = data.button_response;
-      } else if (data.keyboard_response === InputKey.ArrowLeft || data.keyboard_response === InputKey.ArrowRight) {
-        response = data.keyboard_response === InputKey.ArrowLeft ? 0 : 1;
-      } else if (hfV2 && data.timedOut) {
+      } else if (
+        data.keyboard_response === InputKeyType.ArrowLeft ||
+        data.keyboard_response === InputKeyType.ArrowRight
+      ) {
+        response = data.keyboard_response === InputKeyType.ArrowLeft ? 0 : 1;
+      } else if (data.timedOut) {
         response = null;
       } else {
         Logger.getInstance().error(new Error(`Invalid response: ${data.button_response} or ${data.keyboard_response}`));
         response = null;
       }
 
-      // get stimulus side; position is always 0 or 1 (see buildHeartsOrFlowersTimelineVariables / buildMixedTimelineVariables)
-      const stimuluSide: StimulusSideType = stimulusPosition === 0 ? StimulusSideType.Left : StimulusSideType.Right;
+      const stimulusSide = getStimulusSideFromPosition(stimulusPosition);
 
       // record whether answer was correct or not
-      const validAnswer = getCorrectInputSide(stimulusType, stimuluSide);
+      const validAnswer = getCorrectInputSide(stimulusType, stimulusSide);
       data.correct = validAnswer === response;
 
-      if (hfV2) {
+      if (isHfV2()) {
         shouldTerminateCat();
       } else if (!isPractice) {
-        if (!data.correct) {
-          taskStore.transact('numIncorrect', (oldVal) => oldVal + 1);
-        } else {
+        // v1 ends the task after maxIncorrect wrong test answers in a row
+        if (data.correct) {
           taskStore('numIncorrect', 0);
+        } else {
+          taskStore.transact('numIncorrect', (oldVal: number) => oldVal + 1);
         }
-
-        const maxIncorrect = taskStore().maxIncorrect;
-
-        if (taskStore().numIncorrect === maxIncorrect) {
+        if (taskStore().numIncorrect === taskStore().maxIncorrect) {
           finishTaskEarly('errorOut');
         }
       }
@@ -140,7 +149,7 @@ export function stimulus(
       //TODO: move these to timeline-level callback/variables
       taskStore('isCorrect', data.correct);
       taskStore('stimulus', stimulusType);
-      taskStore('stimulusSide', stimuluSide);
+      taskStore('stimulusSide', stimulusSide);
 
       // save item uid for data analysis
       const itemUid = `hf_${trialType === 'hearts and flowers' ? 'heartsflowers' : trialType}_${stimulusType}`;
@@ -160,7 +169,7 @@ export function stimulus(
         response: responseData,
         responseLocation: response,
         itemUid: itemUid,
-        presentationTime: hfV2 ? stimulusDuration : null,
+        presentationTime: getPresentationTime(row),
       });
 
       if (!isPractice) taskStore.transact('testTrialCount', (oldVal) => oldVal + 1);
@@ -184,21 +193,30 @@ const randomPosition = () => Math.round(Math.random());
  * repetitive sequences using only one side, we grouped trials into sets of 4.
  * Within each set, 2 trials are randomly assigned to each side.""
  * @param {number} trialCount
- * @param {StimulusType} stimulusType StimulusType.Heart or StimulusType.Flower
+ * @param {HaFStimulusType} stimulusType StimulusType.Heart or StimulusType.Flower
  */
-export function buildHeartsOrFlowersTimelineVariables(trialCount: number, stimulusType: StimulusType) {
-  if (stimulusType !== StimulusType.Heart && stimulusType !== StimulusType.Flower) {
+export function buildHeartsOrFlowersTimelineVariables(trialCount: number, stimulusType: HaFStimulusType) {
+  if (stimulusType !== HaFStimulusType.Heart && stimulusType !== HaFStimulusType.Flower) {
     const errorMessage = `Invalid stimulusType: ${stimulusType} for buildSubtimelineVariables()`;
     Logger.getInstance().error(new Error(errorMessage));
     throw new Error(errorMessage);
   }
-  const jsPsychTimelineVariablesArray: Array<{ stimulus: StimulusType; position: number }> = [];
+  const jsPsychTimelineVariablesArray: Array<{
+    stimulus: HaFStimulusType;
+    position: number;
+  }> = [];
   const setsOfFourCount = Math.floor(trialCount / 4);
   for (let i = 0; i < setsOfFourCount; i++) {
     jsPsychTimelineVariablesArray.push({ stimulus: stimulusType, position: 0 });
     jsPsychTimelineVariablesArray.push({ stimulus: stimulusType, position: 1 });
-    jsPsychTimelineVariablesArray.push({ stimulus: stimulusType, position: randomPosition() });
-    jsPsychTimelineVariablesArray.push({ stimulus: stimulusType, position: randomPosition() });
+    jsPsychTimelineVariablesArray.push({
+      stimulus: stimulusType,
+      position: randomPosition(),
+    });
+    jsPsychTimelineVariablesArray.push({
+      stimulus: stimulusType,
+      position: randomPosition(),
+    });
   }
   const remainderCount = trialCount % 4;
   if (remainderCount >= 1) {
@@ -208,20 +226,26 @@ export function buildHeartsOrFlowersTimelineVariables(trialCount: number, stimul
     jsPsychTimelineVariablesArray.push({ stimulus: stimulusType, position: 1 });
   }
   if (remainderCount >= 3) {
-    jsPsychTimelineVariablesArray.push({ stimulus: stimulusType, position: randomPosition() });
+    jsPsychTimelineVariablesArray.push({
+      stimulus: stimulusType,
+      position: randomPosition(),
+    });
   }
   return jsPsychTimelineVariablesArray;
 }
 
 export function buildMixedTimelineVariables(trialCount: number) {
-  const heartLeft = { stimulus: StimulusType.Heart, position: 0 };
-  const heartRight = { stimulus: StimulusType.Heart, position: 1 };
-  const flowerLeft = { stimulus: StimulusType.Flower, position: 0 };
-  const flowerRight = { stimulus: StimulusType.Flower, position: 1 };
+  const heartLeft = { stimulus: HaFStimulusType.Heart, position: 0 };
+  const heartRight = { stimulus: HaFStimulusType.Heart, position: 1 };
+  const flowerLeft = { stimulus: HaFStimulusType.Flower, position: 0 };
+  const flowerRight = { stimulus: HaFStimulusType.Flower, position: 1 };
   const optionsToRandomize = [heartLeft, heartRight, flowerLeft, flowerRight];
 
-  const jsPsychTimelineVariablesArray: Array<{ stimulus: StimulusType; position: number }> = [];
-  let sequence: Array<{ stimulus: StimulusType; position: number }> = [];
+  const jsPsychTimelineVariablesArray: Array<{
+    stimulus: HaFStimulusType;
+    position: number;
+  }> = [];
+  let sequence: Array<{ stimulus: HaFStimulusType; position: number }> = [];
   for (let i = 0; i < trialCount; i++) {
     if (sequence.length === 0) {
       sequence = shuffle(optionsToRandomize);

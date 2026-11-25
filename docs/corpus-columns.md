@@ -46,9 +46,9 @@ A value that is blank, missing, or not a number falls back to `0.5`, and so does
 
 ### `d`
 
-Tasks: Matrix Reasoning, Mental Rotation, Same Different Selection, Sentence Understanding, Vocab, Theory Of Mind, Child Survey, Adult Reasoning
+Tasks: Every live corpus
 
-Item difficulty for adaptive selection. When both `d` and `difficulty` are set, `d` wins. It is ignored unless the variant runs CAT (`params.cat=true`).
+Item difficulty for adaptive selection. When both `d` and `difficulty` are set, `d` wins. It is ignored unless the variant runs CAT (`params.cat=true`). Read by Math, Matrix Reasoning, Mental Rotation, Same Different Selection, Sentence Understanding, Vocab, and Adult Reasoning. Theory Of Mind and Child Survey carry it without reading it.
 
 ### `difficulty`
 
@@ -60,7 +60,7 @@ Item difficulty for adaptive selection, used when `d` is empty. It is ignored un
 
 Tasks: Math, Matrix Reasoning, Mental Rotation, Same Different Selection, Sentence Understanding, Vocab, Theory Of Mind, Child Survey
 
-Rows marked `TRUE` or `CHECKED` are the younger-child item set. Other rows are the main set. Within those tasks the column appears only in some banks: Matrix Reasoning in its downex-pilot bank, Sentence Understanding in its es-PE and nl-NL banks, Vocab except the de-DE bank, and Theory Of Mind in its cat-test bank.
+Rows marked `TRUE` or `CHECKED` are the younger-child item set. Other rows are the main set. Within those tasks the column appears only in some banks: Matrix Reasoning in its downex-pilot bank, Sentence Understanding in its es-PE and nl-NL banks, Vocab except the de-DE bank, and Theory Of Mind in its cat-test and downex-pilot banks.
 
 ### `image`
 
@@ -110,11 +110,23 @@ Tasks: Every live corpus
 
 The choice list. Comma-separated text, or numbers when the cells have no letters. Child Survey does not use this column. It substitutes its own response scale.
 
+### `response_branches`
+
+Tasks: Theory Of Mind
+
+Maps a chosen answer to the next story branch. The shared response handler reads it only for Theory Of Mind rows, and only `theory-of-mind-item-bank-downex-pilot-tu` has the column.
+
+### `story_branch`
+
+Tasks: Math, Theory Of Mind
+
+Names the story branch a row belongs to. Theory Of Mind keeps a row only when the branch matches the one selected so far, and `getRealTrials` uses the same value so Math and Theory Of Mind omit branches that will not run. The column is only on `math-item-bank-downex-pilot` and `theory-of-mind-item-bank-downex-pilot-tu`.
+
 ### `story_group`
 
-Tasks: Mental Rotation, Same Different Selection, Sentence Understanding, Vocab, Theory Of Mind, Child Survey
+Tasks: Math, Mental Rotation, Same Different Selection, Sentence Understanding, Vocab, Theory Of Mind, Child Survey
 
-Groups Theory Of Mind rows into a story. The adaptive picker draws the next item from the current group. Theory Of Mind is the only task that reads it.
+Groups Theory Of Mind rows into a story. The adaptive picker draws the next item from the current group. Theory Of Mind is the only task that reads it. The others carry the column without reading it.
 
 ### `task`
 
@@ -136,9 +148,9 @@ Which kind of trial the row is, such as a number line or a same-different card s
 
 ### `animation_types`, `animation_targets`, and `animation_triggers`
 
-Tasks: Vocab
+Tasks: Math, Vocab, Theory Of Mind
 
-Parallel lists for image animations on a trial. Types and targets say what moves, and triggers are either timestamps or audio ids for when it moves. Only the `vocab-item-bank-en-US` file has them. The shared stimulus renderer would honor the same columns on another task if a bank included them.
+Parallel lists for image animations on a trial. Types and targets say what moves, and triggers are either timestamps or audio ids for when it moves. The shared stimulus renderer reads them. They appear only in `math-item-bank-downex-pilot`, `vocab-item-bank-en-US`, and `theory-of-mind-item-bank-downex-pilot-tu`.
 
 ## Unused columns or additional columns
 
