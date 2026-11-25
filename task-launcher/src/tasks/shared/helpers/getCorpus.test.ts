@@ -109,6 +109,8 @@ describe('getCorpus', () => {
     expect(storeState.corpora).toBeUndefined();
     expect(storeState.totalTrials).toBeUndefined();
     expect(storeState.blockThresholds).toBeUndefined();
+  });
+
   it('uses a numeric chance level from chance_level, including 0', async () => {
     completeWith([
       { ...corpusRow('vocab-1'), chance_level: '0.25' },
