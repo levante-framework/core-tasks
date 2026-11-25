@@ -3,6 +3,7 @@ import { taskStore } from '../../../taskStore';
 import { cat, jsPsych } from '../../taskSetup';
 import { checkEndTaskEarly, getActiveTaskElapsedMs } from './appTimer';
 import { camelize } from './camelize';
+import { withCatGuessing } from './getCorpus';
 
 // This function reads the corpus, calls the adaptive algorithm to select
 // the next item, stores it in a session variable, and removes it from the corpus
@@ -14,7 +15,7 @@ export const getStimulus = (corpusType: string, blockNumber?: number, storyGroup
 
   if (blockNumber != null) {
     // if block number is specified, get next item from only the indicated block of the corpus
-    itemSuggestion = cat.findNextItem(corpus[corpusType][blockNumber]);
+    itemSuggestion = cat.findNextItem(withCatGuessing(corpus[corpusType][blockNumber]));
   } else if (storyGroup != null) {
     // if story group is specified (only for ToM), get next item from only the indicated story group of the corpus
     const storyGroupStimuli = corpus[corpusType].filter((stimulus: StimulusType) => stimulus.storyGroup === storyGroup);
@@ -30,10 +31,10 @@ export const getStimulus = (corpusType: string, blockNumber?: number, storyGroup
         remainingStimuli: remainingStimuli,
       };
     } else {
-      itemSuggestion = cat.findNextItem(storyGroupStimuli);
+      itemSuggestion = cat.findNextItem(withCatGuessing(storyGroupStimuli));
     }
   } else {
-    itemSuggestion = cat.findNextItem(corpus[corpusType]);
+    itemSuggestion = cat.findNextItem(withCatGuessing(corpus[corpusType]));
   }
 
   const stimAudio = itemSuggestion.nextStimulus.audioFile;
