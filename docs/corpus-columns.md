@@ -40,7 +40,9 @@ Theta cutoff for moving Mental Rotation to the next adaptive block once the runn
 
 Tasks: Every live corpus
 
-Probability of a correct guess, passed into adaptive item selection as the CAT guessing parameter. Read by Math, Matrix Reasoning, Mental Rotation, Same Different Selection, Sentence Understanding, Vocab, and Adult Reasoning. Theory Of Mind and Child Survey carry it without reading it.
+Probability of a correct guess, used as the CAT guessing parameter for both adaptive item selection and theta scoring. Read by Math, Matrix Reasoning, Mental Rotation, Same Different Selection, Sentence Understanding, Vocab, and Adult Reasoning. Theory Of Mind and Child Survey carry it without reading it.
+
+A value that is blank, missing, or not a number falls back to `0.5`, and so does a task with no corpus. The fallback applies to both selection and scoring. A value of `0` is kept as `0`.
 
 ### `d`
 

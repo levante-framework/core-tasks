@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Logger } from '../../../utils/logger';
-import { getCorpus } from './getCorpus';
+import { getCorpus, resolveChanceLevel, withCatGuessing } from './getCorpus';
 
 type CorpusRow = {
   itemId: string;
@@ -109,5 +109,52 @@ describe('getCorpus', () => {
     expect(storeState.corpora).toBeUndefined();
     expect(storeState.totalTrials).toBeUndefined();
     expect(storeState.blockThresholds).toBeUndefined();
+  it('uses a numeric chance level from chance_level, including 0', async () => {
+    completeWith([
+      { ...corpusRow('vocab-1'), chance_level: '0.25' },
+      { ...corpusRow('vocab-0'), chance_level: '0' },
+    ]);
+    await getCorpus({ corpus: 'vocab/bank', task: 'vocab', sequentialStimulus: true }, false);
+
+    const stimulus = (storeState.corpora as { stimulus: { chanceLevel: number }[] }).stimulus;
+    expect(stimulus.map((row) => row.chanceLevel)).toEqual([0.25, 0]);
+  });
+
+  it('falls back to 0.5 when chance_level is blank or the column is absent', async () => {
+    const { chance_level: _omitted, ...withoutColumn } = corpusRow('vocab-missing');
+    completeWith([{ ...corpusRow('vocab-blank'), chance_level: '' }, withoutColumn]);
+    await getCorpus({ corpus: 'vocab/bank', task: 'vocab', sequentialStimulus: true }, false);
+
+    const stimulus = (storeState.corpora as { stimulus: { chanceLevel: number }[] }).stimulus;
+    expect(stimulus.map((row) => row.chanceLevel)).toEqual([0.5, 0.5]);
+  });
+
+  it('reads a chanceLevel column when chance_level is not present', async () => {
+    const { chance_level: _omitted, ...withoutSnake } = corpusRow('vocab-camel');
+    completeWith([{ ...withoutSnake, chanceLevel: '0.33' }]);
+    await getCorpus({ corpus: 'vocab/bank', task: 'vocab', sequentialStimulus: true }, false);
+
+    const stimulus = (storeState.corpora as { stimulus: { chanceLevel: number }[] }).stimulus;
+    expect(stimulus.map((row) => row.chanceLevel)).toEqual([0.33]);
+  });
+});
+
+describe('resolveChanceLevel', () => {
+  it('keeps a finite chance level and otherwise uses 0.5', () => {
+    expect(resolveChanceLevel(0)).toBe(0);
+    expect(resolveChanceLevel('0.25')).toBe(0.25);
+    expect(resolveChanceLevel(undefined)).toBe(0.5);
+    expect(resolveChanceLevel('')).toBe(0.5);
+    expect(resolveChanceLevel('NA')).toBe(0.5);
+  });
+});
+
+describe('withCatGuessing', () => {
+  it('sets the guessing parameter jsCAT reads, using 0.5 when a task has no chance level', () => {
+    expect(withCatGuessing([{ chanceLevel: 0.25 }, { chanceLevel: Number.NaN }, {}])).toEqual([
+      { chanceLevel: 0.25, guessing: 0.25 },
+      { chanceLevel: Number.NaN, guessing: 0.5 },
+      { guessing: 0.5 },
+    ]);
   });
 });
