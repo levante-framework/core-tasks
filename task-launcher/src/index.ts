@@ -119,6 +119,17 @@ export class TaskLauncher {
     // filter out language audio not relevant to current task
     const filteredLanguageAudio = filterMedia(languageAudio, [], taskAudioAssetNames, []);
 
+    // no language audio means every audio prompt in the task will be skipped or silent
+    if (Object.keys(filteredLanguageAudio.audio).length === 0) {
+      Logger.getInstance().error(new Error(`No ${language} audio found for ${taskName} after filtering`), {
+        source: 'init',
+        taskName,
+        language,
+        fetchedAudioCount: Object.keys(languageAudio.audio).length,
+        expectedAudioNameCount: taskAudioAssetNames.length,
+      });
+    }
+
     mediaAssets = combineMediaAssets([filteredLanguageAudio, sharedAudio, taskVisual, sharedVisual]);
 
     // Expose resolved media assets and translations for e2e validation (dev/test only)
