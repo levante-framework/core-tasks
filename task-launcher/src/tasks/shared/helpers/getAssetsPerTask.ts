@@ -1,7 +1,7 @@
 import { taskStore } from '../../../taskStore';
 import { Logger } from '../../../utils/logger';
 
-export async function getAssetsPerTask(isDev: boolean) {
+export async function getAssetsPerTask(isDev: boolean, isAborted: () => boolean = () => false) {
   try {
     const response = await fetch(
       `https://storage.googleapis.com/levante-assets-${isDev ? 'dev' : 'prod'}/audio/assets-per-task.json`,
@@ -12,6 +12,7 @@ export async function getAssetsPerTask(isDev: boolean) {
     }
 
     const assetsPerTask = await response.json();
+    if (isAborted()) return;
     taskStore('assetsPerTask', assetsPerTask);
   } catch (error) {
     Logger.getInstance().error(error, { source: 'getAssetsPerTask' });

@@ -18,10 +18,6 @@ import { jsPsych } from './tasks/taskSetup';
 import { InitPageSetup, Logger } from './utils';
 
 export let mediaAssets: MediaAssetsType;
-let languageAudioAssets: MediaAssetsType;
-let sharedAudioAssets: MediaAssetsType;
-let taskVisualAssets: MediaAssetsType;
-let sharedVisualAssets: MediaAssetsType;
 
 export class TaskLauncher {
   gameParams: GameParamsType;
@@ -44,9 +40,12 @@ export class TaskLauncher {
   }
 
   async init() {
+    if (this.aborted) return;
+
     if (!this.gameParams.demoMode && this.firekit) {
       await this.firekit.startRun();
     }
+    if (this.aborted) return;
 
     const { taskName } = this.gameParams;
     let { language } = this.gameParams;
@@ -72,29 +71,45 @@ export class TaskLauncher {
     const languageAudioBucket = getBucketName('shared', isDev, 'audio', language);
     const sharedAudioBucket = getBucketName('shared', isDev, 'audio', 'shared');
 
+    let languageAudio: MediaAssetsType;
+    let sharedAudio: MediaAssetsType;
+    let taskVisual: MediaAssetsType;
+    let sharedVisual: MediaAssetsType;
+
     try {
       // will avoid language folder if not provided
-      languageAudioAssets = await getMediaAssets(languageAudioBucket, {}, language, taskName);
-      sharedAudioAssets = await getMediaAssets(sharedAudioBucket, {}, 'shared', taskName);
-      taskVisualAssets = await getMediaAssets(taskVisualBucket, {}, language, taskName);
-      sharedVisualAssets = await getMediaAssets(sharedVisualBucket, {}, language, 'shared');
+      languageAudio = await getMediaAssets(languageAudioBucket, {}, language, taskName);
+      if (this.aborted) return;
+      sharedAudio = await getMediaAssets(sharedAudioBucket, {}, 'shared', taskName);
+      if (this.aborted) return;
+      taskVisual = await getMediaAssets(taskVisualBucket, {}, language, taskName);
+      if (this.aborted) return;
+      sharedVisual = await getMediaAssets(sharedVisualBucket, {}, language, 'shared');
     } catch (error) {
       throw new Error(`Error fetching media assets: ${error}`);
     }
+    if (this.aborted) return;
 
     const config = await setConfig(this.firekit, this.gameParams, this.userParams);
+    if (this.aborted) return;
 
     setTaskStore(config);
 
     this.firekit?.updateStopReason(taskStore().effectiveStoppingRule);
 
-    await getTranslations(isDev, taskName, language);
+    // the helpers write shared taskStore state after their awaits, so they need to check this too
+    const isAborted = () => this.aborted;
+
+    await getTranslations(isDev, taskName, language, isAborted);
+    if (this.aborted) return;
 
     if (taskName !== 'intro') {
-      await getCorpus(config, isDev);
+      await getCorpus(config, isDev, isAborted);
+      if (this.aborted) return;
     }
 
-    await getAssetsPerTask(isDev);
+    await getAssetsPerTask(isDev, isAborted);
+    if (this.aborted) return;
 
     const taskAudioAssetNames = [
       ...taskStore().assetsPerTask[taskName].audio,
@@ -102,9 +117,20 @@ export class TaskLauncher {
     ];
 
     // filter out language audio not relevant to current task
-    languageAudioAssets = filterMedia(languageAudioAssets, [], taskAudioAssetNames, []);
+    const filteredLanguageAudio = filterMedia(languageAudio, [], taskAudioAssetNames, []);
 
-    mediaAssets = combineMediaAssets([languageAudioAssets, sharedAudioAssets, taskVisualAssets, sharedVisualAssets]);
+    // no language audio means every audio prompt in the task will be skipped or silent
+    if (Object.keys(filteredLanguageAudio.audio).length === 0) {
+      Logger.getInstance().error(new Error(`No ${language} audio found for ${taskName} after filtering`), {
+        source: 'init',
+        taskName,
+        language,
+        fetchedAudioCount: Object.keys(languageAudio.audio).length,
+        expectedAudioNameCount: taskAudioAssetNames.length,
+      });
+    }
+
+    mediaAssets = combineMediaAssets([filteredLanguageAudio, sharedAudio, taskVisual, sharedVisual]);
 
     // Expose resolved media assets and translations for e2e validation (dev/test only)
     if (typeof window !== 'undefined') {
@@ -117,7 +143,12 @@ export class TaskLauncher {
 
   async run() {
     showLevanteLogoLoading();
-    const { jsPsych, timeline } = await this.init();
+    const ready = await this.init();
+    if (!ready || this.aborted) {
+      hideLevanteLogoLoading();
+      return;
+    }
+    const { jsPsych, timeline } = ready;
     hideLevanteLogoLoading();
     const logger = Logger.getInstance();
     markTaskLaunched(this.gameParams.taskName, this.gameParams.language);

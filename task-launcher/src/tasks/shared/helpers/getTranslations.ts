@@ -12,7 +12,12 @@ function parseTranslations(translationData: Record<string, string>[]) {
   }
 }
 
-export const getTranslations = async (isDev: boolean, taskName: string, configLanguage?: string) => {
+export const getTranslations = async (
+  isDev: boolean,
+  taskName: string,
+  configLanguage?: string,
+  isAborted: () => boolean = () => false,
+) => {
   // adult reasoning strings are in the math item bank
   if (taskName === 'adult-reasoning') {
     taskName = 'egma-math';
@@ -26,7 +31,7 @@ export const getTranslations = async (isDev: boolean, taskName: string, configLa
     const data: unknown = await response.json();
     const rows = data as Record<string, string>[];
 
-    parseTranslations(rows);
+    if (!isAborted()) parseTranslations(rows);
     return rows;
   }
 
@@ -54,6 +59,7 @@ export const getTranslations = async (isDev: boolean, taskName: string, configLa
     }
     try {
       await loadTranslationJsons(taskName === 'intro' ? [urls[1]] : urls);
+      if (isAborted()) return;
       taskStore('translations', translations);
     } catch (error) {
       Logger.getInstance().error(error, { source: 'getTranslations', taskName });

@@ -102,6 +102,15 @@ describe('getCorpus', () => {
     expect(storeState.totalTrials).toBe(0);
   });
 
+  it('writes nothing to the store when the launch is aborted during the download', async () => {
+    completeWith([corpusRow('vocab-1')]);
+    await getCorpus({ corpus: 'vocab/bank', task: 'vocab', sequentialStimulus: true }, false, () => true);
+
+    expect(storeState.corpora).toBeUndefined();
+    expect(storeState.totalTrials).toBeUndefined();
+    expect(storeState.blockThresholds).toBeUndefined();
+  });
+
   it('uses a numeric chance level from chance_level, including 0', async () => {
     completeWith([
       { ...corpusRow('vocab-1'), chance_level: '0.25' },
