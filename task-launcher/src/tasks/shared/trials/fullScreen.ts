@@ -34,15 +34,31 @@ function reportAudioStartFailure(error: unknown) {
 function resumeAudio(audioCtx: AudioContext) {
   return new Promise<boolean>((resolve) => {
     const timer = setTimeout(() => resolve(false), AUDIO_RESUME_WAIT_MS);
-    audioCtx.resume().then(
+    const settle = (started: boolean) => {
+      clearTimeout(timer);
+      resolve(started);
+    };
+
+    // resume() normally returns a promise that rejects on a closed context.
+    // A synchronous throw never reaches the rejection handler below, and would
+    // reject this wrapper before the Continue button can be offered again.
+    let pending: Promise<unknown>;
+    try {
+      pending = Promise.resolve(audioCtx.resume());
+    } catch {
+      settle(false);
+      return;
+    }
+
+    pending.then(
       () => {
-        clearTimeout(timer);
-        resolve(audioCtx.state === 'running');
+        try {
+          settle(audioCtx.state === 'running');
+        } catch {
+          settle(false);
+        }
       },
-      () => {
-        clearTimeout(timer);
-        resolve(false);
-      },
+      () => settle(false),
     );
   });
 }
@@ -77,6 +93,11 @@ export const enterFullscreen = {
     // ensures the trial only advances once when both fire for the same tap.
     const continueButton = document.querySelector<HTMLButtonElement>('#jspsych-html-multi-response-btngroup button');
     let handled = false;
+    const allowAnotherTap = () => {
+      handled = false;
+      continueButton?.addEventListener('click', handleContinue);
+      continueButton?.addEventListener('touchend', handleContinue);
+    };
     const handleContinue = async (event: Event) => {
       // We manage advancement ourselves (finishTrial below), so stop the event
       // from reaching the html-multi-response plugin's own button handler, which
@@ -108,22 +129,27 @@ export const enterFullscreen = {
       // If the context is already running (later tasks in a battery), skip
       // resume() so it does not consume the tap that fullscreen needs
       // (DASHBOARD-5). First-task / suspended audio keeps the #512 order.
-      const audioCtx = jsPsych.pluginAPI.audioContext() as AudioContext | null;
-      const resumePromise = audioCtx && audioCtx.state !== 'running' ? resumeAudio(audioCtx) : undefined;
+      try {
+        const audioCtx = jsPsych.pluginAPI.audioContext() as AudioContext | null;
+        const resumePromise = audioCtx && audioCtx.state !== 'running' ? resumeAudio(audioCtx) : undefined;
 
-      activateFullscreen('enterFullscreen');
+        activateFullscreen('enterFullscreen');
 
-      const audioStarted = resumePromise ? await resumePromise : true;
-      if (!audioStarted) {
-        handled = false;
-        continueButton?.addEventListener('click', handleContinue);
-        continueButton?.addEventListener('touchend', handleContinue);
-        showAudioStartFailed();
-        reportAudioStartFailure(new Error('Audio context did not start'));
-        return;
+        const audioStarted = resumePromise ? await resumePromise : true;
+        if (!audioStarted) {
+          allowAnotherTap();
+          showAudioStartFailed();
+          reportAudioStartFailure(new Error('Audio context did not start'));
+          return;
+        }
+
+        jsPsych.finishTrial({ success: true, rt: Math.round(performance.now() - startTime) });
+      } catch (error) {
+        // requestFullscreen can still throw synchronously. The button listeners
+        // are already gone, so finish the trial instead of leaving Continue dead.
+        reportAudioStartFailure(error);
+        jsPsych.finishTrial({ success: true, rt: Math.round(performance.now() - startTime) });
       }
-
-      jsPsych.finishTrial({ success: true, rt: Math.round(performance.now() - startTime) });
     };
     continueButton?.addEventListener('click', handleContinue);
     continueButton?.addEventListener('touchend', handleContinue);
