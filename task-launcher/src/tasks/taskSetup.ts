@@ -27,7 +27,8 @@ export const jsPsych = initJsPsych({
 // drops the promise. Preload calls it once per clip, before any tap, and Safari
 // can reject that with "Failed to start the audio device" (DASHBOARD-4N).
 // Decoding works while the context is suspended. Continue is the only resume.
-const mediaApi = jsPsych.pluginAPI as typeof jsPsych.pluginAPI & {
+const mediaApi = jsPsych.pluginAPI as unknown as {
+  audioContext: () => AudioContext | null;
   context: AudioContext | null;
 };
 mediaApi.audioContext = () => mediaApi.context;
